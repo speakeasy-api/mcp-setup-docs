@@ -28,7 +28,7 @@ these is invalid regardless of the evidence behind it.
 - **I3 — The anchor contract holds.** Anchors are minted once, in the
   Dossier, and reused verbatim by `setup.md` and `meta.yaml`.
 - **I4 — The setup.md grammar holds.** `setup_version` frontmatter, one H1,
-  the four H2 sections in order, anchored H3 steps, the screenshot rule on
+  the three H2 sections in order, anchored H3 steps, the screenshot rule on
   every provider step, `{{ gram.oauth.callback_url }}` as the only template
   key, and `meta.yaml` validating against the schema.
 - **I5 — Personas define voice.** Reviewers judge voice and achievability

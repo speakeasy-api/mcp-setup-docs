@@ -13,12 +13,6 @@ two tasks from the plan's task allowance. Everything below happens at
 [mcp.zapier.com](https://mcp.zapier.com); no prior Zapier experience is
 assumed.
 
-## Values from Gram
-
-No values from the Speakeasy AI Control Plane are required. The connection
-authenticates with a bearer connection token generated in Zapier's console
-rather than an OAuth redirect, so there is no callback URL to register.
-
 ## Provider setup
 
 ### Create an MCP server {#create-mcp-server}

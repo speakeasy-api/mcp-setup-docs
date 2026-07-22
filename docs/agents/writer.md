@@ -26,8 +26,8 @@ a defect.
 ## setup.md grammar (the parts that bite)
 
 - YAML frontmatter with `setup_version: 1`, then exactly one H1 title.
-- Exactly four H2 sections in this order: Prerequisites, Values from Gram,
-  Provider setup, Gotchas.
+- Exactly three H2 sections in this order: Prerequisites, Provider setup,
+  Gotchas.
 - Provider setup steps are H3 headings whose kebab-case IDs come verbatim
   from the Dossier: `### Create credentials {#create-credentials}`. You do
   not mint, rename, or drop anchors (see the anchor contract in

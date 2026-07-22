@@ -6,6 +6,55 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-22 — tune: "Values from Gram" section removed from the grammar
+
+Files: `docs/agents/writer.md`, `docs/agents/review.md`,
+`docs/agents/shared.md`, `docs/agents/drafting.md`; guides
+`guides/box/setup.md`, `guides/bigquery/setup.md`,
+`guides/hubspot/setup.md`, `guides/zapier/setup.md`. Companion direct human
+edit: `docs/agents/constitution.md` (I4).
+
+Batch from `/tune-pipeline`; one proposal approved, none rejected. The
+mandated `Values from Gram` H2 section is dropped from the setup.md grammar
+— four H2 sections become three (Prerequisites, Provider setup, Gotchas).
+
+- **Grammar four → three** (`writer.md`, `review.md`): the setup.md grammar
+  and the Editorial formatting dimension now name three H2 sections in
+  order, not four.
+- **Section removed from all guides**: the `## Values from Gram` H2 and its
+  prose are deleted from all four `guides/*/setup.md`. Its only load-bearing
+  element, `{{ gram.oauth.callback_url }}`, already appears in each guide's
+  redirect-URI step (`bigquery#create-oauth-client`,
+  `hubspot#create-mcp-auth-app`, `box#set-redirect-uri`); zapier carried no
+  token (bearer-token auth) and its section was absent-alternative prose
+  ("no callback URL to register"). No `meta.yaml` referenced the section — it
+  carried no anchor — so no cross-reference broke.
+- **Gram carve-out trimmed** (`shared.md`): with the section gone, the
+  template key `{{ gram.oauth.callback_url }}` is now the only surface where
+  the legacy name still appears (was two: the section title and the key).
+
+Invariant I4 touched: it enumerated "the four H2 sections in order." Per the
+constitution (changes only by direct human edit) and this skill (never edits
+the constitution), the operator (Walker) made the one-word `four` → `three`
+edit to I4 directly; this batch applied only after that edit landed. The
+change strengthens the never-"Gram" direction by removing a legacy-name
+prose surface and weakens no invariant. `docs/agents/drafting.md`
+(superseded / historical) was synced in the same two spots — its grammar
+line and its "Gram" carve-out note — so a doc still living in
+`docs/agents/` does not state stale grammar as current; this departs, at
+operator direction, from the tool-inventory entry below, which left that
+file frozen. Its own header already says the grammar "was carried into
+those role docs," i.e. it is meant to agree with them. `fidelity.md` does
+not enumerate the section count.
+
+Evidence: `retro/notes/2026-07-22-drop-values-from-gram-section.md`
+(explicit human direction, Walker — the decision) and
+`retro/notes/2026-07-22-never-gram-close-the-carveout.md` (the same human
+raising whether the section earns its place). Supersedes the section-title
+half of the "Gram carve-out" flagged tension logged in the entry below; the
+template-key rename remains open (external-contract coordination with the
+downstream tooling that substitutes it).
+
 ## 2026-07-22 — tune: nits applied in-loop, no absent-alternative prose, setup-not-maintenance scope, tolerant workflow args
 
 Files: `scripts/draft-guide-workflow.js`,

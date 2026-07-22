@@ -22,15 +22,6 @@ plan, and the Doc Gen scope requires an Enterprise Advanced license. For
 the full plan and licensing picture, see
 [Tools are gated by plan and licensing](#plan-gated-tools).
 
-## Values from Gram
-
-Paste `{{ gram.oauth.callback_url }}` — the callback URL the Speakeasy AI
-Control Plane provides — into the **Redirect URIs** field in
-[Set the Redirect URI](#set-redirect-uri). In return, Box generates a
-**Client ID** and **Client Secret** that you paste back into the
-Speakeasy AI Control Plane in
-[Copy the Client ID and Client Secret](#copy-client-credentials).
-
 ## Provider setup
 
 When people connect from the Speakeasy AI Control Plane, each user signs

@@ -13,11 +13,6 @@ Cloud console at [console.cloud.google.com](https://console.cloud.google.com);
 no prior console experience is assumed. Queries run through the MCP server
 execute as BigQuery jobs billed to this project.
 
-## Values from Gram
-
-Add `{{ gram.oauth.callback_url }}` as an authorized redirect URI when you
-create the OAuth client.
-
 ## Provider setup
 
 ### Enable the BigQuery API {#enable-bigquery-api}

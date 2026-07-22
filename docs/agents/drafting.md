@@ -35,8 +35,8 @@ guides are authored from public documentation only.
 ## setup.md grammar (the parts that bite)
 
 - YAML frontmatter with `setup_version: 1`, then exactly one H1 title.
-- Exactly four H2 sections in this order: Prerequisites, Values from Gram,
-  Provider setup, Gotchas.
+- Exactly three H2 sections in this order: Prerequisites, Provider setup,
+  Gotchas.
 - Provider setup steps are H3 headings with explicit document-unique
   kebab-case IDs: `### Create credentials {#create-credentials}`.
 - Every provider step needs one of:
@@ -96,9 +96,9 @@ above is the floor; this is the standard a draft must clear:
 - Do not invent tools or console paths. Record the documentation locator each
   fact came from, and flag uncertainty in your report instead of guessing.
 - The product is the "Speakeasy AI Control Plane"; never write the legacy
-  name "Gram" in prose. The enforced `Values from Gram` section title and
-  the `{{ gram.oauth.callback_url }}` template key are the only surfaces
-  where the legacy token still appears, pending a coordinated rename.
+  name "Gram" in prose. The `{{ gram.oauth.callback_url }}` template key is
+  the only surface where the legacy token still appears, pending a
+  coordinated rename.
 
 ## Running several drafts at once
 

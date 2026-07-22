@@ -15,11 +15,6 @@ the account you connect with determines what records are reachable.
 Everything below happens at [app.hubspot.com](https://app.hubspot.com); no
 prior HubSpot experience is assumed.
 
-## Values from Gram
-
-Add `{{ gram.oauth.callback_url }}` as the **Redirect URL** when you create
-the MCP auth app.
-
 ## Provider setup
 
 ### Create an MCP auth app {#create-mcp-auth-app}

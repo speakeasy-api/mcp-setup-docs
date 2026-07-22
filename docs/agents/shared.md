@@ -61,9 +61,9 @@ rounds run out goes to the human unresolved.
   each fact came from, and flag uncertainty in your report instead of
   guessing.
 - The product is the "Speakeasy AI Control Plane"; never write the legacy
-  name "Gram" in prose. The enforced `Values from Gram` section title and
-  the `{{ gram.oauth.callback_url }}` template key are the only surfaces
-  where the legacy token still appears, pending a coordinated rename.
+  name "Gram" in prose. The `{{ gram.oauth.callback_url }}` template key is
+  the only surface where the legacy token still appears, pending a
+  coordinated rename.
 
 ## Reporting
 

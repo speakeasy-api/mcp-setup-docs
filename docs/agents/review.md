@@ -25,7 +25,7 @@ each finding.
 ### formatting
 
 Judge against the setup.md grammar in `docs/agents/writer.md` and the
-persona file's "Formatting" section: frontmatter and the four H2 sections
+persona file's "Formatting" section: frontmatter and the three H2 sections
 in order; anchored H3 steps; a screenshot placeholder or exception on
 every provider step; UI labels bolded; typed/copied values in code spans;
 numbered single-action steps; gotchas called out at the point of need and
