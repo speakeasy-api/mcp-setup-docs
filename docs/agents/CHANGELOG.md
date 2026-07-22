@@ -6,6 +6,76 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-22 — tune: Run Records gain started_at/finished_at
+
+Files: `.claude/skills/draft-guide/SKILL.md`, `retro/README.md`.
+
+Batch from `/tune-pipeline`; one proposal approved (both diffs), none
+rejected.
+
+- **Timing fields** (`SKILL.md` step 7): the skill runs
+  `date -u +%Y-%m-%dT%H:%M:%SZ` a second time when writing Run Records
+  and adds `started_at` (the step-4 timestamp, duplicated so the timing
+  pair reads standalone) and `finished_at` (captured at record-write
+  time — an upper bound on completion). The capture lives in the skill
+  because workflow scripts cannot read the clock (resume determinism).
+- **Format sketch synced** (`retro/README.md`): the run-record sketch
+  gains the two timing fields plus the `skipped`, `polish_notes`,
+  `polish_skipped`, `polish_disputed`, and `recheck` fields that runs
+  have carried since the nits-in-loop change — the hand edit that batch's
+  entry deferred — with a note on which records predate each addition.
+  Operator-approved exception to the tune rule of leaving `retro/`
+  untouched: the README documents format, it is not a record; `runs/`
+  and `notes/` remain append-only and no existing record was backfilled.
+
+Evidence: operator direction (Walker, in-session, 2026-07-22 — asked for
+duration data after finding the records hold none); corroborated by all
+five box run records, whose wall-clock durations (~33, 35, 17, 14, 34
+min) were recoverable only from file mtimes, which any later touch or
+fresh checkout destroys. No invariant touched; I8 satisfied by this
+entry.
+
+## 2026-07-22 — tune: mechanical stages move to a cheaper model
+
+Files: `scripts/draft-guide-workflow.js`.
+
+Batch from `/tune-pipeline`; two proposals approved (both in their
+`model: 'sonnet'` variant), none rejected.
+
+- **Formatting reviewer → sonnet**: the formatting dimension entry in
+  `DIMENSIONS` gains `model: 'sonnet'`, passed through by `reviewRound`.
+  The fidelity re-check reuses `DIMENSIONS[0]`, which carries no model
+  override, so it stays on the session model.
+- **Polish pass → sonnet**: the zero-blocker nit-application pass gains
+  `model: 'sonnet'`. Blocker revisions are untouched, and the
+  session-model fidelity re-check continues to gate polished files
+  (a re-check blocker reports `unconverged` rather than shipping).
+
+Evidence: operator direction (Walker, in-session, 2026-07-22 — trim cost
+on the pipeline's mechanical stages), corroborated by all four box run
+records: the formatting dimension produced nine findings across
+`retro/runs/2026-07-22T19:42:22Z-box.json`,
+`retro/runs/2026-07-22T20:55:13Z-box.json`,
+`retro/runs/2026-07-22T21:57:12Z-box.json`, and
+`retro/runs/2026-07-22T22:43:04Z-box.json` — every one a nit citing a
+documented checklist rule (one-action-per-step, UI-label bolding,
+numbered-steps-vs-prose, cross-link consistency), zero blockers; and in
+the polish flow's first live run (22:43) the pass applied 7 of 8 nits and
+correctly skipped the one needing new facts, with the fidelity re-check
+passing over the polished files.
+
+Invariants: I4 is formatting's enforcement beat, but its blocker duties
+are objective checks (frontmatter, three H2s in order, anchored H3s, the
+screenshot rule) and fidelity independently verifies the anchor contract
+on the session model — enforcement is preserved. I6's agreement
+mechanics (structured findings, disputes, capped rounds, unresolved
+blockers surfacing) are unchanged; only the model behind one non-fact
+dimension changes. I1/I2 on the polish side are guarded structurally by
+the session-model fidelity re-check. Known risk, accepted with the
+approval: a cheaper formatting reviewer raising a false blocker would
+force an extra full round; the observed formatting-blocker base rate is
+zero across four runs, and the next box regression run is the tripwire.
+
 ## 2026-07-22 — tune: "Values from Gram" section removed from the grammar
 
 Files: `docs/agents/writer.md`, `docs/agents/review.md`,

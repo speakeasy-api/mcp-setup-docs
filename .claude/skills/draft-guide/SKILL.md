@@ -63,9 +63,12 @@ Guide), and reviews it to convergence. Roles and rules live in
    later enrichment pass and that nothing was committed (drafts are left
    in the working tree for human review — never commit or push from this
    skill).
-7. **Write the Run Record**: for each slug in the workflow's return value,
+7. **Write the Run Record**: run `date -u +%Y-%m-%dT%H:%M:%SZ` again for
+   `finished_at`, then for each slug in the workflow's return value,
    write `retro/runs/<timestamp>-<slug>.json` (the step-4 timestamp) with
-   the slug, provider, persona, timestamp, and that slug's full result —
+   the slug, provider, persona, timestamp, `started_at` (the step-4
+   timestamp), `finished_at` (captured when the record is written — an
+   upper bound on completion), and that slug's full result —
    `status`, `rounds`, `history`, `nits`, `unresolved`, `open_questions`
    (format in `retro/README.md`). This is capture only — never edit role
    docs, personas, or the workflow in response to a run; improvement flows

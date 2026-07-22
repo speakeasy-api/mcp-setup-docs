@@ -17,6 +17,8 @@ run completes: `runs/<UTC timestamp>-<slug>.json`.
   "provider": "Box",
   "persona": "it-admin",
   "timestamp": "2026-07-22T18:00:00Z",
+  "started_at": "2026-07-22T18:00:00Z",
+  "finished_at": "2026-07-22T18:34:00Z",
   "status": "converged | unconverged | blocked | failed",
   "rounds": 2,
   "history": [
@@ -25,13 +27,24 @@ run completes: `runs/<UTC timestamp>-<slug>.json`.
       "blockers": ["… findings, each with dimension/target/where/problem/suggestion …"],
       "nits": ["…"],
       "revision_notes": "…",
-      "disputed": ["…"]
+      "disputed": ["…"],
+      "skipped": ["… nits the revision agent did not apply, with reasons …"],
+      "polish_notes": "… zero-blocker rounds only: what the polish pass changed …",
+      "polish_skipped": ["…"],
+      "polish_disputed": ["…"],
+      "recheck": { "pass": true, "findings": ["…"] }
     }
   ],
   "unresolved": ["… only when unconverged …"],
   "open_questions": ["…"]
 }
 ```
+
+`started_at` mirrors `timestamp` (the pre-launch capture that also stamps
+provenance) so the timing pair reads standalone; `finished_at` is captured
+when the record is written, so it is an upper bound on completion. Records
+before 2026-07-22 carry neither. The `skipped`/`polish_*`/`recheck` fields
+appear only on runs since nits were applied in-loop.
 
 ## `notes/` — Retro Notes (human-written)
 

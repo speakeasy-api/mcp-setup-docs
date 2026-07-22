@@ -1,0 +1,166 @@
+{
+  "slug": "box",
+  "provider": "Box",
+  "persona": "it-admin",
+  "timestamp": "2026-07-22T23:18:01Z",
+  "status": "converged",
+  "rounds": 2,
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#manage-tool-access, the paragraph \"Then click **Save**. A confirmation message appears.\" following the two \"Set access one of two ways\" bullets",
+          "problem": "The Dossier documents the Save-then-confirmation behavior only inside the Configure button's configuration window (\"After you click **Save**, a confirmation message appears\") and separately records that category-level changes take effect immediately, but setup.md renders the Save step so it follows both paths, attaching an undocumented Save to the row-level **Enablement** control path.",
+          "suggestion": "Scope the Save sentence to the Individual-tools bullet (e.g. end that bullet with \"Click **Save**; a confirmation message appears.\") and leave the category-level Enablement path without a Save claim; if whether a row-level Enablement change needs saving matters, record it as an open question in research.md for console verification at capture time.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#enable-box-ai-api, step 4: \"Next to the **Box AI APIs** setting, click **configure**.\"",
+          "problem": "Re-raise of the prior run's unapplied convergence nit: \"Next to\" asserts a control placement the Dossier does not record — research states only that the **Box AI APIs** setting \"is configured by clicking **configure**\", with no documented layout relationship.",
+          "suggestion": "Drop the spatial qualifier and mirror the Dossier's wording, e.g. \"For the **Box AI APIs** setting, click **configure**.\"",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "meta",
+          "where": "credential_setup.requirements[box-admin].description: \"with permission to manage Integrations\"",
+          "problem": "The qualifier \"with permission to manage Integrations\" has no backing fact in the Dossier, which records only that \"Box Admins and Co-Admins can add Integration Credentials for supported apps in the Admin Console\" — no specific Co-Admin permission is documented.",
+          "suggestion": "Mirror the Dossier's recorded fact, e.g. \"Box Admin or Co-Admin access to the enterprise's Admin Console (the roles that can add Integration Credentials)\".",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "meta",
+          "where": "all observed_at values (unquoted timestamps, e.g. line 38 \"observed_at: 2026-07-18T04:42:42Z\")",
+          "problem": "Under the technical-research role doc's suggested validator chain (ajv-cli, which parses YAML with js-yaml's YAML 1.1 schema) the unquoted ISO timestamps parse as Date objects and fail the schema's observed_at type string, so the canonical command reports the file invalid; it validates cleanly only under a YAML 1.2 parser (verified with the yaml npm package + ajv draft-07 + ajv-formats, allErrors, zero errors).",
+          "suggestion": "Quote the observed_at values (e.g. observed_at: \"2026-07-18T04:42:42Z\") so the file validates under both YAML 1.1 and 1.2 parsers — noting this unquoted style is repo-wide convention across all guides, so the human may prefer a repo-wide or tooling/doctrine fix over a box-only edit.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#save-credentials closing paragraph: \"each user completes Box's OAuth consent with their own Box account\"",
+          "problem": "The phrase assumes OAuth vocabulary (\"OAuth consent\") the persona explicitly does not know, and the persona file forbids assuming it (\"Don't assume it — and don't teach it\").",
+          "suggestion": "Rephrase without the OAuth term, mirroring the Provider setup intro's own wording: \"each user signs in with their own Box account and approves access; what they can reach is capped by the scopes you selected and further limited by their own Box permissions.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#find-custom-box-mcp-server: \"named partner tiles such as Claude, which are enabled by setting their availability to **Available to all users**\"",
+          "problem": "The clause explaining how partner tiles are enabled is explanation the work does not require and hands a careful, literal reader a competing instruction (an enablement action) inside a step that is only about ruling those tiles out.",
+          "suggestion": "Cut the enablement clause: \"...the **Box MCP Server** tab (enterprise tool governance, used later in [Restrict which tools are exposed](#manage-tool-access)) and named partner tiles such as Claude. The tile you want is **Custom Box MCP Server**...\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#set-redirect-uri: \"that value is specific to a different client (Claude Code's local listener), not the Speakeasy AI Control Plane\"",
+          "problem": "\"local listener\" is unexplained technical jargon the persona does not know and does not need — the warning works without it.",
+          "suggestion": "Drop the jargon and keep the disambiguation: \"that value is specific to a different client (Claude Code), not the Speakeasy AI Control Plane.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#file-preview-requires-mcp-apps: \"Calling it from a client without MCP Apps support reports a UI widget that never appears.\"",
+          "problem": "The sentence's construction (\"Calling it ... reports a UI widget that never appears\") is garbled enough that a literal reader cannot tell what symptom to expect.",
+          "suggestion": "Rephrase for a clear subject and symptom without changing the Dossier fact, e.g. \"In a client without MCP Apps support, the call reports a UI widget, but that widget never appears.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#manage-tool-access — \"This opens a table of tool categories — for example, Files and Folders, Search, Box Hubs — with an **Enablement** control\"",
+          "problem": "The console category row labels \"Files and Folders\", \"Search\", and \"Box Hubs\" are verbatim UI labels rendered unbolded, inconsistent with the persona rule that exact UI labels appear in bold and with every other console label in the guide.",
+          "suggestion": "Bold the example category names: \"for example, **Files and Folders**, **Search**, **Box Hubs**\", matching the Dossier's recorded labels.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#save-credentials, step 3: \"Confirm the **Redirect URIs** value you pasted persisted.\"",
+          "problem": "The verification step tells the reader to confirm the Redirect URI persisted but never says what to do if it did not, leaving a persona that improvises badly to guess at the failure branch.",
+          "suggestion": "Add one sentence after step 3, composed from steps already in the guide: \"If the value is missing, repeat [Set the Redirect URI](#set-redirect-uri) and click **Save** again.\" No new facts are needed.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#enable-box-ai-api, pre-step note: \"the **Box AI APIs** setting the MCP AI tools depend on is a paid add-on on those plans, available upon purchase of Box AI Units.\"",
+          "problem": "A reader on a Business, Business Plus, or Enterprise plan who needs the AI tools is warned the setting is a paid add-on but is given no action — the guide does not say what the console shows in that state or how Box AI Units are purchased, so this reader stalls at step 4 with nowhere to go but a search.",
+          "suggestion": "Research whether Box documents the Box AI Units purchase path (for example, contacting the Box Account Team) and what the **Box AI APIs** setting shows when Units are not purchased; if documented, record it in the Dossier so setup.md can add a one-line action for readers on those plans, and if undocumented, record it as an open question for console verification.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker (setup, #manage-tool-access Save scoping): moved the Save claim into the Individual-tools bullet only — the bullet now ends \"Click **Save**; a confirmation message appears.\" — and deleted the standalone \"Then click **Save**. A confirmation message appears.\" paragraph that had followed both paths, so the category-level **Enablement** path carries no undocumented Save. Also recorded a new open question in research.md (\"Whether an Enablement-control change needs its own Save\") for console verification at capture time, per the finding's suggestion.\n\nNit (setup, #enable-box-ai-api step 4): dropped the undocumented spatial qualifier — now \"For the **Box AI APIs** setting, click **configure**.\"\n\nNit (meta, box-admin description): now mirrors the Dossier's recorded fact — \"Box Admin or Co-Admin access to the enterprise's Admin Console (the roles that can add Integration Credentials)\".\n\nNit (setup, #save-credentials closing paragraph): rephrased without OAuth vocabulary — \"each user signs in with their own Box account and approves access; what they can reach is capped by the scopes you selected and further limited by their own Box permissions.\"\n\nNit (setup, #find-custom-box-mcp-server): cut the partner-tile enablement clause; the look-alike sentence now ends \"...and named partner tiles such as Claude.\"\n\nNit (setup, #set-redirect-uri): dropped \"local listener\" jargon — \"that value is specific to a different client (Claude Code), not the Speakeasy AI Control Plane.\"\n\nNit (setup, #file-preview-requires-mcp-apps): rephrased for a clear subject and symptom — \"In a client without MCP Apps support, the call reports a UI widget, but that widget never appears.\"\n\nNit (setup, #manage-tool-access category labels): bolded the verbatim UI labels — \"for example, **Files and Folders**, **Search**, **Box Hubs**\".\n\nNit (setup, #save-credentials step 3): appended the failure branch at the point of need — \"If the value is missing, repeat [Set the Redirect URI](#set-redirect-uri) and click **Save** again.\"\n\nNit (research, #enable-box-ai-api Box AI Units action): researched per the Technical Research role doc. Fetched docs.box.com \"Understanding AI Units In Box\" live (markdown endpoint, discovered via https://docs.box.com/llms.txt). It documents the purchase path: \"To purchase more: Contact your Box account manager or reach out directly to the sales team at sales@box.com for baseline pricing tiers and subscription blocks,\" and its plan table lists Business/Business Plus included units as \"Available for purchase.\" Recorded the fact in the Dossier's #enable-box-ai-api section, added the provenance locator to research.md Provenance and meta.yaml provenance (observed_at 2026-07-22T23:18:01Z, the workflow-provided timestamp), added an open question for the undocumented console state of the **Box AI APIs** setting when Units are unpurchased, and added the one-line action to setup.md's #enable-box-ai-api pre-step note: \"To purchase Box AI Units, contact your Box account manager or the Box sales team at `sales@box.com`.\"\n\nValidation: guides/box/meta.yaml validated against schema/guide.v1.schema.json using the yaml npm package (YAML 1.2) + ajv draft-07 + ajv-formats with allErrors — VALID, zero errors. The new provenance entry uses the repo's existing unquoted observed_at style deliberately (see skipped).",
+      "disputed": [],
+      "skipped": [
+        "Nit (meta, quote all observed_at values): the finding's own suggestion notes the unquoted style is repo-wide convention across all guides and the human may prefer a repo-wide or tooling/doctrine fix — a box-only edit would leave this guide diverging from every other, so that consistency-vs-validator trade-off is a judgment call for the human; the file validates cleanly under the YAML 1.2 chain (verified this run)."
+      ]
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#metered-api-calls: \"the app is published in the **Box Integrations Center**, and users log in with their own Box accounts (OAuth)\"",
+          "problem": "The bare \"(OAuth)\" parenthetical assumes OAuth vocabulary the persona explicitly does not know (\"Don't assume it — and don't teach it\") — the same violation class as the round-1 finding fixed in #save-credentials, left behind in this gotcha.",
+          "suggestion": "Drop the parenthetical: \"...and users log in with their own Box accounts.\" The plain-language condition already carries the Dossier fact (research.md #metered-api-calls quotes Box's \"You log in with your own Box account (OAuth)\" verbatim, so no fact is lost).",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#find-custom-box-mcp-server: \"and named partner tiles such as Claude. The tile you want is **Custom Box MCP Server**\"",
+          "problem": "The partner-tile name \"Claude\" is a verbatim console tile label rendered unbolded, inconsistent with the bolded **Box MCP Server** look-alike named in the same sentence and with the round-1 precedent of bolding example UI labels (**Files and Folders**, **Search**, **Box Hubs**) under the persona's exact-UI-labels-in-bold rule.",
+          "suggestion": "Bold the tile name: \"...and named partner tiles such as **Claude**.\" — matching the Dossier's record of Claude as a named partner tile on the Integrations page.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#check-access-scopes, opening sentence: \"In the **Access scopes** section of the credential entry, confirm the selected scopes cover the tool areas your users need.\"",
+          "problem": "The section frames the action as confirming existing selections and provides a failure branch only for hidden AI/Doc Gen options, so a careful, literal reader facing a visible-but-unchecked scope their users need is never told to select it — the only explicit \"select\" instructions appear in the later enablement sections, which cover newly visible scopes only.",
+          "suggestion": "Make the selection action explicit in the opening sentence, e.g. \"confirm the selected scopes cover the tool areas your users need, and select any needed scope that is not already checked.\" No new facts are required — the Dossier's #check-access-scopes already records \"Values entered: scope selections\" as this step's action.",
+          "dimension": "achievability"
+        }
+      ],
+      "polish_notes": "All three nits applied to /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/box/setup.md. (1) #metered-api-calls: dropped the bare \"(OAuth)\" parenthetical — the sentence now reads \"...and users log in with their own Box accounts.\" The plain-language condition carries the Dossier fact (research.md #metered-api-calls quotes Box's \"You log in with your own Box account (OAuth)\" verbatim), and the persona's rule against assuming OAuth vocabulary is now honored; no fact lost. (2) #find-custom-box-mcp-server: bolded the partner-tile name — \"named partner tiles such as **Claude**\" — matching the Dossier's record of Claude as a named partner tile and the persona's exact-UI-labels-in-bold rule, consistent with the bolded **Box MCP Server** look-alike in the same sentence. (3) #check-access-scopes: made the selection action explicit in the opening sentence — \"confirm the selected scopes cover the tool areas your users need, and select any needed scope that is not already checked.\" Backed by the Dossier's \"Values entered: scope selections\" for this step; a literal reader facing a visible-but-unchecked scope now has an explicit instruction. No anchors were invented, renamed, or dropped; research.md and meta.yaml required no changes.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": []
+      }
+    }
+  ],
+  "nits": [],
+  "open_questions": [
+    "Tile-to-Configuration transition: docs.box.com names no action between finding Custom Box MCP Server and 'Go to Configuration'; the select-the-tile reading is a flagged inference needing console verification at capture time.",
+    "Exact Access-scopes checkbox labels in the credential entry, and their mapping to root_readwrite / ai.readwrite / docgen.readwrite, are undocumented.",
+    "Whether a saved credential entry's Access scopes are editable on re-open (the Save-first recovery for late-enabled AI/Doc Gen scopes is an inference; fallback is a fresh credential set).",
+    "Whether the credential entry has a name field (older support article says a changeable default name; current docs.box.com flow shows none).",
+    "What value pre-fills the Redirect URIs field ('change the Box redirect URIs' implies one exists; no source shows it).",
+    "Whether the Client Secret remains viewable on later visits or is shown only at creation.",
+    "Whether the Custom Box MCP Server integration needs its own availability state (partner tiles document 'Available to all users'; the custom flow documents no equivalent).",
+    "Default Enablement state per tool category (only the four sharing tools are documented 'Off by default').",
+    "Tile-to-Configuration transition: docs.box.com names no action between finding Custom Box MCP Server and 'Go to Configuration'; the guide renders the Dossier's inferred reading (select the tile; its page holds the Configuration view) — needs console verification at capture time.",
+    "Exact Access-scopes checkbox labels are undocumented, as is their mapping to root_readwrite / ai.readwrite / docgen.readwrite; the guide instructs matching options to the three tool areas — capture should record the real labels.",
+    "Whether a saved credential entry's Access scopes are editable on re-open: the Save-first recovery in #check-access-scopes is a Dossier-flagged inference; the guide includes the fresh-credential fallback if re-editing fails — needs console verification.",
+    "Client Secret revisibility on later visits is undocumented; the guide warns to copy both values before leaving and gives the regenerate recovery.",
+    "The pre-filled Redirect URI value is not shown in any source; the guide says to change 'the existing Box redirect URI value(s)' without naming what is there.",
+    "Whether the credential entry has a name field is unconfirmed (older support flow says yes, docs.box.com shows none); the guide is silent on naming.",
+    "Whether the Custom Box MCP Server integration needs its own availability state change (as partner tiles do) is undocumented; the guide documents no such step, following docs.box.com's seven-step flow.",
+    "Default Enablement state per tool category is undocumented beyond the four sharing tools being off by default; the guide states only that documented default."
+  ]
+}

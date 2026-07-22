@@ -7,30 +7,28 @@ setup_version: 1
 ## Prerequisites
 
 You need a Box Admin or Co-Admin account for the enterprise you are
-connecting — those two roles are the ones that can add Integration
-Credentials in the Admin Console. Everything below happens in the **Box
-Admin Console**, which you open by signing in at
+connecting — Box Admins and Co-Admins are the roles that can add
+Integration Credentials in the Admin Console. Everything below happens
+in the **Box Admin Console**, which you open by signing in at
 [app.box.com/master](https://app.box.com/master).
 
 Box hosts the MCP Server itself at `https://mcp.box.com`; you point the
 Speakeasy AI Control Plane at that address rather than installing or
 running anything yourself. The MCP Server is available on all Box plans,
-but you can only use MCP tools — the individual operations the server
-offers, such as searching files or asking Box AI questions — that are
-included in your current plan. Box AI tools require a Box AI-enabled
-plan, and the Doc Gen scope requires an Enterprise Advanced license. For
-the full plan and licensing picture, see
-[Tools are gated by plan and licensing](#plan-gated-tools).
+but you can only use MCP tools that are included in your current plan:
+AI tools require a Box AI-enabled plan, and the Doc Gen scope requires
+an Enterprise Advanced license. For the full plan and licensing picture,
+see [Tools are gated by plan and licensing](#plan-gated-tools).
 
 ## Provider setup
 
 When people connect from the Speakeasy AI Control Plane, each user signs
-in with their own Box account. To allow that, a Box admin creates one set
-of **Integration Credentials** — Box's
-name for the sign-in values it generates for a single external
-connection, here the Speakeasy AI Control Plane — on the **Custom Box
-MCP Server** integration. The steps below create the credential entry,
-point it at the Speakeasy AI Control Plane, and copy out its values.
+in with their own Box account. To allow that, a Box admin creates one
+set of **Integration Credentials** on the **Custom Box MCP Server**
+integration in the Admin Console; Box generates the **Client ID** and
+**Client Secret** the Speakeasy AI Control Plane needs. The steps below
+create the credential entry, point it at the Speakeasy AI Control Plane,
+and copy out its values.
 
 One decision to make before you start: if your users will call the Box
 AI tools or the Doc Gen tools, complete
@@ -55,10 +53,9 @@ Co-Admin account.
    the top of the page.
 
 Two look-alikes on this page do not apply here: the **Box MCP Server**
-tab, an enterprise tool-governance view used later in
-[Restrict which tools are exposed](#manage-tool-access), and named
-partner tiles such as Claude, which are enabled by setting their
-availability to **Available to all users**. The tile you want is
+tab (enterprise tool governance, used later in
+[Restrict which tools are exposed](#manage-tool-access)) and named
+partner tiles such as **Claude**. The tile you want is
 **Custom Box MCP Server** — it holds credentials for custom clients like
 the Speakeasy AI Control Plane.
 
@@ -66,13 +63,12 @@ the Speakeasy AI Control Plane.
 
 ### Add Integration Credentials {#add-integration-credentials}
 
-Two things to know before you create credentials. First, use of the
-credentials you are about to create is metered and billed by Box — see
-[Custom-credential use is metered and billed](#metered-api-calls).
-Second, plan to finish this step through
-[Save the credential entry](#save-credentials) in one sitting: Box's
-documentation does not describe what happens to an unsaved entry if you
-leave the page.
+Two things to know before you create credentials: use of the credentials
+you are about to create is metered and billed by Box (see
+[Custom-credential use is metered and billed](#metered-api-calls)), and
+Box's documentation does not describe what happens to an unsaved entry
+if you leave the page — plan to finish this step through
+[Save the credential entry](#save-credentials) in one sitting.
 
 1. Select the **Custom Box MCP Server** tile you found in the previous
    step. This opens the integration's own page, where the
@@ -92,7 +88,7 @@ Control Plane.
 
 Do not use the `http://localhost:PORT/callback` example that appears in
 some Box documentation — that value is specific to a different client
-(Claude Code's local listener), not the Speakeasy AI Control Plane.
+(Claude Code), not the Speakeasy AI Control Plane.
 
 <!-- screenshot: the credential entry's Redirect URIs field containing the pasted Speakeasy AI Control Plane callback URL -->
 
@@ -102,15 +98,15 @@ Copy both values now, before you leave this page, and store the Client
 Secret in your password manager: Box's documentation does not say
 whether the Client Secret stays viewable when you come back later.
 
-1. Copy the **Client ID** into the Speakeasy AI Control Plane's Client ID
-   field.
-2. Copy the **Client Secret** into the Speakeasy AI Control Plane's Client
-   Secret field.
+1. Copy the **Client ID** into the Speakeasy AI Control Plane's Client
+   ID field.
+2. Copy the **Client Secret** into the Speakeasy AI Control Plane's
+   Client Secret field.
 
-If you return later and the Client Secret is not viewable, generate a
-fresh credential set by repeating
-[Add Integration Credentials](#add-integration-credentials), configure
-it again in [Set the Redirect URI](#set-redirect-uri) and
+If you return later and cannot view the Client Secret, generate a fresh
+credential set: repeat
+[Add Integration Credentials](#add-integration-credentials),
+[Set the Redirect URI](#set-redirect-uri), and
 [Check the Access scopes](#check-access-scopes), click **Save** in
 [Save the credential entry](#save-credentials), and paste the new values
 into the Speakeasy AI Control Plane instead.
@@ -119,22 +115,22 @@ into the Speakeasy AI Control Plane instead.
 
 ### Check the Access scopes {#check-access-scopes}
 
-A scope defines the maximum set of actions the connection can perform;
-it never widens what an individual user can already see or edit in Box
-(see
+In the **Access scopes** section of the credential entry, confirm the
+selected scopes cover the tool areas your users need, and select any
+needed scope that is not already checked. A scope defines
+the maximum set of actions the connection can perform; it never widens
+what an individual user can already see or edit in Box (see
 [Scopes cap actions; user permissions still govern](#scopes-vs-permissions)).
 
-In the **Access scopes** section of the credential entry, confirm the
-selected scopes cover the tool areas your users need.
+Box's documentation does not list the individual checkbox labels in this
+section, so match the options you see to the three tool areas the server
+supports: content tools (scope string `root_readwrite`), Box AI tools
+(`ai.readwrite`), and Doc Gen tools (`docgen.readwrite`, which requires
+an Enterprise Advanced license).
 
-Box's documentation names this section but does not list the individual
-checkbox labels, so match the options you see to the three tool areas
-the server supports: general content tools (OAuth scope string
-`root_readwrite`), Box AI tools (`ai.readwrite`), and Doc Gen tools
-(`docgen.readwrite`, which requires an Enterprise Advanced license). If
-you do not see an AI or Doc Gen option, those scopes stay hidden until
-the features are enabled for your enterprise. Do not leave this unsaved
-entry to go enable them. Instead, click **Save**
+If an AI or Doc Gen option is missing, that feature is not yet enabled
+for your enterprise — the scope stays hidden until it is. Do not leave
+this unsaved entry to go enable it. Instead, click **Save**
 ([Save the credential entry](#save-credentials)), enable the feature in
 [Enable the Box AI API](#enable-box-ai-api) or
 [Enable Box Doc Gen](#enable-doc-gen), then re-open the credential
@@ -151,14 +147,16 @@ in [Copy the Client ID and Client Secret](#copy-client-credentials).
    this click is what stores the Redirect URI and scope selections you
    made above.
 2. Re-open the credential entry.
-3. Confirm the **Redirect URIs** value you pasted persisted.
+3. Confirm the **Redirect URIs** value you pasted persisted. If the
+   value is missing, repeat [Set the Redirect URI](#set-redirect-uri)
+   and click **Save** again.
 
 That completes the credential setup. When people connect from the
-Speakeasy AI Control Plane, each user completes Box's OAuth consent — an
-approval step performed with their own Box account. What they can reach
-is capped by the scopes you selected and further limited by their own
-Box permissions. The remaining three steps are only needed for AI tools,
-Doc Gen tools, or tool-level governance.
+Speakeasy AI Control Plane, each user signs in with their own Box
+account and approves access; what they can reach is capped by the
+scopes you selected and further limited by their own Box permissions. The remaining
+three steps are only needed for AI tools, Doc Gen tools, or tool-level
+governance.
 
 <!-- screenshot-exception: a standard button click with no unique state beyond the views captured in the prior steps -->
 
@@ -168,25 +166,29 @@ Follow this step only if your users will call the Box AI tools
 (`ai_qa_*` and `ai_extract_*`) — enabling it is also what makes the AI
 scope appear in [Check the Access scopes](#check-access-scopes).
 
-Before you click anything below: first-time enablement may ask you to
-review and accept the Box AI Product Addendum, a legal agreement you
-accept for your organization, before Box AI can be enabled. If accepting
-it is not your call, get that approval first. If a **Review Agreement
-Offline** message appears instead of the addendum, contact the Box
-account team.
+Two notes before you click anything below. First-time enablement may
+require you to review and accept the Box AI Product Addendum for your
+organization before Box AI can be enabled; if a **Review Agreement
+Offline** message appears instead, your organization has specific
+restrictions — contact the Box Account Team. And on Business, Business
+Plus, and Enterprise plans, toggling **Enable Box AI** covers only Box
+AI for Documents and Notes; the **Box AI APIs** setting the MCP AI tools
+depend on is a paid add-on on those plans, available upon purchase of
+Box AI Units. To purchase Box AI Units, contact your Box account
+manager or the Box sales team at `sales@box.com`.
 
 1. In the Admin Console, go to the **Box AI** section.
 2. Open the **Settings** tab.
 3. If your organization has not fully enabled Box AI, click **Enable Box
    AI** to do so for all services.
-4. Next to the **Box AI APIs** setting, click **configure**.
+4. For the **Box AI APIs** setting, click **configure**.
 5. Select **Enable for all**.
 
 Once Box AI is enabled, the AI scope appears in the credential entry's
 **Access scopes** section — select it in
-[Check the Access scopes](#check-access-scopes). If you had already saved
-the credential entry, re-open it, select the AI scope, and click **Save**
-again.
+[Check the Access scopes](#check-access-scopes). If you had already
+saved the credential entry, re-open it, select the AI scope, and click
+**Save** again.
 
 <!-- screenshot: the Box AI > Settings tab showing the Box AI APIs configuration set to Enable for all -->
 
@@ -209,36 +211,37 @@ requires an Enterprise Advanced license (see
 
 Once Doc Gen is enabled, the Doc Gen scope appears in the credential
 entry's **Access scopes** section — select it in
-[Check the Access scopes](#check-access-scopes). If you had already saved
-the credential entry, re-open it, select the Doc Gen scope, and click
-**Save** again.
+[Check the Access scopes](#check-access-scopes). If you had already
+saved the credential entry, re-open it, select the Doc Gen scope, and
+click **Save** again.
 
 <!-- screenshot: Enterprise Settings > Content and Sharing scrolled to the Box Doc Gen section with its permissions options visible -->
 
 ### Restrict which tools are exposed (optional) {#manage-tool-access}
 
-Box lets you govern which tools the MCP Server offers. Two things to know
-before changing anything here: tool enablement applies to the entire
-enterprise (per-client, user-level, or group-level controls are not
-supported), and category-level changes take effect immediately.
+Follow this step if you need to turn on the off-by-default
+external-sharing tools, or want tools restricted before rollout. Two
+things to know before changing anything here: tool enablement applies to
+the entire enterprise — per-client, user-level, or group-level controls
+are not supported — and category-level changes take effect immediately.
 
 1. Open the **Admin Console**.
 2. In the left sidebar, select **Integrations**.
 3. Select the **Box MCP Server** tab. This opens a table of tool
-   categories — for example, Files and Folders, Search, Box Hubs — with
-   an **Enablement** control and a **Configure** button on each row.
+   categories — for example, **Files and Folders**, **Search**, **Box
+   Hubs** — with an **Enablement** control and a **Configure** button
+   on each row.
 
 Set access one of two ways:
 
 - **A whole category at once:** use its **Enablement** control, which
-  offers exactly four options: **Disable all tools**, **Enable read-only
-  tools**, **Enable read & write tools**, and **Custom configuration**.
+  offers exactly four options: **Disable all tools**, **Enable
+  read-only tools**, **Enable read & write tools**, and **Custom
+  configuration**.
 - **Individual tools:** click the category's **Configure** button. This
   opens a configuration window with the category's tools grouped under
-  **Read only MCP tools** and **Write MCP tools**, with a toggle for each
-  tool.
-
-Then click **Save**. A confirmation message appears.
+  **Read only MCP tools** and **Write MCP tools**, with a toggle for
+  each tool. Click **Save**; a confirmation message appears.
 
 The per-tool toggles and the **Enablement** selection stay in sync: only
 read tools on shows **Enable read-only tools**, all on shows **Enable
@@ -261,36 +264,34 @@ a new chat, or disconnecting and reconnecting also work). Even if an
 agent attempts to call a disabled tool, the call fails — there is no
 security risk.
 
-To audit these changes, go to **Reports** > **Create Report** >
-**Security Logs** and, under **Integrations**, select **Changed MCP
-Tools Enablement Status**. Tool usage is separately visible via the **MCP
-Server Activity** report.
-
 <!-- screenshot: the Box MCP Server tab showing the category table with an Enablement dropdown open, its four options visible -->
 
 ## Gotchas
 
 ### Custom-credential use is metered and billed {#metered-api-calls}
 
-The MCP Server is available on all Box plans, and API calls are free only
-when both conditions hold: the app is published in the **Box Integrations
-Center**, and users log in with their own Box accounts (OAuth). API calls
-are charged in other cases — explicitly including use of additional
-integration credentials from the Box MCP Server, which is exactly the
-setup this guide creates. Metering: any tool invocation is 1 API call; an
-AI tool invocation is 1 API call plus AI Units (based on model tier and
-document length); a Doc Gen tool invocation is 1 API call plus a cost per
-document generated beyond the included allowance; a Sign request is 1 API
-call plus Sign usage; and session initialization and listing tools each
-cost 1 API call, once per session.
+The MCP Server is available on all Box plans, and API calls are free
+only when both conditions hold: the app is published in the **Box
+Integrations Center**, and users log in with their own Box accounts.
+API calls are charged in other cases — explicitly including use
+of additional integration credentials from the Box MCP Server, which is
+exactly the setup this guide creates. Metering: any tool invocation is 1
+API call; an AI tool invocation is 1 API call plus AI Units (based on
+model tier and document length); a Doc Gen tool invocation is 1 API call
+plus a cost per document generated beyond the included allowance; a Sign
+request is 1 API call plus Sign usage (per request; plan limits apply);
+and session initialization and listing tools each cost 1 API call, once
+per session.
 
 ### Tools are gated by plan and licensing {#plan-gated-tools}
 
-You can only use MCP tools that are included in your current Box plan. AI
-tools require a Box AI-enabled plan, DocGen and Sign depend on plan
-availability, and the Doc Gen scope (`docgen.readwrite`) requires an
-Enterprise Advanced license. Tool categories such as Hubs or AI might not
-be available for every enterprise — check your subscription for details.
+You can only use MCP tools that are included in your current Box plan.
+AI tools require a Box AI-enabled plan — and on Business, Business Plus,
+and Enterprise plans, Box AI APIs are available upon purchase of Box AI
+Units. DocGen and Sign depend on plan availability, and the Doc Gen
+scope (`docgen.readwrite`) requires an Enterprise Advanced license. Tool
+categories such as Hubs or AI might not be available for every
+enterprise — check your subscription for details.
 
 ### AI and Doc Gen scopes and tools are hidden until enabled {#ai-docgen-tools-hidden-until-enabled}
 
@@ -301,8 +302,8 @@ them in the Admin Console — see
 [Enable Box Doc Gen](#enable-doc-gen) — then select the newly visible
 scopes in [Check the Access scopes](#check-access-scopes); if a
 credential entry is open and unsaved when you notice, click **Save**
-before you leave it. Box Doc Gen Permissions default to **Disable for all
-managed users**.
+before you leave it. Box Doc Gen Permissions default to **Disable for
+all managed users**.
 
 ### Scopes cap actions; user permissions still govern {#scopes-vs-permissions}
 
@@ -311,13 +312,6 @@ they already have permission to view or edit in Box — all actions follow
 your organization's existing permissions, sharing settings, and security
 policies. Granting a scope never widens what an individual user can see
 or edit.
-
-### No Dynamic Client Registration {#no-dynamic-client-registration}
-
-The Box MCP Server currently does not support Dynamic Client
-Registration, so clients cannot register themselves with Box
-automatically. The manual Integration Credentials flow in this guide is
-required.
 
 ### Externally shared items block many write tools {#external-sharing-restrictions}
 
@@ -344,19 +338,19 @@ can use them.
 
 `get_upload_url` and `get_download_url` require the AI agent to make a
 direct network request to transfer the file. Declarative agents can't
-make these requests, so these tools work only in agentic (code-executing)
-environments. Some clients also require allowlisting Box domains first —
-the default list outside Box Zones is `upload.box.com`,
-`upload.app.box.com`, `upload.ent.box.com`, `dl.boxcloud.com`, and
-`public.boxcloud.com`, with wildcard alternatives `upload.*.box.com`,
-`*.boxcloud.com`, and `*.box.com`; Box Zones customers need their
-zone-specific list.
+make these requests, so these tools work only in agentic
+(code-executing) environments. Some clients also require allowlisting
+Box domains first — the default list outside Box Zones is
+`upload.box.com`, `upload.app.box.com`, `upload.ent.box.com`,
+`dl.boxcloud.com`, and `public.boxcloud.com`, with wildcard alternatives
+`upload.*.box.com`, `*.boxcloud.com`, and `*.box.com`; Box Zones
+customers need their zone-specific list.
 
 ### File preview tool requires MCP Apps support {#file-preview-requires-mcp-apps}
 
 The file preview tool (`get_file_preview`) only works with clients that
-support MCP apps. Calling it from a client without MCP Apps support
-reports a UI widget that never appears.
+support MCP apps. In a client without MCP Apps support, the call
+reports a UI widget, but that widget never appears.
 
 ### Shield classification labels ride the metadata tools {#shield-classification-via-metadata}
 

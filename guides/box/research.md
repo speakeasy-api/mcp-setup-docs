@@ -1,26 +1,28 @@
 ---
 research_version: 1
 slug: box
-researched_at: 2026-07-22T22:43:04Z
+researched_at: 2026-07-22T23:18:01Z
 ---
 
 # Box — Research Dossier
 
-Authoritative source ruling for this redraft: Box's product-docs site
+Authoritative source ruling for this guide: Box's product-docs site
 **docs.box.com** is the source of truth for Admin Console UI facts (tile
 names, navigation, step order, field labels). Its Box MCP section
 (`/en/box-mcp`, indexed at `https://docs.box.com/llms.txt`) was missed by
-an earlier run and is the corrected primary source (see
+an early run and is the corrected primary source (see
 `retro/notes/2026-07-22-box.md`). `developer.box.com` and
 `support.box.com` remain valid for API-level facts (scope strings, OAuth
-endpoints, endpoint URL, Dynamic Client Registration) where docs.box.com
-is silent — but every console-UI fact sourced only from them is flagged.
-This re-draft re-verified every load-bearing fact against the live pages
-on 2026-07-22; all held. One source was added this run:
-`https://developer.box.com/guides/box-mcp/remote/`, which the live
-protected-resource metadata now names as the endpoint's official
-`resource_documentation` and which corroborates the endpoint, transport,
-MCP name, and OAuth URLs. Conflicts are recorded inline and in
+endpoints, endpoint URL, client-registration model) where docs.box.com is
+silent — but every console-UI fact sourced only from them is flagged.
+This run re-verified every load-bearing fact against the live pages on
+2026-07-22 (fetches at ~23:19–23:21Z); all held, with one source-shape
+change: `https://developer.box.com/guides/box-mcp/remote/` — still named
+as the endpoint's official `resource_documentation` in the live
+protected-resource metadata — now returns HTTP 308 and permanently
+redirects to `https://developer.box.com/guides/box-mcp/setup` ("Set up
+the MCP server"), which carries all the API-level facts previously
+attributed to both pages. Conflicts are recorded inline and in
 Provenance.
 
 ## Server facts
@@ -28,12 +30,13 @@ Provenance.
 - **Remote URL**: `https://mcp.box.com`. docs.box.com (About Box MCP
   Server): "The AI platform sends requests to the Box MCP Server
   (`mcp.box.com`), which runs them against your Box account using your
-  permissions." developer.box.com's remote guide names the same endpoint;
-  you connect a client to this URL rather than running Box's MCP server
-  yourself for the standard integration.
+  permissions." developer.box.com agrees: "Box hosts MCP at
+  https://mcp.box.com. You connect your client or agent platform to this
+  URL; you do not run Box's MCP server yourself for the standard
+  integration."
 - **Transport**: `streamable-http` (Pulse mirror `com.pulsemcp.mirror/box`
   v0.0.1, remote type `streamable-http`). Corroborated by direct
-  observation 2026-07-22: an unauthenticated JSON-RPC POST to
+  observation 2026-07-22 (this run): an unauthenticated JSON-RPC POST to
   `https://mcp.box.com` returns `HTTP 401` with `WWW-Authenticate: Bearer`
   pointing at
   `https://mcp.box.com/.well-known/oauth-protected-resource`. The
@@ -51,13 +54,19 @@ Provenance.
   - Token Exchange URL: `https://api.box.com/oauth2/token`
   - Box support: "OAuth endpoints: these are the same as for the Box
     Platform and also exposed according to RFC 8414."
-  - "The Box MCP Server currently does not support Dynamic Client
-    Registration." — client registration is manual.
-  - Protected-resource metadata (observed live 2026-07-22): resource
-    `https://mcp.box.com/`, resource name "Box Model Context Protocol
-    Server", authorization server `https://api.box.com/`,
-    `bearer_methods_supported: ["header"]`,
-    `resource_documentation: https://developer.box.com/guides/box-mcp/remote/`.
+  - Client registration is manual: "Note that the Box MCP Server
+    currently does not support Dynamic Client Registration." (Box
+    support.) This backs `client_registration: manual` in the Metadata;
+    the credential flow below is the required path, so it is a server
+    fact, not a gotcha — the flow's presence is the remedy.
+  - Protected-resource metadata (observed live 2026-07-22, this run):
+    resource `https://mcp.box.com/`, resource name "Box Model Context
+    Protocol Server", authorization server `https://api.box.com/`,
+    `bearer_methods_supported: ["header"]`, `resource_documentation:
+    https://developer.box.com/guides/box-mcp/remote/` (that URL now 308-
+    redirects to `/guides/box-mcp/setup` — see Provenance), and
+    `resource_policy_uri` / `resource_tos_uri` both
+    `https://www.box.com/legal/termsofservice`.
 - **OAuth scopes** (API-level strings, from developer.box.com):
   `root_readwrite`, `ai.readwrite`, and `docgen.readwrite`. "The
   `docgen.readwrite` scope requires an Enterprise Advanced license." In the
@@ -74,8 +83,9 @@ Provenance.
   permanently shared with the AI platform. The AI assistant queries your
   Box content in real time, and all actions are logged." (docs.box.com
   About Box MCP Server)
-- **Product status**: generally available; the self-hosted, open-source
-  Box MCP server is deprecated (developer.box.com).
+- **Product status**: generally available; "The self-hosted Box MCP
+  server (open-source community project) is deprecated. Do not start new
+  work on it." (developer.box.com)
 
 ## Credential flow
 
@@ -109,24 +119,27 @@ After setup, each end user completes Box's OAuth consent when
 connecting; access is capped by the selected scopes and further limited
 by the user's own Box permissions (see {#scopes-vs-permissions}).
 
-Side effect worth knowing (Box support; console-UI fact not confirmed on
-docs.box.com): "Box displays the added Integration Credentials as a
-platform app, visible in **Platform** > **Platform Apps**. This enables
-you to manage the app's availability status. Please note that the
-Integration's availability status does not affect the availability
-status of its Integration Credentials platform apps."
+Post-setup administration, recorded for completeness but out of the
+Setup Guide's scope (setup, not maintenance — see
+`retro/notes/2026-07-22-setup-not-maintenance.md`): Box support notes
+"Box displays the added Integration Credentials as a platform app,
+visible in **Platform** > **Platform Apps**. This enables you to manage
+the app's availability status. Please note that the Integration's
+availability status does not affect the availability status of its
+Integration Credentials platform apps." (Console-UI fact not confirmed
+on docs.box.com.)
 
 ## Console walkthrough
 
 Primary source: the admin flow on docs.box.com's per-client pages (Claude
 Code, Anthropic Messages API, GitHub MCP Registry — all carry the
 identical seven-step "Enable integration in Box" sequence, re-verified
-2026-07-22). The Claude Code page's rendering was additionally
-human-verified against a screenshot of that page (Walker, 2026-07-22;
-`retro/notes/2026-07-22-box.md`).
+live this run, 2026-07-22). The Claude Code page's rendering was
+additionally human-verified against a screenshot of that page (Walker,
+2026-07-22; `retro/notes/2026-07-22-box.md`).
 
 **Recorded conflict — older console flow.** An earlier flow persists on
-`developer.box.com/guides/box-mcp/setup/` and Box support article
+`developer.box.com/guides/box-mcp/setup` and Box support article
 30900136778259: search for "Box MCP server", hover, click **Configure**,
 then under an **Additional Configuration** section click **+ Add
 Integration Credentials**, name it, **Save**, expand the entry, copy
@@ -202,8 +215,9 @@ is preferred per the source ruling above.
   show the pre-filled value.)
 - Do not use the Claude Code page's `http://localhost:PORT/callback`
   example — that is specific to Claude Code's local listener. (The Claude
-  Code page's step 4, verbatim: "In **Redirect URIs**, update the Box
-  redirect URIs to `http://localhost:PORT/callback`.")
+  Code page's step 4, verbatim: "In **Redirect URIs**, change the Box
+  redirect URIs to `http://localhost:PORT/callback`. You can use any
+  callback port for this.")
 - Values entered: `{{ gram.oauth.callback_url }}` into **Redirect
   URIs**. Values copied: none.
 - Screenshot note: the credential entry's **Redirect URIs** field
@@ -213,12 +227,9 @@ is preferred per the source ruling above.
 
 - docs.box.com, verbatim: "Copy the **Client ID** and **Client Secret**
   for later use. These are required later for the external MCP Client to
-  authorize the connection." (Claude Code page uses "Record the **Client
-  ID** and **Client Secret**"; same meaning.)
-- The Client ID is a public identifier for this integration (a username
-  for the connection, not for any person); the Client Secret is its
-  password and should be stored like one. Both paste into the matching
-  fields in the Speakeasy AI Control Plane.
+  authorize the connection."
+- Both paste into the matching fields in the Speakeasy AI Control
+  Plane; the Client Secret should be stored like a password.
 - Values copied: **Client ID** and **Client Secret** → Speakeasy AI
   Control Plane credential fields.
 - Screenshot exception: the credential values are plain text fields
@@ -290,6 +301,20 @@ Needed only if users will call the Box AI tools (`ai_qa_*`,
   developer users who can extend Box AI capabilities via AI API") is
   configured by clicking **configure** and selecting **Enable for all**
   or **Disable for all**.
+- Licensing note (docs.box.com "Configuring Box AI"): "Business,
+  Business Plus, and Enterprise plans will only have access to Box AI
+  for Documents and Notes when Enable Box AI is toggled. Box AI APIs
+  are available upon purchase of Box AI Units for Business, Business
+  Plus, and Enterprise plans." On those plans the **Box AI APIs**
+  setting the MCP AI tools depend on is a paid add-on, not a toggle.
+- Purchase path for Box AI Units (docs.box.com "Understanding AI Units
+  In Box", under "How the entitlement resets"): "To purchase more:
+  Contact your Box account manager or reach out directly to the sales
+  team at sales@box.com for baseline pricing tiers and subscription
+  blocks." The same page's AI-Units table lists the Business and
+  Business Plus plans' included AI Units as "Available for purchase".
+  What the **Box AI APIs** setting shows in the console when Units have
+  not been purchased is not documented (see open questions).
 - First-time enablement may require accepting legal terms: "you will
   need to review and accept the Box AI Product Addendum before enabling
   Box AI for your organization"; if a **Review Agreement Offline**
@@ -339,7 +364,9 @@ and Sharing → Doc Gen → Enable Doc Gen**."
 Enterprise-wide governance over the server's tool list, from
 docs.box.com "Manage Tool Access": "Open the **Admin Console**. In the
 left sidebar, select **Integrations**. Select the **Box MCP Server**
-tab."
+tab." Setup-relevant primarily when the enterprise needs the
+off-by-default sharing tools turned on ({#sharing-tools-off-by-default})
+or wants tools restricted before rollout.
 
 - A table displays tool categories ("for example, Files and Folders,
   Search, Box Hubs"). Each row includes an **Enablement** control and a
@@ -366,9 +393,10 @@ tab."
   the MCP client; if disabled after discovery, the server returns "Tool
   has been disabled by the enterprise admin. Contact your enterprise
   admin for more information."
-- Auditing: **Reports** > **Create Report** > **Security Logs**; under
-  **Integrations**, select **Changed MCP Tools Enablement Status**. Tool
-  usage is separately visible via the **MCP Server Activity** report
+- Post-setup administration (out of Setup Guide scope): auditing
+  enablement changes via **Reports** > **Create Report** > **Security
+  Logs** (under **Integrations**, **Changed MCP Tools Enablement
+  Status**) and usage monitoring via the **MCP Server Activity** report
   (columns include Integration ID/Name/Client ID, User Name, User
   Email).
 - Values entered: enablement selections. Values copied: none.
@@ -404,8 +432,10 @@ session). (docs.box.com Pricing)
 "You can only use MCP tools that are included in your current Box plan."
 "AI tools require a Box AI-enabled plan, DocGen and Sign depend on plan
 availability." The `docgen.readwrite` scope "requires an Enterprise
-Advanced license". Tool categories "such as Hubs or AI might not be
-available for every enterprise. Check your subscription for details."
+Advanced license". "Box AI APIs are available upon purchase of Box AI
+Units for Business, Business Plus, and Enterprise plans." Tool
+categories "such as Hubs or AI might not be available for every
+enterprise. Check your subscription for details."
 
 ### AI and Doc Gen scopes and tools are hidden until enabled {#ai-docgen-tools-hidden-until-enabled}
 
@@ -425,12 +455,6 @@ security policies" and every action respects folder permissions,
 collaboration settings, Box Shield policies, and audit logging. Granting
 a scope never widens what an individual user can see or edit.
 
-### No Dynamic Client Registration {#no-dynamic-client-registration}
-
-"Note that the Box MCP Server currently does not support Dynamic Client
-Registration." (Box support) Clients cannot self-register; the manual
-Integration Credentials flow in this guide is required.
-
 ### Externally shared items block many write tools {#external-sharing-restrictions}
 
 Fifteen write tools — `copy_file`, `copy_folder`, `create_folder`,
@@ -441,8 +465,8 @@ Fifteen write tools — `copy_file`, `copy_folder`, `create_folder`,
 of the following: No external collaborators on the item itself; No
 shared link on the item itself; No external collaborators or shared
 links on any parent folder, up to the root." (Membership re-verified
-against the live docs.box.com tools page footnote 2026-07-22: exactly
-these fifteen tools carry its mark.)
+against the live docs.box.com tools page footnote this run, 2026-07-22:
+exactly these fifteen tools carry its mark.)
 
 ### External-sharing tools are off by default {#sharing-tools-off-by-default}
 
@@ -528,6 +552,18 @@ supported through MCP and needs to be done in the Admin Console."
 - **Default tool-enablement state per category.** Beyond the four
   sharing tools documented "Off by default", no source says which
   Enablement option each category starts in.
+- **Whether an Enablement-control change needs its own Save.**
+  docs.box.com documents the Save-then-confirmation behavior only
+  inside a category's **Configure** window ("After you click **Save**,
+  a confirmation message appears") and separately states category-level
+  changes take effect immediately; no source says whether selecting an
+  option in a row's **Enablement** control involves a Save of its own.
+  Needs console verification at capture time.
+- **Box AI APIs setting appearance without purchased Units.** On
+  Business, Business Plus, and Enterprise plans, no source documents
+  what the **Box AI APIs** setting shows when Box AI Units have not
+  been purchased (the purchase path itself is documented — see
+  {#enable-box-ai-api}). Needs console verification at capture time.
 
 ## Provenance
 
@@ -538,17 +574,18 @@ properties, all consulted this run:
   `https://docs.box.com/llms.txt` observed 2026-07-22). Preferred for
   every console-UI fact.
 - **Developer docs — developer.box.com** (API-level facts: scope strings,
-  OAuth URLs, endpoint, MCP name, DCR). Its `/guides/box-mcp/setup/`
-  page carries an older, conflicting console flow — used for API-level
-  facts only, never console UI.
-- **Support KB — support.box.com** (Zendesk articles: DCR, RFC 8414,
+  OAuth URLs, endpoint, MCP name, client-registration model). Its
+  `/guides/box-mcp/setup` page carries an older, conflicting console
+  flow — used for API-level facts only, never console UI.
+- **Support KB — support.box.com** (Zendesk articles: no DCR, RFC 8414,
   who can add Integration Credentials, Platform > Platform Apps side
   effect). Console-UI facts drawn from it are flagged; conflicting flow
   not used.
 
 All docs.box.com content was fetched via the site's markdown endpoints
 (append `.md` to the page URL), discovered through the machine-readable
-index `https://docs.box.com/llms.txt`.
+index `https://docs.box.com/llms.txt`. Every locator below was
+re-fetched live this run (2026-07-22, ~23:19–23:21Z).
 
 - `https://docs.box.com/llms.txt` — observed 2026-07-22. Backs: the
   source inventory of the Box MCP doc set (About, Manage Tool Access,
@@ -575,9 +612,11 @@ index `https://docs.box.com/llms.txt`.
   scopes" link to the Reviewing Scopes article.
 - `https://docs.box.com/en/box-mcp/about-box-mcp-server` — observed
   2026-07-22. Backs: `mcp.box.com` endpoint, capability overview,
-  admin-enables-then-user-authorizes model, "All actions follow your
-  organization's existing permissions...", "No files are permanently
-  shared...".
+  admin-enables-then-user-authorizes model ("In the Box Admin Console,
+  your admin enables the Box MCP Server and the Box platform app for
+  one or more AI platforms and configures access scopes"), "All actions
+  follow your organization's existing permissions...", "No files are
+  permanently shared...".
 - `https://docs.box.com/en/box-mcp/tools` — observed 2026-07-22. Backs:
   external-sharing restrictions (fifteen tools), "Off by default"
   sharing tools (four), upload/download URL tool constraints and domain
@@ -609,8 +648,16 @@ index `https://docs.box.com/llms.txt`.
 - `https://docs.box.com/en/box-ai/admins/configuring-box-ai` — observed
   2026-07-22. Backs: Box AI section **Settings** tab, **Enable Box AI**
   button, **Box AI APIs** configure options (**Enable for all** /
-  **Disable for all**), Box AI Product Addendum / Review Agreement
-  Offline terms gates.
+  **Disable for all**), the AI-Units purchase requirement for Box AI
+  APIs on Business / Business Plus / Enterprise plans, Box AI Product
+  Addendum / Review Agreement Offline terms gates.
+- `https://docs.box.com/en/box-ai/understanding-ai-units-in-box`
+  ("Understanding AI Units In Box") — observed 2026-07-22. Backs: the
+  Box AI Units purchase path ("To purchase more: Contact your Box
+  account manager or reach out directly to the sales team at
+  sales@box.com for baseline pricing tiers and subscription blocks")
+  and the AI-Units table listing Business and Business Plus included
+  units as "Available for purchase".
 - `https://docs.box.com/en/box-admin-tools/box-admin-reference/enterprise-settings-content-sharing-tab`
   (`#box-doc-gen`) — observed 2026-07-22. Backs: **Box Doc Gen
   Permissions** options and disabled-by-default state.
@@ -620,50 +667,58 @@ index `https://docs.box.com/llms.txt`.
   vs-user-permissions examples.
 - `https://docs.box.com/en/box-admin-tools/reporting-and-insights/mcp-server-activity-report`
   — observed 2026-07-22. Backs: MCP Server Activity report columns and
-  filters.
+  filters (post-setup administration; out of Setup Guide scope).
 - `https://developer.box.com/guides/box-mcp/` — observed 2026-07-22.
-  Backs (API-level): "Box hosts MCP at https://mcp.box.com", MCP name
-  `box-remote-mcp`, self-hosted server deprecation.
-- `https://developer.box.com/guides/box-mcp/remote/` — observed
-  2026-07-22; named as the endpoint's official `resource_documentation`
-  in the live protected-resource metadata. Backs (API-level): endpoint
+  Backs (API-level): "Box hosts MCP at https://mcp.box.com. You connect
+  your client or agent platform to this URL; you do not run Box's MCP
+  server yourself for the standard integration", Integration
+  Credentials described as "OAuth client ID and client secret",
+  self-hosted server deprecation.
+- `https://developer.box.com/guides/box-mcp/setup/` ("Set up the MCP
+  server") — observed 2026-07-22. Also reachable as
+  `https://developer.box.com/guides/box-mcp/remote/`, which the live
+  protected-resource metadata names as the endpoint's official
+  `resource_documentation` and which now returns HTTP 308 permanently
+  redirecting here (redirect observed live this run; in the prior run
+  the two URLs served distinct pages). Backs (API-level only): endpoint
   `https://mcp.box.com`, MCP name `box-remote-mcp`, OAuth authorization
   URL `https://account.box.com/api/oauth2/authorize` and token URL
   `https://api.box.com/oauth2/token`, scope strings `root_readwrite` /
-  `ai.readwrite` / `docgen.readwrite`.
-- `https://developer.box.com/guides/box-mcp/setup/` — observed
-  2026-07-22. Backs (API-level only): scope strings, Enterprise Advanced
-  gate on `docgen.readwrite`, OAuth authorization/token URLs, "Scopes
-  define the maximum set of actions...". **Conflict**: this page's Admin
-  Console walkthrough (search "Box MCP server" → hover → **Configure** →
-  **Additional Configuration** → **+ Add Integration Credentials** →
-  name + **Save** → expand → copy → **Redirect URI** → **Access
-  Scopes**) contradicts docs.box.com on tile name, gesture, section
-  name, and step order; not used for any console-UI fact.
+  `ai.readwrite` / `docgen.readwrite`, Enterprise Advanced gate on
+  `docgen.readwrite`, "Scopes define the maximum set of actions...".
+  **Conflict**: this page's Admin Console walkthrough (search "Box MCP
+  server" → hover → **Configure** → **Additional Configuration** → **+
+  Add Integration Credentials** → name + **Save** → expand → copy →
+  **Redirect URI** → **Access Scopes**) contradicts docs.box.com on
+  tile name, gesture, section name, and step order; not used for any
+  console-UI fact.
 - `https://support.box.com/hc/en-us/articles/43847256139923` ("Managing
   Box MCP Servers") — observed 2026-07-22. Backs: no Dynamic Client
-  Registration, OAuth endpoints "same as for the Box Platform and also
-  exposed according to RFC 8414". **Conflict**: its Box AI enablement
-  labels ("AI API and Official Box Integrations is enabled for all
-  users") don't match docs.box.com's current **Box AI APIs** settings;
-  docs.box.com preferred.
+  Registration (server fact backing manual client registration), OAuth
+  endpoints "same as for the Box Platform and also exposed according to
+  RFC 8414". **Conflict**: its Box AI enablement labels ("AI API and
+  Official Box Integrations is enabled for all users") don't match
+  docs.box.com's current **Box AI APIs** settings; docs.box.com
+  preferred.
 - `https://support.box.com/hc/en-us/articles/30900136778259` ("Adding
   Integration Credentials for Customer-Instance Integrations") —
   observed 2026-07-22. Backs: "Box Admins and Co-Admins can add
   Integration Credentials", Box MCP Server in the supported-apps list,
   Platform > Platform Apps side effect (console-UI fact from a
-  non-docs.box.com source — flagged), default-name behavior (flagged as
-  unconfirmed). **Conflict**: its hover-then-**Configure** /
-  **Additional Configuration** flow contradicts docs.box.com; not used
-  for the walkthrough.
+  non-docs.box.com source — flagged; post-setup administration),
+  default-name behavior (flagged as unconfirmed). **Conflict**: its
+  hover-then-**Configure** / **Additional Configuration** flow
+  contradicts docs.box.com; not used for the walkthrough.
 - Pulse mirror `com.pulsemcp.mirror/box` version 0.0.1 (private tenant
   export snapshot 2026-07-18T04:42:42Z) — backs: remote URL and
   `streamable-http` transport.
 - `https://mcp.box.com` +
   `https://mcp.box.com/.well-known/oauth-protected-resource` — direct
-  endpoint observation 2026-07-22. Backs: 401/Bearer behavior
+  endpoint observation 2026-07-22 (this run). Backs: 401/Bearer behavior
   (`WWW-Authenticate: Bearer ... resource_metadata=".../.well-known/oauth-protected-resource"`),
   resource metadata (resource `https://mcp.box.com/`, authorization
   server `https://api.box.com/`, bearer header method, resource name
   "Box Model Context Protocol Server", `resource_documentation`
-  `https://developer.box.com/guides/box-mcp/remote/`).
+  `https://developer.box.com/guides/box-mcp/remote/`,
+  `resource_policy_uri` / `resource_tos_uri`
+  `https://www.box.com/legal/termsofservice`).

@@ -162,7 +162,9 @@ function draftPrompt(g) {
 const DIMENSIONS = [
   { role: 'fidelity', doc: 'fidelity.md', persona: false },
   { role: 'voice', doc: 'review.md', persona: true },
-  { role: 'formatting', doc: 'review.md', persona: true },
+  // formatting checks the documented setup.md grammar — checklist work;
+  // fact-gating dimensions stay on the session model.
+  { role: 'formatting', doc: 'review.md', persona: true, model: 'sonnet' },
   { role: 'achievability', doc: 'review.md', persona: true },
 ]
 
@@ -274,6 +276,7 @@ async function reviewRound(g, round, prior) {
         label: g.slug + ' review:' + dim.role + ' r' + round,
         phase: g.slug + ': review',
         schema: REVIEW,
+        ...(dim.model ? { model: dim.model } : {}),
       })
     )
   )
@@ -342,10 +345,13 @@ async function draftOne(g) {
       let checklist = nits
       if (nits.length > 0) {
         log('[' + g.slug + '] polishing ' + nits.length + ' nit(s) before convergence')
+        // polish applies only concrete mechanical nits, and the session-model
+        // fidelity re-check below gates its output — safe on a smaller model.
         const polish = await agent(revisionPrompt(g, round, [], nits), {
           label: g.slug + ' polish',
           phase: g.slug + ': revise',
           schema: REVISION_RESULT,
+          model: 'sonnet',
         })
         if (!polish) {
           entry.polish_notes = '(polish agent returned no report; nits were not applied)'
