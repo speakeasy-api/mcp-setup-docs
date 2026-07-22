@@ -1,11 +1,8 @@
 # yaml-language-server: $schema=../../schema/guide.v1.schema.json
-# Drafted from provider documentation. The inventory below is the dynamic
-# discovery mode's static meta-tools — the default for a new server. A server
-# switched to manual configuration instead advertises each pre-selected action
-# as its own dedicated tool, which is per-tenant and cannot be documented here.
-# Provider documentation does not describe readOnlyHint annotations, so no
-# read_only_hint is authored; reconcile against the live inventory at remote
-# validation.
+# Drafted from provider documentation. In the default dynamic-discovery mode
+# the server advertises static meta-tools; switched to manual configuration it
+# instead advertises each pre-selected action as its own dedicated tool, which
+# is per-tenant. See setup.md#server-modes.
 schema_version: 1
 slug: zapier
 title: Zapier

@@ -1,10 +1,7 @@
 # yaml-language-server: $schema=../../schema/guide.v1.schema.json
 # Drafted from provider documentation. Google Cloud remote MCP servers do not
 # support Dynamic Client Registration, so the OAuth client is created manually
-# in the Google Cloud console. execute_sql_readonly appears in the provider's
-# tool list but its live description is unverified; read_only_hint authoring
-# is partly community-sourced — reconcile both against the live inventory at
-# remote validation.
+# in the Google Cloud console.
 schema_version: 1
 slug: bigquery
 title: BigQuery

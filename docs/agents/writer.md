@@ -47,10 +47,11 @@ The persona file defines who is reading, what they already know, the voice
 rules, and the formatting preferences. Apply all of it:
 
 - Prerequisites name the account type, plan tier, and permissions needed,
-  and orient the reader — where to sign in, and that no prior console
-  experience is assumed.
-- Introduce each term the persona does not know at first use, in one
-  clause, using only facts the Dossier records.
+  and say where to sign in. Do not write that no prior experience is
+  assumed — meeting that bar is the guide's job, not a claim it makes.
+- Gloss a term only where the persona's voice rules call for one, using
+  only facts the Dossier records; everywhere else the verbatim console
+  label, unexplained, is the correct rendering.
 - Carry the Dossier's recovery notes into the steps they protect, placed
   where the persona file says warnings go.
 - Before reporting, re-read the guide as the persona, cold: any step they

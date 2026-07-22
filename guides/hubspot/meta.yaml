@@ -1,8 +1,5 @@
 # yaml-language-server: $schema=../../schema/guide.v1.schema.json
-# Drafted from provider documentation. Tool inventory is drawn from the
-# integration guide (the private mirror lists no remote tool inventory);
-# reconcile against the live remote at scope acceptance before the draft
-# PR leaves scaffold status.
+# Drafted from provider documentation.
 schema_version: 1
 slug: hubspot
 title: HubSpot

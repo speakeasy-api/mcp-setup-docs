@@ -14,12 +14,13 @@ pass silently.
 ### voice
 
 Judge the prose against the persona file's "Who they are", "What they
-know / do not know", and "Voice" sections. Findings include: OAuth or
-console vocabulary used before it is introduced; knowledge assumed that
-the persona lacks; imperatives drifting into passive narration; forbidden
-filler ("simply", "just"); warnings placed after the click they protect;
-steps that bundle several actions. Quote the offending sentence in each
-finding.
+know / do not know", and "Voice" sections. Findings include: explanation
+the work does not require (the persona bar is doing the step, not
+understanding the term); a gloss missing where the reader must choose or
+type something the label alone does not determine; imperatives drifting
+into passive narration; forbidden filler ("simply", "just"); warnings
+placed after the click they protect. Quote the offending sentence in
+each finding.
 
 ### formatting
 

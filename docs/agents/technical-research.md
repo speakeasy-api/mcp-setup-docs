@@ -9,25 +9,30 @@ finished guide must exist here first, with provenance.
 
 ## The loop
 
-1. Research the provider's public MCP documentation: remote URL, transport,
+1. Sweep the provider's documentation properties before going deep:
+   developer docs, product/admin docs, and the support KB are often
+   separate sites, and any of them may publish a machine-readable index
+   (try `/llms.txt`). Where properties conflict on console UI, prefer
+   the current product/admin docs and record the conflict.
+2. Research the provider's public MCP documentation: remote URL, transport,
    authentication model, the console path an admin follows, and the
    gotchas (licensing, billing, restricted tools, one-time secrets).
    Tool inventories are out of scope: the server's advertised list is the
    runtime source of truth, so do not catalog it. Record an individual
    tool only where it matters to setup — a tool that bills differently,
    needs a license, is off by default, or is restricted.
-2. When the provider documents a sub-flow (API enablement, role grants,
+3. When the provider documents a sub-flow (API enablement, role grants,
    consent screens, credential dialogs), fetch that documentation too,
    quote its exact UI labels, and record each fetched page as a provenance
    locator.
-3. Write the Dossier and the Metadata.
-4. Validate `meta.yaml` against `schema/guide.v1.schema.json` (draft-07)
+4. Write the Dossier and the Metadata.
+5. Validate `meta.yaml` against `schema/guide.v1.schema.json` (draft-07)
    and fix until it conforms. Try
    `npx --yes ajv-cli validate -s schema/guide.v1.schema.json -d guides/<slug>/meta.yaml`
    or a Python `jsonschema` one-liner; if no validator will run, read the
    schema and check field by field — and say in your report which method
    you used.
-5. Report: status, open questions, and what you decided vs. were unsure of.
+6. Report: status, open questions, and what you decided vs. were unsure of.
 
 ## Dossier format (`research.md`)
 
@@ -48,6 +53,12 @@ What an admin creates, where each value the Speakeasy AI Control Plane
 needs comes from, and where `{{ gram.oauth.callback_url }}` gets pasted.
 
 ## Console walkthrough
+
+Transition-complete: how the admin reaches the first step's screen from
+the provider's main app, and the click that takes each screen to the
+next — including any re-open a later step relies on. Where documentation
+is silent on a transition, record a flagged inference or an open
+question; never leave the seam implicit for the Writer to bridge.
 
 ### <Step title> {#anchor-id}
 - Entry URL and navigation path (menu > page > tab), exact button and
@@ -70,7 +81,10 @@ gates, restricted tools, scope-vs-permission behavior.
 Anything you could not confirm from documentation. Flagged, not guessed.
 
 ## Provenance
-One entry per source: locator + observed date + which facts it backs.
+First, the source inventory from the sweep: every documentation property
+found (developer, product/admin, support KB), including any you did not
+draw from — reviewers audit coverage here, not just citations. Then one
+entry per source: locator + observed date + which facts it backs.
 ```
 
 You mint every anchor ID here — document-unique, kebab-case, one per

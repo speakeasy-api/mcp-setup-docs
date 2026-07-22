@@ -222,6 +222,122 @@ is preferred per the source ruling above.
 
 ### Check the Access scopes {#check-access-scopes}
 
+- docs.box.com, verbatim: "Check the **Access scopes**." The generic
+  per-client pages link "Access scopes" to the admin article
+  "Understanding Requests to Authorize or Allow Applications →
+  Reviewing Scopes", which explains scope review generically ("Most
+  scopes are self-explanatory (for example, Manage Users, Read and Write
+  files and folders)") but does not enumerate this entry's checkboxes.
+- The corresponding API-level OAuth scope strings are `root_readwrite`
+  (content), `ai.readwrite` (Box AI), and `docgen.readwrite` (Doc Gen;
+  requires an Enterprise Advanced license). The exact checkbox labels
+  shown in the console are not documented (see open questions).
+- AI and Doc Gen scopes only appear once those features are enabled for
+  the enterprise (see {#enable-box-ai-api}, {#enable-doc-gen}, and
+  {#ai-docgen-tools-hidden-until-enabled}).
+- Scope semantics: see {#scopes-vs-permissions}.
+- Values entered: scope selections. Values copied: none.
+- Screenshot note: the credential entry's **Access scopes** section with
+  its checkboxes visible — capture the exact labels; documentation does
+  not name them.
+- Recovery — missing AI/Doc Gen scope (flagged inference, not a
+  documented flow): if a needed scope is absent because the feature is
+  not yet enabled, do not abandon the unsaved entry — first click
+  **Save** ({#save-credentials}), then enable the feature
+  ({#enable-box-ai-api} / {#enable-doc-gen}), re-open the saved
+  credential entry, select the newly visible scope, and click **Save**
+  again. The re-open-and-edit step is inferred: {#save-credentials}
+  documents re-opening only to confirm the Redirect URI persisted, and
+  no source states that a saved entry's **Access scopes** remain
+  editable on re-open (see open questions; console verification needed
+  at capture time). If the saved entry cannot be re-edited, fall back
+  to generating a fresh credential set and reconfiguring it — the
+  recovery recorded in {#copy-client-credentials}.
+
+### Save the credential entry {#save-credentials}
+
+- docs.box.com, verbatim: "Click **Save**." An explicit Save step ends
+  the flow — the credential entry does not save automatically
+  (resolving the prior run's open question).
+- Values entered: none. Values copied: none.
+- Screenshot exception: a standard button click with no unique state
+  beyond the views captured in the prior steps.
+- Recovery: the documentation does not describe what happens if you
+  leave the page before clicking **Save**; to be safe, complete
+  {#set-redirect-uri} and {#check-access-scopes} and save in one sitting,
+  and re-open the entry afterward to confirm the Redirect URI persisted.
+
+### Enable the Box AI API (AI tools only) {#enable-box-ai-api}
+
+Needed only if users will call the Box AI tools (`ai_qa_*`,
+`ai_extract_*`) — and for the AI scope to appear during
+{#check-access-scopes}. docs.box.com FAQ: "To enable AI & Agent Tools:
+**Admin Console → Box AI → Settings → Enable AI API**."
+
+- Per docs.box.com "Configuring Box AI": "Within the Admin Console, go
+  to the **Box AI section** and then the **Settings** tab". "If your
+  organization has not fully enabled Box AI, you can click **Enable Box
+  AI** to do so for all services." The **Box AI APIs** setting ("Defines
+  developer users who can extend Box AI capabilities via AI API") is
+  configured by clicking **configure** and selecting **Enable for all**
+  or **Disable for all**.
+- First-time enablement may require accepting legal terms: "you will
+  need to review and accept the Box AI Product Addendum before enabling
+  Box AI for your organization"; if a **Review Agreement Offline**
+  message appears instead, contact the Box account team.
+- Conflict note: Box support article 43847256139923 words this step as
+  ensuring "**AI API and Official Box Integrations is enabled for all
+  users** is selected" — an older label set not present on docs.box.com;
+  prefer the docs.box.com labels above.
+- Values entered: setting selections only. Values copied: none.
+- Screenshot note: the **Box AI** > **Settings** tab showing the **Box
+  AI APIs** configuration set to **Enable for all**.
+- Recovery: if the credential entry was already saved before this
+  enablement, returning to it to select the newly visible AI scope
+  follows the flagged Save-first recovery inference recorded in
+  {#check-access-scopes} (fallback: a fresh credential set,
+  {#copy-client-credentials}).
+
+### Enable Box Doc Gen (Doc Gen tools only) {#enable-doc-gen}
+
+Needed only if users will call the Doc Gen tools — and for the Doc Gen
+scope to appear during {#check-access-scopes}. docs.box.com FAQ: "To
+enable Doc Gen Tools: **Admin Console → Enterprise Settings → Content
+and Sharing → Doc Gen → Enable Doc Gen**."
+
+- The Content & Sharing tab reference documents the setting as **Box Doc
+  Gen** > **Box Doc Gen Permissions**: "Defines who can create and
+  manage Doc Gen templates. Click **Configure** and then select" one of
+  **Disable for all managed users (default)**, **Enable for all managed
+  users**, **Enable for select users and groups**, or **Enable for
+  everyone except select users and groups**. Note the default is
+  disabled.
+- Licensing: the `docgen.readwrite` scope "requires an Enterprise
+  Advanced license" (developer.box.com).
+- Values entered: setting selections only. Values copied: none.
+- Screenshot note: **Enterprise Settings** > **Content and Sharing**
+  scrolled to the **Box Doc Gen** section with its permissions options
+  visible.
+- Recovery: if the credential entry was already saved before this
+  enablement, returning to it to select the newly visible Doc Gen scope
+  follows the flagged Save-first recovery inference recorded in
+  {#check-access-scopes} (fallback: a fresh credential set,
+  {#copy-client-credentials}).
+
+### Restrict which tools are exposed (optional) {#manage-tool-access}
+
+Enterprise-wide governance over the server's tool list, from
+docs.box.com "Manage Tool Access": "Open the **Admin Console**. In the
+left sidebar, select **Integrations**. Select the **Box MCP Server**
+tab."
+
+- A table displays tool categories ("for example, Files and Folders,
+  Search, Box Hubs"). Each row includes an **Enablement** control and a
+  **Configure** button.
+- The **Enablement** control offers exactly four options: **Disable all
+  tools**, **Enable read-only tools**, **Enable read & write tools**,
+  and **Custom configuration**.
+- **Configure** opens a configuration window with the category name and
   description, **Enablement** options, tools grouped under **Read only
   MCP tools** and **Write MCP tools**, and a toggle for each tool.
   "After you click **Save**, a confirmation message appears."
@@ -255,122 +371,6 @@ is preferred per the source ruling above.
   list, start a new chat, or disconnect and reconnect — and "even if the
   agent attempts to call the disabled tool, the call will fail so there
   is no security risk."
-
-## Tool inventory
-
-From docs.box.com "Available Tools" (`/en/box-mcp/tools`), observed
-2026-07-22. Categories and Read-only/Write groupings are the
-documentation's own. Tools marked ¹ carry the page's footnote
-restriction (see {#external-sharing-restrictions}).
-
-### User and authentication (uncategorized read/write)
-
-| Tool | Description |
-| --- | --- |
-| `who_am_i` | Returns detailed information about the currently authenticated Box user. |
-
-### Files and folders — Read-only
-
-| Tool | Description |
-| --- | --- |
-| `get_download_url` | Issues a temporary, single-use URL for downloading binary files from Box. |
-| `get_file_content` | Returns the content of a file stored in Box. |
-| `get_file_details` | Returns detailed file information from Box, including metadata, permissions, and version details. |
-| `get_file_preview` | Returns the preview widget for a file stored in Box. |
-| `get_folder_details` | Retrieves detailed folder information, including metadata, permissions, and collaboration settings. |
-| `list_folder_content_by_folder_id` | Lists files, folders, and web links in a folder (paginated). Use `folder_id` "0" for the root folder. |
-
-### Files and folders — Write
-
-| Tool | Description |
-| --- | --- |
-| `copy_file`¹ | Copies an existing file to a destination folder in Box. |
-| `copy_folder`¹ | Copies an existing folder to a destination parent folder in Box. |
-| `create_folder`¹ | Creates a folder in Box. |
-| `create_metadata_template` | Creates an enterprise metadata template. Requires the `enterprise` scope, `display_name`, and an optional `fields` array. |
-| `get_upload_url` | Issues a temporary, single-use URL for uploading binary files to Box. |
-| `move_file`¹ | Moves an existing file to a destination folder in Box. The file ID stays the same and `parent_folder_id` is required. |
-| `move_folder`¹ | Moves a folder to a new parent in Box. The folder ID stays the same and `parent_folder_id` is required. |
-| `set_file_metadata`¹ | Creates or updates (upserts) custom metadata on a file for a template. |
-| `set_folder_metadata`¹ | Creates or updates (upserts) custom metadata on a folder for a template. |
-| `update_file_properties`¹ | Updates file properties, including name, description, tags, and collections. |
-| `update_folder_properties`¹ | Updates folder properties, including name, description, tags, and collections. |
-| `update_metadata_template` | Updates a metadata template by scope and `template_key` using atomic schema operations. |
-| `upload_file`¹ | Uploads a new file to Box. |
-| `upload_file_version`¹ | Uploads a new file version by providing the entire file contents to update an existing file in Box. |
-
-### Search (uncategorized read/write)
-
-| Tool | Description |
-| --- | --- |
-| `get_metadata_template_schema` | Returns the schema and field keys for a metadata template. |
-| `list_metadata_templates` | Lists available Box metadata templates (enterprise or global). |
-| `search_files_keyword` | Searches for files using keywords. Supports metadata filters, file-extension filtering, and field selection. |
-| `search_files_metadata` | Searches for files using SQL-like metadata queries. Supports complex filtering with parameters, field selection, and folder scoping. |
-| `search_folders_by_name` | Searches for folders in Box by name using keyword matching. |
-
-### Collaboration — Read-only
-
-| Tool | Description |
-| --- | --- |
-| `list_file_comments` | Lists all comments on a file. |
-| `list_item_collaborations` | Lists all existing collaborations on an item. |
-| `list_tasks` | Lists all tasks for a file, including status, message, and due dates. |
-
-### Collaboration — Write
-
-| Tool | Description |
-| --- | --- |
-| `add_file_shared_link` | Creates or updates a shared link for a Box file. Can create open shared links or add collaborators from outside your organization. Off by default. |
-| `add_folder_shared_link` | Creates or updates a shared link for a Box folder. Can create open shared links or add collaborators from outside your organization. Off by default. |
-| `create_collaboration` | Invites a user or group to a file, folder, or hub. Can create open shared links or add collaborators from outside your organization. Off by default. |
-| `create_file_comment`¹ | Creates a comment on a file. |
-| `update_collaboration` | Updates a file, folder, or hub collaboration. Can create open shared links or add collaborators from outside your organization. Off by default. |
-
-### Box AI (uncategorized read/write)
-
-| Tool | Description |
-| --- | --- |
-| `ai_extract_freeform` | Extracts metadata from files using Box AI with natural-language prompts (no fixed template). Text representation up to 1 MB. |
-| `ai_extract_structured` | Extracts structured key-value metadata from files using the Box AI Enhanced Extract Agent and custom field definitions. |
-| `ai_extract_structured_from_fields` | Extracts structured metadata from files using Box AI and custom field definitions. |
-| `ai_extract_structured_from_fields_enhanced` | Extracts structured metadata from files using the Box AI Enhanced Extract Agent and custom field definitions. Costs more than the standard Box AI Extract tools. |
-| `ai_extract_structured_from_metadata_template` | Extracts structured metadata from files using an existing Box metadata template. |
-| `ai_extract_structured_from_metadata_template_enhanced` | Extracts structured metadata from files using an existing Box metadata template and the Enhanced Extract Agent. Costs more than the standard Box AI Extract tools. |
-| `ai_qa_hub` | Asks a question about a Box hub and returns an answer based on the hub's content, with citations when available. |
-| `ai_qa_multi_file` | Asks a question about multiple files using Box AI, with citations when available. |
-| `ai_qa_single_file` | Asks a question about a single file using Box AI, with citations when available. Text representation up to 1 MB; if the file is larger, only the first 1 MB is processed. |
-
-### Hubs — Read-only
-
-| Tool | Description |
-| --- | --- |
-| `get_hub_details` | Retrieves detailed information about a specific hub. |
-| `get_hub_items` | Gets items (files and folders) associated with a specific hub. |
-| `list_hubs` | Lists all hubs that the authenticated user can access. |
-
-### Hubs — Write
-
-| Tool | Description |
-| --- | --- |
-| `add_items_to_hub`¹ | Adds files, folders, or web links to a hub. |
-| `copy_hub`¹ | Creates a copy of an existing hub, including its structure and settings. |
-| `create_hub` | Creates a hub. |
-| `update_hub`¹ | Updates the title and description of a hub. |
-
-### Doc Gen — Read-only
-
-| Tool | Description |
-| --- | --- |
-| `get_docgen_template_by_id` | Retrieves details about a Doc Gen template. |
-| `list_docgen_templates` | Lists all Box Doc Gen templates that the authenticated user can access. |
-
-### Doc Gen — Write
-
-| Tool | Description |
-| --- | --- |
-| `create_docgen_batch` | Generates documents from a Doc Gen template by filling placeholder tags with provided data. |
-| `create_docgen_template` | Marks a Box file (`.docx` or `.pptx`) as a Doc Gen template for automated document generation. |
 
 ## Gotchas
 
@@ -422,13 +422,16 @@ Integration Credentials flow in this guide is required.
 
 ### Externally shared items block many write tools {#external-sharing-restrictions}
 
-Fifteen write tools (marked ¹ in the inventory) "Only works on items
-that meet **all** of the following: No external collaborators on the
-item itself; No shared link on the item itself; No external
-collaborators or shared links on any parent folder, up to the root."
-(Footnote membership verified against the live docs.box.com tools page
-2026-07-22: exactly fifteen tools carry the ¹ mark, as inventoried
-above.)
+Fifteen write tools — `copy_file`, `copy_folder`, `create_folder`,
+`move_file`, `move_folder`, `set_file_metadata`, `set_folder_metadata`,
+`update_file_properties`, `update_folder_properties`, `upload_file`,
+`upload_file_version`, `create_file_comment`, `add_items_to_hub`,
+`copy_hub`, and `update_hub` — "Only works on items that meet **all**
+of the following: No external collaborators on the item itself; No
+shared link on the item itself; No external collaborators or shared
+links on any parent folder, up to the root." (Membership verified
+against the live docs.box.com tools page footnote 2026-07-22: exactly
+these fifteen tools carry its ¹ mark.)
 
 ### External-sharing tools are off by default {#sharing-tools-off-by-default}
 
@@ -511,11 +514,6 @@ supported through MCP and needs to be done in the Admin Console."
   no equivalent state change, and the related platform-app availability
   (Platform > Platform Apps, from the older support article) is not
   confirmed on docs.box.com.
-- **readOnlyHint annotations.** Whether the live server advertises MCP
-  `readOnlyHint` annotations is unverifiable from documentation. The
-  Read-only/Write groupings above are the documentation's own;
-  `who_am_i`, Search, and Box AI are not sorted into Read-only/Write
-  groups by the docs.
 - **Default tool-enablement state per category.** Beyond the four
   sharing tools documented "Off by default", no source says which
   Enablement option each category starts in.
@@ -550,10 +548,9 @@ index `https://docs.box.com/llms.txt` (observed 2026-07-22).
   organization's existing permissions...", "No files are permanently
   shared...".
 - `https://docs.box.com/en/box-mcp/tools` — observed 2026-07-22. Backs:
-  complete tool inventory, Read-only/Write groupings, footnote-1
-  external-sharing restrictions (fifteen tools), "Off by default"
-  sharing tools, upload/download URL tool constraints and domain
-  allowlists.
+  footnote-1 external-sharing restrictions (fifteen tools), "Off by
+  default" sharing tools, upload/download URL tool constraints and
+  domain allowlists.
 - `https://docs.box.com/en/box-mcp/admin-controls` ("Manage Tool
   Access") — observed 2026-07-22. Backs: **Box MCP Server** tab, four
   **Enablement** options, per-tool toggles and sync behavior, Admin

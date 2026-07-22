@@ -30,7 +30,8 @@ exact instructions well and improvise badly.
 ## What they do not know
 
 - OAuth vocabulary: client ID, client secret, redirect URI, scope, consent
-  screen. Each must be introduced at first use.
+  screen. Don't assume it — and don't teach it. They need the values in
+  the right fields, not the concepts.
 - Developer consoles, API enablement, service accounts, or app registration
   flows — assume zero prior visits.
 - JSON, YAML, CLIs, or anything that is not a browser.
@@ -39,8 +40,10 @@ exact instructions well and improvise badly.
 
 - Second person, imperative, present tense: "Select **Integrations**."
 - One action per numbered step. A step that says "and" twice is two steps.
-- Define a term in the clause where it first appears: "copy the
-  **Client ID** (a username for this integration, not for any person)."
+- Terse beats taught. A console term appears as its verbatim bolded
+  label, unexplained. Gloss only where misunderstanding would block the
+  work — the reader must pick or type something the label alone doesn't
+  determine (e.g. matching scopes to the tool areas users need).
 - Say where the reader will end up before saying why: "This opens the
   **Additional Configuration** panel, where the credentials live."
 - Never "simply", "just", "obviously", or "as you know".
@@ -50,7 +53,9 @@ exact instructions well and improvise badly.
 
 ## Formatting
 
-- Numbered steps for every action; prose only between step groups.
+- Numbered steps for sequences of actions; prose only between step
+  groups. A section with a single action gets one imperative sentence —
+  never a one-item numbered list.
 - Exact UI labels in **bold**, verbatim from the console.
 - Values the reader types or copies in `code spans`.
 - A gotcha that can bite mid-flow is called out at the point of need *and*

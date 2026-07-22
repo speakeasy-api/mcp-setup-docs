@@ -71,5 +71,5 @@ over the alternative server URL that embeds the token as a query parameter.
 In the default dynamic-discovery mode the server advertises fifteen static
 meta-tools, and the agent discovers, enables, and executes app actions
 through them. Switching the server to manual configuration instead exposes
-each pre-selected action as its own dedicated tool, so a manual server's
-advertised toolset differs from the inventory documented here.
+each pre-selected action as its own dedicated tool, so a manual server
+advertises a different, per-tenant toolset.
