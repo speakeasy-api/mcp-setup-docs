@@ -20,7 +20,11 @@ Work through the guide fact by fact, in both directions:
 3. **Omissions** — a Dossier fact a user needs that `setup.md` dropped: a
    step, a prerequisite, a recovery note, a gotcha, a screenshot note that
    lost detail. Dropped steps, prerequisites, recovery notes, and gotchas
-   are blockers; thinned screenshot notes are nits.
+   are blockers; thinned screenshot notes are nits. Scope check first:
+   "needs" means needs to finish setup — post-setup administration
+   (availability management, app lifecycle, ongoing admin surfaces) is
+   outside the guide's scope, and its absence is correct rendering, not
+   an omission.
 4. **The anchor contract** — every Dossier anchor appears in `setup.md`
    verbatim and in order; every `setup.md#<anchor>` reference in
    `meta.yaml` resolves; no anchor was minted outside the Dossier.

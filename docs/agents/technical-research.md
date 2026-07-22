@@ -75,7 +75,11 @@ question; never leave the seam implicit for the Writer to bridge.
 
 ### <Gotcha title> {#anchor-id}
 A caveat that is not itself a setup step: billing surprises, licensing
-gates, restricted tools, scope-vs-permission behavior.
+gates, restricted tools, scope-vs-permission behavior. A gotcha must
+change what the reader does or expects; do not mint one for the absence
+of an alternative flow the guide already routes around (for example, no
+self-service client registration) — the required flow's presence is the
+remedy.
 
 ## Open questions
 Anything you could not confirm from documentation. Flagged, not guessed.

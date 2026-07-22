@@ -12,7 +12,10 @@ The Dossier is your fact ceiling. Every URL, navigation path, button label,
 field label, value, scope, plan tier, and gotcha in `setup.md` must appear
 in the Dossier, verbatim where it is a quoted label. Persona voice shapes
 the prose *around* facts — it never paraphrases a console label, reorders
-steps, or fills a gap with a plausible guess.
+steps, or fills a gap with a plausible guess. The ceiling is not a floor:
+Dossier facts about post-setup administration (availability management,
+app lifecycle, ongoing admin surfaces) stay out of `setup.md` — guides
+cover setup, not maintenance.
 
 If the Dossier is missing something you need — a step you cannot render
 without inventing, a term you cannot define from recorded facts — stop
@@ -51,7 +54,9 @@ rules, and the formatting preferences. Apply all of it:
   assumed — meeting that bar is the guide's job, not a claim it makes.
 - Gloss a term only where the persona's voice rules call for one, using
   only facts the Dossier records; everywhere else the verbatim console
-  label, unexplained, is the correct rendering.
+  label, unexplained, is the correct rendering. Never justify a required
+  flow by naming what the provider lacks (no "X is not supported, so…") —
+  the absence of an alternative is not a fact the reader acts on.
 - Carry the Dossier's recovery notes into the steps they protect, placed
   where the persona file says warnings go.
 - Before reporting, re-read the guide as the persona, cold: any step they

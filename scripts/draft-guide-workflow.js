@@ -14,24 +14,27 @@ export const meta = {
 //   maxRounds: optional, review/revise rounds before giving up (default 3)
 // ---------------------------------------------------------------------------
 
-if (!args || !Array.isArray(args.guides) || args.guides.length === 0) {
+// The harness may deliver args as a JSON string; tolerate both encodings.
+const input = typeof args === 'string' ? JSON.parse(args) : args
+
+if (!input || !Array.isArray(input.guides) || input.guides.length === 0) {
   throw new Error('args.guides must be a non-empty array of {slug, provider, notes?}')
 }
-for (const g of args.guides) {
+for (const g of input.guides) {
   if (!g || typeof g.slug !== 'string' || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(g.slug)) {
     throw new Error('every guide entry needs a kebab-case slug')
   }
   if (!g.provider) throw new Error('guide "' + g.slug + '" needs a provider name')
 }
-if (!args.persona) throw new Error('args.persona is required (a file id under docs/personas/)')
-if (!args.timestamp) throw new Error('args.timestamp (ISO 8601 UTC) is required')
-if (!args.repoRoot) throw new Error('args.repoRoot (absolute path to the repo) is required')
+if (!input.persona) throw new Error('args.persona is required (a file id under docs/personas/)')
+if (!input.timestamp) throw new Error('args.timestamp (ISO 8601 UTC) is required')
+if (!input.repoRoot) throw new Error('args.repoRoot (absolute path to the repo) is required')
 
-const ROOT = args.repoRoot
-const NOW = args.timestamp
-const PERSONA = args.persona
+const ROOT = input.repoRoot
+const NOW = input.timestamp
+const PERSONA = input.persona
 const PERSONA_FILE = ROOT + '/docs/personas/' + PERSONA + '.md'
-const MAX_ROUNDS = args.maxRounds || 3
+const MAX_ROUNDS = input.maxRounds || 3
 
 // ---------------------------------------------------------------------------
 // Structured-output schemas
@@ -78,13 +81,19 @@ const REVIEW = {
 const REVISION_RESULT = {
   type: 'object',
   additionalProperties: false,
-  required: ['notes', 'disputed'],
+  required: ['notes', 'disputed', 'skipped'],
   properties: {
     notes: { type: 'string', description: 'What changed, per finding addressed.' },
     disputed: {
       type: 'array',
       items: { type: 'string' },
       description: 'Findings believed wrong, each restated with a one-line reason.',
+    },
+    skipped: {
+      type: 'array',
+      items: { type: 'string' },
+      description:
+        'Nit findings not applied (judgment call or missing facts), each restated with a one-line reason.',
     },
   },
 }
@@ -179,10 +188,11 @@ function reviewerPrompt(g, dim, round, prior) {
   if (prior) {
     lines.push(
       '',
-      'Prior round context (blockers previously reported, what the revision',
-      'agent says it changed, and findings it disputed). Re-verify claimed',
-      'fixes against the current files, re-examine each disputed finding',
-      'fresh per shared.md, then sweep for new issues:',
+      'Prior round context (findings previously reported — the revision',
+      'agent fixes blockers and applies mechanical nits — what it says it',
+      'changed, nits it skipped, and findings it disputed). Re-verify',
+      'claimed fixes against the current files, re-examine each disputed',
+      'finding fresh per shared.md, then sweep for new issues:',
       JSON.stringify(prior)
     )
   }
@@ -194,8 +204,8 @@ function reviewerPrompt(g, dim, round, prior) {
   return lines.join('\n')
 }
 
-function revisionPrompt(g, round, blockers) {
-  return [
+function revisionPrompt(g, round, blockers, nits) {
+  const lines = [
     'You are a Revision Agent in the mcp-setup-docs drafting pipeline.',
     'Repo root: ' + ROOT,
     '',
@@ -204,24 +214,53 @@ function revisionPrompt(g, round, blockers) {
     '',
     assignment(g),
     '',
-    'Review round ' + round + ' reported the blocker findings below. Fix them',
-    'in the guide directory: findings targeting "research" or "meta" first,',
-    'following the Technical Research role doc (facts need provenance; use',
-    'the observed_at timestamp above), then findings targeting "setup",',
-    'following the Writer role doc (grammar, persona voice, the Dossier as',
-    'fact ceiling). Honor the anchor contract in shared.md. Do not touch any',
-    'path outside the guide directory.',
-    '',
+  ]
+  if (blockers.length > 0) {
+    lines.push(
+      'Review round ' + round + ' reported the blocker findings below. Fix them',
+      'in the guide directory: findings targeting "research" or "meta" first,',
+      'following the Technical Research role doc (facts need provenance; use',
+      'the observed_at timestamp above), then findings targeting "setup",',
+      'following the Writer role doc (grammar, persona voice, the Dossier as',
+      'fact ceiling). Honor the anchor contract in shared.md. Do not touch any',
+      'path outside the guide directory.',
+      '',
+      'Blocker findings (JSON):',
+      JSON.stringify(blockers, null, 2),
+      ''
+    )
+  } else {
+    lines.push(
+      'Review round ' + round + ' reported zero blockers; this is the final',
+      'polish pass before the guide converges. Honor the anchor contract in',
+      'shared.md and do not touch any path outside the guide directory.',
+      ''
+    )
+  }
+  if (nits.length > 0) {
+    lines.push(
+      (blockers.length > 0 ? 'After the blockers, also apply' : 'Apply') +
+        ' each nit finding below whose',
+      'suggestion is a concrete mechanical remedy, following the same role',
+      'docs. Skip a nit when applying it needs new facts or a judgment call',
+      'a human should make — restate each skipped nit in "skipped" with a',
+      'one-line reason.',
+      '',
+      'Nit findings (JSON):',
+      JSON.stringify(nits, null, 2),
+      ''
+    )
+  }
+  lines.push(
     'If you believe a finding is wrong, do not silently ignore it: leave the',
     'files as they are for that finding and record it in "disputed" with a',
     'one-line reason (see the disputed-findings protocol in shared.md).',
     '',
-    'Blocker findings (JSON):',
-    JSON.stringify(blockers, null, 2),
-    '',
-    'Report via structured output: notes (what changed, per finding) and',
-    'disputed (findings you believe are wrong, with reasons).',
-  ].join('\n')
+    'Report via structured output: notes (what changed, per finding),',
+    'skipped (nits not applied, with reasons), and disputed (findings you',
+    'believe are wrong, with reasons).'
+  )
+  return lines.join('\n')
 }
 
 // ---------------------------------------------------------------------------
@@ -297,34 +336,88 @@ async function draftOne(g) {
     history.push(entry)
 
     if (blockers.length === 0) {
-      log('[' + g.slug + '] converged after ' + round + ' round(s); ' + nits.length + ' nit(s) remain')
-      return { slug: g.slug, status: 'converged', rounds: round, nits, open_questions: openQuestions, history: history }
+      // Converged. Mechanical nits are applied by a polish pass, then a
+      // single fidelity-only re-check guards the polished files; the
+      // returned nits checklist holds only what a human still has to weigh.
+      let checklist = nits
+      if (nits.length > 0) {
+        log('[' + g.slug + '] polishing ' + nits.length + ' nit(s) before convergence')
+        const polish = await agent(revisionPrompt(g, round, [], nits), {
+          label: g.slug + ' polish',
+          phase: g.slug + ': revise',
+          schema: REVISION_RESULT,
+        })
+        if (!polish) {
+          entry.polish_notes = '(polish agent returned no report; nits were not applied)'
+        } else {
+          entry.polish_notes = polish.notes
+          entry.polish_skipped = polish.skipped
+          entry.polish_disputed = polish.disputed
+          checklist = polish.skipped.concat(polish.disputed)
+
+          log('[' + g.slug + '] fidelity re-check of polished files')
+          const recheck = await agent(
+            reviewerPrompt(g, DIMENSIONS[0], round, {
+              round: round,
+              blockers: [],
+              revision_notes:
+                'Converged with zero blockers; a polish pass then applied these nit findings: ' + polish.notes,
+              disputed: polish.disputed,
+            }),
+            {
+              label: g.slug + ' fidelity re-check',
+              phase: g.slug + ': review',
+              schema: REVIEW,
+            }
+          )
+          if (!recheck) {
+            checklist = checklist.concat([
+              '(the fidelity re-check returned no verdict; the polished files are unverified)',
+            ])
+          } else {
+            entry.recheck = recheck
+            const reblockers = recheck.findings.filter((f) => f.severity === 'blocker')
+            if (reblockers.length > 0) {
+              log('[' + g.slug + '] polish broke fidelity: ' + reblockers.length + ' blocker(s)')
+              return { slug: g.slug, status: 'unconverged', rounds: round, unresolved: reblockers, nits: checklist, open_questions: openQuestions, history: history }
+            }
+            checklist = checklist.concat(
+              recheck.findings.map((f) => '(' + f.target + ' ' + f.where + ') ' + f.problem + ' Suggestion: ' + f.suggestion)
+            )
+          }
+        }
+      }
+      log('[' + g.slug + '] converged after ' + round + ' round(s); ' + checklist.length + ' checklist item(s) remain')
+      return { slug: g.slug, status: 'converged', rounds: round, nits: checklist, open_questions: openQuestions, history: history }
     }
     if (round === MAX_ROUNDS) {
       log('[' + g.slug + '] not converged: ' + blockers.length + ' blocker(s) after ' + round + ' round(s)')
       return { slug: g.slug, status: 'unconverged', rounds: round, unresolved: blockers, nits, open_questions: openQuestions, history: history }
     }
 
-    log('[' + g.slug + '] revising ' + blockers.length + ' blocker(s)')
-    const revision = await agent(revisionPrompt(g, round, blockers), {
+    log('[' + g.slug + '] revising ' + blockers.length + ' blocker(s) and ' + nits.length + ' nit(s)')
+    const revision = await agent(revisionPrompt(g, round, blockers, nits), {
       label: g.slug + ' revise r' + round,
       phase: g.slug + ': revise',
       schema: REVISION_RESULT,
     })
     entry.revision_notes = revision ? revision.notes : '(revision agent returned no report)'
     entry.disputed = revision ? revision.disputed : []
+    entry.skipped = revision ? revision.skipped : []
     prior = {
       round: round,
       blockers: blockers,
+      nits: nits,
       revision_notes: entry.revision_notes,
       disputed: entry.disputed,
+      skipped_nits: entry.skipped,
     }
   }
 }
 
 // Guides do not share files (each owns guides/<slug>/), so drafting them
 // concurrently in one working tree is safe.
-const results = await pipeline(args.guides, (g) => draftOne(g))
+const results = await pipeline(input.guides, (g) => draftOne(g))
 
 return {
   persona: PERSONA,

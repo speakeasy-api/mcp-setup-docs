@@ -6,6 +6,70 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-22 — tune: nits applied in-loop, no absent-alternative prose, setup-not-maintenance scope, tolerant workflow args
+
+Files: `scripts/draft-guide-workflow.js`,
+`.claude/skills/draft-guide/SKILL.md`, `docs/agents/writer.md`,
+`docs/agents/technical-research.md`, `docs/agents/fidelity.md`.
+
+Batch from `/tune-pipeline`; four proposals approved (the first with its
+fidelity re-check variant), one rejected.
+
+- **Nits applied in-loop** (workflow, `SKILL.md`): revision agents now
+  receive the round's nits alongside blockers and apply those with a
+  concrete mechanical remedy (`REVISION_RESULT` gains a required
+  `skipped` list for the rest); a zero-blocker round with nits runs a
+  polish pass, then a single fidelity-only re-check of the polished
+  files — a re-check blocker reports the run `unconverged` instead of
+  shipping silently. The converged `nits` checklist now holds only the
+  polish pass's skipped/disputed leftovers and re-check notes. Evidence:
+  `retro/notes/2026-07-22-apply-nits-in-loop.md` (explicit human note)
+  plus all three box runs shipping every nit unfixed
+  (`retro/runs/2026-07-22T19:42:22Z-box.json` 8,
+  `retro/runs/2026-07-22T20:55:13Z-box.json` 6,
+  `retro/runs/2026-07-22T21:57:12Z-box.json` 9). The note's split-nav
+  sub-signal (one-action-per-step possibly over-firing on two-part
+  navigation) was below threshold and is mooted by auto-apply. Note:
+  `retro/README.md`'s run-record sketch does not yet show the new
+  `polish_*`/`skipped`/`recheck` fields — left for a hand edit, since
+  tune runs leave `retro/` untouched.
+- **No absent-alternative prose or gotchas** (`writer.md`,
+  `technical-research.md`): a gotcha must change what the reader does or
+  expects — the absence of an alternative flow the guide already routes
+  around (e.g. Dynamic Client Registration) is not one, and the Writer
+  never justifies a required flow by naming what the provider lacks.
+  Evidence: `retro/notes/2026-07-22-dont-state-dcr-unsupported.md`
+  (explicit human direction); the same sentence drew a voice nit in
+  `retro/runs/2026-07-22T21:57:12Z-box.json`.
+- **Setup, not maintenance** (`fidelity.md`, `writer.md`): the Omissions
+  criterion scopes "needs" to finishing setup — post-setup
+  administration is outside the guide's scope and its absence is correct
+  rendering; the Writer treats the Dossier as a ceiling, not a floor.
+  Evidence: `retro/notes/2026-07-22-setup-not-maintenance.md` (explicit
+  human direction); the mis-scored Platform-Apps fidelity nit in
+  `retro/runs/2026-07-22T21:57:12Z-box.json`.
+- **Tolerant `args` guard** (workflow): `args` is JSON-parsed when it
+  arrives as a string before validation, so launches survive either
+  harness encoding. Evidence:
+  `retro/notes/2026-07-22-workflow-args-string-encoding.md` (single
+  session, but a deterministic double launch failure with probe-confirmed
+  root cause; without it every fresh session needs a scratchpad shim).
+
+Rejected:
+
+- **Writer open-question dedupe** (`writer.md` Report section) — the
+  Writer restating the Dossier's open questions doubled the 21:57
+  checklist, but the evidence is marginal (mass duplication in one run,
+  a single pair in `retro/runs/2026-07-22T19:42:22Z-box.json`, none in
+  the 20:55 run); re-propose if the pattern recurs.
+
+Flagged tension (reported, not proposed): closing the "Gram" carve-out
+(`retro/notes/2026-07-22-never-gram-close-the-carveout.md`) requires
+renaming the `{{ gram.oauth.callback_url }}` template key named verbatim
+in constitution invariant I4 and coordinating with the downstream
+tooling that substitutes it; constitution edits are human-only, so
+sequencing sits with the operator.
+
 ## 2026-07-22 — tool inventories removed from Guide scope
 
 Files: `schema/guide.v1.schema.json` (drops the `tool` definition, the
