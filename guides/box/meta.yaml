@@ -1,11 +1,8 @@
 # yaml-language-server: $schema=../../schema/guide.v1.schema.json
-# Tracer entry (spec ticket 07). Tool inventory and remote URL are drawn from
-# provider documentation; reconcile both against the private tenant enrichment
-# at scope acceptance before the draft PR leaves scaffold status.
 schema_version: 1
 slug: box
 title: Box
-summary: Access, search, and manage Box content through the hosted Box MCP server.
+summary: Access, search, and manage Box content and Box AI through the hosted Box MCP server.
 credential_setup:
   options:
     - id: oauth-integration
@@ -13,16 +10,18 @@ credential_setup:
       client_registration: manual
       fields:
         - id: client-id
-          label: Integration client ID
+          label: Client ID
           setup:
-            - setup.md#create-integration-credentials
+            - setup.md#add-integration-credentials
+            - setup.md#copy-client-credentials
         - id: client-secret
-          label: Integration client secret
+          label: Client Secret
           setup:
-            - setup.md#create-integration-credentials
+            - setup.md#add-integration-credentials
+            - setup.md#copy-client-credentials
   requirements:
-    - id: box-account
-      description: Dedicated Box validation account with admin access to the enterprise's Admin Console
+    - id: box-admin
+      description: Box Admin or Co-Admin access to the enterprise's Admin Console, with permission to manage Integrations
 documentation:
   setup: setup.md
 remotes:
@@ -31,138 +30,21 @@ remotes:
     transport: streamable-http
     authentication:
       - oauth-integration
-    tools:
-      - name: who_am_i
-        description: Return details about the currently authenticated Box user.
-        read_only_hint: true
-      - name: get_file_content
-        description: Retrieve file contents from Box storage.
-        read_only_hint: true
-      - name: get_file_details
-        description: Return file metadata, permissions, and version details.
-        read_only_hint: true
-      - name: get_file_preview
-        description: Provide a preview widget for a Box file.
-        read_only_hint: true
-      - name: get_download_url
-        description: Generate a temporary single-use file download URL.
-        read_only_hint: true
-      - name: get_folder_details
-        description: Return folder metadata, permissions, and collaboration settings.
-        read_only_hint: true
-      - name: list_folder_content_by_folder_id
-        description: List files, folders, and web links in a folder.
-        read_only_hint: true
-      - name: search_files_keyword
-        description: Search files by keyword with metadata and extension filters.
-        read_only_hint: true
-      - name: search_files_metadata
-        description: Search files with SQL-like metadata queries.
-        read_only_hint: true
-      - name: search_folders_by_name
-        description: Locate folders via keyword matching.
-        read_only_hint: true
-      - name: list_metadata_templates
-        description: List available Box metadata templates.
-        read_only_hint: true
-      - name: get_metadata_template_schema
-        description: Return schema details for a metadata template.
-        read_only_hint: true
-      - name: list_file_comments
-        description: Retrieve all comments on a file.
-        read_only_hint: true
-      - name: list_item_collaborations
-        description: List collaborations on an item.
-        read_only_hint: true
-      - name: list_tasks
-        description: List tasks for a file with status, message, and due dates.
-        read_only_hint: true
-      - name: list_hubs
-        description: List hubs the authenticated user can access.
-        read_only_hint: true
-      - name: get_hub_details
-        description: Retrieve details about a specific hub.
-        read_only_hint: true
-      - name: get_hub_items
-        description: Get files and folders associated with a hub.
-        read_only_hint: true
-      - name: list_docgen_templates
-        description: List accessible Box Doc Gen templates.
-        read_only_hint: true
-      - name: get_docgen_template_by_id
-        description: Retrieve details about a Doc Gen template.
-        read_only_hint: true
-      - name: ai_qa_single_file
-        description: Ask a question about a single file using Box AI.
-        read_only_hint: true
-      - name: ai_qa_multi_file
-        description: Ask a question about multiple files using Box AI.
-        read_only_hint: true
-      - name: ai_qa_hub
-        description: Ask a question about a hub's content using Box AI.
-        read_only_hint: true
-      - name: create_folder
-        description: Create a new Box folder.
-      - name: copy_file
-        description: Duplicate a file to a destination folder.
-      - name: copy_folder
-        description: Duplicate a folder to a parent destination.
-      - name: move_file
-        description: Relocate a file while preserving its ID.
-      - name: move_folder
-        description: Relocate a folder to a new parent.
-      - name: upload_file
-        description: Upload a new file to Box.
-      - name: upload_file_version
-        description: Create a new file version with updated content.
-      - name: get_upload_url
-        description: Issue a temporary single-use file upload URL.
-      - name: update_file_properties
-        description: Modify file names, descriptions, tags, and collections.
-      - name: update_folder_properties
-        description: Modify folder names, descriptions, tags, and collections.
-      - name: set_file_metadata
-        description: Create or update custom file metadata.
-      - name: set_folder_metadata
-        description: Create or update custom folder metadata.
-      - name: create_metadata_template
-        description: Create an enterprise metadata template.
-      - name: update_metadata_template
-        description: Update a metadata template by scope and template key.
-      - name: create_file_comment
-        description: Add a comment to a file.
-      - name: create_collaboration
-        description: Invite a user or group to a file, folder, or hub.
-      - name: update_collaboration
-        description: Modify collaboration permissions and settings.
-      - name: add_file_shared_link
-        description: Create or update a shared link for a file.
-      - name: add_folder_shared_link
-        description: Create or update a shared link for a folder.
-      - name: create_hub
-        description: Create a new Box hub.
-      - name: update_hub
-        description: Modify hub titles and descriptions.
-      - name: copy_hub
-        description: Copy an existing hub including structure and settings.
-      - name: add_items_to_hub
-        description: Add files, folders, or web links to a hub.
-      - name: create_docgen_template
-        description: Mark a Box file as a Doc Gen template.
-      - name: create_docgen_batch
-        description: Generate documents from a Doc Gen template.
-      - name: ai_extract_freeform
-        description: Extract metadata from files using Box AI with natural-language prompts.
-      - name: ai_extract_structured
-        description: Extract structured metadata using Box AI with custom field definitions.
-      - name: ai_extract_structured_from_fields
-        description: Extract structured metadata using custom field definitions.
-      - name: ai_extract_structured_from_fields_enhanced
-        description: Extract structured metadata using the Box AI Enhanced Extract Agent.
-      - name: ai_extract_structured_from_metadata_template
-        description: Extract structured metadata using an existing metadata template.
-      - name: ai_extract_structured_from_metadata_template_enhanced
-        description: Enhanced extraction using an existing metadata template.
+    provenance:
+      - source: pulsemcp
+        name: com.pulsemcp.mirror/box
+        version: 0.0.1
+        classification: mirror
+        observed_at: 2026-07-18T04:42:42Z
+      - source: provider-documentation
+        locator: https://docs.box.com/en/box-mcp/tools
+        classification: official
+        observed_at: 2026-07-22T20:55:13Z
+      - source: endpoint-observation
+        locator: https://mcp.box.com/.well-known/oauth-protected-resource
+        name: Box Model Context Protocol Server
+        classification: official
+        observed_at: 2026-07-22T20:55:13Z
 provenance:
   - source: pulsemcp
     name: com.pulsemcp.mirror/box
@@ -170,5 +52,90 @@ provenance:
     classification: mirror
     observed_at: 2026-07-18T04:42:42Z
   - source: provider-documentation
-    locator: https://developer.box.com/guides/box-mcp/remote/
-    observed_at: 2026-07-21T00:00:00Z
+    locator: https://docs.box.com/en/box-mcp/configuring-box-mcp-server/claude-code
+    name: Claude Code
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-mcp/configuring-box-mcp-server/anthropic-messages-api
+    name: Anthropic Messages API
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-mcp/configuring-box-mcp-server/github-mcp-registry
+    name: GitHub MCP Registry
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-mcp/about-box-mcp-server
+    name: About Box MCP Server
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-mcp/tools
+    name: Available Tools
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-mcp/admin-controls
+    name: Manage Tool Access
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-mcp/pricing
+    name: Pricing
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-mcp/faq
+    name: MCP Frequently Asked Questions
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-mcp/supported-ai-platforms
+    name: Supported AI Platforms
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-ai/admins/configuring-box-ai
+    name: Configuring Box AI
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-admin-tools/box-admin-reference/enterprise-settings-content-sharing-tab
+    name: "Enterprise Settings: Content & Sharing Tab"
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-admin-tools/how-to-guides-for-admins/understanding-requests-to-authorize-or-allow-applications
+    name: Understanding Requests to Authorize or Allow Applications
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://docs.box.com/en/box-admin-tools/reporting-and-insights/mcp-server-activity-report
+    name: MCP Server Activity Report
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://developer.box.com/guides/box-mcp/
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://developer.box.com/guides/box-mcp/setup/
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://support.box.com/hc/en-us/articles/43847256139923
+    name: Managing Box MCP Servers
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: provider-documentation
+    locator: https://support.box.com/hc/en-us/articles/30900136778259
+    name: Adding Integration Credentials for Customer-Instance Integrations
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z
+  - source: endpoint-observation
+    locator: https://mcp.box.com/.well-known/oauth-protected-resource
+    name: Box Model Context Protocol Server
+    classification: official
+    observed_at: 2026-07-22T20:55:13Z

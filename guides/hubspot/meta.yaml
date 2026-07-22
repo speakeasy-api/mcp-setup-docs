@@ -34,41 +34,6 @@ remotes:
     transport: streamable-http
     authentication:
       - oauth-mcp-auth-app
-    tools:
-      - name: get_user_details
-        description: Return details about the authenticated user, their account, and per-object read/write access.
-        read_only_hint: true
-      - name: search_crm_objects
-        description: Search and filter CRM records with up to 5 filter groups of 6 filters each, 200 results per page.
-        read_only_hint: true
-      - name: get_crm_objects
-        description: Fetch CRM objects by ID, up to 100 IDs per request.
-        read_only_hint: true
-      - name: manage_crm_objects
-        description: Create or update CRM records and activities.
-      - name: search_properties
-        description: Find CRM property definitions by keyword, up to 5 keywords per request.
-        read_only_hint: true
-      - name: get_properties
-        description: Return full property definitions including data types and enumerations.
-        read_only_hint: true
-      - name: search_owners
-        description: Find CRM record owners by name, email, or ID, up to 100 results.
-        read_only_hint: true
-      - name: get_campaign_contacts_by_type
-        description: Fetch paginated campaign contact IDs filtered by attribution type.
-        read_only_hint: true
-      - name: get_campaign_analytics
-        description: Return campaign metrics and revenue attribution.
-        read_only_hint: true
-      - name: get_campaign_asset_types
-        description: List available campaign asset type names.
-        read_only_hint: true
-      - name: get_campaign_asset_metrics
-        description: Return metrics for CRM objects associated with campaigns.
-        read_only_hint: true
-      - name: submit_feedback
-        description: Send feedback about the MCP server experience to HubSpot.
 provenance:
   - source: pulsemcp
     name: com.pulsemcp.mirror/hubspot

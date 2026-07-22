@@ -8,7 +8,7 @@ agents can be spun up to draft from a provider's public MCP documentation.
 
 ```text
 guides/<slug>/
-├── meta.yaml    # Metadata (server, credentials, tools, provenance)
+├── meta.yaml    # Metadata (server, credentials, provenance)
 ├── research.md  # the Research Dossier every rendered fact traces to
 └── setup.md     # the Setup Guide a user follows, voiced for a persona
 schema/
@@ -29,10 +29,11 @@ CONTEXT.md       # ubiquitous-language glossary
 ## Anatomy of a Guide
 
 - **`meta.yaml`** captures the machine-readable facts: the MCP server's URL and
-  transport, the credential setup and its requirements, the full tool
-  inventory, and a `provenance` list recording the documentation locator
-  behind every fact. It starts with a `# yaml-language-server` pointer to the
-  schema so editors validate it as you write.
+  transport, the credential setup and its requirements, and a `provenance`
+  list recording the documentation locator behind every fact. It starts
+  with a `# yaml-language-server` pointer to the schema so editors validate
+  it as you write. Tool inventories are out of scope — the server's
+  advertised list is the runtime source of truth.
 - **`research.md`** is the Research Dossier — every fact the Setup Guide
   renders, at click-through depth, with provenance and minted anchor IDs.
   It is the fact ceiling: nothing appears in `setup.md` that is not

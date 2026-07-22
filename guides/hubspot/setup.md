@@ -43,8 +43,7 @@ the MCP auth app.
 
 ### Copy the client credentials {#copy-client-credentials}
 
-> Screenshot exception: the credential values are plain text fields whose
-> appearance adds nothing beyond the copied values.
+<!-- screenshot-exception: the credential values are plain text fields whose appearance adds nothing beyond the copied values -->
 
 1. After you create the app, HubSpot redirects you to the app's details
    page, where you can view its client credentials and redirect URLs.

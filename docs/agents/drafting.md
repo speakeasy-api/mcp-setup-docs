@@ -45,8 +45,10 @@ guides are authored from public documentation only.
     `<!-- screenshot: what the image could show -->` — the drafting default;
     write the note well enough that a later capture pass needs no
     re-research, or
-  - `> Screenshot exception: reason` — only when a screenshot would never
-    add value (for example, a plain text field).
+  - an exception comment on its own line —
+    `<!-- screenshot-exception: reason -->` — only when a screenshot would
+    never add value (for example, a plain text field). Like the
+    placeholder, it must not render for readers.
 - The only supported template key is `{{ gram.oauth.callback_url }}`.
 - Gotchas are anchored H3 subsections too; meta.yaml fields can reference any
   anchor as `setup.md#anchor-id`.

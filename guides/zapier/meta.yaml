@@ -30,37 +30,6 @@ remotes:
     transport: streamable-http
     authentication:
       - connection-token
-    tools:
-      - name: list_enabled_zapier_actions
-        description: List the actions currently enabled on the MCP server.
-      - name: discover_zapier_actions
-        description: Search Zapier's app directory for apps and actions available to add.
-      - name: enable_zapier_action
-        description: Enable a specific action as a callable tool.
-      - name: disable_zapier_action
-        description: Disable an enabled action that is no longer needed.
-      - name: auto_provision_mcp
-        description: Provision tools automatically from the account's existing Zapier app connections.
-      - name: write_code_action
-        description: Create a custom code action for an app when no built-in action matches.
-      - name: execute_zapier_read_action
-        description: Run a read or search action, such as finding an email or looking up a contact.
-      - name: execute_zapier_write_action
-        description: Run a write action, such as sending a message, creating a task, or updating a record.
-      - name: get_configuration_url
-        description: Return the URL of the server's Zapier MCP configuration page.
-      - name: list_zapier_skills
-        description: List saved Zapier Skills.
-      - name: get_zapier_skill
-        description: Retrieve a specific Zapier Skill by name.
-      - name: create_zapier_skill
-        description: Create a new Zapier Skill.
-      - name: update_zapier_skill
-        description: Update an existing Zapier Skill.
-      - name: delete_zapier_skill
-        description: Delete a Zapier Skill.
-      - name: send_feedback
-        description: Send feedback about the MCP server to Zapier.
 provenance:
   - source: pulsemcp
     name: com.pulsemcp.mirror/zapier

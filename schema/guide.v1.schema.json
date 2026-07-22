@@ -215,14 +215,6 @@
           "type": "array",
           "uniqueItems": true
         },
-        "tools": {
-          "items": {
-            "$ref": "#/definitions/tool"
-          },
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        },
         "transport": {
           "enum": [
             "sse",
@@ -238,7 +230,6 @@
       "required": [
         "authentication",
         "id",
-        "tools",
         "transport",
         "url"
       ],
@@ -293,31 +284,6 @@
       "required": [
         "observed_at",
         "source"
-      ],
-      "type": "object"
-    },
-    "tool": {
-      "additionalProperties": false,
-      "description": "One tool the MCP Server advertises.",
-      "properties": {
-        "description": {
-          "description": "Tool description.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "name": {
-          "description": "Tool name as advertised by the MCP Server.",
-          "minLength": 1,
-          "type": "string"
-        },
-        "read_only_hint": {
-          "description": "Authored copy of the readOnlyHint annotation; omit when the MCP Server does not advertise one.",
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "description",
-        "name"
       ],
       "type": "object"
     }

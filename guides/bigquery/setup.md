@@ -83,8 +83,7 @@ create the OAuth client.
 
 ### Copy the client credentials {#copy-credentials}
 
-> Screenshot exception: the credential values are plain text fields whose
-> appearance adds nothing beyond the copied values.
+<!-- screenshot-exception: the credential values are plain text fields whose appearance adds nothing beyond the copied values -->
 
 1. In the **OAuth 2.0 client created** dialog, copy the client ID and the
    client secret into the Speakeasy AI Control Plane fields. The secret can

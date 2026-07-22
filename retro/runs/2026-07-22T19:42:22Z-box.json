@@ -1,0 +1,315 @@
+{
+  "slug": "box",
+  "provider": "Box",
+  "persona": "it-admin",
+  "timestamp": "2026-07-22T19:42:22Z",
+  "status": "converged",
+  "rounds": 2,
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Gotchas {#external-sharing-restrictions} vs the ¹ marks in the Tool inventory",
+          "problem": "The gotcha states \"Fourteen write tools (marked ¹ in the inventory)\" but fifteen tools carry the ¹ mark (copy_file, copy_folder, create_folder, move_file, move_folder, set_file_metadata, set_folder_metadata, update_file_properties, update_folder_properties, upload_file, upload_file_version, create_file_comment, add_items_to_hub, copy_hub, update_hub), and setup.md#external-sharing-restrictions renders the fifteen-tool list.",
+          "suggestion": "Re-verify the footnote membership on https://developer.box.com/guides/box-mcp/tools/ and reconcile: fix the stated count to fifteen or correct the erroneous ¹ mark, then propagate any membership change into the tool list in setup.md#external-sharing-restrictions.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "remotes[0].tools — the 14 entries with read_only_hint: true (get_download_url through list_docgen_templates)",
+          "problem": "meta.yaml asserts read_only_hint: true on 14 tools, but the Dossier's open questions record that whether the live server advertises MCP readOnlyHint annotations is unverifiable and that the Read-only/Write groupings are the documentation's own, and the schema defines read_only_hint as an authored copy of the advertised annotation to omit when the server does not advertise one.",
+          "suggestion": "Remove every read_only_hint key from remotes[0].tools; if the hints should stay, first verify the live server's annotations, record that observation in research.md with provenance, and resolve the open question.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#find-box-mcp-server, step 2: \"Depending on the console version it is labeled either...\"",
+          "problem": "The claim that the tile label varies by console version has no backing fact in the Dossier, which records the Box MCP server / Custom Box MCP Server discrepancy as an inconsistency between two documentation pages and an open question, not a version difference.",
+          "suggestion": "Drop the causal clause and mirror the Dossier's naming caution, e.g. \"The tile may be labeled either **Box MCP server** or **Custom Box MCP Server** — Box's documentation uses both names for the same integration, and both use the configure flow in the next step.\"",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#enable-box-ai-access, step 4: \"If required, ensure that you provided consent to the Box AI terms of usage.\"",
+          "problem": "The step is hedged, past-tense narration (\"If required... you provided\") with no named control, so the careful, literal persona has no action to perform — a direct violation of the second-person imperative, one-action voice rule.",
+          "suggestion": "Recast as a conditional imperative within the Dossier fact, e.g. \"If Box asks you to consent to the Box AI terms of usage, accept the terms before leaving **Settings**.\" If the console location of the consent prompt can be verified, name it — that addition would need a Dossier line first.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#set-redirect-uri-and-scopes, step 2 and the paragraph ending \"match the options you see in the console to the tool areas your users need.\"",
+          "problem": "The reader must choose scopes with no stated minimum or default, forcing this persona to guess which checkboxes to select for the Speakeasy AI Control Plane connection.",
+          "suggestion": "State a concrete floor from the Dossier: select the content scope at minimum (labeled **Content Actions** in Box's earlier developer docs; OAuth scope `root_readwrite`) so the core content tools work, then add the Box AI scope (`ai.readwrite`) only if users need AI tools and the Doc Gen scope (`docgen.readwrite`) only with an Enterprise Advanced license — keeping the existing note that console labels vary.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#copy-client-credentials, paragraph beginning \"Box's documentation does not confirm whether the Client Secret remains viewable\"",
+          "problem": "The guide treats the Client Secret as a possible one-time secret but never says what to do if the reader leaves the page without copying it and it is no longer viewable.",
+          "suggestion": "Add a recovery sentence: if you return and the Client Secret is not viewable in the expanded entry, create a new Integration Credentials entry (repeat [Add Integration Credentials](#add-integration-credentials) and [Enter the Redirect URI and select scopes](#set-redirect-uri-and-scopes)) and paste the new Client ID and Client Secret into the Speakeasy AI Control Plane instead.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "meta",
+          "where": "credential_setup.requirements[box-admin].description",
+          "problem": "The description appends \"with permission to manage Integrations\", a specific permission requirement not recorded anywhere in the Dossier, which only states that Box Admins and Co-Admins can add Integration Credentials in the Admin Console.",
+          "suggestion": "Trim the description to the Dossier-backed fact (\"Box Admin or Co-Admin access to the enterprise's Admin Console\"), or record the specific Co-Admin permission in research.md with provenance before keeping it.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "meta",
+          "where": "remotes[0].tools — descriptions for list_folder_content_by_folder_id, create_metadata_template, move_file, move_folder, ai_qa_single_file",
+          "problem": "Five tool descriptions are truncated relative to the Dossier inventory: list_folder_content_by_folder_id drops \"Use folder_id \\\"0\\\" for the root folder\", create_metadata_template drops the requirements sentence, move_file and move_folder drop \"parent_folder_id is required\", and ai_qa_single_file drops the 1 MB text-representation limit.",
+          "suggestion": "Restore the full Dossier descriptions for these five tools so the Metadata carries the same tool facts as the Research Dossier.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Values from Gram (\"Add `{{ gram.oauth.callback_url }}` as the **Redirect URI**...\") and #set-redirect-uri-and-scopes step 1: \"the Redirect URI is a value the connecting client provides — this one comes from the Speakeasy AI Control Plane\"",
+          "problem": "\"Redirect URI\" is OAuth vocabulary the persona lacks; its first appearance (Values from Gram) is unglossed, and the eventual gloss defines it via another undefined term (\"connecting client\") and says where the value comes from but not what it is or does.",
+          "suggestion": "Gloss in plain functional terms at the action step, avoiding \"client\": \"(the Redirect URI is the web address Box sends users back to after they approve access — the Speakeasy AI Control Plane provides this one)\".",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#find-box-mcp-server prose: \"The Speakeasy AI Control Plane is a custom client and uses the Integration Credentials flow below instead.\" — and subsequent uses (\"MCP clients\", \"per-client\", \"close and reopen the MCP client\", \"clients cannot register themselves\")",
+          "problem": "\"Client\" is OAuth/console vocabulary the persona does not know, and it is used throughout the guide without ever being introduced.",
+          "suggestion": "Define it once at first use — e.g. \"a custom client (Box's term for an external app that connects with its own credentials — here, the Speakeasy AI Control Plane)\" — and in #manage-tool-access make the caching instruction concrete about what to close and reopen, e.g. \"the connected AI app (the MCP client)\".",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites: \"these are the roles that can add Integration Credentials in the Admin Console\"",
+          "problem": "\"Integration Credentials\" appears here undefined, three sections before its definition in #add-integration-credentials, violating the define-at-first-use rule.",
+          "suggestion": "Add a brief appositive at first mention, e.g. \"add Integration Credentials (the named credential entry this guide creates for the connection) in the Admin Console\".",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#metered-api-calls: \"API calls are free when a published app's users connect with their own logins.\"",
+          "problem": "\"Published app\" is console vocabulary never introduced, blurring the free-versus-billed contrast this billing warning exists to make.",
+          "suggestion": "Rephrase the contrast without the jargon, e.g. \"API calls are free for Box's standard published integrations, but Box bills API calls for the Integration Credentials this guide creates.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#url-tools-agentic-only: \"Declarative agents can't make these requests, so these tools work only in agentic (code-executing) environments.\"",
+          "problem": "\"Declarative agents\" is unintroduced jargon the persona cannot parse, and the parenthetical gloss defines only its opposite.",
+          "suggestion": "Lead with the plain rule and demote the jargon, e.g. \"These tools work only with AI agents that can run code and make their own network requests (Box calls these agentic environments); agents that cannot — declarative agents — can't use them.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#manage-tool-access — \"A table lists tool categories — for example, Files and Folders, Search, Box Hubs.\" and \"Tool usage is separately visible via the MCP Server Activity report.\"",
+          "problem": "Verbatim console labels (the category names Files and Folders, Search, Box Hubs, and the MCP Server Activity report name) are left unbolded, while sibling labels in the same section (e.g. Changed MCP Tools Enablement Status) are bolded, violating the persona rule that exact UI labels appear in bold.",
+          "suggestion": "Bold the labels: \"for example, **Files and Folders**, **Search**, **Box Hubs**\" and \"via the **MCP Server Activity** report\" (matching however the Dossier records the report label).",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#manage-tool-access step 4: \"Set the toggles you want, then click **Save**. A confirmation message appears.\"",
+          "problem": "The numbered step bundles two distinct actions (setting toggles and clicking Save), against the persona's one-action-per-step rule.",
+          "suggestion": "Split into two steps: \"Set the toggles you want.\" and \"Click **Save**. A confirmation message appears.\"",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#open-integrations, step 2 (\"Open the **Admin Console**.\")",
+          "problem": "The step names the destination but not the control or its location, and the Dossier never captured how to reach the Admin Console from app.box.com because provider docs start from inside it.",
+          "suggestion": "At capture time, record where the **Admin Console** control lives in the Box web app (e.g., its place in the left sidebar of app.box.com) and update the step to name that click.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#set-redirect-uri-and-scopes, end of step 2",
+          "problem": "No save or confirmation action is documented after entering the Redirect URI and selecting scopes, so the reader cannot tell whether the changes persisted before moving on.",
+          "suggestion": "Verify at capture time whether the expanded credential entry has an explicit Save/confirm control after editing, record it in the Dossier, and end the step with the action (or on-screen confirmation) that shows the values were kept.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#enable-box-ai-access, step 4 (\"If required, ensure that you provided consent to the Box AI terms of usage.\")",
+          "problem": "The reader has no way to tell whether consent is required or where in the console it is given, and the Dossier records nothing beyond this verbatim sentence.",
+          "suggestion": "Verify at capture time where the Box AI terms-of-usage consent appears and name the exact control, or record that the console prompts inline when consent is missing so the step can say to accept the prompt if it appears.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Finding 1 (research, ¹ count): Re-verified footnote membership on https://developer.box.com/guides/box-mcp/tools/ mechanically — fetched the raw HTML and located every <sup>1</sup> marker (WebFetch summaries were inconsistent, so I did not trust them). Exactly fifteen tool names carry the ¹ mark, identical to the Dossier inventory and the setup.md#external-sharing-restrictions list (create_docgen_batch and create_hub are unmarked; the sixteenth <sup> is the footnote definition itself at the page bottom, \"Last modified on July 13, 2026\" unchanged). Fixed the gotcha in research.md to \"Fifteen write tools\", corrected the quoted footnote verb to the observed \"Only works\", and noted the 2026-07-22 re-verification inline. No membership change, so no propagation into setup.md was needed. Finding 2 (meta, read_only_hint): Removed all 14 read_only_hint keys from remotes[0].tools in meta.yaml — the live server's annotations cannot be verified without completing OAuth against Box, so the schema's \"omit when the server does not advertise one\" rule applies and the Dossier open question stands. Re-validated meta.yaml against schema/guide.v1.schema.json using Python jsonschema (draft-07, FormatChecker, timestamps loaded as strings): SCHEMA VALID; all 54 tool entries carry exactly name+description. (ajv-cli could not run — it rejects the schema's \"date-time\" format without ajv-formats. An intermediate edit briefly joined some lines; repaired and re-validated before finishing.) Finding 3 (setup, #find-box-mcp-server): Dropped the invented \"Depending on the console version\" causal clause; step 2 now mirrors the Dossier's naming caution: the tile may be labeled either Box MCP server or Custom Box MCP Server because Box's documentation uses both names for the same integration. Finding 4 (setup, #enable-box-ai-access): Recast step 4 as a conditional imperative: \"If Box asks you to consent to the Box AI terms of usage, accept the terms before leaving **Settings**.\" The console location of the consent prompt remains undocumented, so no control was named. Finding 5 (setup, #set-redirect-uri-and-scopes): Stated a concrete floor — step 2 now says to select the content scope at minimum (labeled Content Actions in Box's earlier developer docs; OAuth scope root_readwrite) so the core content tools work; new steps 3 and 4 add ai.readwrite only if users need Box AI tools and docgen.readwrite only for Doc Gen (Enterprise Advanced license, linked to #plan-gated-tools). Kept the label-variance note as the closing paragraph. All facts trace to the Dossier's scope records. Finding 6 (setup, #copy-client-credentials): First recorded a Recovery line in the Dossier's {#copy-client-credentials} step (derived entirely from recorded facts: Box auto-generates a Client ID and Client Secret per entry, and the add flow is repeatable), then added the recovery sentence to setup.md: if the Client Secret is not viewable on return, create a new Integration Credentials entry (repeat #add-integration-credentials and #set-redirect-uri-and-scopes) and paste the new values into the Speakeasy AI Control Plane. Anchor contract verified: research.md, setup.md, and meta.yaml anchor sets agree; no anchors invented, renamed, or dropped. Files touched: /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/box/research.md, /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/box/meta.yaml, /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/box/setup.md — nothing outside the guide directory.",
+      "disputed": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "meta",
+          "where": "remotes[0].tools — ai_qa_single_file, create_metadata_template, list_folder_content_by_folder_id, move_file, move_folder",
+          "problem": "Five tool descriptions in meta.yaml are truncated relative to the Dossier's tool inventory — ai_qa_single_file drops the 1 MB text-representation limit, create_metadata_template drops the enterprise-scope/display_name requirements, list_folder_content_by_folder_id drops the folder_id \"0\" root-folder note, and move_file/move_folder drop \"parent_folder_id is required\".",
+          "suggestion": "Carry the Dossier inventory descriptions verbatim into meta.yaml for these five tools so the tool inventory says the same thing in both fact files.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites: \"these are the roles that can add Integration Credentials in the Admin Console\"",
+          "problem": "The Box console term \"Integration Credentials\" appears here before it is defined, and its definition only arrives three sections later in #add-integration-credentials, violating the persona rule that a term is defined in the clause where it first appears.",
+          "suggestion": "Gloss it at first mention, e.g. \"these are the roles that can add Integration Credentials (the per-connection credential entry this guide creates) in the Admin Console.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#set-redirect-uri-and-scopes, step 2: \"its OAuth scope string is `root_readwrite`\"",
+          "problem": "\"OAuth\" is unintroduced vocabulary at this point — \"scope\" itself is defined in the following sentence, but the OAuth qualifier is never explained before its first prose use, and the persona has never seen the term.",
+          "suggestion": "Drop the qualifier or gloss it in the clause, e.g. \"its underlying scope name — the technical ID Box uses for this checkbox — is `root_readwrite`\".",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#manage-tool-access, steps 1 and 4: \"go to **Integrations** and open the **Box MCP Server** tab\" / \"Set the toggles you want, then click **Save**.\"",
+          "problem": "Both numbered steps bundle two actions, against the persona's one-action-per-step rule.",
+          "suggestion": "Split each into two numbered steps: (1) go to **Integrations**, (2) open the **Box MCP Server** tab; and (1) set the toggles you want, (2) click **Save** — keeping \"A confirmation message appears\" with the Save step.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#url-tools-agentic-only: \"Declarative agents can't make these requests, so these tools work only in agentic (code-executing) environments.\"",
+          "problem": "\"Declarative agents\" is undefined jargon for a persona with no agent-architecture background; only \"agentic\" gets a parenthetical gloss.",
+          "suggestion": "Define both in-clause, e.g. \"AI clients that cannot run code (Box calls these declarative agents) cannot make these requests, so these tools work only in clients that can execute code.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#manage-tool-access, step 4: \"Set the toggles you want, then click **Save**. A confirmation message appears.\"",
+          "problem": "The step bundles two separable actions (configuring the per-tool toggles and clicking Save), unlike the hover-then-click compound elsewhere where the first half is only a gesture that reveals the control.",
+          "suggestion": "Split into two numbered steps: \"4. Set the toggles you want.\" and \"5. Click **Save**. A confirmation message appears.\"",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Dossier {#set-redirect-uri-and-scopes} / setup.md#set-redirect-uri-and-scopes, after step 4",
+          "problem": "Neither the Dossier nor the guide records whether the Redirect URI and scope selections in the expanded credential entry save automatically or require their own Save action, so the reader cannot confirm the settings persisted before eventually leaving the page.",
+          "suggestion": "Add this to the Dossier's open questions for console verification at screenshot-capture time; once verified, close the section with either a confirmation sentence (changes apply as you enter them) or an explicit Save step.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Dossier {#open-integrations} / setup.md#open-integrations, step 2: \"Open the **Admin Console**.\"",
+          "problem": "The guide's Prerequisites promise no prior Admin Console experience, but step 2 never says where the Admin Console control lives in the Box web app, and the Dossier records only that provider docs start from inside the Admin Console.",
+          "suggestion": "Record the navigation locator in the Dossier (with provenance, or as an open question for capture-time verification) and then name the control's location in step 2, e.g. \"In the left sidebar of the Box web app, click **Admin Console**.\"",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "meta",
+      "where": "remotes[0].tools — ai_qa_single_file, create_metadata_template, list_folder_content_by_folder_id, move_file, move_folder",
+      "problem": "Five tool descriptions in meta.yaml are truncated relative to the Dossier's tool inventory — ai_qa_single_file drops the 1 MB text-representation limit, create_metadata_template drops the enterprise-scope/display_name requirements, list_folder_content_by_folder_id drops the folder_id \"0\" root-folder note, and move_file/move_folder drop \"parent_folder_id is required\".",
+      "suggestion": "Carry the Dossier inventory descriptions verbatim into meta.yaml for these five tools so the tool inventory says the same thing in both fact files.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "Prerequisites: \"these are the roles that can add Integration Credentials in the Admin Console\"",
+      "problem": "The Box console term \"Integration Credentials\" appears here before it is defined, and its definition only arrives three sections later in #add-integration-credentials, violating the persona rule that a term is defined in the clause where it first appears.",
+      "suggestion": "Gloss it at first mention, e.g. \"these are the roles that can add Integration Credentials (the per-connection credential entry this guide creates) in the Admin Console.\"",
+      "dimension": "voice"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#set-redirect-uri-and-scopes, step 2: \"its OAuth scope string is `root_readwrite`\"",
+      "problem": "\"OAuth\" is unintroduced vocabulary at this point — \"scope\" itself is defined in the following sentence, but the OAuth qualifier is never explained before its first prose use, and the persona has never seen the term.",
+      "suggestion": "Drop the qualifier or gloss it in the clause, e.g. \"its underlying scope name — the technical ID Box uses for this checkbox — is `root_readwrite`\".",
+      "dimension": "voice"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#manage-tool-access, steps 1 and 4: \"go to **Integrations** and open the **Box MCP Server** tab\" / \"Set the toggles you want, then click **Save**.\"",
+      "problem": "Both numbered steps bundle two actions, against the persona's one-action-per-step rule.",
+      "suggestion": "Split each into two numbered steps: (1) go to **Integrations**, (2) open the **Box MCP Server** tab; and (1) set the toggles you want, (2) click **Save** — keeping \"A confirmation message appears\" with the Save step.",
+      "dimension": "voice"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#url-tools-agentic-only: \"Declarative agents can't make these requests, so these tools work only in agentic (code-executing) environments.\"",
+      "problem": "\"Declarative agents\" is undefined jargon for a persona with no agent-architecture background; only \"agentic\" gets a parenthetical gloss.",
+      "suggestion": "Define both in-clause, e.g. \"AI clients that cannot run code (Box calls these declarative agents) cannot make these requests, so these tools work only in clients that can execute code.\"",
+      "dimension": "voice"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#manage-tool-access, step 4: \"Set the toggles you want, then click **Save**. A confirmation message appears.\"",
+      "problem": "The step bundles two separable actions (configuring the per-tool toggles and clicking Save), unlike the hover-then-click compound elsewhere where the first half is only a gesture that reveals the control.",
+      "suggestion": "Split into two numbered steps: \"4. Set the toggles you want.\" and \"5. Click **Save**. A confirmation message appears.\"",
+      "dimension": "formatting"
+    },
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "Dossier {#set-redirect-uri-and-scopes} / setup.md#set-redirect-uri-and-scopes, after step 4",
+      "problem": "Neither the Dossier nor the guide records whether the Redirect URI and scope selections in the expanded credential entry save automatically or require their own Save action, so the reader cannot confirm the settings persisted before eventually leaving the page.",
+      "suggestion": "Add this to the Dossier's open questions for console verification at screenshot-capture time; once verified, close the section with either a confirmation sentence (changes apply as you enter them) or an explicit Save step.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "Dossier {#open-integrations} / setup.md#open-integrations, step 2: \"Open the **Admin Console**.\"",
+      "problem": "The guide's Prerequisites promise no prior Admin Console experience, but step 2 never says where the Admin Console control lives in the Box web app, and the Dossier records only that provider docs start from inside the Admin Console.",
+      "suggestion": "Record the navigation locator in the Dossier (with provenance, or as an open question for capture-time verification) and then name the control's location in step 2, e.g. \"In the left sidebar of the Box web app, click **Admin Console**.\"",
+      "dimension": "achievability"
+    }
+  ],
+  "unresolved": [],
+  "open_questions": [
+    "Exact scope checkbox labels in the Integration Credentials UI: docs conflict — 'Access Scopes' with 'Content Actions' (older developer docs), 'Scopes' with 'Manage AI' (support article), 'Select desired Access Scopes' with no labels (current developer docs); mapping of UI labels to OAuth strings root_readwrite / ai.readwrite / docgen.readwrite is undocumented and needs console verification at screenshot capture.",
+    "Integration tile label: 'Box MCP server' (developer docs) vs 'Custom Box MCP Server' (support article) for the hover-then-Configure target.",
+    "Availability-state option names for integrations are never enumerated ('click the state, then select the state you want to enable'), and whether the Custom Box MCP Server app itself must be set to an enabled state beyond creating Integration Credentials (whose Platform > Platform Apps entry has its own availability) is undocumented.",
+    "Whether the Client Secret remains viewable on later visits to the expanded credential entry or is effectively shown once — the documented flow implies it stays viewable but no source confirms it.",
+    "Whether the live server advertises MCP readOnlyHint annotations — hints in meta.yaml derive from the documentation's Read-only/Write groupings, not a live tools/list; who_am_i, Search, and Box AI tools are ungrouped in the docs and carry no hint.",
+    "Default tool-enablement state for a newly enabled enterprise in the Box MCP Server tool-access tab (beyond the four external-sharing tools documented 'Off by default').",
+    "How the reader reaches the Admin Console from app.box.com is not recorded (provider docs start inside it); step 2 of {#open-integrations} says only \"Open the Admin Console\" with no named control — needs capture-time verification.",
+    "Exact scope checkbox labels in the credential entry, and their mapping to root_readwrite / ai.readwrite / docgen.readwrite, are undocumented (Dossier open question); the guide shows both documented label variants (Content Actions, Manage AI) and tells the reader to match by tool area.",
+    "Integration tile label is documented inconsistently (Box MCP server vs Custom Box MCP Server); rendered as either/or pending console verification.",
+    "Whether the Client Secret remains viewable on return visits is unconfirmed; rendered as a pre-step warning to copy immediately.",
+    "Whether the Custom Box MCP Server app must be set to an enabled availability state beyond creating Integration Credentials is undocumented; the guide includes no availability-state step (the prior stale draft had invented one).",
+    "Dossier-internal discrepancy: the {#external-sharing-restrictions} gotcha says \"Fourteen write tools\" but the tool inventory marks 15 tools with the footnote; setup.md lists the 15 marked tools without asserting a count — the Dossier should reconcile the number.",
+    "Default tool-enablement state for a newly enabled enterprise is undocumented (Dossier open question); not rendered in the guide."
+  ]
+}

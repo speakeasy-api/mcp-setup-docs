@@ -34,7 +34,9 @@ a defect.
   - a placeholder comment on its own line —
     `<!-- screenshot: what the image could show -->` — the drafting
     default; carry the Dossier's screenshot note through, or
-  - `> Screenshot exception: reason` — only when the Dossier records one.
+  - an exception comment on its own line —
+    `<!-- screenshot-exception: reason -->` — only when the Dossier
+    records one. Like the placeholder, it must not render for readers.
 - The only supported template key is `{{ gram.oauth.callback_url }}`.
 - Gotchas are anchored H3 subsections too; Metadata fields can reference
   any anchor as `setup.md#anchor-id`.

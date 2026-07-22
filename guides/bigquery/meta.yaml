@@ -36,24 +36,6 @@ remotes:
     transport: streamable-http
     authentication:
       - oauth-client
-    tools:
-      - name: list_dataset_ids
-        description: List BigQuery dataset IDs in a Google Cloud project.
-        read_only_hint: true
-      - name: get_dataset_info
-        description: Get metadata about a BigQuery dataset.
-        read_only_hint: true
-      - name: list_table_ids
-        description: List table IDs in a BigQuery dataset.
-        read_only_hint: true
-      - name: get_table_info
-        description: Get metadata about a BigQuery table.
-        read_only_hint: true
-      - name: execute_sql_readonly
-        description: Run a read-only SQL query and return the result.
-        read_only_hint: true
-      - name: execute_sql
-        description: Run a SQL query synchronously and return the result; restricted to SELECT statements, though queries can invoke remote functions or Python UDFs.
 provenance:
   - source: pulsemcp
     name: com.pulsemcp.mirror/google-bigquery

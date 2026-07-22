@@ -21,13 +21,13 @@ _Avoid_: instructions, tutorial, readme
 
 **Metadata**:
 The structured facts backing a Guide — the MCP Server's URL and transport,
-credential setup, tool inventory, and provenance.
+credential setup, and provenance.
 _Avoid_: entry, frontmatter, manifest
 
 **MCP Server**:
-The remote MCP endpoint a Setup Guide documents, identified by its URL,
-transport, and tool inventory. A guide may cover more than one when they share
-a single credential setup.
+The remote MCP endpoint a Setup Guide documents, identified by its URL and
+transport. A guide may cover more than one when they share a single
+credential setup.
 _Avoid_: Remote, endpoint, provider
 
 **Provider**:
@@ -36,8 +36,10 @@ guide is drafted from — for example Box, Zapier, or Google.
 _Avoid_: vendor
 
 **Tool**:
-A single callable operation an MCP Server exposes, recorded in the guide with
-its name and description.
+A single callable operation an MCP Server exposes. Guides never catalog
+inventories — the server's advertised list is the runtime source of truth —
+and name a tool only where it matters to setup: billing, licensing,
+off-by-default, or restricted behavior.
 _Avoid_: function, capability, action
 
 **Authentication Option**:

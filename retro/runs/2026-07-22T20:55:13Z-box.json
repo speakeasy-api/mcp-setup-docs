@@ -1,0 +1,396 @@
+{
+  "slug": "box",
+  "provider": "Box",
+  "persona": "it-admin",
+  "timestamp": "2026-07-22T20:55:13Z",
+  "status": "converged",
+  "rounds": 3,
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#enable-box-ai-api — \"First-time enablement may ask you to review and accept the Box AI Product Addendum before enabling Box AI for your organization.\"",
+          "problem": "The warning that enabling Box AI may require accepting a legal agreement (the Box AI Product Addendum, or a Review Agreement Offline dead end) is placed after step 4, below the Enable Box AI and Enable for all clicks it protects, violating the persona rule that warnings come in the step above the click, not after it.",
+          "suggestion": "Move the Product Addendum / Review Agreement Offline paragraph above the numbered steps (or attach it to step 2, immediately before \"click **Enable Box AI**\"), so the admin knows before clicking that they may be asked to accept a legal agreement on the organization's behalf — and can get authority or escalate first.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#check-access-scopes — \"enable them in [Enable the Box AI API](#enable-box-ai-api) or [Enable Box Doc Gen](#enable-doc-gen), then return here\" vs #add-integration-credentials — \"plan to finish this step through [Save the credential entry](#save-credentials) in one sitting\"",
+          "problem": "The guide directs a mid-flow detour to another Admin Console area while the reader is on an unsaved credential entry, directly contradicting its own earlier warning not to leave the page before Save, and never says which instruction wins.",
+          "suggestion": "Resolve the contradiction by front-loading the decision: in the Provider setup intro or #add-integration-credentials, tell readers whose users need AI or Doc Gen tools to complete #enable-box-ai-api / #enable-doc-gen before creating credentials (the Dossier records that enablement is what makes those scopes appear), and reword the #check-access-scopes fallback to route through Save first — click Save, enable the feature, then re-open the credential entry to select the newly visible scope.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#add-integration-credentials, step 1: \"Go to **Configuration**.\"",
+          "problem": "Neither the Dossier nor setup.md names the screen transition from the Custom Box MCP Server tile found in the previous step to the Configuration view, so a reader with zero console experience must guess whether to click the tile and where Configuration appears.",
+          "suggestion": "Record the tile-to-Configuration transition in the Dossier — verify it against the console (or Walker's screenshot) at capture time, or log it as an open question if docs.box.com stays silent — then have setup.md name it explicitly, e.g. \"Select the **Custom Box MCP Server** tile. This opens its page, where the **Configuration** view lives.\"",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "meta",
+          "where": "remotes[0].tools — list_folder_content_by_folder_id, create_metadata_template, move_file, move_folder, ai_extract_freeform, ai_qa_single_file",
+          "problem": "Six tool descriptions in meta.yaml are truncated relative to the Dossier's tool inventory — list_folder_content_by_folder_id drops the folder_id \"0\" root-folder note, create_metadata_template drops the enterprise-scope/display_name/fields requirements sentence, move_file and move_folder drop \"parent_folder_id is required\", ai_extract_freeform drops \"Text representation up to 1 MB\", and ai_qa_single_file drops the 1 MB text-representation limit — a recurrence of the truncation nit reported in both rounds of the prior (pre-correction) run.",
+          "suggestion": "Carry the Dossier inventory descriptions verbatim into meta.yaml for these six tools so the tool inventory says the same thing in both fact files.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "meta",
+          "where": "credential_setup.requirements[box-admin].description",
+          "problem": "The description appends \"with permission to manage Integrations\", a specific permission qualifier with no backing fact in the Dossier, which records only that \"Box Admins and Co-Admins can add Integration Credentials for supported apps in the Admin Console\" (Box support) — the same unbacked qualifier the prior run's round-1 review flagged.",
+          "suggestion": "Trim the description to the Dossier-backed fact (\"Box Admin or Co-Admin access to the enterprise's Admin Console\"), or first record the specific Co-Admin Integrations permission in research.md with provenance and keep it.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#add-integration-credentials / #save-credentials — absence of the Dossier credential-flow \"Side effect worth knowing\"",
+          "problem": "The Dossier's recorded side effect — the added Integration Credentials appear as a platform app under Platform > Platform Apps, where their availability status is managed independently of the integration's — is nowhere in setup.md, so an admin who later encounters the unexpected platform app has no explanation.",
+          "suggestion": "Either add a hedged sentence after the Save step (e.g. \"Box's support documentation notes the new credentials also appear as a platform app under Platform > Platform Apps, with their own availability status\" — keeping the Dossier's flag that this console-UI fact is unconfirmed on docs.box.com), or have Technical Research record in the Dossier that the fact is deliberately withheld pending docs.box.com confirmation so the omission is a decision rather than a drop.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites — \"the Doc Gen scope requires an Enterprise Advanced license\"",
+          "problem": "\"Scope\" is on the persona's explicit must-introduce-at-first-use OAuth vocabulary list, but its first use here is undefined — the definition only arrives at #check-access-scopes.",
+          "suggestion": "Avoid the term in Prerequisites (\"the Doc Gen tools require an Enterprise Advanced license\") or gloss it inline at this first use, e.g. \"the Doc Gen scope (a permission switch you select later in setup)\".",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites — \"Box Admins and Co-Admins are the roles that can add Integration Credentials in the Admin Console.\"",
+          "problem": "The console term \"Integration Credentials\" is used here before its definition, which only appears in the Provider setup intro one section later.",
+          "suggestion": "Add the short gloss at this first use — e.g. \"add **Integration Credentials** (Box's name for the sign-in values it generates for one external connection)\" — or rephrase to \"the roles that can create the credentials this guide sets up\".",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#set-redirect-uri step 1 — \"change the existing Box redirect URI value(s) to `{{ gram.oauth.callback_url }}`\"",
+          "problem": "The \"value(s)\" hedge makes a careful, literal reader guess whether they are replacing one value or several.",
+          "suggestion": "Rephrase without the parenthetical plural: \"delete whatever is already in **Redirect URIs** and paste `{{ gram.oauth.callback_url }}` in its place\" — this stays honest about the undocumented pre-filled value while giving one unambiguous action.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#enable-box-ai-api intro — \"the Box AI tools (`ai_qa_*` and `ai_extract_*`)\"",
+          "problem": "The `*` wildcard notation assumes pattern-matching conventions the persona (no CLIs, nothing that is not a browser) does not know.",
+          "suggestion": "Spell it out: \"the Box AI tools (the tools whose names begin with `ai_qa_` or `ai_extract_`)\".",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#enable-box-ai-api step 1 and #enable-doc-gen step 1 — \"In the Admin Console, go to the **Box AI** section, then open the **Settings** tab.\"",
+          "problem": "Both steps bundle two navigation actions (open a section, then open a tab) into one numbered step, against the persona's one-action-per-step rule and the guide's own pattern of splitting navigation (see #find-custom-box-mcp-server).",
+          "suggestion": "Split each into two numbered steps: \"1. In the Admin Console, go to the **Box AI** section. 2. Open the **Settings** tab.\" (and likewise for **Enterprise Settings** / **Content and Sharing**).",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Gotchas #url-tools-agentic-only — \"Declarative agents can't make these requests, so these tools work only in agentic (code-executing) environments.\"",
+          "problem": "\"Declarative agents\" and \"agentic environments\" are undefined AI jargon; \"agentic\" gets a parenthetical but \"declarative\" gets none, assuming knowledge the persona lacks.",
+          "suggestion": "Rephrase in plain terms: \"These tools hand back a URL that the AI client itself must fetch. Clients that cannot run code can't do that, so the tools only work in clients that can (code-executing, or 'agentic', clients).\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Gotchas #metered-api-calls — \"a Sign request is 1 API call plus Sign usage\"",
+          "problem": "\"Sign\" (the Box Sign e-signature product) appears here with no introduction anywhere in the guide, so the persona cannot tell what a \"Sign request\" is.",
+          "suggestion": "Gloss at first use: \"a Box Sign request (Box's e-signature feature) is 1 API call plus Sign usage\".",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Gotchas #file-preview-requires-mcp-apps — \"Calling it from a client without MCP Apps support reports a UI widget that never appears.\"",
+          "problem": "The sentence reads as broken English (\"reports a UI widget that never appears\") and a literal reader cannot work out what actually happens.",
+          "suggestion": "Rephrase: \"Called from a client without MCP Apps support, the tool responds as if it worked, but the preview it promises never shows up in the client.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#manage-tool-access, prose after step 6: \"To audit these changes, go to **Reports** > **Create Report** > **Security Logs**...\" and \"You can also jump straight to a category: enter a tool keyword in the search bar...\"",
+          "problem": "Two optional action sequences (the audit-report path and the search-bar jump) are rendered as flowing prose, while the persona's Formatting section requires numbered steps for every action with prose only between step groups.",
+          "suggestion": "Render each as a short numbered list introduced by an explicitly optional lead-in (e.g. \"To audit these changes:\" followed by 1. Go to **Reports**. 2. Select **Create Report**. 3. ...), keeping the bolded labels as they are.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#enable-box-ai-api step 1 (\"go to the **Box AI** section, then open the **Settings** tab\"), #enable-doc-gen step 1 (\"go to **Enterprise Settings**, then open the **Content and Sharing** tab\"), #save-credentials step 2 (\"Re-open the credential entry, and confirm the **Redirect URIs** value you pasted persisted\")",
+          "problem": "Three numbered steps each bundle two actions, straining the persona's one-action-per-numbered-step rule even though none hits the explicit two-\"and\" threshold.",
+          "suggestion": "Split each into two numbered steps (navigate, then open the tab; re-open the entry, then confirm the Redirect URIs value), renumbering the lists accordingly.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#copy-client-credentials prose (\"store the Client Secret in your password manager\", \"If you return later and the Client Secret is not viewable\") and Prerequisites (\"the console's Integrations area\")",
+          "problem": "Console labels Client Secret and Integrations appear unbolded in these prose passages while the identical labels are bolded in other prose (e.g. the Values from Gram section), making UI-label bolding inconsistent.",
+          "suggestion": "Bold **Client Secret** in both #copy-client-credentials prose references and **Integrations** in the Prerequisites sentence so every reference to a verbatim console label is bolded.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#set-redirect-uri, step 1: \"In **Redirect URIs**, change the existing Box redirect URI value(s)...\"",
+          "problem": "The guide never says where the Redirect URIs field appears after clicking Add Integration Credentials (inline in the new entry, a panel, or behind an expand control), so the reader must scan the page to locate it.",
+          "suggestion": "Verify the post-generation credential-entry view at capture time and record in the Dossier where the Redirect URIs field lives, so setup.md can orient the reader before naming the field.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#check-access-scopes: \"match the options you see to the three tool areas the server supports\"",
+          "problem": "The reader must map undocumented checkbox labels onto three scope descriptions — a guess-point the guide mitigates honestly but cannot remove until the exact labels are known.",
+          "suggestion": "Keep the existing open question live and capture the exact Access scopes checkbox labels at screenshot time, then replace the descriptive matching instruction with the verbatim labels.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#manage-tool-access, step 6: \"Click **Save**. A confirmation message appears.\"",
+          "problem": "The Dossier ties Save and its confirmation message to the per-tool configuration window opened by Configure, so a reader who only used the Enablement dropdown (whose category-level changes take effect immediately) is left hunting for a Save button that may not exist on the category table.",
+          "suggestion": "Fold the Save action into step 5's configuration-window path (\"...a toggle for each tool. Click **Save**; a confirmation message appears.\") and state after step 4 that Enablement-dropdown changes apply immediately with no Save.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites: \"you point the Speakeasy AI Control Plane at that address rather than installing or running anything yourself\"",
+          "problem": "The sentence implies an action the reader must perform, but no step or field in the guide (or the Values from Gram section) ever collects the server address, so a literal reader may search for a missing step.",
+          "suggestion": "Rephrase as a fact with no implied action, e.g. \"The Speakeasy AI Control Plane connects to that address for you — there is nothing to install or run.\"",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Finding 1 (setup/#enable-box-ai-api): moved the Box AI Product Addendum / Review Agreement Offline warning from after step 4 to a paragraph above the numbered steps, phrased as a before-the-click warning (\"Before you click anything below...\") with a one-clause definition (a legal agreement accepted for the organization) and advice to get approval first if accepting is not the reader's call — per the persona rule that warnings precede the click. All facts trace to the Dossier's {#enable-box-ai-api} entry (Configuring Box AI, docs.box.com).\n\nFinding 2 (setup, mid-flow detour contradiction): three coordinated edits. (a) Provider setup intro now front-loads the decision: readers whose users need AI or Doc Gen tools complete #enable-box-ai-api / #enable-doc-gen before creating credentials, because those scopes only appear once the features are enabled (Dossier {#check-access-scopes} and {#ai-docgen-tools-hidden-until-enabled}). (b) The #check-access-scopes fallback no longer detours from an unsaved entry: it now says click Save first, enable the feature, then re-open the credential entry, select the newly visible scope, and Save again (re-opening the entry is recorded in the Dossier's {#save-credentials} recovery note). (c) The closings of #enable-box-ai-api and #enable-doc-gen and the #ai-docgen-tools-hidden-until-enabled gotcha were rewritten to match — no path in the guide now leaves an unsaved entry.\n\nFinding 3 (research, tile-to-Configuration transition): re-verified the docs.box.com claude-code page via its .md endpoint — it names no action between \"find Custom Box MCP Server\" and \"Go to Configuration\", and never uses the word \"tile\". Recorded the transition in the Dossier under {#add-integration-credentials} as an explicitly flagged inference from step order (select the Custom Box MCP Server tile; its page holds the Configuration view), added a matching \"Tile-to-Configuration transition\" open question for console verification at capture time, and rendered it in setup.md as a new step 1 (\"Select the **Custom Box MCP Server** tile you found in the previous step. This opens the integration's own page, where the **Configuration** view lives.\"). While doing this I corrected two Dossier statements that said the flow was \"human-verified against a console screenshot\" — the retro note (retro/notes/2026-07-22-box.md) records Walker's screenshot was of the docs page itself, and the uncorrected phrasing would have contradicted the new open question.\n\nmeta.yaml: untouched (no finding required it; no anchors changed, so no schema revalidation was needed). Anchor contract honored: no anchors invented, renamed, or dropped in either file.\n\nResidual uncertainty worth carrying forward: the Save-first fallback assumes a saved credential entry's Access scopes are editable on re-open; the Dossier documents re-opening the entry (to confirm the Redirect URI) but no source explicitly documents editing scopes on a saved entry. The existing #copy-client-credentials recovery (generate a fresh credential set) covers the case where re-editing fails.",
+      "disputed": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "{#check-access-scopes} / {#save-credentials} — backing for setup.md's Save-first recovery: \"first click **Save** ..., then re-open the credential entry, select the newly visible scope, and click **Save** again\" (#check-access-scopes; repeated in the closings of #enable-box-ai-api and #enable-doc-gen)",
+          "problem": "setup.md instructs readers to re-open a saved credential entry and edit its Access scopes, but the Dossier records re-opening only to confirm the Redirect URI persisted and contains no fact, flagged inference, or open question saying a saved entry's scopes are editable on re-open — an unrecorded console workflow that breaches the fact ceiling, which the revision agent itself flagged as residual uncertainty.",
+          "suggestion": "Mirror the tile-to-Configuration treatment: record the Save-first recovery in the Dossier under {#check-access-scopes} (or {#save-credentials}) as an explicitly flagged inference (Save, enable the feature, re-open the entry, select the newly visible scope, Save again), add an open question on whether a saved entry's Access scopes are editable on re-open (console verification at capture time), and note the fresh-credential-set recovery ({#copy-client-credentials}) as the fallback if re-editing fails — setup.md then stands as written, optionally adding that fallback pointer.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Prerequisites — \"AI tools require a Box AI-enabled plan, and the Doc Gen scope requires an Enterprise Advanced license\"; and Provider setup intro — \"the AI and Doc Gen scopes only appear in the credential entry once those features are enabled for your enterprise\"",
+          "problem": "The OAuth term \"scope\" — vocabulary the persona file explicitly says the reader does not know and \"must be introduced at first use\" — is used undefined in Prerequisites and again in the Provider setup routing paragraph (added by the round-1 revision), while its definition only arrives in #check-access-scopes, after the point where that paragraph routes AI/Doc Gen readers away to the enablement steps.",
+          "suggestion": "Introduce the term at its true first use without changing the underlying fact: in Prerequisites write e.g. \"the Doc Gen scope (a scope caps which actions the connection may perform — see Check the Access scopes) requires an Enterprise Advanced license\", or carry the one-clause gloss in the Provider setup intro's routing paragraph and rephrase the Prerequisites sentence to avoid the bare term; keep #check-access-scopes restating the definition at the action point.",
+          "dimension": "voice"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites — \"Box Admins and Co-Admins are the roles that can add Integration Credentials in the Admin Console\"",
+          "problem": "The Box term \"Integration Credentials\" appears in Prerequisites without a gloss, and its definition (\"Box's name for the sign-in values it generates for a single external connection\") only arrives a section later in the Provider setup intro.",
+          "suggestion": "Add a short parenthetical at first use — e.g. \"can add Integration Credentials (the sign-in values Box generates for one external connection) in the Admin Console\" — or defer the term: \"the roles that can complete the credential steps below.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#enable-box-ai-api step 1 — \"In the Admin Console, go to the **Box AI** section, then open the **Settings** tab.\" (same pattern in #enable-doc-gen step 1)",
+          "problem": "These steps bundle two navigation actions into one numbered step, while #manage-tool-access splits the identical navigate-then-select-tab pattern into separate single-action steps, violating the persona's one-action-per-step rule inconsistently.",
+          "suggestion": "Split each into two numbered steps: \"1. In the Admin Console, go to the **Box AI** section. 2. Open the **Settings** tab.\" (and the equivalent for Enterprise Settings > Content and Sharing in #enable-doc-gen).",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#file-preview-requires-mcp-apps — \"Calling it from a client without MCP Apps support reports a UI widget that never appears.\"",
+          "problem": "The sentence is grammatically garbled (a call cannot \"report a widget that never appears\"), leaving the careful, literal persona unsure what symptom they or their users would actually see.",
+          "suggestion": "Reword within the recorded facts, e.g.: \"In a client without MCP Apps support, the tool responds with a preview widget the client cannot display — the preview never appears.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#url-tools-agentic-only — \"Declarative agents can't make these requests, so these tools work only in agentic (code-executing) environments.\"",
+          "problem": "\"Declarative agents\" is unintroduced jargon for this persona — the sentence glosses \"agentic\" but leaves its counterpart undefined, so the reader cannot tell which kind of client they have.",
+          "suggestion": "Gloss the counterpart in the same clause, e.g.: \"Declarative agents — clients that only exchange messages and cannot run code — can't make these requests, so these tools work only in agentic (code-executing) environments.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#manage-tool-access — \"To audit these changes, go to **Reports** > **Create Report** > **Security Logs** and, under **Integrations**, select **Changed MCP Tools Enablement Status**.\"",
+          "problem": "A multi-click action sequence is rendered as a single prose sentence using \">\" path separators — notation used nowhere else in the guide — instead of the numbered single-action steps the persona's Formatting section requires for every action.",
+          "suggestion": "Render the audit path as a short numbered list (Go to **Reports**. / Select **Create Report**. / Select **Security Logs**. / Under **Integrations**, select **Changed MCP Tools Enablement Status**.), keeping the introductory clause as prose; numbered steps inside a section do not touch the anchor contract.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#enable-box-ai-api step 1 (\"In the Admin Console, go to the **Box AI** section, then open the **Settings** tab.\") and the parallel #enable-doc-gen step 1 (\"go to **Enterprise Settings**, then open the **Content and Sharing** tab.\")",
+          "problem": "Each of these numbered steps bundles two navigation actions (go to a section, then open a tab), deviating from the one-action-per-numbered-step formatting rule.",
+          "suggestion": "Split each into two numbered steps — e.g. \"1. In the Admin Console, go to the **Box AI** section. 2. Open the **Settings** tab.\" — renumbering the steps that follow; the anchored H3 headings stay untouched.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#save-credentials step 2 — \"Re-open the credential entry, and confirm the **Redirect URIs** value you pasted persisted.\" (also relied on in #check-access-scopes, #enable-box-ai-api, #enable-doc-gen, and the #copy-client-credentials recovery)",
+          "problem": "Neither the Dossier nor setup.md names the post-Save view or the gesture for re-opening a saved credential entry, so a reader with zero console experience must guess how to get back into the entry the first time the guide tells them to.",
+          "suggestion": "Record the post-Save view and re-open gesture in the Dossier under {#save-credentials} — as an explicitly flagged inference (e.g. the entry remains listed in the Custom Box MCP Server Configuration view; click it to re-open) or as an open question for console verification at capture time — then have setup.md name it once at its first use, e.g. \"In the **Configuration** view, select the credential entry you created to re-open it.\"",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#check-access-scopes fallback and the closings of #enable-box-ai-api / #enable-doc-gen — \"re-open the credential entry, select the newly visible scope, and click **Save** again\"",
+          "problem": "No source documents that a saved credential entry's Access scopes are editable on re-open (the Dossier's {#save-credentials} recovery only documents re-opening to confirm the Redirect URI), and the Dossier carries no open question for it, so the Save-first fallback rests on an unrecorded assumption with no stated next move if scope selection fails on a saved entry.",
+          "suggestion": "Add an open question to the Dossier (whether a saved entry's Access scopes are editable on re-open; verify at capture time), and append one sentence to the setup.md fallback routing failure to the existing recovery: if the scope cannot be selected when you re-open the entry, generate a fresh credential set per the recovery in [Copy the Client ID and Client Secret](#copy-client-credentials).",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Finding 1 (research, Save-first recovery unbacked): Applied in /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/box/research.md exactly as the suggestion outlined. (a) Added a \"Recovery — missing AI/Doc Gen scope (flagged inference, not a documented flow)\" bullet to {#check-access-scopes} recording the full sequence (Save via {#save-credentials}, enable the feature via {#enable-box-ai-api}/{#enable-doc-gen}, re-open the saved entry, select the newly visible scope, Save again), explicitly flagging the re-open-and-edit step as inferred — {#save-credentials} documents re-opening only to confirm the Redirect URI persisted — and naming the fresh-credential-set recovery from {#copy-client-credentials} as the fallback if re-editing fails. (b) Added the open question \"Whether a saved entry's Access scopes are editable on re-open\" (console verification at capture time; fallback noted), placed beside the related Access-scopes-labels question. (c) Added short Recovery cross-reference bullets to {#enable-box-ai-api} and {#enable-doc-gen} pointing at the flagged inference in {#check-access-scopes}, so setup.md's closing lines in those two sections also trace to a recorded fact. (d) In setup.md {#check-access-scopes}, appended the optional fallback pointer the finding suggested: if the re-opened entry does not allow scope changes, generate a fresh credential set — linking to [Copy the Client ID and Client Secret](#copy-client-credentials). The rest of setup.md's recovery text stands as written, now Dossier-backed. Used the run's observed_at (2026-07-22T20:55:13Z) context; no new sources were consulted, so Provenance is unchanged — the new material is inference/open-question bookkeeping over already-recorded facts.\n\nFinding 2 (setup, \"scope\" undefined at first use): Applied in /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/box/setup.md at the term's true first use in Prerequisites: \"the Doc Gen scope (a scope defines the maximum set of actions the connection can perform — you review scopes in [Check the Access scopes](#check-access-scopes)) requires an Enterprise Advanced license\", with the plan-gating pointer moved to a trailing sentence to avoid stacked parentheticals. The gloss phrasing matches the Dossier facts (\"Scopes define the maximum set of actions\", {#scopes-vs-permissions}) and is verbatim-consistent with the definition #check-access-scopes already restates at the action point (kept, per the suggestion). The Provider setup routing paragraph's use of \"scopes\" now falls after the definition, so it needed no separate gloss. No anchors changed; meta.yaml untouched (no finding targeted it and no rendered fact moved).",
+      "disputed": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Values from Gram — \"Box generates a **Client ID** and **Client Secret** that you paste back into the Speakeasy AI Control Plane\"",
+          "problem": "Client ID and Client Secret are on the persona's introduce-at-first-use OAuth vocabulary list, and their first appearance here carries only functional context (generated values you paste back) while the full glosses arrive later at #copy-client-credentials — shippable because the reader acts on the values only after passing those glosses, but strictly short of the persona rule.",
+          "suggestion": "Add a compressed Dossier-consistent apposition at first use, e.g. \"a **Client ID** and **Client Secret** (the connection's username and password)\", keeping the full glosses at #copy-client-credentials unchanged.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#url-tools-agentic-only} — \"Declarative agents can't make these requests, so these tools work only in agentic (code-executing) environments.\"",
+          "problem": "\"Declarative agents\" is unglossed jargon the persona has never encountered, while its counterpart \"agentic\" gets the parenthetical \"(code-executing)\".",
+          "suggestion": "Mirror the existing parenthetical using its own negation — \"Declarative agents (clients that cannot run code themselves) can't make these requests...\" — which stays inside the Dossier's recorded contrast.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#file-preview-requires-mcp-apps} — \"Calling it from a client without MCP Apps support reports a UI widget that never appears.\"",
+          "problem": "The sentence is grammatically muddled for a literal reader — a call \"reports a widget that never appears\" — obscuring the symptom the gotcha is warning about.",
+          "suggestion": "Rephrase within the recorded fact, e.g. \"Calling it from a client without MCP Apps support returns a preview widget that never displays on screen.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#enable-box-ai-api} step 1 — \"In the Admin Console, go to the **Box AI** section, then open the **Settings** tab.\"",
+          "problem": "The numbered step chains two navigation actions with \"then\", brushing against the persona's one-action-per-step rule even though it stays within the \"'and' twice\" heuristic.",
+          "suggestion": "Split into two numbered steps: 1. In the Admin Console, go to the **Box AI** section. 2. Open the **Settings** tab. (Renumber the remaining steps.)",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#enable-doc-gen} step 1 — \"In the Admin Console, go to **Enterprise Settings**, then open the **Content and Sharing** tab.\"",
+          "problem": "The numbered step chains two navigation actions with \"then\", brushing against the persona's one-action-per-step rule even though it stays within the \"'and' twice\" heuristic.",
+          "suggestion": "Split into two numbered steps: 1. In the Admin Console, go to **Enterprise Settings**. 2. Open the **Content and Sharing** tab. (Renumber the remaining steps.)",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "{#add-integration-credentials} / {#save-credentials} — setup.md moves from \"Select **Add Integration Credentials**\" straight to \"In **Redirect URIs**, change...\", and later says \"Re-open the credential entry\", without a recorded fact on how the new credential entry presents itself (auto-opens vs must be selected/expanded) or what the re-open gesture is",
+          "problem": "docs.box.com is silent on the credential entry's post-creation presentation and the re-open gesture, and the Dossier's open questions cover the tile-to-Configuration transition, name field, and pre-filled Redirect URI but not this transition, so a literal reader may briefly have to look around for where the Redirect URIs field appeared.",
+          "suggestion": "Mirror the tile-to-Configuration treatment: add a Dossier open question noting that how the new credential entry opens (automatic vs select/expand — the untrusted older support flow said \"expand the entry\") and the re-open gesture in {#save-credentials} need console verification at capture time; the existing screenshot placeholder at {#add-integration-credentials} already ensures the capture pass resolves it, so setup.md can stand as written.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "Values from Gram — \"Box generates a **Client ID** and **Client Secret** that you paste back into the Speakeasy AI Control Plane\"",
+      "problem": "Client ID and Client Secret are on the persona's introduce-at-first-use OAuth vocabulary list, and their first appearance here carries only functional context (generated values you paste back) while the full glosses arrive later at #copy-client-credentials — shippable because the reader acts on the values only after passing those glosses, but strictly short of the persona rule.",
+      "suggestion": "Add a compressed Dossier-consistent apposition at first use, e.g. \"a **Client ID** and **Client Secret** (the connection's username and password)\", keeping the full glosses at #copy-client-credentials unchanged.",
+      "dimension": "voice"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "{#url-tools-agentic-only} — \"Declarative agents can't make these requests, so these tools work only in agentic (code-executing) environments.\"",
+      "problem": "\"Declarative agents\" is unglossed jargon the persona has never encountered, while its counterpart \"agentic\" gets the parenthetical \"(code-executing)\".",
+      "suggestion": "Mirror the existing parenthetical using its own negation — \"Declarative agents (clients that cannot run code themselves) can't make these requests...\" — which stays inside the Dossier's recorded contrast.",
+      "dimension": "voice"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "{#file-preview-requires-mcp-apps} — \"Calling it from a client without MCP Apps support reports a UI widget that never appears.\"",
+      "problem": "The sentence is grammatically muddled for a literal reader — a call \"reports a widget that never appears\" — obscuring the symptom the gotcha is warning about.",
+      "suggestion": "Rephrase within the recorded fact, e.g. \"Calling it from a client without MCP Apps support returns a preview widget that never displays on screen.\"",
+      "dimension": "voice"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "{#enable-box-ai-api} step 1 — \"In the Admin Console, go to the **Box AI** section, then open the **Settings** tab.\"",
+      "problem": "The numbered step chains two navigation actions with \"then\", brushing against the persona's one-action-per-step rule even though it stays within the \"'and' twice\" heuristic.",
+      "suggestion": "Split into two numbered steps: 1. In the Admin Console, go to the **Box AI** section. 2. Open the **Settings** tab. (Renumber the remaining steps.)",
+      "dimension": "formatting"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "{#enable-doc-gen} step 1 — \"In the Admin Console, go to **Enterprise Settings**, then open the **Content and Sharing** tab.\"",
+      "problem": "The numbered step chains two navigation actions with \"then\", brushing against the persona's one-action-per-step rule even though it stays within the \"'and' twice\" heuristic.",
+      "suggestion": "Split into two numbered steps: 1. In the Admin Console, go to **Enterprise Settings**. 2. Open the **Content and Sharing** tab. (Renumber the remaining steps.)",
+      "dimension": "formatting"
+    },
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "{#add-integration-credentials} / {#save-credentials} — setup.md moves from \"Select **Add Integration Credentials**\" straight to \"In **Redirect URIs**, change...\", and later says \"Re-open the credential entry\", without a recorded fact on how the new credential entry presents itself (auto-opens vs must be selected/expanded) or what the re-open gesture is",
+      "problem": "docs.box.com is silent on the credential entry's post-creation presentation and the re-open gesture, and the Dossier's open questions cover the tile-to-Configuration transition, name field, and pre-filled Redirect URI but not this transition, so a literal reader may briefly have to look around for where the Redirect URIs field appeared.",
+      "suggestion": "Mirror the tile-to-Configuration treatment: add a Dossier open question noting that how the new credential entry opens (automatic vs select/expand — the untrusted older support flow said \"expand the entry\") and the re-open gesture in {#save-credentials} need console verification at capture time; the existing screenshot placeholder at {#add-integration-credentials} already ensures the capture pass resolves it, so setup.md can stand as written.",
+      "dimension": "achievability"
+    }
+  ],
+  "unresolved": [],
+  "open_questions": [
+    "Exact Access-scopes checkbox labels inside the Custom Box MCP Server credential entry, and their mapping to root_readwrite / ai.readwrite / docgen.readwrite — no current source enumerates them; needs console verification at screenshot-capture time.",
+    "Whether the credential entry has a name field (older support article says a changeable default name exists; docs.box.com's current flow shows none).",
+    "What value pre-fills the Redirect URIs field before the admin changes it (step 4 says 'change the Box redirect URIs', implying a pre-populated value).",
+    "Whether the Client Secret remains viewable on later visits or is shown only at creation (recovery path recorded: generate a fresh credential set).",
+    "Whether the Custom Box MCP Server integration itself needs an availability state set (predefined partner tiles use 'Available to all users'; the custom flow documents no equivalent, and the Platform > Platform Apps availability fact is support-article-only).",
+    "Whether the live server advertises readOnlyHint annotations (docs' Read-only/Write groupings are editorial; read_only_hint omitted from meta.yaml).",
+    "Default Enablement state per tool category for a newly enabled enterprise, beyond the four sharing tools documented 'Off by default'.",
+    "Exact Access-scopes checkbox labels: the Dossier records the section name only, so the guide maps checkboxes to tool areas via OAuth scope strings (root_readwrite / ai.readwrite / docgen.readwrite) instead of exact labels — short of the persona's every-field-has-its-exact-label bar until capture-time console verification.",
+    "The screen transition from the Custom Box MCP Server tile to its Configuration view is unrecorded (no click/open gesture in docs.box.com; the old hover-then-Configure gesture was barred), so the guide renders 'Go to Configuration' without naming how the tile opens.",
+    "The pre-filled Redirect URIs value: docs say to 'change the Box redirect URIs', implying pre-population, but no source shows the pre-filled value, so the guide cannot tell the reader what to expect in the field before pasting.",
+    "Client Secret revisibility on later visits is undocumented; rendered as a copy-now warning plus a regenerate-and-reconfigure recovery path, but actual console behavior is unconfirmed.",
+    "Possible credential-entry name field: the older support-article flow describes a pre-filled changeable name; docs.box.com documents none, so the guide is silent — if the console shows one, the reader gets no instruction.",
+    "Whether the Custom Box MCP Server integration needs its own availability state (partner tiles require 'Available to all users'; the custom seven-step flow documents no equivalent) — the guide is silent per the Dossier."
+  ]
+}

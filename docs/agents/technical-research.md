@@ -10,9 +10,12 @@ finished guide must exist here first, with provenance.
 ## The loop
 
 1. Research the provider's public MCP documentation: remote URL, transport,
-   authentication model, tool inventory, the console path an admin follows,
-   and the gotchas (licensing, billing, restricted tools, one-time
-   secrets).
+   authentication model, the console path an admin follows, and the
+   gotchas (licensing, billing, restricted tools, one-time secrets).
+   Tool inventories are out of scope: the server's advertised list is the
+   runtime source of truth, so do not catalog it. Record an individual
+   tool only where it matters to setup — a tool that bills differently,
+   needs a license, is off by default, or is restricted.
 2. When the provider documents a sub-flow (API enablement, role grants,
    consent screens, credential dialogs), fetch that documentation too,
    quote its exact UI labels, and record each fetched page as a provenance
@@ -88,8 +91,8 @@ to someone who has never opened the console, it belongs in the Dossier.
   (`# yaml-language-server: $schema=../../schema/guide.v1.schema.json`).
 - `credential_setup` fields map to guide anchors via `setup.md#<anchor-id>`
   — the anchors you minted, even though `setup.md` does not exist yet.
-- `remotes` carry the transport, the authentication option IDs, and the
-  tool inventory from provider documentation.
+- `remotes` carry the URL, the transport, and the authentication option
+  IDs. No tool inventory — see the loop above.
 - `provenance` records every fact source with a locator and `observed_at`
   (use the timestamp the workflow passed you).
 
