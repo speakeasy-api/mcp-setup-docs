@@ -1,0 +1,118 @@
+{
+  "slug": "box",
+  "provider": "Box",
+  "persona": "it-admin",
+  "timestamp": "2026-07-22T22:43:04Z",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [
+    "Nit 8 (achievability, research.md#check-access-scopes — state the baseline content scope / root_readwrite console label and the default-selected state of the Access scopes checkboxes): needs new facts. The finding itself says this requires console verification when screenshots are captured, and the Dossier already records both the label-to-string mapping and the checkbox default state as open questions. Supplying them now would mean inventing unconfirmed console facts, which the fidelity rule forbids.",
+    "(setup #enable-box-ai-api, step 4: \"Next to the **Box AI APIs** setting, click **configure**.\") The spatial phrasing \"Next to the Box AI APIs setting\" asserts a control placement that the Dossier does not record — research only states the Box AI APIs setting \"is configured by clicking configure,\" with no documented layout relationship. Suggestion: Drop the unsourced spatial qualifier and mirror the Dossier's wording, e.g. \"For the **Box AI APIs** setting, click **configure**.\" (No blocker: the named label and action are faithful; only the positional detail is uncorroborated.)"
+  ],
+  "unresolved": [],
+  "open_questions": [
+    "Tile-to-Configuration transition: docs.box.com jumps from 'find Custom Box MCP Server' (step 2) straight to 'Go to Configuration' (step 3) without naming the intervening action; the inferred gesture (select the tile; its page holds the Configuration view) needs console verification at capture time.",
+    "Exact Access-scopes checkbox labels inside the Custom Box MCP Server credential entry are undocumented, as is their mapping to the OAuth strings root_readwrite / ai.readwrite / docgen.readwrite. Needs console verification at capture time.",
+    "Whether a saved credential entry's Access scopes remain editable on re-open (the Save-first recovery for adding a newly-enabled AI/Doc Gen scope is a flagged inference); fallback is a fresh credential set. Needs console verification.",
+    "Whether the credential entry has an editable name field: the older support-article flow shows a pre-filled default name; docs.box.com's current seven-step flow shows no name field.",
+    "The pre-filled Redirect URIs value: step 4 says 'change the Box redirect URIs', implying a pre-populated value, but no source shows what it is.",
+    "Client Secret revisibility on later visits is undocumented (shown once vs. persistently viewable); the copy-before-Save step order implies visibility at creation time at minimum.",
+    "Whether the Custom Box MCP Server integration needs its own availability state set (predefined partner tiles require 'Available to all users'; the custom credential flow documents no equivalent).",
+    "Per-category default tool-enablement state beyond the four sharing tools documented 'Off by default' is not stated in any source.",
+    "Tile-to-Configuration transition: docs.box.com names no action between finding the Custom Box MCP Server tile and 'Go to Configuration'. setup.md renders the Dossier's recorded inference (select the tile; its page holds the Configuration view). Exact gesture/layout needs console verification at capture time.",
+    "Exact Access-scopes checkbox labels are undocumented; setup.md renders the section (Access scopes) and maps options to the three tool areas (root_readwrite / ai.readwrite / docgen.readwrite) rather than to verbatim checkbox labels, which the Dossier does not record.",
+    "Whether a saved credential entry's Access scopes remain editable on re-open: the Save-first recovery (Save, enable feature, re-open, select newly visible scope, Save again) is a Dossier-flagged inference; setup.md carries it with the fresh-credential-set fallback. Needs console verification.",
+    "Pre-filled Redirect URIs value: step wording implies the field arrives pre-populated but no source shows the value; setup.md instructs to change the existing value(s) without naming them.",
+    "Client Secret revisibility on later visits is undocumented; setup.md instructs to copy/store immediately and provides the fresh-credential-set recovery if it is not viewable on return.",
+    "Credential-entry name field: an older support-article flow mentions a pre-filled changeable name; docs.box.com shows none, so setup.md renders no name field."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites section: \"the Doc Gen tools require an Enterprise Advanced license\"",
+          "problem": "The Dossier ties the Enterprise Advanced license specifically to the docgen.readwrite scope (and says DocGen/Sign otherwise \"depend on plan availability\"), so stating the Doc Gen tools flatly require an Enterprise Advanced license slightly over-tightens a scope-level fact into a tool-level one.",
+          "suggestion": "Consider mirroring the Dossier's wording — attribute the Enterprise Advanced license to the Doc Gen scope (as the #plan-gated-tools and #enable-doc-gen sections already correctly do) rather than to the tools outright.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Copy the Client ID and Client Secret step, line 115-116: \"Copy the **Client ID** — a public identifier for this integration, a username for the connection rather than for any person — into...\"",
+          "problem": "This glosses the OAuth term Client ID with a conceptual analogy, but the persona explicitly forbids teaching OAuth vocabulary (\"client ID, client secret... Don't assume it — and don't teach it. They need the values in the right fields, not the concepts\").",
+          "suggestion": "Drop the concept gloss and keep the action terse: \"Copy the **Client ID** into the Speakeasy AI Control Plane's Client ID field.\" The reader only needs the value in the right field, not a definition.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Provider setup intro, line 36-38: \"The Box MCP Server signs users in with OAuth 2.0, a flow where each end user authorizes the connection with their own Box account.\"",
+          "problem": "Naming and glossing \"OAuth 2.0\" teaches OAuth vocabulary the persona says not to teach; the load-bearing fact (each user signs in with their own account) can stand without the OAuth framing.",
+          "suggestion": "Recast without the term: \"When people connect from the Speakeasy AI Control Plane, each user signs in with their own Box account. To allow that, a Box admin creates one set of **Integration Credentials**...\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Enable the Box AI API step, line 194: \"Next to the **Box AI APIs** setting — it defines the developer users who can extend Box AI capabilities via the AI API — click **configure**.\" (same pattern at line 217, \"Under **Box Doc Gen Permissions** — it defines who can create and manage Doc Gen templates — click **Configure**.\")",
+          "problem": "These inline setting-definitions are explanation the work does not require — the reader only needs to locate the labeled setting and click Configure, not understand what the setting governs; the persona says \"Terse beats taught. A console term appears as its verbatim bolded label, unexplained.\"",
+          "suggestion": "Remove the em-dash definitions: \"Next to the **Box AI APIs** setting, click **configure**.\" and \"Under **Box Doc Gen Permissions**, click **Configure**.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Copy the Client ID and Client Secret step, line 117-118: \"Copy the **Client Secret** — the connection's password, so store it like one — into...\"",
+          "problem": "The gloss \"the connection's password\" teaches an OAuth concept the persona forbids, though the trailing \"store it like one\" is legitimate security guidance already covered by the step's opening warning to save it to a password manager.",
+          "suggestion": "Since the step already opens with \"store the Client Secret in your password manager,\" trim the concept gloss: \"Copy the **Client Secret** into the Speakeasy AI Control Plane's Client Secret field.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#enable-box-ai-api step 1 (line 188) and #enable-doc-gen step 1 (line 213)",
+          "problem": "Each opening step packs navigation plus a tab-open into one numbered step (\"go to the Box AI section, then open the Settings tab\"; \"go to Enterprise Settings, then open the Content and Sharing tab\"), which the persona's one-action-per-step formatting rule discourages.",
+          "suggestion": "Split each into two numbered steps: one to open the section, a second to open the named tab (e.g. \"1. Go to the **Box AI** section. 2. Open the **Settings** tab.\").",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#manage-tool-access numbered list, steps 4-6 (lines 240-251)",
+          "problem": "Steps 4 (\"To set a whole category at once...\") and 5 (\"To toggle individual tools instead...\") are mutually-exclusive alternative paths, but they are numbered as sequential actions alongside step 6 (Save), implying the reader performs all three in order.",
+          "suggestion": "Present the category-level and per-tool paths as two labeled choices (prose or a bulleted either/or) rather than consecutive numbered steps, then keep the shared **Save** as the closing numbered action.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "setup.md#check-access-scopes — \"In the Access scopes section of the credential entry, confirm the selected scopes cover the tool areas your users need.\"",
+          "problem": "The guide never tells the reader which scope is the baseline needed for the core content tools, nor whether any scope is pre-selected by default, so a reader unsure what their users need could save the entry with no scope (or the wrong one) selected and end up with a non-functional connection.",
+          "suggestion": "If the Dossier can establish it at capture time, state that the general content scope (root_readwrite / its console label) must be selected for the core file and search tools, and note the default-selected state of the Access scopes checkboxes; the Dossier currently flags the label-to-string mapping and default state as open questions, so this needs console verification when screenshots are captured.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Applied 7 of 8 nits, all in guides/box/setup.md; no files outside the guide directory touched, no anchors invented/renamed/dropped.\n\n- Nit 1 (fidelity, Prerequisites): Changed \"the Doc Gen tools require an Enterprise Advanced license\" to \"the Doc Gen scope requires an Enterprise Advanced license,\" mirroring the Dossier (which ties the Enterprise Advanced license to the docgen.readwrite scope) and the guide's own #plan-gated-tools and #enable-doc-gen wording.\n- Nit 3 (voice, Provider setup intro): Recast the opening to drop the \"OAuth 2.0\" term and its gloss, per the finding's concrete replacement: \"When people connect from the Speakeasy AI Control Plane, each user signs in with their own Box account. To allow that, a Box admin creates one set of **Integration Credentials** — ...\". The load-bearing fact (each user signs in with their own account) is preserved.\n- Nit 2 (voice, #copy-client-credentials): Dropped the Client ID concept gloss (\"a public identifier... a username for the connection\"); step now reads \"Copy the **Client ID** into the Speakeasy AI Control Plane's Client ID field.\"\n- Nit 5 (voice, #copy-client-credentials): Dropped the Client Secret gloss (\"the connection's password, so store it like one\"); the step's opening already instructs storing it in a password manager. Now \"Copy the **Client Secret** into the Speakeasy AI Control Plane's Client Secret field.\"\n- Nit 4 (voice, #enable-box-ai-api and #enable-doc-gen): Removed the two inline em-dash setting-definitions. \"Next to the **Box AI APIs** setting, click **configure**.\" and \"Under **Box Doc Gen Permissions**, click **Configure**.\"\n- Nit 6 (formatting, #enable-box-ai-api and #enable-doc-gen step 1): Split each combined navigation+tab-open step into two numbered steps and renumbered the remaining steps in both sections (Box AI: 1 open Box AI section, 2 open Settings tab, 3–5; Doc Gen: 1 open Enterprise Settings, 2 open Content and Sharing tab, 3–5).\n- Nit 7 (formatting, #manage-tool-access): Converted the two mutually-exclusive paths (former steps 4 and 5) into a labeled bulleted either/or (\"A whole category at once\" / \"Individual tools\") introduced by prose, keeping steps 1–3 numbered and the shared Save as a closing imperative sentence (\"Then click **Save**. A confirmation message appears.\"). Rendered Save as one sentence rather than a one-item numbered list, per the persona's \"single action gets one imperative sentence — never a one-item numbered list\" rule.",
+      "polish_skipped": [
+        "Nit 8 (achievability, research.md#check-access-scopes — state the baseline content scope / root_readwrite console label and the default-selected state of the Access scopes checkboxes): needs new facts. The finding itself says this requires console verification when screenshots are captured, and the Dossier already records both the label-to-string mapping and the checkbox default state as open questions. Supplying them now would mean inventing unconfirmed console facts, which the fidelity rule forbids."
+      ],
+      "disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": [
+          {
+            "severity": "nit",
+            "target": "setup",
+            "where": "#enable-box-ai-api, step 4: \"Next to the **Box AI APIs** setting, click **configure**.\"",
+            "problem": "The spatial phrasing \"Next to the Box AI APIs setting\" asserts a control placement that the Dossier does not record — research only states the Box AI APIs setting \"is configured by clicking configure,\" with no documented layout relationship.",
+            "suggestion": "Drop the unsourced spatial qualifier and mirror the Dossier's wording, e.g. \"For the **Box AI APIs** setting, click **configure**.\" (No blocker: the named label and action are faithful; only the positional detail is uncorroborated.)"
+          }
+        ]
+      }
+    }
+  ]
+}

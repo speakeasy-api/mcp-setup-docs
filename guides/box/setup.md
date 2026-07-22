@@ -18,7 +18,7 @@ running anything yourself. The MCP Server is available on all Box plans,
 but you can only use MCP tools — the individual operations the server
 offers, such as searching files or asking Box AI questions — that are
 included in your current plan. Box AI tools require a Box AI-enabled
-plan, and the Doc Gen tools require an Enterprise Advanced license. For
+plan, and the Doc Gen scope requires an Enterprise Advanced license. For
 the full plan and licensing picture, see
 [Tools are gated by plan and licensing](#plan-gated-tools).
 
@@ -33,15 +33,13 @@ Speakeasy AI Control Plane in
 
 ## Provider setup
 
-The Box MCP Server signs users in with OAuth 2.0, a flow where each end
-user authorizes the connection with their own Box account. To allow
-that, a Box admin creates one set of **Integration Credentials** — Box's
+When people connect from the Speakeasy AI Control Plane, each user signs
+in with their own Box account. To allow that, a Box admin creates one set
+of **Integration Credentials** — Box's
 name for the sign-in values it generates for a single external
 connection, here the Speakeasy AI Control Plane — on the **Custom Box
-MCP Server** integration. Box does not support Dynamic Client
-Registration, meaning clients cannot register themselves, so this manual
-flow is required. The steps below create the credential entry, point it
-at the Speakeasy AI Control Plane, and copy out its values.
+MCP Server** integration. The steps below create the credential entry,
+point it at the Speakeasy AI Control Plane, and copy out its values.
 
 One decision to make before you start: if your users will call the Box
 AI tools or the Doc Gen tools, complete
@@ -113,11 +111,10 @@ Copy both values now, before you leave this page, and store the Client
 Secret in your password manager: Box's documentation does not say
 whether the Client Secret stays viewable when you come back later.
 
-1. Copy the **Client ID** — a public identifier for this integration, a
-   username for the connection rather than for any person — into the
-   Speakeasy AI Control Plane's Client ID field.
-2. Copy the **Client Secret** — the connection's password, so store it
-   like one — into the Speakeasy AI Control Plane's Client Secret field.
+1. Copy the **Client ID** into the Speakeasy AI Control Plane's Client ID
+   field.
+2. Copy the **Client Secret** into the Speakeasy AI Control Plane's Client
+   Secret field.
 
 If you return later and the Client Secret is not viewable, generate a
 fresh credential set by repeating
@@ -187,14 +184,12 @@ it is not your call, get that approval first. If a **Review Agreement
 Offline** message appears instead of the addendum, contact the Box
 account team.
 
-1. In the Admin Console, go to the **Box AI** section, then open the
-   **Settings** tab.
-2. If your organization has not fully enabled Box AI, click **Enable Box
+1. In the Admin Console, go to the **Box AI** section.
+2. Open the **Settings** tab.
+3. If your organization has not fully enabled Box AI, click **Enable Box
    AI** to do so for all services.
-3. Next to the **Box AI APIs** setting — it defines the developer users
-   who can extend Box AI capabilities via the AI API — click
-   **configure**.
-4. Select **Enable for all**.
+4. Next to the **Box AI APIs** setting, click **configure**.
+5. Select **Enable for all**.
 
 Once Box AI is enabled, the AI scope appears in the credential entry's
 **Access scopes** section — select it in
@@ -212,12 +207,11 @@ enabling it is also what makes the Doc Gen scope appear in
 requires an Enterprise Advanced license (see
 [Tools are gated by plan and licensing](#plan-gated-tools)).
 
-1. In the Admin Console, go to **Enterprise Settings**, then open the
-   **Content and Sharing** tab.
-2. Scroll to the **Box Doc Gen** section.
-3. Under **Box Doc Gen Permissions** — it defines who can create and
-   manage Doc Gen templates — click **Configure**.
-4. Select who gets access: **Enable for all managed users**, **Enable
+1. In the Admin Console, go to **Enterprise Settings**.
+2. Open the **Content and Sharing** tab.
+3. Scroll to the **Box Doc Gen** section.
+4. Under **Box Doc Gen Permissions**, click **Configure**.
+5. Select who gets access: **Enable for all managed users**, **Enable
    for select users and groups**, or **Enable for everyone except select
    users and groups**. The default is **Disable for all managed users
    (default)**, so Doc Gen stays off until you change it.
@@ -242,15 +236,18 @@ supported), and category-level changes take effect immediately.
 3. Select the **Box MCP Server** tab. This opens a table of tool
    categories — for example, Files and Folders, Search, Box Hubs — with
    an **Enablement** control and a **Configure** button on each row.
-4. To set a whole category at once, use its **Enablement** control,
-   which offers exactly four options: **Disable all tools**, **Enable
-   read-only tools**, **Enable read & write tools**, and **Custom
-   configuration**.
-5. To toggle individual tools instead, click the category's
-   **Configure** button. This opens a configuration window with the
-   category's tools grouped under **Read only MCP tools** and **Write MCP
-   tools**, with a toggle for each tool.
-6. Click **Save**. A confirmation message appears.
+
+Set access one of two ways:
+
+- **A whole category at once:** use its **Enablement** control, which
+  offers exactly four options: **Disable all tools**, **Enable read-only
+  tools**, **Enable read & write tools**, and **Custom configuration**.
+- **Individual tools:** click the category's **Configure** button. This
+  opens a configuration window with the category's tools grouped under
+  **Read only MCP tools** and **Write MCP tools**, with a toggle for each
+  tool.
+
+Then click **Save**. A confirmation message appears.
 
 The per-tool toggles and the **Enablement** selection stay in sync: only
 read tools on shows **Enable read-only tools**, all on shows **Enable

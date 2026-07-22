@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: box
-researched_at: 2026-07-22T21:57:12Z
+researched_at: 2026-07-22T22:43:04Z
 ---
 
 # Box — Research Dossier
