@@ -1,0 +1,105 @@
+{
+  "slug": "x",
+  "provider": "x",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T23:16:30Z",
+  "started_at": "2026-07-23T23:16:30Z",
+  "finished_at": "2026-07-23T23:25:32Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "X's public Developer Console documentation does not publish the exact field labels or final submit-button label in the first-time developer enrollment flow.",
+    "X's public documentation does not publish the exact app field labels or final create-button label.",
+    "Provider documentation cannot establish whether X is currently present in the Speakeasy MCP Catalog."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Prerequisites: “accept pay-per-usage API charges”",
+          "problem": "The Research Dossier does not state that accepting pay-per-usage API charges is a prerequisite.",
+          "suggestion": "Remove this phrase and retain the documented requirement that API credits be available.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "credential_setup.requirements[x-developer-account]",
+          "problem": "The requirement to accept pay-per-usage API charges is not backed by the Research Dossier.",
+          "suggestion": "Remove that requirement while retaining app-creation authority and the separate API-credits requirement.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-x-app steps 2–4",
+          "problem": "Three consecutive steps repeat the same \"organization-approved\" prefix for name, description, and use case after Prerequisites already requires that wording.",
+          "suggestion": "Merge into one step: \"Enter the organization-approved app name, description, and use case.\"",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Removed the unsupported pay-per-usage charge acceptance requirement from meta.yaml and setup.md while retaining app-creation authority and API credits. Merged the three repetitive app-detail steps into one. Metadata validates against the schema.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials catalog-install conditional",
+          "problem": "The reference to steps 3–7 incorrectly includes **Save**, which the Dossier does not require in the **Add to Project** dialog.",
+          "suggestion": "Change the reference to steps 3–6.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials: catalog Add to Project conditional",
+          "problem": "Instructions for headers requested during catalog installation appear after the reader has already selected Add to Project.",
+          "suggestion": "Move or cross-link the conditional header instructions before the catalog path's Add to Project action.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Corrected the catalog header reference from steps 3–7 to steps 3–6. Moved the conditional header guidance before Add to Project and added a skip for already-configured credentials.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#add-server-in-speakeasy catalog header conditional (line 66)",
+          "problem": "The catalog-path header note re-lists Header name, Value source, Bearer value, and Secret even though it already cross-links to the full steps 3–6 under Connect your credentials.",
+          "suggestion": "Keep the conditional and cross-link; replace the field enumeration with a single pointer such as \"Follow steps 3–6 under Connect your credentials.\"",
+          "dimension": "concision"
+        }
+      ],
+      "polish_notes": "add-server-in-speakeasy (catalog header conditional): Kept the If-the-Add-to-Project-dialog-requests-headers conditional and cross-link to Connect your credentials; replaced the redundant Header name / Value source / Bearer / Secret enumeration with \"Follow steps 3–6 under Connect your credentials.\"",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": []
+      }
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER requires re-drafting: it removes the Bearer Token regeneration/recovery branch currently present in setup.md, specifies the catalog search input as `X`, and adds API credits as an explicit Metadata prerequisite. Other changes are wording, capability context, or timestamp churn."
+  }
+}

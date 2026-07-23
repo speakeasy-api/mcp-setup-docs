@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "slug": "x",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-23T23:25:32Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:22fb465da76f2dc90a612fd4c2f3b1054f42006b84f8472bc8bf642da610eb11",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/technical-research.md",
+            "digest": "sha256:a1eacd4ead5db07cc1ac6ce35165fc922d1484967be63090071b76183621cb87"
+          },
+          {
+            "path": "docs/speakeasy-setup.md",
+            "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume PR #17 on branch guide/issue-15-x. Enrollment (#enroll-developer-account): hedge—keep steps; do not invent field/submit labels; success = Developer Console with New App visible. Create app (#create-x-app): hedge—keep flow; do not invent field/create-button labels; keep one-time credential warning. Prerequisites API credits: hedge—credits required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token (#copy-bearer-token): drop regenerate-if-missed branch; keep copy-now only. Add server (#add-server-in-speakeasy): catalog search term must be `X` (code span); keep catalog-vs-custom conditional until catalog presence observed."
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:6f92ac47a35eca42707ccc5d35827c06f3b63ecd64e60274aaf665f80a33d31f"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:7c26274c1f4eba333176a34b6a595ab99dab8ee1fedba9f8e914345023a06710"
+        }
+      ],
+      "completed_at": "2026-07-23T23:25:32Z"
+    },
+    "draft": {
+      "input_digest": "sha256:af6ab79d8f236de587e9cc7a8f1cdc27d0a93fe608c2545c8c9523c8c85bca59",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/writer.md",
+            "digest": "sha256:fdc33a72becc23fff5045540a775e96ad22febe752491773e75afa2dc09db91a"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:6f92ac47a35eca42707ccc5d35827c06f3b63ecd64e60274aaf665f80a33d31f"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:7c26274c1f4eba333176a34b6a595ab99dab8ee1fedba9f8e914345023a06710"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume PR #17 on branch guide/issue-15-x. Enrollment (#enroll-developer-account): hedge—keep steps; do not invent field/submit labels; success = Developer Console with New App visible. Create app (#create-x-app): hedge—keep flow; do not invent field/create-button labels; keep one-time credential warning. Prerequisites API credits: hedge—credits required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token (#copy-bearer-token): drop regenerate-if-missed branch; keep copy-now only. Add server (#add-server-in-speakeasy): catalog search term must be `X` (code span); keep catalog-vs-custom conditional until catalog presence observed.",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+        }
+      ],
+      "completed_at": "2026-07-23T23:25:32Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:c950b1cadeab3374326e55293123eb0aa3073479639e5eba7c3e8d3c86b6a7f7",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/fidelity.md",
+            "digest": "sha256:b0159f65f21c789df6bddfcb643127509342a02d8dcc31a0274eef7c390dac9b"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:6f92ac47a35eca42707ccc5d35827c06f3b63ecd64e60274aaf665f80a33d31f"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:7c26274c1f4eba333176a34b6a595ab99dab8ee1fedba9f8e914345023a06710"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume PR #17 on branch guide/issue-15-x. Enrollment (#enroll-developer-account): hedge—keep steps; do not invent field/submit labels; success = Developer Console with New App visible. Create app (#create-x-app): hedge—keep flow; do not invent field/create-button labels; keep one-time credential warning. Prerequisites API credits: hedge—credits required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token (#copy-bearer-token): drop regenerate-if-missed branch; keep copy-now only. Add server (#add-server-in-speakeasy): catalog search term must be `X` (code span); keep catalog-vs-custom conditional until catalog presence observed.",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+        }
+      ],
+      "completed_at": "2026-07-23T23:25:32Z"
+    },
+    "review.voice": {
+      "input_digest": "sha256:d7b9c141e32af364ef5c7ae2aca7a8ee6577eb6ae74f7013ff327aa6be8485c3",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:fbc00275b61a75440be66961195498b4dc0ce5143aed1cedf4d6014e2139ffa8",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:6f92ac47a35eca42707ccc5d35827c06f3b63ecd64e60274aaf665f80a33d31f"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:7c26274c1f4eba333176a34b6a595ab99dab8ee1fedba9f8e914345023a06710"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume PR #17 on branch guide/issue-15-x. Enrollment (#enroll-developer-account): hedge—keep steps; do not invent field/submit labels; success = Developer Console with New App visible. Create app (#create-x-app): hedge—keep flow; do not invent field/create-button labels; keep one-time credential warning. Prerequisites API credits: hedge—credits required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token (#copy-bearer-token): drop regenerate-if-missed branch; keep copy-now only. Add server (#add-server-in-speakeasy): catalog search term must be `X` (code span); keep catalog-vs-custom conditional until catalog presence observed.",
+          "persona": "it-admin",
+          "dimension": "voice"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+        }
+      ],
+      "completed_at": "2026-07-23T23:25:32Z"
+    },
+    "review.formatting": {
+      "input_digest": "sha256:5090d8fac94f027ebe255a70bdcf5f287709915e9f5d27ca5deff00b5650e23a",
+      "inputs": {
+        "model": "composer-2.5",
+        "prompt_digest": "sha256:e0573b70108c5fc8296aa57efd0ee7619dd7d7a0c5bf23295b48d7daa0dc1493",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:6f92ac47a35eca42707ccc5d35827c06f3b63ecd64e60274aaf665f80a33d31f"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:7c26274c1f4eba333176a34b6a595ab99dab8ee1fedba9f8e914345023a06710"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume PR #17 on branch guide/issue-15-x. Enrollment (#enroll-developer-account): hedge—keep steps; do not invent field/submit labels; success = Developer Console with New App visible. Create app (#create-x-app): hedge—keep flow; do not invent field/create-button labels; keep one-time credential warning. Prerequisites API credits: hedge—credits required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token (#copy-bearer-token): drop regenerate-if-missed branch; keep copy-now only. Add server (#add-server-in-speakeasy): catalog search term must be `X` (code span); keep catalog-vs-custom conditional until catalog presence observed.",
+          "persona": "it-admin",
+          "dimension": "formatting"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+        }
+      ],
+      "completed_at": "2026-07-23T23:25:32Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:18b0ef3d7bf9b7ba365e6e66e06eca3a3b919f8cfddf71a55ae140cde8afe689",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:6f92ac47a35eca42707ccc5d35827c06f3b63ecd64e60274aaf665f80a33d31f"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:7c26274c1f4eba333176a34b6a595ab99dab8ee1fedba9f8e914345023a06710"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume PR #17 on branch guide/issue-15-x. Enrollment (#enroll-developer-account): hedge—keep steps; do not invent field/submit labels; success = Developer Console with New App visible. Create app (#create-x-app): hedge—keep flow; do not invent field/create-button labels; keep one-time credential warning. Prerequisites API credits: hedge—credits required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token (#copy-bearer-token): drop regenerate-if-missed branch; keep copy-now only. Add server (#add-server-in-speakeasy): catalog search term must be `X` (code span); keep catalog-vs-custom conditional until catalog presence observed.",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+        }
+      ],
+      "completed_at": "2026-07-23T23:25:32Z"
+    },
+    "review.concision": {
+      "input_digest": "sha256:bc4b7cdf93e9b3da098e30d332987d78c42cb87b53181beb46f35c3a4028dd15",
+      "inputs": {
+        "model": "composer-2.5",
+        "prompt_digest": "sha256:a1f2dede1ef844482b776a9653e316af775d0719dcb52b80c64fafdd2669a1f2",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:6f92ac47a35eca42707ccc5d35827c06f3b63ecd64e60274aaf665f80a33d31f"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:7c26274c1f4eba333176a34b6a595ab99dab8ee1fedba9f8e914345023a06710"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume PR #17 on branch guide/issue-15-x. Enrollment (#enroll-developer-account): hedge—keep steps; do not invent field/submit labels; success = Developer Console with New App visible. Create app (#create-x-app): hedge—keep flow; do not invent field/create-button labels; keep one-time credential warning. Prerequisites API credits: hedge—credits required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token (#copy-bearer-token): drop regenerate-if-missed branch; keep copy-now only. Add server (#add-server-in-speakeasy): catalog search term must be `X` (code span); keep catalog-vs-custom conditional until catalog presence observed.",
+          "persona": "it-admin",
+          "dimension": "concision"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:66d3a8ca1272602cf975d4dbadd11fba71095c6bba5474da189c01f8f8faf8f9"
+        }
+      ],
+      "completed_at": "2026-07-23T23:25:32Z"
+    }
+  }
+}

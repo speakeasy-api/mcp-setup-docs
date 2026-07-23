@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: x
-researched_at: 2026-07-23T22:43:32Z
+researched_at: 2026-07-23T23:16:30Z
 ---
 
 # X — Research Dossier
@@ -30,27 +30,32 @@ researched_at: 2026-07-23T22:43:32Z
     route as a connectable Authentication Option and does not ask for Client ID
     or Client Secret.
 - **Authorization behavior:** an app-only token provides public-data reads
-  only and cannot act as a user. User-context operations, including writes,
-  bookmarks, and Articles, require the excluded `xurl` OAuth route. The
-  advertised runtime tool list is the source of truth; this Dossier does not
-  catalog tools.
+  only and cannot act as a user. X describes the hosted server as spanning
+  search, users, bookmarks, trends, news, and Articles, but user-context
+  operations and writes—including bookmark changes and drafting or publishing
+  Articles—require the excluded `xurl` OAuth route. The advertised runtime
+  tool list is the source of truth; this Dossier does not catalog tools.
 - **Account and billing gates:** setup requires an X account accepted into the
   Developer Platform and an X developer app. The current X API is
-  pay-per-usage: credits are purchased in the Developer Console and API
+  pay-per-usage, and API credits are required before connecting. Use the
+  billing and credits area of the Developer Console to obtain and monitor
+  credits; X does not publish a stable click-through purchase flow. API
   requests are blocked when the credit balance is zero or negative. Current
   endpoint prices and limits belong in X's live pricing page, not this Guide.
 - **Credential safety:** X calls tokens passwords. X's getting-access and
   Developer Console documentation warn that generated credentials are shown
   once; save the Bearer Token immediately in a password manager or secure
-  vault. Regeneration invalidates the prior credential.
+  vault.
 
 ## Credential flow
 
 The selected flow creates an X developer app and obtains its app-only
 **Bearer Token**. The administrator needs an X account, authority to accept the
 Developer Agreement and describe the organization's API use, and access to the
-organization's secure credential store. The app and API consumption belong to
-the X developer account's pay-per-usage billing.
+organization's secure credential store. The X developer account must also have
+API credits available through the Developer Console's billing and credits
+area. The app and API consumption belong to that account's pay-per-usage
+billing.
 
 Value the Speakeasy AI Control Plane needs:
 
@@ -86,6 +91,8 @@ route and must not be substituted into this Guide.
 - On the Developer Console dashboard, click **New App**.
 - Enter an app name, description, and use case. X does not prescribe their
   values; use organization-approved values.
+- Before submitting, have the organization's password manager or secure vault
+  ready. X displays the generated credentials only once.
 - Submit the form to create the app. The exact create/submit control label is
   not published in the public documentation.
 - Transition: X generates the app's API keys and tokens and displays its
@@ -101,16 +108,9 @@ route and must not be substituted into this Guide.
 - Before leaving the generated credential view, copy **Bearer Token** into the
   organization's password manager or secure vault. X identifies this as the
   app-only credential for reading public data.
-- X's MCP page also locates an existing app's token on the app's **Keys and
-  tokens** page. The public documentation does not name the dashboard control
-  used to reopen an app, so the first-creation path above is the documented
-  critical path.
 - Destination: later enter this token in the Speakeasy AI Control Plane as the
   secret static value `Bearer <Bearer Token>` for an upstream header named
   `Authorization`.
-- Warning: credentials are displayed once when generated. If the token is
-  missed or lost, regenerate it in the app; regeneration invalidates the old
-  token, so use only the newly generated value in Speakeasy.
 - Screenshot exception: the only useful state contains a live secret; do not
   capture the credential value.
 
@@ -138,8 +138,9 @@ In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
 - If X is in the catalog: choose **3rd-party server**. On the **MCP Catalog**
-  page, find X using **Search MCP servers...**, open it with **View**, click
-  **Add**, then click **Add to Project** in the **Add to Project** dialog.
+  page, enter `X` in **Search MCP servers...**, open the result with **View**,
+  click **Add**, then click **Add to Project** in the **Add to Project**
+  dialog.
 - If X is not in the catalog: choose **Custom remote server**. On
   **Add a custom remote MCP server**, paste `https://api.x.com/mcp` into
   **Remote MCP server URL**, then click **Add server**.
@@ -174,11 +175,6 @@ limits — see X's MCP documentation at
 - X's public documentation says to enter an app name, description, and use
   case after clicking **New App**, but does not publish the exact field labels
   or the final create-button label.
-- X documents an existing app's **Keys and tokens** page but does not name the
-  dashboard control or navigation path used to reopen that app.
-- X's pricing documentation links to the **Developer Console** to purchase
-  credits but does not publish the console path, purchase-control label,
-  manual-purchase inputs, or successful-balance transition.
 - Provider documentation cannot establish whether X is currently present in
   the Speakeasy MCP Catalog; the canonical add-source conditional must remain
   until the catalog is observed.
@@ -206,49 +202,50 @@ limits — see X's MCP documentation at
 ### Fact sources
 
 - `https://x-preview.mintlify.app/tools/mcp` — observed
-  `2026-07-23T22:43:32Z`. Primary MCP source. Backs the X MCP URL, hosted
+  `2026-07-23T23:16:30Z`. Primary MCP source. Backs the X MCP URL, hosted
   Streamable HTTP transport, protocol/server information, direct app-only
   Bearer route, read-only limitation, `Authorization` header shape, local
   `xurl mcp` OAuth route, no dynamic registration or native MCP OAuth
-  discovery, callback value, credential requirements, and troubleshooting
-  facts. Also supplies the further-reading URL.
+  discovery, callback value, and the server's search, users, bookmarks, trends,
+  news, and Articles capability areas. Also supplies the further-reading URL.
 - `https://docs.x.com/llms.txt` (retrieved through the official index surfaced
-  by X's preview property) — observed `2026-07-23T22:43:32Z`. Backs the
+  by X's preview property) — observed `2026-07-23T23:16:30Z`. Backs the
   documentation-property sweep and discovery of the MCP, authentication,
   Developer Console, app, access, and pricing pages.
 - `https://x-preview.mintlify.app/x-api/getting-started/getting-access` —
-  observed `2026-07-23T22:43:32Z`. Backs first-time developer enrollment,
+  observed `2026-07-23T23:16:30Z`. Backs first-time developer enrollment,
   app creation inputs, generated credentials, the Bearer Token's read-only
-  purpose, one-time display warning, and regeneration consequence.
+  purpose, and the one-time display warning.
 - `https://x-preview.mintlify.app/fundamentals/developer-portal` — observed
-  `2026-07-23T22:43:32Z`. Backs the `console.x.com` entry, **New App** label,
+  `2026-07-23T23:16:30Z`. Backs the `console.x.com` entry, **New App** label,
   name and description inputs, generated-credential behavior, secure storage,
   and pay-per-usage console role.
 - `https://x-preview.mintlify.app/fundamentals/developer-apps` — observed
-  `2026-07-23T22:43:32Z`. Backs app credential types, OAuth 2.0 client types,
+  `2026-07-23T23:16:30Z`. Backs app credential types, OAuth 2.0 client types,
   callback behavior, and generated-credential warning. Its general local
   callback guidance says to use `127.0.0.1`, while the MCP-specific X page and
   official xurl project require `http://localhost:8080/callback`; the
   MCP-specific value governs the excluded xurl route.
 - `https://x-preview.mintlify.app/fundamentals/authentication/overview` and
   `https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/application-only`
-  — observed `2026-07-23T22:43:32Z`. Back the app-only model, no-user-context
+  — observed `2026-07-23T23:16:30Z`. Back the app-only model, no-user-context
   limitation, token secrecy, and Bearer header presentation.
 - `https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/authorization-code`
-  — observed `2026-07-23T22:43:32Z`. Backs X's Authorization Code with PKCE
+  — observed `2026-07-23T23:16:30Z`. Backs X's Authorization Code with PKCE
   behavior, confidential-client Client ID/Secret, refresh-token scope, and
   exact callback matching; used only to validate the excluded full-access
   route.
 - `https://x-preview.mintlify.app/x-api/getting-started/pricing` — observed
-  `2026-07-23T22:43:32Z`. Backs pay-per-usage credits and the zero/negative
-  balance blocking caveat. Exact rates are intentionally not carried into the
-  Guide.
+  `2026-07-23T23:16:30Z`. Backs the API-credit prerequisite, the Developer
+  Console as the billing and credits locus, and the zero/negative balance
+  blocking caveat. Exact rates and the purchase walkthrough are intentionally
+  not carried into the Guide.
 - `https://raw.githubusercontent.com/xdevplatform/xurl/main/README.md` —
-  observed `2026-07-23T22:43:32Z`. Official xdevplatform repository. Backs the
+  observed `2026-07-23T23:16:30Z`. Official xdevplatform repository. Backs the
   stdio-to-Streamable-HTTP bridge architecture, `CLIENT_ID` /
   `CLIENT_SECRET`, token caching and refresh, browser/headless behavior, and
   default `http://localhost:8080/callback`.
-- `docs/speakeasy-setup.md` — observed `2026-07-23T22:43:32Z`. Backs the fixed
+- `docs/speakeasy-setup.md` — observed `2026-07-23T23:16:30Z`. Backs the fixed
   {#add-server-in-speakeasy} and {#connect-speakeasy-credentials} anchors,
   exact Speakeasy labels, catalog/custom conditional, upstream-header flow,
   and closing pointer form.
