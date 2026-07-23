@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: hubspot
-researched_at: 2026-07-22T23:59:17Z
+researched_at: 2026-07-23T01:06:26Z
 ---
 
 # HubSpot — Research Dossier
@@ -12,15 +12,15 @@ developers.hubspot.com is the source of truth for console UI facts
 (navigation, button and field labels, step order) and for endpoint/auth
 facts. The marketing overview at `developers.hubspot.com/ai-tools/mcp`
 (the canonical target of `developers.hubspot.com/mcp`, which 301-redirects
-to it — observed this run) carries partially stale content ("Supports
-OAuth 2.0; OAuth 2.1 support ... coming later in 2025", "create a
-user-level application with read scopes" — the pre-MCP-auth-apps flow) and
-is used only for two facts no other source states: the
-admin-connects-first behavior and the Sensitive Data Properties
-restriction, both flagged where used. The developer changelog is used for
-product status and for capability changes newer than the setup page.
-Every load-bearing fact was fetched live this run (2026-07-22/23,
-~23:55–00:15Z).
+to it — observed this run) carries partially stale content ("HubSpot MCP
+server supports OAuth 2.0. Later in 2025, we will align with MCP
+specification requirements for OAuth 2.1 support"; "Create a user-level
+application with read scopes" — the pre-MCP-auth-apps flow) and is used
+only for two facts no other source states: the admin-connects-first
+behavior and the Sensitive Data Properties restriction, both flagged
+where used. The developer changelog is used for product status and for
+capability changes newer than the setup page. Every load-bearing fact
+was fetched live this run (2026-07-23, ~01:07–01:15Z).
 
 ## Server facts
 
@@ -43,12 +43,15 @@ Every load-bearing fact was fetched live this run (2026-07-22/23,
   Setup page: "you can use it with any MCP client that supports OAuth
   authentication with PKCE (Proof Key for Code Exchange). PKCE is
   required for authenticating with HubSpot's MCP server." GA changelog:
-  "authenticated via OAuth 2.1 with PKCE." The OAuth client (here, the
-  Speakeasy AI Control Plane) presents the **Client ID** and **Client
-  secret** of an **MCP auth app** created in the HubSpot account (see
-  credential flow). PKCE parameters per the setup page's troubleshooting
-  section: `code_verifier` 43–128 characters, `code_challenge` via S256,
-  `code_challenge_method=S256`.
+  "OAuth 2.1 with PKCE is required for all connections." The OAuth
+  client (here, the Speakeasy AI Control Plane) presents the **Client
+  ID** and **Client secret** of an **MCP auth app** created in the
+  HubSpot account (see credential flow). PKCE parameters per the setup
+  page's troubleshooting section: "Generate a random `code_verifier`
+  (43-128 characters)", "Derive the `code_challenge` from the verifier
+  using the S256 method", "Include the `code_challenge` and
+  `code_challenge_method=S256` in the authorization request. Include the
+  `code_verifier` in the token exchange request."
   - Client registration is manual: the live authorization-server
     metadata (observed this run) advertises no `registration_endpoint`,
     and the Pulse mirror records dynamic client registration
@@ -68,11 +71,11 @@ Every load-bearing fact was fetched live this run (2026-07-22/23,
     `https://mcp.hubspot.com`, authorization server
     `https://mcp.hubspot.com`, `scopes_supported: []`,
     `resource_documentation: https://developers.hubspot.com/mcp`.
-  - Token lifecycle (setup page, Troubleshooting): access tokens expire
-    after a set period; clients refresh with the `refresh_token` from
-    the initial flow; an expired/invalidated refresh token requires
-    re-running the full OAuth flow. Handled by the connecting client,
-    not a console step.
+  - Token lifecycle (setup page, Troubleshooting): "OAuth access tokens
+    expire after a set period"; clients refresh with the
+    `refresh_token` from the initial flow; an expired/invalidated
+    refresh token requires re-running the full OAuth flow. Handled by
+    the connecting client, not a console step.
 - **Scopes are automatic** (setup page, verbatim): "you don't explicitly
   define the app's scopes. Instead, available scopes are automatically
   determined by two factors: The tools available in the MCP server at
@@ -85,8 +88,8 @@ Every load-bearing fact was fetched live this run (2026-07-22/23,
   remote server. The **MCP Auth Apps** UI itself was announced as public
   beta (changelog 2026-01-20; beta live 2026-01-13) and was still
   labeled "Public Beta" in the Spring 2026 Spotlight (2026-04-14), but
-  the current setup page carries no beta badge (observed this run) — see
-  open questions.
+  the current setup page carries no beta badge (checked explicitly this
+  run) — see open questions.
 - **Permissions model** (setup page, verbatim): "All actions respect
   your existing HubSpot user permissions. Users can only view and modify
   records they have access to in HubSpot."
@@ -118,19 +121,22 @@ Every load-bearing fact was fetched live this run (2026-07-22/23,
   emails, meetings, notes, and tasks) will be blocked from access
   through the MCP server." The overview page adds: "The HubSpot MCP
   server doesn't allow access to custom Sensitive Data Properties,
-  including Personal Health Information." See
-  {#sensitive-data-blocks-activities}.
+  including Personal Health Information and other forms of Highly
+  Sensitive Data." See {#sensitive-data-blocks-activities}.
 - **Adjacent products, not this server** (recorded to prevent
   mis-navigation): the **developer MCP server** is a separate local tool
   — setup page note, verbatim: "The HubSpot MCP server documented on
   this page is separate from the developer MCP server. The developer MCP
   server helps developers build apps and CMS content assets locally on
-  HubSpot's developer platform." The knowledge base's "HubSpot MCP
-  Client" articles cover HubSpot's Breeze agents consuming *other*
-  vendors' MCP servers — the reverse direction; also unrelated. The KB's
-  "HubSpot connector for Claude" / "for ChatGPT" articles cover
-  HubSpot-managed partner connectors, not the MCP auth app flow this
-  guide documents.
+  HubSpot's developer platform." (Its own GA changelog entry exists;
+  different product.) The knowledge base's "HubSpot MCP Client" articles
+  cover HubSpot's Breeze agents consuming *other* vendors' MCP servers —
+  the reverse direction; also unrelated. The KB's "HubSpot connector for
+  Claude" / "for ChatGPT" articles cover HubSpot-managed partner
+  connectors, not the MCP auth app flow this guide documents. The Pulse
+  mirror also records an npm package `@hubspot/mcp-server` (stdio, a
+  `PRIVATE_APP_ACCESS_TOKEN` env var) — the legacy local server, not
+  this remote server; not documented in this guide.
 
 ## Credential flow
 
@@ -138,11 +144,19 @@ Who acts: a user in the HubSpot account who can open the **Development**
 workspace from the main navigation bar — that is where **MCP Auth Apps**
 lives. No HubSpot source names the exact permission that gates this UI.
 The KB's user-permissions guide documents a **Developer tools access**
-permission (Account tab > Settings access) that "lets users access and
+permission (Account tab > Settings access) that lets users "access and
 manage developer features, including: app management, developer
 projects, development sandboxes, personal access keys for CLI
 authentication, and developer test accounts" — a flagged inference that
-this is the gate; MCP Auth Apps is not named there (see open questions).
+this is the gate; MCP Auth Apps is not named there. That Account tab
+sits within the screen for editing an individual user's permissions:
+the same guide states, verbatim, "On the Account tab, you can set more
+granular permissions for account administration," reached from the
+settings icon in the top navigation bar via **Users & Teams**, then
+selecting a user. The same guide's Super Admin requirement ("you must
+be a Super Admin to access private apps") is scoped to *private apps*,
+a different app type — not evidence about MCP auth apps (see open
+questions).
 
 What gets created: one **MCP auth app** in the account's Development
 workspace. HubSpot generates a **Client ID** and **Client secret** for
@@ -243,7 +257,10 @@ is documented except where flagged.
   whose appearance adds nothing beyond the copied values.
 - Recovery: none needed — the credentials remain viewable on the details
   page on later visits ("where you can view its client credentials"),
-  so there is no one-time display to miss.
+  so there is no one-time display to miss. How to re-open an existing
+  app's details page from the **MCP Auth Apps** list is not documented;
+  most likely by clicking the app's name in the list (flagged inference
+  — see open questions; needs console verification at capture time).
 
 ## Gotchas
 
@@ -266,7 +283,8 @@ available scopes may change. In the event of scope updates, users who
 have already installed the app will need to re-install to grant any new
 scopes." This happens in practice: when HubSpot shipped landing-page
 tools (June 2026 rollup), existing connected users had to "reconnect or
-re-authorize to grant the new permission scope."
+re-authorize to grant the new permission scope. New connections prompt
+for it automatically."
 
 ### Sensitive Data blocks activity objects {#sensitive-data-blocks-activities}
 
@@ -275,8 +293,9 @@ Data turned on, activity objects (such as calls, emails, meetings,
 notes, and tasks) will be blocked from access through the MCP server."
 The overview page adds that "The HubSpot MCP server doesn't allow access
 to custom Sensitive Data Properties, including Personal Health
-Information." An account using HubSpot's Sensitive Data features loses
-MCP access to all activity records.
+Information and other forms of Highly Sensitive Data." An account using
+HubSpot's Sensitive Data features loses MCP access to all activity
+records.
 
 ### Most content and marketing objects are read-only {#content-write-limits}
 
@@ -317,14 +336,17 @@ admin has connected — are undocumented (see open questions).
   user-permissions guide's **Developer tools access** (Account tab >
   Settings access; covers "app management" among "developer features")
   is the closest documented candidate — recorded as a flagged inference.
-  Whether Super Admin is required is unknown.
+  The guide's only Super Admin requirement in this area is scoped to
+  private apps, a different app type; whether Super Admin is required
+  for MCP auth apps is unknown.
 - **MCP Auth Apps beta status.** The MCP Auth Apps UI was announced as
   public beta (changelog 2026-01-20) and still labeled "Public Beta" in
   the Spring 2026 Spotlight (2026-04-14), but the current setup page
   shows no beta badge or label anywhere (checked explicitly this run),
   and no MCP-auth-apps GA announcement was found in the changelog
-  through July 2026. Current status is ambiguous; the draft should not
-  assert "public beta" as current fact.
+  through July 2026 (targeted search this run; newest MCP entry remains
+  the June 2026 rollup, 2026-06-29). Current status is ambiguous; the
+  draft should not assert "public beta" as current fact.
 - **How multiple redirect URLs are added.** The creation dialog
   documents a single **Redirect URL** field, yet the page says "If
   you're including multiple redirect URLs, the first redirect URL will
@@ -337,15 +359,21 @@ admin has connected — are undocumented (see open questions).
   connecting before any admin has. Needs console verification or
   provider confirmation.
 - **"New HubSpot Developer Platform" prerequisite.** The overview page
-  says the remote server requires being "on the new HubSpot Developer
-  Platform"; the setup page and GA changelog state no such prerequisite
-  ("generally available to all HubSpot accounts"). Whether older,
-  non-migrated accounts lack the **Development** navigation entry is
-  undocumented. The overview's statement may be stale beta-era text.
+  says "To use the HubSpot MCP Server, you must be on the new HubSpot
+  Developer Platform"; the setup page and GA changelog state no such
+  prerequisite ("generally available to all HubSpot accounts"). Whether
+  older, non-migrated accounts lack the **Development** navigation entry
+  is undocumented. The overview's statement may be stale beta-era text.
 - **Client secret rotation.** No source documents whether an MCP auth
   app's Client secret can be regenerated or rotated from the details
   page. Not load-bearing for setup (the secret stays viewable), recorded
   for completeness.
+- **Re-opening an existing app's details page.** The setup page
+  documents the auto-redirect to the details page right after creation,
+  but not how to return to that page from the **MCP Auth Apps** list on
+  a later visit. Most likely the app's name in the list is a link to its
+  details page (a common list-to-detail pattern), but this is not
+  stated anywhere. Needs console verification at capture time.
 
 ## Provenance
 
@@ -371,9 +399,10 @@ One entry per source drawn from:
 
 - `https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server`
   ("Integrate AI tools with the HubSpot MCP server") — observed this run
-  (2026-07-22/23). Also served verbatim at
-  `.../build-apps/integrate-with-hubspot-mcp-server` (same page,
-  confirmed this run). Backs: endpoint `https://mcp.hubspot.com`, PKCE
+  (2026-07-23). The former alternate path
+  `.../build-apps/integrate-with-hubspot-mcp-server` now 308-redirects
+  here (redirect observed this run; the prior run saw it serve the page
+  verbatim). Backs: endpoint `https://mcp.hubspot.com`, PKCE
   requirement and troubleshooting detail, the full MCP-auth-app creation
   flow (navigation "main navigation bar ... **Development**", "left
   sidebar menu ... **MCP Auth Apps**", "**Create MCP auth app**", dialog
@@ -393,24 +422,25 @@ One entry per source drawn from:
   run. Backs (flagged, single-source): "The admin of the HubSpot account
   needs to connect first, to allow other users in the account to connect
   thereafter"; "The HubSpot MCP server doesn't allow access to custom
-  Sensitive Data Properties, including Personal Health Information";
-  remote-vs-developer server split. **Conflict**: page elsewhere says
-  "Supports OAuth 2.0" with OAuth 2.1 "coming later in 2025" and
-  describes creating "a user-level application with read scopes" — stale
-  relative to the setup page and GA changelog; not used for auth or
-  console-UI facts.
+  Sensitive Data Properties, including Personal Health Information and
+  other forms of Highly Sensitive Data"; remote-vs-developer server
+  split. **Conflict**: page elsewhere says "HubSpot MCP server supports
+  OAuth 2.0. Later in 2025, we will align with MCP specification
+  requirements for OAuth 2.1 support" and describes creating "a
+  user-level application with read scopes" — stale relative to the setup
+  page and GA changelog; not used for auth or console-UI facts.
 - `https://developers.hubspot.com/changelog/remote-hubspot-mcp-server-is-now-generally-available`
   (2026-04-13, updated 2026-04-15) — observed this run. Backs: "The
   remote HubSpot MCP server is graduating from beta and is now generally
-  available to all HubSpot accounts"; "authenticated via OAuth 2.1 with
-  PKCE"; "Connect any MCP client that supports OAuth with PKCE to
-  `https://mcp.hubspot.com` using your app's client ID and secret";
-  GA-era read/write lists.
+  available to all HubSpot accounts"; "OAuth 2.1 with PKCE is required
+  for all connections"; "Connect any MCP client that supports OAuth with
+  PKCE to `https://mcp.hubspot.com` using your app's client ID and
+  secret"; GA-era read/write lists.
 - `https://developers.hubspot.com/changelog/public-beta-self-service-mcp-auth-apps-for-the-hubspot-remote-mcp-server`
-  (2026-01-20; beta live 2026-01-13) — observed this run. Backs: MCP
-  Auth Apps UI launch as public beta, self-service lifecycle management,
-  "End-user installation permissions for these apps are now managed
-  automatically."
+  (2026-01-20; beta live 2026-01-13; initial remote server launch
+  2025-09-01) — observed this run. Backs: MCP Auth Apps UI launch as
+  public beta, self-service lifecycle management, "End-user installation
+  permissions for these apps are now managed automatically."
 - `https://developers.hubspot.com/changelog/spring-2026-spotlight`
   (2026-04-14) — observed this run. Backs: remote MCP server GA and
   write-capability list; **MCP Auth Apps still labeled "Public Beta"**
@@ -421,22 +451,30 @@ One entry per source drawn from:
   standalone content analytics, exclusions ("bulk operations, custom
   module creation, A/B test setup, or first-time site/account setup"),
   and existing users needing to "reconnect or re-authorize to grant the
-  new permission scope."
+  new permission scope. New connections prompt for it automatically."
+  Confirmed this run (targeted changelog search) to still be the newest
+  MCP-related changelog entry as of 2026-07-23.
 - `https://knowledge.hubspot.com/user-management/hubspot-user-permissions-guide`
   — observed this run. Backs (flagged inference only): the **Developer
   tools access** permission (Account tab > Settings access) covering
   "app management" and other developer features; MCP Auth Apps not
-  named.
+  named; "you must be a Super Admin to access private apps" (private
+  apps only — a different app type). Also backs, as a direct fact: the
+  **Account** tab sits within the per-user permissions editing screen
+  ("On the Account tab, you can set more granular permissions for
+  account administration"), reached via the settings icon > **Users &
+  Teams** > selecting a user.
 - Pulse mirror `com.pulsemcp.mirror/hubspot` version 0.0.1 (private
   tenant export snapshot 2026-07-18T04:42:42Z; upstream record updated
   2026-07-17) — backs: remote URL and `streamable-http` transport,
   OAuth metadata mirror (authorization/token endpoints, S256,
   `client_secret_post`), dynamic client registration `supported: false`,
-  official-server flag.
+  official-server flag. Also records the legacy npm `@hubspot/mcp-server`
+  local package — out of scope for this guide.
 - `https://mcp.hubspot.com` +
   `https://mcp.hubspot.com/.well-known/oauth-protected-resource` +
   `https://mcp.hubspot.com/.well-known/oauth-authorization-server` —
-  direct endpoint observation this run (2026-07-23T00:03Z). Backs:
+  direct endpoint observation this run (2026-07-23T01:09Z). Backs:
   401/Bearer behavior with `resource_metadata` pointer, protected-
   resource metadata (resource `https://mcp.hubspot.com`, authorization
   server `https://mcp.hubspot.com`, `scopes_supported: []`,

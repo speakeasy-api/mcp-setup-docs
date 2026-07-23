@@ -1,0 +1,117 @@
+{
+  "slug": "hubspot",
+  "provider": "HubSpot",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T01:06:26Z",
+  "started_at": "2026-07-23T01:06:26Z",
+  "finished_at": "2026-07-23T01:31:18Z",
+  "status": "converged",
+  "rounds": 1,
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Credential flow / open question \"Which permission gates the Development workspace / MCP Auth Apps\"",
+          "problem": "setup.md's Prerequisites locate the Developer tools access permission \"when editing a user's permissions\", a navigation context the Dossier records only as \"(Account tab > Settings access)\" without naming the surface those tabs live on.",
+          "suggestion": "Record in the Dossier (as a fact from the KB user-permissions guide, or as a flagged inference) that the Account tab appears in the user-permissions editing screen, so setup.md's clause is backed; otherwise trim setup.md to the Dossier's recorded depth.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "{#copy-client-credentials} Recovery",
+          "problem": "The recovery setup.md renders (repeat {#open-mcp-auth-apps}, then \"open the app's details page\") relies on a MCP-Auth-Apps-list-to-details-page transition the Dossier neither records nor flags — \"remain viewable on the details page on later visits\" leaves the re-open seam implicit.",
+          "suggestion": "Add a flagged inference or open question in {#copy-client-credentials} for how the app's details page is re-opened from the MCP Auth Apps list (likely by clicking the app's name), to be verified at capture time.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#scope-updates-require-reinstall — \"users who have already connected need to re-install the app — go through the HubSpot approval flow again — to grant the new access\" / \"had to reconnect or re-authorize\"",
+          "problem": "The heading says \"reconnect\" while the body says \"re-install the app\" and the example says \"reconnect or re-authorize\" — three names for one action, which invites the careful, literal it-admin reader to treat them as different procedures.",
+          "suggestion": "Standardize on one verb, keeping the existing gloss: \"users who have already connected need to reconnect — go through the HubSpot approval flow again — to grant the new access\" and \"already-connected users had to reconnect to grant the new access.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites, \"is where MCP auth apps are created and managed\" (line 11)",
+          "problem": "The term \"MCP auth app\" is bolded on its first substantive use in Provider setup (\"you create one **MCP auth app**\", line 34) but left unbolded here in Prerequisites, an inconsistent rendering of the same term within one document.",
+          "suggestion": "Bold \"MCP auth apps\" on its first mention in Prerequisites to match the later Provider setup usage (or unbold both if it's judged a generic noun rather than a UI label).",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "setup.md#copy-client-credentials — \"repeat [Open MCP Auth Apps in the Development workspace](#open-mcp-auth-apps) and open the app's details page to copy them from there\"",
+          "problem": "The recovery path depends on an unnamed click: no source in the Dossier records how to open an existing app's details page from the MCP Auth Apps list (only the auto-redirect after creation is documented), so a reader who left before copying must guess how to get back to the credentials.",
+          "suggestion": "Record in the Dossier how an existing app's details page opens from the MCP Auth Apps list (most likely clicking the app's name — flag for console verification at capture time), then have setup.md name that click in the recovery sentence, e.g. \"click the app's name in the list to open its details page.\"",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#open-mcp-auth-apps, step 3: \"In the left sidebar menu, navigate to **MCP Auth Apps**.\"",
+          "problem": "The landing state after step 3 is never named, yet the next section starts with \"In the upper right, click **Create MCP auth app**\", which assumes the reader knows they are on the MCP Auth Apps page — the persona's bar requires every screen transition to be named.",
+          "suggestion": "End step 3 with the destination, e.g. \"This opens the **MCP Auth Apps** page, which lists your account's MCP auth apps.\" (consistent with the Dossier's documented flow: main navigation > Development > MCP Auth Apps > Create MCP auth app).",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "guides/hubspot/setup.md, Prerequisites: \"One thing to plan for beyond the steps below: the admin of the HubSpot account needs to connect first, before other users in the account can connect (see [Admin connects first](#admin-connects-first)).\"",
+          "problem": "The admin-connects-first fact is now rendered three times — this full statement in Prerequisites, a second full statement at the end of \"Copy the client credentials\" (\"Have the account's admin make the first connection before rolling it out to other users\"), and the Gotchas entry itself — one more place than the persona's point-of-need-plus-Gotchas rule for a gotcha.",
+          "suggestion": "Cut this sentence from Prerequisites (or reduce it to a bare pointer, e.g. \"See Admin connects first before rolling this out.\"); let the point-of-need mention at the close of \"Copy the client credentials\" plus the Gotchas entry carry the fact.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "guides/hubspot/setup.md, end of \"Copy the client credentials\": \"...what they can reach is always capped by their own permissions in HubSpot.\"",
+          "problem": "This clause restates the scopes-are-automatic gotcha a third time — it's already called out at its point of need in \"Create the MCP auth app\" (\"what each user can access is set automatically when they connect\") and stated in full in the Gotchas entry (\"Access is also always capped per user...\").",
+          "suggestion": "Trim the clause; end the sentence after \"...authorizes the connection\" and let the existing point-of-need callout and #scopes-are-automatic Gotchas entry carry the permissions-capping fact.",
+          "dimension": "concision"
+        }
+      ],
+      "polish_notes": "Read CONTEXT.md, shared.md, technical-research.md, writer.md, and the it-admin persona before editing. Applied all 8 nit findings against the already-in-progress working tree (research.md/setup.md carried uncommitted content from an earlier revision round; I edited on top of that state).\n\n1. (research, fidelity) Credential-flow permission context: fetched the HubSpot KB user-permissions guide via WebFetch and confirmed, verbatim, \"On the Account tab, you can set more granular permissions for account administration\" — i.e. the Account tab does sit within the per-user permissions editing screen (reached via the settings icon > Users & Teams > select a user). Added this as a backed fact (not just inference) to research.md's Credential flow paragraph and to the KB source's Provenance entry. setup.md's Prerequisites clause (\"when editing a user's permissions\") is now backed as-is — no setup.md edit needed.\n\n2. (research, fidelity) {#copy-client-credentials} Recovery: added a flagged inference to the Recovery bullet noting that how an existing app's details page is re-opened from the MCP Auth Apps list is undocumented, most likely by clicking the app's name, and added a matching \"Re-opening an existing app's details page\" bullet to Open questions, both flagged for console verification at capture time.\n\n3. (setup, voice) Standardized #scope-updates-require-reinstall on \"reconnect\": heading already said \"reconnect\"; changed body from \"re-install the app\" to \"reconnect\" and the example from \"reconnect or re-authorize\" to \"reconnect,\" per the suggested wording.\n\n4. (setup, formatting) Bolded \"MCP auth apps\" on its first mention in Prerequisites to match the later Provider-setup usage.\n\n5. (research+setup, achievability) Per the flagged inference added in #2, named the click in setup.md's copy-client-credentials recovery sentence: \"...repeat [Open MCP Auth Apps...], then click the app's name in the list to open its details page and copy them from there.\"\n\n6. (setup, achievability) Ended step 3 of #open-mcp-auth-apps with the landing state: \"This opens the **MCP Auth Apps** page, which lists your account's MCP auth apps.\"\n\n7. (setup, concision) Reduced the Prerequisites admin-connects-first paragraph to a bare pointer (\"see Admin connects first before rolling this out to your users\"), leaving the point-of-need mention at the end of \"Copy the client credentials\" and the Gotchas entry to carry the full fact.\n\n8. (setup, concision) Trimmed the trailing \"...what they can reach is always capped by their own permissions in HubSpot\" clause from the end of \"Copy the client credentials,\" ending the sentence after \"...authorizes the connection.\" The existing point-of-need callout in \"Create the MCP auth app\" and the #scopes-are-automatic Gotchas entry still carry that fact.\n\nFiles touched: /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/hubspot/research.md, /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/hubspot/setup.md. meta.yaml was already modified on disk (observed_at timestamp bump) before I started, by the workflow/prior round, not by me — no meta.yaml edits were needed for these findings.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": [
+          {
+            "severity": "nit",
+            "target": "meta",
+            "where": "summary",
+            "problem": "The summary's \"read marketing content\" implies marketing objects are read-only, but the Dossier's #content-write-limits records landing pages as create/edit/publish-capable since the June 2026 rollup (the changelog is the preferred source over the stale supported-data table).",
+            "suggestion": "Acknowledge the exception in the summary, e.g. \"Search, read, and manage HubSpot CRM records and activities, and read marketing content — including creating and publishing landing pages — through the hosted HubSpot MCP server.\""
+          },
+          {
+            "severity": "nit",
+            "target": "research",
+            "where": "Provenance entry for https://developers.hubspot.com/ai-tools/mcp",
+            "problem": "The overview page's statement \"To use the HubSpot MCP Server, you must be on the new HubSpot Developer Platform\" is rendered in setup.md's Prerequisites troubleshooting (via the open question) but is not listed among the facts this provenance entry backs.",
+            "suggestion": "Add the Developer Platform prerequisite statement to the overview entry's Backs list, flagged single-source and possibly stale, cross-referencing the existing open question."
+          }
+        ]
+      }
+    }
+  ],
+  "nits": [
+    "(meta summary) The summary's \"read marketing content\" implies marketing objects are read-only, but the Dossier's #content-write-limits records landing pages as create/edit/publish-capable since the June 2026 rollup (the changelog is the preferred source over the stale supported-data table). Suggestion: Acknowledge the exception in the summary, e.g. \"Search, read, and manage HubSpot CRM records and activities, and read marketing content — including creating and publishing landing pages — through the hosted HubSpot MCP server.\"",
+    "(research Provenance entry for https://developers.hubspot.com/ai-tools/mcp) The overview page's statement \"To use the HubSpot MCP Server, you must be on the new HubSpot Developer Platform\" is rendered in setup.md's Prerequisites troubleshooting (via the open question) but is not listed among the facts this provenance entry backs. Suggestion: Add the Developer Platform prerequisite statement to the overview entry's Backs list, flagged single-source and possibly stale, cross-referencing the existing open question."
+  ],
+  "unresolved": [],
+  "open_questions": [
+    "Which HubSpot permission gates the Development workspace / MCP Auth Apps UI — Developer tools access (Account tab > Settings access) is a flagged inference; whether Super Admin is required is unknown (the KB's Super Admin rule covers private apps only).",
+    "Current MCP Auth Apps release status: announced public beta (2026-01-20), still labeled Public Beta in Spring 2026 Spotlight (2026-04-14), but no beta badge on the current setup page and no GA announcement found through 2026-07-23 — do not assert 'public beta' as current fact.",
+    "How additional redirect URLs are added after creation (the dialog documents a single Redirect URL field; details page shows 'redirect URLs' plural) — needs console verification at capture time.",
+    "Admin-connects-first mechanics: which admin role qualifies and what a non-admin sees if connecting before any admin has — single-source (overview page) and undocumented.",
+    "Whether the overview's 'must be on the new HubSpot Developer Platform' prerequisite is stale beta-era text — GA changelog says available to all HubSpot accounts; unclear if non-migrated accounts lack the Development navigation entry.",
+    "Whether an MCP auth app's Client secret can be rotated/regenerated from the details page (not load-bearing; secret stays viewable)."
+  ]
+}
