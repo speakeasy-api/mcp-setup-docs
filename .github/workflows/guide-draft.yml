@@ -119,10 +119,14 @@ jobs:
             --jq '[.[].body] | join("\n\n---\n\n")' \
             2>/dev/null || echo "")
           if [ -n "${comments}" ]; then
-            export ISSUE_BODY="${ISSUE_BODY:-}
-
-## Issue thread (for clarifications)
-${comments}"
+            # Keep every line of this assignment indented — bare "## ..." at
+            # column 0 ends the YAML `run: |` block and breaks the workflow.
+            {
+              printf '%s\n\n' "${ISSUE_BODY:-}"
+              echo "## Issue thread (for clarifications)"
+              printf '%s\n' "${comments}"
+            } > "${RUNNER_TEMP}/issue-body-with-thread.txt"
+            export ISSUE_BODY="$(cat "${RUNNER_TEMP}/issue-body-with-thread.txt")"
           fi
           set +e
           npm run resolve-issue -- --output "${RUNNER_TEMP}/resolved.json"
