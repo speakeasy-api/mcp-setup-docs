@@ -19,3 +19,16 @@ depends = ["_cursor-sdk-install"]
 # Usage (from repo root): mise run draft-guide -- box [--overwrite] [--force] [...]
 # Requires CURSOR_API_KEY in the environment (user or team service-account key).
 run = "npm run draft-guide --"
+
+[tasks."_mcp-oauth-probe-install"]
+description = "Install scripts/mcp-oauth-probe dependencies (hidden prerequisite)"
+dir = "scripts/mcp-oauth-probe"
+hide = true
+run = "npm install"
+
+[tasks.probe-mcp-oauth]
+description = "Discover MCP OAuth metadata; report CIMD / DCR support"
+dir = "scripts/mcp-oauth-probe"
+depends = ["_mcp-oauth-probe-install"]
+# Usage (from repo root): mise run probe-mcp-oauth -- <mcp-url> [--json]
+run = "npm run probe --"
