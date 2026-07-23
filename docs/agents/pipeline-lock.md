@@ -6,7 +6,8 @@ Normative semantics for `guides/<slug>/pipeline.lock.json`. The JSON Schema is
 This contract records, per guide, the **input fingerprints** that produced the
 current artifacts so a later drafting run can **skip** steps whose inputs did
 not change. The Cursor SDK workflow (`scripts/cursor-sdk`) honors these rules;
-`--force` bypasses skips.
+`--force` bypasses skips. `--overwrite` / `-y` only skips the guide-exists
+prompt and still honors the lock.
 
 ## Location
 
@@ -122,7 +123,7 @@ Research **always executes**. After it completes, set in-memory
    draft/review skips remain valid. When the judge says material (or returns
    no verdict), keep AFTER and set `research_unchanged = false`.
 5. **`--force`:** skip the judge; treat research as changed for skip purposes
-   (downstream skips are already bypassed).
+   (downstream skips are already bypassed). `--overwrite` does **not** do this.
 
 Run Records may include `research_change: { method, unchanged, notes }` where
 `method` is `digest` | `judge` | `none`.
@@ -167,8 +168,10 @@ which steps were skipped (additive; see `retro/README.md` when implemented).
 
 ### Escape hatch
 
-`--force` (CLI) or the skill equivalent bypasses all skip checks. On a
-successful run, always rewrite the lock.
+`--force` (CLI) bypasses all skip checks and implies `--overwrite` (no
+guide-exists prompt). `--overwrite` / `-y` alone allows non-interactive
+overwrite while still honoring the lock. On a successful run, always rewrite
+the lock.
 
 ## Example
 

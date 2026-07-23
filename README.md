@@ -56,7 +56,7 @@ Claude Code Workflow harness. From `scripts/cursor-sdk/`:
 export CURSOR_API_KEY=cursor_...   # Dashboard → Integrations / API Keys
 npm install
 npm run draft-guide -- box
-npm run draft-guide -- box hubspot --persona it-admin --force
+npm run draft-guide -- box hubspot --persona it-admin --overwrite
 ```
 
 Requires Node ≥ 22.13. Defaults: `gpt-5.6-sol` at `effort=high` for
@@ -65,7 +65,7 @@ research, draft, fidelity, voice, achievability, and revision;
 Usage burns your Cursor plan's token pool (tagged SDK in the usage
 dashboard). Run records land in `retro/runs/` with `runtime: "cursor-sdk"`.
 Pass `--help` for flags (`--notes`, `--model`, `--effort`, `--light-model`,
-`--max-rounds`, `--force`).
+`--max-rounds`, `--overwrite`, `--force`).
 
 ## Authoring a Guide (`/draft-guide`)
 

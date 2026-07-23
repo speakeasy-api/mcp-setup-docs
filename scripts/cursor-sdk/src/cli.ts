@@ -15,8 +15,9 @@ Options:
   --persona <id>     Persona under docs/personas/ (default: it-admin)
   --notes <text>     Extra context handed to every guide's agents
   --max-rounds <n>   Review/revise rounds before giving up (default: 3)
-  --force            Overwrite existing guides/<slug>/ without prompting;
-                     also bypass pipeline.lock.json skip checks
+  --overwrite, -y    Overwrite existing guides/<slug>/ without prompting;
+                     still honors pipeline.lock.json skip checks
+  --force            Bypass pipeline.lock.json skips (implies --overwrite)
   --repo-root <path> Repo root (default: two levels above this package)
   --model <id>       Default Cursor model id (default: gpt-5.6-sol)
   --light-model <id> Model for "sonnet" slots (default: composer-2.5)
@@ -34,7 +35,8 @@ Env:
 
 Examples:
   npm run draft-guide -- box
-  npm run draft-guide -- box hubspot --persona it-admin
+  npm run draft-guide -- box --overwrite
+  npm run draft-guide -- box hubspot --persona it-admin --force
   npm run draft-guide -- "Google BigQuery" --notes "prefer ADC docs"
 `)
   process.exit(64)
@@ -53,6 +55,7 @@ function parseArgs(argv: string[]) {
   let persona = 'it-admin'
   let notes: string | undefined
   let maxRounds = 3
+  let overwrite = false
   let force = false
   let repoRoot: string | undefined
   // Heavy slots (research / draft / fidelity / voice / achievability / revision)
@@ -65,6 +68,10 @@ function parseArgs(argv: string[]) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!
     if (a === '--help' || a === '-h') usage()
+    if (a === '--overwrite' || a === '-y') {
+      overwrite = true
+      continue
+    }
     if (a === '--force') {
       force = true
       continue
@@ -115,6 +122,7 @@ function parseArgs(argv: string[]) {
     persona,
     notes,
     maxRounds,
+    overwrite,
     force,
     repoRoot,
     model,
@@ -148,7 +156,7 @@ function guideHasContent(root: string, slug: string): boolean {
 async function confirmOverwrite(slug: string): Promise<boolean> {
   if (!process.stdin.isTTY) {
     console.error(
-      `guides/${slug}/ already has content; pass --force to overwrite in non-interactive mode`
+      `guides/${slug}/ already has content; pass --overwrite (or --force) in non-interactive mode`
     )
     return false
   }
@@ -213,7 +221,7 @@ async function main() {
       console.error(`Could not derive a kebab-case slug from "${raw}"`)
       process.exit(1)
     }
-    if (!args.force && guideHasContent(repoRoot, slug)) {
+    if (!args.overwrite && !args.force && guideHasContent(repoRoot, slug)) {
       const ok = await confirmOverwrite(slug)
       if (!ok) process.exit(1)
     }

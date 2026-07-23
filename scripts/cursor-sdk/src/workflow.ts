@@ -165,7 +165,7 @@ export type WorkflowInput = {
   timestamp: string
   repoRoot: string
   maxRounds?: number
-  /** Bypass lock skip checks (also used by CLI --force). */
+  /** Bypass lock skip checks (CLI --force). */
   force?: boolean
 }
 
