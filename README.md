@@ -11,12 +11,13 @@ guides/<slug>/
 ├── meta.yaml    # Metadata (server, credentials, provenance)
 ├── research.md  # the Research Dossier every rendered fact traces to
 └── setup.md     # the Setup Guide a user follows, voiced for a persona
+FACTORY.md       # how to use the issue→draft PR GitHub factory
 schema/
 └── guide.v1.schema.json   # what every meta.yaml validates against
 docs/agents/     # pipeline role docs (shared rules, research, writer,
                  # fidelity, review), constitution.md (goal + invariants),
                  # CHANGELOG.md (doctrine changes), guide-factory.md
-                 # (issue→draft PR Action), drafting.md (historical)
+                 # (factory Action internals), drafting.md (historical)
 docs/personas/   # audience definitions Setup Guides are voiced for
 retro/           # pipeline signal: runs/ (Run Records), notes/ (human)
 scripts/
@@ -72,9 +73,9 @@ Pass `--help` for flags (`--notes`, `--model`, `--effort`, `--light-model`,
 
 Prefer filing a freeform issue and labeling it `guide:draft` — a GitHub
 Action distills the title/body, runs the same Cursor SDK pipeline, and opens
-a draft PR. See [`docs/agents/guide-factory.md`](docs/agents/guide-factory.md)
-for labels, secrets (`CURSOR_API_KEY`, optional `AGENT_PAT`), and the retry
-contract.
+a draft PR. See **[`FACTORY.md`](FACTORY.md)** for how to use it (secrets,
+labels, clarifications, resume). Implementation detail:
+[`docs/agents/guide-factory.md`](docs/agents/guide-factory.md).
 
 ## Authoring a Guide (`/draft-guide`)
 

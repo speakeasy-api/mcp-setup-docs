@@ -1,4 +1,8 @@
-# Guide draft factory
+# Guide draft factory (internals)
+
+Operator how-to: see **[`FACTORY.md`](../../FACTORY.md)** at the repo root.
+
+This page is the Action/contract detail behind that guide.
 
 Label-driven GitHub Action that turns a freeform issue into a draft Guide PR.
 Mirrors a Matt Pocock–style factory: label → distill → pipeline → draft PR.
