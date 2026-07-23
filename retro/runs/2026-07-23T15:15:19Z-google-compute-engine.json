@@ -1,0 +1,291 @@
+{
+  "slug": "google-compute-engine",
+  "provider": "Google Compute Engine",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T15:15:19Z",
+  "started_at": "2026-07-23T15:15:19Z",
+  "finished_at": "2026-07-23T16:11:31Z",
+  "status": "converged",
+  "rounds": 3,
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#enable-compute-engine-api, step 2 (\"Open the navigation menu and go to **APIs & Services** > **API Library**.\")",
+          "problem": "The console-path detail \"Open the navigation menu\" has no backing fact in the Dossier, whose Service Usage quote reads only \"go to the **APIs & Services** > **API Library** page\" and which flags exactly this kind of nav-menu inference elsewhere (the IAM path) but records none for this step.",
+          "suggestion": "Reword the step to the Dossier's wording (\"Go to the **APIs & Services** > **API Library** page\"), or have research record the navigation-menu path as a flagged inference the way it did for **IAM & Admin** > **IAM**.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "summary (\"Manage Compute Engine VM instances, disks, instance groups, reservations, and snapshots...\")",
+          "problem": "\"Reservations\" appears nowhere in the Research Dossier — the Dossier's backed resource list (from the Compute Instance Admin (v1) description) is \"instances, instance groups, disks, snapshots, and images\" — so the summary asserts a fact with no provenance.",
+          "suggestion": "Replace \"reservations\" with a Dossier-backed resource type (e.g. \"images\") or first record in research.md that the live tools/list includes reservation operations, with provenance, before the summary names them.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "setup.md#consent-screen, step 11: \"Click **Continue**, then click **Create**.\"",
+          "problem": "The step bundles two separate button clicks into one numbered step, violating the persona's \"one action per numbered step\" rule, which review.md lists as part of the formatting dimension's grammar.",
+          "suggestion": "Split into two steps: \"Click **Continue**.\" and \"Click **Create**.\" — the Research Dossier itself records these as two separate sentences (\"Click Continue.\" \"Click Create.\"), so the split has no fidelity cost.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "setup.md#consent-screen, scopes list step 1: \"Click **Data Access**, then click **Add or Remove Scopes**.\"",
+          "problem": "The step bundles two distinct clicks (switching to the Data Access tab, then clicking the Add or Remove Scopes button) into one numbered step, the same single-action violation as the Continue/Create step.",
+          "suggestion": "Split into \"Click **Data Access**.\" and \"Click **Add or Remove Scopes**.\" as steps 1 and 2, renumbering the remaining two steps in the list.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "setup.md#consent-screen — \"Once you have confirmed the connection works, publish the app to production so connections persist.\"",
+          "problem": "The guide tells the reader to publish the app to production but names no console page or control for doing so, and the Research Dossier records no publish flow, so an External-audience reader facing the seven-day Testing expiry must search or guess to follow the remedy.",
+          "suggestion": "Research the publishing flow in the Google Auth platform (the Audience page's publishing-status area and its exact button label, e.g. Publish app), record the verbatim labels in the Dossier, and render the instruction as a followable step: where to go and what to click.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#grant-iam-roles, step 6 (Service Account User)",
+          "problem": "The Dossier records the Compute Engine IAM page's recommendation to grant Service Account User on a specific service account rather than project-wide (\"Recommended. Grant the role to a member on a specific service account.\"), but the guide grants it project-wide with no mention of the recommendation.",
+          "suggestion": "Add a one-line note after step 6, e.g. \"Google recommends granting Service Account User on a specific service account rather than project-wide; granting it here on the project also works.\"",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites, second paragraph (billing warning)",
+          "problem": "The Dossier records the create_instance silent defaults (machine type `e2-medium`, image `debian-12` from `debian-cloud`) explicitly \"because silent defaults on a billable create are setup-relevant\", but the guide's billing warning omits them.",
+          "suggestion": "Extend the billing sentence with the defaults, e.g. \"a VM created without explicit choices defaults to an `e2-medium` machine running Debian 12.\"",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#consent-screen (Testing-status caveat) and Open questions",
+          "problem": "The Dossier directs the guide to tell readers to \"publish the app to production\" but records neither the console surface for publishing nor an open question flagging that gap, leaving setup.md issuing an instruction with no click-through depth behind it — inconsistent with the Dossier's flagging of every other unverified surface.",
+          "suggestion": "Record the publish-to-production control at click-through depth (or add an open question marking it for console verification at capture time), so the Writer can name the screen transition instead of a bare instruction.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#consent-screen, step 11: \"Click **Continue**, then click **Create**.\"",
+          "problem": "Two actions are packed into one numbered step, violating the persona's one-action-per-numbered-step rule.",
+          "suggestion": "Split into two steps: \"11. Click **Continue**.\" and \"12. Click **Create**.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#grant-iam-roles, step 6: \"— paired with Compute Instance Admin (v1), it lets the user create a VM that runs as a service account, which most projects' default VM setup requires.\"",
+          "problem": "The rationale clause teaches service-account mechanics the persona does not know and the step does not require — the bolded role name plus its ID already fully determine what to pick.",
+          "suggestion": "Trim the step to the bare instruction: \"Click **Add another role** and add **Service Account User** (`roles/iam.serviceAccountUser`).\" If a purpose tag is kept, keep it to a few words (e.g. \"— required for creating VMs\") in line with the shorter tags on steps 4 and 5.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites: \"The server does not support full regional isolation and might route tool calls through any region.\"",
+          "problem": "\"Regional isolation\" is unglossed jargon outside the persona's vocabulary, so the reader cannot tell what the sentence means for them.",
+          "suggestion": "Rephrase in plain terms, e.g. \"Google might process the server's tool calls in any region, regardless of where your project's resources live\" (the fact itself is Dossier-backed; only the wording changes).",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials, step 2: \"if **Use Discovered** is offered, choose **Configure Manually** anyway; it matches the client you created\"",
+          "problem": "The pronoun \"it\" grammatically attaches to the nearest subject, **Use Discovered**, inverting the intended rationale for a careful, literal reader.",
+          "suggestion": "Replace the pronoun: \"choose **Configure Manually** anyway — manual configuration matches the client you created in [Create the OAuth client](#create-oauth-client).\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#enable-compute-engine-api, step 1: \"Sign in at [console.cloud.google.com](...) and pick your project in the project selector on the console toolbar.\"",
+          "problem": "The step combines two actions (signing in, then selecting a project) joined by \"and\", inconsistent with the single-action steps used elsewhere in the same guide (e.g. Grant IAM roles' steps 2, 3, 7).",
+          "suggestion": "Split into two steps, e.g. \"Sign in at console.cloud.google.com.\" and \"Pick your project in the project selector on the console toolbar.\"",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md lines 39 and 86 (\"Open the navigation menu and go to **APIs & Services** > **API Library**.\" / \"Open the navigation menu and go to **Google Auth platform** > **Branding**.\") vs. line 59 (\"In the navigation menu, go to **IAM & Admin** > **IAM**...\")",
+          "problem": "The same physical action (opening the console's navigation menu and selecting an item) is phrased two different ways within the same guide: two instances name it as two verbs joined by \"and\" (\"open\" + \"go to\"), one instance names it as a single verb (\"go to\").",
+          "suggestion": "Standardize all three navigation steps on the single-action phrasing already used in Grant IAM roles: \"In the navigation menu, go to **X**.\"",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#grant-iam-roles, steps 4-6 (\"Click **Select a role** and search for **MCP Tool User**...\"; \"Click **Add another role** and add **Compute Instance Admin (v1)**...\"; \"Click **Add another role** and add **Service Account User**...\")",
+          "problem": "Each of these three steps joins two actions with \"and\" (click, then search/add), while the surrounding steps in the same list (2, 3, 7) are each a single action — an inconsistent application of the one-action-per-step rule within one numbered list.",
+          "suggestion": "Either split each of the three steps into two single-action steps for consistency with the rest of the list, or, if the compound phrasing is kept deliberately (it mirrors the Dossier's own bundled wording), apply it uniformly rather than mixing single- and double-action steps in the same list.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "setup.md#consent-screen — \"Add `https://www.googleapis.com/auth/compute` — select it in the list if it appears there; otherwise add it manually.\"",
+          "problem": "The fallback \"add it manually\" names no field or control, so a reader whose scope is absent from the picker list must guess where to type it — and the Dossier flags exactly this branch as unverified.",
+          "suggestion": "Verify the Add or Remove Scopes panel at capture time, record the manual-entry control's exact label (e.g. a Manually add scopes box and its confirm button) in the Dossier, and name it in the fallback clause.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "setup.md#consent-screen — steps 3–11 (the App Information through Finish wizard)",
+          "problem": "The numbered steps assume the first-time configuration wizard runs, but a project whose Google Auth platform was already configured (common in established orgs) shows a filled Branding page instead, leaving the reader unable to follow steps 3–11 as written.",
+          "suggestion": "Record the already-configured state in the Dossier and add a branch after step 2, e.g. \"If Branding already shows your app's details, the platform is configured — skip ahead to adding the scope.\"",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "setup.md#copy-client-credentials — \"open the client from the **Clients** list, delete the secret, and create a new one\"",
+          "problem": "The delete and re-create controls on the client's detail page are unnamed, and the Dossier flags that surface as an unverified inference, so a reader recovering a lost secret follows an un-anchored instruction.",
+          "suggestion": "Verify the client detail page at capture time, record the exact control labels for deleting and creating a secret in the Dossier, and name them in the recovery sentence.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Provider setup section intro, ~line 31: \"Each user who connects signs in with their own Google account, and the server can only do what that user's roles on the project allow.\"",
+          "problem": "This restates a fact already given in Prerequisites (\"Each person who will connect... needs their own Google account; you grant their access in Grant IAM roles\") and again at the point of need two paragraphs later in Grant IAM roles (\"Each user authorizes as themselves, so their own roles cap what the server will do for them\"), plus once more in the Speakeasy setup closing note — four total renderings of one fact in a 220-line guide.",
+          "suggestion": "Cut this sentence from the Provider setup intro. Prerequisites already sets the expectation for planning purposes, and Grant IAM roles states it again at the actual point of need; the intro adds no new actionable content between them.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Blockers — all five fixed. (1) Unbacked \"Open the navigation menu\" in #enable-compute-engine-api: took the finding's second option — research.md now records the navigation-menu reading of the Service Usage doc's \"APIs & Services > API Library page\" as a flagged inference (mirroring the IAM-path pattern), and the open question was widened to \"Navigation-menu paths to the API Library and IAM pages\"; setup.md step renders as \"In the navigation menu, go to **APIs & Services** > **API Library**.\" (2) meta.yaml summary: \"reservations\" replaced with \"images\", matching the Dossier's Compute Instance Admin (v1) resource list. (3) Consent-screen wizard: \"Click **Continue**, then click **Create**\" split into steps 11 and 12. (4) Scopes list: \"Click **Data Access**, then click **Add or Remove Scopes**\" split into steps 1 and 2, list renumbered. (5) Publish-to-production: researched Google's support KB (Google Cloud Platform Console Help) — \"Manage App Audience\" (support.google.com/cloud/answer/15549945) documents the **Publish app** button verbatim, and \"Manage OAuth App Branding\" (answer/15549049) places publishing status on the **Audience** page; both recorded in research.md's consent-screen step with verbatim quotes (including the verification caveat and Testing limits), added to the Dossier provenance and meta.yaml provenance (observed_at 2026-07-23T15:15:19Z), and the sweep's incorrect \"no separate support KB property\" claim corrected. setup.md now renders the remedy as a followable step: \"return to the **Audience** page and click **Publish app**\".\n\nNits applied. Service Account User recommendation note added under the role step (Dossier-backed). Billing warning extended with the create_instance defaults (`e2-medium`, Debian 12). Dossier publish-control gap closed by the blocker-5 research. SAU rationale trimmed to \"— required for creating VMs\". \"Regional isolation\" jargon replaced with the reviewer's plain phrasing. The ambiguous pronoun in Speakeasy step 2 replaced with \"manual configuration matches the client you created...\". Sign-in/pick-project split into two steps. All three navigation-menu steps standardized on \"In the navigation menu, go to **X**.\" Grant-IAM steps 4–6 split into single-action steps (list is now 10 steps). Manual scope entry: went beyond the capture-time suggestion — the support KB's \"Manage App Data Access\" (answer/15549135) documents the **Manually add scopes** text box and the panel's **Update** button; recorded with provenance (including the KB's styled-caps label printing vs. the consent guide's mixed case) and named in setup.md's fallback, with **Update** added as its own step before **Save**. Already-configured branch: found the consent guide's own verbatim statement (\"If you have already configured the Google Auth platform, you can configure the following OAuth Consent Screen settings in Branding, Audience, and Data Access\"), recorded it in the Dossier, and added the branch to setup step 2 keyed on the documented not-configured message (\"If you do not see that message, the platform is already configured — skip ahead to adding the scope below\"). Duplicate-fact sentence cut from the Provider setup intro.\n\nmeta.yaml re-validated against schema/guide.v1.schema.json via Python jsonschema with FormatChecker (ajv-cli failed on the date-time format): valid. Files changed: /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/google-compute-engine/setup.md, research.md, meta.yaml. Anchors untouched.",
+      "disputed": [],
+      "skipped": [
+        "Nit (research, #copy-client-credentials secret delete/re-create controls): skipped — no fetched documentation names the delete and re-create controls on the client detail page, so naming them needs console verification at capture time, which the Dossier already flags as an open question."
+      ]
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "setup.md#consent-screen, test-users list, step 3: \"Enter the Google account email address of every user who will connect from the Speakeasy AI Control Plane, then click **Save**.\"",
+          "problem": "The step bundles two actions — entering the email addresses and clicking the Save button — into one numbered step, the same grammar violation round 1 already ruled a blocker for \"Click Continue, then click Create\" and \"Click Data Access, then click Add or Remove Scopes,\" and inconsistent with this guide's own convention in Grant IAM roles, where the same shape (enter a value in a field, step 3; then click a button, step 4) is split into two steps.",
+          "suggestion": "Split into two steps: \"Enter the Google account email address of every user who will connect from the Speakeasy AI Control Plane.\" and \"Click **Save**.\"",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "setup.md#create-oauth-client, the paragraph after step 7: \"Click **Create**. The **OAuth 2.0 client created** dialog opens; the next step copies the credentials out of it.\"",
+          "problem": "\"Click Create\" is the eighth and final action of the same create-client sequence as numbered steps 1-7, but it is rendered as unnumbered prose after an intervening warning paragraph, breaking the persona's Formatting rule (\"Numbered steps for sequences of actions; prose only between step groups\") — it is not a new step group, so it should not read like one.",
+          "suggestion": "Fold the one-time-secret warning into a continuation note under step 7 (matching the pattern already used for the Service Account User recommendation under Grant IAM roles step 9), then render \"Click **Create**.\" as numbered step 8.",
+          "dimension": "formatting"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#consent-screen, closing paragraph: \"return to the **Audience** page and click **Publish app** so connections persist.\"",
+          "problem": "The Dossier records the Manage App Audience verification caveat in this step (\"Your project's configuration may be subject to verification before its name and logo are displayed on an authorization screen or before it may request authorization of sensitive or restricted scopes\"), but the guide's publish instruction omits it, so a reader clicking Publish app may meet an unannounced verification flow.",
+          "suggestion": "Append one faithful conditional sentence after the Publish app instruction, e.g. \"Google notes that your app's configuration may be subject to verification before it can request certain scopes, so publishing may involve an extra review step.\" — keeping it conditional, since whether the compute scope triggers verification is a recorded open question.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#consent-screen, test-users step 3: \"Enter the Google account email address of every user who will connect from the Speakeasy AI Control Plane, then click **Save**.\"",
+          "problem": "The step bundles two actions (entering the test-user email addresses, then clicking Save) into one numbered step, the persona's one-action-per-numbered-step rule that the round-1 revision applied uniformly everywhere else (Continue/Create, Data Access/Add or Remove Scopes, the Grant IAM list), leaving this as the guide's only remaining two-action step.",
+          "suggestion": "Split into two steps: \"3. Enter the Google account email address of every user who will connect from the Speakeasy AI Control Plane.\" and \"4. Click **Save**.\" (The Dossier's consent-guide quote bundles them, but the split has no fidelity cost — both actions and labels are recorded verbatim.)",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#consent-screen, test-users intro: \"If you selected **External**, list every connecting user as a test user\"",
+          "problem": "A reader who took the already-configured branch in step 2 never selected anything in the wizard, so this careful, literal persona cannot evaluate the condition and may skip the test-user block on an External app, leaving connecting users unable to sign in.",
+          "suggestion": "Key the condition on app state rather than the reader's past action, e.g. \"If the app's user type is **External** (you chose it in the wizard, or it was chosen when the platform was first configured)...\" — and if research can record where the configured user type is displayed (the **Audience** page is the likely surface, per the Manage App Audience KB already in the Dossier), name that check for skip-path readers.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "setup.md#consent-screen — \"Click **Data Access**.\" (scope list step 1) and \"Click **Audience**.\" (test-users step 1)",
+          "problem": "The guide never says where the **Data Access** and **Audience** controls sit or where the wizard's final **Create** click lands the reader, so a first-time visitor must scan the console to find these exactly-named but unlocated targets — and the Dossier's console-navigation open question covers only the top-level Google Auth platform entry, not its internal navigation.",
+          "suggestion": "Widen the existing \"Where Google Auth platform sits in the console navigation\" open question to also cover the section's internal navigation (Branding / Audience / Data Access / Clients) and the post-**Create** landing page, so capture-time verification can anchor these clicks (e.g. \"In the Google Auth platform menu, click **Data Access**\").",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#consent-screen, closing paragraph: \"return to the **Audience** page and click **Publish app** so connections persist.\"",
+          "problem": "The Dossier records the Manage App Audience caveat that a project's configuration \"may be subject to verification\" after publishing, but the guide presents **Publish app** as an unqualified final click, so a reader who is then prompted to verify the app faces a screen the guide never mentioned.",
+          "suggestion": "Add a one-line Dossier-backed hedge after the publish instruction, e.g. \"Google may ask you to verify the app's configuration after you publish; if prompted, follow the console's verification steps — the connection keeps working in the meantime for the scope this guide adds\" (trim to whatever the Dossier's recorded caveat supports).",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Provider setup section intro (~line 28): \"You will enable the Compute Engine API (which also enables the MCP server), grant roles to each connecting user, configure the consent screen, and create one OAuth client.\"",
+          "problem": "The parenthetical \"(which also enables the MCP server)\" restates a fact given again at its point of need two lines into the next section: \"The MCP server is enabled together with the API — there is no separate MCP switch to find.\" (#enable-compute-engine-api) — the same fact rendered in two places.",
+          "suggestion": "Drop the parenthetical from the Provider setup roadmap sentence (\"You will enable the Compute Engine API, grant roles to each connecting user, configure the consent screen, and create one OAuth client.\") and let the Enable the Compute Engine API section's own note carry the fact — the same point-of-need-instance-plus-cross-link pattern the guide already uses for the \"own Google account\" fact between Prerequisites and Grant IAM roles.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Blocker 1 (setup, test-users bundled step): split into two numbered steps in setup.md#consent-screen — step 3 \"Enter the Google account email address of every user who will connect from the Speakeasy AI Control Plane.\" and step 4 \"Click **Save**.\" This also resolves nit 2, which reported the same defect. Blocker 2 (setup, unnumbered Create click): in setup.md#create-oauth-client, folded the one-time-secret warning into an indented continuation note under step 7 (matching the Service Account User note pattern under Grant IAM roles step 9) and rendered \"Click **Create**. The **OAuth 2.0 client created** dialog opens; the next step copies the credentials out of it.\" as numbered step 8 — the warning still sits above the click per the persona's one-way-door rule. Nits 1 and 5 (publish-app verification caveat, same location and same Dossier fact): applied as one sentence appended after the Publish app instruction — \"Google notes that your app's configuration may be subject to verification before it can request certain scopes, so publishing may involve an extra review step.\" Kept conditional per nit 1; per nit 5's own \"trim to whatever the Dossier's recorded caveat supports,\" dropped its proposed \"the connection keeps working in the meantime\" clause, which the Dossier does not record. Nit 3 (test-users condition keyed on past action): rekeyed on app state — \"If the app's user type is **External** (you chose it in the wizard, or it was chosen when the platform was first configured), ...\"; the suggestion's optional second half (naming where the configured user type is displayed) needs a fact the Dossier does not record, so instead I added it to the widened research open question (see nit 4) for capture-time verification rather than asserting an unverified console surface. Nit 4 (research, console-navigation open question): widened the \"Where Google Auth platform sits in the console navigation\" open question in research.md to also cover the section's internal navigation (Branding / Audience / Data Access / Clients), the wizard's post-Create landing page, and where an already-configured app's user type is displayed — all flagged for console verification at capture time; no new facts asserted, so no new provenance entry was needed. Nit 6 (duplicated MCP-enablement fact): dropped the \"(which also enables the MCP server)\" parenthetical from the Provider setup roadmap sentence; the point-of-need note in #enable-compute-engine-api carries the fact alone.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#consent-screen, test-users block (intro at \"list every connecting user as a test user\" and step 3 \"Enter the Google account email address of every user who will connect from the Speakeasy AI Control Plane.\")",
+          "problem": "The Dossier records the Manage App Audience cap — \"Projects configured with a publishing status of Testing are limited to up to 100 test users listed in the OAuth consent screen\" — but the guide instructs listing every connecting user with no mention of the cap, so an admin at an organization with more than 100 connecting users hits an unannounced console limit at this exact step.",
+          "suggestion": "Add one Dossier-backed sentence to the test-users intro or the closing Testing paragraph, e.g. \"Google limits an app in Testing to 100 test users; if you have more connecting users than that, confirm the connection with a smaller group and then publish the app as described below.\" — the remedy (Publish app) is already in the guide.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#consent-screen, closing paragraph: \"Once you have confirmed the connection works, return to the **Audience** page and click **Publish app** so connections persist.\"",
+          "problem": "The publish trigger \"confirmed the connection works\" has no concrete referent — the guide never names what confirmation looks like or where it happens, so this careful, literal reader, standing mid-consent-screen setup before any Speakeasy steps exist, cannot tell which event means it is time to return and publish.",
+          "suggestion": "Anchor the trigger to the guide's own completion event with a cross-link and no new facts, e.g. \"Once a user has signed in successfully from the Speakeasy AI Control Plane (see [Connect your credentials](#connect-speakeasy-credentials)), return to the **Audience** page and click **Publish app** so connections persist.\"",
+          "dimension": "achievability"
+        }
+      ],
+      "polish_notes": "Both nits applied in a single edit to guides/google-compute-engine/setup.md, in the closing paragraph of the \"Configure the consent screen\" step (the paragraph the first finding named as an acceptable location, and where the second finding's trigger sentence already lived):\n\n1. (Nit 1, fidelity) Added the Dossier-backed 100-test-user cap for apps in Testing status, plus the guide's own already-present remedy (publish the app), so an org with more connecting users than that isn't surprised by an unannounced console limit. Sourced from research.md's Manage App Audience quote: \"Projects configured with a publishing status of Testing are limited to up to 100 test users listed in the OAuth consent screen\" (research.md lines 413-415).\n\n2. (Nit 2, achievability) Gave \"Once you have confirmed the connection works\" a concrete referent: reworded to \"Once a user has signed in successfully from the Speakeasy AI Control Plane (see [Connect your credentials](#connect-speakeasy-credentials))\" — a forward cross-link to the guide's own completion event, using the anchor already minted for that section (no new anchor invented, no new facts). This matches an existing forward-reference pattern already used elsewhere in the same file (the \"Copy the client credentials\" section links forward to the same anchor).\n\nResulting paragraph (guides/google-compute-engine/setup.md, lines 134-144):\n\"**Testing** status is temporary by design: an External app left in Testing drops every connection after seven days, and Google caps a Testing app at 100 test users. If your organization has more connecting users than that, confirm the connection with a smaller group first, then publish the app to cover everyone else. Once a user has signed in successfully from the Speakeasy AI Control Plane (see [Connect your credentials](#connect-speakeasy-credentials)), return to the **Audience** page and click **Publish app** so connections persist. Google notes that your app's configuration may be subject to verification before it can request certain scopes, so publishing may involve an extra review step.\"\n\nNo other guide file needed changes. Both findings targeted setup.md only; research.md and meta.yaml were read for verification but not modified. No anchors were invented, renamed, or dropped, honoring the anchor contract in shared.md.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": []
+      }
+    }
+  ],
+  "nits": [],
+  "unresolved": [],
+  "open_questions": [
+    "Which scope string Google's consent/authorization flow accepts for this server: the docs' compute.read-only/compute.read-write MCP scope table vs the endpoint-advertised https://www.googleapis.com/auth/compute (guide drafted with the latter; console verification needed, including whether a read-only connection is possible)",
+    "Whether the consent screen's Data Access scope declaration is required for this flow at all (docs frame it as External-apps-only; drafted to include it unconditionally, matching the BigQuery guide)",
+    "Exact console navigation-menu paths: IAM page (IAM & Admin > IAM inferred from deep-link URL) and where the Google Auth platform entry sits in the navigation menu (docs only give direct links)",
+    "Sensitive/restricted classification of the auth/compute scope for External apps publishing to production (verification requirements undocumented in fetched sources)",
+    "Minimal Compute Engine role set for read-only use (docs only say 'roles required to perform the Compute Engine operations'; Dossier records Instance Admin (v1) + Service Account User as the documented pairing)",
+    "Console surface for regenerating a lost client secret (docs say 'delete the secret and create a new one' without naming the page)",
+    "Whether Google Compute Engine appears in the Speakeasy MCP Catalog (determines which add-server branch readers take; verifiable only in the product)",
+    "Publishing an External app from Testing to production: the Dossier records the seven-day Testing caveat and the directive to publish, but no console steps or surface for the publish action. The guide can only say \"publish the app to production\" with no click path — needs research or console verification at capture time."
+  ]
+}
