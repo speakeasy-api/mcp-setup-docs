@@ -18,7 +18,11 @@ finished guide must exist here first, with provenance.
    authentication model, the console path an admin follows, and the
    caveats that change what an admin must do during setup (one-time
    secrets, plan or license gates on a step) — recorded in the step they
-   bite, not a separate list.
+   bite, not a separate list. Setup means the path to first successful
+   connection of the MCP server. Provider docs often also describe later
+   ops (reset a secret next month, manage app availability, rotate for
+   drift) — do not mint those as walkthrough steps; at most an open
+   question or one-line hedge at the step they could confuse.
    Tool inventories are out of scope: the server's advertised list is the
    runtime source of truth, so do not catalog it. Record an individual
    tool only where it matters to setup — a tool that bills differently,
@@ -26,7 +30,9 @@ finished guide must exist here first, with provenance.
 3. When the provider documents a sub-flow (API enablement, role grants,
    consent screens, credential dialogs), fetch that documentation too,
    quote its exact UI labels, and record each fetched page as a provenance
-   locator.
+   locator. Labels the provider names **or shows** (including screenshots
+   on those pages) are confirmed facts — record them; do not leave them
+   for live console verification.
 4. Write the Dossier and the Metadata.
 5. Validate `meta.yaml` against `schema/guide.v1.schema.json` (draft-07)
    and fix until it conforms. Try
@@ -77,8 +83,11 @@ question; never leave the seam implicit for the Writer to bridge.
 - Screenshot note: what an image of this step could show — written well
   enough that a later capture pass needs no re-research — or a screenshot
   exception with the reason (for example, a plain text field).
-- Recovery: what to do if the console is unforgiving here (one-time
-  secrets, expiring states). Omit when nothing bites.
+- Recovery: what to do if the console is unforgiving *on the path to
+  first successful connection* (secret shown once at create; expiry that
+  blocks connect now; destructive rotation required mid-setup). Omit
+  later-ops procedures (reset/rotate after a later miss) and omit when
+  nothing bites.
 
 ## Speakeasy setup
 
@@ -93,6 +102,12 @@ observed_at.
 
 ## Open questions
 Anything you could not confirm from documentation. Flagged, not guessed.
+Provider-documented UI (named in prose or shown in screenshots on those
+pages) is confirmed — never an open question asking for live console
+verification. Reserve this section for silence, unresolved property
+conflicts, or live probing that contradicts a documented URL/behavior.
+Your report's `open_questions` must match this section: do not re-list a
+UI label already recorded from provider docs as "needs verification."
 
 ## Provenance
 First, the source inventory from the sweep: every documentation property
@@ -113,7 +128,9 @@ The Dossier is the fact ceiling for the whole Guide: the Writer may not add
 anything you did not record. So record at click-through depth — "Enable the
 API" or "create credentials" alone is a placeholder, not a step. Name the
 account type, plan tier, and permissions required. If a fact would matter
-to someone who has never opened the console, it belongs in the Dossier.
+to someone who has never opened the console *during first-connect setup*,
+it belongs in the Dossier. Post-setup / later-ops surfaces do not — see
+loop step 2.
 
 ## meta.yaml essentials
 
