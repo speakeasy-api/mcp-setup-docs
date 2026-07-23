@@ -16,7 +16,9 @@ finished guide must exist here first, with provenance.
    the current product/admin docs and record the conflict.
 2. Research the provider's public MCP documentation: remote URL, transport,
    authentication model, the console path an admin follows, and the
-   gotchas (licensing, billing, restricted tools, one-time secrets).
+   caveats that change what an admin must do during setup (one-time
+   secrets, plan or license gates on a step) — recorded in the step they
+   bite, not a separate list.
    Tool inventories are out of scope: the server's advertised list is the
    runtime source of truth, so do not catalog it. Record an individual
    tool only where it matters to setup — a tool that bills differently,
@@ -71,15 +73,16 @@ question; never leave the seam implicit for the Writer to bridge.
 - Recovery: what to do if the console is unforgiving here (one-time
   secrets, expiring states). Omit when nothing bites.
 
-## Gotchas
+## Speakeasy setup
 
-### <Gotcha title> {#anchor-id}
-A caveat that is not itself a setup step: billing surprises, licensing
-gates, restricted tools, scope-vs-permission behavior. A gotcha must
-change what the reader does or expects; do not mint one for the absence
-of an alternative flow the guide already routes around (for example, no
-self-service client registration) — the required flow's presence is the
-remedy.
+Transclude the fixed skeleton from `docs/speakeasy-setup.md` (the
+canonical Speakeasy-side flow — read-only doctrine) and record the
+per-guide values it renders with: the remote URL and transport, the
+Authentication Option, which Provider-setup step produced each
+credential field, and the further-reading URL (the provider's primary
+MCP documentation page) for the closing pointer. Provenance for the
+transcluded facts is the canonical doc's path plus this run's
+observed_at.
 
 ## Open questions
 Anything you could not confirm from documentation. Flagged, not guessed.
@@ -91,9 +94,11 @@ draw from — reviewers audit coverage here, not just citations. Then one
 entry per source: locator + observed date + which facts it backs.
 ```
 
-You mint every anchor ID here — document-unique, kebab-case, one per
-console step and per gotcha. The Writer and the Metadata reuse them
-verbatim (see the anchor contract in `shared.md`).
+You mint every provider-step anchor ID here — document-unique,
+kebab-case, one per console step. The Speakeasy-section anchors are
+fixed in `docs/speakeasy-setup.md` and enter the guide through your
+transclusion — carried, never re-minted. The Writer and the Metadata
+reuse all of them verbatim (see the anchor contract in `shared.md`).
 
 ## Content bar
 

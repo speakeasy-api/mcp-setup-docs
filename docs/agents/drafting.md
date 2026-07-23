@@ -36,7 +36,7 @@ guides are authored from public documentation only.
 
 - YAML frontmatter with `setup_version: 1`, then exactly one H1 title.
 - Exactly three H2 sections in this order: Prerequisites, Provider setup,
-  Gotchas.
+  Speakeasy setup.
 - Provider setup steps are H3 headings with explicit document-unique
   kebab-case IDs: `### Create credentials {#create-credentials}`.
 - Every provider step needs one of:
@@ -50,8 +50,7 @@ guides are authored from public documentation only.
     never add value (for example, a plain text field). Like the
     placeholder, it must not render for readers.
 - The only supported template key is `{{ gram.oauth.callback_url }}`.
-- Gotchas are anchored H3 subsections too; meta.yaml fields can reference any
-  anchor as `setup.md#anchor-id`.
+- meta.yaml fields can reference any anchor as `setup.md#anchor-id`.
 
 ## Setup guide content bar
 

@@ -58,8 +58,6 @@ exact instructions well and improvise badly.
   never a one-item numbered list.
 - Exact UI labels in **bold**, verbatim from the console.
 - Values the reader types or copies in `code spans`.
-- A gotcha that can bite mid-flow is called out at the point of need *and*
-  listed in the Gotchas section.
 
 ## Achievability bar
 

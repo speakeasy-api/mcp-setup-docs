@@ -75,20 +75,16 @@ formatting rules, and the achievability bar reviewers judge against.
 _Avoid_: audience, user type, reader profile
 
 **Anchor**:
-The document-unique kebab-case ID minted in the Research Dossier for each
-provider step and gotcha, carried verbatim into `setup.md` headings and
-`meta.yaml` references.
+The document-unique kebab-case ID behind each `setup.md` heading — minted
+in the Research Dossier for provider steps, fixed in
+`docs/speakeasy-setup.md` for Speakeasy steps — carried verbatim into
+`setup.md` headings and `meta.yaml` references.
 _Avoid_: heading id, fragment, link id
 
 **Provenance**:
 The recorded source behind a fact in a guide — a documentation locator and the
 date it was observed. Every asserted fact traces to one.
 _Avoid_: citation, reference, source record
-
-**Gotcha**:
-A caveat a user must know that is not itself a setup step — billing surprises,
-licensing gates, one-time secrets, or restricted tools.
-_Avoid_: caveat, warning, note
 
 **Screenshot**:
 A captured setup-guide image with a stable identity and a place in the guide.

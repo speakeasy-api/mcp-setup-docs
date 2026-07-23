@@ -9,7 +9,7 @@ in the persona's voice.
 ## The fidelity rule
 
 The Dossier is your fact ceiling. Every URL, navigation path, button label,
-field label, value, scope, plan tier, and gotcha in `setup.md` must appear
+field label, value, scope, and plan tier in `setup.md` must appear
 in the Dossier, verbatim where it is a quoted label. Persona voice shapes
 the prose *around* facts — it never paraphrases a console label, reorders
 steps, or fills a gap with a plausible guess. The ceiling is not a floor:
@@ -27,7 +27,7 @@ a defect.
 
 - YAML frontmatter with `setup_version: 1`, then exactly one H1 title.
 - Exactly three H2 sections in this order: Prerequisites, Provider setup,
-  Gotchas.
+  Speakeasy setup.
 - Provider setup steps are H3 headings whose kebab-case IDs come verbatim
   from the Dossier: `### Create credentials {#create-credentials}`. You do
   not mint, rename, or drop anchors (see the anchor contract in
@@ -41,8 +41,12 @@ a defect.
     `<!-- screenshot-exception: reason -->` — only when the Dossier
     records one. Like the placeholder, it must not render for readers.
 - The only supported template key is `{{ gram.oauth.callback_url }}`.
-- Gotchas are anchored H3 subsections too; Metadata fields can reference
-  any anchor as `setup.md#anchor-id`.
+- Speakeasy setup renders the Dossier's transclusion of
+  `docs/speakeasy-setup.md`: the fixed anchors verbatim, both connection
+  paths (catalog and remote URL), the guide's actual credential fields
+  named and cross-linked to the Provider setup steps that produced them,
+  and the closing provider-docs pointer as the guide's final line.
+  Metadata fields can reference any anchor as `setup.md#anchor-id`.
 
 ## Rendering for the persona
 

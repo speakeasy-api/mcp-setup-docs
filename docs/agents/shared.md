@@ -10,7 +10,7 @@ One Guide (`guides/<slug>/`) moves through four roles:
 
 | Role | Doc | Writes | Reads |
 | --- | --- | --- | --- |
-| Technical Research | `technical-research.md` (this dir) | `guides/<slug>/research.md`, `guides/<slug>/meta.yaml` | provider public docs |
+| Technical Research | `technical-research.md` (this dir) | `guides/<slug>/research.md`, `guides/<slug>/meta.yaml` | provider public docs, `docs/speakeasy-setup.md` |
 | Writer | `writer.md` | `guides/<slug>/setup.md` | Research Dossier, Metadata, persona file |
 | Fidelity | `fidelity.md` | nothing (report only) | all three guide files |
 | Editorial | `review.md` | nothing (report only) | all three guide files, persona file |
@@ -21,8 +21,10 @@ file they edit.
 
 ## The anchor contract
 
-Anchor IDs are minted once, by Technical Research, in the Dossier — one
-document-unique kebab-case ID per provider step and per gotcha. Downstream:
+Anchor IDs enter a guide once, through the Dossier — provider-step IDs
+minted there by Technical Research (document-unique, kebab-case, one per
+step), Speakeasy-section IDs fixed in `docs/speakeasy-setup.md` and
+carried in by its transclusion. Downstream:
 
 - Writer carries each ID verbatim into `setup.md` headings:
   `### Create credentials {#create-credentials}`.

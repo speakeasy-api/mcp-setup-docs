@@ -6,6 +6,96 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-23 — canonical Speakeasy flow filled from product source
+
+Files: `docs/speakeasy-setup.md`.
+
+Direct human-directed edit (Walker shared the product repo in-session,
+same day as the batch below). The placeholder instructions and
+`verify(operator)` label markers are replaced with the real dashboard
+flow, extracted verbatim from the product source
+(`/home/walker/repos/speakeasy/gram`, `client/dashboard`, branch `main`,
+commit `96f7f73`, observed 2026-07-23): Connect → **Sources** →
+**Add Source** → **3rd-party server** (MCP Catalog) or **Custom remote
+server** (by URL); then Settings → **Authentication** → **Attach Remote
+Identity Provider** with **Client Type** **Manual** for pre-registered
+OAuth clients (the sheet's **Redirect URI** callout is the
+`{{ gram.oauth.callback_url }}` surface), or Settings →
+**Upstream Headers** for API-key/token auth. One `verify(operator)`
+marker remains: confirming the template key substitutes the same
+Redirect URI value the Attach sheet displays. An operator note records
+the deliberate scope boundary (no Server URL / publishing / plugin
+steps).
+
+## 2026-07-23 — tune: Speakeasy setup replaces Gotchas in the guide grammar
+
+Files: `docs/speakeasy-setup.md` (new), `docs/agents/writer.md`,
+`docs/agents/review.md`, `docs/agents/technical-research.md`,
+`docs/agents/fidelity.md`, `docs/agents/shared.md`,
+`docs/personas/it-admin.md`, `CONTEXT.md`, `README.md`,
+`guides/README.md`; `docs/agents/drafting.md` (historical) synced in its
+two grammar spots, per the Values-from-Gram precedent.
+
+Batch from `/tune-pipeline`; four proposals approved, none rejected.
+Guides restructure into "set up the provider, then set up Speakeasy":
+
+- **Canonical Speakeasy-side doc** (`docs/speakeasy-setup.md`, new): the
+  single human-maintained source for every guide's Speakeasy-side facts —
+  two fixed-anchor steps (`#add-server-in-speakeasy`, both connection
+  paths: catalog if listed, else remote MCP server by URL;
+  `#connect-speakeasy-credentials`) and the closing provider-docs pointer
+  template. Speakeasy public docs do not document this console flow at
+  UI-label depth (searched this run), so labels carry
+  `verify(operator)` markers; until verified, guides render the
+  instructions without bolded labels — no role may invent one.
+- **Grammar: Gotchas → Speakeasy setup** (`writer.md`, `review.md`,
+  `drafting.md`): the three H2 sections are now Prerequisites, Provider
+  setup, Speakeasy setup. The formatting dimension checks the Speakeasy
+  section's canonical anchors and closing pointer instead of the gotcha
+  dual listing; concision drops the gotcha carve-out, and its
+  ownership probe now excludes only Speakeasy surfaces *beyond* adding
+  and authenticating the server (the guide owns that much now).
+- **Gotchas leave Guide scope** (`technical-research.md`, `writer.md`,
+  `fidelity.md`, `it-admin.md`, `CONTEXT.md`, READMEs): research stops
+  minting gotchas; a caveat that changes what the reader must do during
+  setup is recorded in the step it bites, and everything else (billing,
+  tool restrictions, post-setup behavior) is delegated to the provider's
+  MCP documentation via the closing pointer. The persona's dual-listing
+  formatting rule goes; the warn-before-one-way-doors voice rule stays.
+  The Dossier's Gotchas section becomes the Speakeasy setup transclusion
+  (skeleton from the canonical doc + per-guide values, with provenance).
+- **Fact-flow plumbing** (`shared.md`, `fidelity.md`): the anchor
+  contract now reads "anchors enter a guide once, through the Dossier" —
+  provider-step IDs minted there, Speakeasy-section IDs fixed in the
+  canonical doc and carried in by transclusion; fidelity gains check 7
+  (the transcluded skeleton matches the current canonical doc; drift is
+  a `research`-targeted blocker).
+
+Invariants: I4 preserved — still exactly three H2 sections in order;
+section identities are doctrine-level, and the count (the element the
+constitution pins, per the four→three precedent) is unchanged, so no
+constitution edit was needed. I1/I2/I3 preserved: the canonical doc is
+an upstream source Technical Research ingests like provider docs; the
+Dossier remains the sole fact ceiling and sole anchor entry point, and
+transcluded facts carry provenance. I7 extended in practice: the
+canonical doc is doctrine, read-only to pipeline agents. Scope
+reduction (dropping gotcha coverage) parallels the tool-inventory and
+setup-not-maintenance precedents: the goal sentence requires what a
+persona needs to *configure* the server, and the closing pointer covers
+the rest.
+
+Evidence: operator direction (Walker, in-session, 2026-07-23 — the
+two-part restructure and the gotchas removal, with the four design
+choices — canonical shared doc, both catalog paths, migrate-by-redraft,
+end-of-guide pointer — selected explicitly). Corroborated by gotcha
+upkeep churn: the only two leftover nits in
+`retro/runs/2026-07-23T01:06:26Z-hubspot.json` were gotcha-content
+bookkeeping, and box's nine-entry Gotchas section drew repeated review
+traffic across its five run records. Migration: existing guides keep
+the old structure until each is re-drafted through `/draft-guide`
+(operator-selected); the zapier `meta.yaml` comment referencing
+`setup.md#server-modes` migrates with that guide's redraft.
+
 ## 2026-07-22 — tune: doc-gap narration is not reader content
 
 Files: `docs/agents/review.md`, `docs/agents/writer.md`.

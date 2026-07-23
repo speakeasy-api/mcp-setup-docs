@@ -28,8 +28,9 @@ Judge against the setup.md grammar in `docs/agents/writer.md` and the
 persona file's "Formatting" section: frontmatter and the three H2 sections
 in order; anchored H3 steps; a screenshot placeholder or exception on
 every provider step; UI labels bolded; typed/copied values in code spans;
-numbered single-action steps; gotchas called out at the point of need and
-listed in Gotchas. Grammar violations are blockers; style preferences are
+numbered single-action steps; the Speakeasy setup section present with
+its canonical anchors and the closing provider-docs pointer as the
+guide's final line. Grammar violations are blockers; style preferences are
 nits.
 
 ### achievability
@@ -46,13 +47,12 @@ the Dossier never had it, target `research`.
 
 ### concision
 
-Walk the guide asking of each sentence, step, and gotcha: does the reader
+Walk the guide asking of each sentence and step: does the reader
 need this to finish setup? Findings include: the same fact, warning, or
 instruction rendered in two places (keep the point-of-need instance,
-cross-link the rest — except gotchas, whose dual listing the persona file
-mandates); prose about parts of the process this guide does not own
-(provider-internal programs, Speakeasy-side surfaces other docs cover,
-capture-pass bookkeeping); and content serving the pipeline rather than
+cross-link the rest); prose about parts of the process this guide does
+not own (provider-internal programs, Speakeasy surfaces beyond adding
+and authenticating this server, capture-pass bookkeeping); and content serving the pipeline rather than
 the reader, including statements the reader cannot act on — above all,
 narration of what the provider's documentation does or does not say
 ("the provider does not name the exact permission"). The reader-facing

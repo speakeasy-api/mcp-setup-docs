@@ -18,9 +18,9 @@ Work through the guide fact by fact, in both directions:
    a paraphrased UI label, reordered steps, a value routed to the wrong
    field, a scope attached to the wrong tool set. Always a blocker.
 3. **Omissions** — a Dossier fact a user needs that `setup.md` dropped: a
-   step, a prerequisite, a recovery note, a gotcha, a screenshot note that
-   lost detail. Dropped steps, prerequisites, recovery notes, and gotchas
-   are blockers; thinned screenshot notes are nits. Scope check first:
+   step, a prerequisite, a recovery note, a screenshot note that lost
+   detail. Dropped steps, prerequisites, and recovery notes are
+   blockers; thinned screenshot notes are nits. Scope check first:
    "needs" means needs to finish setup — post-setup administration
    (availability management, app lifecycle, ongoing admin surfaces) is
    outside the guide's scope, and its absence is correct rendering, not
@@ -36,6 +36,10 @@ Work through the guide fact by fact, in both directions:
 6. **Template keys** — `{{ gram.oauth.callback_url }}` is the only
    template key in use, placed where the Dossier's credential flow says it
    belongs.
+7. **The Speakeasy section** — the Dossier's transcluded skeleton matches
+   the current `docs/speakeasy-setup.md` (drift is a blocker targeting
+   `research`), and `setup.md` renders it faithfully like any other
+   Dossier facts.
 
 ## How you report
 

@@ -39,9 +39,10 @@ CONTEXT.md       # ubiquitous-language glossary
   It is the fact ceiling: nothing appears in `setup.md` that is not
   recorded here first.
 - **`setup.md`** is the click-through Setup Guide for a named persona (see
-  `docs/personas/`): prerequisites, values from the Speakeasy AI Control
-  Plane, the provider-side walkthrough (exact menus, buttons, and field
-  labels), and gotchas (billing, licensing, one-time secrets).
+  `docs/personas/`): prerequisites, the provider-side walkthrough (exact
+  menus, buttons, and field labels), and the Speakeasy-side steps that
+  connect the server behind the Speakeasy AI Control Plane, closing with
+  a pointer to the provider's MCP documentation.
 
 `guides/box/` is the reference draft — match its shape when adding new guides.
 

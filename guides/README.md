@@ -11,8 +11,9 @@ an image could go with placeholder comments instead.
 - `research.md` — the Research Dossier: every fact the Setup Guide renders,
   with provenance and the anchor IDs the other files reuse.
 - `setup.md` — the Setup Guide a user follows, voiced for a persona from
-  [`../docs/personas/`](../docs/personas/): prerequisites, values from the
-  Speakeasy AI Control Plane, the provider console walkthrough, and gotchas.
+  [`../docs/personas/`](../docs/personas/): prerequisites, the provider
+  console walkthrough, and the Speakeasy-side steps that connect the
+  server.
 
 Current guides: `bigquery`, `box`, `hubspot`, `zapier`. All are drafts
 authored from public provider documentation, and all predate the
