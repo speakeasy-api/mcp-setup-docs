@@ -1,4 +1,8 @@
-# Guide draft factory
+# Guide draft factory (internals)
+
+Operator how-to: see **[`FACTORY.md`](../../FACTORY.md)** at the repo root.
+
+This page is the Action/contract detail behind that guide.
 
 Label-driven GitHub Action that turns a freeform issue into a draft Guide PR.
 Mirrors a Matt Pocock–style factory: label → distill → pipeline → draft PR.
@@ -11,11 +15,9 @@ Review comment formatter: [`scripts/ci/format-pipeline-review.sh`](../../scripts
 
 ## How to file an issue
 
-1. Open a new issue. **Title + body are freeform** — no required template.
-   Examples:
-   - `create datadog guide`
-   - `Draft a BigQuery MCP setup guide`
-   - `We need HubSpot — prefer OAuth docs at https://…`
+1. Open an issue. **Title and body are freeform** — no required template.
+   - **Title:** e.g. `create datadog guide` or `Draft a BigQuery MCP setup guide`
+   - **Body (optional):** docs URLs, constraints — e.g. `prefer ADC docs at https://…`
 2. Add the label `guide:draft`.
 3. Wait for the Action. You get:
    - a **Resolved as …** comment (distill intent), or **Resuming on existing factory PR** when iterating,
