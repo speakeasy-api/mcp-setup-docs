@@ -1,9 +1,8 @@
 # yaml-language-server: $schema=../../schema/guide.v1.schema.json
-# Drafted from provider documentation.
 schema_version: 1
 slug: hubspot
 title: HubSpot
-summary: Search, read, and manage HubSpot CRM records, engagements, and marketing content through the hosted HubSpot MCP server.
+summary: Search, read, and manage HubSpot CRM records and activities, and read marketing content, through the hosted HubSpot MCP server.
 credential_setup:
   options:
     - id: oauth-mcp-auth-app
@@ -11,18 +10,18 @@ credential_setup:
       client_registration: manual
       fields:
         - id: client-id
-          label: MCP auth app client ID
+          label: Client ID
           setup:
             - setup.md#create-mcp-auth-app
             - setup.md#copy-client-credentials
         - id: client-secret
-          label: MCP auth app client secret
+          label: Client secret
           setup:
             - setup.md#create-mcp-auth-app
             - setup.md#copy-client-credentials
   requirements:
     - id: hubspot-account
-      description: Dedicated HubSpot validation account whose user can open the Development workspace and manage MCP auth apps
+      description: HubSpot account whose user can open the Development workspace from the main navigation bar to create and manage MCP auth apps
 documentation:
   setup: setup.md
 remotes:
@@ -31,6 +30,21 @@ remotes:
     transport: streamable-http
     authentication:
       - oauth-mcp-auth-app
+    provenance:
+      - source: pulsemcp
+        name: com.pulsemcp.mirror/hubspot
+        version: 0.0.1
+        classification: mirror
+        observed_at: 2026-07-18T04:42:42Z
+      - source: provider-documentation
+        locator: https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server
+        name: Integrate AI tools with the HubSpot MCP server
+        classification: official
+        observed_at: 2026-07-22T23:59:17Z
+      - source: endpoint-observation
+        locator: https://mcp.hubspot.com/.well-known/oauth-protected-resource
+        classification: official
+        observed_at: 2026-07-22T23:59:17Z
 provenance:
   - source: pulsemcp
     name: com.pulsemcp.mirror/hubspot
@@ -39,13 +53,44 @@ provenance:
     observed_at: 2026-07-18T04:42:42Z
   - source: provider-documentation
     locator: https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server
-    observed_at: 2026-07-21T00:00:00Z
-  - source: provider-documentation
-    locator: https://developers.hubspot.com/changelog/remote-hubspot-mcp-server-is-now-generally-available
-    observed_at: 2026-07-21T00:00:00Z
-  - source: provider-documentation
-    locator: https://developers.hubspot.com/changelog/public-beta-self-service-mcp-auth-apps-for-the-hubspot-remote-mcp-server
-    observed_at: 2026-07-21T00:00:00Z
+    name: Integrate AI tools with the HubSpot MCP server
+    classification: official
+    observed_at: 2026-07-22T23:59:17Z
   - source: provider-documentation
     locator: https://developers.hubspot.com/ai-tools/mcp
-    observed_at: 2026-07-21T00:00:00Z
+    name: HubSpot MCP Server
+    classification: official
+    observed_at: 2026-07-22T23:59:17Z
+  - source: provider-documentation
+    locator: https://developers.hubspot.com/changelog/remote-hubspot-mcp-server-is-now-generally-available
+    name: Remote HubSpot MCP server is now generally available
+    classification: official
+    observed_at: 2026-07-22T23:59:17Z
+  - source: provider-documentation
+    locator: https://developers.hubspot.com/changelog/public-beta-self-service-mcp-auth-apps-for-the-hubspot-remote-mcp-server
+    name: "Public Beta: Self-Service MCP Auth Apps for the HubSpot Remote MCP Server"
+    classification: official
+    observed_at: 2026-07-22T23:59:17Z
+  - source: provider-documentation
+    locator: https://developers.hubspot.com/changelog/spring-2026-spotlight
+    name: Spring 2026 Spotlight
+    classification: official
+    observed_at: 2026-07-22T23:59:17Z
+  - source: provider-documentation
+    locator: https://developers.hubspot.com/changelog/june-2026-rollup
+    name: Developer updates for June 2026
+    classification: official
+    observed_at: 2026-07-22T23:59:17Z
+  - source: provider-documentation
+    locator: https://knowledge.hubspot.com/user-management/hubspot-user-permissions-guide
+    name: HubSpot user permissions guide
+    classification: official
+    observed_at: 2026-07-22T23:59:17Z
+  - source: endpoint-observation
+    locator: https://mcp.hubspot.com/.well-known/oauth-protected-resource
+    classification: official
+    observed_at: 2026-07-22T23:59:17Z
+  - source: endpoint-observation
+    locator: https://mcp.hubspot.com/.well-known/oauth-authorization-server
+    classification: official
+    observed_at: 2026-07-22T23:59:17Z

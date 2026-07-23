@@ -1,0 +1,136 @@
+{
+  "slug": "hubspot",
+  "provider": "HubSpot",
+  "persona": "it-admin",
+  "timestamp": "2026-07-22T23:59:17Z",
+  "started_at": "2026-07-22T23:59:17Z",
+  "finished_at": "2026-07-23T00:32:02Z",
+  "status": "converged",
+  "rounds": 2,
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Prerequisites — \"under **Settings access** on the **Account** tab of a user's permission set\"",
+          "problem": "The phrase \"a user's permission set\" is a console term with no backing fact in the Dossier, which records the permission's location only as \"Account tab > Settings access\" in the KB user-permissions guide.",
+          "suggestion": "Drop the unbacked term and bridge with generic wording, e.g. \"under **Settings access** on the **Account** tab when editing a user's permissions\", so the location asserts only what the Dossier records.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "summary",
+          "problem": "\"Search, read, and manage HubSpot CRM records, engagements, and marketing content\" asserts write access to marketing content, but the Dossier ({#content-write-limits}) records campaigns, website pages, blog posts, and marketing events as read-only, with landing pages the sole writable exception.",
+          "suggestion": "Reword so \"manage\" covers only writable objects, e.g. \"Search, read, and manage HubSpot CRM records and activities, and read marketing content, through the hosted HubSpot MCP server.\"",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "meta",
+          "where": "summary",
+          "problem": "The term \"engagements\" appears nowhere in the Dossier, which names these objects \"Activities: calls, emails, meetings, notes, and tasks.\"",
+          "suggestion": "Use \"activities\" in the summary to match the Dossier's terminology (this resolves together with the summary reword in the previous finding).",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#scopes-are-automatic — \"Available scopes are determined automatically by two factors: the tools available in the MCP server at the time of installation, and the permissions the user chooses to grant during installation.\"",
+          "problem": "The gotcha teaches OAuth scope mechanics to a persona the file says does not know the word \"scope\" and must not be taught it — explanation the work does not require.",
+          "suggestion": "Lead with the practical fact in plain words and drop the mechanics, e.g.: \"There is no permissions step anywhere in the MCP auth app flow — nothing is missing. What each user can access is set automatically when they connect, and is always capped by their own HubSpot permissions: users can only view and modify records they already have access to. Connecting never widens what an individual user can see or edit.\" Keep the anchor ID unchanged.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#create-mcp-auth-app — \"There is no scopes or permissions section — nothing is missing; access is determined automatically when each user connects\"",
+          "problem": "The dialog note uses the OAuth term \"scopes\", which the persona explicitly does not know; \"permissions section\" alone carries the meaning.",
+          "suggestion": "Reword to \"There is no permissions section — nothing is missing; what each user can access is set automatically when they connect (see ...)\".",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#scope-updates-require-reinstall — \"users who have already installed the app need to re-install it to grant the new scopes\"",
+          "problem": "The guide's own framing throughout is that users \"connect\" from the Speakeasy AI Control Plane, but this gotcha switches to the provider's \"install / re-install\" vocabulary without bridging, so a literal reader cannot tell what action \"re-install\" maps to until the following example sentence.",
+          "suggestion": "Bridge the vocabulary at first use, e.g. \"users who have already connected need to reconnect (HubSpot calls this re-installing the app) to grant the new access\" — and prefer connect/reconnect in the heading text and body while keeping the anchor ID {#scope-updates-require-reinstall} unchanged.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#keyword-search-only — \"The MCP server is based on the CRM search API, which currently does not include vector search capabilities.\"",
+          "problem": "The gotcha opens with implementation detail (\"CRM search API\", \"vector search capabilities\") the persona does not need; only the second sentence states the practical behavior.",
+          "suggestion": "Lead with the practical sentence and subordinate or cut the implementation detail, e.g.: \"Searches match keywords and property filters, not meaning — a search for 'unhappy customers' will not find tickets that never use those words. Set expectations with your users accordingly.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#create-mcp-auth-app, step 4: \"Add a **Description** and an **Icon** if you want them; both are optional.\"",
+          "problem": "The step performs two distinct actions (filling the Description field and the Icon field) inside one numbered step, where the persona's formatting rule calls for one action per numbered step.",
+          "suggestion": "Split into two steps, e.g. \"4. Add a **Description** if you want one; it's optional.\" and \"5. Add an **Icon** if you want one; it's optional.\" (renumbering the following **Create** step to 6).",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#copy-client-credentials — \"if you navigate away before copying them, open the app again and copy them from there\"",
+          "problem": "The recovery path never names the route back to the app, so a literal reader who has navigated away must guess how to reopen the details page.",
+          "suggestion": "Name the route in the recovery sentence: \"return to **Development** > **MCP Auth Apps** in the left sidebar and select the app to reopen its details page\" — the navigation is already documented in the Dossier's #open-mcp-auth-apps entry.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites — \"if **Development** is missing from your navigation bar, that permission is the first thing to check\"",
+          "problem": "A reader whose Developer tools access checks out but still sees no Development entry dead-ends with no next move, even though the Dossier records a second (conflicted, possibly stale) cause — the overview page's \"new HubSpot Developer Platform\" prerequisite.",
+          "suggestion": "Add one hedged fallback sentence after the permission note, e.g.: \"If the permission is in place and **Development** still does not appear, ask HubSpot support whether your account is on the new HubSpot Developer Platform — one HubSpot page lists it as a requirement, though newer documentation says the server is available to all accounts.\"",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker (meta, summary): reworded to \"Search, read, and manage HubSpot CRM records and activities, and read marketing content, through the hosted HubSpot MCP server.\" — \"manage\" now covers only Dossier-recorded writable objects; marketing content is read-only per {#content-write-limits}. Revalidated /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/hubspot/meta.yaml against schema/guide.v1.schema.json with ajv + ajv-formats over a string-preserving YAML load (VALID; the stock ajv-cli run fails only because its YAML loader coerces unquoted ISO timestamps to Date objects — pre-existing, not introduced this round).\n\nBlocker (setup, Prerequisites): dropped the unbacked console term \"a user's permission set\"; location now reads \"under **Settings access** on the **Account** tab when editing a user's permissions\", asserting only what the Dossier records (Account tab > Settings access).\n\nNit 1 (meta, \"engagements\"): resolved by the same summary reword — now \"activities\", matching Dossier terminology.\n\nNit 2 (setup #scopes-are-automatic): body replaced with the practical-fact-first wording (no permissions step, access set automatically on connect, capped by the user's own HubSpot permissions, connecting never widens access); OAuth scope mechanics dropped. Heading retitled to \"No permissions step — access follows each user's permissions\" to remove the word \"scope\" from reader-visible text; anchor ID {#scopes-are-automatic} unchanged per the anchor contract (only IDs are contractual, and the finding explicitly pins only the ID).\n\nNit 3 (setup #create-mcp-auth-app dialog note): reworded to \"There is no permissions section — nothing is missing; what each user can access is set automatically when they connect (see ...)\" with the cross-link text updated to the retitled gotcha heading.\n\nNit 4 (setup #scope-updates-require-reinstall): vocabulary bridged at first use — \"users who have already connected need to reconnect (HubSpot calls this re-installing the app) to grant the new access\"; heading retitled to \"Server updates can require users to reconnect\"; body now uses connect/reconnect throughout (\"had to reconnect or re-authorize to grant the new access\"); anchor ID unchanged.\n\nNit 5 (setup #keyword-search-only): now leads with the practical sentence (\"Searches match keywords and property filters, not meaning — a search for `unhappy customers` will not find tickets that never use those words.\"); the CRM-search-API / vector-search implementation detail cut (it remains in the Dossier).\n\nNit 6 (setup #create-mcp-auth-app step 4): split into two one-action steps (Description, then Icon), Create renumbered to step 6.\n\nNit 7 (setup #copy-client-credentials recovery): route named — \"return to **Development** in the main navigation bar, select **MCP Auth Apps** in the left sidebar, and select the app to reopen its details page and copy them from there\" (nav labels per the Dossier's #open-mcp-auth-apps entry; phrased to keep Development in the main navigation bar and MCP Auth Apps in the left sidebar, as the Dossier records).\n\nNit 8 (setup Prerequisites fallback): added the hedged sentence after the permission note — \"If the permission is in place and **Development** still does not appear, ask HubSpot support whether your account is on the new HubSpot Developer Platform — one HubSpot page lists it as a requirement, though newer documentation says the server is available to all accounts.\" Backed by the Dossier's recorded conflict in Open questions (\"New HubSpot Developer Platform\" prerequisite).\n\nFiles touched: /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/hubspot/setup.md and /home/walker/github.com/speakeasy-api/mcp-setup-docs/guides/hubspot/meta.yaml. research.md untouched (no findings targeted it). All anchor IDs unchanged; setup.md structure (frontmatter, one H1, three H2s, screenshot comments) intact.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "setup.md#open-mcp-auth-apps — \"the account you signed in with likely lacks developer-tools access — see the permission note in Prerequisites.\"",
+          "problem": "The same permission is rendered two different ways in this document: Prerequisites bolds it verbatim as \"**Developer tools access**\", but this later reference drops the bold and changes the casing/spelling to \"developer-tools access\" (lowercase, hyphenated), violating the formatting rule that exact UI/permission labels appear in bold, verbatim.",
+          "suggestion": "Match the Prerequisites rendering exactly, e.g. \"the account you signed in with likely lacks the **Developer tools access** permission — see the permission note in Prerequisites.\"",
+          "dimension": "formatting"
+        }
+      ],
+      "polish_notes": "Applied the single nit finding (formatting): in guides/hubspot/setup.md, the \"Open MCP Auth Apps\" step referenced the Prerequisites permission as lowercase/unhyphenated \"developer-tools access\". Changed it to match the Prerequisites rendering exactly — bolded, verbatim: \"the account you signed in with likely lacks the **Developer tools access** permission — see the permission note in Prerequisites.\" Verified against research.md (Dossier), which records the permission's verbatim label as \"Developer tools access\" (bolded) at lines 140 and 317, confirming this is the correct verbatim form. No other files touched.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": []
+      }
+    }
+  ],
+  "nits": [],
+  "open_questions": [
+    "Which HubSpot permission gates the Development workspace and MCP Auth Apps UI (KB's 'Developer tools access' is a flagged inference; Super Admin requirement unknown)",
+    "Current beta/GA status of the MCP Auth Apps UI (changelogs through Apr 2026 say public beta; current docs page shows no beta badge; no GA announcement found through July 2026)",
+    "How multiple redirect URLs are added (creation dialog documents a single Redirect URL field; details page shows 'redirect URLs' plural; presumably via Edit info — needs console verification at capture time)",
+    "Admin-connects-first mechanics: which admin role qualifies and what a non-admin sees if no admin has connected (single, partially stale source)",
+    "Whether the overview page's 'must be on the new HubSpot Developer Platform' prerequisite still gates anything for older accounts (setup page and GA changelog state no such requirement)",
+    "Whether an MCP auth app's Client secret can be regenerated/rotated from the details page (not load-bearing; secret stays viewable)",
+    "Which permission gates the Development workspace / MCP Auth Apps: rendered hedged via the Dossier's flagged Developer-tools-access inference; a confirmed permission (or Super Admin requirement) would firm up Prerequisites.",
+    "Admin-connects-first mechanics: which admin role qualifies and what a non-admin sees if connecting first are undocumented; the guide can only say 'plan for an account admin to connect first'.",
+    "How multiple redirect URLs are added: the creation dialog documents a single Redirect URL field, so the guide can only advise keeping the callback first or only; needs console verification at capture time.",
+    "MCP Auth Apps beta status is ambiguous (beta-labeled 2026-04, no badge on the setup page this run); the draft asserts nothing either way per the Dossier ruling."
+  ]
+}
