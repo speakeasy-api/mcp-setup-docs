@@ -1,0 +1,279 @@
+name: Guide draft
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  draft:
+    if: github.event.label.name == 'guide:draft'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    concurrency:
+      group: guide-draft-issue-${{ github.event.issue.number }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    env:
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      ISSUE_TITLE: ${{ github.event.issue.title }}
+      ISSUE_BODY: ${{ github.event.issue.body }}
+      GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+
+    steps:
+      - name: Preflight existing PR
+        id: preflight
+        run: |
+          set -euo pipefail
+          existing=$(gh pr list \
+            --state open \
+            --search "in:body \"#${ISSUE_NUMBER}\"" \
+            --json number,url,body,author \
+            --jq "[.[] | select(.body | test(\"(?i)(closes|fixes|resolves)\\\\s+#${ISSUE_NUMBER}\\\\b\"))]")
+          count=$(echo "$existing" | jq 'length')
+          refused=false
+          existing_pr_url=""
+          for i in $(seq 0 $((count - 1))); do
+            author=$(echo "$existing" | jq -r ".[$i].author.login")
+            # Only PRs from collaborators block; outside contributors don't count.
+            if gh api "repos/${GH_REPO}/collaborators/${author}" --silent 2>/dev/null; then
+              refused=true
+              existing_pr_url=$(echo "$existing" | jq -r ".[$i].url")
+              break
+            fi
+          done
+          echo "refused=$refused" >> "$GITHUB_OUTPUT"
+          echo "existing_pr_url=$existing_pr_url" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse existing PR
+        if: steps.preflight.outputs.refused == 'true'
+        env:
+          EXISTING_PR_URL: ${{ steps.preflight.outputs.existing_pr_url }}
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --remove-label "guide:draft" || true
+          gh issue edit "$ISSUE_NUMBER" --add-label "guide:blocked" || true
+          gh issue comment "$ISSUE_NUMBER" --body "Refused to run: $EXISTING_PR_URL already targets this issue. Close it first, then re-add \`guide:draft\`."
+
+      - name: Transition labels
+        if: steps.preflight.outputs.refused != 'true'
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --remove-label "guide:draft" || true
+          gh issue edit "$ISSUE_NUMBER" --remove-label "guide:blocked" || true
+          gh issue edit "$ISSUE_NUMBER" --add-label "guide:in-progress"
+
+      - name: Checkout main
+        if: steps.preflight.outputs.refused != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        if: steps.preflight.outputs.refused != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: scripts/cursor-sdk/package-lock.json
+
+      - name: Install dependencies
+        if: steps.preflight.outputs.refused != 'true'
+        working-directory: scripts/cursor-sdk
+        run: npm ci
+
+      - name: Distill issue intent
+        id: distill
+        if: steps.preflight.outputs.refused != 'true'
+        working-directory: scripts/cursor-sdk
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CURSOR_API_KEY:-}" ]; then
+            echo "CURSOR_API_KEY secret is not set" > "${RUNNER_TEMP}/failure_reason.txt"
+            exit 1
+          fi
+          set +e
+          npm run resolve-issue -- --output "${RUNNER_TEMP}/resolved.json"
+          code=$?
+          set -e
+          if [ ! -f "${RUNNER_TEMP}/resolved.json" ]; then
+            echo "resolve-issue produced no resolved.json (exit ${code})" > "${RUNNER_TEMP}/failure_reason.txt"
+            exit 1
+          fi
+          status=$(jq -r '.status' "${RUNNER_TEMP}/resolved.json")
+          if [ "$status" = "ok" ]; then
+            slug=$(jq -r '.slug' "${RUNNER_TEMP}/resolved.json")
+            provider=$(jq -r '.provider' "${RUNNER_TEMP}/resolved.json")
+            persona=$(jq -r '.persona // "it-admin"' "${RUNNER_TEMP}/resolved.json")
+            notes=$(jq -r '.notes // ""' "${RUNNER_TEMP}/resolved.json")
+            echo "slug=$slug" >> "$GITHUB_OUTPUT"
+            echo "provider=$provider" >> "$GITHUB_OUTPUT"
+            echo "persona=$persona" >> "$GITHUB_OUTPUT"
+            {
+              echo "notes<<EOF"
+              echo "$notes"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$status" = "needs_clarification" ]; then
+            reason=$(jq -r '.reason' "${RUNNER_TEMP}/resolved.json")
+            candidates=$(jq -r '(.candidates // []) | join(", ")' "${RUNNER_TEMP}/resolved.json")
+            {
+              echo "Distill needs clarification before drafting."
+              echo
+              echo "**Reason:** ${reason}"
+              if [ -n "$candidates" ]; then
+                echo
+                echo "**Candidates:** ${candidates}"
+              fi
+              echo
+              echo "Edit the issue (or reply clarifying which MCP server), then re-add \`guide:draft\`."
+            } > "${RUNNER_TEMP}/failure_reason.txt"
+            exit 1
+          fi
+          echo "Unexpected distill status: ${status}" > "${RUNNER_TEMP}/failure_reason.txt"
+          exit 1
+
+      - name: Comment resolved intent
+        if: steps.preflight.outputs.refused != 'true' && success()
+        env:
+          SLUG: ${{ steps.distill.outputs.slug }}
+          PROVIDER: ${{ steps.distill.outputs.provider }}
+          PERSONA: ${{ steps.distill.outputs.persona }}
+          NOTES: ${{ steps.distill.outputs.notes }}
+        run: |
+          set -euo pipefail
+          body_file="${RUNNER_TEMP}/resolved-comment.md"
+          {
+            echo "Resolved as \`${SLUG}\` (${PROVIDER}), persona \`${PERSONA}\`."
+            if [ -n "${NOTES}" ]; then
+              echo
+              echo "Notes handed to the pipeline:"
+              echo
+              echo "> ${NOTES}"
+            fi
+            echo
+            echo "Starting \`draft-guide\`…"
+          } > "$body_file"
+          gh issue comment "$ISSUE_NUMBER" --body-file "$body_file"
+
+      - name: Create branch
+        id: branch
+        if: steps.preflight.outputs.refused != 'true' && success()
+        env:
+          SLUG: ${{ steps.distill.outputs.slug }}
+        run: |
+          set -euo pipefail
+          branch="guide/issue-${ISSUE_NUMBER}-${SLUG}"
+          echo "name=$branch" >> "$GITHUB_OUTPUT"
+          git config user.name "guide-factory[bot]"
+          git config user.email "guide-factory[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+
+      - name: Draft guide
+        id: draft
+        if: steps.preflight.outputs.refused != 'true' && success()
+        working-directory: scripts/cursor-sdk
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          SLUG: ${{ steps.distill.outputs.slug }}
+          PERSONA: ${{ steps.distill.outputs.persona }}
+          NOTES: ${{ steps.distill.outputs.notes }}
+        run: |
+          set -euo pipefail
+          args=(--overwrite)
+          if [ -n "${PERSONA}" ] && [ "${PERSONA}" != "it-admin" ]; then
+            args+=(--persona "${PERSONA}")
+          fi
+          if [ -n "${NOTES}" ]; then
+            args+=(--notes "${NOTES}")
+          fi
+          set +e
+          npm run draft-guide -- "${SLUG}" "${args[@]}"
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ]; then
+            echo "draft-guide exited ${code} (see workflow logs). Converged drafts still open a PR; unconverged/blocked/failed fail the job." > "${RUNNER_TEMP}/failure_reason.txt"
+            exit "$code"
+          fi
+
+      - name: Commit and push
+        if: steps.preflight.outputs.refused != 'true' && success()
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+          SLUG: ${{ steps.distill.outputs.slug }}
+        run: |
+          set -euo pipefail
+          git add "guides/${SLUG}/" || true
+          # Matching run records for this slug (any timestamp prefix).
+          if compgen -G "retro/runs/*-${SLUG}.json" > /dev/null; then
+            git add retro/runs/*-"${SLUG}".json
+          fi
+          if git diff --cached --quiet; then
+            echo "No guide or run-record changes to commit" > "${RUNNER_TEMP}/failure_reason.txt"
+            exit 1
+          fi
+          git commit -m "Draft guide: ${SLUG} (issue #${ISSUE_NUMBER})"
+          git push --force-with-lease origin "$BRANCH"
+
+      - name: Open draft PR
+        id: open_pr
+        if: steps.preflight.outputs.refused != 'true' && success()
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+          SLUG: ${{ steps.distill.outputs.slug }}
+          PROVIDER: ${{ steps.distill.outputs.provider }}
+        run: |
+          set -euo pipefail
+          title="Draft guide: ${PROVIDER} (#${ISSUE_NUMBER})"
+          title="${title:0:256}"
+          body_file="${RUNNER_TEMP}/pr-body.md"
+          {
+            echo "Closes #${ISSUE_NUMBER}"
+            echo
+            echo "Factory draft of \`guides/${SLUG}/\` via \`draft-guide\` (Cursor SDK)."
+            echo
+            echo "Human review still required — agents never commit; this Action did."
+          } > "$body_file"
+          pr_url=$(gh pr create --draft --base main --head "$BRANCH" --title "$title" --body-file "$body_file" | tail -n1)
+          echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
+
+      - name: Comment PR URL
+        if: steps.preflight.outputs.refused != 'true' && success()
+        env:
+          PR_URL: ${{ steps.open_pr.outputs.pr_url }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "Draft PR opened: ${PR_URL}"
+
+      - name: Mark blocked on failure
+        if: steps.preflight.outputs.refused != 'true' && failure()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          reason="(no reason file written; check workflow logs)"
+          if [ -f "${RUNNER_TEMP}/failure_reason.txt" ]; then
+            reason=$(cat "${RUNNER_TEMP}/failure_reason.txt")
+          fi
+          body_file="${RUNNER_TEMP}/failure-comment.md"
+          {
+            echo "\`guide:draft\` run failed."
+            echo
+            echo "$reason"
+            echo
+            echo "**Workflow run:** ${RUN_URL}"
+            echo
+            echo "Re-add \`guide:draft\` to retry after clarifying or fixing."
+          } > "$body_file"
+          gh issue edit "$ISSUE_NUMBER" --add-label "guide:blocked" || true
+          gh issue comment "$ISSUE_NUMBER" --body-file "$body_file"
+
+      - name: Always remove in-progress
+        if: always() && steps.preflight.outputs.refused != 'true'
+        run: gh issue edit "$ISSUE_NUMBER" --remove-label "guide:in-progress" || true
