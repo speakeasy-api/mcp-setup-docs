@@ -1,0 +1,208 @@
+{
+  "slug": "github",
+  "provider": "github",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T23:17:09Z",
+  "started_at": "2026-07-23T23:17:09Z",
+  "finished_at": "2026-07-23T23:31:29Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Confirm whether Speakeasy offers Use Discovered despite GitHub's authorization-server metadata URL returning 404.",
+    "Validate that Speakeasy surfaces GitHub's on-demand OAuth scope challenges."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Prerequisites — \"Organization administrator approval if the target organization restricts OAuth app access.\"",
+          "problem": "The guide requires approval before app registration even though the Dossier places approval after the OAuth app exists.",
+          "suggestion": "Require access to an organization administrator in Prerequisites, and leave actual app approval after registration.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials — “Paste the client secret into **Client Secret (optional)**.”",
+          "problem": "The sentence does not clarify that this OAuth path requires the client secret despite the field’s optional label, so the reader may skip it.",
+          "suggestion": "Write: “Although GitHub labels **Client Secret** as optional, paste the saved client secret into it for this OAuth connection.”",
+          "dimension": "voice"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Prerequisites",
+          "problem": "The guide accepts any GitHub Enterprise Cloud organization but the documented URL does not support data-residency organizations.",
+          "suggestion": "State that this path requires standard GitHub.com hosting and direct data-residency administrators to the tenant-specific setup path.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "register-oauth-app",
+          "problem": "The reader is told to obtain OAuth app approval before the app or an approval request exists, and the approval sequence is not documented.",
+          "suggestion": "Research the conditional request timing and exact approval controls, then sequence registration, access request, owner approval, and retry without requiring impossible preapproval.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#register-oauth-app step 1",
+          "problem": "Step 1 combines two mutually exclusive create controls (**New OAuth App** and **Register a new application**) in one numbered step.",
+          "suggestion": "Split into separate numbered steps or lead with conditional prose that tells the reader which control applies, then number only the click that follows.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials step 2",
+          "problem": "Step 2 bundles the **Use Discovered** versus **Configure Manually** branch decision into a single numbered step.",
+          "suggestion": "Move the auth-method choice into conditional prose blocks (as in the Asana guide), then begin the numbered list at setting **Client Type** to **Manual**.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#add-server-in-speakeasy catalog branch step 2",
+          "problem": "The catalog search term GitHub is plain prose while peer guides put provider names typed into **Search MCP servers...** in code spans.",
+          "suggestion": "Change step 2 to find `GitHub` using **Search MCP servers...** to match the persona formatting rule for typed values.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites (organization OAuth app approval) and Register the OAuth app closing paragraph",
+          "problem": "The organization OAuth app approval requirement appears twice—once as a prerequisite bullet and again with the full conditional and navigation path after registration.",
+          "suggestion": "Keep the actionable conditional under {#register-oauth-app} and replace the Prerequisites bullet with a cross-link to that section, or drop the bullet if the register caveat is sufficient upfront.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites (SSO session) and Connect your credentials closing sentence",
+          "problem": "The valid organization SSO session requirement is stated in Prerequisites and repeated at the end of {#connect-speakeasy-credentials}.",
+          "suggestion": "Keep one instance—Prerequisites is enough for a pre-flight check—and delete the SSO sentence from the Connect section closing paragraph.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Connect your credentials — \"When a user authorizes the connection, GitHub limits access to the scopes the user approves, the organization's policies, and resources that the user can access.\"",
+          "problem": "This sentence describes runtime authorization behavior the reader cannot act on during credential attachment and overlaps the org-policy gates already covered elsewhere.",
+          "suggestion": "Remove the scopes/policies/resources sentence; if any org-gate text must remain here, keep only a single deduplicated conditional with a cross-link to {#register-oauth-app}, not a restatement of prerequisites.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Updated research and provenance with GitHub’s post-registration access-request and owner-approval sequence. Corrected prerequisites for approval timing and standard GitHub.com hosting, added data-residency guidance, clarified the required client secret, split conditional UI branches, formatted `GitHub` as a typed value, and removed duplicated SSO/runtime authorization text. Updated metadata requirements and validated meta.yaml against the schema.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#register-oauth-app organization approval path",
+          "problem": "The Research Dossier omits the **Integrations** sidebar location and the **Settings** tab location that setup.md renders.",
+          "suggestion": "Add both source-backed navigation details to the organization approval flow in the Dossier.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials step 4",
+          "problem": "The guide incorrectly attributes the optional client-secret label to GitHub and changes the Speakeasy field label from **Client Secret (optional)** to **Client Secret**.",
+          "suggestion": "Write: “Although the field is labeled **Client Secret (optional)**, paste the saved client secret into it for this OAuth connection.”",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials steps 3–4",
+          "problem": "The paste steps name the saved credential values but omit the bold Speakeasy destination field labels used in peer OAuth guides.",
+          "suggestion": "Rewrite step 3 as “Paste the **Client ID** saved in [Generate the OAuth credentials](#generate-oauth-credentials) into **Client ID**.” and step 4 as “Paste the saved client secret into **Client Secret (optional)** — although GitHub labels **Client Secret** as optional, this OAuth connection requires it.”",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites — \"Access to an organization owner who can complete the conditional approval flow in [Register the OAuth app](#register-oauth-app).\"",
+          "problem": "The owner-access prerequisite is listed unconditionally even though the approval flow applies only when the organization restricts OAuth apps, so readers in unrestricted orgs get a surplus pre-flight item.",
+          "suggestion": "Lead with the same gate used elsewhere: \"If the target organization restricts OAuth apps, access to an organization owner who can grant access — see [Register the OAuth app](#register-oauth-app).\"",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#register-oauth-app — \"After that authorization:\" before the user-request and owner-approval numbered lists",
+          "problem": "Fourteen actionable approval steps appear immediately after app registration, before Speakeasy attach and user authorization, even though the reader cannot perform them until {#connect-speakeasy-credentials}.",
+          "suggestion": "Replace \"After that authorization:\" with an explicit forward link such as \"After a user authorizes the connection in [Connect your credentials](#connect-speakeasy-credentials):\" so the deferred steps are clearly not part of registration.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#register-oauth-app step 3 — \"Optionally, enter a public-safe **Application description**.\"",
+          "problem": "The \"public-safe\" qualifier repeats the section-level warning that registration fields are public and must not contain internal or sensitive details.",
+          "suggestion": "Shorten step 3 to \"Optionally, enter an **Application description**.\" and rely on the opening warning in the same section.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Updated research.md with source-backed Integrations sidebar and Settings tab navigation. Corrected the Client Secret (optional) label and Client ID destination. Applied all four nits: conditional owner prerequisite, deferred approval link, shortened description step, and bold destination labels. Anchors remain unchanged; lint checks pass.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials step 4",
+          "problem": "Step 4 names **Client Secret (optional)** in the lead-in but sends the paste to \"it\" instead of repeating the bold Speakeasy destination field label used in peer OAuth guides and requested in round 2.",
+          "suggestion": "Rewrite step 4 as: \"Paste the saved client secret into **Client Secret (optional)** — although the field is labeled optional, this OAuth connection requires it.\"",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials restricted-organization branch",
+          "problem": "Neither the Dossier nor Setup Guide names the Speakeasy control that starts user authorization, so a cold reader cannot reach the subsequent organization-access request flow without guessing.",
+          "suggestion": "Add an open question for the exact post-attach authorization launch control; once canonical doctrine supplies it, name that control before linking back to the approval flow.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#register-oauth-app lines 44–64 versus #connect-speakeasy-credentials line 115",
+          "problem": "Fourteen deferred organization-approval steps remain under #register-oauth-app even though they run only after authorization in #connect-speakeasy-credentials, so restricted-org readers must back-scroll after attaching credentials instead of continuing forward.",
+          "suggestion": "Move the user-request and owner-approval numbered lists to immediately after step 5 in #connect-speakeasy-credentials, replace lines 44–64 with one forward-linking sentence, and update the prerequisite owner-access link to point at the connect-section block.",
+          "dimension": "concision"
+        }
+      ],
+      "polish_notes": "Finding 1 (setup #connect-speakeasy-credentials step 4): Rewrote step 4 to paste into **Client Secret (optional)** with the optional-label caveat, matching peer OAuth guides. Finding 2 (research restricted-organization branch): Added an open question for the exact Speakeasy post-attach authorization launch control and moved the full user-request and owner-approval paths into {#connect-speakeasy-credentials} with the hedged \"have a user authorize the connection after **Attach Identity Provider**\" lead-in; replaced {#register-oauth-app} org caveat with a forward link to the connect section. Finding 3 (setup org-approval relocation): Moved the fourteen deferred organization-approval numbered steps to immediately after step 5 in {#connect-speakeasy-credentials}, replaced {#register-oauth-app} lines 44–64 with one forward-linking sentence, and updated the Prerequisites owner-access link to {#connect-speakeasy-credentials}; preserved the explicit restricted-org conditional and first-connect retry recovery.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": []
+      }
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}

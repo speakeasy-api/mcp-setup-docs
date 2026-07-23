@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "slug": "github",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-23T23:31:29Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:fc0217444829ee5cc119edfd7e7014f5f7373d3c6414f657e6ee9f0581e562db",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/technical-research.md",
+            "digest": "sha256:a1eacd4ead5db07cc1ac6ce35165fc922d1484967be63090071b76183621cb87"
+          },
+          {
+            "path": "docs/speakeasy-setup.md",
+            "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "github",
+          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server"
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:9bcd8a83f0ef97d79f130dd8b2e49c94cc969b9ad8254f4f9304b98a219da7de"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:13df2cd7fd2ca2217bb34ced980f32efd4f165f32ba9e39ad1d7e4a2d7c6baa5"
+        }
+      ],
+      "completed_at": "2026-07-23T23:31:29Z"
+    },
+    "draft": {
+      "input_digest": "sha256:3799f96bb0ae9bdd176b3e97ae90e583ecc94640eabe1da233c507169b27ff3f",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/writer.md",
+            "digest": "sha256:fdc33a72becc23fff5045540a775e96ad22febe752491773e75afa2dc09db91a"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:9bcd8a83f0ef97d79f130dd8b2e49c94cc969b9ad8254f4f9304b98a219da7de"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:13df2cd7fd2ca2217bb34ced980f32efd4f165f32ba9e39ad1d7e4a2d7c6baa5"
+          }
+        ],
+        "params": {
+          "provider": "github",
+          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+        }
+      ],
+      "completed_at": "2026-07-23T23:31:29Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:e3217b9104bba6505a947db954eeba77811e7663d540630c01b8aeac78d4a40d",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/fidelity.md",
+            "digest": "sha256:b0159f65f21c789df6bddfcb643127509342a02d8dcc31a0274eef7c390dac9b"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:9bcd8a83f0ef97d79f130dd8b2e49c94cc969b9ad8254f4f9304b98a219da7de"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:13df2cd7fd2ca2217bb34ced980f32efd4f165f32ba9e39ad1d7e4a2d7c6baa5"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+          }
+        ],
+        "params": {
+          "provider": "github",
+          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+        }
+      ],
+      "completed_at": "2026-07-23T23:31:29Z"
+    },
+    "review.voice": {
+      "input_digest": "sha256:b6266de2f0ec093a595cade5c0d2fbf4b70fc9a30939d229128759b640ce9542",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:fbc00275b61a75440be66961195498b4dc0ce5143aed1cedf4d6014e2139ffa8",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:9bcd8a83f0ef97d79f130dd8b2e49c94cc969b9ad8254f4f9304b98a219da7de"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:13df2cd7fd2ca2217bb34ced980f32efd4f165f32ba9e39ad1d7e4a2d7c6baa5"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+          }
+        ],
+        "params": {
+          "provider": "github",
+          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server",
+          "persona": "it-admin",
+          "dimension": "voice"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+        }
+      ],
+      "completed_at": "2026-07-23T23:31:29Z"
+    },
+    "review.formatting": {
+      "input_digest": "sha256:6059e22123f82adfdf8e50607ca4d9a3aec11bff749624daad647877d6d66b7e",
+      "inputs": {
+        "model": "composer-2.5",
+        "prompt_digest": "sha256:e0573b70108c5fc8296aa57efd0ee7619dd7d7a0c5bf23295b48d7daa0dc1493",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:9bcd8a83f0ef97d79f130dd8b2e49c94cc969b9ad8254f4f9304b98a219da7de"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:13df2cd7fd2ca2217bb34ced980f32efd4f165f32ba9e39ad1d7e4a2d7c6baa5"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+          }
+        ],
+        "params": {
+          "provider": "github",
+          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server",
+          "persona": "it-admin",
+          "dimension": "formatting"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+        }
+      ],
+      "completed_at": "2026-07-23T23:31:29Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:d1c22e093aa83441ec96a83413942459f7434645027975f844f62e31a3d50fc3",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:9bcd8a83f0ef97d79f130dd8b2e49c94cc969b9ad8254f4f9304b98a219da7de"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:13df2cd7fd2ca2217bb34ced980f32efd4f165f32ba9e39ad1d7e4a2d7c6baa5"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+          }
+        ],
+        "params": {
+          "provider": "github",
+          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+        }
+      ],
+      "completed_at": "2026-07-23T23:31:29Z"
+    },
+    "review.concision": {
+      "input_digest": "sha256:974a635a6bbabe7df652eecbb3f13ba787ccd1110ae8ed5ab24b085f21ea6efd",
+      "inputs": {
+        "model": "composer-2.5",
+        "prompt_digest": "sha256:a1f2dede1ef844482b776a9653e316af775d0719dcb52b80c64fafdd2669a1f2",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:9bcd8a83f0ef97d79f130dd8b2e49c94cc969b9ad8254f4f9304b98a219da7de"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:13df2cd7fd2ca2217bb34ced980f32efd4f165f32ba9e39ad1d7e4a2d7c6baa5"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+          }
+        ],
+        "params": {
+          "provider": "github",
+          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server",
+          "persona": "it-admin",
+          "dimension": "concision"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6a83d36407915c5093a775584f6719c721fd8c79bb7413288d4ccc942256293a"
+        }
+      ],
+      "completed_at": "2026-07-23T23:31:29Z"
+    }
+  }
+}
