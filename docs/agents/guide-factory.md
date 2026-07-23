@@ -25,7 +25,8 @@ known id under `docs/personas/`.
 
 ## Labels
 
-Create these three labels in the GitHub UI (once per repo):
+The workflow **creates these labels automatically** if missing. You can still
+create them by hand for triage before the first run:
 
 | Label | Role |
 | --- | --- |
