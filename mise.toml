@@ -5,3 +5,9 @@ node = "24"
 [tasks.pull-catalog]
 description = "Pull our PulseMCP tenant catalog into pulse-catalog.json"
 run = "node scripts/pull-pulse-catalog.mjs"
+
+[tasks.draft-guide]
+description = "Draft a Guide via the Cursor SDK pipeline (scripts/cursor-sdk)"
+dir = "scripts/cursor-sdk"
+# Usage: mise run draft-guide -- box [--force] [...]
+run = "npm run draft-guide --"
