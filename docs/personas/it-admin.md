@@ -43,7 +43,11 @@ exact instructions well and improvise badly.
 - Terse beats taught. A console term appears as its verbatim bolded
   label, unexplained. Gloss only where misunderstanding would block the
   work — the reader must pick or type something the label alone doesn't
-  determine (e.g. matching scopes to the tool areas users need).
+  determine (e.g. matching scopes to the tool areas users need). For
+  organization-specific values (emails, logos, policy URLs,
+  justifications), one "obtain from the application or cloud security
+  owner" hedge per section is enough; do not gloss every adjacent field
+  the same way.
 - Say where the reader will end up before saying why: "This opens the
   **Additional Configuration** panel, where the credentials live."
 - Never "simply", "just", "obviously", or "as you know".

@@ -61,7 +61,11 @@ step that produced it.
   register in Provider setup (`{{ gram.oauth.callback_url }}`).
   <!-- verify(operator): the template key substitutes this same Redirect URI value -->
   Paste the **Client ID** and **Client Secret (optional)** from
-  Provider setup, then click **Attach Identity Provider**.
+  Provider setup, then click **Attach Identity Provider**. Confirm the
+  sheet's **Redirect URI** matches the `{{ gram.oauth.callback_url }}`
+  value registered under the provider's redirect/callback field in
+  Provider setup — readers paste that template key directly there; they
+  do not visit this sheet mid–Provider-setup only to copy the URI.
 - API key / token: under **Upstream Headers**, click **Add header**,
   enter the **Header name** (for example `Authorization`), leave
   **Value source** as **Static value**, paste the value from Provider

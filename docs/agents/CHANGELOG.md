@@ -6,6 +6,189 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-23 — tune: redirect URI uses template key, not Speakeasy mid-flow copy
+
+Files: `docs/agents/writer.md`, `docs/agents/technical-research.md`,
+`docs/agents/review.md`, `docs/speakeasy-setup.md`.
+
+Operator direction (Walker, in-session): prefer the Compute Engine
+pattern — paste `{{ gram.oauth.callback_url }}` directly in the
+provider redirect field — over BigQuery's mid-flow Speakeasy trip to
+copy **Redirect URI** before the OAuth client exists.
+
+- **Writer / Technical Research**: default paste locus is the provider
+  field with the template key; mint a Speakeasy-first copy step only
+  when public docs require a live value the template cannot supply
+  (recorded with provenance).
+- **Achievability**: blockers that invent that mid-flow copy trip are
+  out of bounds unless the Dossier records the live-value exception.
+- **Canonical Speakeasy doc**: Attach step confirms the sheet matches
+  the template value registered in Provider setup.
+
+Invariants: I4 preserved — still the sole template key. I1 preserved —
+live-value exceptions stay provenance-backed. Aligns Speakeasy setup
+with the already-stated "callback URL the guide had the reader
+register in Provider setup" wording.
+
+Evidence: converged `guides/google-big-query/setup.md` (create-oauth
+detour into Speakeasy) vs `guides/google-compute-engine/setup.md`
+(template key inline); operator preference for the latter seam.
+
+## 2026-07-23 — tune: unforgiving recovery survives polish; polish salvage
+
+Files: `docs/agents/review.md`, `scripts/draft-guide-workflow.js`,
+`scripts/cursor-sdk/src/workflow.ts`.
+
+Follow-up after P12 (conditional gates). Review now converges; polish
+still deleted a fidelity-required Testing expiry recovery note.
+
+- **Unforgiving recovery stays** (`review.md` concision + polish
+  prompts): never drop expiry / one-time-secret / destructive-rotation
+  recovery; shorten or cross-link only; skip nits that delete them.
+- **Polish salvage** (both workflows): if the post-polish fidelity
+  re-check returns blockers, run one salvage revise (restore gates /
+  recovery) and one fidelity re-check before `unconverged`.
+
+Invariants: I1/I6 preserved — recovery facts stay; salvage is one
+bounded extra revise+recheck.
+
+Evidence: `retro/runs/2026-07-23T19:12:45Z-google-big-query.json`
+(review 8→2→0; polish applied a concision nit that dropped Testing
+re-authorization recovery; fidelity re-check returned that single
+blocker). Same class as
+`2026-07-23T18:50:25Z-google-big-query.json` (polish stripped
+conditional gates).
+
+## 2026-07-23 — tune: polish must keep conditional gates
+
+Files: `docs/agents/review.md`, `scripts/draft-guide-workflow.js`,
+`scripts/cursor-sdk/src/workflow.ts`.
+
+One proposal approved (P12). Concision/polish may dedupe repeated
+`If`/`When` wording but must keep one explicit conditional per
+Dossier-conditional branch; never replace gates with unconditional
+headings. Polish prompt tells the agent to skip nits that would drop a
+fidelity-backed condition.
+
+Invariants: I1 preserved — conditional facts stay visible in the guide;
+polish cannot invent an unconditional path the Dossier does not allow.
+I6 preserved — fidelity re-check still gates polish output.
+
+Evidence: `retro/runs/2026-07-23T18:50:25Z-google-big-query.json`
+(review cleared 3→2→1→2 fin→0 recheck; polish then stripped
+production-verification and sensitive-scope `If` gates into unconditional
+headings; fidelity re-check returned the two unresolved blockers).
+
+## 2026-07-23 — tune: voice owner-gloss ceiling, alternative-step nits, finalization salvage
+
+Files: `docs/agents/review.md`, `docs/personas/it-admin.md`,
+`scripts/draft-guide-workflow.js`, `scripts/cursor-sdk/src/workflow.ts`.
+
+Batch from `/tune-pipeline`; three proposals approved, none rejected.
+Follow-up after P5–P7: BigQuery still unconverged at finalization with
+novel soft blockers and a spiral warning that had no revise to act on.
+
+- **Owner-gloss ceiling** (`review.md` voice + `it-admin.md`): 
+  organization-specific values need at most one obtain-from-owner hedge
+  per section; re-raising the same gloss on adjacent fields is a nit;
+  provider picker enumeration (account vs Group) is nit/open question,
+  not a voice blocker.
+- **Mutually exclusive alternatives** (`review.md` formatting): "click A,
+  or click B when offered" / "Otherwise, select X" in one numbered step
+  are nits, not blockers; sequential "and then" bundles stay blockers.
+- **Finalization salvage** (both workflows): when finalization review
+  still has blockers, run one salvage revise (spiral note injected when
+  present) and one `finalization_recheck` review before `unconverged`.
+  No further loops.
+
+Invariants: I5 preserved — persona still owns voice; ceiling sharpens
+severity, not taste. I6 preserved — salvage is one bounded extra
+revise+review after finalization, unresolved blockers still surface.
+
+Evidence: `retro/runs/2026-07-23T18:14:24Z-google-big-query.json`
+(4→2→2→3 finalization; spiral fired on 3/3 novel finalization blockers
+but no revise followed; voice dominated with 4 blockers ratcheting
+owner-gloss per field; leftover formatting blocker was Configure
+Manually / Use Discovered alternatives).
+
+## 2026-07-23 — tune: Speakeasy canonical guard, spiral softens, finalization revise
+
+Files: `docs/agents/review.md`, `scripts/draft-guide-workflow.js`,
+`scripts/cursor-sdk/src/workflow.ts`.
+
+Batch from `/tune-pipeline`; three proposals approved (P5–P7), none
+rejected. Follow-up after the critical-path ceiling batch still left
+BigQuery unconverged:
+
+- **Speakeasy canonical is fixed** (`review.md` achievability): blockers
+  must not invent login URLs, catalog-first rewrites, post-credential
+  chrome, or other steps outside `docs/speakeasy-setup.md`. Gaps there
+  are nits / open questions for a human doctrine edit — never
+  research-target expansions that fight fidelity's skeleton check.
+- **Spiral detector softens** (both workflows): warn when blocker count
+  did not drop **and** a majority (≥½) of loci are new (was: require
+  100% novel). Message also names the Speakeasy-canonical failure mode.
+- **Finalization revise** (both workflows): on the last review round,
+  revise remaining blockers, then run one confirmatory review
+  (`finalization: true` history entry) before reporting `unconverged`.
+  Round-N findings no longer strand without a fix attempt.
+
+Invariants: I6 preserved — capped rounds, structured findings, unresolved
+blockers still surface; the finalization pass is one bounded extra
+revise+review inside the same cap, not unbounded looping. I1/I7
+preserved — Speakeasy canonical remains human-maintained doctrine.
+
+Evidence: `retro/runs/2026-07-23T17:52:00Z-google-big-query.json`
+(post-ceiling: 6→7→3, still unconverged; R1 achievability expanded
+Speakeasy past the skeleton and R2 fidelity rolled it back — zero
+disputes; spiral never fired because only 4/7 R2 loci were novel; the
+three R3 leftovers never received a revise). Corroborated by the prior
+unconverged Cursor run `2026-07-23T17:16:10Z-google-big-query.json`.
+
+## 2026-07-23 — tune: critical-path ceiling, recovery scope, dispute conflicts, spiral warning
+
+Files: `docs/agents/review.md`, `docs/agents/fidelity.md`,
+`docs/agents/shared.md`, `scripts/draft-guide-workflow.js`,
+`scripts/cursor-sdk/src/workflow.ts`.
+
+Batch from `/tune-pipeline`; four proposals approved (P1–P4), none
+rejected. Stops review depth from ratcheting past convergence on
+Google-style OAuth surfaces:
+
+- **Achievability critical-path ceiling** (`review.md`): blockers only for
+  named controls on the path to first successful connection. Vendor
+  programs and IdP chrome public docs do not fully enumerate (OAuth
+  branding/scope verification, end-user consent screens once launch is
+  named) → open question + one Dossier-backed hedge, not unbounded
+  research-target blockers. Re-expanding the same locus after a hedge is
+  a nit at most.
+- **Fidelity recovery-note scope** (`fidelity.md` check 3): recovery
+  blockers cover only unforgiving misses (one-time secrets, expiry,
+  destructive rotation). Optional undo / soft capability restatements are
+  nits or out of scope, not omissions.
+- **Cross-dimension conflict → dispute** (`shared.md` + both revision
+  prompts): when achievability and concision/ceiling conflict, revision
+  disputes one finding instead of growing the guide forever.
+- **Review spiral warning** (both workflows): if a round's blockers are
+  all new loci vs prior rounds and the count did not drop, log a warning,
+  record `spiral_warning` on the history entry, and inject the same note
+  into the revision prompt so dispute is preferred over more research.
+
+Invariants: I5/I6 preserved — persona still defines achievability; findings
+remain structured and disputable; unresolved blockers still surface to a
+human. I1 preserved — hedges and open questions keep gaps visible rather
+than inventing click-through. Sharpens existing severity/scope rules;
+does not add a new review dimension.
+
+Evidence: `retro/runs/2026-07-23T17:16:10Z-google-big-query.json`
+(Cursor SDK, unconverged 8→4→9, all R3 blockers novel; R2 skipped a
+concision nit that conflicted with an achievability blocker that R3 then
+re-deepened) contrasted with
+`retro/runs/2026-07-23T15:15:19Z-google-compute-engine.json` (same Google
+Auth surface, converged 5→2→0; verification scored as nit + hedge).
+Operator direction (Walker, in-session, 2026-07-23): the BigQuery Cursor
+run should have converged.
+
 ## 2026-07-23 — canonical Speakeasy flow filled from product source
 
 Files: `docs/speakeasy-setup.md`.

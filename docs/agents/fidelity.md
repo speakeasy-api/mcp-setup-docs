@@ -24,7 +24,11 @@ Work through the guide fact by fact, in both directions:
    "needs" means needs to finish setup — post-setup administration
    (availability management, app lifecycle, ongoing admin surfaces) is
    outside the guide's scope, and its absence is correct rendering, not
-   an omission.
+   an omission. Recovery-note blockers cover only unforgiving misses:
+   one-time secrets, expiring states, destructive rotations. Optional
+   undo ("you can edit this later from the same page") and soft
+   restatements of capabilities already implied by the steps are out of
+   scope — score those as nits if worth mentioning, not blockers.
 4. **The anchor contract** — every Dossier anchor appears in `setup.md`
    verbatim and in order; every `setup.md#<anchor>` reference in
    `meta.yaml` resolves; no anchor was minted outside the Dossier.

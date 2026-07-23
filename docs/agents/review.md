@@ -22,6 +22,17 @@ into passive narration; forbidden filler ("simply", "just"); warnings
 placed after the click they protect. Quote the offending sentence in
 each finding.
 
+**Owner-gloss ceiling.** Organization-specific values (support emails,
+contact addresses, logos, policy URLs, scope justifications, demo
+videos, legal acceptances) need at most one obtain-from-owner hedge per
+section — e.g. "obtain the approved value from the application or cloud
+security owner." Do not raise a fresh blocker for every adjacent field
+that needs the same kind of owner-supplied value after that hedge
+exists (or after a prior round already added it). Re-raising the same
+gloss pattern on the next field is a nit. Enumerating provider-specific
+picker options (signed-in account vs Google Group, etc.) is an open
+question or nit, not a voice blocker.
+
 ### formatting
 
 Judge against the setup.md grammar in `docs/agents/writer.md` and the
@@ -31,7 +42,11 @@ every provider step; UI labels bolded; typed/copied values in code spans;
 numbered single-action steps; the Speakeasy setup section present with
 its canonical anchors and the closing provider-docs pointer as the
 guide's final line. Grammar violations are blockers; style preferences are
-nits.
+nits. Mutually exclusive alternatives in one numbered step ("click
+**Configure Manually**, or click **Use Discovered** when offered";
+"Otherwise, select **External**") are one decision with branches — score
+those as nits, not blockers. Sequential "and then" clicks remain
+blockers when bundled.
 
 ### achievability
 
@@ -44,6 +59,29 @@ unforgiving spots hardest: one-time secrets, expiring states, destructive
 rotations — the guide must say what to do when the reader misses them.
 Where the missing information exists in the Dossier, target `setup`; where
 the Dossier never had it, target `research`.
+
+**Critical-path ceiling.** A blocker is only for a named control on the
+path to the persona's first successful connection. When public docs do
+not fully enumerate a vendor program or IdP chrome beyond that path —
+Google OAuth branding / scope verification, third-party app review,
+end-user consent browser screens once the launch control is named —
+do not keep demanding every conditional field as a research-target
+blocker. Record an open question in the Dossier (or raise a
+`research`-targeted nit that widens one), and accept one Dossier-backed
+hedge in the guide. Expanding depth after a prior round already closed
+the same locus with a hedge is a nit at most, never a fresh blocker.
+
+**Speakeasy canonical is fixed.** `docs/speakeasy-setup.md` is the fact
+ceiling for Speakeasy-side steps. Do not raise blockers that invent
+login URLs, catalog-first rewrites, post-credential verification chrome,
+or other steps the skeleton does not carry. Gaps in that file are nits
+or open questions for a human doctrine edit — never research-target
+blockers that expand the guide past the skeleton. Fidelity already fails
+drift from the skeleton; do not fight that check. Do not raise blockers
+that send the reader into Speakeasy during Provider setup only to copy
+**Redirect URI** when `{{ gram.oauth.callback_url }}` is the registered
+value — that mid-flow trip is out of bounds unless the Dossier records
+a live-value requirement.
 
 ### concision
 
@@ -63,6 +101,17 @@ not double-report it. A proposed removal must survive fidelity's bar:
 never suggest cutting a fact the reader needs to finish setup; when a
 fact is duplicated, target the copy, not the original. Surplus alone is a
 nit; a blocker only when it misleads the reader about what to do.
+**Conditional gates stay.** When collapsing repeated `If` / `When` prose,
+keep exactly one explicit conditional per branch that the Dossier marks
+as conditional (e.g. "If Google requires production verification:" /
+"If the app needs sensitive- or restricted-scope review:"). Never suggest
+replacing those gates with unconditional headings or imperatives — that
+fails fidelity. Deduplicate the wording; do not delete the condition.
+**Unforgiving recovery stays.** Never suggest dropping the guide's
+recovery for one-time secrets, expiring states (e.g. Testing's seven-day
+re-authorization), or destructive rotations — even when a continue-link
+makes the happy path clear. Those notes are fidelity omissions if
+removed; at most shorten them or cross-link, never delete.
 
 ## Severity and reporting
 

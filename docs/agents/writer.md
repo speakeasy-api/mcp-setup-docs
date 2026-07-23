@@ -41,6 +41,14 @@ a defect.
     `<!-- screenshot-exception: reason -->` — only when the Dossier
     records one. Like the placeholder, it must not render for readers.
 - The only supported template key is `{{ gram.oauth.callback_url }}`.
+  When the provider asks for a redirect / callback URI during Provider
+  setup, paste that key directly into the field (as in the Compute
+  Engine guide). Do not send the reader into the Speakeasy AI Control
+  Plane mid–Provider-setup only to copy **Redirect URI** from the
+  Attach sheet — Speakeasy setup later confirms the sheet matches what
+  they registered. Invent a Speakeasy-first copy step only when the
+  Dossier records that public docs require a live value the template
+  cannot supply.
 - Speakeasy setup renders the Dossier's transclusion of
   `docs/speakeasy-setup.md`: the fixed anchors verbatim, both connection
   paths (catalog and remote URL), the guide's actual credential fields

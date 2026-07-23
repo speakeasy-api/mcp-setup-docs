@@ -53,6 +53,13 @@ Remote URL, transport, authentication options, plan/licensing gates.
 ## Credential flow
 What an admin creates, where each value the Speakeasy AI Control Plane
 needs comes from, and where `{{ gram.oauth.callback_url }}` gets pasted.
+Default: the paste locus is the provider's redirect/callback field
+during Provider setup, with the template key entered directly. The
+Speakeasy Attach sheet later shows the same Redirect URI for
+confirmation (`docs/speakeasy-setup.md`) — do not mint a Speakeasy-first
+"copy Redirect URI, then return to the provider" step unless public
+docs require a live value the template cannot supply; if they do,
+record that requirement with provenance.
 
 ## Console walkthrough
 
