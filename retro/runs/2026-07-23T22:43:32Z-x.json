@@ -1,0 +1,526 @@
+{
+  "slug": "x",
+  "provider": "x",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T22:43:32Z",
+  "started_at": "2026-07-23T22:43:32Z",
+  "finished_at": "2026-07-23T22:58:01Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#enroll-developer-account",
+      "problem": "The enrollment path lacks the exact required field labels and final submission-control label needed to complete it literally.",
+      "suggestion": "Escalate for a human-verified console capture recording every required field label, its value source, and the final submission control.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#create-x-app",
+      "problem": "The app-creation path lacks the exact form-field labels and create-control label.",
+      "suggestion": "Capture the authenticated console and record the current app-name, description, use-case, and create-control labels.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "Prerequisites — API credits",
+      "problem": "The required credit-purchase path stops at the Developer Console without navigation, purchase controls, required inputs, or a successful-balance state.",
+      "suggestion": "Capture the authenticated purchase workflow and document it after any enrollment required for console access.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#copy-bearer-token",
+      "problem": "The first-connect recovery path does not explain how to reopen the app or identify the control that regenerates a missed Bearer Token.",
+      "suggestion": "Capture the dashboard-to-app-to-Keys-and-tokens path and record the exact regeneration-control label.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "{#add-server-in-speakeasy} catalog path step 2 — \"find X using **Search MCP servers...**\"",
+      "problem": "The catalog search term X is a value the reader types but is rendered as plain prose instead of a code span.",
+      "suggestion": "Change the step to name the typed query in backticks, e.g. find `X` using **Search MCP servers...**, matching the persona formatting rule and the Asana guide pattern.",
+      "dimension": "formatting"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#enroll-developer-account",
+      "problem": "The enrollment path omits the required field labels and final submission-control label, forcing a first-time administrator to guess.",
+      "suggestion": "Obtain a human-verified console capture and record every required field label, its value source, and the final submission control.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#create-x-app",
+      "problem": "The app-creation path omits the exact field labels and create-control label needed to complete the form literally.",
+      "suggestion": "Obtain a human-verified console capture and document the app-name, description, and use-case field labels plus the create control.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "Prerequisites — API credits",
+      "problem": "A positive credit balance is required for the first connection, but the guide provides no navigation path or named control for purchasing credits.",
+      "suggestion": "Capture the authenticated console workflow and document its navigation, purchase control, required inputs, and successful-balance state after enrollment.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#copy-bearer-token — \"regenerate it in the app\"",
+      "problem": "The immediate recovery path for a missed one-time Bearer Token omits how to reopen the app and which control regenerates the token.",
+      "suggestion": "Obtain a human-verified console capture and document the dashboard-to-app-to-Keys-and-tokens path and exact regeneration-control label.",
+      "dimension": "achievability"
+    }
+  ],
+  "nits": [],
+  "open_questions": [
+    "X's public Developer Console documentation does not publish the exact field labels or final submit-button label in the first-time developer enrollment flow.",
+    "X's public documentation says to enter an app name, description, and use case after clicking New App, but does not publish the exact field labels or the final create-button label.",
+    "X documents an existing app's Keys and tokens page but does not name the dashboard control or navigation path used to reopen that app.",
+    "Provider documentation cannot establish whether X is currently present in the Speakeasy MCP Catalog; the canonical add-source conditional must remain until the catalog is observed."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#copy-bearer-token — “If you miss or lose the token, regenerate it in the app.”",
+          "problem": "The destructive regeneration instruction appears before the warning that regeneration invalidates the old token.",
+          "suggestion": "Move the invalidation warning before the instruction to regenerate the token.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "(pipeline)",
+          "problem": "The formatting reviewer returned no verdict this round.",
+          "suggestion": "Treat as unreviewed; the next round retries this dimension.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#enroll-developer-account",
+          "problem": "The enrollment flow omits the exact field and submission-control labels, forcing a first-time administrator to guess on the critical path.",
+          "suggestion": "Observe the authenticated enrollment flow and record every required field label, value source, and final submission-control label, then render them in setup.md.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#create-x-app",
+          "problem": "The app-creation flow does not identify the exact labels for the name, description, use-case, or create controls.",
+          "suggestion": "Capture the current New App form labels and create-control label from the Developer Console, then update the Dossier and Setup Guide with those names.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Prerequisites — \"API credits purchased in the Developer Console\"",
+          "problem": "The guide requires prepaid API credits but gives no navigation path or named control for purchasing them, although requests cannot succeed without a positive balance.",
+          "suggestion": "Research and document the Developer Console path and exact controls for purchasing credits before app setup.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-bearer-token — \"regenerate it in the app\"",
+          "problem": "The one-time-secret recovery tells the administrator to regenerate the token without explaining how to reopen the app or reach the regeneration control.",
+          "suggestion": "Research the exact dashboard-to-app-to-Keys and tokens navigation and regeneration control, then add that first-connection recovery path.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Final closing pointer",
+          "problem": "The closing sentence omits the Dossier's canonical statement that the guide covers setup only.",
+          "suggestion": "Restore the full closing sentence from research.md lines 165–167.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites (line 17) and {#enroll-developer-account} steps 1–2",
+          "problem": "Signing in at console.x.com with the owning X account is stated in Prerequisites and repeated as the first two enrollment steps.",
+          "suggestion": "Remove the standalone Prerequisites sign-in sentence and keep the go-to-URL and sign-in actions only in {#enroll-developer-account} where the reader performs them.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#create-x-app} steps 2–4",
+          "problem": "The phrase \"organization-approved\" is repeated on three consecutive field steps after Prerequisites already requires organization-approved wording for the app name, description, and use case.",
+          "suggestion": "Add one lead-in such as \"Enter the organization-approved values:\" and shorten the steps to \"Enter the app name.\", \"Enter the description.\", and \"Enter the use case.\"",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#create-x-app}, \"X creates the app and displays its API keys and tokens.\"",
+          "problem": "The transition mentions multiple credential types even though the guide collects only the Bearer Token in the next step.",
+          "suggestion": "Replace with \"X creates the app and displays its credentials, including the **Bearer Token**.\" to match the single credential the reader needs.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Reordered the token invalidation warning before regeneration. Formatting remains for the next review retry. Applied all four nits: restored the canonical closing, removed duplicate sign-in text, consolidated organization-approved wording, and focused the credential transition on the Bearer Token.",
+      "disputed": [
+        "Enrollment labels: official public documentation does not publish the exact fields or submission control, and authenticated-console observation conflicts with the public-documentation-only research role.",
+        "App-creation labels: official public documentation names the inputs but not their exact labels or create control; adding them would invent facts.",
+        "Credit-purchase path: official public documentation links to the Developer Console but does not publish its post-login navigation or purchase controls.",
+        "Token-regeneration path: official documentation names the app’s Keys and tokens page but does not document the dashboard-to-app transition or regeneration control."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#enroll-developer-account",
+          "problem": "The enrollment flow omits the required field labels and final submission-control label, so a first-time administrator must guess on the critical path.",
+          "suggestion": "Document each required enrollment field label, its value source, and the final submission-control label from an official X source or human-verified console capture.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#create-x-app",
+          "problem": "The app-creation flow does not name the exact form-field labels or create control, so the administrator cannot follow it literally.",
+          "suggestion": "Document the current labels for the app name, description, and use-case fields and the create control from an official X source or human-verified console capture.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Prerequisites — \"API credits purchased in the Developer Console\"",
+          "problem": "A positive credit balance is required for requests, but the guide provides no navigation path or named control for purchasing credits.",
+          "suggestion": "Document the Developer Console path, named purchase control, required inputs, and successful-balance transition for buying API credits.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-bearer-token — \"regenerate it in the app\"",
+          "problem": "The first-connection recovery path does not explain how to reopen the app and reach the token-regeneration control after the one-time token display is missed.",
+          "suggestion": "Document the exact dashboard-to-app-to-Keys-and-tokens navigation and the named regeneration control.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "(pipeline)",
+          "problem": "The concision reviewer returned no verdict this round.",
+          "suggestion": "Treat as unreviewed; the next round retries this dimension.",
+          "dimension": "concision"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#connect-speakeasy-credentials} — catalog **Upstream headers** alternate path, steps 1–2",
+          "problem": "The alternate catalog-install steps paraphrase field references as \"the header name\" and \"as the value\" instead of bolding the verbatim labels used in the primary path (**Header name**, **Value source**, **Static value**).",
+          "suggestion": "Align steps 1–2 with the primary Upstream Headers steps: \"Enter `Authorization` in **Header name**.\", then \"Leave **Value source** set to **Static value**. In the value field, enter `Bearer ` followed by the saved [**Bearer Token**](#copy-bearer-token).\"",
+          "dimension": "formatting"
+        }
+      ],
+      "revision_notes": "Recorded the undocumented credit-purchase controls as an open question with existing provenance. Applied the concrete Upstream headers label formatting fix. The concision finding requires only a retry; no content defect was identified. Lint checks pass.",
+      "disputed": [
+        "Enrollment labels: official X documentation does not publish the required field or submission-control labels; adding them would require guessing or an unavailable verified console capture.",
+        "App-creation labels: official X documentation names the inputs conceptually but not their exact labels or create control; adding them would violate the no-invention rule.",
+        "Credit-purchase path: official X documentation links to the Developer Console but omits the console path, purchase control, inputs, and completion state; these cannot be documented without unsupported facts.",
+        "Bearer-token recovery: official X documentation names the app’s Keys and tokens page but omits the app-reopen path and regeneration-control label; adding exact navigation would require invention."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#enroll-developer-account",
+          "problem": "The first-time enrollment path lacks the required field labels and final submission-control label needed to complete enrollment without guessing.",
+          "suggestion": "Use a human-verified console capture to document each required field label, its value source, and the final submission-control label; do not infer labels from the public documentation.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#create-x-app",
+          "problem": "The app-creation path lacks the exact form-field labels and create-control label needed to create the app literally.",
+          "suggestion": "Use a human-verified console capture to record the current labels for the app name, description, use case, and create control.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Prerequisites — API credits",
+          "problem": "A positive credit balance is required for the first connection, but the documented path stops at a Developer Console link without identifying the purchase workflow.",
+          "suggestion": "Use a human-verified console capture to document the navigation path, purchase control, required inputs, and successful balance state.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-bearer-token",
+          "problem": "The first-connection recovery path tells administrators to regenerate a missed token without explaining how to reopen the app or identify the regeneration control.",
+          "suggestion": "Use a human-verified console capture to document the dashboard-to-app-to-Keys-and-tokens path and the exact regeneration-control label.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "(pipeline)",
+          "problem": "The formatting reviewer returned no verdict this round.",
+          "suggestion": "Treat as unreviewed; the next round retries this dimension.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#enroll-developer-account",
+          "problem": "The first-time enrollment path omits required field labels and the final submission-control label, forcing the administrator to guess.",
+          "suggestion": "Obtain the exact labels from an official source or human-verified console capture and document each field, value source, and submission control.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#create-x-app",
+          "problem": "The app-creation path omits the exact form-field labels and create-control label required for a literal walkthrough.",
+          "suggestion": "Obtain the current labels from an official source or human-verified console capture and document each field and the create control.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Prerequisites — \"API credits purchased in the Developer Console\"",
+          "problem": "A positive credit balance is required for the first connection, but no navigation path or named control for purchasing credits is documented.",
+          "suggestion": "Document the console path, purchase control, required inputs, and successful-balance transition, then place the purchase step after any enrollment required to access it.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-bearer-token — \"regenerate it in the app\"",
+          "problem": "The recovery path for a token missed during initial setup does not explain how to reopen the app or identify the regeneration control.",
+          "suggestion": "Obtain and document the exact dashboard-to-app-to-Keys-and-tokens navigation and named regeneration control from an official source or human-verified console capture.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-x-app opening sentence vs Prerequisites third bullet",
+          "problem": "The organization-approved app name, description, and use-case requirement appears in both Prerequisites and again as prose before the create steps.",
+          "suggestion": "Remove the opening sentence under #create-x-app and rely on the Prerequisites bullet, or drop that bullet from Prerequisites and keep the point-of-need reminder in #create-x-app only.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#connect-speakeasy-credentials} — catalog **Upstream headers** alternate path, steps 1–3",
+          "problem": "The alternate install path repeats the same Header name, Value source, Bearer value, and Secret instructions already given in primary steps 3–7.",
+          "suggestion": "Replace alternate steps 1–3 with one step that points to primary steps 3–7, e.g. \"Configure **Header name**, **Value source**, the Bearer value, and **Secret** as in steps 3–7 above.\"",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Formatting remains unreviewed for the next round; no content change was applicable. Removed the duplicated app-values reminder under #create-x-app. Replaced repeated catalog-header steps with a reference to primary steps 3–7. Anchors remain unchanged; lint check passed.",
+      "disputed": [
+        "Fidelity — #enroll-developer-account: X’s public documentation omits the labels, and no human-verified console capture was supplied; inventing them would violate provenance rules.",
+        "Fidelity — #create-x-app: X’s public documentation omits the exact field and create-control labels, and no verified capture was supplied.",
+        "Fidelity — API credits: X documents purchasing credits only through a console link; the requested authenticated workflow is unavailable from public sources.",
+        "Fidelity — #copy-bearer-token: Public documentation names **Keys and tokens** but not the app-reopen path or regeneration control; no verified capture was supplied.",
+        "Achievability — #enroll-developer-account: Exact enrollment labels cannot be added without the requested human-verified evidence.",
+        "Achievability — #create-x-app: Exact app-form labels cannot be added without the requested human-verified evidence.",
+        "Achievability — API credits: The required purchase path and controls are not published, so expanding the critical path would require guessing.",
+        "Achievability — #copy-bearer-token: The dashboard-to-app recovery path and regeneration-control label are not documented publicly, so they cannot be asserted safely."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#enroll-developer-account",
+          "problem": "The critical enrollment path still lacks required field labels and the final submission-control label, despite the documented public-source limitation.",
+          "suggestion": "Obtain a human-verified console capture and record each required field label, value source, and final submission-control label without inference.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#create-x-app",
+          "problem": "The app-creation path still lacks exact form-field labels and the create-control label required to follow it literally.",
+          "suggestion": "Use a human-verified console capture to record the current app-name, description, use-case, and create-control labels.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Prerequisites — API credits",
+          "problem": "A positive credit balance is required for the first connection, but the documented path still ends at the Developer Console without the purchase workflow.",
+          "suggestion": "Capture the authenticated console workflow and document its navigation, purchase control, required inputs, and successful-balance state.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-bearer-token",
+          "problem": "The first-connection recovery path still omits how to reopen the app and which control regenerates a missed Bearer Token.",
+          "suggestion": "Capture and document the dashboard-to-app-to-Keys-and-tokens navigation and exact regeneration-control label.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#enroll-developer-account",
+          "problem": "The enrollment path still omits the exact required field labels and final submission-control label, so a first-time administrator must guess despite the public-documentation limitation.",
+          "suggestion": "Obtain a human-verified console capture and document every required field label, its value source, and the final submission control.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#create-x-app",
+          "problem": "The app-creation path still omits the exact form-field labels and create-control label required to complete the critical path literally.",
+          "suggestion": "Obtain a human-verified console capture and document the current app name, description, and use-case field labels plus the create control.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Prerequisites — API credits",
+          "problem": "A positive credit balance is required for the first connection, but the guide provides no navigation path or named control for purchasing credits.",
+          "suggestion": "Document the console navigation, purchase control, required inputs, and successful-balance state, placing the purchase step after any enrollment needed to access it.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-bearer-token — \"regenerate it in the app\"",
+          "problem": "The first-connection recovery path still requires the administrator to guess how to reopen the app and which control regenerates a missed one-time token.",
+          "suggestion": "Obtain a human-verified console capture and document the dashboard-to-app-to-Keys-and-tokens path and exact regeneration-control label.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "No files changed; public documentation still does not expose the requested authenticated-console labels or workflows.",
+      "disputed": [
+        "Fidelity — enrollment labels: Requires a human-verified authenticated-console capture unavailable from public documentation; inventing labels would violate provenance rules.",
+        "Fidelity — app-creation labels: Requires a human-verified authenticated-console capture unavailable from public documentation; inventing labels would violate provenance rules.",
+        "Fidelity — credit-purchase workflow: The public docs stop at the Developer Console and do not document the authenticated purchase controls, inputs, or success state.",
+        "Fidelity — Bearer Token recovery: Public docs identify the Keys and tokens page and regeneration behavior but not the app-reopen path or regeneration-control label.",
+        "Achievability — enrollment labels: Completing this finding requires non-public console evidence; the public-source fact ceiling prohibits guessing the missing labels.",
+        "Achievability — app-creation labels: Completing this finding requires non-public console evidence; the public-source fact ceiling prohibits guessing the missing labels.",
+        "Achievability — credit-purchase workflow: The requested authenticated billing path is not publicly documented and cannot be added with valid provenance.",
+        "Achievability — Bearer Token recovery: The requested dashboard navigation and exact regeneration-control label are absent from public documentation and cannot be inferred."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization_recheck": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#enroll-developer-account",
+          "problem": "The enrollment path lacks the exact required field labels and final submission-control label needed to complete it literally.",
+          "suggestion": "Escalate for a human-verified console capture recording every required field label, its value source, and the final submission control.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#create-x-app",
+          "problem": "The app-creation path lacks the exact form-field labels and create-control label.",
+          "suggestion": "Capture the authenticated console and record the current app-name, description, use-case, and create-control labels.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Prerequisites — API credits",
+          "problem": "The required credit-purchase path stops at the Developer Console without navigation, purchase controls, required inputs, or a successful-balance state.",
+          "suggestion": "Capture the authenticated purchase workflow and document it after any enrollment required for console access.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-bearer-token",
+          "problem": "The first-connect recovery path does not explain how to reopen the app or identify the control that regenerates a missed Bearer Token.",
+          "suggestion": "Capture the dashboard-to-app-to-Keys-and-tokens path and record the exact regeneration-control label.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "{#add-server-in-speakeasy} catalog path step 2 — \"find X using **Search MCP servers...**\"",
+          "problem": "The catalog search term X is a value the reader types but is rendered as plain prose instead of a code span.",
+          "suggestion": "Change the step to name the typed query in backticks, e.g. find `X` using **Search MCP servers...**, matching the persona formatting rule and the Asana guide pattern.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#enroll-developer-account",
+          "problem": "The enrollment path omits the required field labels and final submission-control label, forcing a first-time administrator to guess.",
+          "suggestion": "Obtain a human-verified console capture and record every required field label, its value source, and the final submission control.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#create-x-app",
+          "problem": "The app-creation path omits the exact field labels and create-control label needed to complete the form literally.",
+          "suggestion": "Obtain a human-verified console capture and document the app-name, description, and use-case field labels plus the create control.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Prerequisites — API credits",
+          "problem": "A positive credit balance is required for the first connection, but the guide provides no navigation path or named control for purchasing credits.",
+          "suggestion": "Capture the authenticated console workflow and document its navigation, purchase control, required inputs, and successful-balance state after enrollment.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-bearer-token — \"regenerate it in the app\"",
+          "problem": "The immediate recovery path for a missed one-time Bearer Token omits how to reopen the app and which control regenerates the token.",
+          "suggestion": "Obtain a human-verified console capture and document the dashboard-to-app-to-Keys-and-tokens path and exact regeneration-control label.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}
