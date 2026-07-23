@@ -302,7 +302,8 @@ ${comments}"
           if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
             echo >> "$body_file"
             bash "${GITHUB_WORKSPACE}/scripts/ci/format-pipeline-review.sh" \
-              "${RUNNER_TEMP}/run-record.json" >> "$body_file"
+              "${RUNNER_TEMP}/run-record.json" "" \
+              "${GITHUB_WORKSPACE}/guides/${SLUG}" >> "$body_file"
           fi
           pr_url=$(gh pr create --draft --base main --head "$BRANCH" --title "$title" --body-file "$body_file" | tail -n1)
           echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
@@ -312,12 +313,14 @@ ${comments}"
         env:
           PR_URL: ${{ steps.open_pr.outputs.pr_url }}
           OUTCOME: ${{ steps.draft.outputs.outcome }}
+          SLUG: ${{ steps.distill.outputs.slug }}
         run: |
           set -euo pipefail
           body_file="${RUNNER_TEMP}/pipeline-review-comment.md"
           if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
             bash "${GITHUB_WORKSPACE}/scripts/ci/format-pipeline-review.sh" \
-              "${RUNNER_TEMP}/run-record.json" "${PR_URL}" > "$body_file"
+              "${RUNNER_TEMP}/run-record.json" "${PR_URL}" \
+              "${GITHUB_WORKSPACE}/guides/${SLUG}" > "$body_file"
           else
             {
               echo "## Pipeline review"
@@ -356,11 +359,13 @@ ${comments}"
           if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
             echo >> "$body_file"
             bash "${GITHUB_WORKSPACE}/scripts/ci/format-pipeline-review.sh" \
-              "${RUNNER_TEMP}/run-record.json" >> "$body_file" || true
+              "${RUNNER_TEMP}/run-record.json" "" \
+              "${GITHUB_WORKSPACE}/guides/${SLUG}" >> "$body_file" || true
           elif [ -n "${SLUG}" ] && compgen -G "${GITHUB_WORKSPACE}/retro/runs/*-${SLUG}.json" > /dev/null; then
             record=$(ls -t "${GITHUB_WORKSPACE}"/retro/runs/*-"${SLUG}".json | head -n1)
             echo >> "$body_file"
-            bash "${GITHUB_WORKSPACE}/scripts/ci/format-pipeline-review.sh" "$record" >> "$body_file" || true
+            bash "${GITHUB_WORKSPACE}/scripts/ci/format-pipeline-review.sh" \
+              "$record" "" "${GITHUB_WORKSPACE}/guides/${SLUG}" >> "$body_file" || true
           else
             {
               echo "Reply on this issue with clarifications, then re-add \`guide:draft\`."
