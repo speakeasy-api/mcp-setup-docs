@@ -55,21 +55,33 @@ document, nothing else. At every step ask — do I know where I am, what to
 click (is it named exactly?), what to enter (do I know where that value
 came from?), and what happens next? Any point where you would have to
 guess, search, or already know the console is a finding. Check the
-unforgiving spots hardest: one-time secrets, expiring states, destructive
-rotations — the guide must say what to do when the reader misses them.
-Where the missing information exists in the Dossier, target `setup`; where
-the Dossier never had it, target `research`.
+unforgiving spots hardest on the path to first successful connection:
+one-time secrets at create, expiring states that block connect now,
+destructive rotations required mid-setup — the guide must say what to
+do when the reader misses them *now*. Do not demand click-through depth
+for later-ops procedures (reset a secret next month, manage availability
+after connect). Where the missing information exists in the Dossier,
+target `setup`; where the Dossier never had it, target `research`.
 
 **Critical-path ceiling.** A blocker is only for a named control on the
-path to the persona's first successful connection. When public docs do
-not fully enumerate a vendor program or IdP chrome beyond that path —
-Google OAuth branding / scope verification, third-party app review,
-end-user consent browser screens once the launch control is named —
-do not keep demanding every conditional field as a research-target
-blocker. Record an open question in the Dossier (or raise a
-`research`-targeted nit that widens one), and accept one Dossier-backed
-hedge in the guide. Expanding depth after a prior round already closed
-the same locus with a hedge is a nit at most, never a fresh blocker.
+path to the persona's first successful connection. That excludes both
+(a) vendor / IdP chrome public docs do not fully enumerate beyond that
+path — Google OAuth branding / scope verification, third-party app
+review, end-user consent browser screens once the launch control is
+named — and (b) later-ops or maintenance flows that get the server
+working again after a later miss. For (a) or (b), do not keep demanding
+every conditional field as a research-target blocker. Record an open
+question in the Dossier (or raise a `research`-targeted nit that widens
+one), and accept one Dossier-backed hedge in the guide — or omit the
+later-ops branch entirely. Expanding depth after a prior round already
+closed the same locus with a hedge is a nit at most, never a fresh
+blocker.
+
+**Trust provider-documented UI.** Do not raise blockers that demand live
+console verification of a control the Dossier already cites from provider
+docs or screenshots on those pages. If the Dossier is silent, target
+`research` (or an open question / hedge). If it cites the provider page,
+the control is named — treat distrust of that citation as out of bounds.
 
 **Speakeasy canonical is fixed.** `docs/speakeasy-setup.md` is the fact
 ceiling for Speakeasy-side steps. Do not raise blockers that invent
@@ -107,11 +119,15 @@ as conditional (e.g. "If Google requires production verification:" /
 "If the app needs sensitive- or restricted-scope review:"). Never suggest
 replacing those gates with unconditional headings or imperatives — that
 fails fidelity. Deduplicate the wording; do not delete the condition.
-**Unforgiving recovery stays.** Never suggest dropping the guide's
-recovery for one-time secrets, expiring states (e.g. Testing's seven-day
-re-authorization), or destructive rotations — even when a continue-link
-makes the happy path clear. Those notes are fidelity omissions if
-removed; at most shorten them or cross-link, never delete.
+**Unforgiving recovery stays (first-connect only).** Never suggest
+dropping recovery that protects first successful connection — one-time
+secrets at create, expiring states that block connect now (e.g.
+Testing's seven-day re-authorization), or destructive rotations
+required mid-setup — even when a continue-link makes the happy path
+clear. Those notes are fidelity omissions if removed; at most shorten
+or cross-link, never delete. Later-ops reset/rotate/maintenance
+branches are not protected: suggesting they drop (or never expand) is
+correct concision, not deleting required recovery.
 
 ## Severity and reporting
 

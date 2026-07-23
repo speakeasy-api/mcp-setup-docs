@@ -21,14 +21,17 @@ Work through the guide fact by fact, in both directions:
    step, a prerequisite, a recovery note, a screenshot note that lost
    detail. Dropped steps, prerequisites, and recovery notes are
    blockers; thinned screenshot notes are nits. Scope check first:
-   "needs" means needs to finish setup — post-setup administration
-   (availability management, app lifecycle, ongoing admin surfaces) is
-   outside the guide's scope, and its absence is correct rendering, not
-   an omission. Recovery-note blockers cover only unforgiving misses:
-   one-time secrets, expiring states, destructive rotations. Optional
-   undo ("you can edit this later from the same page") and soft
-   restatements of capabilities already implied by the steps are out of
-   scope — score those as nits if worth mentioning, not blockers.
+   "needs" means needs for first successful connection of the MCP
+   server — post-setup administration, later-ops recovery (reset/rotate
+   after a later miss), availability management, app lifecycle, and
+   other ongoing admin surfaces are outside the guide's scope, and their
+   absence is correct rendering, not an omission. Recovery-note blockers
+   cover only unforgiving misses *on that first-connect path*: secret
+   shown once at create, expiry that blocks connect now, destructive
+   rotation required mid-setup. Optional undo ("you can edit this later
+   from the same page"), later-ops Reset callouts, and soft restatements
+   of capabilities already implied by the steps are out of scope —
+   score those as nits if worth mentioning, not blockers.
 4. **The anchor contract** — every Dossier anchor appears in `setup.md`
    verbatim and in order; every `setup.md#<anchor>` reference in
    `meta.yaml` resolves; no anchor was minted outside the Dossier.
@@ -56,4 +59,7 @@ it with the dispute addressed or drop it (see `shared.md`).
 
 A finding whose root cause is a Dossier gap (the Writer flagged an open
 question, or wrote around one) targets `research`, not `setup` — the fix
-starts where the facts live.
+starts where the facts live. A gap is missing or invented chrome, not
+"provider docs showed the control but we did not click the live console."
+Do not target `research` for console re-verification of UI the Dossier
+already cites from provider docs or screenshots.

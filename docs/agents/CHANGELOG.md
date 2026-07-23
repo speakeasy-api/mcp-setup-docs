@@ -6,6 +6,76 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-23 — tune: trust provider-documented UI
+
+Files: `docs/agents/technical-research.md`, `docs/agents/review.md`,
+`docs/agents/fidelity.md`, `docs/agents/guide-factory.md`.
+
+One proposal approved (P1), none rejected.
+
+- **Trust provider-documented UI**: labels named or shown in provider
+  docs (including screenshots on those pages) are confirmed facts.
+  Research must not mint open questions asking for live console
+  verification of that chrome; report `open_questions` must match the
+  Dossier section. Achievability / fidelity must not demand console
+  re-proof when the Dossier cites the provider page. Open questions
+  remain for silence, unresolved property conflicts, or live probing
+  that contradicts documented URL/behavior. Guide-factory clarifications
+  for "exact UI labels" are for those gaps, not re-checks of cited UI.
+
+Invariants: I1/I2 strengthened — public docs (incl. screenshots) stay
+the fact source; visible gaps still cover true silence and live
+discrepancy. Does not weaken click-through depth for undocumented
+chrome (Box-style capture-time OQs for silent docs stay valid).
+
+Evidence: `retro/notes/2026-07-23-trust-provider-documented-ui.md`
+(explicit human direction — Asana redirect-control "console
+verification" OQ was distrust of provider docs, not a gap).
+
+## 2026-07-23 — tune: first-connect scope; keep research AFTER on non-material judge
+
+Files: `docs/agents/technical-research.md`, `docs/agents/writer.md`,
+`docs/agents/fidelity.md`, `docs/agents/review.md`,
+`scripts/draft-guide-workflow.js`, `scripts/cursor-sdk/src/workflow.ts`.
+
+Batch from `/tune-pipeline`; two proposals approved (P1 generalized per
+operator edit, P2 as sketched), none rejected.
+
+- **First-connect scope** (role docs + polish prompts): guides cover the
+  path to first successful MCP connection only. Later-ops / maintenance
+  (reset a secret next month, availability management, rotate for drift)
+  are not walkthrough steps — research records at most an open question
+  or one-line hedge; writer omits them; fidelity omissions and
+  achievability blockers do not demand their click-through depth;
+  "unforgiving recovery stays" protects only first-connect misses
+  (secret-at-create, expiry that blocks connect now, mid-setup
+  destructive rotation), not later-ops reset branches. Sharpens the
+  existing setup-not-maintenance and critical-path ceiling rules; no new
+  review dimension.
+- **Keep research AFTER** (Cursor SDK workflow): when the research-change
+  judge says not materially changed, stop restoring the prior snapshot.
+  Restore had discarded this run's `researched_at` / `observed_at`
+  refresh, after which fidelity burned round 1 re-stamping provenance.
+  `unchanged=true` still drives draft/review skips.
+
+Invariants: I1 preserved — later-ops gaps stay visible as hedge/open
+question, not invented chrome. I2 preserved — this run's observed dates
+stay on disk. I5/I6 preserved — persona still owns achievability; capped
+structured review unchanged. Narrows which recoveries the earlier
+"unforgiving recovery stays" tune protects; does not weaken first-connect
+recovery.
+
+Evidence: `retro/notes/2026-07-23-secret-reset-out-of-band.md` (explicit
+human direction — Asana Reset branch out of band for setup; operator
+asked to generalize beyond resets to any out-of-scope later-ops).
+Corroborated by setup-not-maintenance
+(`retro/notes/2026-07-22-setup-not-maintenance.md`) and the critical-path
+ceiling batch. P2:
+`retro/runs/2026-07-23T19:12:45Z-google-big-query.json` and
+`2026-07-23T19:36:30Z-google-big-query.json` (both R1 fidelity blockers
+on stale provenance stamps after non-material research; judge notes
+timestamp-only AFTER).
+
 ## 2026-07-23 — tune: redirect URI uses template key, not Speakeasy mid-flow copy
 
 Files: `docs/agents/writer.md`, `docs/agents/technical-research.md`,

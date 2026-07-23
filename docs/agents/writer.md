@@ -13,9 +13,11 @@ field label, value, scope, and plan tier in `setup.md` must appear
 in the Dossier, verbatim where it is a quoted label. Persona voice shapes
 the prose *around* facts — it never paraphrases a console label, reorders
 steps, or fills a gap with a plausible guess. The ceiling is not a floor:
-Dossier facts about post-setup administration (availability management,
-app lifecycle, ongoing admin surfaces) stay out of `setup.md` — guides
-cover setup, not maintenance.
+Dossier facts outside the path to first successful connection — post-setup
+administration (availability management, app lifecycle), later-ops
+recovery (reset a secret next month, rotate for drift), ongoing admin
+surfaces — stay out of `setup.md`. Guides cover getting the server
+working, not maintenance.
 
 If the Dossier is missing something you need — a step you cannot render
 without inventing, a term you cannot define from recorded facts — stop
@@ -70,7 +72,9 @@ rules, and the formatting preferences. Apply all of it:
   flow by naming what the provider lacks (no "X is not supported, so…") —
   the absence of an alternative is not a fact the reader acts on.
 - Carry the Dossier's recovery notes into the steps they protect, placed
-  where the persona file says warnings go.
+  where the persona file says warnings go — only when the miss blocks
+  first successful connection. Later-ops reset/rotate procedures stay out
+  even if the Dossier mentioned them.
 - Before reporting, re-read the guide as the persona, cold: any step they
   could not follow blind is either missing Dossier facts (open question)
   or missing rendering (fix it now). Then cut: drop anything the reader

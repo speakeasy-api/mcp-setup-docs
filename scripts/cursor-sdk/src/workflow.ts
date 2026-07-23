@@ -11,7 +11,6 @@ import {
   makeStepRecord,
   readLock,
   researchMatchesSnapshot,
-  restoreResearchSnapshot,
   snapshotResearchOutputs,
   writeLock,
   type PipelineLock,
@@ -460,11 +459,15 @@ export async function runWorkflow(
       }
     }
     if (!judgment.materially_changed) {
-      restoreResearchSnapshot(dir, before)
+      // Keep AFTER on disk. Restoring BEFORE used to throw away a legitimate
+      // researched_at / observed_at refresh to this run's NOW, after which
+      // fidelity burned a full round re-stamping provenance. Non-material
+      // wording that sticks is acceptable; draft/review skips still use
+      // unchanged=true.
       log(
         '[' +
           g.slug +
-          '] research not material; restored prior research.md/meta.yaml'
+          '] research not material; keeping AFTER (incl. provenance stamps)'
       )
       return {
         method: 'judge',
@@ -587,11 +590,12 @@ export async function runWorkflow(
         'Conditional gates from the Dossier must survive polish: when a nit',
         'asks to collapse repeated If/When prose, keep one explicit',
         'conditional per branch — never replace it with an unconditional',
-        'heading or imperative. Unforgiving recovery must also survive:',
-        'never drop Testing expiry re-authorization, one-time-secret, or',
-        'destructive-rotation recovery — shorten or cross-link at most.',
-        'Skip (with reason) any nit whose suggestion would drop a',
-        'fidelity-backed condition or recovery note.',
+        'heading or imperative. Unforgiving first-connect recovery must also',
+        'survive: never drop Testing expiry re-authorization, one-time-secret',
+        'at create, or mid-setup destructive-rotation recovery — shorten or',
+        'cross-link at most. Later-ops reset/maintenance branches are not',
+        'protected. Skip (with reason) any nit whose suggestion would drop a',
+        'fidelity-backed condition or first-connect recovery note.',
         ''
       )
     }
