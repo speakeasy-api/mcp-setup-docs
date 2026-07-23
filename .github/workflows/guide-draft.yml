@@ -25,6 +25,21 @@ jobs:
       GH_REPO: ${{ github.repository }}
 
     steps:
+      - name: Ensure factory labels
+        run: |
+          set -euo pipefail
+          # Repo labels must exist before gh issue edit --add-label (missing label = hard fail).
+          ensure_label() {
+            local name="$1" color="$2" desc="$3"
+            if gh label list --limit 100 --json name --jq '.[].name' | grep -Fxq "$name"; then
+              return 0
+            fi
+            gh label create "$name" --color "$color" --description "$desc"
+          }
+          ensure_label "guide:draft" "1D76DB" "Trigger guide draft factory"
+          ensure_label "guide:in-progress" "FBCA04" "Guide draft factory running"
+          ensure_label "guide:blocked" "D73A4A" "Guide draft factory blocked"
+
       - name: Preflight existing PR
         id: preflight
         run: |
