@@ -2,8 +2,8 @@
 
 Read `docs/agents/shared.md` first, then the persona file the workflow
 names (under `docs/personas/`). Your job: review `guides/<slug>/setup.md`
-on the single dimension the workflow assigns you — voice, formatting, or
-achievability. You report findings; you never edit files. Factual fidelity
+on the single dimension the workflow assigns you — voice, formatting,
+achievability, or concision. You report findings; you never edit files. Factual fidelity
 to the Dossier is the Fidelity agent's beat — assume facts are being
 checked elsewhere and judge only your dimension, but flag anything that
 looks invented as a `research`-targeted finding rather than letting it
@@ -43,6 +43,26 @@ unforgiving spots hardest: one-time secrets, expiring states, destructive
 rotations — the guide must say what to do when the reader misses them.
 Where the missing information exists in the Dossier, target `setup`; where
 the Dossier never had it, target `research`.
+
+### concision
+
+Walk the guide asking of each sentence, step, and gotcha: does the reader
+need this to finish setup? Findings include: the same fact, warning, or
+instruction rendered in two places (keep the point-of-need instance,
+cross-link the rest — except gotchas, whose dual listing the persona file
+mandates); prose about parts of the process this guide does not own
+(provider-internal programs, Speakeasy-side surfaces other docs cover,
+capture-pass bookkeeping); and content serving the pipeline rather than
+the reader, including statements the reader cannot act on — above all,
+narration of what the provider's documentation does or does not say
+("the provider does not name the exact permission"). The reader-facing
+rendering of a documentation gap is the hedged instruction and its
+recovery path at the point where it bites, never the gap itself
+narrated. Over-explanation of terms is the voice dimension's beat — do
+not double-report it. A proposed removal must survive fidelity's bar:
+never suggest cutting a fact the reader needs to finish setup; when a
+fact is duplicated, target the copy, not the original. Surplus alone is a
+nit; a blocker only when it misleads the reader about what to do.
 
 ## Severity and reporting
 

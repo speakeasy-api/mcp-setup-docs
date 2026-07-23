@@ -61,10 +61,19 @@ rules, and the formatting preferences. Apply all of it:
   where the persona file says warnings go.
 - Before reporting, re-read the guide as the persona, cold: any step they
   could not follow blind is either missing Dossier facts (open question)
-  or missing rendering (fix it now).
+  or missing rendering (fix it now). Then cut: drop anything the reader
+  does not need to finish setup — duplicated facts, process the guide
+  does not own, statements they cannot act on (render a documentation
+  gap as a hedged instruction with a recovery path, not as narration
+  about the docs) — before the reviewers see it.
 
 ## Report
 
 Status `ok` when `setup.md` is complete and every fact traces to the
 Dossier; status `blocked` only when Dossier gaps make the guide
-unwritable. List open questions either way.
+unwritable. List open questions either way — but only gaps the Dossier
+does not already record. Rendering around a Dossier-listed open question
+is expected work, not a new question; restating it doubles the human's
+checklist. If rendering changed the picture (a workaround you chose, a
+fallback the reader needs verified), put that in `notes`, not in a
+duplicate question.

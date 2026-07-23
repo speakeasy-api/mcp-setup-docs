@@ -6,6 +6,85 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-22 — tune: doc-gap narration is not reader content
+
+Files: `docs/agents/review.md`, `docs/agents/writer.md`.
+
+One proposal approved (both diffs), none rejected. The concision
+dimension's pipeline-serving-content probe now names statements the
+reader cannot act on — above all, narration of what the provider's
+documentation does or does not say — and the Writer's cut pass gets the
+parallel clause: a documentation gap renders as a hedged instruction
+with a recovery path, never as narration about the docs.
+
+Evidence: operator direction (Walker, in-session, 2026-07-22): the
+concision dry run against the hubspot draft caught two duplications but
+passed "HubSpot does not name the exact permission that controls this"
+(guides/hubspot/setup.md Prerequisites) — true but unactionable, and
+redundant beside the adjacent hedged instruction ("The closest
+documented match is the **Developer tools access** permission… the
+first thing to check") and the later #open-mcp-auth-apps recovery note.
+A reviewer passing something the human then corrected is the
+highest-weight signal class.
+
+Preserves I1: the gap stays visible to the pipeline (Dossier, open
+questions), and the reader keeps the hedge and recovery path rather
+than an invented fact — only the narration goes. Validation: an
+isolated dry-run concision review (fresh agent, no session context)
+was run after this change; result recorded in the session, not here,
+as dry runs produce no Run Record.
+
+## 2026-07-22 — tune: concision review, writer cut pass, open-question dedupe
+
+Files: `docs/agents/writer.md`, `docs/agents/review.md`,
+`scripts/draft-guide-workflow.js`.
+
+Batch from `/tune-pipeline`; three proposals approved (the concision
+dimension in its `model: 'sonnet'` variant), none rejected.
+
+- **Writer open-question dedupe** (`writer.md` Report section): the
+  Writer lists only gaps the Dossier does not already record; rendering
+  around a Dossier-listed open question goes in `notes`, not a duplicate
+  question. Re-proposal of the entry rejected in the nits-in-loop batch,
+  whose condition ("re-propose if the pattern recurs") is met: after the
+  original 21:57 mass duplication, every subsequent run duplicated —
+  `retro/runs/2026-07-22T22:43:04Z-box.json` (6 near-duplicate pairs of
+  14 items), `retro/runs/2026-07-22T23:18:01Z-box.json` (8 of 16), and
+  `retro/runs/2026-07-22T23:59:17Z-hubspot.json` (4 of 10 — a second
+  provider). Preserves I1: the Dossier's Open questions section remains
+  the canonical record; nothing becomes invisible.
+- **Concision dimension** (`review.md`, workflow `DIMENSIONS`): a fifth
+  Editorial dimension asks what can be removed — duplication (with a
+  carve-out for the persona-mandated gotcha dual listing), process the
+  guide does not own, content serving the pipeline rather than the
+  reader. Over-explanation stays voice's beat (no double-reporting);
+  removals must survive fidelity's needs-to-finish-setup bar and target
+  the copy, never the original; surplus alone is a nit — a blocker only
+  when it misleads. Runs on `model: 'sonnet'` like formatting; its
+  mechanical removals are applied by the polish pass under the
+  session-model fidelity re-check. Touches I5/I6 and preserves both
+  (persona defines the need-to-do bar; same structured-finding
+  machinery); I1/I2 protected by the fidelity bar and re-check.
+- **Writer cut pass** (`writer.md` pre-report self-check): after the
+  cold read, the Writer cuts what the reader does not need to finish
+  setup before reviewers see the draft. Preserves I1 — cutting is not
+  inventing; the ceiling-not-floor rule is unchanged.
+
+Evidence: `retro/notes/2026-07-22-what-can-be-removed.md` (explicit
+human direction, Walker — the four probes: necessity, duplication,
+over-explanation, ownership) for the concision dimension and cut pass,
+corroborated by removal-shaped findings squeezed through the voice
+dimension in `retro/runs/2026-07-22T23:59:17Z-hubspot.json` round 1
+(#scopes-are-automatic teaching OAuth mechanics; #keyword-search-only
+leading with implementation detail); the run records named above for the
+dedupe.
+
+Observed, not proposed: unbolded-UI-label nits recur across both
+providers, but the persona rule is unambiguous and in-loop polish fixes
+them cheaply — adding words to an unambiguous rule is bloat, not
+sharpening. The split-navigation nit churn did not recur after nits
+began auto-applying; no action needed.
+
 ## 2026-07-22 — tune: Run Records gain started_at/finished_at
 
 Files: `.claude/skills/draft-guide/SKILL.md`, `retro/README.md`.

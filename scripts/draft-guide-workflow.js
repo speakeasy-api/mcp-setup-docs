@@ -166,6 +166,9 @@ const DIMENSIONS = [
   // fact-gating dimensions stay on the session model.
   { role: 'formatting', doc: 'review.md', persona: true, model: 'sonnet' },
   { role: 'achievability', doc: 'review.md', persona: true },
+  // concision hunts removable content; its findings default to nits, and
+  // removals are guarded by fidelity's bar and the polish re-check.
+  { role: 'concision', doc: 'review.md', persona: true, model: 'sonnet' },
 ]
 
 function reviewerPrompt(g, dim, round, prior) {
