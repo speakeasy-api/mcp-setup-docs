@@ -209,7 +209,7 @@ function reviewerPrompt(g, dim, round, prior) {
   return lines.join('\n')
 }
 
-function revisionPrompt(g, round, blockers, nits) {
+function revisionPrompt(g, round, blockers, nits, spiralNote) {
   const lines = [
     'You are a Revision Agent in the mcp-setup-docs drafting pipeline.',
     'Repo root: ' + ROOT,
@@ -220,6 +220,9 @@ function revisionPrompt(g, round, blockers, nits) {
     assignment(g),
     '',
   ]
+  if (spiralNote) {
+    lines.push(spiralNote, '')
+  }
   if (blockers.length > 0) {
     lines.push(
       'Review round ' + round + ' reported the blocker findings below. Fix them',
@@ -239,6 +242,14 @@ function revisionPrompt(g, round, blockers, nits) {
       'Review round ' + round + ' reported zero blockers; this is the final',
       'polish pass before the guide converges. Honor the anchor contract in',
       'shared.md and do not touch any path outside the guide directory.',
+      'Conditional gates from the Dossier must survive polish: when a nit',
+      'asks to collapse repeated If/When prose, keep one explicit',
+      'conditional per branch — never replace it with an unconditional',
+      'heading or imperative. Unforgiving recovery must also survive:',
+      'never drop Testing expiry re-authorization, one-time-secret, or',
+      'destructive-rotation recovery — shorten or cross-link at most.',
+      'Skip (with reason) any nit whose suggestion would drop a',
+      'fidelity-backed condition or recovery note.',
       ''
     )
   }
@@ -260,12 +271,53 @@ function revisionPrompt(g, round, blockers, nits) {
     'If you believe a finding is wrong, do not silently ignore it: leave the',
     'files as they are for that finding and record it in "disputed" with a',
     'one-line reason (see the disputed-findings protocol in shared.md).',
+    'Cross-dimension conflicts count: when achievability demands documenting',
+    'a path that concision or the critical-path ceiling says to cut or hedge',
+    '(especially when public docs cannot complete it), dispute one finding',
+    'rather than expanding the guide to satisfy both.',
     '',
     'Report via structured output: notes (what changed, per finding),',
     'skipped (nits not applied, with reasons), and disputed (findings you',
     'believe are wrong, with reasons).'
   )
   return lines.join('\n')
+}
+
+function blockerLocus(f) {
+  const where = String(f.where || '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+  const anchor = where.match(/#[a-z0-9-]+/)
+  const loc = anchor ? anchor[0] : where.slice(0, 80)
+  return String(f.target || '') + ':' + loc
+}
+
+function detectReviewSpiral(priorHistory, currentBlockers) {
+  if (!priorHistory.length || !currentBlockers.length) return null
+  const priorLoci = new Set()
+  for (const entry of priorHistory) {
+    for (const b of entry.blockers || []) {
+      priorLoci.add(blockerLocus(b))
+    }
+  }
+  const novelCount = currentBlockers.filter((b) => !priorLoci.has(blockerLocus(b))).length
+  const novelShare = novelCount / currentBlockers.length
+  const prevCount = (priorHistory[priorHistory.length - 1].blockers || []).length
+  if (currentBlockers.length >= prevCount && novelShare >= 1 / 2) {
+    return (
+      "Review spiral signal: this round's " +
+      currentBlockers.length +
+      ' blocker(s) did not drop from the prior round (' +
+      prevCount +
+      ') and ' +
+      novelCount +
+      '/' +
+      currentBlockers.length +
+      ' loci are new. Prefer disputing findings that expand beyond the critical-path ceiling or rewrite the Speakeasy canonical skeleton rather than researching unbounded vendor UI depth.'
+    )
+  }
+  return null
 }
 
 // ---------------------------------------------------------------------------
@@ -337,11 +389,134 @@ async function draftOne(g) {
   let prior = null
   for (let round = 1; round <= MAX_ROUNDS; round++) {
     log('[' + g.slug + '] review round ' + round + '/' + MAX_ROUNDS)
-    const { blockers, nits } = await reviewRound(g, round, prior)
-    const entry = { round: round, blockers: blockers, nits: nits }
+    let { blockers, nits } = await reviewRound(g, round, prior)
+    let entry = { round: round, blockers: blockers, nits: nits }
+    const spiralNote =
+      round > 1 ? detectReviewSpiral(history, blockers) : null
+    if (spiralNote) {
+      log('[' + g.slug + '] ' + spiralNote)
+      entry.spiral_warning = spiralNote
+    }
     history.push(entry)
 
-    if (blockers.length === 0) {
+    if (blockers.length > 0) {
+      log('[' + g.slug + '] revising ' + blockers.length + ' blocker(s) and ' + nits.length + ' nit(s)')
+      const revision = await agent(revisionPrompt(g, round, blockers, nits, spiralNote), {
+        label: g.slug + ' revise r' + round,
+        phase: g.slug + ': revise',
+        schema: REVISION_RESULT,
+      })
+      entry.revision_notes = revision ? revision.notes : '(revision agent returned no report)'
+      entry.disputed = revision ? revision.disputed : []
+      entry.skipped = revision ? revision.skipped : []
+      prior = {
+        round: round,
+        blockers: blockers,
+        nits: nits,
+        revision_notes: entry.revision_notes,
+        disputed: entry.disputed,
+        skipped_nits: entry.skipped,
+      }
+
+      if (round < MAX_ROUNDS) {
+        continue
+      }
+
+      log(
+        '[' +
+          g.slug +
+          '] finalization review after last-round revise (' +
+          blockers.length +
+          ' blocker(s) were addressed)'
+      )
+      const fin = await reviewRound(g, round, prior)
+      const finSpiral = detectReviewSpiral(history, fin.blockers)
+      const finEntry = {
+        round: round,
+        finalization: true,
+        blockers: fin.blockers,
+        nits: fin.nits,
+      }
+      if (finSpiral) {
+        log('[' + g.slug + '] ' + finSpiral)
+        finEntry.spiral_warning = finSpiral
+      }
+      history.push(finEntry)
+
+      if (fin.blockers.length > 0) {
+        log(
+          '[' +
+            g.slug +
+            '] finalization salvage revise (' +
+            fin.blockers.length +
+            ' blocker(s)' +
+            (finSpiral ? '; spiral signal' : '') +
+            ')'
+        )
+        const salvage = await agent(
+          revisionPrompt(g, round, fin.blockers, fin.nits, finSpiral),
+          {
+            label: g.slug + ' revise finalization',
+            phase: g.slug + ': revise',
+            schema: REVISION_RESULT,
+          }
+        )
+        finEntry.revision_notes = salvage
+          ? salvage.notes
+          : '(revision agent returned no report)'
+        finEntry.disputed = salvage ? salvage.disputed : []
+        finEntry.skipped = salvage ? salvage.skipped : []
+        prior = {
+          round: round,
+          finalization: true,
+          blockers: fin.blockers,
+          nits: fin.nits,
+          revision_notes: finEntry.revision_notes,
+          disputed: finEntry.disputed,
+          skipped_nits: finEntry.skipped,
+          ...(finSpiral ? { spiral_warning: finSpiral } : {}),
+        }
+
+        log('[' + g.slug + '] finalization recheck after salvage revise')
+        const recheck = await reviewRound(g, round, prior)
+        const recheckEntry = {
+          round: round,
+          finalization_recheck: true,
+          blockers: recheck.blockers,
+          nits: recheck.nits,
+        }
+        history.push(recheckEntry)
+
+        if (recheck.blockers.length > 0) {
+          log(
+            '[' +
+              g.slug +
+              '] not converged: ' +
+              recheck.blockers.length +
+              ' blocker(s) after finalization recheck'
+          )
+          return {
+            slug: g.slug,
+            status: 'unconverged',
+            rounds: round,
+            unresolved: recheck.blockers,
+            nits: recheck.nits,
+            open_questions: openQuestions,
+            history: history,
+          }
+        }
+
+        blockers = recheck.blockers
+        nits = recheck.nits
+        entry = recheckEntry
+      } else {
+        blockers = fin.blockers
+        nits = fin.nits
+        entry = finEntry
+      }
+    }
+
+    {
       // Converged. Mechanical nits are applied by a polish pass, then a
       // single fidelity-only re-check guards the polished files; the
       // returned nits checklist holds only what a human still has to weigh.
@@ -387,39 +562,99 @@ async function draftOne(g) {
             entry.recheck = recheck
             const reblockers = recheck.findings.filter((f) => f.severity === 'blocker')
             if (reblockers.length > 0) {
-              log('[' + g.slug + '] polish broke fidelity: ' + reblockers.length + ' blocker(s)')
-              return { slug: g.slug, status: 'unconverged', rounds: round, unresolved: reblockers, nits: checklist, open_questions: openQuestions, history: history }
+              log(
+                '[' +
+                  g.slug +
+                  '] polish broke fidelity: ' +
+                  reblockers.length +
+                  ' blocker(s); running polish salvage revise'
+              )
+              const salvageNote =
+                'Polish fidelity salvage: restore any Dossier-required conditional gates or unforgiving recovery notes the polish pass removed. Do not re-apply concision cuts that drop those facts.'
+              const salvage = await agent(
+                revisionPrompt(g, round, reblockers, [], salvageNote),
+                {
+                  label: g.slug + ' polish salvage',
+                  phase: g.slug + ': revise',
+                  schema: REVISION_RESULT,
+                }
+              )
+              entry.polish_salvage_notes = salvage
+                ? salvage.notes
+                : '(polish salvage returned no report)'
+              entry.polish_salvage_disputed = salvage ? salvage.disputed : []
+              log('[' + g.slug + '] fidelity re-check after polish salvage')
+              const salvageRecheck = await agent(
+                reviewerPrompt(g, DIMENSIONS[0], round, {
+                  round: round,
+                  blockers: reblockers,
+                  revision_notes: entry.polish_salvage_notes,
+                  disputed: entry.polish_salvage_disputed,
+                }),
+                {
+                  label: g.slug + ' fidelity re-check salvage',
+                  phase: g.slug + ': review',
+                  schema: REVIEW,
+                }
+              )
+              if (!salvageRecheck) {
+                return {
+                  slug: g.slug,
+                  status: 'unconverged',
+                  rounds: round,
+                  unresolved: reblockers,
+                  nits: checklist.concat([
+                    '(polish salvage fidelity re-check returned no verdict)',
+                  ]),
+                  open_questions: openQuestions,
+                  history: history,
+                }
+              }
+              entry.recheck = salvageRecheck
+              const stillBroken = salvageRecheck.findings.filter(
+                (f) => f.severity === 'blocker'
+              )
+              if (stillBroken.length > 0) {
+                log(
+                  '[' +
+                    g.slug +
+                    '] polish salvage failed: ' +
+                    stillBroken.length +
+                    ' blocker(s) remain'
+                )
+                return {
+                  slug: g.slug,
+                  status: 'unconverged',
+                  rounds: round,
+                  unresolved: stillBroken,
+                  nits: checklist,
+                  open_questions: openQuestions,
+                  history: history,
+                }
+              }
+              checklist = checklist.concat(
+                salvageRecheck.findings.map(
+                  (f) =>
+                    '(' +
+                    f.target +
+                    ' ' +
+                    f.where +
+                    ') ' +
+                    f.problem +
+                    ' Suggestion: ' +
+                    f.suggestion
+                )
+              )
+            } else {
+              checklist = checklist.concat(
+                recheck.findings.map((f) => '(' + f.target + ' ' + f.where + ') ' + f.problem + ' Suggestion: ' + f.suggestion)
+              )
             }
-            checklist = checklist.concat(
-              recheck.findings.map((f) => '(' + f.target + ' ' + f.where + ') ' + f.problem + ' Suggestion: ' + f.suggestion)
-            )
           }
         }
       }
       log('[' + g.slug + '] converged after ' + round + ' round(s); ' + checklist.length + ' checklist item(s) remain')
       return { slug: g.slug, status: 'converged', rounds: round, nits: checklist, open_questions: openQuestions, history: history }
-    }
-    if (round === MAX_ROUNDS) {
-      log('[' + g.slug + '] not converged: ' + blockers.length + ' blocker(s) after ' + round + ' round(s)')
-      return { slug: g.slug, status: 'unconverged', rounds: round, unresolved: blockers, nits, open_questions: openQuestions, history: history }
-    }
-
-    log('[' + g.slug + '] revising ' + blockers.length + ' blocker(s) and ' + nits.length + ' nit(s)')
-    const revision = await agent(revisionPrompt(g, round, blockers, nits), {
-      label: g.slug + ' revise r' + round,
-      phase: g.slug + ': revise',
-      schema: REVISION_RESULT,
-    })
-    entry.revision_notes = revision ? revision.notes : '(revision agent returned no report)'
-    entry.disputed = revision ? revision.disputed : []
-    entry.skipped = revision ? revision.skipped : []
-    prior = {
-      round: round,
-      blockers: blockers,
-      nits: nits,
-      revision_notes: entry.revision_notes,
-      disputed: entry.disputed,
-      skipped_nits: entry.skipped,
     }
   }
 }
