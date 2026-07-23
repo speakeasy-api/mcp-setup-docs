@@ -1,0 +1,334 @@
+{
+  "slug": "google-big-query",
+  "provider": "google big query",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T17:52:00Z",
+  "started_at": "2026-07-23T17:52:00Z",
+  "finished_at": "2026-07-23T18:08:46Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#prerequisites",
+      "problem": "setup.md requires a Speakeasy account with access to the target project, but the Research Dossier does not record this prerequisite.",
+      "suggestion": "Record this prerequisite in research.md with Speakeasy product provenance.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#add-server-in-speakeasy",
+      "problem": "A server that existed before OAuth client creation does not satisfy the section's narrow \"added while creating\" condition, so the guide directs its reader to add a duplicate server.",
+      "suggestion": "Extend the Dossier's sequence condition and setup branch to send any reader with an existing server to that server's Overview instead of creating another one.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "#configure-oauth-consent (lines 112–137, before #create-oauth-client)",
+      "problem": "Production branding verification and sensitive/restricted scope verification are sequenced as the next External-app steps after the Testing block, so a literal IT admin can treat them as mandatory before creating the OAuth client even though a Testing-first connection can proceed without them.",
+      "suggestion": "Defer the publish, branding-verification, and Verification Center blocks until after #connect-speakeasy-credentials, or replace them with one Dossier-backed hedge (as in the Compute Engine guide) and state explicitly that External Testing readers skip them for the first connection.",
+      "dimension": "concision"
+    }
+  ],
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#create-oauth-client step 1 vs #copy-client-credentials recovery step 1",
+      "problem": "Navigation to **Clients** is phrased two different ways—\"In **Google Auth platform**, open **Clients**.\" versus \"Open **Google Auth platform** > **Clients**.\"—while other console section hops in the guide use the **Open X** > **Y** pattern.",
+      "suggestion": "Standardize both steps on \"Open **Google Auth platform** > **Clients**.\" to match the guide's other section-navigation steps.",
+      "dimension": "formatting"
+    },
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "#configure-oauth-consent, \"For an External app, complete production branding verification\"",
+      "problem": "The production-branding branch does not identify the exact controls or origins of the organization-specific logo, home-page, privacy-policy, and authorized-domain values.",
+      "suggestion": "Record this documentation limit as an open question and render a Dossier-backed hedge directing the reader to complete the required Branding fields with organization-approved values.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#create-oauth-client steps 8–11 vs #connect-speakeasy-credentials steps 1–3",
+      "problem": "The same Speakeasy navigation to open Attach Remote Identity Provider and set Client Type to Manual is written out in both sections.",
+      "suggestion": "In #create-oauth-client, cross-link to the opening steps of #connect-speakeasy-credentials and keep only the Redirect URI copy action there.",
+      "dimension": "concision"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#configure-oauth-consent: “Google sends follow-up requests to the support and developer-contact email addresses…”",
+      "problem": "Post-submission verification monitoring is ongoing provider-program administration, not an action needed to finish this guide’s setup path.",
+      "suggestion": "Remove the sentence or fold a single recovery hedge into the verification submit step without describing ongoing review status checks.",
+      "dimension": "concision"
+    }
+  ],
+  "open_questions": [
+    "Whether Google BigQuery currently appears in the Speakeasy MCP Catalog.",
+    "Exact Google Cloud console menu grouping for IAM navigation.",
+    "Whether the BigQuery scope requires sensitive or restricted-scope production verification.",
+    "Whether narrower dataset-level grants preserve all required MCP metadata-discovery behavior."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — Connect your credentials",
+          "problem": "The Dossier adds VS Code connection and user-session verification steps even though the canonical Speakeasy skeleton requires guides to stop after credentials.",
+          "suggestion": "Remove the VS Code and user-session flow from the Dossier, then remove its rendering from setup.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#add-server-in-speakeasy",
+          "problem": "The guide provides no URL or sign-in path for reaching the Speakeasy AI Control Plane.",
+          "suggestion": "Research and add the exact Control Plane URL, required project access, and sign-in transition before the sidebar steps.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#add-server-in-speakeasy",
+          "problem": "The reader must know whether Google BigQuery is in the catalog before the guide tells them to open and search the catalog.",
+          "suggestion": "Make the catalog search the first path, then direct the reader back through Sources > Add Source to Custom remote server when no result appears.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#grant-bigquery-mcp-roles steps 8–11",
+          "problem": "“Add BigQuery Job User” and “Add BigQuery Data Viewer” do not name the controls used to search for and select those roles.",
+          "suggestion": "Repeat the exact Select a role, search, and selection actions for each additional role.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#configure-oauth-consent steps 76–81",
+          "problem": "The guide does not explain how to locate and select the BigQuery scope when it is present in the Data Access table.",
+          "suggestion": "Research the table's exact search, checkbox, or selection controls and add those actions before Update and Save.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#copy-client-credentials recovery steps 156–169",
+          "problem": "After resetting a lost secret, the guide says to replace the old Control Plane value without explaining where to edit it or what to do when the identity provider has not yet been attached.",
+          "suggestion": "For initial setup, direct the reader to continue with the new secret at Connect your credentials; for an attached provider, give the exact Settings > Authentication > Remote Identity Providers > Edit path and save action.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites: “The sandbox uses free-tier limits and does not support DML.”",
+          "problem": "The unexplained abbreviation “DML” does not tell this persona how the sandbox affects their billing decision.",
+          "suggestion": "Replace it with plain language, such as “The sandbox uses free-tier limits and cannot run queries that change data.”",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent: “Complete the app name, logo, developer contact information, home page, privacy policy, and authorized-domain details that apply to your organization.”",
+          "problem": "This step combines several independently completed fields, contrary to the persona's one-action-per-step voice.",
+          "suggestion": "Separate the fields into individual steps or explicitly group them as one form-completion action, then put “Click Verify Branding” in its own step.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials: “In VS Code, the user opens the command palette with `Ctrl/Cmd + Shift + P`.”",
+          "problem": "The verification sequence shifts from second-person imperatives into third-person narration for the connecting user's actions.",
+          "suggestion": "Address the administrator imperatively throughout, for example, “Ask the connecting user to open the command palette with `Ctrl/Cmd + Shift + P`,” and apply that pattern to the remaining user actions.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials final verification paragraph",
+          "problem": "The guide does not state where the administrator can find User sessions after the user authorizes access.",
+          "suggestion": "Direct the administrator back to the server's Settings page and name the section containing User sessions.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#configure-oauth-consent} (line 92) and {#connect-speakeasy-credentials} (line 231)",
+          "problem": "The seven-day Testing re-authorization flow and the note that users need not be re-added under **Test users** appear in both sections.",
+          "suggestion": "Keep the full explanation in {#configure-oauth-consent} where **Testing** is configured; in {#connect-speakeasy-credentials}, replace the repeated paragraph with one sentence that points back to that section for the seven-day re-auth behavior.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites (line 16)",
+          "problem": "The sandbox DML limitation is billing context the reader does not need to enable the API, grant roles, or complete OAuth setup.",
+          "suggestion": "Shorten to one line that billing is optional for initial setup; drop the free-tier and DML detail or move it to the closing provider-docs pointer.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#enable-bigquery-api} step 3 and {#grant-bigquery-mcp-roles} step 2",
+          "problem": "Project-selection verification is stated twice in back-to-back provider steps.",
+          "suggestion": "Keep the check in {#enable-bigquery-api} step 1–3 and delete step 2 in {#grant-bigquery-mcp-roles}, or replace it with a cross-reference to the project already selected above.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#configure-oauth-consent} (lines 101–121)",
+          "problem": "Production branding and scope-verification blocks follow External-only **Testing** and **Publish app** paths but are not labeled for External audiences, so Internal-app readers wade through steps that do not apply.",
+          "suggestion": "Prefix \"Complete production branding verification\" and the sensitive/restricted scope block with \"For External apps\" (or an explicit skip note for **Internal** audience) so each branch stays at point of need.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Removed VS Code and User sessions flows; added Control Plane URL, sign-in, project selection, and catalog-first fallback; expanded IAM role and OAuth scope controls; clarified secret-reset paths; applied all eight nits; updated provenance and validated meta.yaml.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#add-server-in-speakeasy",
+          "problem": "The Dossier adds login and project-selection steps and rewrites the canonical conditional catalog branches into a mandatory catalog-first search.",
+          "suggestion": "Restore the Add-server skeleton verbatim from docs/speakeasy-setup.md and dispute any conflicting achievability request.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The Dossier extends the canonical flow beyond attaching credentials with success-toast and Remote Identity Providers details.",
+          "suggestion": "Remove the post-attachment details from the Dossier and setup.md so the guide stops where the canonical skeleton stops.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Transition from #copy-client-credentials to #add-server-in-speakeasy",
+          "problem": "After the reader already adds the server to obtain its Redirect URI, the guide directs them through the complete add-server flow again instead of returning to its Settings page as the Dossier requires.",
+          "suggestion": "Condition the add-server section on whether the server was created earlier, and direct existing-server readers to its Overview and Settings before connecting credentials.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#enable-bigquery-api step 1",
+          "problem": "The guide does not tell a first-time console user where to find the project selector.",
+          "suggestion": "Direct the reader to the project selector in the console toolbar and name the chooser transition used to select the project.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#configure-oauth-consent: “If the Google Auth platform was already configured”",
+          "problem": "A reader inheriting an existing configuration is not told how to determine whether its audience is Internal or External before following the audience-specific branches.",
+          "suggestion": "Research the exact Audience page status label and controls, then add a step that tells the reader how to identify the existing audience.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#create-oauth-client steps 5–7",
+          "problem": "After adding the server and returning to this section, the guide jumps to the server's Overview without directing the reader back to the Speakeasy AI Control Plane.",
+          "suggestion": "Explicitly direct the reader to return to the Speakeasy AI Control Plane and its server Overview before opening Settings.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "(pipeline)",
+          "problem": "The concision reviewer returned no verdict this round.",
+          "suggestion": "Treat as unreviewed; the next round retries this dimension.",
+          "dimension": "concision"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Restored the canonical add-server branches and removed noncanonical login/project-selection details. Removed all post-attachment UI details. Conditioned server creation to avoid duplication and route existing-server readers to Overview. Added the documented Google Cloud resource selector and Select a resource transition. Added Audience > User Type guidance for identifying Internal versus External configurations with provenance observed at 2026-07-23T17:52:00Z. Added explicit return to the Speakeasy AI Control Plane before reopening Overview and Settings. Concision remains for the next review round because no verdict was returned. Metadata validates against the schema with AJV strict mode disabled; lint and whitespace checks pass.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#prerequisites",
+          "problem": "setup.md requires a Speakeasy account with access to the target project, but the Research Dossier does not record this prerequisite.",
+          "suggestion": "Record this prerequisite in research.md with Speakeasy product provenance.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#add-server-in-speakeasy",
+          "problem": "A server that existed before OAuth client creation does not satisfy the section's narrow \"added while creating\" condition, so the guide directs its reader to add a duplicate server.",
+          "suggestion": "Extend the Dossier's sequence condition and setup branch to send any reader with an existing server to that server's Overview instead of creating another one.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-consent (lines 112–137, before #create-oauth-client)",
+          "problem": "Production branding verification and sensitive/restricted scope verification are sequenced as the next External-app steps after the Testing block, so a literal IT admin can treat them as mandatory before creating the OAuth client even though a Testing-first connection can proceed without them.",
+          "suggestion": "Defer the publish, branding-verification, and Verification Center blocks until after #connect-speakeasy-credentials, or replace them with one Dossier-backed hedge (as in the Compute Engine guide) and state explicitly that External Testing readers skip them for the first connection.",
+          "dimension": "concision"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-oauth-client step 1 vs #copy-client-credentials recovery step 1",
+          "problem": "Navigation to **Clients** is phrased two different ways—\"In **Google Auth platform**, open **Clients**.\" versus \"Open **Google Auth platform** > **Clients**.\"—while other console section hops in the guide use the **Open X** > **Y** pattern.",
+          "suggestion": "Standardize both steps on \"Open **Google Auth platform** > **Clients**.\" to match the guide's other section-navigation steps.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#configure-oauth-consent, \"For an External app, complete production branding verification\"",
+          "problem": "The production-branding branch does not identify the exact controls or origins of the organization-specific logo, home-page, privacy-policy, and authorized-domain values.",
+          "suggestion": "Record this documentation limit as an open question and render a Dossier-backed hedge directing the reader to complete the required Branding fields with organization-approved values.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-oauth-client steps 8–11 vs #connect-speakeasy-credentials steps 1–3",
+          "problem": "The same Speakeasy navigation to open Attach Remote Identity Provider and set Client Type to Manual is written out in both sections.",
+          "suggestion": "In #create-oauth-client, cross-link to the opening steps of #connect-speakeasy-credentials and keep only the Redirect URI copy action there.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent: “Google sends follow-up requests to the support and developer-contact email addresses…”",
+          "problem": "Post-submission verification monitoring is ongoing provider-program administration, not an action needed to finish this guide’s setup path.",
+          "suggestion": "Remove the sentence or fold a single recovery hedge into the verification submit step without describing ongoing review status checks.",
+          "dimension": "concision"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER is draft-equivalent to BEFORE. Only researched_at and observed_at timestamps changed; all anchors, credentials, remotes, transport, prerequisites, setup facts, and provenance-backed claims are unchanged."
+  }
+}

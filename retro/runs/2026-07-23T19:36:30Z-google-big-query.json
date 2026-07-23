@@ -1,0 +1,200 @@
+{
+  "slug": "google-big-query",
+  "provider": "google big query",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T19:36:30Z",
+  "started_at": "2026-07-23T19:36:30Z",
+  "finished_at": "2026-07-23T19:50:08Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "Whether Google BigQuery currently appears in the Speakeasy MCP Catalog.",
+    "Exact Google Cloud console menu grouping for IAM and Google Auth platform pages.",
+    "Whether the BigQuery scope requires sensitive- or restricted-scope production verification.",
+    "Whether narrower dataset-level grants preserve all MCP metadata-discovery operations."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Frontmatter and Provenance",
+          "problem": "The dossier records 2026-07-23T19:12:45Z instead of this run's required 2026-07-23T19:36:30Z timestamp.",
+          "suggestion": "Refresh the research for this run and replace the researched_at and provenance observation timestamps with 2026-07-23T19:36:30Z.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "All observed_at fields",
+          "problem": "Metadata provenance records 2026-07-23T19:12:45Z instead of this run's required 2026-07-23T19:36:30Z timestamp.",
+          "suggestion": "Update every provenance observed_at value to 2026-07-23T19:36:30Z after refreshing the corresponding observations.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Configure the OAuth consent screen — production verification",
+          "problem": "The guide tells the administrator to enter domains in Authorized domains but omits the dossier's requirement to obtain the organization's approved domains from the application owner or cloud security owner.",
+          "suggestion": "Add approved authorized domains to the materials obtained before verification and instruct the administrator to enter those approved values.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “Enter the domains in **Authorized domains**.”",
+          "problem": "The reader is told to enter organization-specific domains without being told where to obtain the approved values.",
+          "suggestion": "Add the authorized domains to the existing obtain-from-owner sentence before the verification steps.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-consent",
+          "problem": "A newly configured External app reaches publishing-status branches without being told to open Audience and determine whether its status is Testing or In production.",
+          "suggestion": "After both the first-time wizard and existing-configuration paths, direct the reader to open Audience and note User Type and publishing status before branching.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "grant-bigquery-mcp-roles",
+          "problem": "The guide omits the dossier's warning that organizations requiring narrower data access should have their cloud security owner review dataset-level grants and discovery permissions.",
+          "suggestion": "Add the escalation note after the project-level role grants.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#add-server-in-speakeasy — catalog and custom-server branches (lines 208–220)",
+          "problem": "The catalog and custom-server paths use separate numbered sub-lists instead of the opening sentence plus conditional bullet structure in `docs/speakeasy-setup.md` and `guides/google-compute-engine/setup.md`.",
+          "suggestion": "After steps 1–2, render the two paths as conditional bullet items under one opening sentence, matching the canonical Speakeasy skeleton.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — \"Complete branding verification:\" steps 2–6 (lines 121–125)",
+          "problem": "Branding field instructions omit bold on console labels such as **App name** that are already bolded verbatim earlier in the same section.",
+          "suggestion": "Bold the exact field labels in steps 2–6 (**App name**, developer contact information, home-page URL, privacy-policy URL) to match step 65 and the persona formatting rule.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “Enter the domains in Authorized domains.”",
+          "problem": "The guide does not identify where the required authorized-domain values come from.",
+          "suggestion": "Add the organization's approved authorized domains to the materials the reader obtains from the application or cloud security owner.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#configure-oauth-consent — “Need to re-verify”",
+          "problem": "The Dossier records the expired branding status but no recovery action for a reader who misses the seven-day publishing window.",
+          "suggestion": "Research the current re-verification control and add its recovery path, or record an open question and provide a documented escalation hedge.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-oauth-client steps 2–5 and #connect-speakeasy-credentials steps 1–3",
+          "problem": "The **Overview** → **Settings** → **Configure Manually** / **Use Discovered** → **Client Type: Manual** sequence for the same **Attach Remote Identity Provider** panel is repeated verbatim.",
+          "suggestion": "Keep the full sequence in #create-oauth-client; in #connect-speakeasy-credentials replace steps 1–3 with one line to repeat steps 2–5 from [Create the OAuth client](#create-oauth-client) if **Attach Remote Identity Provider** is not already open, matching the cross-reference pattern in `guides/google-compute-engine/setup.md`.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#copy-client-credentials steps 5–7",
+          "problem": "Steps 5–7 navigate back to **Overview** and **Settings** immediately before a continue link to #connect-speakeasy-credentials, which opens **Settings** from **Overview** again.",
+          "suggestion": "End the copy list at step 4 and replace steps 5–7 with only \"Continue at [Connect your credentials](#connect-speakeasy-credentials).\"",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — \"Before completing verification, obtain the approved logo…\" (lines 116–117)",
+          "problem": "The pre-verification paragraph enumerates branding and verification inputs that the numbered steps immediately below ask the reader to enter.",
+          "suggestion": "Shorten lines 116–117 to a single obtain-from-owner hedge (for example, \"Obtain the approved branding and verification materials from the application owner or cloud security owner before the steps below\") and keep field names only in the numbered steps.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — line 117 versus scope-verification step 9 (line 141)",
+          "problem": "The requirement to explain why a narrower scope is insufficient appears in the pre-verification collection paragraph and again in the **Scope Justification** step.",
+          "suggestion": "Remove the narrower-scope sentence from line 117; keep that instruction only at scope-verification step 9.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — branding verification step 4 (line 123)",
+          "problem": "Step 4 restates the section-level obtain-from-owner hedge for the contact address already given at line 58 and again in the pre-verification paragraph.",
+          "suggestion": "Change step 4 to \"Enter the approved contact address in the developer contact information\" without repeating application owner or monitored qualifiers.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Updated research and all provenance timestamps to 2026-07-23T19:36:30Z. Added approved-domain sourcing, Audience status checks after both configuration paths, narrower-access escalation, branding-label formatting, re-verification recovery, canonical catalog/custom bullets, and credential-flow concision fixes. Preserved all anchors. Metadata validates against the schema; no lint errors found.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#add-server-in-speakeasy — lines 208–214",
+          "problem": "The section still opens with numbered steps 1–2 and a \"Choose the matching path:\" lead-in instead of the canonical Speakeasy skeleton's single opening sentence followed by conditional catalog/custom bullets.",
+          "suggestion": "Replace lines 208–211 with one sentence — \"In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.\" — then render the two paths as `- If Google BigQuery is in the catalog:` / `- If it is not:` bullets matching `docs/speakeasy-setup.md` and `guides/google-compute-engine/setup.md`.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#configure-oauth-consent — scope verification steps 7 and 10",
+          "problem": "The guide does not name the exact fields or controls for submitting feature-documentation links and the YouTube demonstration.",
+          "suggestion": "Research the current Verification Center field labels and add them to the Dossier and Setup Guide, or record the missing labels as an open question with a documented escalation hedge.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — \"Before completing verification, obtain the organization's approved authorized domains…\" (line 120)",
+          "problem": "The pre-verification obtain hedge still names authorized domains even though branding verification step 7 gives the same field label and action.",
+          "suggestion": "Shorten line 120 to a single obtain-from-owner hedge without field names (for example, \"Obtain the approved branding and verification materials from the application owner or cloud security owner before the steps below\") and leave authorized domains only in step 7.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — branding verification steps 3–7 (lines 126–130)",
+          "problem": "Each branding step repeats \"approved\" after line 120 already tells the reader to obtain approved materials from the owner.",
+          "suggestion": "Drop the repeated \"approved\" prefix in steps 3–7 (for example, \"Add the logo in **App logo**\", \"Enter the contact address in **Developer contact information**\") and rely on the line 120 hedge for value sourcing.",
+          "dimension": "concision"
+        }
+      ],
+      "polish_notes": "Nit 1 (#add-server-in-speakeasy): Replaced numbered steps 1–2 and the \"Choose the matching path:\" lead-in with the canonical single opening sentence plus If/If-not catalog/custom bullets aligned to docs/speakeasy-setup.md and google-compute-engine. Nit 2 (#configure-oauth-consent scope verification steps 7 and 10): Recorded **YouTube link** in setup.md and research.md from Google’s sensitive-scope verification guide; added an open question and step-7 escalation hedge for documentation-link field labels because public docs specify up to three links but not the exact console label(s). Nit 3 (pre-verification obtain hedge, line 120): Shortened to one obtain-from-owner sentence without naming authorized domains or other field labels. Nit 4 (branding verification steps 3–7): Removed repeated \"approved\" prefixes from logo, contact, home page, privacy policy, and domains steps; mirrored the same concision in research.md.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": []
+      }
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER differs only in researched_at and observed_at timestamps. All draft-relevant facts, anchors, credential flows, remotes, transport, prerequisites, Speakeasy setup, and provenance claims are unchanged."
+  }
+}

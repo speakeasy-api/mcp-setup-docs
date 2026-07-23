@@ -1,0 +1,259 @@
+{
+  "slug": "google-big-query",
+  "provider": "google big query",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T19:12:45Z",
+  "started_at": "2026-07-23T19:12:45Z",
+  "finished_at": "2026-07-23T19:27:20Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "#configure-oauth-consent, Testing expiry paragraph",
+      "problem": "The Setup Guide omits the Dossier's recovery procedure for authorization expiry after seven days in Testing.",
+      "suggestion": "State that the user remains listed under Test users and must reconnect and complete Google's browser authorization flow again."
+    }
+  ],
+  "nits": [],
+  "open_questions": [
+    "Speakeasy MCP Catalog presence requires in-product verification.",
+    "Exact Google Cloud console menu grouping requires capture-time verification.",
+    "Google does not publicly classify the BigQuery scope for production verification.",
+    "Least-privilege dataset-level grants preserving all MCP discovery behavior are unspecified."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "After {#copy-client-credentials}",
+          "problem": "The guide omits the documented transition back to the server's Overview page in the Speakeasy AI Control Plane before opening Settings.",
+          "suggestion": "Tell the reader to return to the Speakeasy AI Control Plane, open the server's Overview page, and then continue to Connect your credentials.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "{#configure-oauth-consent} — \"Before completing verification\"",
+          "problem": "The materials checklist omits the approved explanation of why a narrower scope is insufficient, although the later verification steps require the administrator to provide it.",
+          "suggestion": "Add the approved narrower-scope explanation to the materials the application owner or cloud security owner must supply.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Frontmatter and Provenance",
+          "problem": "The Research Dossier records 2026-07-23T18:50:25Z instead of this run's supplied provenance timestamp 2026-07-23T19:12:45Z.",
+          "suggestion": "Re-observe the sources for this run and record 2026-07-23T19:12:45Z in researched_at and the applicable provenance entries.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "remotes[].provenance and top-level provenance",
+          "problem": "Every Metadata provenance record uses 2026-07-23T18:50:25Z instead of this run's supplied timestamp 2026-07-23T19:12:45Z.",
+          "suggestion": "Update provenance records for sources observed this run to 2026-07-23T19:12:45Z.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-consent — \"For an External app, check the publishing status:\" (line 99)",
+          "problem": "A single-action check uses a one-item numbered list, which the it-admin persona forbids.",
+          "suggestion": "Replace the list with one imperative sentence: \"Open **Audience** and note whether publishing status is **Testing** or **In production**.\".",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#create-oauth-client — steps 3–4 and 12–13 (lines 155–171)",
+          "problem": "Prose and a warning blockquote interrupt one numbered step group, breaking the persona rule that prose appears only between step groups.",
+          "suggestion": "End the list after step 3 (or fold the **Use Discovered** branch into step 3), restart numbering for the Google console steps, and move the secret warning into step 12’s text or a new one-step list before **Create**.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials — steps 2–3 (lines 234–238)",
+          "problem": "The **Use Discovered** conditional sits as prose inside a single numbered credential-attachment sequence instead of between step groups.",
+          "suggestion": "Merge the branch into step 2 (e.g., \"Click **Configure Manually**; if **Use Discovered** is offered, click it instead.\") so steps 1–7 stay one continuous list.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#copy-client-credentials — secret-recovery steps 2–3 (lines 189–193)",
+          "problem": "A warning blockquote interrupts the recovery numbered list mid-sequence.",
+          "suggestion": "End the list after step 2, place the warning as prose, then start a new numbered list at 1 for **Reset secret** through storing the new secret.",
+          "dimension": "formatting"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “Before completing verification, obtain the organization's authorized domains, logo, home-page URL, and privacy-policy URL from the application owner or cloud security owner.”",
+          "problem": "This section repeats an obtain-from-owner hedge already given before the consent-screen steps.",
+          "suggestion": "Keep the first owner hedge and shorten this sentence to direct the reader to collect the organization’s approved verification materials without repeating the owner list.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — \"Complete branding verification:\" steps 2–7 (lines 123–127)",
+          "problem": "Branding field instructions omit bold on console labels such as **App name** already used verbatim earlier in the same section.",
+          "suggestion": "Bold the exact field labels in steps 2–7 (**App name**, developer contact information, home-page URL, privacy-policy URL) to match step 65 and the persona formatting rule.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — Testing branch",
+          "problem": "The Testing branch does not direct readers who skip production verification to the next setup step.",
+          "suggestion": "After the Testing-expiry note, tell readers to continue at Create the OAuth client unless they need persistent authorization.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-oauth-client steps 2–4 and #connect-speakeasy-credentials steps 1–3",
+          "problem": "The **Settings** → **Configure Manually** / **Use Discovered** → **Client Type: Manual** sequence is duplicated verbatim for the same **Attach Remote Identity Provider** panel.",
+          "suggestion": "Keep the full sequence in #create-oauth-client; in #connect-speakeasy-credentials replace steps 1–3 with one line to repeat steps 2–4 from [Create the OAuth client](#create-oauth-client) if **Attach Remote Identity Provider** is not already open.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “For an External app, check the publishing status:” and step 1 at lines 97–99",
+          "problem": "The prose intro and the sole numbered step both instruct the reader to open **Audience** and note the publishing status.",
+          "suggestion": "Replace the heading and list with one sentence: “For an External app, open **Audience** and note whether publishing status is **Testing** or **In production**.”",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — line 118 versus steps 120–128 and 141–144",
+          "problem": "The owner-materials paragraph enumerates the same branding and verification inputs that the numbered steps immediately ask the reader to enter.",
+          "suggestion": "Shorten line 118 to a single obtain-from-owner hedge (“Obtain the branding and verification materials from the application owner or cloud security owner before the steps below”) and drop the repeated field list; keep field names only in the numbered steps.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Updated all Research Dossier and Metadata provenance timestamps to 2026-07-23T19:12:45Z. Added the missing Speakeasy Overview-to-Settings transition and narrower-scope explanation. Fixed interrupted and one-item lists, consolidated repeated credential-panel steps, bolded branding labels, added the Testing-path handoff, and shortened duplicated verification-material prose. Preserved all anchors. Metadata validates against the schema with ajv-formats; no lint errors found.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-consent — External app scope steps 4–6",
+          "problem": "The guide unconditionally tells the reader to find and select the BigQuery scope row before handling the documented case where that row is absent.",
+          "suggestion": "Make selection conditional: if the row appears, select it; otherwise enter the scope under **Manually add scopes**.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "(pipeline)",
+          "problem": "The concision reviewer returned no verdict this round.",
+          "suggestion": "Treat as unreviewed; the next round retries this dimension.",
+          "dimension": "concision"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “Internal apps do not list scopes on the consent screen.”",
+          "problem": "The Internal-app branch does not tell the reader to skip the remaining External-only steps or where to continue.",
+          "suggestion": "Tell Internal-app readers to continue at Create the OAuth client.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Fidelity: made BigQuery scope selection conditional, with manual entry as the fallback. Achievability: directed Internal-app readers to skip External-only steps and continue at Create the OAuth client. Concision: no file change; the dimension remains unreviewed for the next-round retry.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#add-server-in-speakeasy",
+          "problem": "The catalog and custom-server branches still use separate numbered sub-lists instead of the opening sentence plus conditional bullet structure in the Dossier and `docs/speakeasy-setup.md`.",
+          "suggestion": "Render one opening sentence (select **Sources**, then click **Add Source**), then the catalog versus custom-server paths as conditional bullet items, matching `guides/google-compute-engine/setup.md`.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-oauth-client, step 3",
+          "problem": "Step 3 combines two mutually exclusive click targets (**Configure Manually** and **Use Discovered**) in one numbered step.",
+          "suggestion": "Keep **Configure Manually** as the primary numbered step and handle **Use Discovered** in a separate conditional step or prose between steps, matching the Internal versus External branch pattern.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — prep before verification (line 115) and scope-verification step 9 (line 140)",
+          "problem": "The requirement to explain why a narrower scope is insufficient is stated in the pre-verification collection paragraph and again in the Scope Justification step.",
+          "suggestion": "Keep the instruction at step 9 in the scope-verification list; shorten line 115 to collecting branding and verification materials without repeating the narrower-scope justification.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “Before you start, obtain an approved, monitored contact address…” and wizard step 8",
+          "problem": "The same owner-supplied contact-address hedge appears in the section opener and again on the Contact Information step in the first-time wizard.",
+          "suggestion": "Keep the section-level hedge at line 58; in step 8, enter only the **Email address** without restating approved, monitored, or application owner.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — already-configured path: “Open **Audience**” (line 80) and “For an External app, open **Audience**” (line 96)",
+          "problem": "Readers on the already-configured External branch are sent to **Audience** twice—once to note **User Type** and again later for publishing status.",
+          "suggestion": "On the first **Audience** visit, have them note **User Type** and publishing status together, then branch to scope or test-user steps without a second navigation sentence.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — Testing branch paragraph (line 104)",
+          "problem": "The seven-day re-authorization recovery sentence is post-setup maintenance detail not needed to finish the initial credential path when the reader is told to continue at Create the OAuth client.",
+          "suggestion": "Keep the 100-user cap, seven-day expiry, and the continue link; drop the re-authorization recovery sentence or replace it with a cross-link if recovery must stay in the guide.",
+          "dimension": "concision"
+        }
+      ],
+      "polish_notes": "Finding 1 (#add-server-in-speakeasy): Replaced separate numbered catalog and custom-server sub-lists with one opening sentence plus conditional bullets, matching docs/speakeasy-setup.md and guides/google-compute-engine/setup.md. Finding 2 (#create-oauth-client, step 3): Split **Configure Manually** and **Use Discovered** into steps 3 and 4; renumbered through Copy Redirect URI; updated connect-speakeasy-credentials to repeat steps 3–5. Finding 3 (#configure-oauth-consent, pre-verification): Shortened the collection paragraph to branding and verification materials only; kept narrower-scope justification at scope-verification step 9. Finding 4 (#configure-oauth-consent, contact address): Wizard step 8 now enters **Email address** only; section-level hedge at line 58 unchanged. Finding 5 (#configure-oauth-consent, already-configured External): First **Audience** visit notes **User Type** and publishing status together; removed the second open-**Audience** sentence; added Return to **Audience** before test-user steps after **Data Access**. Finding 6 (#configure-oauth-consent, Testing paragraph): Removed the re-authorization recovery sentence; kept the 100-user cap, seven-day expiry, and continue link.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": false,
+        "findings": [
+          {
+            "severity": "blocker",
+            "target": "setup",
+            "where": "#configure-oauth-consent, Testing expiry paragraph",
+            "problem": "The Setup Guide omits the Dossier's recovery procedure for authorization expiry after seven days in Testing.",
+            "suggestion": "State that the user remains listed under Test users and must reconnect and complete Google's browser authorization flow again."
+          }
+        ]
+      }
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER is draft-equivalent to BEFORE. Only researched_at and observed_at provenance timestamps changed; all anchors, credential flows, remotes, transport, prerequisites, Speakeasy setup facts, and provenance-backed claims are unchanged."
+  }
+}

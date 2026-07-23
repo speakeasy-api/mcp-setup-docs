@@ -1,0 +1,522 @@
+{
+  "slug": "google-big-query",
+  "provider": "google big query",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T17:16:10Z",
+  "started_at": "2026-07-23T17:16:10Z",
+  "finished_at": "2026-07-23T17:37:31Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "Prerequisites",
+      "problem": "The prerequisites omit the required ability to configure the Google Auth platform and create OAuth credentials.",
+      "suggestion": "Add this required administrator capability to the prerequisites.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#connect-speakeasy-credentials",
+      "problem": "The transcluded flow omits the canonical fact that the Redirect URI has a copy button.",
+      "suggestion": "Record the copy button from docs/speakeasy-setup.md and render its use in setup.md.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "#grant-bigquery-mcp-roles",
+      "problem": "The Setup Guide drops the Dossier's recovery instruction that role assignments can be edited from the same IAM page.",
+      "suggestion": "Add a recovery note directing administrators back to IAM to edit incorrect role assignments.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "#copy-client-credentials",
+      "problem": "After copying the credentials, the guide omits the Dossier's transition back to the server Settings and instead leads into an add-server section the reader already completed.",
+      "suggestion": "Direct the reader to skip the completed add-server section and continue at Connect your credentials.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "#copy-client-credentials — secret reset recovery",
+      "problem": "The reset-secret recovery omits replacing the old Speakeasy value and warning that active users must authorize again.",
+      "suggestion": "Tell the administrator to update Client Secret (optional) with the new secret and tell affected users to authorize again on their next connection.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "#add-server-in-speakeasy",
+      "problem": "A reader who added the server from step 5 of Create the OAuth client is instructed to add it again when reaching this section.",
+      "suggestion": "Begin this section by telling readers who already added the server to skip to Connect your credentials.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#connect-speakeasy-credentials — end-user authorization",
+      "problem": "The guide identifies how to launch Google authorization but does not document the browser screens or controls needed to complete it.",
+      "suggestion": "Research and document the conditional Google account-selection, unverified-app, consent, and completion screens with their exact controls, then render them in setup.md.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#configure-oauth-consent — Add or Remove Scopes",
+      "problem": "The instruction to add the BigQuery scope does not identify how to locate and select it in the scope dialog.",
+      "suggestion": "Document the exact search or filter field, selection control, and resulting selected-scope state, including the manual-entry branch.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#configure-oauth-consent — production verification",
+      "problem": "The claimed complete production path still leaves readers to determine applicable branding fields and navigate unnamed controls for documentation, justification, and demonstration-video submission.",
+      "suggestion": "Research every required and conditional field, its value source, intervening control, domain-verification branch, and final status for branding and scope verification, then render those steps in setup.md.",
+      "dimension": "achievability"
+    }
+  ],
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#connect-speakeasy-credentials, steps 3–11",
+      "problem": "“In VS Code, the user opens the command palette with `Ctrl/Cmd + Shift + P`.” shifts from second-person imperatives into third-person narration throughout the end-user sequence.",
+      "suggestion": "Introduce the sequence with “Have the connecting user follow these steps,” then use direct imperatives such as “Open the command palette.”",
+      "dimension": "voice"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#configure-oauth-consent, production branding steps 3–5",
+      "problem": "“Within seven days, click **Publish branding**. After seven days, an unpublished result changes to **Need to re-verify**.” places the expiry warning after the reader starts branding verification.",
+      "suggestion": "Before **Verify Branding**, warn that a successful result must be published within seven days or verified again.",
+      "dimension": "voice"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#create-oauth-client, step 1 vs #copy-client-credentials recovery, step 1",
+      "problem": "Navigation to **Clients** is phrased two different ways in the same guide—\"In **Google Auth platform**, open **Clients**.\" versus \"Open **Google Auth platform** > **Clients**.\"—while other console section hops use the **Open X** > **Y** pattern (for example **Branding** at line 53).",
+      "suggestion": "Standardize both steps on \"Open **Google Auth platform** > **Clients**.\" to match the guide's other section-navigation steps.",
+      "dimension": "formatting"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#configure-oauth-consent — Testing paragraph (line 90) and #connect-speakeasy-credentials — closing paragraph (line 211)",
+      "problem": "The seven-day Testing reauthorization path and the rule that users do not need to be re-added under **Test users** appear in both sections.",
+      "suggestion": "Keep the 100-user cap in #configure-oauth-consent and cross-link to #connect-speakeasy-credentials for reauthorization; drop the repeated seven-day and re-add sentences from line 90 and keep the detailed recovery only in line 211.",
+      "dimension": "concision"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#enable-bigquery-api step 3 and #grant-bigquery-mcp-roles step 2",
+      "problem": "Both consecutive sections instruct the reader to confirm the same project selection immediately after step 1 already selects that project.",
+      "suggestion": "Keep the project-selection check in #enable-bigquery-api step 3 and delete step 2 from #grant-bigquery-mcp-roles.",
+      "dimension": "concision"
+    },
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "#configure-oauth-consent — \"On **Data Access**, Google lists each added scope as non-sensitive, sensitive, or restricted.\"",
+      "problem": "This sentence narrates how Google classifies scopes without giving the reader an action beyond the conditional block that follows.",
+      "suggestion": "Start the conditional block at \"If **Data Access** lists the BigQuery scope as sensitive or restricted:\" and delete the lead-in sentence.",
+      "dimension": "concision"
+    }
+  ],
+  "open_questions": [
+    "Speakeasy catalog presence",
+    "Exact console menu grouping",
+    "BigQuery scope verification classification",
+    "Client-secret recovery control location",
+    "Support for narrower dataset-level grants"
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "add-server-in-speakeasy",
+          "problem": "The Dossier replaces the canonical **Add to Project** dialog transition and button click with “confirm **Add to Project**.”",
+          "suggestion": "Transclude “In the **Add to Project** dialog, click **Add to Project**,” then render that transition verbatim in setup.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup closing pointer",
+          "problem": "The Dossier omits the canonical closing sentence, causing setup.md to use unsupported replacement prose.",
+          "suggestion": "Record the canonical closing sentence with the BigQuery documentation URL, then render it as setup.md's final line.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "add-server-in-speakeasy — “Either path opens **Overview**. The **Transport** field is read-only.”",
+          "problem": "The Setup Guide places the read-only **Transport** field after opening **Overview**, while the Dossier says that field belongs to the add form.",
+          "suggestion": "Move the transport statement into the custom remote server form steps before **Add server**.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Final line after {#connect-speakeasy-credentials}",
+          "problem": "The closing pointer uses a shortened \"For provider details, see …\" markdown link instead of the canonical Speakeasy closing sentence from docs/speakeasy-setup.md.",
+          "suggestion": "Replace the final line with: \"This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see Google's BigQuery MCP documentation at https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp.\"",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-client-credentials",
+          "problem": "The recovery path for a lost one-time client secret does not identify the navigation path or controls used to delete and recreate the secret.",
+          "suggestion": "Research the exact client-detail navigation and control labels, then add complete recovery steps before the reader leaves this section.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#configure-oauth-consent",
+          "problem": "The guide says Testing authorizations expire after seven days but does not tell the reader how to recover after expiration.",
+          "suggestion": "Research whether users must reconnect, reauthorize, or be re-added, and document the exact recovery flow and durable production alternative.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The instruction to configure the scope does not identify the exact Speakeasy field or control where the scope must be entered.",
+          "suggestion": "Research the scope-entry UI and document its exact label, required interaction, and value.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The guide does not state what appears after clicking Attach Identity Provider or where connecting users initiate Google authorization.",
+          "suggestion": "Research the post-attachment success state and user authorization entry point, then add the exact transition and verification steps.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "“The sandbox does not support DML, so it cannot support every operation available through the write-capable SQL tool.”",
+          "problem": "This introduces unexplained terminology that the persona does not need to complete setup.",
+          "suggestion": "Replace the paragraph with “Billing is not required for initial setup” and leave runtime limitations to the provider documentation.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "“`serviceusage.services.enable`, normally through **Service Usage Admin** or **Owner**, if the BigQuery API is not already enabled.”",
+          "problem": "The raw permission identifier assumes IAM vocabulary that this persona does not know.",
+          "suggestion": "State only that enabling the API requires **Service Usage Admin** or **Owner** access.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "“Use the project selector in the toolbar to select the project that will own the OAuth client.”",
+          "problem": "The phrase “own the OAuth client” assumes OAuth vocabulary before the reader has actionable context.",
+          "suggestion": "Say “Select the Google Cloud project you are configuring.”",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "“Choose a **User support email**.” and “Under **Contact Information**, enter an **Email address**.”",
+          "problem": "These instructions require email-address choices without explaining whose addresses the reader should select.",
+          "suggestion": "Add a short gloss identifying the appropriate monitored account or group for each field.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#add-server-in-speakeasy}",
+          "problem": "The catalog and remote URL branches use separate numbered sub-lists under \"To add the catalog entry:\" / \"To add the remote URL:\" instead of the canonical conditional bullet structure from docs/speakeasy-setup.md.",
+          "suggestion": "Render both branches as conditional bullet items (as in guides/google-compute-engine/setup.md): \"If Google BigQuery is in the catalog: …\" / \"If it is not: …\", keeping the opening navigation as a single prose sentence.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites",
+          "problem": "The billing, sandbox, DML, and write-capable SQL tool paragraph does not change any setup step the reader must perform to connect credentials.",
+          "suggestion": "Remove the sandbox/DML/write-tool sentence; keep only prerequisites that gate whether the reader can complete the walkthrough.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "### Enable the BigQuery API {#enable-bigquery-api}",
+          "problem": "The closing sentence that enabling the API also exposes the remote MCP server restates mechanism the reader cannot act on separately from clicking Enable.",
+          "suggestion": "Delete \"Enabling the BigQuery API also makes the remote MCP server available.\"",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "### Grant the BigQuery MCP roles {#grant-bigquery-mcp-roles}",
+          "problem": "The post-step paragraphs explain role outcomes and send readers to a cloud-security review for dataset-level grants, which this guide does not walk through.",
+          "suggestion": "Drop lines 52–55; the numbered steps and the cross-link from Connect your credentials are enough.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "### Connect your credentials {#connect-speakeasy-credentials}",
+          "problem": "The Testing/test-user requirement is stated again inline even though Configure the OAuth consent screen already covers adding test users and the seven-day expiry.",
+          "suggestion": "Replace the second sentence with a cross-link, e.g. \"If an External app remains in Testing, follow [Configure the OAuth consent screen](#configure-oauth-consent).\"",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "### Connect your credentials {#connect-speakeasy-credentials}",
+          "problem": "Noting that the Transport field is read-only is product UI detail the reader cannot change and does not need to finish attaching credentials.",
+          "suggestion": "Remove \"The Transport field is read-only.\" from the sentence that both paths open Overview.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "### Copy the client credentials {#copy-client-credentials}",
+          "problem": "Step 4 and the follow-on sentence both tell the reader to keep the copied values ready for the Speakeasy AI Control Plane.",
+          "suggestion": "Keep step 4 and delete \"Keep both values ready for the Speakeasy AI Control Plane.\"",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Updated research and setup with canonical Add to Project and closing text; moved Transport to the custom form; documented Reset secret recovery, Testing reauthorization, Scope (override), attachment success, and user authorization verification. Applied all nits for voice, concision, email guidance, and canonical branch formatting. Added provenance and validated meta.yaml.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#create-oauth-client, step 5",
+          "problem": "The guide sends the reader to add the server but never tells them to return to this section and resume at step 6.",
+          "suggestion": "Tell the reader to complete only Add the server in Speakeasy, then return to Create the OAuth client and continue with step 6.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials, step 1 under “Then”",
+          "problem": "The instruction to paste the Client ID does not name the destination field.",
+          "suggestion": "Say to paste the copied value into **Client ID**.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "“Connecting to this server from their MCP client” still does not identify the screen or control where users initiate Google authorization or reauthorization.",
+          "suggestion": "Research and document the exact supported user connection entry point and controls, then render those steps in setup.md.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#configure-oauth-consent — production alternative",
+          "problem": "The durable alternative stops at **Publish app** and tells the reader to complete verification if required without documenting the subsequent dialogs, status, or verification path.",
+          "suggestion": "Research the complete publishing transition and conditional verification flow, including exact controls and resulting status, then add it to the guide.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites — \"Billing is not required for initial setup.\"",
+          "problem": "This line does not gate any setup step the reader must perform to attach credentials.",
+          "suggestion": "Remove it; billing and runtime limits belong in the closing provider-docs pointer.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites — lines 12–14",
+          "problem": "The general administrator bullet restates the same enable-API and grant-roles requirements already named in the **Service Usage Admin**/**Owner** and **Project IAM Admin** bullets.",
+          "suggestion": "Keep the project, role-gate, and connecting-user email bullets; drop the middle administrator capability bullet or fold it into one tighter prerequisites list.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "### Copy the client credentials {#copy-client-credentials} — \"The **Client secret** can be copied only once.\"",
+          "problem": "The one-time-copy rule is already warned in [Create the OAuth client](#create-oauth-client) immediately before **Create**.",
+          "suggestion": "Start the recovery block with \"If you lose it:\" and delete the lead-in sentence.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "### Configure the OAuth consent screen {#configure-oauth-consent} — Testing paragraph ending with **Publish app** / verification",
+          "problem": "The production-publish and verification path describes steps this guide does not walk through.",
+          "suggestion": "Keep the seven-day reauthorization recovery; drop the **Publish app** / verification sentence and leave durable production setup to the closing provider-docs pointer.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "### Connect your credentials {#connect-speakeasy-credentials} — \"Before a user connects, **User sessions** shows **No active sessions**.\"",
+          "problem": "The empty-sessions state is product UI detail the administrator cannot change and is not required to finish attaching credentials.",
+          "suggestion": "End post-attachment verification after confirming the provider appears in **Remote Identity Providers**; keep user-session verification only in the paragraph that covers end-user authorization.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Fixed all four blockers: clarified the add-server return path; named the Client ID destination; documented VS Code authorization and reauthorization controls; and added the complete Google production publishing, branding, and conditional scope-verification flow with provenance. Applied four concision nits by removing redundant prerequisites, billing text, the repeated secret warning, and the empty-session state. Updated meta.yaml provenance and validated it against the schema.",
+      "disputed": [],
+      "skipped": [
+        "Skipped the nit to remove the production publishing and verification path because it directly conflicts with the blocker requiring that path to be fully documented."
+      ]
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Prerequisites",
+          "problem": "The prerequisites omit the required ability to configure the Google Auth platform and create OAuth credentials.",
+          "suggestion": "Add this required administrator capability to the prerequisites.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The transcluded flow omits the canonical fact that the Redirect URI has a copy button.",
+          "suggestion": "Record the copy button from docs/speakeasy-setup.md and render its use in setup.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#grant-bigquery-mcp-roles",
+          "problem": "The Setup Guide drops the Dossier's recovery instruction that role assignments can be edited from the same IAM page.",
+          "suggestion": "Add a recovery note directing administrators back to IAM to edit incorrect role assignments.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#copy-client-credentials",
+          "problem": "After copying the credentials, the guide omits the Dossier's transition back to the server Settings and instead leads into an add-server section the reader already completed.",
+          "suggestion": "Direct the reader to skip the completed add-server section and continue at Connect your credentials.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#copy-client-credentials — secret reset recovery",
+          "problem": "The reset-secret recovery omits replacing the old Speakeasy value and warning that active users must authorize again.",
+          "suggestion": "Tell the administrator to update Client Secret (optional) with the new secret and tell affected users to authorize again on their next connection.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#add-server-in-speakeasy",
+          "problem": "A reader who added the server from step 5 of Create the OAuth client is instructed to add it again when reaching this section.",
+          "suggestion": "Begin this section by telling readers who already added the server to skip to Connect your credentials.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials — end-user authorization",
+          "problem": "The guide identifies how to launch Google authorization but does not document the browser screens or controls needed to complete it.",
+          "suggestion": "Research and document the conditional Google account-selection, unverified-app, consent, and completion screens with their exact controls, then render them in setup.md.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#configure-oauth-consent — Add or Remove Scopes",
+          "problem": "The instruction to add the BigQuery scope does not identify how to locate and select it in the scope dialog.",
+          "suggestion": "Document the exact search or filter field, selection control, and resulting selected-scope state, including the manual-entry branch.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#configure-oauth-consent — production verification",
+          "problem": "The claimed complete production path still leaves readers to determine applicable branding fields and navigate unnamed controls for documentation, justification, and demonstration-video submission.",
+          "suggestion": "Research every required and conditional field, its value source, intervening control, domain-verification branch, and final status for branding and scope verification, then render those steps in setup.md.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials, steps 3–11",
+          "problem": "“In VS Code, the user opens the command palette with `Ctrl/Cmd + Shift + P`.” shifts from second-person imperatives into third-person narration throughout the end-user sequence.",
+          "suggestion": "Introduce the sequence with “Have the connecting user follow these steps,” then use direct imperatives such as “Open the command palette.”",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent, production branding steps 3–5",
+          "problem": "“Within seven days, click **Publish branding**. After seven days, an unpublished result changes to **Need to re-verify**.” places the expiry warning after the reader starts branding verification.",
+          "suggestion": "Before **Verify Branding**, warn that a successful result must be published within seven days or verified again.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-oauth-client, step 1 vs #copy-client-credentials recovery, step 1",
+          "problem": "Navigation to **Clients** is phrased two different ways in the same guide—\"In **Google Auth platform**, open **Clients**.\" versus \"Open **Google Auth platform** > **Clients**.\"—while other console section hops use the **Open X** > **Y** pattern (for example **Branding** at line 53).",
+          "suggestion": "Standardize both steps on \"Open **Google Auth platform** > **Clients**.\" to match the guide's other section-navigation steps.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — Testing paragraph (line 90) and #connect-speakeasy-credentials — closing paragraph (line 211)",
+          "problem": "The seven-day Testing reauthorization path and the rule that users do not need to be re-added under **Test users** appear in both sections.",
+          "suggestion": "Keep the 100-user cap in #configure-oauth-consent and cross-link to #connect-speakeasy-credentials for reauthorization; drop the repeated seven-day and re-add sentences from line 90 and keep the detailed recovery only in line 211.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#enable-bigquery-api step 3 and #grant-bigquery-mcp-roles step 2",
+          "problem": "Both consecutive sections instruct the reader to confirm the same project selection immediately after step 1 already selects that project.",
+          "suggestion": "Keep the project-selection check in #enable-bigquery-api step 3 and delete step 2 from #grant-bigquery-mcp-roles.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — \"On **Data Access**, Google lists each added scope as non-sensitive, sensitive, or restricted.\"",
+          "problem": "This sentence narrates how Google classifies scopes without giving the reader an action beyond the conditional block that follows.",
+          "suggestion": "Start the conditional block at \"If **Data Access** lists the BigQuery scope as sensitive or restricted:\" and delete the lead-in sentence.",
+          "dimension": "concision"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}
