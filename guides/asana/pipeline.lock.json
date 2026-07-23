@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "slug": "asana",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-23T22:21:45Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:53d5cddee11abf3fef7ca5032c3aa9f54f9b441d2404c606d3b346e59255f182",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/technical-research.md",
+            "digest": "sha256:aeae1143b1342fd483d962086064a19f7f37efb15ea3ecc69fa67adcfb46bc81"
+          },
+          {
+            "path": "docs/speakeasy-setup.md",
+            "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\")."
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:e6239c39224fe3f7b6e80b6d4e72339aefd2dd6aa15f1f59a264fa4aa26e6344"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:220258e15eac5a1dfea593f8e914cf5bfdb779cae9aee691e2de43809fb955ad"
+        }
+      ],
+      "completed_at": "2026-07-23T22:21:45Z"
+    },
+    "draft": {
+      "input_digest": "sha256:d7829e73972c2a93195aaa5e119903ea5d0cf8216536624ea565a638c469165b",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/writer.md",
+            "digest": "sha256:de1aa3181100caf539b32fea984b9a4bf86c1f5fa2d68beb9340273e5e17c0ae"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:e6239c39224fe3f7b6e80b6d4e72339aefd2dd6aa15f1f59a264fa4aa26e6344"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:220258e15eac5a1dfea593f8e914cf5bfdb779cae9aee691e2de43809fb955ad"
+          }
+        ],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\").",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+        }
+      ],
+      "completed_at": "2026-07-23T22:21:45Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:f51e9efa71e287b567d9dae51d2cbbc4442270968d25f50a5b9a134310b7eecf",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/fidelity.md",
+            "digest": "sha256:9ad388ea13346d2a4e3afa3b6e57e3b09dee6eaa597e817fe04008b08d23115e"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:e6239c39224fe3f7b6e80b6d4e72339aefd2dd6aa15f1f59a264fa4aa26e6344"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:220258e15eac5a1dfea593f8e914cf5bfdb779cae9aee691e2de43809fb955ad"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+          }
+        ],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\").",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+        }
+      ],
+      "completed_at": "2026-07-23T22:21:45Z"
+    },
+    "review.voice": {
+      "input_digest": "sha256:2f2e05334aa6ce2b6c00ec7756e422995aeefd0875b9424b7950df425fae1d0b",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:fbc00275b61a75440be66961195498b4dc0ce5143aed1cedf4d6014e2139ffa8",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:0e3c2896e73b9eeb64dbad613c881eee1e056e407f45c47568157951e87c584d"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:e6239c39224fe3f7b6e80b6d4e72339aefd2dd6aa15f1f59a264fa4aa26e6344"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:220258e15eac5a1dfea593f8e914cf5bfdb779cae9aee691e2de43809fb955ad"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+          }
+        ],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\").",
+          "persona": "it-admin",
+          "dimension": "voice"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+        }
+      ],
+      "completed_at": "2026-07-23T22:21:45Z"
+    },
+    "review.formatting": {
+      "input_digest": "sha256:fd8831f674ba1f9402cb1f9a4846c4266deba07e84aa04395c5526241d03de6e",
+      "inputs": {
+        "model": "composer-2.5",
+        "prompt_digest": "sha256:e0573b70108c5fc8296aa57efd0ee7619dd7d7a0c5bf23295b48d7daa0dc1493",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:0e3c2896e73b9eeb64dbad613c881eee1e056e407f45c47568157951e87c584d"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:e6239c39224fe3f7b6e80b6d4e72339aefd2dd6aa15f1f59a264fa4aa26e6344"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:220258e15eac5a1dfea593f8e914cf5bfdb779cae9aee691e2de43809fb955ad"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+          }
+        ],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\").",
+          "persona": "it-admin",
+          "dimension": "formatting"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+        }
+      ],
+      "completed_at": "2026-07-23T22:21:45Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:37f3ffb20c684204bd08628bfed5bc262f201d7def13f16ee7a828de0f77a28f",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:0e3c2896e73b9eeb64dbad613c881eee1e056e407f45c47568157951e87c584d"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:e6239c39224fe3f7b6e80b6d4e72339aefd2dd6aa15f1f59a264fa4aa26e6344"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:220258e15eac5a1dfea593f8e914cf5bfdb779cae9aee691e2de43809fb955ad"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+          }
+        ],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\").",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+        }
+      ],
+      "completed_at": "2026-07-23T22:21:45Z"
+    },
+    "review.concision": {
+      "input_digest": "sha256:6ede025df6aabad2c515ae83020027d1bf68622b723fdb42c80e5adfe9bef057",
+      "inputs": {
+        "model": "composer-2.5",
+        "prompt_digest": "sha256:a1f2dede1ef844482b776a9653e316af775d0719dcb52b80c64fafdd2669a1f2",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:0e3c2896e73b9eeb64dbad613c881eee1e056e407f45c47568157951e87c584d"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:e6239c39224fe3f7b6e80b6d4e72339aefd2dd6aa15f1f59a264fa4aa26e6344"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:220258e15eac5a1dfea593f8e914cf5bfdb779cae9aee691e2de43809fb955ad"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+          }
+        ],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\").",
+          "persona": "it-admin",
+          "dimension": "concision"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:6db211d5a20775e6959f6ae610e05624d0670429f77bc0712e299231f4b979c1"
+        }
+      ],
+      "completed_at": "2026-07-23T22:21:45Z"
+    }
+  }
+}

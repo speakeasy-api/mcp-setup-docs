@@ -1,0 +1,252 @@
+{
+  "slug": "asana",
+  "provider": "asana",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T22:05:41Z",
+  "started_at": "2026-07-23T22:05:41Z",
+  "finished_at": "2026-07-23T22:21:45Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "The OAuth page's redirect URL add/save control label requires console verification.",
+    "Public docs do not specify which account permission gates developer app creation.",
+    "Asana's documented protected-resource metadata URL returned 404; the live MCP challenge supplied a working metadata URL."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "configure-oauth-redirect / Open questions",
+          "problem": "The Dossier leaves the control that persists the Redirect URL unresolved, so the Setup Guide cannot provide a confirmed completion action.",
+          "suggestion": "Verify the current OAuth page, record the exact add or save control in the Dossier, and render that action in setup.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup > Connect your credentials",
+          "problem": "The transcluded skeleton omits the canonical fact that the Redirect URI field has a copy button.",
+          "suggestion": "Add the copy-button detail from docs/speakeasy-setup.md to the Dossier's transcluded flow.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "all observed_at fields",
+          "problem": "The unquoted YAML timestamps parse as datetime values and fail the schema requirement that observed_at be a string.",
+          "suggestion": "Quote every observed_at value and rerun draft-07 schema validation.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "endpoint provenance for https://mcp.asana.com/v2/mcp",
+          "problem": "Two endpoint provenance records use 2026-07-23T22:07:04Z instead of the workflow-provided timestamp 2026-07-23T22:05:41Z.",
+          "suggestion": "Replace both endpoint observed_at values with the provided run timestamp.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "{#add-server-in-speakeasy} catalog path step 2 — \"find Asana using **Search MCP servers...**\"",
+          "problem": "The catalog search term Asana is a value the reader types but is rendered as plain prose instead of a code span.",
+          "suggestion": "Change the step to name the typed query in backticks, e.g. find `Asana` using **Search MCP servers...**, matching the persona formatting rule and the GCE guide pattern.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "configure-oauth-redirect",
+          "problem": "The reader must guess which control adds or saves the required Redirect URL.",
+          "suggestion": "Verify the OAuth page and record the exact add/save control in research.md, then name that control in setup.md.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#open-developer-console: \"This opens the developer console, where you will create the app.\"",
+          "problem": "The sentence shifts from the persona's required present tense into future tense.",
+          "suggestion": "Change it to: \"This opens the developer console, where you create the app.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-mcp-app: \"You will enter both values in the Speakeasy AI Control Plane.\"",
+          "problem": "The sentence uses future narration instead of the required present-tense imperative voice.",
+          "suggestion": "Change it to: \"Save both values for the Speakeasy AI Control Plane setup.\"",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#configure-workspace-distribution} step 2 — \"select **Specific workspaces** … or select **Any workspace**\"",
+          "problem": "Two mutually exclusive distribution choices are bundled in one numbered step.",
+          "suggestion": "Split into separate conditional step groups (one path for **Specific workspaces**, one for **Any workspace**) so each numbered step stays a single decision.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#connect-speakeasy-credentials} step 2 — \"select **Use Discovered** when it is offered; otherwise, select **Configure Manually**\"",
+          "problem": "Two mutually exclusive authentication controls are combined in one numbered step.",
+          "suggestion": "Render as separate conditional branches (when **Use Discovered** is offered vs when it is not) rather than an either/or clause inside a single step.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#configure-oauth-redirect} closing sentence and {#connect-speakeasy-credentials} step 4",
+          "problem": "The exact-match requirement for the redirect URL is stated in full after the provider step and again at Speakeasy credential attach.",
+          "suggestion": "Remove the post-step sentence at {#configure-oauth-redirect}; keep the confirm step at {#connect-speakeasy-credentials}, which already cross-links to the provider anchor.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#create-mcp-app} line \"You will enter both values in the Speakeasy AI Control Plane.\"",
+          "problem": "This forward pointer repeats what the next section's numbered steps already tell the reader to do.",
+          "suggestion": "Delete the sentence; steps 5–6 in {#connect-speakeasy-credentials} already cross-link back to {#create-mcp-app} for both values.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites workspace-membership bullet and {#configure-workspace-distribution} line \"Only workspaces you belong to are available under **Specific workspaces**.\"",
+          "problem": "Workspace-membership constraint appears twice with overlapping meaning for readers choosing **Specific workspaces**.",
+          "suggestion": "Keep the prerequisite bullet and replace the distribution-section sentence with a cross-link (e.g., \"See Prerequisites for workspace membership requirements.\") or drop the prerequisite bullet if the inline console constraint is kept.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#add-server-in-speakeasy} closing sentence \"Its transport is **Streamable HTTP**.\"",
+          "problem": "The transport label is read-only on the add form and not something the reader must enter or choose to finish setup.",
+          "suggestion": "Remove the transport clause; end the paragraph after \"opens its **Overview** page.\"",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Updated research with the redirect controls (**+ Add redirect URL**, **Add**) and provenance; added the Redirect URI copy-button fact; removed the resolved open question. Quoted every meta.yaml observed_at value and corrected endpoint timestamps to 2026-07-23T22:05:41Z; draft-07 validation passes. Updated setup with the redirect completion actions and `Asana` formatting. Applied all nits: present-tense voice, removed the redundant credential pointer and redirect reminder, split distribution and authentication branches, removed duplicate workspace guidance, and removed the transport clause.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Prerequisites and #open-developer-console",
+          "problem": "The prerequisite sends the reader directly to the developer console, but the first provider sequence assumes they start in the main Asana app and does not explain that they should skip the navigation if already in the console.",
+          "suggestion": "Remove the sign-in action from the prerequisite, or make the direct URL the first provider step and state that it opens the developer console.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#configure-workspace-distribution} step 1 — \"1. Select **Manage distribution** in the left sidebar.\"",
+          "problem": "A step group with only one action is rendered as a one-item numbered list, which the persona forbids.",
+          "suggestion": "Replace the numbered line with an imperative sentence: \"Select **Manage distribution** in the left sidebar.\"",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#connect-speakeasy-credentials} step 1 — \"1. From the server's **Overview**, open **Settings**.\"",
+          "problem": "The opening step group contains a single action but uses a one-item numbered list instead of prose.",
+          "suggestion": "Render it as an imperative sentence: \"From the server's **Overview**, open **Settings**.\"",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#connect-speakeasy-credentials} — \"When **Use Discovered** is offered:\" and \"When **Use Discovered** is not offered:\" branches",
+          "problem": "Each authentication branch is a single-action step group rendered as a one-item numbered list.",
+          "suggestion": "Under each conditional header, use one imperative sentence (e.g., \"Under **Authentication**, select **Use Discovered**.\") instead of a numbered list with one item.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials — \"Do not enter a scope.\"",
+          "problem": "The instruction to leave scope empty appears after the reader selects **Attach Identity Provider**, when the credential sheet has already been submitted.",
+          "suggestion": "Move \"Do not enter a scope\" before the credential-entry steps or immediately before **Attach Identity Provider**.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Updated the first provider step to open the developer-console URL directly. Converted all four one-item lists to imperative prose and moved the scope warning before credential entry and submission.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "Top-level provenance",
+          "problem": "meta.yaml omits the Frontegg source that research.md uses to back the exact redirect-dialog controls.",
+          "suggestion": "Add a provenance record for https://developers.frontegg.com/agen-for-work/connectors/marketplace/asana with the run's observed_at timestamp.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "(pipeline)",
+          "problem": "The formatting reviewer returned no verdict this round.",
+          "suggestion": "Treat as unreviewed; the next round retries this dimension.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "(pipeline)",
+          "problem": "The concision reviewer returned no verdict this round.",
+          "suggestion": "Treat as unreviewed; the next round retries this dimension.",
+          "dimension": "concision"
+        }
+      ],
+      "nits": [],
+      "spiral_warning": "Review spiral signal: this round's 3 blocker(s) did not drop from the prior round (1) and 3/3 loci are new. Prefer disputing findings that expand beyond the critical-path ceiling or rewrite the Speakeasy canonical skeleton rather than researching unbounded vendor UI depth.",
+      "revision_notes": "Added the missing Frontegg provenance record to meta.yaml with the specified observed_at timestamp. Formatting and concision had no verdict, so no guide edits were indicated; both remain for retry next round. Validated meta.yaml successfully against the guide schema.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites first bullet and {#open-developer-console}",
+          "problem": "The developer console URL `https://app.asana.com/0/my-apps` appears in Prerequisites and is repeated verbatim in the first provider step.",
+          "suggestion": "Drop the URL from Prerequisites and keep the sign-in/open instruction only in Open the developer console, or replace the Prerequisites URL with a cross-link to that step.",
+          "dimension": "concision"
+        }
+      ],
+      "polish_notes": "Prerequisites (concision nit): Removed the duplicate developer console URL from the first Prerequisites bullet; the sign-in URL remains only in Open the developer console {#open-developer-console}.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": []
+      }
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}

@@ -1,0 +1,121 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: asana
+title: Asana
+summary: Connect an Asana workspace so users can access and manage their permitted Asana work through the hosted Asana MCP server.
+credential_setup:
+  options:
+    - id: oauth-mcp-app
+      kind: oauth
+      client_registration: manual
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - setup.md#create-mcp-app
+        - id: client-secret
+          label: Client secret
+          setup:
+            - setup.md#create-mcp-app
+  requirements:
+    - id: asana-account
+      description: Asana account with access to the developer console
+    - id: workspace-membership
+      description: Membership in each Asana workspace selected for a Specific workspaces distribution
+    - id: organization-app-approval
+      description: Organization super-admin approval when the Asana organization uses App management to block unapproved apps
+documentation:
+  setup: setup.md
+remotes:
+  - id: primary
+    url: https://mcp.asana.com/v2/mcp
+    transport: streamable-http
+    authentication:
+      - oauth-mcp-app
+    provenance:
+      - source: provider-documentation
+        locator: https://developers.asana.com/docs/integrating-with-asanas-mcp-server
+        name: Integrating with Asana's MCP Server
+        classification: official
+        observed_at: "2026-07-23T22:05:41Z"
+      - source: provider-documentation
+        locator: https://developers.asana.com/docs/using-asanas-mcp-server
+        name: Using Asana's MCP Server
+        classification: official
+        observed_at: "2026-07-23T22:05:41Z"
+      - source: endpoint-observation
+        locator: https://mcp.asana.com/v2/mcp
+        classification: official
+        observed_at: "2026-07-23T22:05:41Z"
+      - source: endpoint-observation
+        locator: https://mcp.asana.com/.well-known/oauth-protected-resource/v2
+        classification: official
+        observed_at: "2026-07-23T22:05:41Z"
+provenance:
+  - source: provider-documentation
+    locator: https://developers.asana.com/docs/integrating-with-asanas-mcp-server
+    name: Integrating with Asana's MCP Server
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: provider-documentation
+    locator: https://developers.asana.com/docs/using-asanas-mcp-server
+    name: Using Asana's MCP Server
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: provider-documentation
+    locator: https://developers.asana.com/docs/manage-and-share-your-app
+    name: Manage your app
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: provider-documentation
+    locator: https://developers.asana.com/docs/share-your-app
+    name: Share your app
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: provider-documentation
+    locator: https://developers.asana.com/docs/oauth
+    name: OAuth
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: provider-documentation
+    locator: https://developers.frontegg.com/agen-for-work/connectors/marketplace/asana
+    name: Asana integration
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: provider-documentation
+    locator: https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server
+    name: Connecting Coding Clients to Asana's V2 server
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: provider-documentation
+    locator: https://help.asana.com/s/article/app-management-and-integrations?language=en_US
+    name: App management and integrations
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: provider-documentation
+    locator: https://help.asana.com/s/article/api?language=en_US
+    name: API
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: provider-changelog
+    locator: https://forum.asana.com/t/new-v2-mcp-server-now-generally-available/1122647
+    name: V2 MCP server now generally available
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: endpoint-observation
+    locator: https://mcp.asana.com/v2/mcp
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: endpoint-observation
+    locator: https://mcp.asana.com/.well-known/oauth-protected-resource/v2
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: endpoint-observation
+    locator: https://app.asana.com/.well-known/oauth-authorization-server
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
+  - source: repository-doctrine
+    locator: docs/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-07-23T22:05:41Z"
