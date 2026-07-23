@@ -283,9 +283,9 @@ Sources drawn from:
   requirement, app-name visibility to authorizing users, and OAuth
   endpoint semantics.
 - `https://developers.frontegg.com/agen-for-work/connectors/marketplace/asana`
-  ("Asana integration") — observed `2026-07-23T22:05:41Z`. Corroborates
-  the current **Add redirect URL** dialog and its **Add** completion
-  control, which Asana's text documentation does not name.
+  ("Asana integration") — observed `2026-07-23T22:05:41Z`. Secondary
+  corroboration of the **Add redirect URL** dialog and its **Add**
+  completion control (already backed by Asana's OAuth console screenshots).
 - `https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server`
   ("Connecting Coding Clients to Asana's V2 server") — observed
   `2026-07-23T22:05:41Z`. Corroborates V2 endpoint, OAuth pre-registration,
