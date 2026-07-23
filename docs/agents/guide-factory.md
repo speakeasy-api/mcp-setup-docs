@@ -18,10 +18,11 @@ Review comment formatter: [`scripts/ci/format-pipeline-review.sh`](../../scripts
    - `We need HubSpot — prefer OAuth docs at https://…`
 2. Add the label `guide:draft`.
 3. Wait for the Action. You get:
-   - a **Resolved as …** comment (distill intent),
+   - a **Resolved as …** comment (distill intent), or **Resuming on existing factory PR** when iterating,
    - a **Pipeline review** comment (unresolved blockers, open questions, nits),
    - a draft PR (`Closes #<issue>`) when files were written — including
-     **unconverged** runs (PR title/body say so).
+     **unconverged** runs (PR title/body say so). Re-runs with clarifications
+     **resume on that PR’s branch** instead of starting from a blank guide.
 
 Persona defaults to `it-admin` unless the distill step confidently finds a
 known id under `docs/personas/`.
@@ -36,9 +37,11 @@ to drop a recovery branch, etc.):
 2. **Edit the issue body** with the same facts.
 
 Then re-add `guide:draft`. Distill re-reads the **body and the full comment
-thread** into `--notes` for the next run. You do **not** need to paste the
-whole guide into the ticket — answer the open questions / blockers listed in
-the review comment.
+thread** into `--notes` for the next run. If a factory PR already exists, that
+run **checks out the PR branch** so prior `research.md` / `setup.md` /
+`pipeline.lock.json` are reused (research revises in place; lock skips when
+inputs match). You do **not** need to paste the whole guide into the ticket —
+answer the open questions / blockers listed in the review comment.
 
 ## Labels
 
@@ -66,15 +69,19 @@ pushing with full permissions matters.
 
 ## Flow
 
-1. **Preflight** — refuse if an open collaborator PR already `Closes #N`.
+1. **Preflight** — if an open factory PR (`guide/issue-<N>-*`) already
+   `Closes #N`, **resume** on that branch. Refuse only for non-factory
+   collaborator PRs that target the same issue.
 2. **Labels** — remove `guide:draft` + `guide:blocked`, add `guide:in-progress`.
 3. **Distill** — light Cursor agent reads title + body + issue comments (+
    existing `guides/*` slugs) → structured JSON or `needs_clarification`.
-4. **Comment** — “Resolved as `slug` …” summary.
-5. **Draft** — `npm run draft-guide -- <slug> --overwrite [--notes …]`.
+4. **Comment** — “Resolved as `slug` …” (or resume notice) summary.
+5. **Draft** — `npm run draft-guide -- <slug> --overwrite [--notes …]`
+   (no `--force`; lock skips still apply). When prior artifacts exist,
+   research revises in place; unchanged research can skip re-draft via
+   `pipeline.lock.json`.
 6. **PR** — commit `guides/<slug>/` + matching `retro/runs/*-<slug>.json`,
-   push `guide/issue-<N>-<slug>`, open a **draft** PR (also on unconverged
-   when files exist).
+   push `guide/issue-<N>-<slug>`, open or **update** the draft PR.
 7. **Comment** — **Pipeline review** on the issue (blockers / open questions /
    nits + PR link). Same summary is appended to the PR body.
 8. **Hard failure** — `guide:blocked` + comment (includes review summary when

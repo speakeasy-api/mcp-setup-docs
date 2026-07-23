@@ -323,6 +323,9 @@ export async function runWorkflow(
   }
 
   function researchPrompt(g: GuideInput): string {
+    const dir = guideDir(g.slug)
+    const hasPrior =
+      existsSync(join(dir, 'research.md')) || existsSync(join(dir, 'meta.yaml'))
     return [
       'You are the Technical Research Agent in the mcp-setup-docs drafting pipeline.',
       'Repo root: ' + ROOT,
@@ -332,13 +335,26 @@ export async function runWorkflow(
       '',
       assign(g),
       '',
+      hasPrior
+        ? [
+            'Prior research artifacts already exist in the guide directory.',
+            'Read research.md and meta.yaml first. Revise them in light of the',
+            'operator notes and any newly verified public docs — do not discard',
+            'sound prior work to rewrite from a blank slate. Keep stable anchors',
+            'when facts are unchanged; update or remove only what the notes or',
+            'fresh sources require.',
+            '',
+          ].join('\n')
+        : '',
       'Write research.md and meta.yaml in the guide directory. Do not write',
       'setup.md and do not touch any path outside the guide directory.',
       '',
       'Report via structured output per your role doc: status ("ok" when the',
       'Dossier is complete enough to draft from, "blocked" per the role doc),',
       'notes (decisions, uncertainty, validation method), open_questions.',
-    ].join('\n')
+    ]
+      .filter(Boolean)
+      .join('\n')
   }
 
   function researchChangeJudgePrompt(

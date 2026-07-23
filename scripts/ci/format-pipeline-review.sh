@@ -180,5 +180,6 @@ echo "### How to retry"
 echo
 echo "1. Reply on **this issue** using the \`Decision N: …\` lines above (and answer open questions)."
 echo "2. Re-add the \`guide:draft\` label. Distill reads the issue body **and** comments into pipeline notes."
+echo "3. If a factory draft PR already exists (\`guide/issue-<N>-*\`), the next run **resumes on that branch** and revises prior research/setup instead of starting blank."
 echo
 echo "_Source: \`$(basename "$record")\`_"
