@@ -36,15 +36,24 @@ run completes: `runs/<UTC timestamp>-<slug>.json`.
     }
   ],
   "unresolved": ["… only when unconverged …"],
-  "open_questions": ["…"]
+  "open_questions": ["…"],
+  "skipped": ["… optional: step ids skipped via pipeline.lock.json, e.g. draft, review.formatting …"],
+  "research_change": {
+    "method": "digest | judge | none",
+    "unchanged": true,
+    "notes": "… optional rationale from digest fast path or research-change judge …"
+  }
 }
 ```
 
 `started_at` mirrors `timestamp` (the pre-launch capture that also stamps
 provenance) so the timing pair reads standalone; `finished_at` is captured
 when the record is written, so it is an upper bound on completion. Records
-before 2026-07-22 carry neither. The `skipped`/`polish_*`/`recheck` fields
-appear only on runs since nits were applied in-loop.
+before 2026-07-22 carry neither. The history `skipped`/`polish_*`/`recheck`
+fields appear only on runs since nits were applied in-loop. Top-level
+`skipped` lists pipeline steps omitted by the lockfile contract;
+`research_change` records how `research_unchanged` was decided (see
+[`docs/agents/pipeline-lock.md`](../docs/agents/pipeline-lock.md)).
 
 ## `notes/` — Retro Notes (human-written)
 

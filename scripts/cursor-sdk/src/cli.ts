@@ -15,7 +15,8 @@ Options:
   --persona <id>     Persona under docs/personas/ (default: it-admin)
   --notes <text>     Extra context handed to every guide's agents
   --max-rounds <n>   Review/revise rounds before giving up (default: 3)
-  --force            Overwrite existing guides/<slug>/ without prompting
+  --force            Overwrite existing guides/<slug>/ without prompting;
+                     also bypass pipeline.lock.json skip checks
   --repo-root <path> Repo root (default: two levels above this package)
   --model <id>       Default Cursor model id (default: gpt-5.6-sol)
   --light-model <id> Model for "sonnet" slots (default: composer-2.5)
@@ -253,6 +254,7 @@ async function main() {
     timestamp: startedAt,
     repoRoot,
     maxRounds: args.maxRounds,
+    force: args.force,
   })
 
   const finishedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
