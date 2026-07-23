@@ -59,10 +59,12 @@ npm run draft-guide -- box
 npm run draft-guide -- box hubspot --persona it-admin --force
 ```
 
-Requires Node ≥ 22.13. Usage burns your Cursor plan's token pool (tagged
-SDK in the usage dashboard). Run records land in `retro/runs/` with
-`runtime: "cursor-sdk"`. Pass `--help` for flags (`--notes`, `--model`,
-`--light-model`, `--max-rounds`, `--force`).
+Requires Node ≥ 22.13. Defaults: `claude-fable-5` for research, draft,
+fidelity, voice, achievability, and revision; `composer-2.5` for the
+lighter formatting / concision / polish slots. Usage burns your Cursor
+plan's token pool (tagged SDK in the usage dashboard). Run records land
+in `retro/runs/` with `runtime: "cursor-sdk"`. Pass `--help` for flags
+(`--notes`, `--model`, `--light-model`, `--max-rounds`, `--force`).
 
 ## Authoring a Guide (`/draft-guide`)
 

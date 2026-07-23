@@ -17,8 +17,8 @@ Options:
   --max-rounds <n>   Review/revise rounds before giving up (default: 3)
   --force            Overwrite existing guides/<slug>/ without prompting
   --repo-root <path> Repo root (default: two levels above this package)
-  --model <id>       Default Cursor model id (default: composer-2.5)
-  --light-model <id> Model for "sonnet" slots (default: same as --model)
+  --model <id>       Default Cursor model id (default: claude-fable-5)
+  --light-model <id> Model for "sonnet" slots (default: composer-2.5)
 
 Env:
   CURSOR_API_KEY     Required (user or team service-account key)
@@ -48,8 +48,10 @@ function parseArgs(argv: string[]) {
   let maxRounds = 3
   let force = false
   let repoRoot: string | undefined
-  let model = process.env.CURSOR_MODEL || 'composer-2.5'
-  let lightModel = process.env.CURSOR_MODEL_LIGHT || model
+  // Research / fidelity / revision default to Fable; formatting, concision,
+  // and polish use the cheaper Composer slot (workflow model: 'sonnet').
+  let model = process.env.CURSOR_MODEL || 'claude-fable-5'
+  let lightModel = process.env.CURSOR_MODEL_LIGHT || 'composer-2.5'
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!
