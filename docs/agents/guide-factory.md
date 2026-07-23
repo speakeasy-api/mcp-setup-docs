@@ -61,8 +61,11 @@ pushing with full permissions matters.
 7. **Failure** — `guide:blocked` + comment with reason and Actions run URL.
 8. **Always** — remove `guide:in-progress`.
 
-CLI exit `2` (unconverged / blocked / failed) fails the job so the blocked
-path runs. Only converged drafts open a PR for human review.
+CLI exit `0` (converged) opens a draft PR. Exit `2` (unconverged / blocked /
+failed guide status) still opens a draft PR when `guides/<slug>/` exists, so
+expensive agent work is not discarded — the PR title/body mark it
+**unconverged** for human review. Hard failures (exit `1`, missing files)
+take the `guide:blocked` path with no PR.
 
 ## What v1 does not do
 

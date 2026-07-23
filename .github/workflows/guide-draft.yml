@@ -214,10 +214,23 @@ jobs:
           npm run draft-guide -- "${SLUG}" "${args[@]}"
           code=$?
           set -e
-          if [ "$code" -ne 0 ]; then
-            echo "draft-guide exited ${code} (see workflow logs). Converged drafts still open a PR; unconverged/blocked/failed fail the job." > "${RUNNER_TEMP}/failure_reason.txt"
-            exit "$code"
+          # CLI: 0 = converged, 2 = unconverged/blocked/failed guide status,
+          # 1 = hard failure. Exit 2 still wrote files — open a PR for humans.
+          if [ "$code" -eq 0 ]; then
+            echo "outcome=converged" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          if [ "$code" -eq 2 ]; then
+            if [ -d "${GITHUB_WORKSPACE}/guides/${SLUG}" ]; then
+              echo "outcome=unconverged" >> "$GITHUB_OUTPUT"
+              echo "draft-guide exited 2 (unconverged/blocked/failed). Opening a draft PR with whatever was written for human review." > "${RUNNER_TEMP}/failure_reason.txt"
+              exit 0
+            fi
+            echo "draft-guide exited 2 and guides/${SLUG}/ is missing" > "${RUNNER_TEMP}/failure_reason.txt"
+            exit 1
+          fi
+          echo "draft-guide exited ${code} (hard failure; see workflow logs)" > "${RUNNER_TEMP}/failure_reason.txt"
+          exit "$code"
 
       - name: Commit and push
         if: steps.preflight.outputs.refused != 'true' && success()
@@ -245,9 +258,13 @@ jobs:
           BRANCH: ${{ steps.branch.outputs.name }}
           SLUG: ${{ steps.distill.outputs.slug }}
           PROVIDER: ${{ steps.distill.outputs.provider }}
+          OUTCOME: ${{ steps.draft.outputs.outcome }}
         run: |
           set -euo pipefail
           title="Draft guide: ${PROVIDER} (#${ISSUE_NUMBER})"
+          if [ "${OUTCOME}" = "unconverged" ]; then
+            title="Draft guide (unconverged): ${PROVIDER} (#${ISSUE_NUMBER})"
+          fi
           title="${title:0:256}"
           body_file="${RUNNER_TEMP}/pr-body.md"
           {
@@ -255,6 +272,11 @@ jobs:
             echo
             echo "Factory draft of \`guides/${SLUG}/\` via \`draft-guide\` (Cursor SDK)."
             echo
+            if [ "${OUTCOME}" = "unconverged" ]; then
+              echo "**Pipeline status:** unconverged (reviewers still had blockers after max rounds)."
+              echo "Files are included for human review — do not merge until blockers are settled."
+              echo
+            fi
             echo "Human review still required — agents never commit; this Action did."
           } > "$body_file"
           pr_url=$(gh pr create --draft --base main --head "$BRANCH" --title "$title" --body-file "$body_file" | tail -n1)
@@ -264,8 +286,13 @@ jobs:
         if: steps.preflight.outputs.refused != 'true' && success()
         env:
           PR_URL: ${{ steps.open_pr.outputs.pr_url }}
+          OUTCOME: ${{ steps.draft.outputs.outcome }}
         run: |
-          gh issue comment "$ISSUE_NUMBER" --body "Draft PR opened: ${PR_URL}"
+          if [ "${OUTCOME}" = "unconverged" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "Draft PR opened (pipeline **unconverged** — needs human review): ${PR_URL}"
+          else
+            gh issue comment "$ISSUE_NUMBER" --body "Draft PR opened: ${PR_URL}"
+          fi
 
       - name: Mark blocked on failure
         if: steps.preflight.outputs.refused != 'true' && failure()
@@ -278,7 +305,7 @@ jobs:
           fi
           body_file="${RUNNER_TEMP}/failure-comment.md"
           {
-            echo "\`guide:draft\` run failed."
+            echo "\`guide:draft\` run failed (no PR opened)."
             echo
             echo "$reason"
             echo
