@@ -19,6 +19,11 @@ Revision agents (spawned between review rounds) may touch all three guide
 files, following the Technical Research and Writer role docs for whichever
 file they edit.
 
+Skip-if-unchanged for draft and per-dimension review is defined by the
+pipeline lockfile contract (`guides/<slug>/pipeline.lock.json`); see
+[`pipeline-lock.md`](pipeline-lock.md). Research always runs. Lock semantics
+are for orchestrators — agents do not read or write the lockfile.
+
 ## The anchor contract
 
 Anchor IDs enter a guide once, through the Dossier — provider-step IDs

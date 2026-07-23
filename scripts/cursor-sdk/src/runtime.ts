@@ -138,7 +138,11 @@ export function createRuntime(cfg: RuntimeConfig) {
     return Promise.all(items.map((item) => fn(item)))
   }
 
-  return { log, agent, parallel, pipeline }
+  function modelId(model?: string): string {
+    return resolveModel(cfg, model).id
+  }
+
+  return { log, agent, parallel, pipeline, modelId }
 }
 
 export type Runtime = ReturnType<typeof createRuntime>

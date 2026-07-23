@@ -1,0 +1,205 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "digest": {
+      "description": "Lowercase sha256 digest with sha256: prefix (same form as guide asset content_hash).",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "path_digest": {
+      "additionalProperties": false,
+      "description": "A path paired with its content digest.",
+      "properties": {
+        "digest": {
+          "$ref": "#/definitions/digest"
+        },
+        "path": {
+          "description": "Repo-relative path for reading-list entries; guide-relative path for artifacts and outputs.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "digest",
+        "path"
+      ],
+      "type": "object"
+    },
+    "step_inputs": {
+      "additionalProperties": false,
+      "description": "Declared fingerprint material for one pipeline step. input_digest is the canonical hash of a normalized serialization of this object.",
+      "properties": {
+        "artifacts": {
+          "description": "Upstream guide artifacts this step consumed, with stable content digests. Guide-relative paths.",
+          "items": {
+            "$ref": "#/definitions/path_digest"
+          },
+          "type": "array"
+        },
+        "model": {
+          "description": "Resolved model id used for this step (not a slot alias like sonnet).",
+          "minLength": 1,
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": false,
+          "description": "Stable assignment fields. Never include observed_at or run timestamps.",
+          "properties": {
+            "dimension": {
+              "description": "Review dimension id; required for review.* steps only.",
+              "enum": [
+                "fidelity",
+                "voice",
+                "formatting",
+                "achievability",
+                "concision"
+              ],
+              "type": "string"
+            },
+            "notes": {
+              "description": "Operator notes for this guide; empty string when none.",
+              "type": "string"
+            },
+            "persona": {
+              "description": "Persona id; required for draft and review.* steps.",
+              "minLength": 1,
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+              "type": "string"
+            },
+            "provider": {
+              "description": "Provider display name from the workflow assignment.",
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "notes",
+            "provider"
+          ],
+          "type": "object"
+        },
+        "prompt_digest": {
+          "$ref": "#/definitions/digest",
+          "description": "Digest of the prompt template with volatile assignment fields removed."
+        },
+        "reading_list": {
+          "description": "Doctrine and persona files this step reads, in order. Repo-relative paths.",
+          "items": {
+            "$ref": "#/definitions/path_digest"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "artifacts",
+        "model",
+        "params",
+        "prompt_digest",
+        "reading_list"
+      ],
+      "type": "object"
+    },
+    "step_record": {
+      "additionalProperties": false,
+      "description": "One pipeline step's input fingerprint and output digests after a successful run.",
+      "properties": {
+        "completed_at": {
+          "description": "UTC time when this step record was written.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "input_digest": {
+          "$ref": "#/definitions/digest",
+          "description": "Canonical hash of the normalized inputs object."
+        },
+        "inputs": {
+          "$ref": "#/definitions/step_inputs"
+        },
+        "outputs": {
+          "description": "Guide-relative artifacts this step produced or affirmed, with stable content digests.",
+          "items": {
+            "$ref": "#/definitions/path_digest"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "completed_at",
+        "input_digest",
+        "inputs",
+        "outputs"
+      ],
+      "type": "object"
+    },
+    "steps": {
+      "additionalProperties": false,
+      "description": "Step records keyed by fixed step id. research is always executed (record only); draft and review.* are skippable when predicates pass.",
+      "properties": {
+        "draft": {
+          "$ref": "#/definitions/step_record"
+        },
+        "research": {
+          "$ref": "#/definitions/step_record"
+        },
+        "review.achievability": {
+          "$ref": "#/definitions/step_record"
+        },
+        "review.concision": {
+          "$ref": "#/definitions/step_record"
+        },
+        "review.fidelity": {
+          "$ref": "#/definitions/step_record"
+        },
+        "review.formatting": {
+          "$ref": "#/definitions/step_record"
+        },
+        "review.voice": {
+          "$ref": "#/definitions/step_record"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "description": "Per-guide pipeline lockfile (guides/<slug>/pipeline.lock.json), schema_version 1. Records input fingerprints so draft and per-dimension review can be skipped when inputs are unchanged. Normative semantics: docs/agents/pipeline-lock.md.",
+  "properties": {
+    "persona": {
+      "description": "Persona id used when step entries were written.",
+      "minLength": 1,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "runtime": {
+      "description": "Observational runtime label (e.g. cursor-sdk). Not part of skip digests.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "slug": {
+      "description": "Stable Guide identity; must match the guide directory name.",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "steps": {
+      "$ref": "#/definitions/steps"
+    },
+    "updated_at": {
+      "description": "UTC time when this lockfile was last rewritten.",
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "persona",
+    "schema_version",
+    "slug",
+    "steps",
+    "updated_at"
+  ],
+  "title": "PipelineLock",
+  "type": "object"
+}
