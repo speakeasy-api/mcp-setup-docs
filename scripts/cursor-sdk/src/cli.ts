@@ -17,13 +17,19 @@ Options:
   --max-rounds <n>   Review/revise rounds before giving up (default: 3)
   --force            Overwrite existing guides/<slug>/ without prompting
   --repo-root <path> Repo root (default: two levels above this package)
-  --model <id>       Default Cursor model id (default: claude-fable-5)
+  --model <id>       Default Cursor model id (default: gpt-5.6-sol)
   --light-model <id> Model for "sonnet" slots (default: composer-2.5)
+  --effort <level>   Reasoning effort for heavy slots (default: high)
+  --light-effort <level>
+                     Reasoning effort for light slots (default: none /
+                     omit param — Composer has no effort knob)
 
 Env:
   CURSOR_API_KEY     Required (user or team service-account key)
   CURSOR_MODEL       Fallback for --model
   CURSOR_MODEL_LIGHT Fallback for --light-model
+  CURSOR_EFFORT      Fallback for --effort
+  CURSOR_EFFORT_LIGHT Fallback for --light-effort
 
 Examples:
   npm run draft-guide -- box
@@ -48,10 +54,12 @@ function parseArgs(argv: string[]) {
   let maxRounds = 3
   let force = false
   let repoRoot: string | undefined
-  // Research / fidelity / revision default to Fable; formatting, concision,
-  // and polish use the cheaper Composer slot (workflow model: 'sonnet').
-  let model = process.env.CURSOR_MODEL || 'claude-fable-5'
+  // Heavy slots (research / draft / fidelity / voice / achievability / revision)
+  // default to GPT-5.6 Sol at high effort; light slots stay on Composer.
+  let model = process.env.CURSOR_MODEL || 'gpt-5.6-sol'
   let lightModel = process.env.CURSOR_MODEL_LIGHT || 'composer-2.5'
+  let effort = process.env.CURSOR_EFFORT || 'high'
+  let lightEffort = process.env.CURSOR_EFFORT_LIGHT || ''
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!
@@ -85,6 +93,14 @@ function parseArgs(argv: string[]) {
       lightModel = argv[++i] || usage()
       continue
     }
+    if (a === '--effort') {
+      effort = argv[++i] || usage()
+      continue
+    }
+    if (a === '--light-effort') {
+      lightEffort = argv[++i] || usage()
+      continue
+    }
     if (a.startsWith('-')) {
       console.error('Unknown flag: ' + a)
       usage()
@@ -93,7 +109,18 @@ function parseArgs(argv: string[]) {
   }
 
   if (positionals.length === 0) usage()
-  return { positionals, persona, notes, maxRounds, force, repoRoot, model, lightModel }
+  return {
+    positionals,
+    persona,
+    notes,
+    maxRounds,
+    force,
+    repoRoot,
+    model,
+    lightModel,
+    effort,
+    lightEffort,
+  }
 }
 
 function defaultRepoRoot(): string {
@@ -197,17 +224,27 @@ async function main() {
   }
 
   const startedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
+  const defaultModel = {
+    id: args.model,
+    ...(args.effort ? { params: [{ id: 'effort', value: args.effort }] } : {}),
+  }
+  const lightModel = {
+    id: args.lightModel,
+    ...(args.lightEffort
+      ? { params: [{ id: 'effort', value: args.lightEffort }] }
+      : {}),
+  }
   const rt = createRuntime({
     apiKey,
     repoRoot,
-    defaultModel: args.model,
-    lightModel: args.lightModel,
+    defaultModel,
+    lightModel,
   })
 
   console.error(
     `draft-guide (cursor-sdk): persona=${args.persona} guides=${guides
       .map((g) => g.slug)
-      .join(',')} model=${args.model}`
+      .join(',')} model=${args.model} effort=${args.effort || '(default)'} light=${args.lightModel}`
   )
 
   const out = await runWorkflow(rt, {

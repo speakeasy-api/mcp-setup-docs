@@ -1,4 +1,4 @@
-import { Agent, CursorAgentError } from '@cursor/sdk'
+import { Agent, CursorAgentError, type ModelSelection } from '@cursor/sdk'
 import { type ZodType, type z } from 'zod'
 import { extractJson } from './json.ts'
 
@@ -15,14 +15,25 @@ export type AgentOptions<S extends AnyZod> = {
 export type RuntimeConfig = {
   apiKey: string
   repoRoot: string
-  defaultModel: string
-  lightModel: string
+  /** Heavy slots: research, draft, fidelity, voice, achievability, revision. */
+  defaultModel: ModelSelection
+  /** Light slots: formatting, concision, polish (workflow model: 'sonnet'). */
+  lightModel: ModelSelection
 }
 
-function resolveModel(cfg: RuntimeConfig, model?: string): string {
+function resolveModel(cfg: RuntimeConfig, model?: string): ModelSelection {
   if (!model || model === 'default') return cfg.defaultModel
   if (model === 'sonnet') return cfg.lightModel
-  return model
+  // Explicit override id — keep default effort params so --model still thinks hard.
+  return {
+    id: model,
+    params: cfg.defaultModel.params,
+  }
+}
+
+function modelLabel(selection: ModelSelection): string {
+  const effort = selection.params?.find((p) => p.id === 'effort')?.value
+  return effort ? `${selection.id} (effort=${effort})` : selection.id
 }
 
 const SCHEMA_HINTS = new WeakMap<AnyZod, string>()
@@ -59,15 +70,15 @@ export function createRuntime(cfg: RuntimeConfig) {
     prompt: string,
     opts: AgentOptions<S>
   ): Promise<z.infer<S> | null> {
-    const modelId = resolveModel(cfg, opts.model)
+    const selection = resolveModel(cfg, opts.model)
     const fullPrompt = prompt + schemaInstruction(opts.schema)
 
-    log(`[${opts.label}] starting (model=${modelId}, phase=${opts.phase})`)
+    log(`[${opts.label}] starting (model=${modelLabel(selection)}, phase=${opts.phase})`)
 
     try {
       await using agentHandle = await Agent.create({
         apiKey: cfg.apiKey,
-        model: { id: modelId },
+        model: selection,
         name: opts.label,
         local: {
           cwd: cfg.repoRoot,
