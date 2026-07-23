@@ -19,7 +19,8 @@ docs/agents/     # pipeline role docs (shared rules, research, writer,
 docs/personas/   # audience definitions Setup Guides are voiced for
 retro/           # pipeline signal: runs/ (Run Records), notes/ (human)
 scripts/
-└── draft-guide-workflow.js   # the multi-agent drafting pipeline
+├── draft-guide-workflow.js   # Claude Code Workflow harness pipeline
+└── cursor-sdk/               # Cursor SDK port of the same pipeline (CLI)
 .claude/
 ├── skills/draft-guide/       # /draft-guide — entry point to the pipeline
 └── skills/tune-pipeline/     # /tune-pipeline — retro → doctrine proposals
@@ -45,6 +46,23 @@ CONTEXT.md       # ubiquitous-language glossary
   a pointer to the provider's MCP documentation.
 
 `guides/box/` is the reference draft — match its shape when adding new guides.
+
+## Authoring a Guide (Cursor SDK CLI)
+
+Same pipeline and doctrine, driven by local Cursor agents instead of the
+Claude Code Workflow harness. From `scripts/cursor-sdk/`:
+
+```bash
+export CURSOR_API_KEY=cursor_...   # Dashboard → Integrations / API Keys
+npm install
+npm run draft-guide -- box
+npm run draft-guide -- box hubspot --persona it-admin --force
+```
+
+Requires Node ≥ 22.13. Usage burns your Cursor plan's token pool (tagged
+SDK in the usage dashboard). Run records land in `retro/runs/` with
+`runtime: "cursor-sdk"`. Pass `--help` for flags (`--notes`, `--model`,
+`--light-model`, `--max-rounds`, `--force`).
 
 ## Authoring a Guide (`/draft-guide`)
 
