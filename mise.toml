@@ -6,8 +6,16 @@ node = "24"
 description = "Pull our PulseMCP tenant catalog into pulse-catalog.json"
 run = "node scripts/pull-pulse-catalog.mjs"
 
+[tasks."_cursor-sdk-install"]
+description = "Install scripts/cursor-sdk dependencies (hidden prerequisite)"
+dir = "scripts/cursor-sdk"
+hide = true
+run = "npm install"
+
 [tasks.draft-guide]
 description = "Draft a Guide via the Cursor SDK pipeline (scripts/cursor-sdk)"
 dir = "scripts/cursor-sdk"
-# Usage: mise run draft-guide -- box [--force] [...]
+depends = ["_cursor-sdk-install"]
+# Usage (from repo root): mise run draft-guide -- box [--force] [...]
+# Requires CURSOR_API_KEY in the environment (user or team service-account key).
 run = "npm run draft-guide --"
