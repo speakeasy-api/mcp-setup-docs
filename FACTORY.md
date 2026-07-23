@@ -31,8 +31,8 @@ The workflow creates these if missing. You can also create them by hand:
 ## Draft a guide
 
 1. Open an issue. **Title and body are freeform** — no template.
-   - Good: `create datadog guide`
-   - Good: `Draft BigQuery MCP setup — prefer ADC docs at https://…`
+   - **Title:** what to draft, e.g. `create datadog guide` or `Draft BigQuery MCP setup`
+   - **Body (optional):** notes for the agents — docs URLs, “prefer OAuth”, “drop secret-reset recovery”, etc.
 2. Add the label **`guide:draft`**.
 3. Watch the issue comments and the **Actions** tab (`Guide draft` workflow).
 
