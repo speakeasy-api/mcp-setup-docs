@@ -6,11 +6,8 @@
     <br /><br />
     <a href="https://speakeasy.com/"><img alt="Built by Speakeasy" src="https://www.speakeasy.com/assets/badges/built-by-speakeasy.svg" /></a>
     <br /><br />
-    <a href="./FACTORY.md"><strong>Factory</strong></a> ·
-    <a href="./docs/agents/shared.md"><strong>Doctrine</strong></a> ·
-    <a href="./docs/personas/"><strong>Personas</strong></a> ·
-    <a href="./CONTEXT.md"><strong>Context</strong></a> ·
-    <a href="./guides/"><strong>Guides</strong></a>
+    <a href="./guides/"><strong>Guides</strong></a> ·
+    <a href="./FACTORY.md"><strong>Factory</strong></a>
 </p>
 
 <hr />
