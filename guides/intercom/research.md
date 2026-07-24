@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: intercom
-researched_at: 2026-07-24T19:28:08Z
+researched_at: 2026-07-24T23:08:01Z
 ---
 
 # Intercom — Research Dossier
@@ -121,8 +121,8 @@ region.
 
 ## Speakeasy setup
 
-Canonical source: `docs/speakeasy-setup.md`, observed
-`2026-07-24T19:28:08Z`.
+Canonical source: `doctrine/speakeasy-setup.md`, observed
+`2026-07-24T23:08:01Z`.
 
 Per-guide values:
 
@@ -219,45 +219,45 @@ Source inventory from the sweep:
   older, smaller server surface, while the live developer guide adds EU.
 - **Speakeasy public product source — `github.com/speakeasy-api/gram`:**
   consulted only for Speakeasy-side dynamic OAuth behavior and exact labels
-  absent from `docs/speakeasy-setup.md`.
+  absent from `doctrine/speakeasy-setup.md`.
 
 Sources drawn from:
 
 - `https://developers.intercom.com/docs/guides/mcp` ("Model Context Protocol
-  (MCP)") — observed `2026-07-24T19:28:08Z`. Backs US/EU availability and
+  (MCP)") — observed `2026-07-24T23:08:01Z`. Backs US/EU availability and
   endpoint mapping, Australian exclusion, Streamable HTTP recommendation,
   deprecated SSE alternatives, automatic OAuth recommendation, Bearer-token
   alternative, required permissions, and automatic browser authentication.
 - `https://developers.intercom.com/llms.txt` — observed
-  `2026-07-24T19:28:08Z`. Backs developer-property sweep coverage.
+  `2026-07-24T23:08:01Z`. Backs developer-property sweep coverage.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication`
-  ("Authentication") — observed `2026-07-24T19:28:08Z`. Backs the distinction
+  ("Authentication") — observed `2026-07-24T23:08:01Z`. Backs the distinction
   between private-app Access Tokens and OAuth, the Developer Hub token path,
   and warnings to treat Access Tokens as passwords and not give them to
   third-party app providers.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth`
-  ("Setting up OAuth") — observed `2026-07-24T19:28:08Z`. Backs general
+  ("Setting up OAuth") — observed `2026-07-24T23:08:01Z`. Backs general
   Intercom OAuth permission behavior and regional authorization-host behavior;
   its manually registered public-app flow is not the MCP DCR path.
 - `https://www.intercom.com/help/en/articles/6124430-regional-data-hosting`
-  ("Regional Data Hosting") — observed `2026-07-24T19:28:08Z`. Corroborates
+  ("Regional Data Hosting") — observed `2026-07-24T23:08:01Z`. Corroborates
   workspace-host mapping for US, EU, and Australia.
 - `https://mcp.intercom.com/mcp` and
   `https://mcp.eu.intercom.com/mcp` — direct unauthenticated GET and JSON-RPC
-  initialize observations at `2026-07-24T19:28:08Z`. Both returned HTTP 401
+  initialize observations at `2026-07-24T23:08:01Z`. Both returned HTTP 401
   with a Bearer challenge lacking protected-resource and authorization-server
   metadata pointers.
 - `https://mcp.intercom.com/.well-known/oauth-authorization-server` and
   `https://mcp.eu.intercom.com/.well-known/oauth-authorization-server` —
-  observed `2026-07-24T19:28:08Z`. Back regional issuers, authorization/token/
+  observed `2026-07-24T23:08:01Z`. Back regional issuers, authorization/token/
   registration endpoints, grants, endpoint-authentication methods, and PKCE.
 - `https://mcp.intercom.com/.well-known/oauth-protected-resource`,
   `https://mcp.intercom.com/.well-known/oauth-protected-resource/mcp`,
-  and EU equivalents — observed `2026-07-24T19:28:08Z`; all returned 404.
-- `docs/speakeasy-setup.md` — observed `2026-07-24T19:28:08Z`. Backs the
+  and EU equivalents — observed `2026-07-24T23:08:01Z`; all returned 404.
+- `doctrine/speakeasy-setup.md` — observed `2026-07-24T23:08:01Z`. Backs the
   canonical Speakeasy-side skeleton, fixed anchors, and exact common labels.
 - `https://github.com/speakeasy-api/gram/tree/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication`
-  — observed `2026-07-24T19:28:08Z`. `AuthenticationSetupActions.tsx`,
+  — observed `2026-07-24T23:08:01Z`. `AuthenticationSetupActions.tsx`,
   `AuthenticationSection.tsx`, `AttachRemoteIdentityProviderSheet.tsx`,
   `IssuerFormFields.tsx`, `issuerFormUtils.ts`, and
   `useIssuerDiscovery.ts` back **Use Discovered**, **Configure Manually**,
@@ -265,6 +265,6 @@ Sources drawn from:
   **Dynamic Client Registration (DCR)** defaulting, the token-endpoint
   authentication default, overrides, and **Attach Identity Provider**.
 - `https://github.com/speakeasy-api/gram/blob/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/sources/remote-mcp/autoConfigureAuth.ts`
-  — observed `2026-07-24T19:28:08Z`. Backs that automatic authentication
+  — observed `2026-07-24T23:08:01Z`. Backs that automatic authentication
   configuration first requires protected-resource metadata and silently skips
   when none is found.

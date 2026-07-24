@@ -3,132 +3,132 @@
   "slug": "salesforce",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-24T17:51:03Z",
+  "updated_at": "2026-07-24T23:15:05Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:c00cb185e1f554833177f4e46c7b0a56db0352c3e36893ddd7ca86c7b1de3dd6",
+      "input_digest": "sha256:7b148ca394dd29c0adbc674e4f52e42f67cfdec9dfbbe2d791e33f96c42b9724",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
-            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
           },
           {
-            "path": "docs/agents/shared.md",
-            "digest": "sha256:98c53dcca4bae1f0745ebbda49ab01016288e31b40df25816c04d1dab0749f52"
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
           },
           {
-            "path": "docs/agents/technical-research.md",
-            "digest": "sha256:cae8235a54bf20e79069f83bb325d806c6bb254206a1c89fc05c57853c4b0e01"
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:3099f1e653aeadefa5a23507f1a784dbe3d86a6da02839b7a2c59f4e35d290af"
           },
           {
-            "path": "docs/speakeasy-setup.md",
+            "path": "doctrine/speakeasy-setup.md",
             "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
           }
         ],
         "artifacts": [],
         "params": {
           "provider": "salesforce",
-          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing; exact activation SObject row and enabled-toggle labels; Speakeasy fit inferred from OAuth 2.0 Authorization Code with PKCE (Consumer Key, no client secret)—confirm via E2E connection test if possible."
+          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing vs Hosted MCP SObject servers and manual OAuth fields; exact activation SObject row and enabled-toggle labels; Consumer Key-only PKCE through Speakeasy AI Control Plane; which Speakeasy control starts user authorization after attaching identity provider."
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:9e0c079bc387d63578860725a735e018e94f288abd40c643333eb874dd65dfd2"
+          "digest": "sha256:7bfcce547cc10ccb1eb50751763ef88065f734780ba84f6035dcf62ed3bf6def"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:4b2d3dc5db29bd77e3b5a93649c0535098a903128a2281950e5607b1d87570ce"
+          "digest": "sha256:4a32b42098d76d19ae4721b094bddc1efcc5a624d923d21b3e0eea5c9d8c3b77"
         }
       ],
-      "completed_at": "2026-07-24T17:51:03Z"
+      "completed_at": "2026-07-24T23:15:05Z"
     },
     "draft": {
-      "input_digest": "sha256:ea222dd16459811f089ddb67749c88948b55aa0b5ec435292bdbe13e7bdbd48e",
+      "input_digest": "sha256:9f9cd4aa9e88c4f6ab1bd96c1ab668a44b9e034f75d2b5071f34c0b7dc618883",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
-            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
           },
           {
-            "path": "docs/agents/shared.md",
-            "digest": "sha256:98c53dcca4bae1f0745ebbda49ab01016288e31b40df25816c04d1dab0749f52"
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
           },
           {
-            "path": "docs/agents/writer.md",
-            "digest": "sha256:a06e939ae9a4efb094f3a598c29a896ca4a32cbcf012914efdafa48ff78dde5f"
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:621ba29cfe06a63471077c490c077c72b6edd7f36741e778b33300c111f5c9ce"
           },
           {
-            "path": "docs/personas/it-admin.md",
+            "path": "doctrine/personas/it-admin.md",
             "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:9e0c079bc387d63578860725a735e018e94f288abd40c643333eb874dd65dfd2"
+            "digest": "sha256:7bfcce547cc10ccb1eb50751763ef88065f734780ba84f6035dcf62ed3bf6def"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:4b2d3dc5db29bd77e3b5a93649c0535098a903128a2281950e5607b1d87570ce"
+            "digest": "sha256:4a32b42098d76d19ae4721b094bddc1efcc5a624d923d21b3e0eea5c9d8c3b77"
           }
         ],
         "params": {
           "provider": "salesforce",
-          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing; exact activation SObject row and enabled-toggle labels; Speakeasy fit inferred from OAuth 2.0 Authorization Code with PKCE (Consumer Key, no client secret)—confirm via E2E connection test if possible.",
+          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing vs Hosted MCP SObject servers and manual OAuth fields; exact activation SObject row and enabled-toggle labels; Consumer Key-only PKCE through Speakeasy AI Control Plane; which Speakeasy control starts user authorization after attaching identity provider.",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "setup.md",
-          "digest": "sha256:e98d944b9182be3ec8f4ff1ca5a9440b00fa2e5b54e9f6265bea86bee9493b7a"
+          "digest": "sha256:9539918d16d959dbda841b1674ae9bd083d56dcef135aa6be9a7ee95ebbad267"
         }
       ],
-      "completed_at": "2026-07-24T17:51:03Z"
+      "completed_at": "2026-07-24T23:15:05Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:5c53d90ba88371b324af320d1c68d1a8eb5a513c7f5e3f295c0d84a3c43dac2a",
+      "input_digest": "sha256:558ef1d2b3be65f9159054f7c4e2e558698fef797050ab33712111d04fa73482",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
-            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
           },
           {
-            "path": "docs/agents/shared.md",
-            "digest": "sha256:98c53dcca4bae1f0745ebbda49ab01016288e31b40df25816c04d1dab0749f52"
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
           },
           {
-            "path": "docs/agents/fidelity.md",
-            "digest": "sha256:23002875f234950645e63f4d384a67c2a15a31e2f2b50cb0fe4b4817b2df1fe1"
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:fe73d724c57713002ee0030655222908eb77e409dc8c16aa0abfb5994de9d3b3"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:9e0c079bc387d63578860725a735e018e94f288abd40c643333eb874dd65dfd2"
+            "digest": "sha256:7bfcce547cc10ccb1eb50751763ef88065f734780ba84f6035dcf62ed3bf6def"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:4b2d3dc5db29bd77e3b5a93649c0535098a903128a2281950e5607b1d87570ce"
+            "digest": "sha256:4a32b42098d76d19ae4721b094bddc1efcc5a624d923d21b3e0eea5c9d8c3b77"
           },
           {
             "path": "setup.md",
-            "digest": "sha256:e98d944b9182be3ec8f4ff1ca5a9440b00fa2e5b54e9f6265bea86bee9493b7a"
+            "digest": "sha256:9539918d16d959dbda841b1674ae9bd083d56dcef135aa6be9a7ee95ebbad267"
           }
         ],
         "params": {
           "provider": "salesforce",
-          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing; exact activation SObject row and enabled-toggle labels; Speakeasy fit inferred from OAuth 2.0 Authorization Code with PKCE (Consumer Key, no client secret)—confirm via E2E connection test if possible.",
+          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing vs Hosted MCP SObject servers and manual OAuth fields; exact activation SObject row and enabled-toggle labels; Consumer Key-only PKCE through Speakeasy AI Control Plane; which Speakeasy control starts user authorization after attaching identity provider.",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -136,51 +136,51 @@
       "outputs": [
         {
           "path": "setup.md",
-          "digest": "sha256:e98d944b9182be3ec8f4ff1ca5a9440b00fa2e5b54e9f6265bea86bee9493b7a"
+          "digest": "sha256:9539918d16d959dbda841b1674ae9bd083d56dcef135aa6be9a7ee95ebbad267"
         }
       ],
-      "completed_at": "2026-07-24T17:51:03Z"
+      "completed_at": "2026-07-24T23:15:05Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:174a2d268237ea267364ca962fd62acaebe49f242a688c30198fef3b47f2c01d",
+      "input_digest": "sha256:aa2a609d3a0722aac4193f7714f9dae24560318b5f9066238968cde9c5f48d2b",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
-            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
           },
           {
-            "path": "docs/agents/shared.md",
-            "digest": "sha256:98c53dcca4bae1f0745ebbda49ab01016288e31b40df25816c04d1dab0749f52"
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
           },
           {
-            "path": "docs/agents/review.md",
-            "digest": "sha256:35d04dbdf95b2a4e0ba3178c46af0268da0af6b4ed2d9effc5382b8528dd1f34"
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:42f6b2d4408952b17dced886cac3049689d7ba06e1c16085d97fd11e48d38162"
           },
           {
-            "path": "docs/personas/it-admin.md",
+            "path": "doctrine/personas/it-admin.md",
             "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:9e0c079bc387d63578860725a735e018e94f288abd40c643333eb874dd65dfd2"
+            "digest": "sha256:7bfcce547cc10ccb1eb50751763ef88065f734780ba84f6035dcf62ed3bf6def"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:4b2d3dc5db29bd77e3b5a93649c0535098a903128a2281950e5607b1d87570ce"
+            "digest": "sha256:4a32b42098d76d19ae4721b094bddc1efcc5a624d923d21b3e0eea5c9d8c3b77"
           },
           {
             "path": "setup.md",
-            "digest": "sha256:e98d944b9182be3ec8f4ff1ca5a9440b00fa2e5b54e9f6265bea86bee9493b7a"
+            "digest": "sha256:9539918d16d959dbda841b1674ae9bd083d56dcef135aa6be9a7ee95ebbad267"
           }
         ],
         "params": {
           "provider": "salesforce",
-          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing; exact activation SObject row and enabled-toggle labels; Speakeasy fit inferred from OAuth 2.0 Authorization Code with PKCE (Consumer Key, no client secret)—confirm via E2E connection test if possible.",
+          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing vs Hosted MCP SObject servers and manual OAuth fields; exact activation SObject row and enabled-toggle labels; Consumer Key-only PKCE through Speakeasy AI Control Plane; which Speakeasy control starts user authorization after attaching identity provider.",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -188,10 +188,10 @@
       "outputs": [
         {
           "path": "setup.md",
-          "digest": "sha256:e98d944b9182be3ec8f4ff1ca5a9440b00fa2e5b54e9f6265bea86bee9493b7a"
+          "digest": "sha256:9539918d16d959dbda841b1674ae9bd083d56dcef135aa6be9a7ee95ebbad267"
         }
       ],
-      "completed_at": "2026-07-24T17:51:03Z"
+      "completed_at": "2026-07-24T23:15:05Z"
     }
   }
 }

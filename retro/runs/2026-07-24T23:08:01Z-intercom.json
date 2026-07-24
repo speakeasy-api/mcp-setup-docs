@@ -1,0 +1,28 @@
+{
+  "slug": "intercom",
+  "provider": "intercom",
+  "persona": "it-admin",
+  "timestamp": "2026-07-24T23:08:01Z",
+  "started_at": "2026-07-24T23:08:01Z",
+  "finished_at": "2026-07-24T23:11:55Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "Catalog handling for US versus EU endpoints is not publicly documented.",
+    "Intercom does not publish exact MCP authorization-screen labels."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER changes only observed_at timestamps and corrects the canonical Speakeasy doctrine locator from docs/speakeasy-setup.md to doctrine/speakeasy-setup.md. No draft-relevant facts, anchors, flows, remotes, transports, prerequisites, or claims changed."
+  }
+}
