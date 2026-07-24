@@ -6,11 +6,11 @@ setup_version: 1
 
 ## Prerequisites
 
-Before you begin, make sure you have:
+Sign in to Asana at `https://app.asana.com`. Before you begin, make sure you have:
 
 - An Asana account with access to the developer console.
 - Membership in every Asana workspace you plan to select under **Specific workspaces**.
-- If your Enterprise+ or Legacy Enterprise organization blocks unapproved apps through App management, an organization super admin who can allow this V2 MCP client before users authorize it.
+- If your Enterprise+ or Legacy Enterprise organization uses App management, confirmation from an organization super admin that this V2 MCP client is allowed before users authorize it.
 - Access to your organization's approved password manager.
 
 ## Provider setup
@@ -27,8 +27,8 @@ Open `https://app.asana.com/0/my-apps`. This opens the developer console, where 
 2. Enter a recognizable app name, such as `Speakeasy AI Control Plane`.
 3. Select **MCP app** as the app type.
 4. Select **Create app**.
-5. Copy the **Client ID** into your approved password manager.
-6. Copy the **Client secret** into your approved password manager.
+5. Copy the generated **Client ID** into your approved password manager.
+6. Copy the generated **Client secret** into your approved password manager.
 
 <!-- screenshot: the creation screen immediately before Create app, with the app name and MCP app type visible; do not capture generated credential values -->
 
@@ -98,12 +98,10 @@ When **Use Discovered** is not offered:
 
 Under **Authentication**, select **Configure Manually**.
 
-The **Attach Remote Identity Provider** sheet shows **Redirect URI** with a copy button.
-
 Do not enter a scope.
 
 1. Set **Client Type** to **Manual**.
-2. Confirm that **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value you entered in [Configure the OAuth redirect](#configure-oauth-redirect).
+2. In **Attach Remote Identity Provider**, confirm that **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value you entered in [Configure the OAuth redirect](#configure-oauth-redirect).
 3. Paste the **Client ID** saved in [Create the MCP app](#create-mcp-app) into **Client ID**.
 4. Paste the **Client secret** saved in [Create the MCP app](#create-mcp-app) into **Client Secret (optional)**.
 5. Select **Attach Identity Provider**.

@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "slug": "asana",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-24T23:26:12Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:1589887210ee5bc6e8d955d9ea422e4887d9a99b6df95e8c659fed630917e339",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+          },
+          {
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:3099f1e653aeadefa5a23507f1a784dbe3d86a6da02839b7a2c59f4e35d290af"
+          },
+          {
+            "path": "doctrine/speakeasy-setup.md",
+            "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch."
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:7f8944827692bfab824709461684c47220025ca0858babb4e718745336469501"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:64aaa50fd9c6006ff4f9ab5dd0a673889b7eacaa212e3321119405fdbeeb8156"
+        }
+      ],
+      "completed_at": "2026-07-24T23:26:12Z"
+    },
+    "draft": {
+      "input_digest": "sha256:2ff2f8bdc7d7eb2fa34d43cc26738621267aa3feb86c16c72f1142006a53c586",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+          },
+          {
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:621ba29cfe06a63471077c490c077c72b6edd7f36741e778b33300c111f5c9ce"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:7f8944827692bfab824709461684c47220025ca0858babb4e718745336469501"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:64aaa50fd9c6006ff4f9ab5dd0a673889b7eacaa212e3321119405fdbeeb8156"
+          }
+        ],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch.",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+        }
+      ],
+      "completed_at": "2026-07-24T23:26:12Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:c94a4025a9c6ab9060e3c85708353a533e66a2c6f531689dbb7d18473a40e947",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+          },
+          {
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:fe73d724c57713002ee0030655222908eb77e409dc8c16aa0abfb5994de9d3b3"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:7f8944827692bfab824709461684c47220025ca0858babb4e718745336469501"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:64aaa50fd9c6006ff4f9ab5dd0a673889b7eacaa212e3321119405fdbeeb8156"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+          }
+        ],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch.",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+        }
+      ],
+      "completed_at": "2026-07-24T23:26:12Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:5f7288ee49a2d9c94495c1868cfc61b744ddaf937d0b4831cacaf8cbe4af01d6",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+          },
+          {
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:42f6b2d4408952b17dced886cac3049689d7ba06e1c16085d97fd11e48d38162"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:7f8944827692bfab824709461684c47220025ca0858babb4e718745336469501"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:64aaa50fd9c6006ff4f9ab5dd0a673889b7eacaa212e3321119405fdbeeb8156"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+          }
+        ],
+        "params": {
+          "provider": "asana",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch.",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+        }
+      ],
+      "completed_at": "2026-07-24T23:26:12Z"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "slug": "asana",
+  "provider": "asana",
+  "persona": "it-admin",
+  "timestamp": "2026-07-24T23:19:23Z",
+  "started_at": "2026-07-24T23:19:23Z",
+  "finished_at": "2026-07-24T23:26:12Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "Public docs do not state which Asana account permission, if any, gates app creation in the developer console.",
+    "Asana documents a protected-resource metadata URL that returns 404; the live MCP challenge advertises a different working URL."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Prerequisites",
+          "problem": "The guide requires only access to a super admin, while the Dossier requires the MCP client itself to be allowed before users authorize it.",
+          "suggestion": "Require confirmation from an organization super admin that the V2 MCP client is allowed before authorization.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Updated Prerequisites to require super-admin confirmation that the V2 MCP client is allowed before users authorize it.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER adds a provenance-backed explicit-block reversal path: profile photo > Admin console > Apps > Manage apps > Connected apps > select app > Unblock. This new first-connection governance recovery input could be rendered in setup.md; all other changes are timestamp or provenance churn."
+  }
+}
