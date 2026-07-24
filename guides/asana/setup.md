@@ -10,14 +10,14 @@ Sign in to Asana at `https://app.asana.com`. Before you begin, make sure you hav
 
 - An Asana account with access to the developer console.
 - Membership in every Asana workspace you plan to select under **Specific workspaces**.
-- If your Enterprise+ or Legacy Enterprise organization uses App management, confirmation from an organization super admin that this V2 MCP client is allowed before users authorize it.
+- If your Enterprise+ or Legacy Enterprise organization uses App management, confirmation from an organization super admin that the V2 MCP client is allowed before users authorize it.
 - Access to your organization's approved password manager.
 
 ## Provider setup
 
 ### Open the developer console {#open-developer-console}
 
-Open `https://app.asana.com/0/my-apps`. This opens the developer console, where you create the app. Stay in the app area; this setup does not use a personal access token.
+Open `https://app.asana.com/0/my-apps`. This opens the developer console, where you create the app.
 
 <!-- screenshot: the Asana Apps settings page with View developer console visible, followed by the developer console with Create new app visible -->
 
@@ -59,6 +59,17 @@ To let users from any Asana workspace authorize the app:
 1. Under **Distribution method**, select **Any workspace**.
 2. Select **Save changes**.
 
+If authorization says the app is explicitly blocked, an organization super admin must unblock it:
+
+1. Return to Asana.
+2. Select your profile photo.
+3. Select **Admin console**.
+4. Select **Apps**.
+5. Select **Manage apps**.
+6. Select **Connected apps**.
+7. Select the associated MCP client app.
+8. Select **Unblock**.
+
 <!-- screenshot: Manage distribution with Distribution method and both choices visible; for Specific workspaces, also show the selected workspace list without exposing unrelated organization data -->
 
 ## Speakeasy setup
@@ -88,23 +99,14 @@ Either path creates the hosted MCP server and opens its **Overview** page.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**.
-
-When **Use Discovered** is offered:
-
-Under **Authentication**, select **Use Discovered**.
-
-When **Use Discovered** is not offered:
-
-Under **Authentication**, select **Configure Manually**.
-
-Do not enter a scope.
-
-1. Set **Client Type** to **Manual**.
-2. In **Attach Remote Identity Provider**, confirm that **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value you entered in [Configure the OAuth redirect](#configure-oauth-redirect).
-3. Paste the **Client ID** saved in [Create the MCP app](#create-mcp-app) into **Client ID**.
-4. Paste the **Client secret** saved in [Create the MCP app](#create-mcp-app) into **Client Secret (optional)**.
-5. Select **Attach Identity Provider**.
+1. From the server's **Overview**, open **Settings**.
+2. Under **Authentication**, select **Use Discovered** when offered; otherwise, select **Configure Manually**.
+3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
+4. Confirm that **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value you entered in [Configure the OAuth redirect](#configure-oauth-redirect).
+5. Paste the **Client ID** saved in [Create the MCP app](#create-mcp-app) into **Client ID**.
+6. Paste the **Client secret** saved in [Create the MCP app](#create-mcp-app) into **Client Secret (optional)**.
+7. Do not enter a scope.
+8. Select **Attach Identity Provider**.
 
 <!-- screenshot: Attach Remote Identity Provider with the Redirect URI and credential fields visible and all credential values redacted -->
 

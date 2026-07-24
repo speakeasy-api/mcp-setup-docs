@@ -3,7 +3,7 @@
   "slug": "asana",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-24T23:26:12Z",
+  "updated_at": "2026-07-24T23:36:32Z",
   "steps": {
     "research": {
       "input_digest": "sha256:1589887210ee5bc6e8d955d9ea422e4887d9a99b6df95e8c659fed630917e339",
@@ -37,17 +37,17 @@
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:7f8944827692bfab824709461684c47220025ca0858babb4e718745336469501"
+          "digest": "sha256:553ee496e3ca1b6301f5431d063fd514dac3c0c249b2c6c34fd7fb9a59d3c901"
         },
         {
           "path": "meta.yaml",
           "digest": "sha256:64aaa50fd9c6006ff4f9ab5dd0a673889b7eacaa212e3321119405fdbeeb8156"
         }
       ],
-      "completed_at": "2026-07-24T23:26:12Z"
+      "completed_at": "2026-07-24T23:36:32Z"
     },
     "draft": {
-      "input_digest": "sha256:2ff2f8bdc7d7eb2fa34d43cc26738621267aa3feb86c16c72f1142006a53c586",
+      "input_digest": "sha256:3c42f5af0d761aa85eaffbf64aab15696aad6711c27016c9cbd4c2b29c6e567c",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
@@ -72,7 +72,7 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:7f8944827692bfab824709461684c47220025ca0858babb4e718745336469501"
+            "digest": "sha256:553ee496e3ca1b6301f5431d063fd514dac3c0c249b2c6c34fd7fb9a59d3c901"
           },
           {
             "path": "meta.yaml",
@@ -88,13 +88,13 @@
       "outputs": [
         {
           "path": "setup.md",
-          "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+          "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
         }
       ],
-      "completed_at": "2026-07-24T23:26:12Z"
+      "completed_at": "2026-07-24T23:36:32Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:c94a4025a9c6ab9060e3c85708353a533e66a2c6f531689dbb7d18473a40e947",
+      "input_digest": "sha256:f07652ca15210dc3d2a4e3d2fa55841a2f9cef04c4aec1849020f4e034496fc8",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
@@ -115,7 +115,7 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:7f8944827692bfab824709461684c47220025ca0858babb4e718745336469501"
+            "digest": "sha256:553ee496e3ca1b6301f5431d063fd514dac3c0c249b2c6c34fd7fb9a59d3c901"
           },
           {
             "path": "meta.yaml",
@@ -123,7 +123,7 @@
           },
           {
             "path": "setup.md",
-            "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+            "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
           }
         ],
         "params": {
@@ -136,13 +136,13 @@
       "outputs": [
         {
           "path": "setup.md",
-          "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+          "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
         }
       ],
-      "completed_at": "2026-07-24T23:26:12Z"
+      "completed_at": "2026-07-24T23:36:32Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:5f7288ee49a2d9c94495c1868cfc61b744ddaf937d0b4831cacaf8cbe4af01d6",
+      "input_digest": "sha256:77f07821a6cb0c1150924e3c67d5098a5d6fc8b93669fd9ff8054fe86feebab4",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
@@ -167,7 +167,7 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:7f8944827692bfab824709461684c47220025ca0858babb4e718745336469501"
+            "digest": "sha256:553ee496e3ca1b6301f5431d063fd514dac3c0c249b2c6c34fd7fb9a59d3c901"
           },
           {
             "path": "meta.yaml",
@@ -175,7 +175,7 @@
           },
           {
             "path": "setup.md",
-            "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+            "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
           }
         ],
         "params": {
@@ -188,10 +188,10 @@
       "outputs": [
         {
           "path": "setup.md",
-          "digest": "sha256:3fcd25a34a34234edecf40e925bc12d62a8cbc437d80df1c7604737553e0b0b9"
+          "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
         }
       ],
-      "completed_at": "2026-07-24T23:26:12Z"
+      "completed_at": "2026-07-24T23:36:32Z"
     }
   }
 }

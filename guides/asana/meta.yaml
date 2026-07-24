@@ -37,85 +37,85 @@ remotes:
         locator: https://developers.asana.com/docs/integrating-with-asanas-mcp-server
         name: Integrating with Asana's MCP Server
         classification: official
-        observed_at: "2026-07-24T23:19:23Z"
+        observed_at: "2026-07-24T23:32:15Z"
       - source: provider-documentation
         locator: https://developers.asana.com/docs/using-asanas-mcp-server
         name: Using Asana's MCP Server
         classification: official
-        observed_at: "2026-07-24T23:19:23Z"
+        observed_at: "2026-07-24T23:32:15Z"
       - source: endpoint-observation
         locator: https://mcp.asana.com/v2/mcp
         classification: official
-        observed_at: "2026-07-24T23:19:23Z"
+        observed_at: "2026-07-24T23:32:15Z"
       - source: endpoint-observation
         locator: https://mcp.asana.com/.well-known/oauth-protected-resource/v2
         classification: official
-        observed_at: "2026-07-24T23:19:23Z"
+        observed_at: "2026-07-24T23:32:15Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.asana.com/docs/integrating-with-asanas-mcp-server
     name: Integrating with Asana's MCP Server
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/using-asanas-mcp-server
     name: Using Asana's MCP Server
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/manage-and-share-your-app
     name: Manage your app
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/share-your-app
     name: Share your app
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/oauth
     name: OAuth
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server
     name: Connecting Coding Clients to Asana's V2 server
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://help.asana.com/s/article/app-management-and-integrations?language=en_US
     name: App management and integrations
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://help.asana.com/s/article/what-is-the-admin-console?language=en_US
     name: What is the admin console?
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://help.asana.com/s/article/api?language=en_US
     name: API
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-changelog
     locator: https://forum.asana.com/t/new-v2-mcp-server-now-generally-available/1122647
     name: V2 MCP server now generally available
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: endpoint-observation
     locator: https://mcp.asana.com/v2/mcp
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: endpoint-observation
     locator: https://mcp.asana.com/.well-known/oauth-protected-resource/v2
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: endpoint-observation
     locator: https://app.asana.com/.well-known/oauth-authorization-server
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-24T23:19:23Z"
+    observed_at: "2026-07-24T23:32:15Z"
