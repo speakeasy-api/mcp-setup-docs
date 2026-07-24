@@ -8,16 +8,16 @@ export type AgentOptions<S extends AnyZod> = {
   label: string
   phase: string
   schema: S
-  /** Workflow uses 'sonnet' for lighter review/polish slots. */
+  /** Workflow may pass 'sonnet' for optional light slots (unused by current gates). */
   model?: 'sonnet' | string
 }
 
 export type RuntimeConfig = {
   apiKey: string
   repoRoot: string
-  /** Heavy slots: research, draft, fidelity, voice, achievability, revision. */
+  /** Heavy slots: research, draft, fidelity, achievability, revision. */
   defaultModel: ModelSelection
-  /** Light slots: formatting, concision, polish (workflow model: 'sonnet'). */
+  /** Light model for optional `model: 'sonnet'` overrides (CLI still accepts it). */
   lightModel: ModelSelection
 }
 

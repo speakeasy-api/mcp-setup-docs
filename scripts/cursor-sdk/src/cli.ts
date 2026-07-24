@@ -18,6 +18,8 @@ Options:
   --overwrite, -y    Overwrite existing guides/<slug>/ without prompting;
                      still honors pipeline.lock.json skip checks
   --force            Bypass pipeline.lock.json skips (implies --overwrite)
+  --pause-on-scope   After research, pause before draft when material open
+                     questions lack Decision N replies in --notes (factory)
   --repo-root <path> Repo root (default: two levels above this package)
   --model <id>       Default Cursor model id (default: gpt-5.6-sol)
   --light-model <id> Model for "sonnet" slots (default: composer-2.5)
@@ -25,6 +27,12 @@ Options:
   --light-effort <level>
                      Reasoning effort for light slots (default: none /
                      omit param — Composer has no effort knob)
+
+Exit codes:
+  0  all guides converged
+  1  hard failure (exception / missing API key)
+  2  unconverged / blocked / failed guide status
+  3  awaiting_scope (--pause-on-scope; research written, no draft)
 
 Env:
   CURSOR_API_KEY     Required (user or team service-account key)
@@ -38,6 +46,7 @@ Examples:
   npm run draft-guide -- box --overwrite
   npm run draft-guide -- box hubspot --persona it-admin --force
   npm run draft-guide -- "Google BigQuery" --notes "prefer ADC docs"
+  npm run draft-guide -- x --overwrite --pause-on-scope
 `)
   process.exit(64)
 }
@@ -57,9 +66,10 @@ function parseArgs(argv: string[]) {
   let maxRounds = 3
   let overwrite = false
   let force = false
+  let pauseOnScope = false
   let repoRoot: string | undefined
-  // Heavy slots (research / draft / fidelity / voice / achievability / revision)
-  // default to GPT-5.6 Sol at high effort; light slots stay on Composer.
+  // Heavy slots (research / draft / fidelity / achievability / revision)
+  // default to GPT-5.6 Sol at high effort; light model kept for optional overrides.
   let model = process.env.CURSOR_MODEL || 'gpt-5.6-sol'
   let lightModel = process.env.CURSOR_MODEL_LIGHT || 'composer-2.5'
   let effort = process.env.CURSOR_EFFORT || 'high'
@@ -74,6 +84,10 @@ function parseArgs(argv: string[]) {
     }
     if (a === '--force') {
       force = true
+      continue
+    }
+    if (a === '--pause-on-scope') {
+      pauseOnScope = true
       continue
     }
     if (a === '--persona') {
@@ -124,6 +138,7 @@ function parseArgs(argv: string[]) {
     maxRounds,
     overwrite,
     force,
+    pauseOnScope,
     repoRoot,
     model,
     lightModel,
@@ -263,6 +278,7 @@ async function main() {
     repoRoot,
     maxRounds: args.maxRounds,
     force: args.force,
+    pauseOnScope: args.pauseOnScope,
   })
 
   const finishedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
@@ -280,6 +296,10 @@ async function main() {
     console.log(JSON.stringify(result, null, 2))
   }
 
+  const awaitingScope = out.results.some((r) => r.status === 'awaiting_scope')
+  if (awaitingScope) {
+    process.exit(3)
+  }
   const failed = out.results.some(
     (r) => r.status === 'failed' || r.status === 'blocked' || r.status === 'unconverged'
   )

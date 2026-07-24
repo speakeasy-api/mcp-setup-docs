@@ -30,16 +30,19 @@ guides/<slug>/
 | `research` | yes | no (record only) |
 | `draft` | no | yes |
 | `review.fidelity` | no | yes |
-| `review.voice` | no | yes |
-| `review.formatting` | no | yes |
 | `review.achievability` | no | yes |
-| `review.concision` | no | yes |
 
-**Out of v1 skip surface:** `revise`, `polish`, and `fidelity_recheck`. They
-run only when this run’s review phase produces work (blockers or polishable
-nits), same as today’s review/revise loop. After a successful converge, the
-lock is rewritten for `research`, `draft`, and all `review.*` entries from the
-final on-disk artifacts.
+Deterministic **lint** (I4 grammar / meta schema) runs every review round and
+is not a lock step — it is cheap and must see the current `setup.md`.
+
+Legacy lock keys `review.voice`, `review.formatting`, and `review.concision`
+may still appear in older `pipeline.lock.json` files; the workflow no longer
+runs those dimensions (Writer self-check owns voice/formatting/concision).
+
+**Out of v1 skip surface:** `revise`. It runs only when this run’s review
+phase produces blockers. After a successful converge, the lock is rewritten
+for `research`, `draft`, and all current `review.*` entries from the final
+on-disk artifacts.
 
 ## Digests
 
@@ -149,8 +152,8 @@ skipping draft when research changed and the lock is stale mid-run).
 - Research ran and `research_unchanged === false` → do not skip `draft` or any
   `review.*`.
 - Draft ran → do not skip any `review.*`.
-- Any `revise` / `polish` ran → do not skip `review.*` for subsequent rounds
-  in this run; after converge, rewrite the lock from final files.
+- Any `revise` ran → do not skip `review.*` for subsequent rounds in this
+  run; after converge, rewrite the lock from final files.
 
 ### Review skip behavior
 
@@ -158,13 +161,12 @@ A skipped review dimension contributes **no new findings** this round. Prior
 verdicts remain valid because artifacts and that dimension’s inputs are
 unchanged.
 
-If **any** dimension runs and returns blockers (or nits that trigger polish),
-enter the existing revise/polish/re-check loop. Do **not** use the lock to skip
-mid-loop rounds.
+If **any** dimension runs and returns blockers, enter the revise loop. Do
+**not** use the lock to skip mid-loop rounds.
 
-If draft is skipped and **all** `review.*` steps skip → do not run
-revise/polish; the run may exit as already satisfied. Run Records may note
-which steps were skipped (additive; see `retro/README.md` when implemented).
+If draft is skipped and **all** `review.*` steps skip → do not run revise;
+the run may exit as already satisfied. Run Records may note which steps
+were skipped (additive; see `retro/README.md` when implemented).
 
 ### Escape hatch
 
@@ -321,7 +323,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
       ],
       "completed_at": "2026-07-23T16:00:00Z"
     },
-    "review.formatting": {
+    "review.achievability": {
       "input_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
       "inputs": {
         "model": "composer-2.5",
@@ -362,7 +364,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
           "provider": "Box",
           "notes": "",
           "persona": "it-admin",
-          "dimension": "formatting"
+          "dimension": "achievability"
         }
       },
       "outputs": [
@@ -377,7 +379,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
 }
 ```
 
-(Other `review.*` entries follow the same shape as `review.formatting`, with
+(Other `review.*` entries follow the same shape as `review.fidelity`, with
 their own `dimension`, `model`, role-doc reading list, and digests.)
 
 ### Worked skip cases
@@ -385,14 +387,13 @@ their own `dimension`, `model`, role-doc reading list, and digests.)
 - **Draft skipped:** research stable outputs match lock → `research_unchanged`;
   draft `input_digest` matches; `setup.md` still matches `draft.outputs`; same
   model, prompt template, reading list, persona, and notes.
-- **Only formatting re-runs:** draft skipped as above; `review.formatting`
+- **Only achievability re-runs:** draft skipped as above; `review.achievability`
   model or `prompt_digest` or reading-list digest changed → that dimension
   runs; other `review.*` entries still match → they skip.
 
 ## Non-goals (v1)
 
 - Generating lockfiles for existing guides until a successful converge writes one
-- Caching revision/polish by input digest
+- Caching revision by input digest
 - Hashing live upstream HTTP sources so research itself can be skipped
   (research always runs by design)
-- Claude harness (`scripts/draft-guide-workflow.js`) skip wiring (Cursor SDK only)

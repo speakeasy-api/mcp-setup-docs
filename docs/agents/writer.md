@@ -77,11 +77,25 @@ rules, and the formatting preferences. Apply all of it:
   even if the Dossier mentioned them.
 - Before reporting, re-read the guide as the persona, cold: any step they
   could not follow blind is either missing Dossier facts (open question)
-  or missing rendering (fix it now). Then cut: drop anything the reader
-  does not need to finish setup — duplicated facts, process the guide
-  does not own, statements they cannot act on (render a documentation
-  gap as a hedged instruction with a recovery path, not as narration
-  about the docs) — before the reviewers see it.
+  or missing rendering (fix it now). Voice, formatting, and concision are
+  **your** self-check — the review gates are fidelity and achievability
+  only. In that cold pass:
+  - **Voice:** no over-explanation the work does not require; gloss only
+    where the reader must choose or type something the label alone does
+    not determine; imperatives not passive narration; no filler
+    ("simply", "just"); warnings before the click they protect;
+    organization-specific values get at most one obtain-from-owner hedge
+    per section.
+  - **Formatting:** grammar above; UI labels bolded; typed/copied values
+    in code spans; numbered single-action steps (mutually exclusive
+    alternatives in one step are fine).
+  - **Cut:** drop anything the reader does not need to finish setup —
+    duplicated facts, process the guide does not own, statements they
+    cannot act on (render a documentation gap as a hedged instruction
+    with a recovery path, not as narration about the docs). Keep
+    Dossier-conditional `If`/`When` gates and first-connect unforgiving
+    recovery (one-time secrets, connect-blocking expiry, mid-setup
+    destructive rotation); later-ops reset/maintenance stays out.
 
 ## Report
 

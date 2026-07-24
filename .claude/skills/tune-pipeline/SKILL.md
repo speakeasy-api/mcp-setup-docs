@@ -17,7 +17,7 @@ adding; no-change is a valid outcome.
    `docs/agents/CHANGELOG.md` (what already changed, what was rejected —
    do not re-propose either without new evidence), then the current
    doctrine: every file in `docs/agents/`, `docs/personas/`, and the
-   `draft-guide` skill and workflow.
+   Cursor SDK workflow under `scripts/cursor-sdk/`.
 2. **Read the signal**: everything in `retro/runs/` and `retro/notes/`
    not already cited by a changelog entry. If the corpus is large (more
    than ~10 run records), fan out reader subagents — one per review
@@ -47,10 +47,11 @@ adding; no-change is a valid outcome.
    diffs, nothing more. Append one `docs/agents/CHANGELOG.md` entry for
    the batch: date, files, changes, evidence — and list rejected
    proposals with a line of reasoning so future tune runs do not nag.
-6. **Offer a regression check**: suggest re-running `/draft-guide` on a
-   reference provider (e.g. `box`) and comparing rounds-to-convergence
-   and blocker counts against its last Run Record before trusting a
-   doctrine change that touched reviewer or writer behavior.
+6. **Offer a regression check**: suggest re-running
+   `mise run draft-guide -- <slug> --overwrite` on a reference provider
+   (e.g. `box`) and comparing rounds-to-convergence and blocker counts
+   against its last Run Record before trusting a doctrine change that
+   touched reviewer or writer behavior.
 
 ## Hard rules
 

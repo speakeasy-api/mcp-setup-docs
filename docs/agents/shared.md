@@ -2,7 +2,7 @@
 
 Every agent in the drafting pipeline reads this file plus `CONTEXT.md` (the
 vocabulary) before its own role doc. The pipeline is orchestrated by
-`scripts/draft-guide-workflow.js`, invoked via the `/draft-guide` skill.
+`scripts/cursor-sdk/` (`mise run draft-guide` / factory Action).
 
 ## The pipeline
 
@@ -14,6 +14,10 @@ One Guide (`guides/<slug>/`) moves through four roles:
 | Writer | `writer.md` | `guides/<slug>/setup.md` | Research Dossier, Metadata, persona file |
 | Fidelity | `fidelity.md` | nothing (report only) | all three guide files |
 | Editorial | `review.md` | nothing (report only) | all three guide files, persona file |
+
+After research, the factory may pause on material open questions (scope
+gate) before Writer runs. Review rounds also run a deterministic lint
+pass (`dimension: lint`) for setup.md grammar and `meta.yaml` schema.
 
 Revision agents (spawned between review rounds) may touch all three guide
 files, following the Technical Research and Writer role docs for whichever
@@ -49,13 +53,13 @@ re-examine each disputed finding with fresh eyes and either re-raise it
 rounds run out goes to the human unresolved.
 
 Cross-dimension conflicts must be disputed, not silently expanded. When
-achievability demands documenting a path that concision (or the
-critical-path ceiling in `review.md`) says to cut or hedge — especially
-when public docs cannot complete the path — the revision agent disputes
-one of the findings with a one-line reason rather than growing the guide
-forever to satisfy both. Skipping a conflicting nit while still accepting
-the opposing blocker is fine only when the blocker stays inside the
-critical-path ceiling; otherwise dispute the blocker.
+achievability demands documenting a path that the critical-path ceiling
+in `review.md` says to cut or hedge — especially when public docs cannot
+complete the path — the revision agent disputes the achievability finding
+with a one-line reason rather than growing the guide forever. Skipping a
+conflicting nit while still accepting the opposing blocker is fine only
+when the blocker stays inside the critical-path ceiling; otherwise
+dispute the blocker.
 
 ## Hard rules
 

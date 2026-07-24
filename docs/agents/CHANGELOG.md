@@ -6,6 +6,144 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-24 — factory PR titles + draft-vs-ready
+
+Files: `.github/workflows/guide-draft.yml`, `FACTORY.md`,
+`docs/agents/guide-factory.md`, `README.md`.
+
+- PR title is always `guide: <provider>` (status no longer in the title).
+- **Draft** PR when the run still needs a human reply (`awaiting_scope` or
+  `unconverged`); **ready for review** when converged. Resume flips
+  draft↔ready with `gh pr ready` / `--undo`.
+
+Evidence: operator request after Phase 3/4 factory UX.
+
+## 2026-07-24 — architecture Phase 4: single workflow + slim operator docs
+
+Files: deleted `scripts/draft-guide-workflow.js`,
+`.claude/skills/draft-guide/`; `README.md`, `FACTORY.md`,
+`guides/README.md`, `retro/README.md`, `docs/agents/shared.md`,
+`docs/agents/pipeline-lock.md`, `docs/agents/drafting.md`,
+`.claude/skills/tune-pipeline/SKILL.md`.
+
+- **One orchestrator:** Cursor SDK only (`mise run draft-guide` / factory).
+  Removed the Claude Code Workflow harness and `/draft-guide` skill that
+  drove it.
+- **README** slimmed to issue flow + local CLI; deep factory detail stays
+  in `FACTORY.md`.
+- Retargeted shared / lock / retro / tune-pipeline / drafting pointers
+  away from the deleted harness. Dispute protocol kept (still in revision
+  schema); polish/spiral already gone in Phase 1.
+
+Invariants: I7 unchanged (agents still never commit). Operational clarity
+only — no gate behavior change vs Phase 3.
+
+Evidence: Phase 0 decision #5 (stop dual-workflow lockstep); operator
+direction for Phase 4 cleanup + concise README.
+
+## 2026-07-24 — architecture Phase 3: factory scope gate (minimal)
+
+Files: `scripts/cursor-sdk/src/scope-gate.ts`,
+`scripts/cursor-sdk/src/workflow.ts`, `scripts/cursor-sdk/src/cli.ts`,
+`scripts/ci/format-scope-check.sh`, `.github/workflows/guide-draft.yml`,
+`FACTORY.md`, `docs/agents/guide-factory.md`.
+
+- **`--pause-on-scope`** (factory always on): after research, classify open
+  questions as material vs soft. Material + no `Decision N:` in notes →
+  status `awaiting_scope`, exit **3**, no draft.
+- **Material** ≈ recovery/regen, conflicting paths, exclusive branches.
+  **Soft** ≈ catalog presence, UI silence-for-hedge (no pause).
+- Factory opens a **research-only** draft PR, posts **Scope check**, sets
+  `guide:blocked`. Re-label `guide:draft` after Decisions resumes on the
+  factory branch and drafts.
+
+Invariants: I6 (unresolved scope → human before inventing). Complements
+Phase 1 silence+hedge rule (soft OQs do not become Decisions that demand
+console capture).
+
+Evidence: architecture review (X factory PR #17 / issue #15 Decision
+noise); operator direction for Phase 3 minimal (heuristic gate, not LLM).
+
+## 2026-07-24 — architecture Phase 2: deterministic I4 lint
+
+Files: `scripts/cursor-sdk/src/lint-guide.ts`,
+`scripts/cursor-sdk/src/lint-guide-cli.ts`,
+`scripts/cursor-sdk/src/workflow.ts`, `scripts/cursor-sdk/src/lock.ts`,
+`scripts/cursor-sdk/package.json` (ajv), `scripts/draft-guide-workflow.js`,
+`scripts/ci/format-pipeline-review.sh`, `mise.toml`.
+
+- **Lint module** enforces I4 mechanically: `setup_version` frontmatter,
+  one H1, three H2s in order, provider H3 anchors + screenshot rule,
+  Speakeasy fixed anchors, sole template key, `meta.yaml` vs
+  `schema/guide.v1.schema.json`, and setup↔research↔meta anchor
+  agreement (I3 mechanical slice).
+- **Wired into every review round** (Cursor SDK in-process; Claude
+  harness via `npx tsx … --json`). Findings use `dimension: lint` and
+  gate like fidelity/achievability in the factory formatter.
+- **CLI / mise:** `npm run lint-guide -- box` /
+  `mise run lint-guide -- box x`.
+
+Invariants: I4 strengthened (deterministic). I3 partially enforced without
+an LLM. Does not replace fidelity's invention/distortion judgment.
+
+Evidence: Phase 0/1 architecture cut (formatting LLM removed); operator
+direction to implement Phase 2.
+
+## 2026-07-24 — architecture: two-gate review (Phase 0 + 1)
+
+Files: `docs/agents/constitution.md` (I5), `fidelity.md`, `review.md`,
+`writer.md`, `technical-research.md`, `shared.md`, `pipeline-lock.md`,
+`guide-factory.md`, `docs/personas/it-admin.md`,
+`scripts/cursor-sdk/src/workflow.ts`, `scripts/cursor-sdk/src/lock.ts`,
+`scripts/cursor-sdk/src/runtime.ts`, `scripts/cursor-sdk/src/cli.ts`,
+`scripts/draft-guide-workflow.js`, `scripts/ci/format-pipeline-review.sh`,
+`.claude/skills/draft-guide/SKILL.md`.
+
+Operator-directed architecture cut (Phase 0 decisions + Phase 1
+subtraction), not a tune-pipeline batch.
+
+### Phase 0 decisions (locked)
+
+1. Gates: Research → Writer → **Fidelity + Achievability** only.
+2. Cut: concision / voice / formatting as standing reviewers; polish pass;
+   polish salvage; spiral detector; finalization salvage.
+3. Merge voice + formatting + concision into the Writer cold-read/cut
+   self-check.
+4. Deterministic I4 lint deferred to Phase 2.
+5. Cursor SDK remains primary; Claude harness kept in lockstep for this
+   cut (delete/stub later).
+6. Public-docs silence + existing hedge → open question / nit, **not** a
+   research-target blocker or factory Decision demanding console capture.
+
+### Phase 1 changes
+
+- **DIMENSIONS** shrink to fidelity + achievability in both workflows.
+- **Polish / salvage / spiral removed.** On zero blockers, converge and
+  leave leftover nits on the human checklist. Last-round revise still
+  gets one confirmatory finalization review; if blockers remain →
+  `unconverged` (no salvage recheck loop).
+- **Writer** owns voice / formatting / concision self-check.
+- **`review.md`** is achievability-only; silence+hedge rule strengthened
+  there and in `fidelity.md` / `technical-research.md`.
+- **I5** updated so Writer applies voice; reviewers judge achievability.
+- **Factory Decisions** (`format-pipeline-review.sh`): gate dims only;
+  dedupe by target+anchor (prefer fidelity); non-gate leftovers →
+  optional nits; open-questions blurb notes hedge ≠ console capture.
+
+Invariants: I1 strengthened (silence stays visible as hedge/OQ, not
+invented chrome). I5 updated by operator (human constitution edit). I6
+preserved as capped structured review + unresolved-to-human; unused
+dispute/spiral machinery removed from the hot path. I4 enforcement
+moves toward Writer self-check (+ Phase 2 lint); fidelity still checks
+anchors/grammar-adjacent facts.
+
+Evidence: architecture review of 15 run records (polish broke fidelity
+in `2026-07-23T18:50:25Z-google-big-query.json` and
+`2026-07-23T19:12:45Z-google-big-query.json`; X factory PR #17 /
+`2026-07-23T22:43:32Z-x.json` escalated four silence loci into nine
+Decisions while hedges already existed; 0 disputes cleared across the
+corpus). Operator direction (Walker, 2026-07-24): implement Phase 0+1.
+
 ## 2026-07-23 — tune: trust provider-documented UI
 
 Files: `docs/agents/technical-research.md`, `docs/agents/review.md`,

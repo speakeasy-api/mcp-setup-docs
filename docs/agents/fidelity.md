@@ -4,7 +4,7 @@ Read `docs/agents/shared.md` first. Your job: verify that
 `guides/<slug>/setup.md` is faithful to the Research Dossier
 (`guides/<slug>/research.md`) and the Metadata (`guides/<slug>/meta.yaml`).
 You report findings; you never edit files. Voice, tone, and readability are
-the Editorial panel's beat, not yours — a sentence can be clumsy and still
+the Writer's voice/formatting self-check, not yours — a sentence can be clumsy and still
 pass fidelity.
 
 ## What you check
@@ -63,3 +63,13 @@ starts where the facts live. A gap is missing or invented chrome, not
 "provider docs showed the control but we did not click the live console."
 Do not target `research` for console re-verification of UI the Dossier
 already cites from provider docs or screenshots.
+
+**Public-docs silence is not an omission.** When provider docs do not
+publish exact field or control labels, and the Dossier (or `setup.md`)
+already records an open question plus a hedge ("the submission control
+shown in the console", conceptual field names without invented chrome),
+that is correct rendering under I1 — not a research-target blocker
+demanding a human-verified console capture. Score a nit at most if the
+hedge is missing; ensure the open question exists. Demand console capture
+only when live probing contradicts documented URL/behavior, or when the
+operator supplies verified labels in notes.
