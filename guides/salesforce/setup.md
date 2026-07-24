@@ -6,8 +6,8 @@ setup_version: 1
 
 ## Prerequisites
 
-- Salesforce System Administrator access to a production or sandbox org.
-- A Salesforce org edition with API access, such as Developer or Enterprise, or Professional with API access enabled.
+- Salesforce System Administrator access to an API-enabled production or sandbox org.
+- An Enterprise Edition or above org. For a Developer or Professional Edition org with API access, confirm that **MCP Servers** appears in **Setup** before continuing.
 - Authority to create an **External Client App** and enable Hosted MCP servers.
 - Access to the Speakeasy AI Control Plane.
 
@@ -44,9 +44,10 @@ Sign in to the Salesforce org that will expose its records. Create credentials i
 6. In **Available OAuth Scopes**, select **Perform requests at any time** (`refresh_token`).
 7. Select the right-arrow control to move it to **Selected OAuth Scopes**.
 8. Under **Security**, select **Issue JSON Web Token (JWT)-based access tokens for named users**.
-9. Select **Require Proof Key for Code Exchange (PKCE) extension for Supported Authorization Flows**.
+9. Leave **Require Proof Key for Code Exchange (PKCE) extension for Supported Authorization Flows** deselected.
 10. Leave **Require Secret for Web Server Flow** deselected.
 11. Leave **Require Secret for Refresh Token Flow** deselected.
+12. Leave all other **Security** options that can be changed without Salesforce support deselected.
 
 <!-- screenshot: the expanded API (Enable OAuth Settings) section with Callback URL, both selected OAuth scopes, and the security selections visible -->
 
@@ -56,14 +57,14 @@ Select **Create**.
 
 The app can take up to 30 minutes to become operational. If attaching it immediately fails even though the settings are correct, wait for that window before changing the configuration.
 
-<!-- screenshot-exception: a standard create action; the saved app's credential view is the meaningful state captured in the next step -->
+<!-- screenshot-exception: Create is a standard action with no distinct configuration state to capture -->
 
 ### Copy the Consumer Key {#copy-consumer-key}
 
 1. On the saved External Client App, select **Settings**.
 2. Under **OAuth Settings**, select **Consumer Key and Secret**.
 3. Complete the Salesforce verification prompt if it appears.
-4. Copy **Consumer Key**.
+4. Copy **Consumer Key**. You will use it as the Speakeasy **Client ID**.
 
 <!-- screenshot-exception: the credential is sensitive and the screen adds no setup information beyond the exact label; do not capture the key -->
 
@@ -92,7 +93,7 @@ If the ticket does not specify the team's approved read, write, or delete requir
 | **sobject-deletes** | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes` |
 | **sobject-all** | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-all` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all` |
 
-If the connection fails with valid credentials, confirm that the selected server is enabled and the URL matches the server and org type.
+If the connection fails with valid credentials, confirm that the selected server is enabled, the URL matches the server and org type, and the org has API access.
 
 <!-- screenshot: MCP Servers under API Catalog, with the chosen SObject server's enabled toggle visible -->
 
@@ -117,7 +118,7 @@ If Salesforce does not appear in the catalog:
 2. On the **Add a custom remote MCP server** page, paste the URL recorded in [Enable the selected SObject server](#enable-sobject-server) into **Remote MCP server URL**.
 3. Select **Add server**.
 
-Either path creates the hosted MCP Server and opens its **Overview** page.
+Either path creates the hosted MCP server and opens its **Overview** page.
 
 <!-- screenshot: the Add Source menu open on the Sources page, or Salesforce's catalog entry -->
 

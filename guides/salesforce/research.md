@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: salesforce
-researched_at: 2026-07-24T17:26:32Z
+researched_at: 2026-07-24T17:42:28Z
 ---
 
 # Salesforce — Research Dossier
@@ -152,11 +152,15 @@ connection-time user action, not an administrator credential-creation step.
     **Selected OAuth Scopes**.
 - Under **Security**, select **Issue JSON Web Token (JWT)-based access tokens
   for named users**.
-- Under **Security**, select **Require Proof Key for Code Exchange (PKCE)
-  extension for Supported Authorization Flows**. Leave **Require Secret for Web
-  Server Flow** and **Require Secret for Refresh Token Flow** deselected. The
-  Hosted MCP guide directs admins to deselect other mutable security options;
-  the Salesforce Hosted MCP walkthrough names these exact settings.
+- Under **Security**, leave **Require Secret for Web Server Flow** and
+  **Require Secret for Refresh Token Flow** deselected. The current Hosted MCP
+  setup page directs admins to deselect every other option that can be changed
+  without Salesforce support. OAuth PKCE remains the client flow; the current
+  setup page does not instruct the admin to enable the separate **Require Proof
+  Key for Code Exchange (PKCE) extension for Supported Authorization Flows**
+  enforcement option. A May 2026 Salesforce developer blog appears to show
+  that option selected for Claude, so this Guide follows the current Hosted
+  MCP setup page rather than the client-specific blog.
 - Values entered: the callback URL and scope/security selections. Values
   copied: none.
 - Screenshot note: the expanded **API (Enable OAuth Settings)** section with
@@ -170,8 +174,8 @@ connection-time user action, not an administrator credential-creation step.
   attaching it immediately fails even though the settings are correct, wait
   for that window before changing the configuration.
 - Values entered or copied: none.
-- Screenshot exception: a standard create action; the saved app's credential
-  view is the meaningful state captured in the next step.
+- Screenshot exception: **Create** is a standard action with no distinct
+  configuration state to capture.
 
 ### Copy the Consumer Key {#copy-consumer-key}
 
@@ -318,7 +322,7 @@ limits — see Salesforce's MCP documentation at
   reachable and enumerated the current guide and reference pages.
   `https://help.salesforce.com/llms.txt` timed out.
 
-All observations below use `2026-07-24T17:26:32Z`.
+All observations below use `2026-07-24T17:42:28Z`.
 
 - `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt`
   — machine-readable Hosted MCP source inventory; backs documentation-property
@@ -336,8 +340,11 @@ All observations below use `2026-07-24T17:26:32Z`.
   and scratch-org limitation.
 - `https://developer.salesforce.com/blogs/2026/05/connect-claude-with-salesforce-hosted-mcp-servers`
   — current official developer-property walkthrough; backs exact **Basic
-  Information** labels, PKCE, secret checkboxes, JWT setting, saved-app
-  transition, and verification prompt.
+  Information** labels, the client-specific PKCE example, secret checkboxes,
+  JWT setting, saved-app transition, and verification prompt. Its apparent
+  selection of the PKCE enforcement option conflicts with the current Hosted
+  MCP setup page's instruction to deselect all mutable options except JWT; the
+  Guide follows the current setup page.
 - `https://developer.salesforce.com/blogs/2026/04/salesforce-hosted-mcp-servers-are-now-generally-available`
   — official GA announcement; backs the Enterprise Edition-and-above
   availability statement and creates the documented edition conflict.
@@ -385,6 +392,6 @@ All observations below use `2026-07-24T17:26:32Z`.
   `https://www.speakeasy.com/use-cases/claude-super-app` — Speakeasy public
   search results name Salesforce as a pre-built SaaS integration and catalog
   example, but do not expose a catalog record or Hosted MCP configuration.
-- `docs/speakeasy-setup.md` — observed `2026-07-24T17:26:32Z`; backs the fixed
+- `docs/speakeasy-setup.md` — observed `2026-07-24T17:42:28Z`; backs the fixed
   Speakeasy-side anchors, labels, OAuth attach flow, callback template
   semantics, and closing pointer.
