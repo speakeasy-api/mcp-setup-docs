@@ -16,7 +16,7 @@ credential_setup:
             - setup.md#copy-consumer-key
   requirements:
     - id: salesforce-admin
-      description: Salesforce System Administrator access to an API-enabled org, with authority to create an External Client App and enable Hosted MCP servers
+      description: Salesforce System Administrator access to an API-enabled org where Hosted MCP Servers are available, with authority to create an External Client App and enable servers
 documentation:
   setup: setup.md
 remotes:
@@ -65,104 +65,109 @@ provenance:
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html
     name: Salesforce Hosted MCP Servers
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/client-connection-overview.html
     name: Connecting an MCP Client
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/create-external-client-app.html
     name: Create an External Client App
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/blogs/2026/05/connect-claude-with-salesforce-hosted-mcp-servers
     name: Connect Claude with Salesforce Hosted MCP Servers
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/blogs/2026/04/salesforce-hosted-mcp-servers-are-now-generally-available
+    name: Salesforce Hosted MCP Servers Are Now Generally Available
+    classification: official
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/mobile-sdk/guide/eca-create.html
     name: Create an External Client App
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/ai/automate-resume-processing/guide/aes-create-external-client-app.html
     name: Prerequisite 1 - Create and Configure an External Client App
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/activate-mcp-servers.html
     name: Activate MCP Servers
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/servers-reference.html
     name: Standard MCP Servers Reference
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/products-supporting-mcp.html
     name: Products Supporting MCP
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/sobject-reads.html
     name: SObject Reads
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/sobject-mutations.html
     name: SObject Mutations
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/sobject-deletes.html
     name: SObject Deletes
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/sobject-all.html
     name: SObject All
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/postman.html
     name: Configure Postman
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/cursor.html
     name: Configure Cursor
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/connection-issues.html
     name: Server Connection Failures
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/log-into-org.html
     name: Log In to Your Org
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/analytics/sdk/guide/sdk-setup-settings.html
     name: Update Salesforce Settings for Tableau Next Embedding
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: endpoint-observation
     locator: https://api.salesforce.com/.well-known/oauth-protected-resource/platform/mcp/v1/platform/sobject-reads
     name: Salesforce SObject Reads protected-resource metadata
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: endpoint-observation
     locator: https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads
     name: Salesforce SObject Reads production endpoint
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"
   - source: repository-doctrine
     locator: docs/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-24T16:26:21Z"
+    observed_at: "2026-07-24T17:26:32Z"

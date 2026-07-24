@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: salesforce
-researched_at: 2026-07-24T16:26:21Z
+researched_at: 2026-07-24T17:26:32Z
 ---
 
 # Salesforce — Research Dossier
@@ -45,9 +45,13 @@ researched_at: 2026-07-24T16:26:21Z
 - **Availability:** standard servers are disabled by default. An administrator
   must enable each selected server. Activation can take up to two minutes.
   A new External Client App can take up to 30 minutes to become operational.
-- **Org gate:** the Salesforce org edition must support API access. Salesforce
-  gives Developer and Enterprise as examples, and Professional with API access
-  enabled.
+- **Org gate:** the org must have API access and expose Hosted MCP Servers in
+  **Setup**. Salesforce's connection troubleshooting names Developer,
+  Enterprise, and Professional with API access as examples, while the April
+  2026 GA announcement says Hosted MCP Servers are available in Enterprise
+  Edition and above. Because those official descriptions do not fully agree,
+  confirm that **MCP Servers** appears in the target org before relying on a
+  lower edition.
 - **Server choice affects setup and risk:**
   - **SObject Reads** permits discovery, query, search, and relationship
     traversal but no record changes. Salesforce describes it as the safest
@@ -80,7 +84,9 @@ App documentation states that a Salesforce administrator creates the app.
 What gets created: one local **External Client App** with OAuth enabled. The
 Speakeasy AI Control Plane needs the generated **Consumer Key**, entered as
 **Client ID**. No client secret is required for Salesforce's documented PKCE
-public-client configuration.
+public-client configurations in Postman and Cursor. Applying that no-secret
+configuration to the Speakeasy AI Control Plane is standards-based but has not
+been confirmed by an end-to-end connection test.
 
 | Speakeasy value | Salesforce origin |
 | --- | --- |
@@ -208,10 +214,18 @@ Per-guide values rendered into the canonical
 - Remote URL: the one production or sandbox SObject URL selected in
   {#enable-sobject-server}; all eight supported choices are in Metadata.
 - Transport: `streamable-http`; the **Transport** field is read-only.
-- Catalog status: not established by provider documentation. Render the
-  canonical conditional.
+- Catalog status: Speakeasy's public product pages name Salesforce as a
+  pre-built SaaS integration and catalog example, but no publicly inspectable
+  catalog record establishes that the listing configures these Salesforce
+  Hosted MCP SObject URLs with this manual OAuth client. Render the canonical
+  catalog/custom-server conditional.
 - Authentication Option: OAuth with a manually registered client.
 - OAuth scopes: `mcp_api` and `refresh_token`.
+- Discovery: Salesforce publishes RFC 9728 protected-resource metadata for the
+  SObject endpoint, including its authorization server and required scopes.
+  Salesforce still requires a manually created External Client App, so use
+  **Configure Manually** for this Guide; whether the Speakeasy sheet also
+  offers **Use Discovered** is not required for this path.
 - **Client ID** origin: Salesforce **Consumer Key** from
   {#copy-consumer-key}.
 - Client Secret: omit; Salesforce documents PKCE with the Consumer Key for
@@ -258,16 +272,26 @@ limits — see Salesforce's MCP documentation at
 
 ## Open questions
 
-- Salesforce's public documentation does not establish whether Salesforce is
-  currently present in the Speakeasy MCP Catalog; retain the canonical
-  catalog/custom-server conditional.
+- Speakeasy's public product pages name Salesforce as a pre-built integration,
+  but a public catalog record was not found that ties the listing to these
+  Hosted MCP SObject servers and their manual OAuth fields. Retain the
+  catalog/custom-server conditional until the catalog entry is inspected.
 - The Hosted MCP activation page says to toggle servers on but does not publish
   the exact row labels or the enabled-toggle label/state for the four SObject
   servers. The stable server IDs are confirmed by the server reference pages.
 - Salesforce documents standards-compatible clients using OAuth 2.0
   Authorization Code with PKCE, but does not name the Speakeasy AI Control
   Plane as a tested client. Compatibility is inferred from the canonical
-  Speakeasy OAuth flow and should be validated by an end-to-end connection.
+  Speakeasy OAuth flow. Validate it end to end by registering
+  `{{ gram.oauth.callback_url }}`, attaching the Consumer Key as **Client ID**
+  with **Client Secret (optional)** empty, completing Salesforce
+  authorization, and confirming that the selected server advertises and can
+  invoke a permitted tool through the Speakeasy AI Control Plane.
+- Salesforce's April 2026 GA announcement says Hosted MCP Servers are
+  available in Enterprise Edition and above, while its current connection
+  troubleshooting names Developer and Professional-with-API-access orgs as
+  eligible examples. Confirm availability in the target lower-edition org by
+  checking for **MCP Servers** in **Setup**.
 - The canonical Speakeasy setup ends when the administrator clicks **Attach
   Identity Provider** and does not document which Speakeasy control starts the
   Salesforce user-authorization prompt. Do not invent that transition in the
@@ -288,13 +312,17 @@ limits — see Salesforce's MCP documentation at
   available fetcher and did not add facts beyond the developer documentation.
 - **Support KB:** Salesforce Help is the support property; no separate public
   Hosted MCP support KB was found.
-- **Machine-readable indexes:** `https://developer.salesforce.com/llms.txt`
-  was reachable and points to `https://developer.salesforce.com/docs/llms.txt`;
-  the latter timed out during this run. `https://help.salesforce.com/llms.txt`
-  also timed out.
+- **Machine-readable indexes:** `https://developer.salesforce.com/docs/llms.txt`
+  and the linked Hosted MCP index at
+  `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt` were
+  reachable and enumerated the current guide and reference pages.
+  `https://help.salesforce.com/llms.txt` timed out.
 
-All observations below use `2026-07-24T16:26:21Z`.
+All observations below use `2026-07-24T17:26:32Z`.
 
+- `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt`
+  — machine-readable Hosted MCP source inventory; backs documentation-property
+  coverage and the current Markdown locators.
 - `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html`
   — primary overview; backs per-user OAuth 2.0 with PKCE, permissions behavior,
   and setup sequence.
@@ -310,6 +338,9 @@ All observations below use `2026-07-24T16:26:21Z`.
   — current official developer-property walkthrough; backs exact **Basic
   Information** labels, PKCE, secret checkboxes, JWT setting, saved-app
   transition, and verification prompt.
+- `https://developer.salesforce.com/blogs/2026/04/salesforce-hosted-mcp-servers-are-now-generally-available`
+  — official GA announcement; backs the Enterprise Edition-and-above
+  availability statement and creates the documented edition conflict.
 - `https://developer.salesforce.com/docs/platform/mobile-sdk/guide/eca-create.html`
   — backs administrator ownership, **API Name**, **Contact Email**,
   **Distribution State** = **Local**, and the exact secret/JWT security labels.
@@ -350,6 +381,10 @@ All observations below use `2026-07-24T16:26:21Z`.
 - `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads` — live
   unauthenticated endpoint observation returned HTTP 401, backing the remote
   endpoint's OAuth protection.
-- `docs/speakeasy-setup.md` — observed `2026-07-24T16:26:21Z`; backs the fixed
+- `https://www.speakeasy.com/product/ai-control-plane` and
+  `https://www.speakeasy.com/use-cases/claude-super-app` — Speakeasy public
+  search results name Salesforce as a pre-built SaaS integration and catalog
+  example, but do not expose a catalog record or Hosted MCP configuration.
+- `docs/speakeasy-setup.md` — observed `2026-07-24T17:26:32Z`; backs the fixed
   Speakeasy-side anchors, labels, OAuth attach flow, callback template
   semantics, and closing pointer.
