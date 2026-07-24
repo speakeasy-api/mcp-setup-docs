@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "slug": "intercom",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-24T19:37:21Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:58e85809f581d563057d31d8b217f2f183ffa31a93cc48c59d6329614d07b7f0",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:98c53dcca4bae1f0745ebbda49ab01016288e31b40df25816c04d1dab0749f52"
+          },
+          {
+            "path": "docs/agents/technical-research.md",
+            "digest": "sha256:cae8235a54bf20e79069f83bb325d806c6bb254206a1c89fc05c57853c4b0e01"
+          },
+          {
+            "path": "docs/speakeasy-setup.md",
+            "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "intercom",
+          "notes": "Official MCP guide: https://developers.intercom.com/docs/guides/mcp. Pipeline open questions: Speakeasy dynamic OAuth controls undocumented; Intercom auth screen labels undocumented; US vs EU endpoint handling in catalog unknown; confirm Speakeasy discovers authorization-server metadata without protected-resource metadata. Optional nit: move Use Discovered stop condition to immediately after locating Authentication under Settings."
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:190f6eb517b92d09ca8ec8641289cb1272c6e320ca221f9e7274755196e350a8"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:81ceb430f10cdcd4eff65017fd7492b0fa8e85cc2cbf1b16e2ef0cb59b12ca9d"
+        }
+      ],
+      "completed_at": "2026-07-24T19:37:21Z"
+    },
+    "draft": {
+      "input_digest": "sha256:015310ede57ef1edcdc0a3e4c0ea67f819818eda1d4bcba6dcd19f2008becd87",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:98c53dcca4bae1f0745ebbda49ab01016288e31b40df25816c04d1dab0749f52"
+          },
+          {
+            "path": "docs/agents/writer.md",
+            "digest": "sha256:a06e939ae9a4efb094f3a598c29a896ca4a32cbcf012914efdafa48ff78dde5f"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:190f6eb517b92d09ca8ec8641289cb1272c6e320ca221f9e7274755196e350a8"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:81ceb430f10cdcd4eff65017fd7492b0fa8e85cc2cbf1b16e2ef0cb59b12ca9d"
+          }
+        ],
+        "params": {
+          "provider": "intercom",
+          "notes": "Official MCP guide: https://developers.intercom.com/docs/guides/mcp. Pipeline open questions: Speakeasy dynamic OAuth controls undocumented; Intercom auth screen labels undocumented; US vs EU endpoint handling in catalog unknown; confirm Speakeasy discovers authorization-server metadata without protected-resource metadata. Optional nit: move Use Discovered stop condition to immediately after locating Authentication under Settings.",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:408c544b0001b58a8067c7c8c3008cc94ca2597f29f64376aec7f009a3686691"
+        }
+      ],
+      "completed_at": "2026-07-24T19:37:21Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:832b2fa693abaf7e5838fe6734c762d63c5c224f263bc209b2a82ac8ca68aaac",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:98c53dcca4bae1f0745ebbda49ab01016288e31b40df25816c04d1dab0749f52"
+          },
+          {
+            "path": "docs/agents/fidelity.md",
+            "digest": "sha256:23002875f234950645e63f4d384a67c2a15a31e2f2b50cb0fe4b4817b2df1fe1"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:190f6eb517b92d09ca8ec8641289cb1272c6e320ca221f9e7274755196e350a8"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:81ceb430f10cdcd4eff65017fd7492b0fa8e85cc2cbf1b16e2ef0cb59b12ca9d"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:408c544b0001b58a8067c7c8c3008cc94ca2597f29f64376aec7f009a3686691"
+          }
+        ],
+        "params": {
+          "provider": "intercom",
+          "notes": "Official MCP guide: https://developers.intercom.com/docs/guides/mcp. Pipeline open questions: Speakeasy dynamic OAuth controls undocumented; Intercom auth screen labels undocumented; US vs EU endpoint handling in catalog unknown; confirm Speakeasy discovers authorization-server metadata without protected-resource metadata. Optional nit: move Use Discovered stop condition to immediately after locating Authentication under Settings.",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:408c544b0001b58a8067c7c8c3008cc94ca2597f29f64376aec7f009a3686691"
+        }
+      ],
+      "completed_at": "2026-07-24T19:37:21Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:f886db64b99e1c729f9b05aa3c5609cc82aea1a1159a32bf81061c508ebec397",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "CONTEXT.md",
+            "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
+          },
+          {
+            "path": "docs/agents/shared.md",
+            "digest": "sha256:98c53dcca4bae1f0745ebbda49ab01016288e31b40df25816c04d1dab0749f52"
+          },
+          {
+            "path": "docs/agents/review.md",
+            "digest": "sha256:35d04dbdf95b2a4e0ba3178c46af0268da0af6b4ed2d9effc5382b8528dd1f34"
+          },
+          {
+            "path": "docs/personas/it-admin.md",
+            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:190f6eb517b92d09ca8ec8641289cb1272c6e320ca221f9e7274755196e350a8"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:81ceb430f10cdcd4eff65017fd7492b0fa8e85cc2cbf1b16e2ef0cb59b12ca9d"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:408c544b0001b58a8067c7c8c3008cc94ca2597f29f64376aec7f009a3686691"
+          }
+        ],
+        "params": {
+          "provider": "intercom",
+          "notes": "Official MCP guide: https://developers.intercom.com/docs/guides/mcp. Pipeline open questions: Speakeasy dynamic OAuth controls undocumented; Intercom auth screen labels undocumented; US vs EU endpoint handling in catalog unknown; confirm Speakeasy discovers authorization-server metadata without protected-resource metadata. Optional nit: move Use Discovered stop condition to immediately after locating Authentication under Settings.",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:408c544b0001b58a8067c7c8c3008cc94ca2597f29f64376aec7f009a3686691"
+        }
+      ],
+      "completed_at": "2026-07-24T19:37:21Z"
+    }
+  }
+}
