@@ -1,0 +1,85 @@
+{
+  "slug": "salesforce",
+  "provider": "salesforce",
+  "persona": "it-admin",
+  "timestamp": "2026-07-24T23:08:01Z",
+  "started_at": "2026-07-24T23:08:01Z",
+  "finished_at": "2026-07-24T23:15:05Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "Prerequisites — lower-edition availability",
+      "problem": "The prerequisite requires readers to confirm Hosted MCP Server availability before continuing but does not explain how to confirm it.",
+      "suggestion": "Direct lower-edition readers to verify that **MCP Servers** appears under **API Catalog** in Salesforce Setup before creating the External Client App.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Does Speakeasy's Salesforce catalog entry target these Hosted MCP SObject servers with manual OAuth?",
+    "What exact row and enable-control labels appear in Salesforce Setup?",
+    "Does Consumer Key-only PKCE work end to end through the Speakeasy AI Control Plane?",
+    "Which lower-edition API-enabled Salesforce orgs expose Hosted MCP Servers?",
+    "Which Speakeasy control initiates Salesforce user authorization after attaching the identity provider?"
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "connect-speakeasy-credentials",
+          "problem": "The Consumer Key-only configuration is presented as confirmed although the Research Dossier identifies it as an unverified standards-based compatibility inference.",
+          "suggestion": "State that using Consumer Key as Client ID with Client Secret empty is an unverified candidate configuration requiring end-to-end validation.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "add-server-in-speakeasy",
+          "problem": "The catalog path treats any Salesforce listing as suitable although no inspected listing ties it to the documented Hosted MCP SObject URLs and manual OAuth fields.",
+          "suggestion": "Disclose the unverified catalog mapping and direct readers to Custom remote server unless the listing explicitly matches the selected Hosted MCP SObject server.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "connect-speakeasy-credentials",
+          "problem": "The guide ends after attaching the identity provider without identifying how a user starts Salesforce authorization, so it does not reach first successful connection.",
+          "suggestion": "After the exact authorization control is added to the canonical Speakeasy setup doctrine, render that transition and the documented target-org sign-in preparation here.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Fixed both blockers: marked Consumer Key-only OAuth as an unverified candidate requiring end-to-end validation; restricted catalog use to listings explicitly matching the selected Hosted MCP SObject server, URL, and manual OAuth setup, otherwise directing readers to Custom remote server. Updated research.md first to preserve the fact ceiling. Guide lint passes.",
+      "disputed": [
+        "Nit (connect-speakeasy-credentials): the authorization-start control is absent from canonical Speakeasy doctrine and unverified; adding it would invent a transition beyond the critical-path ceiling."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites — lower-edition availability",
+          "problem": "The prerequisite requires readers to confirm Hosted MCP Server availability before continuing but does not explain how to confirm it.",
+          "suggestion": "Direct lower-edition readers to verify that **MCP Servers** appears under **API Catalog** in Salesforce Setup before creating the External Client App.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "No draft-relevant facts, anchors, credentials, remotes, prerequisites, or structure changed. AFTER mainly strengthens existing uncertainty hedges, avoids inferring activation UI labels, corrects the canonical doctrine path, and refreshes timestamps; the actionable setup remains equivalent."
+  }
+}

@@ -7,7 +7,7 @@ setup_version: 1
 ## Prerequisites
 
 - Salesforce System Administrator access to an API-enabled production or sandbox org.
-- An Enterprise Edition or above org. For a Developer or Professional Edition org with API access, confirm that **MCP Servers** appears in **Setup** before continuing.
+- An Enterprise Edition or above org, or a lower-edition org where Hosted MCP Servers are available. For a lower-edition org, confirm availability in the target org before continuing.
 - Authority to create an **External Client App** and enable Hosted MCP servers.
 - Access to the Speakeasy AI Control Plane.
 
@@ -72,30 +72,30 @@ The app can take up to 30 minutes to become operational. If attaching it immedia
 
 Choose the least-privileged server that meets the team's needs:
 
-- **sobject-reads** allows discovery, query, search, and relationship traversal without changing records.
-- **sobject-mutations** allows reading, creating, and updating records without deleting them.
-- **sobject-deletes** allows identifying and deleting records without creating or updating them.
-- **sobject-all** allows creating, reading, updating, deleting, querying, and searching records.
+- `sobject-reads` allows discovery, query, search, and relationship traversal without changing records.
+- `sobject-mutations` allows reading, creating, and updating records without deleting them.
+- `sobject-deletes` allows identifying and deleting records without creating or updating them.
+- `sobject-all` allows creating, reading, updating, deleting, querying, and searching records.
 
 If the ticket does not specify the team's approved read, write, or delete requirements, obtain the server choice from the application or cloud security owner.
 
 1. Return to **Setup**.
 2. In **Quick Find**, enter `MCP Servers`.
 3. Select **MCP Servers** under **API Catalog**.
-4. Turn on the selected server.
+4. Use the available control to enable the server whose API ID matches the approved choice.
 5. Record its URL from the table below, using the production or sandbox form that matches the org.
 6. Wait up to two minutes for the server to become active.
 
 | Server | Production URL | Sandbox URL |
 | --- | --- | --- |
-| **sobject-reads** | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads` |
-| **sobject-mutations** | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-mutations` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations` |
-| **sobject-deletes** | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes` |
-| **sobject-all** | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-all` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all` |
+| `sobject-reads` | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads` |
+| `sobject-mutations` | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-mutations` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations` |
+| `sobject-deletes` | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes` |
+| `sobject-all` | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-all` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all` |
 
 If the connection fails with valid credentials, confirm that the selected server is enabled, the URL matches the server and org type, and the org has API access.
 
-<!-- screenshot: MCP Servers under API Catalog, with the chosen SObject server's enabled toggle visible -->
+<!-- screenshot: MCP Servers under API Catalog, showing the available server list and the control used to enable the chosen SObject server; record the rendered row and control labels -->
 
 ## Speakeasy setup
 
@@ -104,7 +104,7 @@ If the connection fails with valid credentials, confirm that the selected server
 1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
 2. Select **Add Source**.
 
-If Salesforce appears in the catalog:
+Use a Salesforce catalog listing only if it explicitly identifies the selected Hosted MCP SObject server, matches the URL recorded in [Enable the selected SObject server](#enable-sobject-server), and supports this guide's manual OAuth configuration. The mapping of Salesforce catalog listings to these servers is unverified.
 
 1. Choose **3rd-party server**.
 2. On the **MCP Catalog** page, enter `Salesforce` in **Search MCP servers...**.
@@ -112,13 +112,13 @@ If Salesforce appears in the catalog:
 4. Select **Add**.
 5. In the **Add to Project** dialog, select **Add to Project**.
 
-If Salesforce does not appear in the catalog:
+Otherwise, use a custom remote server:
 
 1. Choose **Custom remote server**.
 2. On the **Add a custom remote MCP server** page, paste the URL recorded in [Enable the selected SObject server](#enable-sobject-server) into **Remote MCP server URL**.
 3. Select **Add server**.
 
-Either path creates the hosted MCP server and opens its **Overview** page.
+Either path creates the hosted MCP Server and opens its **Overview** page.
 
 <!-- screenshot: the Add Source menu open on the Sources page, or Salesforce's catalog entry -->
 
@@ -128,6 +128,9 @@ Either path creates the hosted MCP server and opens its **Overview** page.
 2. Under **Authentication**, select **Configure Manually**.
 3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
 4. Confirm that **Redirect URI** matches the `{{ gram.oauth.callback_url }}` registered in [Configure OAuth settings](#configure-oauth-settings).
+
+The Consumer Key-only mapping below is an unverified candidate configuration. Salesforce documents it for compatible public clients but not for the Speakeasy AI Control Plane. Validate it end to end before treating it as confirmed.
+
 5. Paste the [**Consumer Key**](#copy-consumer-key) into **Client ID**.
 6. Leave **Client Secret (optional)** empty.
 7. Select **Attach Identity Provider**.

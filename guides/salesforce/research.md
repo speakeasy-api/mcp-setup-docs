@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: salesforce
-researched_at: 2026-07-24T17:42:28Z
+researched_at: 2026-07-24T23:08:01Z
 ---
 
 # Salesforce — Research Dossier
@@ -46,12 +46,13 @@ researched_at: 2026-07-24T17:42:28Z
   must enable each selected server. Activation can take up to two minutes.
   A new External Client App can take up to 30 minutes to become operational.
 - **Org gate:** the org must have API access and expose Hosted MCP Servers in
-  **Setup**. Salesforce's connection troubleshooting names Developer,
-  Enterprise, and Professional with API access as examples, while the April
-  2026 GA announcement says Hosted MCP Servers are available in Enterprise
-  Edition and above. Because those official descriptions do not fully agree,
-  confirm that **MCP Servers** appears in the target org before relying on a
-  lower edition.
+  **Setup**. Salesforce's April 2026 GA announcement describes availability
+  as Enterprise Edition and above. Its current connection troubleshooting
+  separately lists Developer, Enterprise, and Professional with API access as
+  examples of API-eligible orgs, but does not explicitly promise Hosted MCP
+  availability for every lower-edition org. A lower-edition org may be
+  eligible when it has API access; confirm that Hosted MCP Servers are
+  available in the target org before beginning setup.
 - **Server choice affects setup and risk:**
   - **SObject Reads** permits discovery, query, search, and relationship
     traversal but no record changes. Salesforce describes it as the safest
@@ -82,11 +83,13 @@ require an administrator to enable servers, and Salesforce's External Client
 App documentation states that a Salesforce administrator creates the app.
 
 What gets created: one local **External Client App** with OAuth enabled. The
-Speakeasy AI Control Plane needs the generated **Consumer Key**, entered as
-**Client ID**. No client secret is required for Salesforce's documented PKCE
-public-client configurations in Postman and Cursor. Applying that no-secret
-configuration to the Speakeasy AI Control Plane is standards-based but has not
-been confirmed by an end-to-end connection test.
+candidate Speakeasy configuration uses the generated **Consumer Key** as
+**Client ID** and leaves **Client Secret (optional)** empty. Salesforce
+documents that Consumer Key-only PKCE configuration for Postman and Cursor,
+and says other clients supporting OAuth 2.0 Authorization Code with PKCE
+should work. Salesforce does not name the Speakeasy AI Control Plane as a
+tested client, so this mapping is a standards-based compatibility inference,
+not a verified end-to-end result.
 
 | Speakeasy value | Salesforce origin |
 | --- | --- |
@@ -193,10 +196,12 @@ connection-time user action, not an administrator credential-creation step.
 
 - Return to **Setup**. In **Quick Find**, enter `MCP Servers`, then select
   **MCP Servers** under **API Catalog**.
-- Review the available servers and toggle on the server chosen for the team:
-  **sobject-reads**, **sobject-mutations**, **sobject-deletes**, or
-  **sobject-all**. The exact list-row presentation is not published in text,
-  but Salesforce documents toggling needed servers on.
+- Review the available servers and enable the server chosen for the team.
+  Salesforce's current activation page says to toggle needed servers on, but
+  does not publish the exact list-row names or the toggle's label or state.
+  Use the selected server's confirmed API ID to distinguish among
+  `sobject-reads`, `sobject-mutations`, `sobject-deletes`, and `sobject-all`;
+  do not infer additional UI labels from those IDs.
 - If the ticket does not specify the team's approved read, write, or delete
   requirements, obtain the server choice from the application or cloud
   security owner before enabling one.
@@ -206,13 +211,15 @@ connection-time user action, not an administrator credential-creation step.
 - Recovery: if the client returns a connection failure with valid OAuth,
   confirm that the exact server is enabled and that the URL uses the correct
   production or sandbox form. Also confirm the org has API access.
-- Screenshot note: **MCP Servers** under **API Catalog**, with the chosen
-  SObject server's enabled toggle visible.
+- Screenshot note: **MCP Servers** under **API Catalog**, showing the available
+  server list and the control used to enable the chosen SObject server. The
+  capture pass must record the rendered row and control labels rather than
+  assuming labels from the server API IDs.
 
 ## Speakeasy setup
 
 Per-guide values rendered into the canonical
-`docs/speakeasy-setup.md` skeleton:
+`doctrine/speakeasy-setup.md` skeleton:
 
 - Provider: Salesforce.
 - Remote URL: the one production or sandbox SObject URL selected in
@@ -221,8 +228,10 @@ Per-guide values rendered into the canonical
 - Catalog status: Speakeasy's public product pages name Salesforce as a
   pre-built SaaS integration and catalog example, but no publicly inspectable
   catalog record establishes that the listing configures these Salesforce
-  Hosted MCP SObject URLs with this manual OAuth client. Render the canonical
-  catalog/custom-server conditional.
+  Hosted MCP SObject URLs with this manual OAuth client. Use a catalog listing
+  only if it explicitly identifies the selected Hosted MCP SObject server,
+  matches its recorded URL, and supports the manual OAuth configuration in
+  this Guide. Otherwise, use **Custom remote server**.
 - Authentication Option: OAuth with a manually registered client.
 - OAuth scopes: `mcp_api` and `refresh_token`.
 - Discovery: Salesforce publishes RFC 9728 protected-resource metadata for the
@@ -232,8 +241,10 @@ Per-guide values rendered into the canonical
   offers **Use Discovered** is not required for this path.
 - **Client ID** origin: Salesforce **Consumer Key** from
   {#copy-consumer-key}.
-- Client Secret: omit; Salesforce documents PKCE with the Consumer Key for
-  public MCP clients.
+- Client Secret: the standards-based candidate configuration leaves
+  **Client Secret (optional)** empty because Salesforce documents Consumer
+  Key-only PKCE for public MCP clients. This exact configuration remains
+  unverified in the Speakeasy AI Control Plane.
 - Redirect URI registered in Salesforce: `{{ gram.oauth.callback_url }}` in
   **Callback URL** at {#configure-oauth-settings}.
 - Further-reading URL:
@@ -262,9 +273,13 @@ or Salesforce's catalog entry.
 From the server's **Overview**, open **Settings**. Under **Authentication**,
 click **Configure Manually**. In **Attach Remote Identity Provider**, set
 **Client Type** to **Manual**. Confirm that the displayed **Redirect URI**
-matches the `{{ gram.oauth.callback_url }}` registered in Salesforce. Paste
-the **Consumer Key** from {#copy-consumer-key} into **Client ID**, leave
-**Client Secret (optional)** empty, and click **Attach Identity Provider**.
+matches the `{{ gram.oauth.callback_url }}` registered in Salesforce. For the
+unverified candidate configuration, paste the **Consumer Key** from
+{#copy-consumer-key} into **Client ID**, leave **Client Secret (optional)**
+empty, and click **Attach Identity Provider**. Salesforce documents this
+Consumer Key-only PKCE pattern for compatible public clients but does not
+document the Speakeasy AI Control Plane. This candidate requires end-to-end
+validation.
 
 Screenshot note: capture **Attach Remote Identity Provider** with **Client
 Type**, **Redirect URI**, and the credential labels visible; redact the Client
@@ -291,11 +306,13 @@ limits — see Salesforce's MCP documentation at
   with **Client Secret (optional)** empty, completing Salesforce
   authorization, and confirming that the selected server advertises and can
   invoke a permitted tool through the Speakeasy AI Control Plane.
-- Salesforce's April 2026 GA announcement says Hosted MCP Servers are
-  available in Enterprise Edition and above, while its current connection
-  troubleshooting names Developer and Professional-with-API-access orgs as
-  eligible examples. Confirm availability in the target lower-edition org by
-  checking for **MCP Servers** in **Setup**.
+- Salesforce's April 2026 GA announcement promises Hosted MCP Servers for
+  Enterprise Edition and above. Current connection troubleshooting names
+  Developer and Professional-with-API-access orgs only as examples of orgs
+  with API eligibility, not as an explicit Hosted MCP availability promise.
+  Treat lower-edition availability as conditional and confirm the feature is
+  available in the target org before setup; do not infer a Setup label beyond
+  the documented **MCP Servers** navigation path.
 - The canonical Speakeasy setup ends when the administrator clicks **Attach
   Identity Provider** and does not document which Speakeasy control starts the
   Salesforce user-authorization prompt. Do not invent that transition in the
@@ -322,7 +339,7 @@ limits — see Salesforce's MCP documentation at
   reachable and enumerated the current guide and reference pages.
   `https://help.salesforce.com/llms.txt` timed out.
 
-All observations below use `2026-07-24T17:42:28Z`.
+All observations below use `2026-07-24T23:08:01Z`.
 
 - `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt`
   — machine-readable Hosted MCP source inventory; backs documentation-property
@@ -392,6 +409,6 @@ All observations below use `2026-07-24T17:42:28Z`.
   `https://www.speakeasy.com/use-cases/claude-super-app` — Speakeasy public
   search results name Salesforce as a pre-built SaaS integration and catalog
   example, but do not expose a catalog record or Hosted MCP configuration.
-- `docs/speakeasy-setup.md` — observed `2026-07-24T17:42:28Z`; backs the fixed
+- `doctrine/speakeasy-setup.md` — observed `2026-07-24T23:08:01Z`; backs the fixed
   Speakeasy-side anchors, labels, OAuth attach flow, callback template
   semantics, and closing pointer.
