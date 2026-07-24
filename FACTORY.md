@@ -5,7 +5,7 @@ as `mise run draft-guide` / `npm run draft-guide`, driven by a label instead of
 a local CLI.
 
 Workflow: [`.github/workflows/guide-draft.yml`](.github/workflows/guide-draft.yml).  
-Implementation notes: [`docs/agents/guide-factory.md`](docs/agents/guide-factory.md).
+Implementation notes: [`ops/factory.md`](ops/factory.md).
 
 ## One-time setup
 
@@ -48,7 +48,7 @@ Runs can take a long time (often 20–40+ minutes). Usage burns Cursor plan toke
    (`Closes #<issue>`). It stays a **draft** when the run needs a human reply
    (awaiting scope or unconverged); **converged** runs open ready for review.
 
-Persona defaults to `it-admin` unless distill confidently picks another file under `docs/personas/`.
+Persona defaults to `it-admin` unless distill confidently picks another file under `doctrine/personas/`.
 
 ## When the pipeline asks for a decision
 
@@ -99,7 +99,7 @@ mise run draft-guide -- asana --overwrite --notes "drop secret-reset recovery br
 mise run draft-guide -- x --overwrite --pause-on-scope
 ```
 
-Or `cd scripts/cursor-sdk && npm install && npm run draft-guide -- …`. Factory
+Or `cd pipeline && npm install && npm run draft-guide -- …`. Factory
 adds issue distill, labels, PR open/update, and Scope check / Pipeline review
 comments around that same CLI.
 
@@ -115,6 +115,6 @@ comments around that same CLI.
 ## Related
 
 - [`README.md`](README.md) — short how-to (issue flow + local CLI)  
-- [`docs/agents/guide-factory.md`](docs/agents/guide-factory.md) — Action internals  
-- [`docs/agents/constitution.md`](docs/agents/constitution.md) — agents never commit (I7); the Action does  
+- [`ops/factory.md`](ops/factory.md) — Action internals  
+- [`doctrine/constitution.md`](doctrine/constitution.md) — agents never commit (I7); the Action does  
 - [`retro/notes/`](retro/notes/) — human signal for `/tune-pipeline` after factory runs

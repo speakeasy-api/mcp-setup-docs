@@ -6,6 +6,22 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-24 — concern-first repo layout
+
+Files: `scripts/` → `pipeline/` + `tools/` + `ops/`; `docs/agents/` +
+`docs/personas/` + `CONTEXT.md` + `docs/speakeasy-setup.md` → `doctrine/`;
+`docs/agents/guide-factory.md` → `ops/factory.md`;
+`docs/agents/drafting.md` → `doctrine/archive/drafting.md`;
+`pipeline/src/paths.ts`; `mise.toml`; `.github/workflows/guide-draft.yml`;
+README/FACTORY/skills and guide lock reading-list paths.
+
+- Top-level dirs now match stable concerns (content / doctrine / engine /
+  tools / ops / telemetry).
+- Single drafting engine lives at `pipeline/` (Claude harness already
+  retired). Path constants centralize doctrine/guide/schema/retro refs.
+
+Evidence: structure plan (concern-first layout); no monorepo tooling.
+
 ## 2026-07-24 — factory PR titles + draft-vs-ready
 
 Files: `.github/workflows/guide-draft.yml`, `FACTORY.md`,

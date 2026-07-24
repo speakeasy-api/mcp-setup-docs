@@ -2,7 +2,7 @@
 
 Append-only signal the drafting pipeline emits, distilled into doctrine
 changes by `/tune-pipeline` (rules in
-[`../docs/agents/constitution.md`](../docs/agents/constitution.md)).
+[`../doctrine/constitution.md`](../doctrine/constitution.md)).
 Nothing in this directory changes pipeline behavior by existing — capture
 is safe; only an approved tune proposal changes doctrine.
 
@@ -56,7 +56,7 @@ before 2026-07-22 carry neither. Older records may still contain retired
 `polish_*` / `recheck` history fields. Top-level `skipped` lists pipeline
 steps omitted by the lockfile contract; `research_change` records how
 `research_unchanged` was decided (see
-[`docs/agents/pipeline-lock.md`](../docs/agents/pipeline-lock.md)).
+[`doctrine/pipeline-lock.md`](../doctrine/pipeline-lock.md)).
 
 ## `notes/` — Retro Notes (human-written)
 

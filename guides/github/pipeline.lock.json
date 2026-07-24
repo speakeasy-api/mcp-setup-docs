@@ -12,19 +12,19 @@
         "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
           },
           {
-            "path": "docs/agents/technical-research.md",
+            "path": "doctrine/roles/technical-research.md",
             "digest": "sha256:a1eacd4ead5db07cc1ac6ce35165fc922d1484967be63090071b76183621cb87"
           },
           {
-            "path": "docs/speakeasy-setup.md",
+            "path": "doctrine/speakeasy-setup.md",
             "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
           }
         ],
@@ -53,19 +53,19 @@
         "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
           },
           {
-            "path": "docs/agents/writer.md",
+            "path": "doctrine/roles/writer.md",
             "digest": "sha256:fdc33a72becc23fff5045540a775e96ad22febe752491773e75afa2dc09db91a"
           },
           {
-            "path": "docs/personas/it-admin.md",
+            "path": "doctrine/personas/it-admin.md",
             "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
           }
         ],
@@ -100,15 +100,15 @@
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
           },
           {
-            "path": "docs/agents/fidelity.md",
+            "path": "doctrine/roles/fidelity.md",
             "digest": "sha256:b0159f65f21c789df6bddfcb643127509342a02d8dcc31a0274eef7c390dac9b"
           }
         ],
@@ -148,19 +148,19 @@
         "prompt_digest": "sha256:fbc00275b61a75440be66961195498b4dc0ce5143aed1cedf4d6014e2139ffa8",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
           },
           {
-            "path": "docs/agents/review.md",
+            "path": "doctrine/roles/review.md",
             "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
           },
           {
-            "path": "docs/personas/it-admin.md",
+            "path": "doctrine/personas/it-admin.md",
             "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
           }
         ],
@@ -200,19 +200,19 @@
         "prompt_digest": "sha256:e0573b70108c5fc8296aa57efd0ee7619dd7d7a0c5bf23295b48d7daa0dc1493",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
           },
           {
-            "path": "docs/agents/review.md",
+            "path": "doctrine/roles/review.md",
             "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
           },
           {
-            "path": "docs/personas/it-admin.md",
+            "path": "doctrine/personas/it-admin.md",
             "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
           }
         ],
@@ -252,19 +252,19 @@
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
           },
           {
-            "path": "docs/agents/review.md",
+            "path": "doctrine/roles/review.md",
             "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
           },
           {
-            "path": "docs/personas/it-admin.md",
+            "path": "doctrine/personas/it-admin.md",
             "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
           }
         ],
@@ -304,19 +304,19 @@
         "prompt_digest": "sha256:a1f2dede1ef844482b776a9653e316af775d0719dcb52b80c64fafdd2669a1f2",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:eb08d454ed0a94f915f9f4d6a6634f6fda6b368a08eddd09349b1cf50bad5f75"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:7c2ae2af2300d3c5ecf98e7bfba2fa5bc1b1fc9197091fec39cb9d11d1210789"
           },
           {
-            "path": "docs/agents/review.md",
+            "path": "doctrine/roles/review.md",
             "digest": "sha256:45f6283c9a5908a46674ad4304ebb3b1198ddb281f8d465c18e5ad9ef7871da6"
           },
           {
-            "path": "docs/personas/it-admin.md",
+            "path": "doctrine/personas/it-admin.md",
             "digest": "sha256:6af30438ca40e7232b8324bcb28c109f027bfdb5ca560ba27a3532cb8b464c96"
           }
         ],

@@ -8,15 +8,21 @@
 // Pages are followed via metadata.nextCursor and deduplicated by server name,
 // since the registry can return overlapping pages under a continuing cursor.
 //
-// Usage: node scripts/pull-pulse-catalog.mjs [output-path]
+// Usage: node tools/pulse-catalog/pull-pulse-catalog.mjs [output-path]
 // Requires PULSE_REGISTRY_KEY in the environment (set it in mise.local.toml).
 
 import { writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const BASE_URL = process.env.PULSE_REGISTRY_URL ?? "https://api.pulsemcp.com";
 const TENANT = process.env.PULSE_REGISTRY_TENANT ?? "gram-recommended";
 const API_KEY = process.env.PULSE_REGISTRY_KEY;
-const OUT_PATH = process.argv[2] ?? "pulse-catalog.json";
+const DEFAULT_OUT = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "pulse-catalog.json",
+);
+const OUT_PATH = process.argv[2] ?? DEFAULT_OUT;
 const PAGE_SIZE = 50;
 const MAX_PAGES = 20;
 

@@ -193,7 +193,7 @@ provenance:
     classification: official
     observed_at: "2026-07-23T19:36:30Z"
   - source: repository-doctrine
-    locator: docs/speakeasy-setup.md
+    locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
     observed_at: "2026-07-23T19:36:30Z"

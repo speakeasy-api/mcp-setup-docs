@@ -117,7 +117,7 @@ route and must not be substituted into this Guide.
 ## Speakeasy setup
 
 Per-guide values rendered into the canonical
-`docs/speakeasy-setup.md` skeleton:
+`doctrine/speakeasy-setup.md` skeleton:
 
 - Provider: X.
 - Remote URL: `https://api.x.com/mcp`.
@@ -196,7 +196,7 @@ limits — see X's MCP documentation at
 - **Official open-source project:** `github.com/xdevplatform/xurl`, used to
   corroborate the local-bridge architecture and callback requirement. It is
   not a substitute for the primary MCP page.
-- **Speakeasy product doctrine:** `docs/speakeasy-setup.md`, read locally and
+- **Speakeasy product doctrine:** `doctrine/speakeasy-setup.md`, read locally and
   used only for the fixed Speakeasy-side flow and anchors.
 
 ### Fact sources
@@ -245,7 +245,7 @@ limits — see X's MCP documentation at
   stdio-to-Streamable-HTTP bridge architecture, `CLIENT_ID` /
   `CLIENT_SECRET`, token caching and refresh, browser/headless behavior, and
   default `http://localhost:8080/callback`.
-- `docs/speakeasy-setup.md` — observed `2026-07-23T23:16:30Z`. Backs the fixed
+- `doctrine/speakeasy-setup.md` — observed `2026-07-23T23:16:30Z`. Backs the fixed
   {#add-server-in-speakeasy} and {#connect-speakeasy-credentials} anchors,
   exact Speakeasy labels, catalog/custom conditional, upstream-header flow,
   and closing pointer form.

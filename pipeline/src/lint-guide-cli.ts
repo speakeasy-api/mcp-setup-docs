@@ -10,8 +10,8 @@ import { fileURLToPath } from 'node:url'
 import { lintGuide, type LintFinding } from './lint-guide.ts'
 
 function defaultRepoRoot(): string {
-  // scripts/cursor-sdk/src → repo root
-  return resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
+  // pipeline/src → repo root
+  return resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 }
 
 function usage(): never {

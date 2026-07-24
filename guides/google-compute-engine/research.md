@@ -476,11 +476,11 @@ all steps below happen inside this one project.
 
 ## Speakeasy setup
 
-Transcluded from `docs/speakeasy-setup.md` (canonical Speakeasy-side
+Transcluded from `doctrine/speakeasy-setup.md` (canonical Speakeasy-side
 flow; anchors `{#add-server-in-speakeasy}` and
 `{#connect-speakeasy-credentials}` are fixed there and carried
 verbatim — never re-minted). Provenance for the transcluded facts:
-`docs/speakeasy-setup.md` (product source `speakeasy-api/gram`,
+`doctrine/speakeasy-setup.md` (product source `speakeasy-api/gram`,
 `client/dashboard`, `main` @ `96f7f73`), observed this run
 (2026-07-23T15:15:19Z). Per-guide values the skeleton renders with:
 
@@ -756,7 +756,7 @@ One entry per source drawn from (all fetched live this run,
   conflict (BigQuery's documented scope table and live metadata agree
   on `https://www.googleapis.com/auth/bigquery`); no Compute facts
   drawn from them.
-- `docs/speakeasy-setup.md` (repo-canonical Speakeasy-side flow;
+- `doctrine/speakeasy-setup.md` (repo-canonical Speakeasy-side flow;
   product source `speakeasy-api/gram` `client/dashboard` `main` @
   `96f7f73`) — backs every Speakeasy-side label transcluded above;
   observed this run.

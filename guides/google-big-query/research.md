@@ -338,9 +338,9 @@ credentials. All provider steps occur in the selected project.
 
 ## Speakeasy setup
 
-Transcluded from `docs/speakeasy-setup.md`; its anchors
+Transcluded from `doctrine/speakeasy-setup.md`; its anchors
 `{#add-server-in-speakeasy}` and `{#connect-speakeasy-credentials}` are fixed
-and carried verbatim. Provenance: `docs/speakeasy-setup.md` (product source
+and carried verbatim. Provenance: `doctrine/speakeasy-setup.md` (product source
 `speakeasy-api/gram`, `client/dashboard`, branch `main`, commit `96f7f73`),
 observed at `2026-07-23T19:36:30Z`.
 
@@ -525,7 +525,7 @@ Unless another timestamp is stated, sources below were observed at
 - `https://support.google.com/cloud/answer/15549049` — Branding and Audience
   page responsibilities, monitored **User support email** guidance, developer
   contact-notification purpose, and production-branding caveats.
-- `docs/personas/it-admin.md` — administrative voice control requiring approved
+- `doctrine/personas/it-admin.md` — administrative voice control requiring approved
   organization-specific values and escalation instead of asking the
   administrator to improvise a policy decision; observed at
   `2026-07-23T19:36:30Z`.
@@ -540,7 +540,7 @@ Unless another timestamp is stated, sources below were observed at
 - `https://accounts.google.com/.well-known/oauth-authorization-server` — live
   authorization/token endpoints, client-secret methods, PKCE support, and no
   registration endpoint.
-- `docs/speakeasy-setup.md` — every Speakeasy-side label and fixed anchor
+- `doctrine/speakeasy-setup.md` — every Speakeasy-side label and fixed anchor
   transcluded above; canonical product-source snapshot at
   `speakeasy-api/gram`, `client/dashboard`, `main` @ `96f7f73`; observed at
   `2026-07-23T19:36:30Z`.

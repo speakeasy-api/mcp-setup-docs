@@ -2,10 +2,10 @@
 
 > **Superseded (mcp-setup-docs):** Historical single-agent drafting notes from
 > the original `mcp-catalog` repo. The live pipeline is
-> `scripts/cursor-sdk/` (`mise run draft-guide` / factory), with roles in
+> `pipeline/` (`mise run draft-guide` / factory), with roles in
 > `shared.md`, `technical-research.md`, `writer.md`, `fidelity.md`, and
 > `review.md`. Research facts land in a Research Dossier first; `setup.md`
-> is rendered from it for a persona (`docs/personas/`). If this file and a
+> is rendered from it for a persona (`doctrine/personas/`). If this file and a
 > role doc disagree, the role doc wins.
 
 A draft is one `guides/<slug>/` directory — `meta.yaml` plus `setup.md` —

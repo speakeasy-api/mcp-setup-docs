@@ -1,6 +1,6 @@
 # Guide draft factory (internals)
 
-Operator how-to: see **[`FACTORY.md`](../../FACTORY.md)** at the repo root.
+Operator how-to: see **[`FACTORY.md`](../FACTORY.md)** at the repo root.
 
 This page is the Action/contract detail behind that guide.
 
@@ -9,10 +9,10 @@ Mirrors a Matt Pocock–style factory: label → distill → pipeline → draft 
 Pipeline agents still never commit (constitution **I7**); only the Action
 commits, pushes, and opens the PR.
 
-Workflow: [`.github/workflows/guide-draft.yml`](../../.github/workflows/guide-draft.yml).
-Distill CLI: `npm run resolve-issue` in `scripts/cursor-sdk/`.
-Review comment formatter: [`scripts/ci/format-pipeline-review.sh`](../../scripts/ci/format-pipeline-review.sh).
-Scope check formatter: [`scripts/ci/format-scope-check.sh`](../../scripts/ci/format-scope-check.sh).
+Workflow: [`.github/workflows/guide-draft.yml`](../.github/workflows/guide-draft.yml).
+Distill CLI: `npm run resolve-issue` in `pipeline/`.
+Review comment formatter: [`format-pipeline-review.sh`](format-pipeline-review.sh).
+Scope check formatter: [`format-scope-check.sh`](format-scope-check.sh).
 
 ## How to file an issue
 
@@ -30,7 +30,7 @@ Scope check formatter: [`scripts/ci/format-scope-check.sh`](../../scripts/ci/for
      PR’s branch**.
 
 Persona defaults to `it-admin` unless the distill step confidently finds a
-known id under `docs/personas/`.
+known id under `doctrine/personas/`.
 
 ## Where to put clarifications
 

@@ -27,6 +27,7 @@ import {
   mergeOpenQuestions,
   type ScopeGateResult,
 } from './scope-gate.ts'
+import { PATHS, abs, guideDir, personaFile, roleDoc } from './paths.ts'
 
 export const PhaseResult = withSchemaHint(
   z
@@ -224,14 +225,14 @@ const DIMENSIONS: Dimension[] = [
 
 function readingList(
   root: string,
-  personaFile: string,
+  personaPath: string,
   roleDocs: string[],
   withPersona: boolean
 ): string {
-  const docs = [root + '/CONTEXT.md', root + '/docs/agents/shared.md'].concat(
-    roleDocs.map((d) => root + '/docs/agents/' + d)
+  const docs = [abs(root, PATHS.glossary), abs(root, PATHS.shared)].concat(
+    roleDocs.map((d) => abs(root, roleDoc(d)))
   )
-  if (withPersona) docs.push(personaFile)
+  if (withPersona) docs.push(personaPath)
   return docs.map((d, i) => i + 1 + '. ' + d).join('\n')
 }
 
@@ -242,7 +243,7 @@ export async function runWorkflow(
   const ROOT = input.repoRoot
   const NOW = input.timestamp
   const PERSONA = input.persona
-  const PERSONA_FILE = ROOT + '/docs/personas/' + PERSONA + '.md'
+  const PERSONA_FILE = abs(ROOT, personaFile(PERSONA))
   const MAX_ROUNDS = input.maxRounds || 3
   const FORCE = input.force === true
   const PAUSE_ON_SCOPE = input.pauseOnScope === true
@@ -332,7 +333,7 @@ export async function runWorkflow(
       'Assignment:',
       '- slug: ' + g.slug,
       '- provider: ' + g.provider,
-      '- guide directory: ' + ROOT + '/guides/' + g.slug + '/',
+      '- guide directory: ' + abs(ROOT, guideDir(g.slug)) + '/',
       '- persona: ' + PERSONA + ' (' + PERSONA_FILE + ')',
       '- observed_at timestamp for provenance recorded this run: ' + NOW,
       '- operator notes: ' + (g.notes || '(none)'),
