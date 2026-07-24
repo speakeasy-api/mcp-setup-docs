@@ -106,8 +106,12 @@ Provider-documented UI (named in prose or shown in screenshots on those
 pages) is confirmed — never an open question asking for live console
 verification. Reserve this section for silence, unresolved property
 conflicts, or live probing that contradicts a documented URL/behavior.
-Your report's `open_questions` must match this section: do not re-list a
-UI label already recorded from provider docs as "needs verification."
+When public docs are silent on exact field or control labels, record the
+silence here and leave enough for the Writer to hedge — do not leave the
+walkthrough "incomplete" in a way that invites reviewers to demand a
+console capture. Your report's `open_questions` must match this section:
+do not re-list a UI label already recorded from provider docs as "needs
+verification."
 
 ## Provenance
 First, the source inventory from the sweep: every documentation property

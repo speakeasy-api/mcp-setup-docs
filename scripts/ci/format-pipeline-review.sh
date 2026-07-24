@@ -105,7 +105,33 @@ if [ -n "$pr_url" ]; then
 fi
 echo
 
-unresolved_n=$(jq '(.unresolved // []) | length' "$record")
+# Gate dimensions only (fidelity + achievability). Dedupe by target + anchor
+# (or where prefix), preferring fidelity over achievability for the same locus.
+# Non-gate leftovers (legacy voice/formatting/concision) become optional nits.
+decisions_json=$(jq -c '
+  def locus:
+    ((.where // "") | capture("(?<a>#[a-z0-9-]+)")? | .a)
+    // ((.where // "") | .[0:80]);
+  def rank:
+    if .dimension == "fidelity" then 0
+    elif .dimension == "achievability" then 1
+    else 9 end;
+  (.unresolved // []) as $u
+  | ($u
+      | map(select(.dimension == "fidelity" or .dimension == "achievability"))
+      | sort_by([(.target // ""), locus, rank])
+      | group_by([(.target // ""), locus])
+      | map(.[0])
+    ) as $decisions
+  | ($u
+      | map(select(.dimension != "fidelity" and .dimension != "achievability"))
+    ) as $legacy
+  | {decisions: $decisions, legacy: $legacy}
+' "$record")
+
+unresolved_n=$(echo "$decisions_json" | jq '.decisions | length')
+legacy_n=$(echo "$decisions_json" | jq '.legacy | length')
+
 if [ "$unresolved_n" -gt 0 ]; then
   echo "### Decisions needed (${unresolved_n})"
   echo
@@ -147,32 +173,46 @@ if [ "$unresolved_n" -gt 0 ]; then
     echo "- \`Decision ${i}: drop this branch\` (remove the recovery/optional path until we can verify it)"
     echo "- \`Decision ${i}: hedge — …\` (keep a softer “if you see X, ask your admin” line instead of exact clicks)"
     echo
-  done < <(jq -c '(.unresolved // [])[]' "$record")
+  done < <(echo "$decisions_json" | jq -c '.decisions[]')
 fi
 
 oq_n=$(jq '(.open_questions // []) | length' "$record")
 if [ "$oq_n" -gt 0 ]; then
   echo "### Open questions (${oq_n})"
   echo
-  echo "Research could not prove these from public docs. Check the boxes by replying with answers, or say “unknown / omit”."
+  echo "Research could not prove these from public docs. Check the boxes by replying with answers, or say “unknown / omit”. Silence + an existing hedge in the guide usually means **omit / keep hedge** — not a console capture."
   echo
   jq -r '(.open_questions // [])[] | "- [ ] \(.)"' "$record"
   echo
 fi
 
+# Merge leftover nits with any non-gate unresolved findings.
 nits_n=$(jq '(.nits // []) | length' "$record")
-if [ "$nits_n" -gt 0 ] && [ "$nits_n" -le 8 ]; then
-  echo "### Polish nits (${nits_n}) — optional"
+extra_nits=$((nits_n + legacy_n))
+if [ "$extra_nits" -gt 0 ] && [ "$extra_nits" -le 12 ]; then
+  echo "### Optional nits (${extra_nits})"
   echo
-  jq -r '
-    (.nits // [])[] |
-    "- `\(.where // "?")`: \(.problem // "") → \(.suggestion // "—")"
-  ' "$record"
+  if [ "$legacy_n" -gt 0 ]; then
+    echo "$decisions_json" | jq -r '
+      .legacy[] |
+      "- `\(.where // "?")` (\(.dimension // "?")): \(.problem // "") → \(.suggestion // "—")"
+    '
+  fi
+  if [ "$nits_n" -gt 0 ]; then
+    jq -r '
+      (.nits // [])[] |
+      if type == "object" then
+        "- `\(.where // "?")`: \(.problem // "") → \(.suggestion // "—")"
+      else
+        "- \(.)"
+      end
+    ' "$record"
+  fi
   echo
-elif [ "$nits_n" -gt 8 ]; then
-  echo "### Polish nits"
+elif [ "$extra_nits" -gt 12 ]; then
+  echo "### Optional nits"
   echo
-  echo "_${nits_n} optional nits — see the run record in the PR if you care._"
+  echo "_${extra_nits} optional nits — see the run record in the PR if you care._"
   echo
 fi
 

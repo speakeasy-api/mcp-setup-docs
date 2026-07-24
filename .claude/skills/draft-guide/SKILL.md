@@ -1,6 +1,6 @@
 ---
 name: draft-guide
-description: Draft one or more persona-voiced MCP server Setup Guides via the multi-agent pipeline (Technical Research → Writer → Fidelity + Editorial review → revision rounds). Use when asked to draft, create, or re-draft a Guide for an MCP server.
+description: Draft one or more persona-voiced MCP server Setup Guides via the multi-agent pipeline (Technical Research → Writer → Fidelity + Achievability review → revision rounds). Use when asked to draft, create, or re-draft a Guide for an MCP server.
 ---
 
 # /draft-guide
@@ -50,10 +50,9 @@ Guide), and reviews it to convergence. Roles and rules live in
    `/workflows` shows live progress. Do not poll.
 6. **Report** when the completion notification arrives, per slug by
    `status`:
-   - `converged` — done in `rounds` round(s); mechanical nits were
-     applied by the in-loop polish pass, so `nits` holds only its
-     skipped/disputed leftovers (and any fidelity re-check notes) — list
-     those and `open_questions` as the human-review checklist.
+   - `converged` — done in `rounds` round(s); leftover `nits` are a human
+     checklist (no in-loop polish pass) — list those and `open_questions`
+     as the human-review checklist.
    - `unconverged` — relay every `unresolved` blocker verbatim (dimension,
      where, problem, suggestion); these are the human's decisions now.
    - `blocked` / `failed` — say which phase and why (`notes`); the guide

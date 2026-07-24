@@ -58,8 +58,8 @@ function parseArgs(argv: string[]) {
   let overwrite = false
   let force = false
   let repoRoot: string | undefined
-  // Heavy slots (research / draft / fidelity / voice / achievability / revision)
-  // default to GPT-5.6 Sol at high effort; light slots stay on Composer.
+  // Heavy slots (research / draft / fidelity / achievability / revision)
+  // default to GPT-5.6 Sol at high effort; light model kept for optional overrides.
   let model = process.env.CURSOR_MODEL || 'gpt-5.6-sol'
   let lightModel = process.env.CURSOR_MODEL_LIGHT || 'composer-2.5'
   let effort = process.env.CURSOR_EFFORT || 'high'

@@ -6,6 +6,61 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-24 — architecture: two-gate review (Phase 0 + 1)
+
+Files: `docs/agents/constitution.md` (I5), `fidelity.md`, `review.md`,
+`writer.md`, `technical-research.md`, `shared.md`, `pipeline-lock.md`,
+`guide-factory.md`, `docs/personas/it-admin.md`,
+`scripts/cursor-sdk/src/workflow.ts`, `scripts/cursor-sdk/src/lock.ts`,
+`scripts/cursor-sdk/src/runtime.ts`, `scripts/cursor-sdk/src/cli.ts`,
+`scripts/draft-guide-workflow.js`, `scripts/ci/format-pipeline-review.sh`,
+`.claude/skills/draft-guide/SKILL.md`.
+
+Operator-directed architecture cut (Phase 0 decisions + Phase 1
+subtraction), not a tune-pipeline batch.
+
+### Phase 0 decisions (locked)
+
+1. Gates: Research → Writer → **Fidelity + Achievability** only.
+2. Cut: concision / voice / formatting as standing reviewers; polish pass;
+   polish salvage; spiral detector; finalization salvage.
+3. Merge voice + formatting + concision into the Writer cold-read/cut
+   self-check.
+4. Deterministic I4 lint deferred to Phase 2.
+5. Cursor SDK remains primary; Claude harness kept in lockstep for this
+   cut (delete/stub later).
+6. Public-docs silence + existing hedge → open question / nit, **not** a
+   research-target blocker or factory Decision demanding console capture.
+
+### Phase 1 changes
+
+- **DIMENSIONS** shrink to fidelity + achievability in both workflows.
+- **Polish / salvage / spiral removed.** On zero blockers, converge and
+  leave leftover nits on the human checklist. Last-round revise still
+  gets one confirmatory finalization review; if blockers remain →
+  `unconverged` (no salvage recheck loop).
+- **Writer** owns voice / formatting / concision self-check.
+- **`review.md`** is achievability-only; silence+hedge rule strengthened
+  there and in `fidelity.md` / `technical-research.md`.
+- **I5** updated so Writer applies voice; reviewers judge achievability.
+- **Factory Decisions** (`format-pipeline-review.sh`): gate dims only;
+  dedupe by target+anchor (prefer fidelity); non-gate leftovers →
+  optional nits; open-questions blurb notes hedge ≠ console capture.
+
+Invariants: I1 strengthened (silence stays visible as hedge/OQ, not
+invented chrome). I5 updated by operator (human constitution edit). I6
+preserved as capped structured review + unresolved-to-human; unused
+dispute/spiral machinery removed from the hot path. I4 enforcement
+moves toward Writer self-check (+ Phase 2 lint); fidelity still checks
+anchors/grammar-adjacent facts.
+
+Evidence: architecture review of 15 run records (polish broke fidelity
+in `2026-07-23T18:50:25Z-google-big-query.json` and
+`2026-07-23T19:12:45Z-google-big-query.json`; X factory PR #17 /
+`2026-07-23T22:43:32Z-x.json` escalated four silence loci into nine
+Decisions while hedges already existed; 0 disputes cleared across the
+corpus). Operator direction (Walker, 2026-07-24): implement Phase 0+1.
+
 ## 2026-07-23 — tune: trust provider-documented UI
 
 Files: `docs/agents/technical-research.md`, `docs/agents/review.md`,

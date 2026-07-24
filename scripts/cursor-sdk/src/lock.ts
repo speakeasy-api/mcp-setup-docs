@@ -20,9 +20,11 @@ export type ResearchSnapshot = {
 
 export type ReviewDimension =
   | 'fidelity'
+  | 'achievability'
+  // Legacy keys may appear in older pipeline.lock.json files; the workflow
+  // no longer runs these dimensions (Writer self-check owns them).
   | 'voice'
   | 'formatting'
-  | 'achievability'
   | 'concision'
 
 export type StepId =
