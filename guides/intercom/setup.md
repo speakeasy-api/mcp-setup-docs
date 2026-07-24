@@ -41,7 +41,7 @@ Intercom does not document an MCP-specific plan tier or administrator role.
 1. From the server's **Overview**, open **Settings**.
 2. Locate **Authentication**.
 
-**Use Discovered** is unavailable for this server. Continue with manual configuration.
+**Use Discovered** should be unavailable. If it appears, stop here. Do not continue with manual configuration.
 
 3. Click **Configure Manually**.
 4. In **Attach Remote Identity Provider**, enter the issuer URL from [Identify the workspace region](#identify-workspace-region) in **Issuer URL**.
