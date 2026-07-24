@@ -21,6 +21,12 @@ import {
 } from './lock.ts'
 import { lintGuide } from './lint-guide.ts'
 import { withSchemaHint, type Runtime } from './runtime.ts'
+import {
+  evaluateScopeGate,
+  extractOpenQuestionsFromResearch,
+  mergeOpenQuestions,
+  type ScopeGateResult,
+} from './scope-gate.ts'
 
 export const PhaseResult = withSchemaHint(
   z
@@ -167,6 +173,11 @@ export type WorkflowInput = {
   maxRounds?: number
   /** Bypass lock skip checks (CLI --force). */
   force?: boolean
+  /**
+   * Factory / --pause-on-scope: after research, stop before draft when
+   * material open questions lack Decision N replies in notes.
+   */
+  pauseOnScope?: boolean
 }
 
 export type ResearchChangeInfo = {
@@ -177,7 +188,12 @@ export type ResearchChangeInfo = {
 
 export type GuideResult = {
   slug: string
-  status: 'converged' | 'unconverged' | 'blocked' | 'failed'
+  status:
+    | 'converged'
+    | 'unconverged'
+    | 'blocked'
+    | 'failed'
+    | 'awaiting_scope'
   rounds?: number
   failed_phase?: string
   notes?: string
@@ -189,6 +205,8 @@ export type GuideResult = {
   skipped?: string[]
   /** How research_unchanged was decided this run. */
   research_change?: ResearchChangeInfo
+  /** Present when status is awaiting_scope. */
+  scope?: ScopeGateResult
 }
 
 type Dimension = {
@@ -227,6 +245,7 @@ export async function runWorkflow(
   const PERSONA_FILE = ROOT + '/docs/personas/' + PERSONA + '.md'
   const MAX_ROUNDS = input.maxRounds || 3
   const FORCE = input.force === true
+  const PAUSE_ON_SCOPE = input.pauseOnScope === true
   const { log, agent, parallel, pipeline, modelId } = rt
 
   function guideDir(slug: string): string {
@@ -746,6 +765,52 @@ export async function runWorkflow(
         researchUnchanged +
         (researchChange.notes ? ' — ' + researchChange.notes : '')
     )
+
+    if (PAUSE_ON_SCOPE) {
+      const dossierOqs = existsSync(join(dir, 'research.md'))
+        ? extractOpenQuestionsFromResearch(
+            readFileSync(join(dir, 'research.md'), 'utf8')
+          )
+        : []
+      const allOqs = mergeOpenQuestions(research.open_questions, dossierOqs)
+      const gate = evaluateScopeGate(allOqs, notesOf(g))
+      log(
+        '[' +
+          g.slug +
+          '] scope gate: material=' +
+          gate.material.length +
+          ' unanswered=' +
+          gate.unanswered.length +
+          ' soft=' +
+          gate.soft.length
+      )
+      if (gate.pause) {
+        log(
+          '[' +
+            g.slug +
+            '] awaiting_scope — pausing before draft (' +
+            gate.unanswered.length +
+            ' decision(s) needed)'
+        )
+        return {
+          slug: g.slug,
+          status: 'awaiting_scope',
+          failed_phase: 'scope',
+          notes: research.notes,
+          open_questions: gate.unanswered.map((d) => d.question),
+          scope: gate,
+          research_change: researchChange,
+          history: [
+            {
+              phase: 'scope_gate',
+              material: gate.material,
+              soft: gate.soft,
+              unanswered: gate.unanswered,
+            },
+          ],
+        }
+      }
+    }
 
     let draftRan = false
     let draftOpenQuestions: string[] = []

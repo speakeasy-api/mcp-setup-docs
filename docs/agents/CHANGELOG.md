@@ -6,6 +6,29 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-24 — architecture Phase 3: factory scope gate (minimal)
+
+Files: `scripts/cursor-sdk/src/scope-gate.ts`,
+`scripts/cursor-sdk/src/workflow.ts`, `scripts/cursor-sdk/src/cli.ts`,
+`scripts/ci/format-scope-check.sh`, `.github/workflows/guide-draft.yml`,
+`FACTORY.md`, `docs/agents/guide-factory.md`.
+
+- **`--pause-on-scope`** (factory always on): after research, classify open
+  questions as material vs soft. Material + no `Decision N:` in notes →
+  status `awaiting_scope`, exit **3**, no draft.
+- **Material** ≈ recovery/regen, conflicting paths, exclusive branches.
+  **Soft** ≈ catalog presence, UI silence-for-hedge (no pause).
+- Factory opens a **research-only** draft PR, posts **Scope check**, sets
+  `guide:blocked`. Re-label `guide:draft` after Decisions resumes on the
+  factory branch and drafts.
+
+Invariants: I6 (unresolved scope → human before inventing). Complements
+Phase 1 silence+hedge rule (soft OQs do not become Decisions that demand
+console capture).
+
+Evidence: architecture review (X factory PR #17 / issue #15 Decision
+noise); operator direction for Phase 3 minimal (heuristic gate, not LLM).
+
 ## 2026-07-24 — architecture Phase 2: deterministic I4 lint
 
 Files: `scripts/cursor-sdk/src/lint-guide.ts`,
