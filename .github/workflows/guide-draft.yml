@@ -389,10 +389,10 @@ jobs:
           if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
             echo >> "$body_file"
             if [ "${OUTCOME}" = "awaiting_scope" ]; then
-              bash "${GITHUB_WORKSPACE}/ops/format-scope-check.sh" \
+              bash "${GITHUB_WORKSPACE}/.github/scripts/format-scope-check.sh" \
                 "${RUNNER_TEMP}/run-record.json" "" >> "$body_file"
             else
-              bash "${GITHUB_WORKSPACE}/ops/format-pipeline-review.sh" \
+              bash "${GITHUB_WORKSPACE}/.github/scripts/format-pipeline-review.sh" \
                 "${RUNNER_TEMP}/run-record.json" "" \
                 "${GITHUB_WORKSPACE}/guides/${SLUG}" >> "$body_file"
             fi
@@ -427,7 +427,7 @@ jobs:
           body_file="${RUNNER_TEMP}/pipeline-review-comment.md"
           if [ "${OUTCOME}" = "awaiting_scope" ]; then
             if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
-              bash "${GITHUB_WORKSPACE}/ops/format-scope-check.sh" \
+              bash "${GITHUB_WORKSPACE}/.github/scripts/format-scope-check.sh" \
                 "${RUNNER_TEMP}/run-record.json" "${PR_URL}" > "$body_file"
             else
               {
@@ -443,7 +443,7 @@ jobs:
             exit 0
           fi
           if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
-            bash "${GITHUB_WORKSPACE}/ops/format-pipeline-review.sh" \
+            bash "${GITHUB_WORKSPACE}/.github/scripts/format-pipeline-review.sh" \
               "${RUNNER_TEMP}/run-record.json" "${PR_URL}" \
               "${GITHUB_WORKSPACE}/guides/${SLUG}" > "$body_file"
           else
@@ -483,13 +483,13 @@ jobs:
           # If a run record exists from a partial draft, surface blockers here too.
           if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
             echo >> "$body_file"
-            bash "${GITHUB_WORKSPACE}/ops/format-pipeline-review.sh" \
+            bash "${GITHUB_WORKSPACE}/.github/scripts/format-pipeline-review.sh" \
               "${RUNNER_TEMP}/run-record.json" "" \
               "${GITHUB_WORKSPACE}/guides/${SLUG}" >> "$body_file" || true
           elif [ -n "${SLUG}" ] && compgen -G "${GITHUB_WORKSPACE}/retro/runs/*-${SLUG}.json" > /dev/null; then
             record=$(ls -t "${GITHUB_WORKSPACE}"/retro/runs/*-"${SLUG}".json | head -n1)
             echo >> "$body_file"
-            bash "${GITHUB_WORKSPACE}/ops/format-pipeline-review.sh" \
+            bash "${GITHUB_WORKSPACE}/.github/scripts/format-pipeline-review.sh" \
               "$record" "" "${GITHUB_WORKSPACE}/guides/${SLUG}" >> "$body_file" || true
           else
             {

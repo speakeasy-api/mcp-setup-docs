@@ -5,7 +5,7 @@ as `mise run draft-guide` / `npm run draft-guide`, driven by a label instead of
 a local CLI.
 
 Workflow: [`.github/workflows/guide-draft.yml`](.github/workflows/guide-draft.yml).  
-Implementation notes: [`ops/factory.md`](ops/factory.md).
+Action/contract detail: [Action internals](#action-internals).
 
 ## One-time setup
 
@@ -112,9 +112,57 @@ comments around that same CLI.
 | “Refused to run” + existing PR | That PR is not a `guide/issue-<N>-*` factory branch |
 | Resume feels like a full rewrite | No prior factory PR / files; or clarifications forced research to change materially |
 
+## Action internals
+
+Label-driven GitHub Action that turns a freeform issue into a draft Guide PR.
+Mirrors a Matt Pocock–style factory: label → distill → pipeline → draft PR.
+Pipeline agents still never commit (constitution **I7**); only the Action
+commits, pushes, and opens the PR.
+
+- Workflow: [`.github/workflows/guide-draft.yml`](.github/workflows/guide-draft.yml)
+- Distill CLI: `npm run resolve-issue` in `pipeline/`
+- Review comment formatter: [`.github/scripts/format-pipeline-review.sh`](.github/scripts/format-pipeline-review.sh)
+- Scope check formatter: [`.github/scripts/format-scope-check.sh`](.github/scripts/format-scope-check.sh)
+
+### Flow
+
+1. **Preflight** — if an open factory PR (`guide/issue-<N>-*`) already
+   `Closes #N`, **resume** on that branch. Refuse only for non-factory
+   collaborator PRs that target the same issue.
+2. **Labels** — remove `guide:draft` + `guide:blocked`, add `guide:in-progress`.
+3. **Distill** — light Cursor agent reads title + body + issue comments (+
+   existing `guides/*` slugs) → structured JSON or `needs_clarification`.
+4. **Comment** — “Resolved as `slug` …” (or resume notice) summary.
+5. **Draft** — `npm run draft-guide -- <slug> --overwrite --pause-on-scope
+   [--notes …]` (no `--force`; lock skips still apply). After research, a
+   heuristic scope gate pauses before draft when **material** open questions
+   lack `Decision N:` replies in notes (soft OQs do not pause). When prior
+   artifacts exist, research revises in place; unchanged research can skip
+   re-draft via `pipeline.lock.json`.
+6. **PR** — commit `guides/<slug>/` + matching `retro/runs/*-<slug>.json`,
+   push `guide/issue-<N>-<slug>`, open or **update** the PR titled
+   `guide: <provider>`. Draft while awaiting scope / unconverged; mark ready
+   for review when converged (resume flips draft↔ready as needed).
+7. **Comment** — **Scope check** (awaiting scope) or **Pipeline review**
+   (full draft) on the issue + PR body. Awaiting scope also sets
+   `guide:blocked`.
+8. **Hard failure** — `guide:blocked` + comment (includes review summary when
+   a run record exists).
+9. **Always** — remove `guide:in-progress`.
+
+CLI exit `0` (converged), exit `2` (unconverged / blocked / failed with files),
+and exit `3` (awaiting_scope — research written, no draft) all open a PR.
+Hard failures (exit `1`, missing artifacts) take the blocked path with no PR.
+
+### What v1 does not do
+
+- No queued/promote state machine, no `guide:review` auto-label on the PR.
+- No LLM judge for the scope gate (keyword heuristic only — material vs soft).
+- Distill `needs_clarification` and the post-research scope gate are the
+  intentional stops before / mid heavy pipeline.
+
 ## Related
 
-- [`README.md`](README.md) — short how-to (issue flow + local CLI)  
-- [`ops/factory.md`](ops/factory.md) — Action internals  
-- [`doctrine/constitution.md`](doctrine/constitution.md) — agents never commit (I7); the Action does  
+- [`README.md`](README.md) — short how-to (issue flow + local CLI)
+- [`doctrine/constitution.md`](doctrine/constitution.md) — agents never commit (I7); the Action does
 - [`retro/notes/`](retro/notes/) — human signal for `/tune-pipeline` after factory runs

@@ -35,8 +35,8 @@ Lint without drafting: `mise run lint-guide -- box`.
 
 ## Related
 
-- [`FACTORY.md`](FACTORY.md) — factory operator guide  
-- [`doctrine/`](doctrine/) — pipeline doctrine (start with [`shared.md`](doctrine/shared.md))  
-- [`doctrine/personas/`](doctrine/personas/) — audience voice  
-- [`doctrine/glossary.md`](doctrine/glossary.md) — vocabulary  
+- [`FACTORY.md`](FACTORY.md) — factory operator guide
+- [`doctrine/`](doctrine/) — pipeline doctrine (start with [`shared.md`](doctrine/shared.md))
+- [`doctrine/personas/`](doctrine/personas/) — audience voice
+- [`doctrine/glossary.md`](doctrine/glossary.md) — vocabulary
 - `/tune-pipeline` — retro signal → doctrine proposals (Claude Code skill)

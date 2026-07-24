@@ -8,15 +8,16 @@ proposal, or by hand for direct human edits.
 
 ## 2026-07-24 — concern-first repo layout
 
-Files: `scripts/` → `pipeline/` + `tools/` + `ops/`; `docs/agents/` +
+Files: `scripts/` → `pipeline/` + `tools/`; `docs/agents/` +
 `docs/personas/` + `CONTEXT.md` + `docs/speakeasy-setup.md` → `doctrine/`;
-`docs/agents/guide-factory.md` → `ops/factory.md`;
+`docs/agents/guide-factory.md` → folded into `FACTORY.md`;
 `docs/agents/drafting.md` → `doctrine/archive/drafting.md`;
-`pipeline/src/paths.ts`; `mise.toml`; `.github/workflows/guide-draft.yml`;
-README/FACTORY/skills and guide lock reading-list paths.
+CI formatters → `.github/scripts/`; `pipeline/src/paths.ts`; `mise.toml`;
+`.github/workflows/guide-draft.yml`; README/FACTORY/skills and guide lock
+reading-list paths.
 
 - Top-level dirs now match stable concerns (content / doctrine / engine /
-  tools / ops / telemetry).
+  tools / telemetry). Factory Action formatters live under `.github/scripts/`.
 - Single drafting engine lives at `pipeline/` (Claude harness already
   retired). Path constants centralize doctrine/guide/schema/retro refs.
 
