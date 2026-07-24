@@ -19,6 +19,7 @@ import {
   type StepId,
   type StepRecord,
 } from './lock.ts'
+import { lintGuide } from './lint-guide.ts'
 import { withSchemaHint, type Runtime } from './runtime.ts'
 
 export const PhaseResult = withSchemaHint(
@@ -197,12 +198,10 @@ type Dimension = {
   model?: 'sonnet'
 }
 
+/** Review gates only — voice/formatting/concision are Writer self-check. */
 const DIMENSIONS: Dimension[] = [
   { role: 'fidelity', doc: 'fidelity.md', persona: false },
-  { role: 'voice', doc: 'review.md', persona: true },
-  { role: 'formatting', doc: 'review.md', persona: true, model: 'sonnet' },
   { role: 'achievability', doc: 'review.md', persona: true },
-  { role: 'concision', doc: 'review.md', persona: true, model: 'sonnet' },
 ]
 
 function readingList(
@@ -552,8 +551,7 @@ export async function runWorkflow(
     g: GuideInput,
     round: number,
     blockers: unknown[],
-    nits: unknown[],
-    spiralNote?: string | null
+    nits: unknown[]
   ): string {
     const lines = [
       'You are a Revision Agent in the mcp-setup-docs drafting pipeline.',
@@ -564,45 +562,21 @@ export async function runWorkflow(
       '',
       assign(g),
       '',
+      'Review round ' + round + ' reported the blocker findings below. Fix them',
+      'in the guide directory: findings targeting "research" or "meta" first,',
+      'following the Technical Research role doc (facts need provenance; use',
+      'the observed_at timestamp above), then findings targeting "setup",',
+      'following the Writer role doc (grammar, persona voice, the Dossier as',
+      'fact ceiling). Honor the anchor contract in shared.md. Do not touch any',
+      'path outside the guide directory.',
+      '',
+      'Blocker findings (JSON):',
+      JSON.stringify(blockers, null, 2),
+      '',
     ]
-    if (spiralNote) {
-      lines.push(spiralNote, '')
-    }
-    if (blockers.length > 0) {
-      lines.push(
-        'Review round ' + round + ' reported the blocker findings below. Fix them',
-        'in the guide directory: findings targeting "research" or "meta" first,',
-        'following the Technical Research role doc (facts need provenance; use',
-        'the observed_at timestamp above), then findings targeting "setup",',
-        'following the Writer role doc (grammar, persona voice, the Dossier as',
-        'fact ceiling). Honor the anchor contract in shared.md. Do not touch any',
-        'path outside the guide directory.',
-        '',
-        'Blocker findings (JSON):',
-        JSON.stringify(blockers, null, 2),
-        ''
-      )
-    } else {
-      lines.push(
-        'Review round ' + round + ' reported zero blockers; this is the final',
-        'polish pass before the guide converges. Honor the anchor contract in',
-        'shared.md and do not touch any path outside the guide directory.',
-        'Conditional gates from the Dossier must survive polish: when a nit',
-        'asks to collapse repeated If/When prose, keep one explicit',
-        'conditional per branch — never replace it with an unconditional',
-        'heading or imperative. Unforgiving first-connect recovery must also',
-        'survive: never drop Testing expiry re-authorization, one-time-secret',
-        'at create, or mid-setup destructive-rotation recovery — shorten or',
-        'cross-link at most. Later-ops reset/maintenance branches are not',
-        'protected. Skip (with reason) any nit whose suggestion would drop a',
-        'fidelity-backed condition or first-connect recovery note.',
-        ''
-      )
-    }
     if (nits.length > 0) {
       lines.push(
-        (blockers.length > 0 ? 'After the blockers, also apply' : 'Apply') +
-          ' each nit finding below whose',
+        'After the blockers, also apply each nit finding below whose',
         'suggestion is a concrete mechanical remedy, following the same role',
         'docs. Skip a nit when applying it needs new facts or a judgment call',
         'a human should make — restate each skipped nit in "skipped" with a',
@@ -618,65 +592,16 @@ export async function runWorkflow(
       'files as they are for that finding and record it in "disputed" with a',
       'one-line reason (see the disputed-findings protocol in shared.md).',
       'Cross-dimension conflicts count: when achievability demands documenting',
-      'a path that concision or the critical-path ceiling says to cut or hedge',
-      '(especially when public docs cannot complete it), dispute one finding',
-      'rather than expanding the guide to satisfy both.',
+      'a path that the critical-path ceiling says to cut or hedge (especially',
+      'when public docs cannot complete it), dispute the achievability finding',
+      'rather than expanding the guide to satisfy both. Public-docs silence',
+      'with an existing hedge is not a missing-label invent mandate.',
       '',
       'Report via structured output: notes (what changed, per finding),',
       'skipped (nits not applied, with reasons), and disputed (findings you',
       'believe are wrong, with reasons).'
     )
     return lines.join('\n')
-  }
-
-  /** Locus key for spiral detection: target + anchor (or where prefix). */
-  function blockerLocus(f: { target?: string; where?: string }): string {
-    const where = String(f.where || '')
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .trim()
-    const anchor = where.match(/#[a-z0-9-]+/)
-    const loc = anchor ? anchor[0] : where.slice(0, 80)
-    return String(f.target || '') + ':' + loc
-  }
-
-  /**
-   * When blockers fail to shrink and most loci are new vs prior rounds,
-   * warn — prefer dispute over unbounded research depth.
-   */
-  function detectReviewSpiral(
-    priorHistory: Array<{ blockers?: unknown[] }>,
-    currentBlockers: Array<{ target?: string; where?: string }>
-  ): string | null {
-    if (priorHistory.length === 0 || currentBlockers.length === 0) return null
-    const priorLoci = new Set<string>()
-    for (const entry of priorHistory) {
-      for (const b of entry.blockers || []) {
-        priorLoci.add(blockerLocus(b as { target?: string; where?: string }))
-      }
-    }
-    const novelCount = currentBlockers.filter(
-      (b) => !priorLoci.has(blockerLocus(b))
-    ).length
-    const novelShare = novelCount / currentBlockers.length
-    const prevCount = (priorHistory[priorHistory.length - 1]?.blockers || [])
-      .length
-    // Fire when the count did not drop and a majority of loci are new
-    // (catches growth with mostly-novel findings; all-novel is extreme).
-    if (currentBlockers.length >= prevCount && novelShare >= 1 / 2) {
-      return (
-        'Review spiral signal: this round\'s ' +
-        currentBlockers.length +
-        ' blocker(s) did not drop from the prior round (' +
-        prevCount +
-        ') and ' +
-        novelCount +
-        '/' +
-        currentBlockers.length +
-        ' loci are new. Prefer disputing findings that expand beyond the critical-path ceiling or rewrite the Speakeasy canonical skeleton rather than researching unbounded vendor UI depth.'
-      )
-    }
-    return null
   }
 
   type Finding = z.infer<typeof ReviewFinding> & { dimension: string }
@@ -754,6 +679,24 @@ export async function runWorkflow(
         findings.push({ ...f, dimension: dim.role })
       }
     }
+
+    // Deterministic I4 / anchor / meta schema lint — no LLM, every round.
+    const lintFindings = lintGuide(dir, ROOT)
+    if (lintFindings.length > 0) {
+      log(
+        '[' +
+          g.slug +
+          '] lint: ' +
+          lintFindings.filter((f) => f.severity === 'blocker').length +
+          ' blocker(s), ' +
+          lintFindings.filter((f) => f.severity === 'nit').length +
+          ' nit(s)'
+      )
+    }
+    for (const f of lintFindings) {
+      findings.push({ ...f })
+    }
+
     return {
       blockers: findings.filter((f) => f.severity === 'blocker'),
       nits: findings.filter((f) => f.severity === 'nit'),
@@ -923,17 +866,6 @@ export async function runWorkflow(
         nits,
         ...(skippedDims.length ? { skipped_dimensions: skippedDims } : {}),
       }
-      const spiralNote =
-        round > 1
-          ? detectReviewSpiral(
-              history as Array<{ blockers?: unknown[] }>,
-              blockers
-            )
-          : null
-      if (spiralNote) {
-        log('[' + g.slug + '] ' + spiralNote)
-        entry.spiral_warning = spiralNote
-      }
       history.push(entry)
 
       if (blockers.length > 0) {
@@ -947,7 +879,7 @@ export async function runWorkflow(
             ' nit(s)'
         )
         const revision = await agent(
-          revisionPrompt(g, round, blockers, nits, spiralNote),
+          revisionPrompt(g, round, blockers, nits),
           {
             label: g.slug + ' revise r' + round,
             phase: g.slug + ': revise',
@@ -972,8 +904,8 @@ export async function runWorkflow(
           continue
         }
 
-        // Last round: one confirmatory review after the final revise so
-        // round-N blockers are not stranded without a fix attempt.
+        // Last round: one confirmatory review after the final revise.
+        // No salvage / polish tails — unresolved blockers surface to a human.
         log(
           '[' +
             g.slug +
@@ -985,10 +917,6 @@ export async function runWorkflow(
           lock: prevLock,
           allowSkip: false,
         })
-        const finSpiral = detectReviewSpiral(
-          history as Array<{ blockers?: unknown[] }>,
-          fin.blockers
-        )
         const finEntry: Record<string, unknown> = {
           round,
           finalization: true,
@@ -998,255 +926,39 @@ export async function runWorkflow(
             ? { skipped_dimensions: fin.skippedDims }
             : {}),
         }
-        if (finSpiral) {
-          log('[' + g.slug + '] ' + finSpiral)
-          finEntry.spiral_warning = finSpiral
-        }
         history.push(finEntry)
 
         if (fin.blockers.length > 0) {
-          // One salvage revise so spiral/finalization findings are not
-          // stranded — then a single recheck. No further loops.
           log(
             '[' +
               g.slug +
-              '] finalization salvage revise (' +
+              '] not converged: ' +
               fin.blockers.length +
-              ' blocker(s)' +
-              (finSpiral ? '; spiral signal' : '') +
-              ')'
+              ' blocker(s) after finalization review'
           )
-          const salvage = await agent(
-            revisionPrompt(
-              g,
-              round,
-              fin.blockers,
-              fin.nits,
-              finSpiral
-            ),
-            {
-              label: g.slug + ' revise finalization',
-              phase: g.slug + ': revise',
-              schema: RevisionResult,
-            }
-          )
-          finEntry.revision_notes = salvage
-            ? salvage.notes
-            : '(revision agent returned no report)'
-          finEntry.disputed = salvage ? salvage.disputed : []
-          finEntry.skipped = salvage ? salvage.skipped : []
-          prior = {
-            round,
-            finalization: true,
-            blockers: fin.blockers,
+          return {
+            slug: g.slug,
+            status: 'unconverged',
+            rounds: round,
+            unresolved: fin.blockers,
             nits: fin.nits,
-            revision_notes: finEntry.revision_notes,
-            disputed: finEntry.disputed,
-            skipped_nits: finEntry.skipped,
-            ...(finSpiral ? { spiral_warning: finSpiral } : {}),
+            open_questions: openQuestions,
+            history,
+            research_change: researchChange,
+            ...(skipped.length ? { skipped } : {}),
           }
-
-          log('[' + g.slug + '] finalization recheck after salvage revise')
-          const recheck = await reviewRound(g, round, prior, {
-            lock: prevLock,
-            allowSkip: false,
-          })
-          const recheckEntry: Record<string, unknown> = {
-            round,
-            finalization_recheck: true,
-            blockers: recheck.blockers,
-            nits: recheck.nits,
-            ...(recheck.skippedDims.length
-              ? { skipped_dimensions: recheck.skippedDims }
-              : {}),
-          }
-          history.push(recheckEntry)
-
-          if (recheck.blockers.length > 0) {
-            log(
-              '[' +
-                g.slug +
-                '] not converged: ' +
-                recheck.blockers.length +
-                ' blocker(s) after finalization recheck'
-            )
-            return {
-              slug: g.slug,
-              status: 'unconverged',
-              rounds: round,
-              unresolved: recheck.blockers,
-              nits: recheck.nits,
-              open_questions: openQuestions,
-              history,
-              research_change: researchChange,
-              ...(skipped.length ? { skipped } : {}),
-            }
-          }
-
-          blockers = recheck.blockers
-          nits = recheck.nits
-          entry = recheckEntry
-        } else {
-          blockers = fin.blockers
-          nits = fin.nits
-          entry = finEntry
         }
+
+        blockers = fin.blockers
+        nits = fin.nits
+        entry = finEntry
       }
 
       {
-        let checklist: unknown[] = nits
-        if (nits.length > 0) {
-          log(
-            '[' + g.slug + '] polishing ' + nits.length + ' nit(s) before convergence'
-          )
-          const polish = await agent(revisionPrompt(g, round, [], nits), {
-            label: g.slug + ' polish',
-            phase: g.slug + ': revise',
-            schema: RevisionResult,
-            model: 'sonnet',
-          })
-          if (!polish) {
-            entry.polish_notes =
-              '(polish agent returned no report; nits were not applied)'
-          } else {
-            entry.polish_notes = polish.notes
-            entry.polish_skipped = polish.skipped
-            entry.polish_disputed = polish.disputed
-            checklist = polish.skipped.concat(polish.disputed)
-
-            log('[' + g.slug + '] fidelity re-check of polished files')
-            const recheck = await agent(
-              reviewerPrompt(g, DIMENSIONS[0]!, round, {
-                round,
-                blockers: [],
-                revision_notes:
-                  'Converged with zero blockers; a polish pass then applied these nit findings: ' +
-                  polish.notes,
-                disputed: polish.disputed,
-              }),
-              {
-                label: g.slug + ' fidelity re-check',
-                phase: g.slug + ': review',
-                schema: Review,
-              }
-            )
-            if (!recheck) {
-              checklist = checklist.concat([
-                '(the fidelity re-check returned no verdict; the polished files are unverified)',
-              ])
-            } else {
-              entry.recheck = recheck
-              const reblockers = recheck.findings.filter(
-                (f) => f.severity === 'blocker'
-              )
-              if (reblockers.length > 0) {
-                log(
-                  '[' +
-                    g.slug +
-                    '] polish broke fidelity: ' +
-                    reblockers.length +
-                    ' blocker(s); running polish salvage revise'
-                )
-                const salvageNote =
-                  'Polish fidelity salvage: restore any Dossier-required conditional gates or unforgiving recovery notes the polish pass removed. Do not re-apply concision cuts that drop those facts.'
-                const salvage = await agent(
-                  revisionPrompt(g, round, reblockers, [], salvageNote),
-                  {
-                    label: g.slug + ' polish salvage',
-                    phase: g.slug + ': revise',
-                    schema: RevisionResult,
-                  }
-                )
-                entry.polish_salvage_notes = salvage
-                  ? salvage.notes
-                  : '(polish salvage returned no report)'
-                entry.polish_salvage_disputed = salvage
-                  ? salvage.disputed
-                  : []
-                log('[' + g.slug + '] fidelity re-check after polish salvage')
-                const salvageRecheck = await agent(
-                  reviewerPrompt(g, DIMENSIONS[0]!, round, {
-                    round,
-                    blockers: reblockers,
-                    revision_notes: entry.polish_salvage_notes,
-                    disputed: entry.polish_salvage_disputed,
-                  }),
-                  {
-                    label: g.slug + ' fidelity re-check salvage',
-                    phase: g.slug + ': review',
-                    schema: Review,
-                  }
-                )
-                if (!salvageRecheck) {
-                  return {
-                    slug: g.slug,
-                    status: 'unconverged',
-                    rounds: round,
-                    unresolved: reblockers,
-                    nits: checklist.concat([
-                      '(polish salvage fidelity re-check returned no verdict)',
-                    ]),
-                    open_questions: openQuestions,
-                    history,
-                    research_change: researchChange,
-                    ...(skipped.length ? { skipped } : {}),
-                  }
-                }
-                entry.recheck = salvageRecheck
-                const stillBroken = salvageRecheck.findings.filter(
-                  (f) => f.severity === 'blocker'
-                )
-                if (stillBroken.length > 0) {
-                  log(
-                    '[' +
-                      g.slug +
-                      '] polish salvage failed: ' +
-                      stillBroken.length +
-                      ' blocker(s) remain'
-                  )
-                  return {
-                    slug: g.slug,
-                    status: 'unconverged',
-                    rounds: round,
-                    unresolved: stillBroken,
-                    nits: checklist,
-                    open_questions: openQuestions,
-                    history,
-                    research_change: researchChange,
-                    ...(skipped.length ? { skipped } : {}),
-                  }
-                }
-                checklist = checklist.concat(
-                  salvageRecheck.findings.map(
-                    (f) =>
-                      '(' +
-                      f.target +
-                      ' ' +
-                      f.where +
-                      ') ' +
-                      f.problem +
-                      ' Suggestion: ' +
-                      f.suggestion
-                  )
-                )
-              } else {
-                checklist = checklist.concat(
-                  recheck.findings.map(
-                    (f) =>
-                      '(' +
-                      f.target +
-                      ' ' +
-                      f.where +
-                      ') ' +
-                      f.problem +
-                      ' Suggestion: ' +
-                      f.suggestion
-                  )
-                )
-              }
-            }
-          }
-        }
+        // Converged. Leftover nits stay on the human checklist — no polish
+        // pass (polish previously broke fidelity on conditional gates /
+        // recovery notes).
+        const checklist: unknown[] = nits
         log(
           '[' +
             g.slug +

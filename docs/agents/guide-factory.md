@@ -32,8 +32,10 @@ known id under `docs/personas/`.
 ## Where to put clarifications
 
 When the **Pipeline review** comment asks for a call (exact UI labels when
-docs are silent or conflict, whether to drop a recovery branch, etc. —
-not re-checking labels the Dossier already backed with provider docs):
+docs are silent *and* the guide has no hedge yet, whether to drop a
+recovery branch, etc. — not re-checking labels the Dossier already backed
+with provider docs, and not demanding console capture when silence is
+already hedged):
 
 1. **Reply on the issue** with the answers (preferred — easy to skim in the
    thread), and/or

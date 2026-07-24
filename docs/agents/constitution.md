@@ -31,9 +31,9 @@ these is invalid regardless of the evidence behind it.
   the three H2 sections in order, anchored H3 steps, the screenshot rule on
   every provider step, `{{ gram.oauth.callback_url }}` as the only template
   key, and `meta.yaml` validating against the schema.
-- **I5 — Personas define voice.** Reviewers judge voice and achievability
-  against the named persona file, not personal taste. Voice never alters
-  facts.
+- **I5 — Personas define voice.** The Writer applies the named persona
+  file; reviewers judge achievability against it, not personal taste.
+  Voice never alters facts.
 - **I6 — Review converges by agreement.** Structured findings, the
   disputed-findings protocol, capped rounds, and unresolved blockers
   surfacing to a human — never silently dropped, never settled by rank.

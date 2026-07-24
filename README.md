@@ -102,12 +102,13 @@ live progress):
 
 1. **Technical Research** drafts the Dossier and Metadata from the
    provider's public documentation.
-2. **Writer** renders `setup.md` from the Dossier in the persona's voice.
-3. **Fidelity** (setup ↔ dossier ↔ metadata) and an **Editorial** panel
-   (voice, formatting, achievability) review in parallel; a revision agent
-   fixes blockers, and the loop repeats until every reviewer passes or
-   rounds run out (3 by default).
-
+2. **Writer** renders `setup.md` from the Dossier in the persona's voice
+   (voice, formatting, and concision are Writer self-checks).
+3. **Fidelity** and **Achievability** review in parallel, plus a
+   **deterministic lint** for I4 grammar / meta schema; a revision agent
+   fixes blockers (and applies mechanical nits alongside them), and the
+   loop repeats until gates pass or rounds run out (3 by default).
+   Leftover nits stay on the human checklist — there is no polish pass.
 **What you get back**, per slug:
 
 - `converged` — the draft is ready for human review; remaining nits and

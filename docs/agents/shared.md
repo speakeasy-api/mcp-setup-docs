@@ -49,13 +49,13 @@ re-examine each disputed finding with fresh eyes and either re-raise it
 rounds run out goes to the human unresolved.
 
 Cross-dimension conflicts must be disputed, not silently expanded. When
-achievability demands documenting a path that concision (or the
-critical-path ceiling in `review.md`) says to cut or hedge — especially
-when public docs cannot complete the path — the revision agent disputes
-one of the findings with a one-line reason rather than growing the guide
-forever to satisfy both. Skipping a conflicting nit while still accepting
-the opposing blocker is fine only when the blocker stays inside the
-critical-path ceiling; otherwise dispute the blocker.
+achievability demands documenting a path that the critical-path ceiling
+in `review.md` says to cut or hedge — especially when public docs cannot
+complete the path — the revision agent disputes the achievability finding
+with a one-line reason rather than growing the guide forever. Skipping a
+conflicting nit while still accepting the opposing blocker is fine only
+when the blocker stays inside the critical-path ceiling; otherwise
+dispute the blocker.
 
 ## Hard rules
 
