@@ -46,6 +46,8 @@ jobs:
           set -euo pipefail
           # Resume from an open factory PR for this issue (guide/issue-N-*) instead
           # of refusing — clarifications should iterate on prior research/setup.
+          # If push succeeded but PR create flaked, also resume from an orphan
+          # remote factory branch (no open PR yet).
           existing=$(gh pr list \
             --state open \
             --search "in:body \"#${ISSUE_NUMBER}\"" \
@@ -78,6 +80,35 @@ jobs:
             refused_pr_url="$url"
             break
           done
+          if [ "$resume" != "true" ] && [ "$refused" != "true" ]; then
+            # matching-refs: prefix search without paginating all branches
+            refs_json=$(gh api "repos/${GH_REPO}/git/matching-refs/heads/guide/issue-${ISSUE_NUMBER}-" 2>/dev/null || echo "[]")
+            bcount=$(echo "$refs_json" | jq 'length')
+            if [ "$bcount" -eq 1 ]; then
+              resume=true
+              resume_branch=$(echo "$refs_json" | jq -r '.[0].ref | sub("^refs/heads/"; "")')
+              echo "Resuming from orphan factory branch ${resume_branch} (no open PR)"
+            elif [ "$bcount" -gt 1 ]; then
+              # Prefer the branch with the newest committer date.
+              best=""
+              best_date=""
+              while IFS= read -r row; do
+                b=$(echo "$row" | jq -r '.ref | sub("^refs/heads/"; "")')
+                sha=$(echo "$row" | jq -r '.object.sha')
+                [ -z "$b" ] || [ -z "$sha" ] && continue
+                date=$(gh api "repos/${GH_REPO}/git/commits/${sha}" --jq '.committer.date' 2>/dev/null || echo "")
+                if [ -n "$date" ] && { [ -z "$best_date" ] || [[ "$date" > "$best_date" ]]; }; then
+                  best="$b"
+                  best_date="$date"
+                fi
+              done < <(echo "$refs_json" | jq -c '.[]')
+              if [ -n "$best" ]; then
+                resume=true
+                resume_branch="$best"
+                echo "Resuming from newest orphan factory branch ${resume_branch} (${bcount} matches)"
+              fi
+            fi
+          fi
           echo "refused=$refused" >> "$GITHUB_OUTPUT"
           echo "refused_pr_url=$refused_pr_url" >> "$GITHUB_OUTPUT"
           echo "resume=$resume" >> "$GITHUB_OUTPUT"
@@ -209,12 +240,17 @@ jobs:
           NOTES: ${{ steps.distill.outputs.notes }}
           RESUME: ${{ steps.preflight.outputs.resume }}
           RESUME_PR_URL: ${{ steps.preflight.outputs.resume_pr_url }}
+          RESUME_BRANCH: ${{ steps.preflight.outputs.resume_branch }}
         run: |
           set -euo pipefail
           body_file="${RUNNER_TEMP}/resolved-comment.md"
           {
             if [ "${RESUME}" = "true" ]; then
-              echo "Resuming on existing factory PR: ${RESUME_PR_URL}"
+              if [ -n "${RESUME_PR_URL}" ]; then
+                echo "Resuming on existing factory PR: ${RESUME_PR_URL}"
+              else
+                echo "Resuming on factory branch \`${RESUME_BRANCH}\` (no open PR yet — will open one after this run)."
+              fi
               echo
               echo "Resolved as \`${SLUG}\` (${PROVIDER}), persona \`${PERSONA}\`."
               echo "Prior \`guides/${SLUG}/\` stays on the branch — research/draft will revise from those artifacts (lock skips when inputs match)."
@@ -310,6 +346,7 @@ jobs:
           exit "$code"
 
       - name: Commit and push
+        id: push
         if: steps.preflight.outputs.refused != 'true' && success()
         env:
           BRANCH: ${{ steps.branch.outputs.name }}
@@ -323,6 +360,12 @@ jobs:
             git add retro/runs/*-"${SLUG}".json
           fi
           if git diff --cached --quiet; then
+            # Resume after a PR-create flake (or lock skip): branch already has the tip.
+            if git ls-remote --exit-code origin "refs/heads/${BRANCH}" >/dev/null 2>&1; then
+              echo "No new guide changes; keeping existing tip of ${BRANCH}"
+              echo "pushed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
             echo "No guide or run-record changes to commit" > "${RUNNER_TEMP}/failure_reason.txt"
             exit 1
           fi
@@ -333,6 +376,7 @@ jobs:
           git commit -m "$msg"
           # force-with-lease keeps resume pushes from clobbering unexpected remote edits
           git push --force-with-lease origin "$BRANCH"
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
 
       - name: Open or update PR
         id: open_pr
@@ -398,8 +442,41 @@ jobs:
             fi
           fi
 
+          # Retry transient GitHub GraphQL / 5xx flakes (seen on gh pr create).
+          is_transient() {
+            local err="$1"
+            echo "$err" | grep -qiE \
+              'GraphQL: Something went wrong|HTTP 50[0-9]|timed out|timeout|ECONNRESET|ECONNREFUSED|secondary rate limit|API rate limit'
+          }
+          retry_gh() {
+            local max=5 attempt=1 delay=10
+            local err_file="${RUNNER_TEMP}/gh-pr.err"
+            while true; do
+              if "$@" 2>"$err_file"; then
+                return 0
+              fi
+              local err
+              err=$(cat "$err_file")
+              if [ "$attempt" -ge "$max" ] || ! is_transient "$err"; then
+                echo "$err" >&2
+                return 1
+              fi
+              echo "Transient GitHub error on attempt ${attempt}/${max}; retrying in ${delay}s…" >&2
+              echo "$err" >&2
+              sleep "$delay"
+              attempt=$((attempt + 1))
+              delay=$((delay * 2))
+            done
+          }
+
           if [ "${RESUME}" = "true" ] && [ -n "${RESUME_PR_NUMBER}" ]; then
-            gh pr edit "${RESUME_PR_NUMBER}" --title "$title" --body-file "$body_file"
+            if ! retry_gh gh pr edit "${RESUME_PR_NUMBER}" --title "$title" --body-file "$body_file"; then
+              {
+                echo "Pushed \`${BRANCH}\` but failed to update PR #${RESUME_PR_NUMBER} after retries."
+                echo "Re-add \`guide:draft\` to resume from that branch/PR."
+              } > "${RUNNER_TEMP}/failure_reason.txt"
+              exit 1
+            fi
             if [ "$needs_human" = "true" ]; then
               gh pr ready "${RESUME_PR_NUMBER}" --undo || true
             else
@@ -413,7 +490,43 @@ jobs:
           if [ "$needs_human" = "true" ]; then
             create_args+=(--draft)
           fi
-          pr_url=$(gh pr create "${create_args[@]}" | tail -n1)
+          err_file="${RUNNER_TEMP}/gh-pr.err"
+          pr_url=""
+          max=5
+          attempt=1
+          delay=10
+          while true; do
+            set +e
+            pr_url=$(gh pr create "${create_args[@]}" 2>"$err_file")
+            create_code=$?
+            set -e
+            if [ "$create_code" -eq 0 ]; then
+              pr_url=$(printf '%s\n' "$pr_url" | tail -n1)
+              break
+            fi
+            err=$(cat "$err_file")
+            if [ "$attempt" -ge "$max" ] || ! is_transient "$err"; then
+              # Maybe create succeeded and only the response flaked — recover by URL.
+              existing_url=$(gh pr list --head "$BRANCH" --state open --json url --jq '.[0].url // empty' 2>/dev/null || true)
+              if [ -n "$existing_url" ]; then
+                echo "gh pr create failed but open PR exists for ${BRANCH}: ${existing_url}"
+                pr_url="$existing_url"
+                break
+              fi
+              echo "$err" >&2
+              {
+                echo "Guide was pushed to \`${BRANCH}\` but opening the PR failed after retries (likely a GitHub API flake)."
+                echo
+                echo "Re-add \`guide:draft\` — the next run will resume from that branch and retry PR create (without a blank-tree restart)."
+              } > "${RUNNER_TEMP}/failure_reason.txt"
+              exit 1
+            fi
+            echo "Transient GitHub error on attempt ${attempt}/${max}; retrying in ${delay}s…" >&2
+            echo "$err" >&2
+            sleep "$delay"
+            attempt=$((attempt + 1))
+            delay=$((delay * 2))
+          done
           echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
 
       - name: Comment pipeline review or scope check on issue
@@ -466,6 +579,8 @@ jobs:
         env:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           SLUG: ${{ steps.distill.outputs.slug }}
+          PUSHED: ${{ steps.push.outputs.pushed }}
+          BRANCH: ${{ steps.branch.outputs.name }}
         run: |
           reason="(no reason file written; check workflow logs)"
           if [ -f "${RUNNER_TEMP}/failure_reason.txt" ]; then
@@ -473,9 +588,17 @@ jobs:
           fi
           body_file="${RUNNER_TEMP}/failure-comment.md"
           {
-            echo "\`guide:draft\` run failed (no PR opened)."
-            echo
-            echo "$reason"
+            if [ "${PUSHED}" = "true" ]; then
+              echo "\`guide:draft\` run failed after pushing \`${BRANCH:-guide/issue-${ISSUE_NUMBER}-…}\`."
+              echo
+              echo "$reason"
+              echo
+              echo "The guide branch is on the remote — re-add \`guide:draft\` to resume from it (skipping a blank-tree restart)."
+            else
+              echo "\`guide:draft\` run failed (no PR opened)."
+              echo
+              echo "$reason"
+            fi
             echo
             echo "**Workflow run:** ${RUN_URL}"
             echo

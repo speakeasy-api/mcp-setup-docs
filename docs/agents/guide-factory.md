@@ -21,13 +21,14 @@ Scope check formatter: [`scripts/ci/format-scope-check.sh`](../../scripts/ci/for
    - **Body (optional):** docs URLs, constraints — e.g. `prefer ADC docs at https://…`
 2. Add the label `guide:draft`.
 3. Wait for the Action. You get:
-   - a **Resolved as …** comment (distill intent), or **Resuming on existing factory PR** when iterating,
+   - a **Resolved as …** comment (distill intent), or **Resuming on existing factory PR** / **factory branch** when iterating,
    - sometimes a **Scope check** comment (research paused; material Decisions needed),
    - a **Pipeline review** comment after a full draft (blockers, open questions, nits),
    - a PR (`Closes #<issue>`) titled `guide: <provider>` when files were
      written — **draft** while awaiting scope or unconverged; **ready for
      review** when converged. Re-runs with clarifications **resume on that
-     PR’s branch**.
+     PR’s branch** (or the orphan factory branch if push succeeded but PR
+     create flaked).
 
 Persona defaults to `it-admin` unless the distill step confidently finds a
 known id under `docs/personas/`.
@@ -43,11 +44,12 @@ catalog presence or silence already hedged):
 2. **Edit the issue body** with the same facts.
 
 Then re-add `guide:draft`. Distill re-reads the **body and the full comment
-thread** into `--notes` for the next run. If a factory PR already exists, that
-run **checks out the PR branch** so prior `research.md` / `setup.md` /
-`pipeline.lock.json` are reused (research revises in place; lock skips when
-inputs match). You do **not** need to paste the whole guide into the ticket —
-answer the open questions / blockers listed in the review comment.
+thread** into `--notes` for the next run. If a factory PR **or** remote
+factory branch (`guide/issue-<N>-*`) already exists, that run **checks out
+the branch** so prior `research.md` / `setup.md` / `pipeline.lock.json` are
+reused (research revises in place; lock skips when inputs match). You do
+**not** need to paste the whole guide into the ticket — answer the open
+questions / blockers listed in the review comment.
 
 ## Labels
 
@@ -76,8 +78,10 @@ pushing with full permissions matters.
 ## Flow
 
 1. **Preflight** — if an open factory PR (`guide/issue-<N>-*`) already
-   `Closes #N`, **resume** on that branch. Refuse only for non-factory
-   collaborator PRs that target the same issue.
+   `Closes #N`, **resume** on that branch. Else if a remote factory branch
+   exists with no open PR (push-then-PR-create flake), resume from that
+   branch. Refuse only for non-factory collaborator PRs that target the
+   same issue.
 2. **Labels** — remove `guide:draft` + `guide:blocked`, add `guide:in-progress`.
 3. **Distill** — light Cursor agent reads title + body + issue comments (+
    existing `guides/*` slugs) → structured JSON or `needs_clarification`.
@@ -90,13 +94,17 @@ pushing with full permissions matters.
    re-draft via `pipeline.lock.json`.
 6. **PR** — commit `guides/<slug>/` + matching `retro/runs/*-<slug>.json`,
    push `guide/issue-<N>-<slug>`, open or **update** the PR titled
-   `guide: <provider>`. Draft while awaiting scope / unconverged; mark ready
-   for review when converged (resume flips draft↔ready as needed).
+   `guide: <provider>` (retries transient GraphQL / 5xx). Draft while
+   awaiting scope / unconverged; mark ready for review when converged
+   (resume flips draft↔ready as needed). If there is nothing new to commit
+   but the remote factory branch already exists, skip the empty commit and
+   still open/update the PR.
 7. **Comment** — **Scope check** (awaiting scope) or **Pipeline review**
    (full draft) on the issue + PR body. Awaiting scope also sets
    `guide:blocked`.
 8. **Hard failure** — `guide:blocked` + comment (includes review summary when
-   a run record exists).
+   a run record exists). If the branch was already pushed, the comment says
+   so and points at re-adding `guide:draft` to resume.
 9. **Always** — remove `guide:in-progress`.
 
 CLI exit `0` (converged), exit `2` (unconverged / blocked / failed with files),
