@@ -263,7 +263,9 @@ jobs:
           NOTES: ${{ steps.distill.outputs.notes }}
         run: |
           set -euo pipefail
-          args=(--overwrite)
+          # --pause-on-scope: stop after research when material OQs lack Decision N
+          # replies in notes (exit 3 → research-only PR + Scope check).
+          args=(--overwrite --pause-on-scope)
           if [ -n "${PERSONA}" ] && [ "${PERSONA}" != "it-admin" ]; then
             args+=(--persona "${PERSONA}")
           fi
@@ -281,11 +283,19 @@ jobs:
             echo "record=${record}" >> "$GITHUB_OUTPUT"
             cp "$record" "${RUNNER_TEMP}/run-record.json"
           fi
-          # CLI: 0 = converged, 2 = unconverged/blocked/failed guide status,
-          # 1 = hard failure. Exit 2 still wrote files — open a PR for humans.
+          # CLI: 0 = converged, 2 = unconverged/blocked/failed, 3 = awaiting_scope,
+          # 1 = hard failure. Exit 2/3 still wrote files — open a PR for humans.
           if [ "$code" -eq 0 ]; then
             echo "outcome=converged" >> "$GITHUB_OUTPUT"
             exit 0
+          fi
+          if [ "$code" -eq 3 ]; then
+            if [ -f "${GITHUB_WORKSPACE}/guides/${SLUG}/research.md" ]; then
+              echo "outcome=awaiting_scope" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "draft-guide exited 3 (awaiting_scope) but research.md is missing" > "${RUNNER_TEMP}/failure_reason.txt"
+            exit 1
           fi
           if [ "$code" -eq 2 ]; then
             if [ -d "${GITHUB_WORKSPACE}/guides/${SLUG}" ]; then
@@ -304,6 +314,7 @@ jobs:
         env:
           BRANCH: ${{ steps.branch.outputs.name }}
           SLUG: ${{ steps.distill.outputs.slug }}
+          OUTCOME: ${{ steps.draft.outputs.outcome }}
         run: |
           set -euo pipefail
           git add "guides/${SLUG}/" || true
@@ -315,7 +326,11 @@ jobs:
             echo "No guide or run-record changes to commit" > "${RUNNER_TEMP}/failure_reason.txt"
             exit 1
           fi
-          git commit -m "Draft guide: ${SLUG} (issue #${ISSUE_NUMBER})"
+          msg="Draft guide: ${SLUG} (issue #${ISSUE_NUMBER})"
+          if [ "${OUTCOME:-}" = "awaiting_scope" ]; then
+            msg="Research (awaiting scope): ${SLUG} (issue #${ISSUE_NUMBER})"
+          fi
+          git commit -m "$msg"
           # force-with-lease keeps resume pushes from clobbering unexpected remote edits
           git push --force-with-lease origin "$BRANCH"
 
@@ -335,14 +350,24 @@ jobs:
           title="Draft guide: ${PROVIDER} (#${ISSUE_NUMBER})"
           if [ "${OUTCOME}" = "unconverged" ]; then
             title="Draft guide (unconverged): ${PROVIDER} (#${ISSUE_NUMBER})"
+          elif [ "${OUTCOME}" = "awaiting_scope" ]; then
+            title="Draft guide (awaiting scope): ${PROVIDER} (#${ISSUE_NUMBER})"
           fi
           title="${title:0:256}"
           body_file="${RUNNER_TEMP}/pr-body.md"
           {
             echo "Closes #${ISSUE_NUMBER}"
             echo
-            echo "Factory draft of \`guides/${SLUG}/\` via \`draft-guide\` (Cursor SDK)."
-            echo
+            if [ "${OUTCOME}" = "awaiting_scope" ]; then
+              echo "Factory **research-only** pause for \`guides/${SLUG}/\` — material open questions need Decisions before draft."
+              echo
+              echo "**Pipeline status:** awaiting scope. See the issue comment **Scope check**."
+              echo "Answer with \`Decision N: …\`, then re-add \`guide:draft\` to continue."
+              echo
+            else
+              echo "Factory draft of \`guides/${SLUG}/\` via \`draft-guide\` (Cursor SDK)."
+              echo
+            fi
             if [ "${OUTCOME}" = "unconverged" ]; then
               echo "**Pipeline status:** unconverged (reviewers still had blockers after max rounds)."
               echo "See the issue comment **Pipeline review** for unresolved blockers and open questions."
@@ -357,9 +382,14 @@ jobs:
           } > "$body_file"
           if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
             echo >> "$body_file"
-            bash "${GITHUB_WORKSPACE}/scripts/ci/format-pipeline-review.sh" \
-              "${RUNNER_TEMP}/run-record.json" "" \
-              "${GITHUB_WORKSPACE}/guides/${SLUG}" >> "$body_file"
+            if [ "${OUTCOME}" = "awaiting_scope" ]; then
+              bash "${GITHUB_WORKSPACE}/scripts/ci/format-scope-check.sh" \
+                "${RUNNER_TEMP}/run-record.json" "" >> "$body_file"
+            else
+              bash "${GITHUB_WORKSPACE}/scripts/ci/format-pipeline-review.sh" \
+                "${RUNNER_TEMP}/run-record.json" "" \
+                "${GITHUB_WORKSPACE}/guides/${SLUG}" >> "$body_file"
+            fi
           fi
 
           if [ "${RESUME}" = "true" ] && [ -n "${RESUME_PR_NUMBER}" ]; then
@@ -371,7 +401,7 @@ jobs:
           pr_url=$(gh pr create --draft --base main --head "$BRANCH" --title "$title" --body-file "$body_file" | tail -n1)
           echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
 
-      - name: Comment pipeline review on issue
+      - name: Comment pipeline review or scope check on issue
         if: steps.preflight.outputs.refused != 'true' && success()
         env:
           PR_URL: ${{ steps.open_pr.outputs.pr_url }}
@@ -380,6 +410,23 @@ jobs:
         run: |
           set -euo pipefail
           body_file="${RUNNER_TEMP}/pipeline-review-comment.md"
+          if [ "${OUTCOME}" = "awaiting_scope" ]; then
+            if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
+              bash "${GITHUB_WORKSPACE}/scripts/ci/format-scope-check.sh" \
+                "${RUNNER_TEMP}/run-record.json" "${PR_URL}" > "$body_file"
+            else
+              {
+                echo "## Scope check"
+                echo
+                echo "Research paused before draft (awaiting scope). Draft PR: ${PR_URL}"
+                echo
+                echo "_No run record found to list Decisions._"
+              } > "$body_file"
+            fi
+            gh issue comment "$ISSUE_NUMBER" --body-file "$body_file"
+            gh issue edit "$ISSUE_NUMBER" --add-label "guide:blocked" || true
+            exit 0
+          fi
           if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
             bash "${GITHUB_WORKSPACE}/scripts/ci/format-pipeline-review.sh" \
               "${RUNNER_TEMP}/run-record.json" "${PR_URL}" \

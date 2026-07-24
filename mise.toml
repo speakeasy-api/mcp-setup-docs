@@ -17,7 +17,8 @@ run = "npm install"
 description = "Draft a Guide via the Cursor SDK pipeline (scripts/cursor-sdk)"
 dir = "scripts/cursor-sdk"
 depends = ["_cursor-sdk-install"]
-# Usage (from repo root): mise run draft-guide -- box [--overwrite] [--force] [...]
+# Usage (from repo root): mise run draft-guide -- box [--overwrite] [--force] [--pause-on-scope] [...]
+# Exit: 0 converged, 2 unconverged/blocked/failed, 3 awaiting_scope (--pause-on-scope)
 # Requires CURSOR_API_KEY in the environment (user or team service-account key).
 run = "npm run draft-guide --"
 
