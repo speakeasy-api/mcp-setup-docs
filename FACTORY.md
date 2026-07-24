@@ -44,7 +44,9 @@ Runs can take a long time (often 20–40+ minutes). Usage burns Cursor plan toke
    On a retry: **Resuming on existing factory PR…**
 2. Sometimes **Scope check** — research finished with *material* open questions (recovery path, conflicting docs, etc.). Drafting pauses; answer with `Decision N: …`, then re-add `guide:draft`. Soft OQs (catalog presence, UI silence already hedged) do **not** pause.
 3. **Pipeline review** — numbered decisions (blockers), open questions, optional nits — after a full draft run. Written so you can answer without reading the whole guide.
-4. A **draft PR** on branch `guide/issue-<N>-<slug>` (`Closes #<issue>`), including research-only (awaiting scope) and **unconverged** runs (title/body say so). Human review still required before merge.
+4. A PR titled **`guide: <provider>`** on branch `guide/issue-<N>-<slug>`
+   (`Closes #<issue>`). It stays a **draft** when the run needs a human reply
+   (awaiting scope or unconverged); **converged** runs open ready for review.
 
 Persona defaults to `it-admin` unless distill confidently picks another file under `docs/personas/`.
 
@@ -80,9 +82,9 @@ That includes retries after **awaiting scope** or **unconverged** — as long as
 
 | Result | What happens |
 | --- | --- |
-| Converged | Draft PR; Pipeline review may still list open questions / nits |
-| Awaiting scope | Research-only draft PR; **Scope check** + `guide:blocked`; answer Decisions, re-label |
-| Unconverged | Draft PR anyway (marked unconverged); decide on blockers, then re-label |
+| Converged | Ready-for-review PR (`guide: <provider>`); Pipeline review may still list open questions / nits |
+| Awaiting scope | **Draft** PR (research only); **Scope check** + `guide:blocked`; answer Decisions, re-label |
+| Unconverged | **Draft** PR; decide on blockers, then re-label |
 | Distill unclear | `guide:blocked` + comment; clarify server, re-add `guide:draft` |
 | Hard failure | `guide:blocked` + comment + Actions link; no PR |
 

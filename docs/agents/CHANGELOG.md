@@ -6,6 +6,18 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-24 — factory PR titles + draft-vs-ready
+
+Files: `.github/workflows/guide-draft.yml`, `FACTORY.md`,
+`docs/agents/guide-factory.md`, `README.md`.
+
+- PR title is always `guide: <provider>` (status no longer in the title).
+- **Draft** PR when the run still needs a human reply (`awaiting_scope` or
+  `unconverged`); **ready for review** when converged. Resume flips
+  draft↔ready with `gh pr ready` / `--undo`.
+
+Evidence: operator request after Phase 3/4 factory UX.
+
 ## 2026-07-24 — architecture Phase 4: single workflow + slim operator docs
 
 Files: deleted `scripts/draft-guide-workflow.js`,

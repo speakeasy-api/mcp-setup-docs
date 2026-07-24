@@ -24,9 +24,10 @@ Scope check formatter: [`scripts/ci/format-scope-check.sh`](../../scripts/ci/for
    - a **Resolved as …** comment (distill intent), or **Resuming on existing factory PR** when iterating,
    - sometimes a **Scope check** comment (research paused; material Decisions needed),
    - a **Pipeline review** comment after a full draft (blockers, open questions, nits),
-   - a draft PR (`Closes #<issue>`) when files were written — including
-     **awaiting scope** (research only) and **unconverged** runs (PR title/body
-     say so). Re-runs with clarifications **resume on that PR’s branch**.
+   - a PR (`Closes #<issue>`) titled `guide: <provider>` when files were
+     written — **draft** while awaiting scope or unconverged; **ready for
+     review** when converged. Re-runs with clarifications **resume on that
+     PR’s branch**.
 
 Persona defaults to `it-admin` unless the distill step confidently finds a
 known id under `docs/personas/`.
@@ -88,7 +89,9 @@ pushing with full permissions matters.
    artifacts exist, research revises in place; unchanged research can skip
    re-draft via `pipeline.lock.json`.
 6. **PR** — commit `guides/<slug>/` + matching `retro/runs/*-<slug>.json`,
-   push `guide/issue-<N>-<slug>`, open or **update** the draft PR.
+   push `guide/issue-<N>-<slug>`, open or **update** the PR titled
+   `guide: <provider>`. Draft while awaiting scope / unconverged; mark ready
+   for review when converged (resume flips draft↔ready as needed).
 7. **Comment** — **Scope check** (awaiting scope) or **Pipeline review**
    (full draft) on the issue + PR body. Awaiting scope also sets
    `guide:blocked`.
@@ -97,7 +100,7 @@ pushing with full permissions matters.
 9. **Always** — remove `guide:in-progress`.
 
 CLI exit `0` (converged), exit `2` (unconverged / blocked / failed with files),
-and exit `3` (awaiting_scope — research written, no draft) all open a draft PR.
+and exit `3` (awaiting_scope — research written, no draft) all open a PR.
 Hard failures (exit `1`, missing artifacts) take the blocked path with no PR.
 
 ## What v1 does not do
