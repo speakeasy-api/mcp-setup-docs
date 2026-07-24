@@ -1,7 +1,19 @@
-# mcp-setup-docs
+<h3 align="center">Speakeasy MCP Setup Docs</h3>
+<p align="center">
+    Setup guides for MCP servers behind the Speakeasy AI Control Plane.
+    Each guide lives in <code>guides/&lt;slug&gt;/</code>
+    (<code>research.md</code>, <code>meta.yaml</code>, <code>setup.md</code>).
+    <br /><br />
+    <a href="https://speakeasy.com/"><img alt="Built by Speakeasy" src="https://www.speakeasy.com/assets/badges/built-by-speakeasy.svg" /></a>
+    <br /><br />
+    <a href="./FACTORY.md"><strong>Factory</strong></a> ·
+    <a href="./docs/agents/shared.md"><strong>Doctrine</strong></a> ·
+    <a href="./docs/personas/"><strong>Personas</strong></a> ·
+    <a href="./CONTEXT.md"><strong>Context</strong></a> ·
+    <a href="./guides/"><strong>Guides</strong></a>
+</p>
 
-Setup Guides for MCP servers behind the Speakeasy AI Control Plane. Each
-guide lives in `guides/<slug>/` (`research.md`, `meta.yaml`, `setup.md`).
+<hr />
 
 ## Draft via GitHub issue (preferred)
 
