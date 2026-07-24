@@ -1,8 +1,8 @@
 # Shared rules for drafting-pipeline agents
 
-Every agent in the drafting pipeline reads this file plus `CONTEXT.md` (the
+Every agent in the drafting pipeline reads this file plus `doctrine/glossary.md` (the
 vocabulary) before its own role doc. The pipeline is orchestrated by
-`scripts/cursor-sdk/` (`mise run draft-guide` / factory Action).
+`pipeline/` (`mise run draft-guide` / factory Action).
 
 ## The pipeline
 
@@ -10,10 +10,10 @@ One Guide (`guides/<slug>/`) moves through four roles:
 
 | Role | Doc | Writes | Reads |
 | --- | --- | --- | --- |
-| Technical Research | `technical-research.md` (this dir) | `guides/<slug>/research.md`, `guides/<slug>/meta.yaml` | provider public docs, `docs/speakeasy-setup.md` |
-| Writer | `writer.md` | `guides/<slug>/setup.md` | Research Dossier, Metadata, persona file |
-| Fidelity | `fidelity.md` | nothing (report only) | all three guide files |
-| Editorial | `review.md` | nothing (report only) | all three guide files, persona file |
+| Technical Research | `doctrine/roles/technical-research.md` | `guides/<slug>/research.md`, `guides/<slug>/meta.yaml` | provider public docs, `doctrine/speakeasy-setup.md` |
+| Writer | `doctrine/roles/writer.md` | `guides/<slug>/setup.md` | Research Dossier, Metadata, persona file |
+| Fidelity | `doctrine/roles/fidelity.md` | nothing (report only) | all three guide files |
+| Editorial | `doctrine/roles/review.md` | nothing (report only) | all three guide files, persona file |
 
 After research, the factory may pause on material open questions (scope
 gate) before Writer runs. Review rounds also run a deterministic lint
@@ -32,7 +32,7 @@ are for orchestrators — agents do not read or write the lockfile.
 
 Anchor IDs enter a guide once, through the Dossier — provider-step IDs
 minted there by Technical Research (document-unique, kebab-case, one per
-step), Speakeasy-section IDs fixed in `docs/speakeasy-setup.md` and
+step), Speakeasy-section IDs fixed in `doctrine/speakeasy-setup.md` and
 carried in by its transclusion. Downstream:
 
 - Writer carries each ID verbatim into `setup.md` headings:

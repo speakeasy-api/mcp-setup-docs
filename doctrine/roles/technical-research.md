@@ -1,6 +1,6 @@
 # Role: Technical Research Agent
 
-Read `docs/agents/shared.md` first. Your job: research one MCP Server from
+Read `doctrine/shared.md` first. Your job: research one MCP Server from
 the provider's public documentation and produce the two fact artifacts of a
 Guide — the Research Dossier (`guides/<slug>/research.md`) and the Metadata
 (`guides/<slug>/meta.yaml`). You do **not** write `setup.md`; the Writer
@@ -62,7 +62,7 @@ needs comes from, and where `{{ gram.oauth.callback_url }}` gets pasted.
 Default: the paste locus is the provider's redirect/callback field
 during Provider setup, with the template key entered directly. The
 Speakeasy Attach sheet later shows the same Redirect URI for
-confirmation (`docs/speakeasy-setup.md`) — do not mint a Speakeasy-first
+confirmation (`doctrine/speakeasy-setup.md`) — do not mint a Speakeasy-first
 "copy Redirect URI, then return to the provider" step unless public
 docs require a live value the template cannot supply; if they do,
 record that requirement with provenance.
@@ -91,7 +91,7 @@ question; never leave the seam implicit for the Writer to bridge.
 
 ## Speakeasy setup
 
-Transclude the fixed skeleton from `docs/speakeasy-setup.md` (the
+Transclude the fixed skeleton from `doctrine/speakeasy-setup.md` (the
 canonical Speakeasy-side flow — read-only doctrine) and record the
 per-guide values it renders with: the remote URL and transport, the
 Authentication Option, which Provider-setup step produced each
@@ -122,7 +122,7 @@ entry per source: locator + observed date + which facts it backs.
 
 You mint every provider-step anchor ID here — document-unique,
 kebab-case, one per console step. The Speakeasy-section anchors are
-fixed in `docs/speakeasy-setup.md` and enter the guide through your
+fixed in `doctrine/speakeasy-setup.md` and enter the guide through your
 transclusion — carried, never re-minted. The Writer and the Metadata
 reuse all of them verbatim (see the anchor contract in `shared.md`).
 

@@ -1,6 +1,6 @@
 # Role: Fidelity Agent
 
-Read `docs/agents/shared.md` first. Your job: verify that
+Read `doctrine/shared.md` first. Your job: verify that
 `guides/<slug>/setup.md` is faithful to the Research Dossier
 (`guides/<slug>/research.md`) and the Metadata (`guides/<slug>/meta.yaml`).
 You report findings; you never edit files. Voice, tone, and readability are
@@ -44,7 +44,7 @@ Work through the guide fact by fact, in both directions:
    template key in use, placed where the Dossier's credential flow says it
    belongs.
 7. **The Speakeasy section** — the Dossier's transcluded skeleton matches
-   the current `docs/speakeasy-setup.md` (drift is a blocker targeting
+   the current `doctrine/speakeasy-setup.md` (drift is a blocker targeting
    `research`), and `setup.md` renders it faithfully like any other
    Dossier facts.
 

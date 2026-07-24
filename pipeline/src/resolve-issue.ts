@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { Agent, CursorAgentError } from '@cursor/sdk'
 import { z } from 'zod'
 import { extractJson } from './json.ts'
+import { PATHS, abs } from './paths.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -65,11 +66,12 @@ function toSlug(raw: string): string {
 }
 
 function defaultRepoRoot(): string {
-  return resolve(__dirname, '../../..')
+  // pipeline/src → repo root
+  return resolve(__dirname, '../..')
 }
 
 function listGuideSlugs(root: string): string[] {
-  const dir = join(root, 'guides')
+  const dir = abs(root, PATHS.guidesDir)
   if (!existsSync(dir)) return []
   return readdirSync(dir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
@@ -78,7 +80,7 @@ function listGuideSlugs(root: string): string[] {
 }
 
 function listPersonas(root: string): string[] {
-  const dir = join(root, 'docs/personas')
+  const dir = abs(root, PATHS.personasDir)
   if (!existsSync(dir)) return []
   return readdirSync(dir)
     .filter((f) => f.endsWith('.md'))
@@ -149,7 +151,7 @@ Existing guide slugs under guides/ (prefer matching one when the issue clearly
 refers to that server; otherwise invent a kebab-case slug for a new server):
 ${guides}
 
-Known persona ids under docs/personas/ (default to it-admin unless the issue
+Known persona ids under doctrine/personas/ (default to it-admin unless the issue
 confidently names one of these):
 ${personas}
 

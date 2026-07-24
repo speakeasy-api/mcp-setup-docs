@@ -162,7 +162,7 @@ is **New OAuth App** (or **Register a new application** when no app exists) >
 
 ## Speakeasy setup
 
-Canonical source: `docs/speakeasy-setup.md`, observed
+Canonical source: `doctrine/speakeasy-setup.md`, observed
 `2026-07-23T23:17:09Z`.
 
 Per-guide values:
@@ -350,6 +350,6 @@ Sources drawn from:
 - `https://github.com/login/oauth/.well-known/oauth-authorization-server` —
   observed `2026-07-23T23:17:09Z`. Returned HTTP 404; backs the discovery
   caveat and open question.
-- `docs/speakeasy-setup.md` — observed `2026-07-23T23:17:09Z`. Backs the
+- `doctrine/speakeasy-setup.md` — observed `2026-07-23T23:17:09Z`. Backs the
   transcluded Speakeasy-side flow, fixed anchors, exact product labels,
   callback-template behavior, and closing-pointer form.

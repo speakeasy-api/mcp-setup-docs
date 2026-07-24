@@ -1,12 +1,17 @@
 /**
  * Pipeline lockfile helpers — digests, skip predicates, read/write.
- * Normative semantics: docs/agents/pipeline-lock.md
- * Schema: schema/pipeline-lock.v1.schema.json
+ * Normative semantics: PATHS.pipelineLockDoc
+ * Schema: PATHS.pipelineLockSchema
  */
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import {
+  PATHS,
+  personaFile,
+  roleDoc,
+} from './paths.ts'
 
 export const LOCK_FILENAME = 'pipeline.lock.json'
 
@@ -320,7 +325,7 @@ export type SkipContext = {
 }
 
 /**
- * Skip predicate from docs/agents/pipeline-lock.md.
+ * Skip predicate from PATHS.pipelineLockDoc.
  * Does not check researchUnchanged for review.* — caller passes invalidated.
  */
 export function canSkipStep(
@@ -358,10 +363,10 @@ export function makeStepRecord(
 
 export function researchReadingList(repoRoot: string): PathDigest[] {
   return [
-    'CONTEXT.md',
-    'docs/agents/shared.md',
-    'docs/agents/technical-research.md',
-    'docs/speakeasy-setup.md',
+    PATHS.glossary,
+    PATHS.shared,
+    roleDoc('technical-research.md'),
+    PATHS.speakeasySetup,
   ].map((p) => digestRepoFile(repoRoot, p))
 }
 
@@ -370,25 +375,21 @@ export function draftReadingList(
   persona: string
 ): PathDigest[] {
   return [
-    'CONTEXT.md',
-    'docs/agents/shared.md',
-    'docs/agents/writer.md',
-    'docs/personas/' + persona + '.md',
+    PATHS.glossary,
+    PATHS.shared,
+    roleDoc('writer.md'),
+    personaFile(persona),
   ].map((p) => digestRepoFile(repoRoot, p))
 }
 
 export function reviewReadingList(
   repoRoot: string,
   persona: string,
-  roleDoc: string,
+  roleDocName: string,
   withPersona: boolean
 ): PathDigest[] {
-  const paths = [
-    'CONTEXT.md',
-    'docs/agents/shared.md',
-    'docs/agents/' + roleDoc,
-  ]
-  if (withPersona) paths.push('docs/personas/' + persona + '.md')
+  const paths = [PATHS.glossary, PATHS.shared, roleDoc(roleDocName)]
+  if (withPersona) paths.push(personaFile(persona))
   return paths.map((p) => digestRepoFile(repoRoot, p))
 }
 

@@ -4,19 +4,19 @@ node = "24"
 pitchfork = "latest"
 
 [tasks.pull-catalog]
-description = "Pull our PulseMCP tenant catalog into pulse-catalog.json"
-run = "node scripts/pull-pulse-catalog.mjs"
+description = "Pull our PulseMCP tenant catalog into tools/pulse-catalog/pulse-catalog.json"
+run = "node tools/pulse-catalog/pull-pulse-catalog.mjs tools/pulse-catalog/pulse-catalog.json"
 
-[tasks."_cursor-sdk-install"]
-description = "Install scripts/cursor-sdk dependencies (hidden prerequisite)"
-dir = "scripts/cursor-sdk"
+[tasks."_pipeline-install"]
+description = "Install pipeline dependencies (hidden prerequisite)"
+dir = "pipeline"
 hide = true
 run = "npm install"
 
 [tasks.draft-guide]
-description = "Draft a Guide via the Cursor SDK pipeline (scripts/cursor-sdk)"
-dir = "scripts/cursor-sdk"
-depends = ["_cursor-sdk-install"]
+description = "Draft a Guide via the Cursor SDK pipeline (pipeline/)"
+dir = "pipeline"
+depends = ["_pipeline-install"]
 # Usage (from repo root): mise run draft-guide -- box [--overwrite] [--force] [--pause-on-scope] [...]
 # Exit: 0 converged, 2 unconverged/blocked/failed, 3 awaiting_scope (--pause-on-scope)
 # Requires CURSOR_API_KEY in the environment (user or team service-account key).
@@ -24,21 +24,21 @@ run = "npm run draft-guide --"
 
 [tasks.lint-guide]
 description = "Deterministic I4 grammar + meta schema lint for guide(s)"
-dir = "scripts/cursor-sdk"
-depends = ["_cursor-sdk-install"]
+dir = "pipeline"
+depends = ["_pipeline-install"]
 # Usage: mise run lint-guide -- box x
 #        mise run lint-guide -- --json guides/box
 run = "npm run lint-guide --"
 
 [tasks."_mcp-oauth-probe-install"]
-description = "Install scripts/mcp-oauth-probe dependencies (hidden prerequisite)"
-dir = "scripts/mcp-oauth-probe"
+description = "Install tools/mcp-oauth-probe dependencies (hidden prerequisite)"
+dir = "tools/mcp-oauth-probe"
 hide = true
 run = "npm install"
 
 [tasks.probe-mcp-oauth]
 description = "Discover MCP OAuth metadata; report CIMD / DCR support"
-dir = "scripts/mcp-oauth-probe"
+dir = "tools/mcp-oauth-probe"
 depends = ["_mcp-oauth-probe-install"]
 # Usage (from repo root): mise run probe-mcp-oauth -- <mcp-url> [--json]
 run = "npm run probe --"

@@ -42,7 +42,7 @@ these is invalid regardless of the evidence behind it.
   push, never handle secret values, and never edit doctrine.
 - **I8 — Doctrine changes are human-approved.** Role docs, personas,
   skills, and the workflow change only when a human approves a concrete
-  diff. Every applied change gets a `docs/agents/CHANGELOG.md` entry
+  diff. Every applied change gets a `doctrine/CHANGELOG.md` entry
   citing its evidence.
 
 ## Rules for evolving doctrine

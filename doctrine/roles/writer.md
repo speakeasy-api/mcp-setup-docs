@@ -1,7 +1,7 @@
 # Role: Writer Agent
 
-Read `docs/agents/shared.md` first, then the persona file the workflow
-names (under `docs/personas/`). Your job: render `guides/<slug>/setup.md` —
+Read `doctrine/shared.md` first, then the persona file the workflow
+names (under `doctrine/personas/`). Your job: render `guides/<slug>/setup.md` —
 the Setup Guide a user follows — from the Research Dossier
 (`guides/<slug>/research.md`) and the Metadata (`guides/<slug>/meta.yaml`),
 in the persona's voice.
@@ -52,7 +52,7 @@ a defect.
   Dossier records that public docs require a live value the template
   cannot supply.
 - Speakeasy setup renders the Dossier's transclusion of
-  `docs/speakeasy-setup.md`: the fixed anchors verbatim, both connection
+  `doctrine/speakeasy-setup.md`: the fixed anchors verbatim, both connection
   paths (catalog and remote URL), the guide's actual credential fields
   named and cross-linked to the Provider setup steps that produced them,
   and the closing provider-docs pointer as the guide's final line.

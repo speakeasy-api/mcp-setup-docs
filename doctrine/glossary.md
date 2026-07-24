@@ -69,7 +69,7 @@ recorded here first.
 _Avoid_: research notes, source doc, dossier file
 
 **Persona**:
-A named audience definition (`docs/personas/<id>.md`) a Setup Guide is
+A named audience definition (`doctrine/personas/<id>.md`) a Setup Guide is
 voiced for — who is reading, what they know and do not, the voice and
 formatting rules, and the achievability bar reviewers judge against.
 _Avoid_: audience, user type, reader profile
@@ -77,7 +77,7 @@ _Avoid_: audience, user type, reader profile
 **Anchor**:
 The document-unique kebab-case ID behind each `setup.md` heading — minted
 in the Research Dossier for provider steps, fixed in
-`docs/speakeasy-setup.md` for Speakeasy steps — carried verbatim into
+`doctrine/speakeasy-setup.md` for Speakeasy steps — carried verbatim into
 `setup.md` headings and `meta.yaml` references.
 _Avoid_: heading id, fragment, link id
 
@@ -128,7 +128,7 @@ or direct human edits, always recorded in the doctrine changelog.
 _Avoid_: prompts, config, process docs
 
 **Constitution**:
-The fixed point doctrine evolves toward (`docs/agents/constitution.md`) —
+The fixed point doctrine evolves toward (`doctrine/constitution.md`) —
 the pipeline's goal and the numbered Invariants no proposal may weaken.
 Changes only by direct human edit.
 _Avoid_: charter, manifesto, north star

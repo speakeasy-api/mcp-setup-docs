@@ -1,11 +1,11 @@
 # Pipeline lockfile contract (v1)
 
 Normative semantics for `guides/<slug>/pipeline.lock.json`. The JSON Schema is
-[`schema/pipeline-lock.v1.schema.json`](../../schema/pipeline-lock.v1.schema.json).
+[`schema/pipeline-lock.v1.schema.json`](../schema/pipeline-lock.v1.schema.json).
 
 This contract records, per guide, the **input fingerprints** that produced the
 current artifacts so a later drafting run can **skip** steps whose inputs did
-not change. The Cursor SDK workflow (`scripts/cursor-sdk`) honors these rules;
+not change. The Cursor SDK workflow (`pipeline/`) honors these rules;
 `--force` bypasses skips. `--overwrite` / `-y` only skips the guide-exists
 prompt and still honors the lock.
 
@@ -63,7 +63,7 @@ All digests use the form `sha256:` + 64 lowercase hex digits (same as asset
 
 ### Paths
 
-- **Reading list:** repo-relative (`CONTEXT.md`, `docs/agents/writer.md`, …).
+- **Reading list:** repo-relative (`doctrine/glossary.md`, `doctrine/roles/writer.md`, …).
 - **Artifacts and outputs:** guide-relative (`research.md`, `meta.yaml`,
   `setup.md`). Never absolute `repoRoot` paths — digests must be portable
   across machines.
@@ -97,9 +97,9 @@ in the workflow is an implementation detail.
 
 | Step | `model` | `reading_list` | `artifacts` | `params` |
 | --- | --- | --- | --- | --- |
-| `research` | resolved default model | `CONTEXT.md`, `docs/agents/shared.md`, `docs/agents/technical-research.md`, `docs/speakeasy-setup.md` | `[]` (sources are external) | `provider`, `notes` |
-| `draft` | resolved default model | `CONTEXT.md`, `docs/agents/shared.md`, `docs/agents/writer.md`, `docs/personas/<id>.md` | stable digests of `research.md`, `meta.yaml` | `provider`, `notes`, `persona` |
-| `review.<dim>` | resolved model for that dimension (default vs light/`sonnet` slot) | `CONTEXT.md`, `docs/agents/shared.md`, role doc (`fidelity.md` or `review.md`), plus persona file when the dimension uses a persona | stable digests of `research.md`, `meta.yaml`, `setup.md` | `provider`, `notes`, `persona`, `dimension` |
+| `research` | resolved default model | `doctrine/glossary.md`, `doctrine/shared.md`, `doctrine/roles/technical-research.md`, `doctrine/speakeasy-setup.md` | `[]` (sources are external) | `provider`, `notes` |
+| `draft` | resolved default model | `doctrine/glossary.md`, `doctrine/shared.md`, `doctrine/roles/writer.md`, `doctrine/personas/<id>.md` | stable digests of `research.md`, `meta.yaml` | `provider`, `notes`, `persona` |
+| `review.<dim>` | resolved model for that dimension (default vs light/`sonnet` slot) | `doctrine/glossary.md`, `doctrine/shared.md`, role doc (`fidelity.md` or `review.md`), plus persona file when the dimension uses a persona | stable digests of `research.md`, `meta.yaml`, `setup.md` | `provider`, `notes`, `persona`, `dimension` |
 
 `model` is always the **resolved** model id (e.g. `claude-fable-5`), never a
 slot alias like `sonnet`.
@@ -194,19 +194,19 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
         "prompt_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
           },
           {
-            "path": "docs/agents/technical-research.md",
+            "path": "doctrine/roles/technical-research.md",
             "digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
           },
           {
-            "path": "docs/speakeasy-setup.md",
+            "path": "doctrine/speakeasy-setup.md",
             "digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
           }
         ],
@@ -235,19 +235,19 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
         "prompt_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
           },
           {
-            "path": "docs/agents/writer.md",
+            "path": "doctrine/roles/writer.md",
             "digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
           },
           {
-            "path": "docs/personas/it-admin.md",
+            "path": "doctrine/personas/it-admin.md",
             "digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
           }
         ],
@@ -282,15 +282,15 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
         "prompt_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
           },
           {
-            "path": "docs/agents/fidelity.md",
+            "path": "doctrine/roles/fidelity.md",
             "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           }
         ],
@@ -330,19 +330,19 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
         "prompt_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
         "reading_list": [
           {
-            "path": "CONTEXT.md",
+            "path": "doctrine/glossary.md",
             "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
           },
           {
-            "path": "docs/agents/shared.md",
+            "path": "doctrine/shared.md",
             "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
           },
           {
-            "path": "docs/agents/review.md",
+            "path": "doctrine/roles/review.md",
             "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
           },
           {
-            "path": "docs/personas/it-admin.md",
+            "path": "doctrine/personas/it-admin.md",
             "digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
           }
         ],

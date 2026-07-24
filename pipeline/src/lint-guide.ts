@@ -6,6 +6,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createRequire } from 'node:module'
 import { parse as parseYaml } from 'yaml'
+import { PATHS, abs } from './paths.ts'
 
 const require = createRequire(import.meta.url)
 // CJS interop — ajv's ESM types don't expose a constructable default under NodeNext.
@@ -258,7 +259,7 @@ export function lintSetupMarkdown(setupMd: string): LintFinding[] {
             target: 'setup',
             where: `## Speakeasy setup`,
             problem: `Missing canonical Speakeasy step {#${id}}.`,
-            suggestion: `Carry ### … {#${id}} from docs/speakeasy-setup.md via the Dossier.`,
+            suggestion: `Carry ### … {#${id}} from ${PATHS.speakeasySetup} via the Dossier.`,
           })
         )
       }
@@ -271,7 +272,7 @@ export function lintSetupMarkdown(setupMd: string): LintFinding[] {
             target: 'setup',
             where: `line ${h.line}: ${h.text}`,
             problem: 'Speakeasy setup H3 is missing its fixed {#…} anchor.',
-            suggestion: 'Use the fixed anchors from docs/speakeasy-setup.md.',
+            suggestion: `Use the fixed anchors from ${PATHS.speakeasySetup}.`,
           })
         )
       }
@@ -332,7 +333,9 @@ export function lintMetaYaml(
           where: err.instancePath || 'meta.yaml',
           problem: `meta.yaml failed schema: ${err.message || 'invalid'}`,
           suggestion:
-            'Fix the field so meta.yaml validates against schema/guide.v1.schema.json.',
+            'Fix the field so meta.yaml validates against ' +
+              PATHS.guideSchema +
+              '.',
         })
       )
     }
@@ -426,7 +429,7 @@ export function lintGuide(guideDir: string, repoRoot: string): LintFinding[] {
   const setupPath = join(guideDir, 'setup.md')
   const metaPath = join(guideDir, 'meta.yaml')
   const researchPath = join(guideDir, 'research.md')
-  const schemaPath = join(repoRoot, 'schema/guide.v1.schema.json')
+  const schemaPath = abs(repoRoot, PATHS.guideSchema)
 
   if (!existsSync(setupPath)) {
     out.push(
@@ -452,7 +455,8 @@ export function lintGuide(guideDir: string, repoRoot: string): LintFinding[] {
         target: 'meta',
         where: 'meta.yaml',
         problem: 'meta.yaml is missing.',
-        suggestion: 'Write meta.yaml validating against schema/guide.v1.schema.json.',
+        suggestion:
+          'Write meta.yaml validating against ' + PATHS.guideSchema + '.',
       })
     )
   } else if (!existsSync(schemaPath)) {
@@ -460,9 +464,9 @@ export function lintGuide(guideDir: string, repoRoot: string): LintFinding[] {
       finding({
         severity: 'blocker',
         target: 'meta',
-        where: 'schema/guide.v1.schema.json',
+        where: PATHS.guideSchema,
         problem: 'Guide schema file is missing; cannot validate meta.yaml.',
-        suggestion: 'Restore schema/guide.v1.schema.json at the repo root.',
+        suggestion: 'Restore ' + PATHS.guideSchema + ' at the repo root.',
       })
     )
   } else {

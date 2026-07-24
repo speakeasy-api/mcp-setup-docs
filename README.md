@@ -24,7 +24,7 @@ mise run draft-guide -- box --overwrite --notes "prefer ADC docs"
 mise run draft-guide -- x --overwrite --pause-on-scope
 
 # Or:
-cd scripts/cursor-sdk && npm install
+cd pipeline && npm install
 npm run draft-guide -- box --overwrite
 ```
 
@@ -35,8 +35,8 @@ Lint without drafting: `mise run lint-guide -- box`.
 
 ## Related
 
-- [`FACTORY.md`](FACTORY.md) — factory operator guide  
-- [`docs/agents/`](docs/agents/) — pipeline doctrine (start with [`shared.md`](docs/agents/shared.md))  
-- [`docs/personas/`](docs/personas/) — audience voice  
-- [`CONTEXT.md`](CONTEXT.md) — vocabulary  
+- [`FACTORY.md`](FACTORY.md) — factory operator guide
+- [`doctrine/`](doctrine/) — pipeline doctrine (start with [`shared.md`](doctrine/shared.md))
+- [`doctrine/personas/`](doctrine/personas/) — audience voice
+- [`doctrine/glossary.md`](doctrine/glossary.md) — vocabulary
 - `/tune-pipeline` — retro signal → doctrine proposals (Claude Code skill)

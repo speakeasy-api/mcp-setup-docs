@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRuntime } from './runtime.ts'
 import { runWorkflow, type GuideInput } from './workflow.ts'
+import { PATHS, abs, guideDir } from './paths.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -12,7 +13,7 @@ function usage(): never {
   npm run draft-guide -- <provider|slug> [<provider|slug> ...] [options]
 
 Options:
-  --persona <id>     Persona under docs/personas/ (default: it-admin)
+  --persona <id>     Persona under doctrine personas dir (default: it-admin)
   --notes <text>     Extra context handed to every guide's agents
   --max-rounds <n>   Review/revise rounds before giving up (default: 3)
   --overwrite, -y    Overwrite existing guides/<slug>/ without prompting;
@@ -148,12 +149,12 @@ function parseArgs(argv: string[]) {
 }
 
 function defaultRepoRoot(): string {
-  // scripts/cursor-sdk/src → repo root is ../../..
-  return resolve(__dirname, '../../..')
+  // pipeline/src → repo root is ../..
+  return resolve(__dirname, '../..')
 }
 
 function listPersonas(root: string): string[] {
-  const dir = join(root, 'docs/personas')
+  const dir = abs(root, PATHS.personasDir)
   if (!existsSync(dir)) return []
   return readdirSync(dir)
     .filter((f) => f.endsWith('.md'))
@@ -161,7 +162,7 @@ function listPersonas(root: string): string[] {
 }
 
 function guideHasContent(root: string, slug: string): boolean {
-  const dir = join(root, 'guides', slug)
+  const dir = abs(root, guideDir(slug))
   if (!existsSync(dir)) return false
   return ['research.md', 'meta.yaml', 'setup.md'].some((f) =>
     existsSync(join(dir, f))
@@ -195,7 +196,7 @@ function writeRunRecord(
   result: Record<string, unknown>
 ) {
   const slug = String(result.slug)
-  const dir = join(root, 'retro/runs')
+  const dir = abs(root, PATHS.retroRunsDir)
   mkdirSync(dir, { recursive: true })
   const path = join(dir, `${startedAt}-${slug}.json`)
   const body = {

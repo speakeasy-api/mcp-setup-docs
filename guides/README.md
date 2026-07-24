@@ -7,7 +7,7 @@ Each Guide lives in `guides/<slug>/`:
 - `research.md` — Research Dossier: every fact the Setup Guide renders, with
   provenance and anchor IDs.
 - `setup.md` — Setup Guide voiced for a persona from
-  [`../docs/personas/`](../docs/personas/).
+  [`../doctrine/personas/`](../doctrine/personas/).
 
 Draft via the factory ([`../FACTORY.md`](../FACTORY.md)) or locally with
 `mise run draft-guide -- <slug>`. `guides/box/` is the reference shape.
