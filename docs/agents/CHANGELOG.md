@@ -6,6 +6,31 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-24 — architecture Phase 2: deterministic I4 lint
+
+Files: `scripts/cursor-sdk/src/lint-guide.ts`,
+`scripts/cursor-sdk/src/lint-guide-cli.ts`,
+`scripts/cursor-sdk/src/workflow.ts`, `scripts/cursor-sdk/src/lock.ts`,
+`scripts/cursor-sdk/package.json` (ajv), `scripts/draft-guide-workflow.js`,
+`scripts/ci/format-pipeline-review.sh`, `mise.toml`.
+
+- **Lint module** enforces I4 mechanically: `setup_version` frontmatter,
+  one H1, three H2s in order, provider H3 anchors + screenshot rule,
+  Speakeasy fixed anchors, sole template key, `meta.yaml` vs
+  `schema/guide.v1.schema.json`, and setup↔research↔meta anchor
+  agreement (I3 mechanical slice).
+- **Wired into every review round** (Cursor SDK in-process; Claude
+  harness via `npx tsx … --json`). Findings use `dimension: lint` and
+  gate like fidelity/achievability in the factory formatter.
+- **CLI / mise:** `npm run lint-guide -- box` /
+  `mise run lint-guide -- box x`.
+
+Invariants: I4 strengthened (deterministic). I3 partially enforced without
+an LLM. Does not replace fidelity's invention/distortion judgment.
+
+Evidence: Phase 0/1 architecture cut (formatting LLM removed); operator
+direction to implement Phase 2.
+
 ## 2026-07-24 — architecture: two-gate review (Phase 0 + 1)
 
 Files: `docs/agents/constitution.md` (I5), `fidelity.md`, `review.md`,

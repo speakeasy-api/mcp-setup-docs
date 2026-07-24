@@ -29,6 +29,7 @@ plain_dimension() {
   case "$1" in
     fidelity) echo "Fact check failed — setup and research disagree (or research is missing the fact)." ;;
     achievability) echo "A cold reader would get stuck — a click, field, or next step is not named clearly enough." ;;
+    lint) echo "Guide grammar / schema rule broken (deterministic lint)." ;;
     voice) echo "Tone / persona mismatch." ;;
     formatting) echo "Guide structure / formatting rule broken." ;;
     concision) echo "Extra prose the reader does not need." ;;
@@ -105,8 +106,8 @@ if [ -n "$pr_url" ]; then
 fi
 echo
 
-# Gate dimensions only (fidelity + achievability). Dedupe by target + anchor
-# (or where prefix), preferring fidelity over achievability for the same locus.
+# Gate dimensions: fidelity, achievability, lint. Dedupe by target + anchor
+# (or where prefix), preferring fidelity > lint > achievability for the same locus.
 # Non-gate leftovers (legacy voice/formatting/concision) become optional nits.
 decisions_json=$(jq -c '
   def locus:
@@ -114,17 +115,20 @@ decisions_json=$(jq -c '
     // ((.where // "") | .[0:80]);
   def rank:
     if .dimension == "fidelity" then 0
-    elif .dimension == "achievability" then 1
+    elif .dimension == "lint" then 1
+    elif .dimension == "achievability" then 2
     else 9 end;
+  def is_gate:
+    .dimension == "fidelity" or .dimension == "achievability" or .dimension == "lint";
   (.unresolved // []) as $u
   | ($u
-      | map(select(.dimension == "fidelity" or .dimension == "achievability"))
+      | map(select(is_gate))
       | sort_by([(.target // ""), locus, rank])
       | group_by([(.target // ""), locus])
       | map(.[0])
     ) as $decisions
   | ($u
-      | map(select(.dimension != "fidelity" and .dimension != "achievability"))
+      | map(select(is_gate | not))
     ) as $legacy
   | {decisions: $decisions, legacy: $legacy}
 ' "$record")

@@ -32,6 +32,9 @@ guides/<slug>/
 | `review.fidelity` | no | yes |
 | `review.achievability` | no | yes |
 
+Deterministic **lint** (I4 grammar / meta schema) runs every review round and
+is not a lock step — it is cheap and must see the current `setup.md`.
+
 Legacy lock keys `review.voice`, `review.formatting`, and `review.concision`
 may still appear in older `pipeline.lock.json` files; the workflow no longer
 runs those dimensions (Writer self-check owns voice/formatting/concision).

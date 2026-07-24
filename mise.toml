@@ -21,6 +21,14 @@ depends = ["_cursor-sdk-install"]
 # Requires CURSOR_API_KEY in the environment (user or team service-account key).
 run = "npm run draft-guide --"
 
+[tasks.lint-guide]
+description = "Deterministic I4 grammar + meta schema lint for guide(s)"
+dir = "scripts/cursor-sdk"
+depends = ["_cursor-sdk-install"]
+# Usage: mise run lint-guide -- box x
+#        mise run lint-guide -- --json guides/box
+run = "npm run lint-guide --"
+
 [tasks."_mcp-oauth-probe-install"]
 description = "Install scripts/mcp-oauth-probe dependencies (hidden prerequisite)"
 dir = "scripts/mcp-oauth-probe"

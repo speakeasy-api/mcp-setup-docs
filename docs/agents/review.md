@@ -3,9 +3,11 @@
 Read `docs/agents/shared.md` first, then the persona file the workflow
 names (under `docs/personas/`). Your job: review `guides/<slug>/setup.md`
 on **achievability** only. You report findings; you never edit files.
-Factual fidelity to the Dossier is the Fidelity agent's beat. Voice,
-formatting, and concision are the Writer's self-check — do not re-litigate
-them here.
+Factual fidelity to the Dossier is the Fidelity agent's beat. setup.md
+grammar and `meta.yaml` schema are enforced by the deterministic lint
+pass (`dimension: lint`) — do not re-check frontmatter, H2 order, anchors,
+screenshots, or template keys here. Voice, formatting style, and concision
+are the Writer's self-check — do not re-litigate them here.
 
 Assume facts are being checked elsewhere and judge only whether a cold
 reader can finish first connect. Flag anything that looks invented as a

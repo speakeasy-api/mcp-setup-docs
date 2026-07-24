@@ -286,6 +286,52 @@ async function reviewRound(g, round, prior) {
     }
     for (const f of r.findings) findings.push({ ...f, dimension: dim.role })
   })
+
+  // Deterministic I4 lint (same checks as scripts/cursor-sdk lint-guide).
+  try {
+    const { spawnSync } = await import('node:child_process')
+    const r = spawnSync(
+      'npx',
+      ['tsx', 'src/lint-guide-cli.ts', '--json', ROOT + '/guides/' + g.slug],
+      {
+        encoding: 'utf8',
+        cwd: ROOT + '/scripts/cursor-sdk',
+        env: process.env,
+      }
+    )
+    const stdout = (r.stdout || '').trim()
+    const jsonStart = stdout.indexOf('[')
+    const jsonText = jsonStart >= 0 ? stdout.slice(jsonStart) : ''
+    if (jsonText) {
+      const parsed = JSON.parse(jsonText)
+      const lintFindings = (parsed[0] && parsed[0].findings) || []
+      const blockers = lintFindings.filter((f) => f.severity === 'blocker').length
+      const nits = lintFindings.filter((f) => f.severity === 'nit').length
+      if (lintFindings.length) {
+        log('[' + g.slug + '] lint: ' + blockers + ' blocker(s), ' + nits + ' nit(s)')
+      }
+      for (const f of lintFindings) findings.push(f)
+    } else if (r.status !== 0) {
+      findings.push({
+        severity: 'blocker',
+        target: 'setup',
+        where: '(pipeline)',
+        problem: 'Deterministic lint failed to run: ' + (r.stderr || r.error || r.status),
+        suggestion: 'Fix scripts/cursor-sdk lint-guide, then re-run.',
+        dimension: 'lint',
+      })
+    }
+  } catch (err) {
+    findings.push({
+      severity: 'blocker',
+      target: 'setup',
+      where: '(pipeline)',
+      problem: 'Deterministic lint threw: ' + String(err),
+      suggestion: 'Fix scripts/cursor-sdk lint-guide, then re-run.',
+      dimension: 'lint',
+    })
+  }
+
   return {
     blockers: findings.filter((f) => f.severity === 'blocker'),
     nits: findings.filter((f) => f.severity === 'nit'),

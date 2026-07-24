@@ -19,6 +19,7 @@ import {
   type StepId,
   type StepRecord,
 } from './lock.ts'
+import { lintGuide } from './lint-guide.ts'
 import { withSchemaHint, type Runtime } from './runtime.ts'
 
 export const PhaseResult = withSchemaHint(
@@ -678,6 +679,24 @@ export async function runWorkflow(
         findings.push({ ...f, dimension: dim.role })
       }
     }
+
+    // Deterministic I4 / anchor / meta schema lint — no LLM, every round.
+    const lintFindings = lintGuide(dir, ROOT)
+    if (lintFindings.length > 0) {
+      log(
+        '[' +
+          g.slug +
+          '] lint: ' +
+          lintFindings.filter((f) => f.severity === 'blocker').length +
+          ' blocker(s), ' +
+          lintFindings.filter((f) => f.severity === 'nit').length +
+          ' nit(s)'
+      )
+    }
+    for (const f of lintFindings) {
+      findings.push({ ...f })
+    }
+
     return {
       blockers: findings.filter((f) => f.severity === 'blocker'),
       nits: findings.filter((f) => f.severity === 'nit'),
