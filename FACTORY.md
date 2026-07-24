@@ -41,7 +41,7 @@ Runs can take a long time (often 20–40+ minutes). Usage burns Cursor plan toke
 ### What you get
 
 1. **Resolved as `slug`…** — distill figured out which server / persona / notes.  
-   On a retry: **Resuming on existing factory PR…**
+   On a retry: **Resuming on existing factory PR…** (or **Resuming on factory branch…** if the branch was pushed but PR create flaked).
 2. Sometimes **Scope check** — research finished with *material* open questions (recovery path, conflicting docs, etc.). Drafting pauses; answer with `Decision N: …`, then re-add `guide:draft`. Soft OQs (catalog presence, UI silence already hedged) do **not** pause.
 3. **Pipeline review** — numbered decisions (blockers), open questions, optional nits — after a full draft run. Written so you can answer without reading the whole guide.
 4. A PR titled **`guide: <provider>`** on branch `guide/issue-<N>-<slug>`
@@ -70,13 +70,15 @@ Distill re-reads the issue body **and** the comment thread into pipeline notes.
 
 ### Resume (not a full restart)
 
-If a factory draft PR already exists (`guide/issue-<N>-*`):
+If a factory draft PR already exists (`guide/issue-<N>-*`), **or** only the remote factory branch exists (push succeeded, PR create flaked):
 
 - The next run checks out **that branch**.
 - Prior `research.md` / `setup.md` / lock stay on disk; research revises in place.
-- The same PR is **updated** (not a new PR from a blank tree).
+- An existing PR is **updated**; if there is no PR yet, one is opened from the branch.
 
-That includes retries after **awaiting scope** or **unconverged** — as long as the earlier run opened the PR. (Runs that never produced files have nothing to resume from.)
+That includes retries after **awaiting scope**, **unconverged**, or a failed PR-open step — as long as the earlier run pushed the factory branch. (Runs that never produced files have nothing to resume from.)
+
+`gh pr create` / `gh pr edit` also retry transient GitHub GraphQL / 5xx errors in-run before giving up.
 
 ## Outcomes
 
@@ -87,6 +89,7 @@ That includes retries after **awaiting scope** or **unconverged** — as long as
 | Unconverged | **Draft** PR; decide on blockers, then re-label |
 | Distill unclear | `guide:blocked` + comment; clarify server, re-add `guide:draft` |
 | Hard failure | `guide:blocked` + comment + Actions link; no PR |
+| PR create flake after push | Branch is on remote; comment says so — re-add `guide:draft` to resume and open the PR |
 
 A non-factory open PR that already `Closes #<issue>` (collaborator-authored) blocks the factory so it does not overwrite human work — close or finish that PR first.
 
@@ -110,7 +113,8 @@ comments around that same CLI.
 | Label added, no Actions run | Workflow YAML invalid on `main`, or label was already on the issue (remove + re-add) |
 | Run skipped immediately | Event was a different label (`guide:blocked` etc.) — only `guide:draft` starts the job |
 | “Refused to run” + existing PR | That PR is not a `guide/issue-<N>-*` factory branch |
-| Resume feels like a full rewrite | No prior factory PR / files; or clarifications forced research to change materially |
+| Resume feels like a full rewrite | No prior factory branch / files; or clarifications forced research to change materially |
+| Run failed but branch exists, no PR | PR create flaked after push — re-add `guide:draft` (retries + branch resume) |
 
 ## Related
 
