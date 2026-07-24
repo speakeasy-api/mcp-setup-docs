@@ -334,7 +334,7 @@ jobs:
           # force-with-lease keeps resume pushes from clobbering unexpected remote edits
           git push --force-with-lease origin "$BRANCH"
 
-      - name: Open or update draft PR
+      - name: Open or update PR
         id: open_pr
         if: steps.preflight.outputs.refused != 'true' && success()
         env:
@@ -347,13 +347,15 @@ jobs:
           RESUME_PR_URL: ${{ steps.preflight.outputs.resume_pr_url }}
         run: |
           set -euo pipefail
-          title="Draft guide: ${PROVIDER} (#${ISSUE_NUMBER})"
-          if [ "${OUTCOME}" = "unconverged" ]; then
-            title="Draft guide (unconverged): ${PROVIDER} (#${ISSUE_NUMBER})"
-          elif [ "${OUTCOME}" = "awaiting_scope" ]; then
-            title="Draft guide (awaiting scope): ${PROVIDER} (#${ISSUE_NUMBER})"
-          fi
+          # Title stays short; status lives in draft vs ready + issue comments.
+          title="guide: ${PROVIDER}"
           title="${title:0:256}"
+          # Needs a human reply (scope Decisions or unresolved blockers) → stay draft.
+          # Converged → ready for review.
+          needs_human=false
+          if [ "${OUTCOME}" = "awaiting_scope" ] || [ "${OUTCOME}" = "unconverged" ]; then
+            needs_human=true
+          fi
           body_file="${RUNNER_TEMP}/pr-body.md"
           {
             echo "Closes #${ISSUE_NUMBER}"
@@ -378,7 +380,11 @@ jobs:
               echo "_Updated by a factory re-run (resume) — prior research/setup on this branch were reused where the lock allowed._"
               echo
             fi
-            echo "Human review still required — agents never commit; this Action did."
+            if [ "$needs_human" = "true" ]; then
+              echo "This PR is a **draft** until the issue Decisions / blockers are settled."
+            else
+              echo "Pipeline **converged** — ready for human review (agents never commit; this Action did)."
+            fi
           } > "$body_file"
           if [ -f "${RUNNER_TEMP}/run-record.json" ]; then
             echo >> "$body_file"
@@ -394,11 +400,20 @@ jobs:
 
           if [ "${RESUME}" = "true" ] && [ -n "${RESUME_PR_NUMBER}" ]; then
             gh pr edit "${RESUME_PR_NUMBER}" --title "$title" --body-file "$body_file"
+            if [ "$needs_human" = "true" ]; then
+              gh pr ready "${RESUME_PR_NUMBER}" --undo || true
+            else
+              gh pr ready "${RESUME_PR_NUMBER}" || true
+            fi
             echo "pr_url=${RESUME_PR_URL}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          pr_url=$(gh pr create --draft --base main --head "$BRANCH" --title "$title" --body-file "$body_file" | tail -n1)
+          create_args=(--base main --head "$BRANCH" --title "$title" --body-file "$body_file")
+          if [ "$needs_human" = "true" ]; then
+            create_args+=(--draft)
+          fi
+          pr_url=$(gh pr create "${create_args[@]}" | tail -n1)
           echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
 
       - name: Comment pipeline review or scope check on issue

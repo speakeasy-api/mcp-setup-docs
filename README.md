@@ -7,7 +7,7 @@ guide lives in `guides/<slug>/` (`research.md`, `meta.yaml`, `setup.md`).
 
 1. Open an issue — freeform title/body (docs URLs, “prefer OAuth”, etc. optional).
 2. Add the label **`guide:draft`**.
-3. Wait for comments + a draft PR (`guide/issue-<N>-<slug>`).
+3. Wait for comments + a draft or ready-for-review PR (`guide/issue-<N>-<slug>`).
 
 How it works (labels, scope checks, Decisions, resume): **[`FACTORY.md`](FACTORY.md)**.
 
