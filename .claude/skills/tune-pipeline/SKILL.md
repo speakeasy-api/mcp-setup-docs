@@ -7,17 +7,17 @@ description: Distill retro signal (Run Records, Retro Notes) from the draft-guid
 
 Turns accumulated pipeline signal into doctrine improvements without
 letting doctrine drift. The rules this skill operates under are in
-`docs/agents/constitution.md` — read it first, in full, every run. The
+`doctrine/constitution.md` — read it first, in full, every run. The
 short version: propose, never impose; cite evidence; prefer sharpening to
 adding; no-change is a valid outcome.
 
 ## Steps
 
-1. **Read the ground truth**: `docs/agents/constitution.md`,
-   `docs/agents/CHANGELOG.md` (what already changed, what was rejected —
+1. **Read the ground truth**: `doctrine/constitution.md`,
+   `doctrine/CHANGELOG.md` (what already changed, what was rejected —
    do not re-propose either without new evidence), then the current
-   doctrine: every file in `docs/agents/`, `docs/personas/`, and the
-   `draft-guide` skill and workflow.
+   doctrine: every file in `doctrine/`, `doctrine/personas/`, and the
+   Cursor SDK workflow under `pipeline/`.
 2. **Read the signal**: everything in `retro/runs/` and `retro/notes/`
    not already cited by a changelog entry. If the corpus is large (more
    than ~10 run records), fan out reader subagents — one per review
@@ -44,17 +44,18 @@ adding; no-change is a valid outcome.
    human, never a proposal.
 5. **Present and apply**: show each proposal (AskUserQuestion works well —
    approve / reject / edit per proposal). Apply exactly the approved
-   diffs, nothing more. Append one `docs/agents/CHANGELOG.md` entry for
+   diffs, nothing more. Append one `doctrine/CHANGELOG.md` entry for
    the batch: date, files, changes, evidence — and list rejected
    proposals with a line of reasoning so future tune runs do not nag.
-6. **Offer a regression check**: suggest re-running `/draft-guide` on a
-   reference provider (e.g. `box`) and comparing rounds-to-convergence
-   and blocker counts against its last Run Record before trusting a
-   doctrine change that touched reviewer or writer behavior.
+6. **Offer a regression check**: suggest re-running
+   `mise run draft-guide -- <slug> --overwrite` on a reference provider
+   (e.g. `box`) and comparing rounds-to-convergence and blocker counts
+   against its last Run Record before trusting a doctrine change that
+   touched reviewer or writer behavior.
 
 ## Hard rules
 
-- Never edit `docs/agents/constitution.md`. Tensions with it are reported,
+- Never edit `doctrine/constitution.md`. Tensions with it are reported,
   not resolved here.
 - Never apply an unapproved diff, and never batch-approve ("apply all"
   from the user still means: show what will change first).

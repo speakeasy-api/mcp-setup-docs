@@ -1,0 +1,47 @@
+{
+  "slug": "intercom",
+  "provider": "intercom",
+  "persona": "it-admin",
+  "timestamp": "2026-07-24T19:28:08Z",
+  "started_at": "2026-07-24T19:28:08Z",
+  "finished_at": "2026-07-24T19:37:21Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "Catalog handling for US versus EU is undocumented.",
+    "Intercom does not publish exact MCP authorization-screen labels."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#add-server-in-speakeasy — “Choose one path”",
+          "problem": "The guide permits the catalog path even though it cannot establish that this path selects the endpoint matching the workspace region.",
+          "suggestion": "Document the region-explicit custom remote server path as the required path and omit the catalog path until its regional behavior is confirmed.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Updated research.md and setup.md to require the region-explicit custom remote server path and removed the catalog path.",
+      "disputed": [],
+      "skipped": [
+        "Use Discovered placement nit: already immediately follows locating Authentication."
+      ]
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}

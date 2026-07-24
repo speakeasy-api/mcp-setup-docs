@@ -3,3 +3,4 @@ mise.local.toml
 
 # Pulled PulseMCP catalog snapshot (local only)
 pulse-catalog.json
+tools/pulse-catalog/pulse-catalog.json

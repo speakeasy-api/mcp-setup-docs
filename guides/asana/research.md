@@ -164,7 +164,7 @@ The documented path is Asana main app > profile photo > **Settings** >
 
 ## Speakeasy setup
 
-Canonical source: `docs/speakeasy-setup.md`, observed
+Canonical source: `doctrine/speakeasy-setup.md`, observed
 `2026-07-23T22:05:41Z`.
 
 Per-guide values:
@@ -316,6 +316,6 @@ Sources drawn from:
   observed `2026-07-23T22:05:41Z`. Backs OAuth endpoints, supported
   grants, client-secret authentication methods, and PKCE `S256`; no
   dynamic registration endpoint is advertised.
-- `docs/speakeasy-setup.md` — observed `2026-07-23T22:05:41Z`. Backs the
+- `doctrine/speakeasy-setup.md` — observed `2026-07-23T22:05:41Z`. Backs the
   transcluded Speakeasy-side flow, fixed anchors, exact product labels,
   callback-template behavior, and closing-pointer form.

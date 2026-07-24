@@ -1,0 +1,211 @@
+{
+  "slug": "salesforce",
+  "provider": "salesforce",
+  "persona": "it-admin",
+  "timestamp": "2026-07-24T16:26:21Z",
+  "started_at": "2026-07-24T16:26:21Z",
+  "finished_at": "2026-07-24T16:40:10Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Salesforce's public documentation does not establish whether Salesforce is currently present in the Speakeasy MCP Catalog.",
+    "The activation documentation does not publish exact SObject row labels or enabled-toggle states.",
+    "Speakeasy compatibility is standards-inferred from OAuth 2.0 Authorization Code with PKCE and needs an end-to-end connection test."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#enable-sobject-server — “Choose the least-privileged server that meets the team's needs:”",
+          "problem": "The reader must choose a server but is not told where to obtain the team's approved read, write, or delete requirements.",
+          "suggestion": "Add one sentence directing the reader to obtain the approved server choice from the application or cloud security owner when the ticket does not specify it.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "Final line (after {#connect-speakeasy-credentials})",
+          "problem": "The guide ends with a shortened pointer instead of the canonical closing sentence recorded in the Dossier and `docs/speakeasy-setup.md`.",
+          "suggestion": "Replace the final line with: This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Salesforce's MCP documentation](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html).",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#configure-oauth-settings",
+          "problem": "The guide does not identify the exact PKCE control or the controls used to add the two required OAuth scopes.",
+          "suggestion": "Research the verbatim PKCE label and scope-selection controls, then add exact click-by-click actions to the Dossier and Setup Guide.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Prerequisites and #open-salesforce-setup",
+          "problem": "The guide supports scratch-org URLs but provides no executable browser workflow for creating, packaging, and installing the required External Client App.",
+          "suggestion": "Either research and document the complete scratch-org workflow or narrow the Guide's supported setup path to org types where the app can be created directly.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "add-server-in-speakeasy screenshot note",
+          "problem": "The screenshot note omits the canonical requirement that the Add Source menu be open on the Sources page.",
+          "suggestion": "Restore “the Add Source menu open on the Sources page” from docs/speakeasy-setup.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials — “Each call runs as the signed-in Salesforce user and follows that user's field-level security, object permissions, and sharing rules.”",
+          "problem": "This explanatory sentence uses Salesforce security terminology without giving the reader an action.",
+          "suggestion": "Replace it with an imperative such as “Sign in as a Salesforce user who has access to every record the connection needs.”",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#configure-oauth-settings}, step 6",
+          "problem": "The PKCE control is written as plain prose while adjacent OAuth security controls use bold verbatim labels.",
+          "suggestion": "Render step 6 as a single action on the console label, e.g. Select **Require PKCE** (or the exact checkbox label from the Dossier if it differs).",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#connect-speakeasy-credentials}, step 5",
+          "problem": "The cross-link uses bold markup inside the link text (`[Salesforce **Consumer Key**](#copy-consumer-key)`), which is inconsistent with other anchor links in the guide.",
+          "suggestion": "Use plain link text such as Paste the [**Consumer Key**](#copy-consumer-key) into **Client ID**, matching the pattern in guides like X.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#connect-speakeasy-credentials steps 7–11",
+          "problem": "The guide tells the reader to complete Salesforce sign-in when prompted without identifying what action opens that prompt.",
+          "suggestion": "Clarify the authorization sequence using only controls established by the canonical Speakeasy setup, or record this missing Speakeasy-side transition as a doctrine open question.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#connect-speakeasy-credentials}",
+          "problem": "The paragraph after step 11 states that each call runs as the signed-in user under FLS, object permissions, and sharing rules, which describes runtime behavior rather than an action required to finish setup.",
+          "suggestion": "Remove that paragraph from the Setup Guide; keep the authorization model in the Research Dossier only unless a setup step depends on it.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#enable-sobject-server} server choice bullets",
+          "problem": "Two capability bullets attribute risk or safety to Salesforce (\"Salesforce describes this as…\" / \"Salesforce describes deletion as…\") instead of giving the admin a direct choice criterion.",
+          "suggestion": "Shorten each bullet to the capability boundary only (read/query vs create/update vs delete vs all) and drop the documentation-attribution phrases.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites",
+          "problem": "The scratch-org External Client App limitation appears in Prerequisites while the Dossier places it under {#open-salesforce-setup}, so an edge-case procedure sits before the console walkthrough most readers follow.",
+          "suggestion": "Delete the scratch-org sentence from Prerequisites and add a single \"If you use a scratch org:\" branch under {#open-salesforce-setup} with the hub, package, and install steps.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "Prerequisites lines 9 and 14",
+          "problem": "The phrase \"the org that will expose its records\" appears twice in back-to-back Prerequisites content.",
+          "suggestion": "Keep the phrase in one place (for example the sign-in sentence) and refer to \"that org\" in the System Administrator bullet.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Updated research.md first with provenance: exact PKCE label, OAuth scope dual-list controls, production/sandbox-only scope, server-choice escalation, canonical screenshot wording, and the missing Speakeasy authorization transition as an open question. Updated meta.yaml provenance and validated it against the schema. Updated setup.md with exact OAuth actions, approved server-choice guidance, concise capability bullets, production/sandbox-only prerequisites, canonical screenshot and closing text, plain Consumer Key link text, and removal of unsupported authorization/runtime prose. Anchor contract remains intact; no linter errors.",
+      "disputed": [
+        "Scratch-org branch nit: disputed because it conflicts with the blocker requiring a complete executable workflow; Salesforce’s public Hosted MCP docs omit the browser packaging steps, so the guide now explicitly excludes scratch orgs."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-settings, steps 8–9",
+          "problem": "The Setup Guide reverses the Dossier's order for selecting the JWT and PKCE security controls.",
+          "suggestion": "Select **Issue JSON Web Token (JWT)-based access tokens for named users** before **Require Proof Key for Code Exchange (PKCE) extension for Supported Authorization Flows**.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "(pipeline)",
+          "problem": "The concision reviewer returned no verdict this round.",
+          "suggestion": "Treat as unreviewed; the next round retries this dimension.",
+          "dimension": "concision"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#connect-speakeasy-credentials}, step 5 — `Paste the [Consumer Key](#copy-consumer-key) into **Client ID**.`",
+          "problem": "The Salesforce UI label **Consumer Key** appears in the cross-link without bold markup while **Client ID** is bolded, unlike peer guides that bold the linked field name (for example `[**Bearer Token**](#copy-bearer-token)` in the X guide).",
+          "suggestion": "Use `Paste the [**Consumer Key**](#copy-consumer-key) into **Client ID**.` so both field labels follow the same formatting pattern.",
+          "dimension": "formatting"
+        }
+      ],
+      "revision_notes": "Reordered JWT before PKCE in setup steps 8–9. Bolded the linked Consumer Key label. The concision finding required no file change and remains for the next review round.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#add-server-in-speakeasy}, after \"Either path creates the hosted MCP Server and opens its **Overview** page.\"",
+          "problem": "The read-only **Transport** sentence tells the reader a field value they do not enter or verify as part of setup.",
+          "suggestion": "Delete the second sentence (\"Its read-only **Transport** is `streamable-http`.\"); keep the Overview transition sentence that links to {#connect-speakeasy-credentials}.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#copy-consumer-key}, step 4 — \"You will use this value as **Client ID** in the Speakeasy AI Control Plane.\"",
+          "problem": "The Consumer Key-to-**Client ID** mapping is stated again at paste time in {#connect-speakeasy-credentials} step 5 with a cross-link to this step.",
+          "suggestion": "End step 4 at \"Copy **Consumer Key**.\" and rely on {#connect-speakeasy-credentials} step 5 for the **Client ID** destination.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "{#enable-sobject-server}, recovery paragraph — \"and the org has API access\"",
+          "problem": "API-enabled org requirement is already stated in Prerequisites and is not an action unique to this failure checklist.",
+          "suggestion": "Shorten the recovery sentence to the server-enabled and URL-or-org-type checks only, or cross-link to Prerequisites instead of repeating the API-access fact.",
+          "dimension": "concision"
+        }
+      ],
+      "polish_notes": "Finding 1 ({#add-server-in-speakeasy}): Removed the read-only **Transport** sentence; kept the Overview transition before {#connect-speakeasy-credentials}. Finding 2 ({#copy-consumer-key} step 4): Ended step 4 at \"Copy **Consumer Key**.\"; **Client ID** mapping remains in {#connect-speakeasy-credentials} step 5. Finding 3 ({#enable-sobject-server} recovery): Dropped repeated API-access wording; recovery now covers server enabled and URL vs server/org type only.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": true,
+        "findings": []
+      }
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}

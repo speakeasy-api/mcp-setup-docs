@@ -1,0 +1,57 @@
+{
+  "slug": "salesforce",
+  "provider": "salesforce",
+  "persona": "it-admin",
+  "timestamp": "2026-07-24T17:42:28Z",
+  "started_at": "2026-07-24T17:42:28Z",
+  "finished_at": "2026-07-24T17:51:03Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "Whether Speakeasy’s Salesforce catalog listing configures these Hosted MCP SObject servers and manual OAuth fields.",
+    "The exact SObject activation row labels and enabled-toggle label or state.",
+    "Whether Consumer Key-only PKCE authentication completes successfully through the Speakeasy AI Control Plane.",
+    "Whether Hosted MCP Servers are available in a target lower-edition org despite conflicting Salesforce edition statements.",
+    "Which Speakeasy control starts Salesforce user authorization after attaching the identity provider."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-settings",
+          "problem": "The Setup Guide omits the Dossier-backed instruction to deselect every other Security option that can be changed without Salesforce support.",
+          "suggestion": "After the named Security settings, instruct the reader to leave all other options that do not require Salesforce support deselected.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#create-external-client-app and #copy-consumer-key screenshot exceptions",
+          "problem": "The create-step exception says the next step captures the credential view, while the next step explicitly says not to capture it.",
+          "suggestion": "Revise the create-step exception so it does not claim that the next step captures a screenshot.",
+          "dimension": "fidelity"
+        }
+      ],
+      "revision_notes": "Blocker: added the instruction to leave all other mutable Security options deselected. Nit: revised the create-step screenshot exception to remove the conflicting claim about a later screenshot. Updated the matching setup exception. Lint and diff checks pass.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "OAuth setup materially changed: AFTER says not to enable the PKCE enforcement option, while BEFORE and current setup.md instruct selecting it. The current primary Hosted MCP setup page takes precedence over the conflicting client-specific blog, so setup.md requires re-drafting and prior review is invalidated. Metadata changed only in observed_at timestamps."
+  }
+}

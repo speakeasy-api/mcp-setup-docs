@@ -1,0 +1,143 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: github
+title: GitHub
+summary: Connect GitHub so users can work with repositories and other resources their GitHub account is permitted to access through GitHub's hosted MCP server.
+credential_setup:
+  options:
+    - id: oauth-app
+      kind: oauth
+      client_registration: manual
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - setup.md#generate-oauth-credentials
+        - id: client-secret
+          label: Client secret
+          setup:
+            - setup.md#generate-oauth-credentials
+  requirements:
+    - id: github-organization-admin
+      description: Administrative access to the GitHub organization that will own the OAuth app
+    - id: standard-github-cloud
+      description: Standard GitHub.com hosting; GitHub Enterprise Cloud with data residency requires its tenant-specific remote URL
+    - id: oauth-app-approval
+      description: Access to an organization owner who can grant the registered OAuth app access when a target organization restricts OAuth apps
+    - id: organization-sso
+      description: A valid organization SSO session when accessing resources protected by SSO enforcement
+documentation:
+  setup: setup.md
+remotes:
+  - id: primary
+    url: https://api.githubcopilot.com/mcp/
+    transport: streamable-http
+    authentication:
+      - oauth-app
+    provenance:
+      - source: provider-repository
+        locator: https://github.com/github/github-mcp-server
+        name: GitHub MCP Server
+        classification: official
+        observed_at: "2026-07-23T23:17:09Z"
+      - source: provider-documentation
+        locator: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
+        name: Remote GitHub MCP Server
+        classification: official
+        observed_at: "2026-07-23T23:17:09Z"
+      - source: provider-documentation
+        locator: https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md
+        name: GitHub Remote MCP Integration Guide for MCP Host Authors
+        classification: official
+        observed_at: "2026-07-23T23:17:09Z"
+      - source: endpoint-observation
+        locator: https://api.githubcopilot.com/mcp/
+        classification: official
+        observed_at: "2026-07-23T23:17:09Z"
+      - source: endpoint-observation
+        locator: https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/
+        classification: official
+        observed_at: "2026-07-23T23:17:09Z"
+provenance:
+  - source: provider-repository
+    locator: https://github.com/github/github-mcp-server
+    name: GitHub MCP Server
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
+    name: Remote GitHub MCP Server
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md
+    name: GitHub Remote MCP Integration Guide for MCP Host Authors
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://github.com/github/github-mcp-server/blob/main/docs/scope-filtering.md
+    name: Scope Filtering
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://github.com/github/github-mcp-server/blob/main/docs/policies-and-governance.md
+    name: Policies & Governance for the GitHub MCP Server
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://github.com/github/github-mcp-server/blob/main/docs/installation-guides/README.md
+    name: GitHub MCP Server Installation Guides
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app
+    name: Creating an OAuth app
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/account-and-profile/how-tos/organization-membership/requesting-organization-approval-for-oauth-apps
+    name: Requesting organization approval for OAuth apps
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/approving-oauth-apps-for-your-organization
+    name: Approving OAuth apps for your organization
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/apps/oauth-apps/using-oauth-apps/authorizing-oauth-apps
+    name: Authorizing OAuth apps
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api?apiVersion=2026-03-10
+    name: Authenticating to the REST API
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/set-up-the-github-mcp-server
+    name: Setting up the GitHub MCP Server
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/enterprise-configuration
+    name: Configuring the GitHub MCP Server for GitHub Enterprise
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: endpoint-observation
+    locator: https://api.githubcopilot.com/mcp/
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: endpoint-observation
+    locator: https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: endpoint-observation
+    locator: https://github.com/login/oauth/.well-known/oauth-authorization-server
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-07-23T23:17:09Z"

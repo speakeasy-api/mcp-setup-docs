@@ -163,7 +163,7 @@
       "type": "object"
     }
   },
-  "description": "Per-guide pipeline lockfile (guides/<slug>/pipeline.lock.json), schema_version 1. Records input fingerprints so draft and per-dimension review can be skipped when inputs are unchanged. Normative semantics: docs/agents/pipeline-lock.md.",
+  "description": "Per-guide pipeline lockfile (guides/<slug>/pipeline.lock.json), schema_version 1. Records input fingerprints so draft and per-dimension review can be skipped when inputs are unchanged. Normative semantics: doctrine/pipeline-lock.md.",
   "properties": {
     "persona": {
       "description": "Persona id used when step entries were written.",
