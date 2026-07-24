@@ -22,9 +22,10 @@ This setup provides read-only access to public data. It cannot act as a user or 
 
 1. Go to [console.x.com](https://console.x.com).
 2. Sign in with the X account that will own the developer app.
-3. If prompted, review and accept the Developer Agreement and Policy.
-4. Provide the requested information about how your organization will use the API. Obtain the wording from the application or cloud security owner if needed.
-5. Complete the remaining enrollment steps shown in the console.
+3. If prompted, review the Developer Agreement and Policy.
+4. If prompted, accept the Developer Agreement and Policy.
+5. Provide the requested information about how your organization will use the API. Obtain the wording from the application or cloud security owner if needed.
+6. Complete the remaining enrollment steps shown in the console.
 
 Successful enrollment opens the **Developer Console** dashboard. Confirm that **New App** is visible.
 
@@ -63,9 +64,15 @@ If X appears in the catalog:
 3. Select **View** for X.
 4. Select **Add**.
 
-If the **Add to Project** dialog requests headers during installation, configure its **Upstream headers** section before continuing. Follow steps 3–6 under [Connect your credentials](#connect-speakeasy-credentials).
+If the **Add to Project** dialog includes an **Upstream headers** section:
 
-5. In the **Add to Project** dialog, select **Add to Project**.
+1. Enter `Authorization` in **Header name**.
+2. Leave **Value source** set to **Static value**.
+3. In the value field, enter `Bearer ` followed by the [**Bearer Token**](#copy-bearer-token) you saved.
+4. Select **Secret**.
+5. Select **Add to Project**.
+
+Otherwise, select **Add to Project**.
 
 If X does not appear in the catalog:
 

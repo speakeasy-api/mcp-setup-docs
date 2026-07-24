@@ -30,60 +30,60 @@ remotes:
         locator: https://x-preview.mintlify.app/tools/mcp
         name: MCP servers for the X API and X developer docs
         classification: official
-        observed_at: "2026-07-23T23:16:30Z"
+        observed_at: "2026-07-24T23:32:15Z"
 provenance:
   - source: provider-documentation
     locator: https://x-preview.mintlify.app/tools/mcp
     name: MCP servers for the X API and X developer docs
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://docs.x.com/llms.txt
     name: X Developer Platform documentation index
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://x-preview.mintlify.app/x-api/getting-started/getting-access
     name: Getting Access
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://x-preview.mintlify.app/fundamentals/developer-portal
     name: Developer Console
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://x-preview.mintlify.app/fundamentals/developer-apps
     name: Apps
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://x-preview.mintlify.app/fundamentals/authentication/overview
     name: Authentication
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/application-only
     name: App only authentication and OAuth 2.0 Bearer Token
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/authorization-code
     name: OAuth 2.0 Authorization Code Flow with PKCE
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://x-preview.mintlify.app/x-api/getting-started/pricing
     name: X API pay-per-usage pricing and credits
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-open-source
     locator: https://raw.githubusercontent.com/xdevplatform/xurl/main/README.md
     name: xurl
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: speakeasy-product-documentation
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-23T23:16:30Z"
+    observed_at: "2026-07-24T23:32:15Z"

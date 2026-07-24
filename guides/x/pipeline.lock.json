@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "slug": "x",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-24T23:35:51Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:80286ff3dbb3cef207f77d62c5512e425edce6563358a7aaeb781513e75f2f35",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+          },
+          {
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:3099f1e653aeadefa5a23507f1a784dbe3d86a6da02839b7a2c59f4e35d290af"
+          },
+          {
+            "path": "doctrine/speakeasy-setup.md",
+            "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token from X Developer Console. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl (redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume/revise on branch guide/issue-15-x (PR #17). Enrollment and create-app: hedge—no invented console labels; success enrollment = Developer Console with New App visible. API credits: required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token: copy-once only; omit regenerate-if-missed. Speakeasy add-source: catalog search query `X`; keep catalog vs custom remote https://api.x.com/mcp until catalog presence verified."
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:d09423f84f754f0a73807f6bd73b7a6e24e06139759bd0d56a97b791b61ab944"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:a29b3fb17cc5b87b6c5f349f7a7c7560a3056788d353fb24e2cb50cc43be8637"
+        }
+      ],
+      "completed_at": "2026-07-24T23:35:51Z"
+    },
+    "draft": {
+      "input_digest": "sha256:11ffb2f06e6a2b699b5234a296ef29250f29b9e6d345a90ae3019632dc024697",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+          },
+          {
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:621ba29cfe06a63471077c490c077c72b6edd7f36741e778b33300c111f5c9ce"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:d09423f84f754f0a73807f6bd73b7a6e24e06139759bd0d56a97b791b61ab944"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:a29b3fb17cc5b87b6c5f349f7a7c7560a3056788d353fb24e2cb50cc43be8637"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token from X Developer Console. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl (redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume/revise on branch guide/issue-15-x (PR #17). Enrollment and create-app: hedge—no invented console labels; success enrollment = Developer Console with New App visible. API credits: required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token: copy-once only; omit regenerate-if-missed. Speakeasy add-source: catalog search query `X`; keep catalog vs custom remote https://api.x.com/mcp until catalog presence verified.",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:a96574cceb79be9eb6605bb207f9edb5aa846f6a76c9bd91d5637d7bbacd2219"
+        }
+      ],
+      "completed_at": "2026-07-24T23:35:51Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:cb583edf7d1778bba19479f49975f7f1e1c3385c7c53c960535cd146b73c8141",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+          },
+          {
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:fe73d724c57713002ee0030655222908eb77e409dc8c16aa0abfb5994de9d3b3"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:d09423f84f754f0a73807f6bd73b7a6e24e06139759bd0d56a97b791b61ab944"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:a29b3fb17cc5b87b6c5f349f7a7c7560a3056788d353fb24e2cb50cc43be8637"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:a96574cceb79be9eb6605bb207f9edb5aa846f6a76c9bd91d5637d7bbacd2219"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token from X Developer Console. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl (redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume/revise on branch guide/issue-15-x (PR #17). Enrollment and create-app: hedge—no invented console labels; success enrollment = Developer Console with New App visible. API credits: required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token: copy-once only; omit regenerate-if-missed. Speakeasy add-source: catalog search query `X`; keep catalog vs custom remote https://api.x.com/mcp until catalog presence verified.",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:a96574cceb79be9eb6605bb207f9edb5aa846f6a76c9bd91d5637d7bbacd2219"
+        }
+      ],
+      "completed_at": "2026-07-24T23:35:51Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:a7ad81fdab8213aba2a16757cb05a398ce5872ab16b30bd4d7c2d34c5058f255",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+          },
+          {
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:42f6b2d4408952b17dced886cac3049689d7ba06e1c16085d97fd11e48d38162"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:d09423f84f754f0a73807f6bd73b7a6e24e06139759bd0d56a97b791b61ab944"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:a29b3fb17cc5b87b6c5f349f7a7c7560a3056788d353fb24e2cb50cc43be8637"
+          },
+          {
+            "path": "setup.md",
+            "digest": "sha256:a96574cceb79be9eb6605bb207f9edb5aa846f6a76c9bd91d5637d7bbacd2219"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token from X Developer Console. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl (redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Resume/revise on branch guide/issue-15-x (PR #17). Enrollment and create-app: hedge—no invented console labels; success enrollment = Developer Console with New App visible. API credits: required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token: copy-once only; omit regenerate-if-missed. Speakeasy add-source: catalog search query `X`; keep catalog vs custom remote https://api.x.com/mcp until catalog presence verified.",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "setup.md",
+          "digest": "sha256:a96574cceb79be9eb6605bb207f9edb5aa846f6a76c9bd91d5637d7bbacd2219"
+        }
+      ],
+      "completed_at": "2026-07-24T23:35:51Z"
+    }
+  }
+}

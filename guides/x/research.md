@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: x
-researched_at: 2026-07-23T23:16:30Z
+researched_at: 2026-07-24T23:32:15Z
 ---
 
 # X — Research Dossier
@@ -191,8 +191,8 @@ limits — see X's MCP documentation at
   `https://console.x.com`, documented by the Developer Console, Getting
   Access, and Apps pages. The live authenticated console was not accessed.
 - **Support KB:** `help.x.com` was identified and swept; no MCP-specific or
-  more detailed Developer Console setup page was found, and the property
-  returned HTTP 403 to this research fetch. No facts were drawn from it.
+  more detailed Developer Console setup page was found. No facts were drawn
+  from it.
 - **Official open-source project:** `github.com/xdevplatform/xurl`, used to
   corroborate the local-bridge architecture and callback requirement. It is
   not a substitute for the primary MCP page.
@@ -202,50 +202,50 @@ limits — see X's MCP documentation at
 ### Fact sources
 
 - `https://x-preview.mintlify.app/tools/mcp` — observed
-  `2026-07-23T23:16:30Z`. Primary MCP source. Backs the X MCP URL, hosted
+  `2026-07-24T23:32:15Z`. Primary MCP source. Backs the X MCP URL, hosted
   Streamable HTTP transport, protocol/server information, direct app-only
   Bearer route, read-only limitation, `Authorization` header shape, local
   `xurl mcp` OAuth route, no dynamic registration or native MCP OAuth
   discovery, callback value, and the server's search, users, bookmarks, trends,
   news, and Articles capability areas. Also supplies the further-reading URL.
 - `https://docs.x.com/llms.txt` (retrieved through the official index surfaced
-  by X's preview property) — observed `2026-07-23T23:16:30Z`. Backs the
+  by X's preview property) — observed `2026-07-24T23:32:15Z`. Backs the
   documentation-property sweep and discovery of the MCP, authentication,
   Developer Console, app, access, and pricing pages.
 - `https://x-preview.mintlify.app/x-api/getting-started/getting-access` —
-  observed `2026-07-23T23:16:30Z`. Backs first-time developer enrollment,
+  observed `2026-07-24T23:32:15Z`. Backs first-time developer enrollment,
   app creation inputs, generated credentials, the Bearer Token's read-only
   purpose, and the one-time display warning.
 - `https://x-preview.mintlify.app/fundamentals/developer-portal` — observed
-  `2026-07-23T23:16:30Z`. Backs the `console.x.com` entry, **New App** label,
+  `2026-07-24T23:32:15Z`. Backs the `console.x.com` entry, **New App** label,
   name and description inputs, generated-credential behavior, secure storage,
   and pay-per-usage console role.
 - `https://x-preview.mintlify.app/fundamentals/developer-apps` — observed
-  `2026-07-23T23:16:30Z`. Backs app credential types, OAuth 2.0 client types,
+  `2026-07-24T23:32:15Z`. Backs app credential types, OAuth 2.0 client types,
   callback behavior, and generated-credential warning. Its general local
   callback guidance says to use `127.0.0.1`, while the MCP-specific X page and
   official xurl project require `http://localhost:8080/callback`; the
   MCP-specific value governs the excluded xurl route.
 - `https://x-preview.mintlify.app/fundamentals/authentication/overview` and
   `https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/application-only`
-  — observed `2026-07-23T23:16:30Z`. Back the app-only model, no-user-context
+  — observed `2026-07-24T23:32:15Z`. Back the app-only model, no-user-context
   limitation, token secrecy, and Bearer header presentation.
 - `https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/authorization-code`
-  — observed `2026-07-23T23:16:30Z`. Backs X's Authorization Code with PKCE
+  — observed `2026-07-24T23:32:15Z`. Backs X's Authorization Code with PKCE
   behavior, confidential-client Client ID/Secret, refresh-token scope, and
   exact callback matching; used only to validate the excluded full-access
   route.
 - `https://x-preview.mintlify.app/x-api/getting-started/pricing` — observed
-  `2026-07-23T23:16:30Z`. Backs the API-credit prerequisite, the Developer
+  `2026-07-24T23:32:15Z`. Backs the API-credit prerequisite, the Developer
   Console as the billing and credits locus, and the zero/negative balance
   blocking caveat. Exact rates and the purchase walkthrough are intentionally
   not carried into the Guide.
 - `https://raw.githubusercontent.com/xdevplatform/xurl/main/README.md` —
-  observed `2026-07-23T23:16:30Z`. Official xdevplatform repository. Backs the
+  observed `2026-07-24T23:32:15Z`. Official xdevplatform repository. Backs the
   stdio-to-Streamable-HTTP bridge architecture, `CLIENT_ID` /
   `CLIENT_SECRET`, token caching and refresh, browser/headless behavior, and
   default `http://localhost:8080/callback`.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-23T23:16:30Z`. Backs the fixed
+- `doctrine/speakeasy-setup.md` — observed `2026-07-24T23:32:15Z`. Backs the fixed
   {#add-server-in-speakeasy} and {#connect-speakeasy-credentials} anchors,
   exact Speakeasy labels, catalog/custom conditional, upstream-header flow,
   and closing pointer form.
