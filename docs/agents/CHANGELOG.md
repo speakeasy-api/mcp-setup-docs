@@ -6,6 +6,29 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-24 — architecture Phase 4: single workflow + slim operator docs
+
+Files: deleted `scripts/draft-guide-workflow.js`,
+`.claude/skills/draft-guide/`; `README.md`, `FACTORY.md`,
+`guides/README.md`, `retro/README.md`, `docs/agents/shared.md`,
+`docs/agents/pipeline-lock.md`, `docs/agents/drafting.md`,
+`.claude/skills/tune-pipeline/SKILL.md`.
+
+- **One orchestrator:** Cursor SDK only (`mise run draft-guide` / factory).
+  Removed the Claude Code Workflow harness and `/draft-guide` skill that
+  drove it.
+- **README** slimmed to issue flow + local CLI; deep factory detail stays
+  in `FACTORY.md`.
+- Retargeted shared / lock / retro / tune-pipeline / drafting pointers
+  away from the deleted harness. Dispute protocol kept (still in revision
+  schema); polish/spiral already gone in Phase 1.
+
+Invariants: I7 unchanged (agents still never commit). Operational clarity
+only — no gate behavior change vs Phase 3.
+
+Evidence: Phase 0 decision #5 (stop dual-workflow lockstep); operator
+direction for Phase 4 cleanup + concise README.
+
 ## 2026-07-24 — architecture Phase 3: factory scope gate (minimal)
 
 Files: `scripts/cursor-sdk/src/scope-gate.ts`,

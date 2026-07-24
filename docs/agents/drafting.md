@@ -1,16 +1,12 @@
 # Drafting Guides locally
 
-> **Superseded (mcp-setup-docs):** This guide came from the original
-> `mcp-catalog` repo and is kept as historical reference only. The design
-> it was the starting point for now exists: the `/draft-guide` skill and
-> `scripts/draft-guide-workflow.js` pipeline, with roles split across
+> **Superseded (mcp-setup-docs):** Historical single-agent drafting notes from
+> the original `mcp-catalog` repo. The live pipeline is
+> `scripts/cursor-sdk/` (`mise run draft-guide` / factory), with roles in
 > `shared.md`, `technical-research.md`, `writer.md`, `fidelity.md`, and
-> `review.md` in this directory. Its single-agent loop (one agent writes
-> `setup.md` directly) no longer applies — research facts now land in a
-> Research Dossier first, and `setup.md` is rendered from it for a persona
-> (`docs/personas/`). The content bar, `setup.md` grammar, and hard rules
-> below were carried into those role docs; if this file and a role doc
-> disagree, the role doc wins.
+> `review.md`. Research facts land in a Research Dossier first; `setup.md`
+> is rendered from it for a persona (`docs/personas/`). If this file and a
+> role doc disagree, the role doc wins.
 
 A draft is one `guides/<slug>/` directory — `meta.yaml` plus `setup.md` —
 authored from the provider's public documentation, fully locally. Screenshots

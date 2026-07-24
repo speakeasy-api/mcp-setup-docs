@@ -92,13 +92,14 @@ A non-factory open PR that already `Closes #<issue>` (collaborator-authored) blo
 
 ```bash
 export CURSOR_API_KEY=cursor_...
-cd scripts/cursor-sdk && npm install
-npm run draft-guide -- asana --overwrite --notes "drop secret-reset recovery branch"
+mise run draft-guide -- asana --overwrite --notes "drop secret-reset recovery branch"
 # Match factory: pause before draft when material OQs lack Decision N replies
-npm run draft-guide -- x --overwrite --pause-on-scope
+mise run draft-guide -- x --overwrite --pause-on-scope
 ```
 
-Factory adds issue distill, labels, PR open/update, Scope check / Pipeline review comments around that same CLI.
+Or `cd scripts/cursor-sdk && npm install && npm run draft-guide -- …`. Factory
+adds issue distill, labels, PR open/update, and Scope check / Pipeline review
+comments around that same CLI.
 
 ## Troubleshooting
 
@@ -111,6 +112,7 @@ Factory adds issue distill, labels, PR open/update, Scope check / Pipeline revie
 
 ## Related
 
-- [`docs/agents/guide-factory.md`](docs/agents/guide-factory.md) — step-by-step Action internals  
+- [`README.md`](README.md) — short how-to (issue flow + local CLI)  
+- [`docs/agents/guide-factory.md`](docs/agents/guide-factory.md) — Action internals  
 - [`docs/agents/constitution.md`](docs/agents/constitution.md) — agents never commit (I7); the Action does  
 - [`retro/notes/`](retro/notes/) — human signal for `/tune-pipeline` after factory runs
