@@ -2,7 +2,7 @@
 
 Every agent in the drafting pipeline reads this file plus `CONTEXT.md` (the
 vocabulary) before its own role doc. The pipeline is orchestrated by
-`scripts/draft-guide-workflow.js`, invoked via the `/draft-guide` skill.
+`scripts/cursor-sdk/` (`mise run draft-guide` / factory Action).
 
 ## The pipeline
 
@@ -14,6 +14,10 @@ One Guide (`guides/<slug>/`) moves through four roles:
 | Writer | `writer.md` | `guides/<slug>/setup.md` | Research Dossier, Metadata, persona file |
 | Fidelity | `fidelity.md` | nothing (report only) | all three guide files |
 | Editorial | `review.md` | nothing (report only) | all three guide files, persona file |
+
+After research, the factory may pause on material open questions (scope
+gate) before Writer runs. Review rounds also run a deterministic lint
+pass (`dimension: lint`) for setup.md grammar and `meta.yaml` schema.
 
 Revision agents (spawned between review rounds) may touch all three guide
 files, following the Technical Research and Writer role docs for whichever

@@ -397,4 +397,3 @@ their own `dimension`, `model`, role-doc reading list, and digests.)
 - Caching revision by input digest
 - Hashing live upstream HTTP sources so research itself can be skipped
   (research always runs by design)
-- Claude harness (`scripts/draft-guide-workflow.js`) skip wiring (Cursor SDK only)
