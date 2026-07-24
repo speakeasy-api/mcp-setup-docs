@@ -39,105 +39,105 @@ remotes:
         locator: https://github.com/github/github-mcp-server
         name: GitHub MCP Server
         classification: official
-        observed_at: "2026-07-23T23:17:09Z"
+        observed_at: "2026-07-24T23:32:15Z"
       - source: provider-documentation
         locator: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
         name: Remote GitHub MCP Server
         classification: official
-        observed_at: "2026-07-23T23:17:09Z"
+        observed_at: "2026-07-24T23:32:15Z"
       - source: provider-documentation
         locator: https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md
         name: GitHub Remote MCP Integration Guide for MCP Host Authors
         classification: official
-        observed_at: "2026-07-23T23:17:09Z"
+        observed_at: "2026-07-24T23:32:15Z"
       - source: endpoint-observation
         locator: https://api.githubcopilot.com/mcp/
         classification: official
-        observed_at: "2026-07-23T23:17:09Z"
+        observed_at: "2026-07-24T23:32:15Z"
       - source: endpoint-observation
         locator: https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/
         classification: official
-        observed_at: "2026-07-23T23:17:09Z"
+        observed_at: "2026-07-24T23:32:15Z"
 provenance:
   - source: provider-repository
     locator: https://github.com/github/github-mcp-server
     name: GitHub MCP Server
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
     name: Remote GitHub MCP Server
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md
     name: GitHub Remote MCP Integration Guide for MCP Host Authors
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://github.com/github/github-mcp-server/blob/main/docs/scope-filtering.md
     name: Scope Filtering
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://github.com/github/github-mcp-server/blob/main/docs/policies-and-governance.md
     name: Policies & Governance for the GitHub MCP Server
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://github.com/github/github-mcp-server/blob/main/docs/installation-guides/README.md
     name: GitHub MCP Server Installation Guides
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app
     name: Creating an OAuth app
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://docs.github.com/en/account-and-profile/how-tos/organization-membership/requesting-organization-approval-for-oauth-apps
     name: Requesting organization approval for OAuth apps
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/approving-oauth-apps-for-your-organization
     name: Approving OAuth apps for your organization
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://docs.github.com/en/apps/oauth-apps/using-oauth-apps/authorizing-oauth-apps
     name: Authorizing OAuth apps
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api?apiVersion=2026-03-10
     name: Authenticating to the REST API
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/set-up-the-github-mcp-server
     name: Setting up the GitHub MCP Server
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: provider-documentation
     locator: https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/enterprise-configuration
     name: Configuring the GitHub MCP Server for GitHub Enterprise
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: endpoint-observation
     locator: https://api.githubcopilot.com/mcp/
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: endpoint-observation
     locator: https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: endpoint-observation
     locator: https://github.com/login/oauth/.well-known/oauth-authorization-server
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-23T23:17:09Z"
+    observed_at: "2026-07-24T23:32:15Z"

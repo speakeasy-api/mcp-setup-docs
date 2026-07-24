@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: github
-researched_at: "2026-07-23T23:17:09Z"
+researched_at: "2026-07-24T23:32:15Z"
 ---
 
 # GitHub — Research Dossier
@@ -54,6 +54,10 @@ walkthrough.
   GitHub Enterprise Server does not support the hosted remote deployment.
   The standard URL in this guide is for GitHub.com; GitHub Enterprise Cloud
   with data residency uses a tenant-specific URL and is outside this guide.
+- **Local alternative:** GitHub also publishes the public Docker image
+  `ghcr.io/github/github-mcp-server` for a local deployment. The local
+  deployment is a separate setup path and is outside this hosted-server
+  Guide.
 - **Organization gates:** an organization may restrict OAuth app access.
   For a third-party host using an OAuth app, an organization owner must grant
   the app access before it can access restricted organization data. A request
@@ -163,7 +167,7 @@ is **New OAuth App** (or **Register a new application** when no app exists) >
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-07-23T23:17:09Z`.
+`2026-07-24T23:32:15Z`.
 
 Per-guide values:
 
@@ -276,80 +280,80 @@ Source inventory from the sweep:
 Sources drawn from:
 
 - `https://github.com/github/github-mcp-server` ("GitHub MCP Server") —
-  observed `2026-07-23T23:17:09Z`. Backs official ownership, hosted and local
+  observed `2026-07-24T23:32:15Z`. Backs official ownership, hosted and local
   deployment choices, remote prerequisites, OAuth and PAT support, and the
   requirement for a host-registered GitHub App or OAuth app.
 - `https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md`
-  ("Remote GitHub MCP Server") — observed `2026-07-23T23:17:09Z`. Backs the
+  ("Remote GitHub MCP Server") — observed `2026-07-24T23:32:15Z`. Backs the
   default hosted URL, HTTP remote configuration, default endpoint, and
   optional read-only/toolset variants. No tool inventory is carried into
   this Guide.
 - `https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md`
   ("GitHub Remote MCP Integration Guide for MCP Host Authors") — observed
-  `2026-07-23T23:17:09Z`. Backs required bearer authentication, preferred
+  `2026-07-24T23:32:15Z`. Backs required bearer authentication, preferred
   OAuth flow, PAT alternative, no dynamic client registration, OAuth App or
   GitHub App registration, client-secret requirement, organization access
   restrictions, and `WWW-Authenticate`-driven endpoint discovery.
 - `https://github.com/github/github-mcp-server/blob/main/docs/scope-filtering.md`
-  ("Scope Filtering") — observed `2026-07-23T23:17:09Z`. Backs on-demand
+  ("Scope Filtering") — observed `2026-07-24T23:32:15Z`. Backs on-demand
   OAuth scope challenges and the distinction from PAT scope handling.
 - `https://github.com/github/github-mcp-server/blob/main/docs/policies-and-governance.md`
   ("Policies & Governance for the GitHub MCP Server") — observed
-  `2026-07-23T23:17:09Z`. Backs GitHub Enterprise Cloud availability,
+  `2026-07-24T23:32:15Z`. Backs GitHub Enterprise Cloud availability,
   GitHub Enterprise Server exclusion, OAuth app restrictions, SSO overlay,
   third-party host governance, native permission boundaries, and PAT policy
   behavior.
 - `https://github.com/github/github-mcp-server/blob/main/docs/installation-guides/README.md`
   ("GitHub MCP Server Installation Guides") — observed
-  `2026-07-23T23:17:09Z`. Corroborates the hosted URL, OAuth/PAT host support,
+  `2026-07-24T23:32:15Z`. Corroborates the hosted URL, OAuth/PAT host support,
   official Docker image, and the requirement that OAuth-capable hosts
   register an app.
 - `https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app`
-  ("Creating an OAuth app") — observed `2026-07-23T23:17:09Z`. Backs personal
+  ("Creating an OAuth app") — observed `2026-07-24T23:32:15Z`. Backs personal
   or organization ownership, administrative access, the GitHub navigation
   path, **New OAuth App** alternate label, exact registration fields,
   one-callback limit, public-information warning, and **Register
   application**.
 - `https://docs.github.com/en/account-and-profile/how-tos/organization-membership/requesting-organization-approval-for-oauth-apps`
   ("Requesting organization approval for OAuth apps") — observed
-  `2026-07-23T23:17:09Z`. Backs the requirement to authorize an OAuth app for
+  `2026-07-24T23:32:15Z`. Backs the requirement to authorize an OAuth app for
   a personal account before requesting organization approval, plus the
   **Integrations** sidebar section, **Applications**, the **Authorized OAuth
   Apps** tab, **Request access**, and **Request approval from owners**.
 - `https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/approving-oauth-apps-for-your-organization`
   ("Approving OAuth apps for your organization") — observed
-  `2026-07-23T23:17:09Z`. Backs the organization-owner role, organization
+  `2026-07-24T23:32:15Z`. Backs the organization-owner role, organization
   **Settings** tab under the organization name, **Third-party Access** >
   **OAuth app policy**, **Review**, and **Grant access**.
 - `https://docs.github.com/en/apps/oauth-apps/using-oauth-apps/authorizing-oauth-apps`
-  ("Authorizing OAuth apps") — observed `2026-07-23T23:17:09Z`. Backs the
+  ("Authorizing OAuth apps") — observed `2026-07-24T23:32:15Z`. Backs the
   authorization-time organization restriction, personal authorization,
   organization approval request, and active SAML-session requirement.
 - `https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api?apiVersion=2026-03-10`
-  ("Authenticating to the REST API") — observed `2026-07-23T23:17:09Z`.
+  ("Authenticating to the REST API") — observed `2026-07-24T23:32:15Z`.
   Backs the organization-owned app navigation path, **Client ID**,
   **Client secrets**, **Generate a new client secret**, secure credential
   role, and GitHub's fine-grained-PAT recommendation.
 - `https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/set-up-the-github-mcp-server`
   ("Setting up the GitHub MCP Server") — observed
-  `2026-07-23T23:17:09Z`. Corroborates the hosted URL, default OAuth option,
+  `2026-07-24T23:32:15Z`. Corroborates the hosted URL, default OAuth option,
   PAT alternative, authorization header form, and organization policy
   boundaries.
 - `https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/enterprise-configuration`
   ("Configuring the GitHub MCP Server for GitHub Enterprise") — observed
-  `2026-07-23T23:17:09Z`. Backs the tenant-specific remote URL for GitHub
+  `2026-07-24T23:32:15Z`. Backs the tenant-specific remote URL for GitHub
   Enterprise Cloud with data residency and its separation from the standard
   URL documented here.
 - `https://api.githubcopilot.com/mcp/` — unauthenticated endpoint observation
-  at `2026-07-23T23:17:09Z`. Returned HTTP 401 with a Bearer challenge naming
+  at `2026-07-24T23:32:15Z`. Returned HTTP 401 with a Bearer challenge naming
   the protected-resource metadata URL.
 - `https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/`
-  — observed `2026-07-23T23:17:09Z`. Backs the exact MCP resource,
+  — observed `2026-07-24T23:32:15Z`. Backs the exact MCP resource,
   authorization-server locator, supported scopes, header bearer method, and
   resource name.
 - `https://github.com/login/oauth/.well-known/oauth-authorization-server` —
-  observed `2026-07-23T23:17:09Z`. Returned HTTP 404; backs the discovery
+  observed `2026-07-24T23:32:15Z`. Returned HTTP 404; backs the discovery
   caveat and open question.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-23T23:17:09Z`. Backs the
+- `doctrine/speakeasy-setup.md` — observed `2026-07-24T23:32:15Z`. Backs the
   transcluded Speakeasy-side flow, fixed anchors, exact product labels,
   callback-template behavior, and closing-pointer form.
