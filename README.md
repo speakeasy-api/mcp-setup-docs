@@ -48,4 +48,5 @@ Lint without drafting: `mise run lint-guide -- box`.
 - [`doctrine/`](doctrine/) — pipeline doctrine (start with [`shared.md`](doctrine/shared.md))
 - [`doctrine/personas/`](doctrine/personas/) — audience voice
 - [`doctrine/glossary.md`](doctrine/glossary.md) — vocabulary
+- [`proposals/browser-verification.md`](proposals/browser-verification.md) — planned browser verify + tear-down phase (counsel consensus)
 - `/tune-pipeline` — retro signal → doctrine proposals (Claude Code skill)
