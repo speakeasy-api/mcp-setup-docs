@@ -3,195 +3,215 @@
   "slug": "asana",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-24T23:36:32Z",
+  "updated_at": "2026-07-27T16:57:14Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:1589887210ee5bc6e8d955d9ea422e4887d9a99b6df95e8c659fed630917e339",
+      "input_digest": "sha256:5bba7106437faeb8c217d75066478c062a3fdf37b76c74e2224c9f2de6e884e5",
       "inputs": {
         "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
+        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
-            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
           },
           {
             "path": "doctrine/shared.md",
-            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
           },
           {
             "path": "doctrine/roles/technical-research.md",
-            "digest": "sha256:3099f1e653aeadefa5a23507f1a784dbe3d86a6da02839b7a2c59f4e35d290af"
+            "digest": "sha256:3960aa5d3ad30f9ed0d9e8bd1cc93b6c0dad5c412ef9ab536ec1a75ea6f1bee1"
           },
           {
             "path": "doctrine/speakeasy-setup.md",
-            "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
+            "digest": "sha256:3d50512ece3583a0bd9570512e215ea10377ac47f6bb9cfa35931080a7818d57"
           }
         ],
         "artifacts": [],
         "params": {
           "provider": "asana",
-          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch."
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency or error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch. Open research gaps (account permission gating developer app creation; documented protected-resource metadata URL vs live MCP challenge URL): omit detail or keep existing hedges unless verified—no console capture required.\n\nSpeakeasy MCP Catalog: skipped"
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:553ee496e3ca1b6301f5431d063fd514dac3c0c249b2c6c34fd7fb9a59d3c901"
+          "digest": "sha256:88ad8013adf3d2f88ccac0e58f8adf3320d342b8a733a5b0ecb2e49b3c1f73b7"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:64aaa50fd9c6006ff4f9ab5dd0a673889b7eacaa212e3321119405fdbeeb8156"
+          "digest": "sha256:85245b4a1a0f21af0ccda08405f50f33a033ea516e2c8093465e2d9dee948198"
         }
       ],
-      "completed_at": "2026-07-24T23:36:32Z"
+      "completed_at": "2026-07-27T16:57:14Z"
     },
     "draft": {
-      "input_digest": "sha256:3c42f5af0d761aa85eaffbf64aab15696aad6711c27016c9cbd4c2b29c6e567c",
+      "input_digest": "sha256:13786590ad8c3b03603cae06fdfe8058a3f90cd198a37b50342a635104d8ab3d",
       "inputs": {
         "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
+        "prompt_digest": "sha256:a956869fa21cc7f91fff9450fe09c86dc2014cb5f058691e03d07eb0b3acce3f",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
-            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
           },
           {
             "path": "doctrine/shared.md",
-            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
           },
           {
             "path": "doctrine/roles/writer.md",
-            "digest": "sha256:621ba29cfe06a63471077c490c077c72b6edd7f36741e778b33300c111f5c9ce"
+            "digest": "sha256:535e7d39f6f4e745321bd1a6bfdab4c9d6ac5ae46eaf079a4c20c377acab0b2a"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:553ee496e3ca1b6301f5431d063fd514dac3c0c249b2c6c34fd7fb9a59d3c901"
+            "digest": "sha256:88ad8013adf3d2f88ccac0e58f8adf3320d342b8a733a5b0ecb2e49b3c1f73b7"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:64aaa50fd9c6006ff4f9ab5dd0a673889b7eacaa212e3321119405fdbeeb8156"
+            "digest": "sha256:85245b4a1a0f21af0ccda08405f50f33a033ea516e2c8093465e2d9dee948198"
           }
         ],
         "params": {
           "provider": "asana",
-          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch.",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency or error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch. Open research gaps (account permission gating developer app creation; documented protected-resource metadata URL vs live MCP challenge URL): omit detail or keep existing hedges unless verified—no console capture required.\n\nSpeakeasy MCP Catalog: skipped",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
-          "path": "setup.md",
-          "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
+          "path": "external.md",
+          "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
         }
       ],
-      "completed_at": "2026-07-24T23:36:32Z"
+      "completed_at": "2026-07-27T16:57:14Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:f07652ca15210dc3d2a4e3d2fa55841a2f9cef04c4aec1849020f4e034496fc8",
+      "input_digest": "sha256:c46e3baa70433bfc2022b6c13993544130a8e8de50119c610d3043176fa9e8d5",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
-            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
           },
           {
             "path": "doctrine/shared.md",
-            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
           },
           {
             "path": "doctrine/roles/fidelity.md",
-            "digest": "sha256:fe73d724c57713002ee0030655222908eb77e409dc8c16aa0abfb5994de9d3b3"
+            "digest": "sha256:070f59d37c1dc5d82048883f44fe9382ed6ef29f16c33ab848e3b2d9392574d6"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:553ee496e3ca1b6301f5431d063fd514dac3c0c249b2c6c34fd7fb9a59d3c901"
+            "digest": "sha256:88ad8013adf3d2f88ccac0e58f8adf3320d342b8a733a5b0ecb2e49b3c1f73b7"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:64aaa50fd9c6006ff4f9ab5dd0a673889b7eacaa212e3321119405fdbeeb8156"
+            "digest": "sha256:85245b4a1a0f21af0ccda08405f50f33a033ea516e2c8093465e2d9dee948198"
           },
           {
-            "path": "setup.md",
-            "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
+            "path": "external.md",
+            "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
           }
         ],
         "params": {
           "provider": "asana",
-          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch.",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency or error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch. Open research gaps (account permission gating developer app creation; documented protected-resource metadata URL vs live MCP challenge URL): omit detail or keep existing hedges unless verified—no console capture required.\n\nSpeakeasy MCP Catalog: skipped",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
       },
       "outputs": [
         {
-          "path": "setup.md",
-          "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
+          "path": "external.md",
+          "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
         }
       ],
-      "completed_at": "2026-07-24T23:36:32Z"
+      "completed_at": "2026-07-27T16:57:14Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:77f07821a6cb0c1150924e3c67d5098a5d6fc8b93669fd9ff8054fe86feebab4",
+      "input_digest": "sha256:8449421b112f239ae71f7d514b26547bcb99bbd7086f8e3d961b9e4efa1c4aed",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
-            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
           },
           {
             "path": "doctrine/shared.md",
-            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
           },
           {
             "path": "doctrine/roles/review.md",
-            "digest": "sha256:42f6b2d4408952b17dced886cac3049689d7ba06e1c16085d97fd11e48d38162"
+            "digest": "sha256:2b145febb78989edbf7ac617395ffb03e8852fabe13135662534b0b7f53e91cd"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:553ee496e3ca1b6301f5431d063fd514dac3c0c249b2c6c34fd7fb9a59d3c901"
+            "digest": "sha256:88ad8013adf3d2f88ccac0e58f8adf3320d342b8a733a5b0ecb2e49b3c1f73b7"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:64aaa50fd9c6006ff4f9ab5dd0a673889b7eacaa212e3321119405fdbeeb8156"
+            "digest": "sha256:85245b4a1a0f21af0ccda08405f50f33a033ea516e2c8093465e2d9dee948198"
           },
           {
-            "path": "setup.md",
-            "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
+            "path": "external.md",
+            "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
           }
         ],
         "params": {
           "provider": "asana",
-          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency/error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch.",
+          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency or error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch. Open research gaps (account permission gating developer app creation; documented protected-resource metadata URL vs live MCP challenge URL): omit detail or keep existing hedges unless verified—no console capture required.\n\nSpeakeasy MCP Catalog: skipped",
           "persona": "it-admin",
           "dimension": "achievability"
         }
       },
       "outputs": [
         {
-          "path": "setup.md",
-          "digest": "sha256:ed80b17e015b45a3bc642e88a0d34daec927ebba176d6309e9505b61b9a75bd1"
+          "path": "external.md",
+          "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
         }
       ],
-      "completed_at": "2026-07-24T23:36:32Z"
+      "completed_at": "2026-07-27T16:57:14Z"
     }
   }
 }

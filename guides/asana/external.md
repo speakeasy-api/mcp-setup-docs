@@ -4,7 +4,7 @@ setup_version: 1
 
 # Set up Asana
 
-Sign in to Asana at `https://app.asana.com`. Before you begin, make sure you have:
+Sign in to Asana. Before you begin, make sure you have:
 
 - An Asana account with access to the developer console.
 - Membership in every Asana workspace you plan to select under **Specific workspaces**.
@@ -13,7 +13,12 @@ Sign in to Asana at `https://app.asana.com`. Before you begin, make sure you hav
 
 ### Open the developer console {#open-developer-console}
 
-Open `https://app.asana.com/0/my-apps`. This opens the developer console, where you create the app.
+1. Select your profile photo in the top-right corner.
+2. Select **Settings**.
+3. Select **Apps**.
+4. Select **View developer console**.
+
+This opens the developer console, where you create the app. You can also open it directly at `https://app.asana.com/0/my-apps`.
 
 <!-- screenshot: the Asana Apps settings page with View developer console visible, followed by the developer console with Create new app visible -->
 
@@ -32,7 +37,7 @@ Open `https://app.asana.com/0/my-apps`. This opens the developer console, where 
 
 1. Select **OAuth** in the left sidebar.
 2. Under **Redirect URLs**, select **+ Add redirect URL**.
-3. In **Add redirect URL**, enter `{{ gram.oauth.callback_url }}`.
+3. In **Add redirect URL**, enter `{{ gram.oauth.callback_url }}` in **Redirect URL**.
 4. Select **Add**.
 
 <!-- screenshot: the app's OAuth page with the Redirect URL setting visible and credential values excluded or redacted -->
@@ -65,5 +70,7 @@ If authorization says the app is explicitly blocked, an organization super admin
 6. Select **Connected apps**.
 7. Select the associated MCP client app.
 8. Select **Unblock**.
+
+<!-- screenshot: Connected apps with the selected app's Unblock control; exclude user activity and unrelated apps -->
 
 <!-- screenshot: Manage distribution with Distribution method and both choices visible; for Specific workspaces, also show the selected workspace list without exposing unrelated organization data -->
