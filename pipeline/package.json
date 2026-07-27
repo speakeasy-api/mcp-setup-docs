@@ -9,7 +9,9 @@
     "draft-guide": "tsx src/cli.ts",
     "lint-guide": "tsx src/lint-guide-cli.ts",
     "resolve-issue": "tsx src/resolve-issue.ts",
-    "typecheck": "tsc --noEmit"
+    "factory": "tsx src/factory/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test \"src/**/*.test.ts\""
   },
   "dependencies": {
     "@cursor/sdk": "^1.0.24",
