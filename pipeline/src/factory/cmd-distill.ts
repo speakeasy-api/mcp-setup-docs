@@ -1,10 +1,10 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { spawnSync } from 'node:child_process'
 import { issueNumber, ghRepo, runnerTemp, repoRoot } from './env.ts'
 import { ghSoft } from './gh.ts'
 import { setOutput, setMultilineOutput } from './github-output.ts'
 import { writeFailureReason } from './failure-reason.ts'
+import { runPipelineScript } from './run-pipeline.ts'
 
 type ResolvedOk = {
   status: 'ok'
@@ -32,6 +32,7 @@ export function runDistill(): void {
   const repo = ghRepo()
   let body = process.env.ISSUE_BODY || ''
 
+  console.error(`factory: distill — folding issue #${n} comments into body`)
   const commentsRes = ghSoft([
     'api',
     `repos/${repo}/issues/${n}/comments`,
@@ -45,21 +46,18 @@ export function runDistill(): void {
     writeFileSync(bodyFile, combined)
     body = combined
     process.env.ISSUE_BODY = combined
+    console.error('factory: distill — included issue comment thread')
+  } else {
+    console.error('factory: distill — no issue comments (body only)')
   }
 
   const outPath = join(runnerTemp(), 'resolved.json')
   const root = repoRoot()
-  const r = spawnSync(
-    'npm',
-    ['run', 'resolve-issue', '--', '--output', outPath, '--repo-root', root],
-    {
-      encoding: 'utf8',
-      env: { ...process.env, ISSUE_BODY: body },
-      cwd: join(root, 'pipeline'),
-      stdio: ['ignore', 'inherit', 'inherit'],
-    },
+  const code = runPipelineScript(
+    'src/resolve-issue.ts',
+    ['--output', outPath, '--repo-root', root],
+    { env: { ...process.env, ISSUE_BODY: body } },
   )
-  const code = r.status ?? 1
 
   if (!existsSync(outPath)) {
     writeFailureReason(`resolve-issue produced no resolved.json (exit ${code})`)
@@ -70,6 +68,9 @@ export function runDistill(): void {
 
   if (resolved.status === 'ok') {
     const ok = resolved as ResolvedOk
+    console.error(
+      `factory: distill ok — slug=${ok.slug} provider=${ok.provider} persona=${ok.persona ?? 'it-admin'}`,
+    )
     setOutput('slug', ok.slug)
     setOutput('provider', ok.provider)
     setOutput('persona', ok.persona ?? 'it-admin')

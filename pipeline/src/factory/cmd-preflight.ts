@@ -11,6 +11,7 @@ import {
 export function runPreflight(): void {
   const n = issueNumber()
   const repo = ghRepo()
+  console.error(`factory: preflight for issue #${n} in ${repo}`)
 
   const list = gh([
     'pr',
@@ -29,6 +30,7 @@ export function runPreflight(): void {
     prs = []
   }
   const matching = filterClosingPrs(prs, n)
+  console.error(`factory: preflight — ${matching.length} open PR(s) closing #${n}`)
 
   const isCollaborator = (login: string): boolean => {
     const r = ghSoft(['api', `repos/${repo}/collaborators/${login}`, '--silent'])
@@ -61,7 +63,11 @@ export function runPreflight(): void {
     committerDate,
   })
 
-  if (result.log) console.log(result.log)
+  if (result.log) console.error(result.log)
+  console.error(
+    `factory: preflight → resume=${result.resume} refused=${result.refused}` +
+      (result.resume_branch ? ` branch=${result.resume_branch}` : ''),
+  )
 
   setOutput('refused', String(result.refused))
   setOutput('refused_pr_url', result.refused_pr_url)
