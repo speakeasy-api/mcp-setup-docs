@@ -4,8 +4,6 @@ setup_version: 1
 
 # HubSpot
 
-## Prerequisites
-
 You need a HubSpot account and a sign-in that can open the
 **Development** workspace from the main navigation bar — that workspace
 is where **MCP auth apps** are created and managed. If **Development** is
@@ -26,8 +24,6 @@ available to all HubSpot accounts.
 One thing to plan for beyond the steps below: see
 [Admin connects first](#admin-connects-first) before rolling this out
 to your users.
-
-## Provider setup
 
 When people connect from the Speakeasy AI Control Plane, each user
 signs in with their own HubSpot account and approves access. To allow

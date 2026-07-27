@@ -6,11 +6,12 @@ name: Semi-technical IT administrator
 
 # Semi-technical IT administrator
 
-The reader a Setup Guide is voiced for. The Writer renders `setup.md` for
-this person (voice, formatting, and concision are the Writer's self-check);
-Fidelity and Achievability reviewers gate the draft against this file. If a
-rule here conflicts with a fact in the Research Dossier, the fact wins —
-voice shapes the prose around facts, never the facts.
+The reader a Setup Guide is voiced for. The Writer renders `external.md`
+and `speakeasy.md` for this person (voice, formatting, and concision are
+the Writer's self-check); Fidelity and Achievability reviewers gate the
+draft against this file. If a rule here conflicts with a fact in the
+Research Dossier, the fact wins — voice shapes the prose around facts,
+never the facts.
 
 ## Who they are
 

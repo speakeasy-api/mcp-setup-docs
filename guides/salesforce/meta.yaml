@@ -12,13 +12,14 @@ credential_setup:
         - id: client-id
           label: Client ID
           setup:
-            - setup.md#configure-oauth-settings
-            - setup.md#copy-consumer-key
+            - external.md#configure-oauth-settings
+            - external.md#copy-consumer-key
   requirements:
     - id: salesforce-admin
       description: Salesforce System Administrator access to an API-enabled org where Hosted MCP Servers are available, with authority to create an External Client App and enable servers
 documentation:
-  setup: setup.md
+  external: external.md
+  speakeasy: speakeasy.md
 remotes:
   - id: sobject-reads-production
     url: https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads

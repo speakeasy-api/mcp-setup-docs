@@ -12,7 +12,8 @@ credential_setup:
     - id: supported-intercom-workspace
       description: An Intercom workspace hosted in the US or EU and an account authorized to access the intended workspace data
 documentation:
-  setup: setup.md
+  external: external.md
+  speakeasy: speakeasy.md
 remotes:
   - id: us
     url: https://mcp.intercom.com/mcp

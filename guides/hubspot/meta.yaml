@@ -12,18 +12,19 @@ credential_setup:
         - id: client-id
           label: Client ID
           setup:
-            - setup.md#create-mcp-auth-app
-            - setup.md#copy-client-credentials
+            - external.md#create-mcp-auth-app
+            - external.md#copy-client-credentials
         - id: client-secret
           label: Client secret
           setup:
-            - setup.md#create-mcp-auth-app
-            - setup.md#copy-client-credentials
+            - external.md#create-mcp-auth-app
+            - external.md#copy-client-credentials
   requirements:
     - id: hubspot-account
       description: HubSpot account whose user can open the Development workspace from the main navigation bar to create and manage MCP auth apps
 documentation:
-  setup: setup.md
+  external: external.md
+  speakeasy: speakeasy.md
 remotes:
   - id: primary
     url: https://mcp.hubspot.com

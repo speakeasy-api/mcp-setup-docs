@@ -4,8 +4,6 @@ setup_version: 1
 
 # Google Compute Engine
 
-## Prerequisites
-
 A Google Cloud project with billing enabled, and a sign-in on that project
 that can enable APIs, grant IAM roles, and configure the Google Auth
 platform — project **Owner** covers all three. Everything in Provider setup
@@ -22,8 +20,6 @@ is ordinary Compute Engine activity billed to this project; a VM created
 without explicit choices defaults to an `e2-medium` machine running
 Debian 12. Google might process the server's tool calls in any region,
 regardless of where your project's resources live.
-
-## Provider setup
 
 You will enable the Compute Engine API, grant roles to each connecting
 user, configure the consent screen, and create one OAuth client. That
@@ -137,7 +133,7 @@ Testing app at 100 test users. If your organization has more connecting
 users than that, confirm the connection with a smaller group first, then
 publish the app to cover everyone else. Once a user has signed in
 successfully from the Speakeasy AI Control Plane (see
-[Connect your credentials](#connect-speakeasy-credentials)), return to
+[Connect your credentials](speakeasy.md#connect-speakeasy-credentials)), return to
 the **Audience** page and click **Publish app** so connections persist.
 Google notes that your app's configuration may be subject to
 verification before it can request certain scopes, so publishing may
@@ -183,57 +179,4 @@ open the client from the **Clients** list, delete the secret, and
 create a new one.
 
 Both values go into the Speakeasy AI Control Plane in
-[Connect your credentials](#connect-speakeasy-credentials).
-
-## Speakeasy setup
-
-### Add the server in Speakeasy {#add-server-in-speakeasy}
-
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
-
-- If Google Compute Engine is in the catalog: choose **3rd-party
-  server**. On the **MCP Catalog** page, search for `Compute Engine`
-  (the search box reads **Search MCP servers...**), open the entry with
-  **View**, and click **Add**. In the **Add to Project** dialog, click
-  **Add to Project**.
-- If it is not: choose **Custom remote server**. On the **Add a custom
-  remote MCP server** page, paste `https://compute.googleapis.com/mcp`
-  into **Remote MCP server URL** and click **Add server**.
-
-Either path creates the hosted MCP server and opens its **Overview**
-page.
-
-<!-- screenshot: the Add Source menu open on the Sources page, or the Google Compute Engine catalog entry -->
-
-### Connect your credentials {#connect-speakeasy-credentials}
-
-1. From the server's **Overview** page, open **Settings**.
-2. Under **Authentication**, click **Configure Manually**. If
-   **Use Discovered** is offered, choose **Configure Manually** anyway —
-   manual configuration matches the client you created in
-   [Create the OAuth client](#create-oauth-client). This opens the
-   **Attach Remote Identity Provider** sheet.
-3. Set **Client Type** to **Manual**.
-4. Confirm the **Redirect URI** the sheet shows matches the URL you
-   entered under **Authorized redirect URIs** in
-   [Create the OAuth client](#create-oauth-client).
-5. Paste the client ID from
-   [Copy the client credentials](#copy-client-credentials) into
-   **Client ID**.
-6. Paste the client secret into **Client Secret (optional)** — despite
-   the label, Google requires the secret, so treat the field as
-   required.
-7. Click **Attach Identity Provider**.
-
-<!-- screenshot: the Attach Remote Identity Provider sheet showing the Redirect URI and credential fields, values redacted -->
-
-Each user who then connects signs in with their own Google account.
-For their sign-in to succeed, they need the roles from
-[Grant IAM roles](#grant-iam-roles), and — while an External app's
-publishing status is **Testing** — a listing under **Test users** in
-[Configure the consent screen](#consent-screen).
-
-This guide covers setup only. For anything beyond it — billing, tool
-behavior, limits — see Google's Compute Engine MCP documentation at
-https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp.
+[Connect your credentials](speakeasy.md#connect-speakeasy-credentials).

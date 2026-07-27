@@ -1,6 +1,10 @@
 /**
  * Factory scope gate — classify research open questions as material
  * (pause before draft) vs soft (continue; list as FYI).
+ *
+ * Catalog-presence OQs stay soft for the Pulse lookup skip/ambiguous
+ * fallback (dual add-server conditional). When lookup resolves
+ * present/absent, research should not emit those OQs at all.
  */
 export type ScopeDecision = {
   index: number // 1-based

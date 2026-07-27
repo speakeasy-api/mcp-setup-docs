@@ -26,11 +26,15 @@ these is invalid regardless of the evidence behind it.
 - **I2 — Every fact has provenance.** A documentation locator and an
   observed date, recorded where the fact first lands.
 - **I3 — The anchor contract holds.** Anchors are minted once, in the
-  Dossier, and reused verbatim by `setup.md` and `meta.yaml`.
-- **I4 — The setup.md grammar holds.** `setup_version` frontmatter, one H1,
-  the three H2 sections in order, anchored H3 steps, the screenshot rule on
-  every provider step, `{{ gram.oauth.callback_url }}` as the only template
-  key, and `meta.yaml` validating against the schema.
+  Dossier, and reused verbatim by `external.md`, `speakeasy.md`, and
+  `meta.yaml`.
+- **I4 — The setup grammar holds.** Setup is two files: `external.md`
+  (provider-side; `setup_version` frontmatter, one H1, prerequisites folded
+  into opening prose, anchored H3 steps with the screenshot rule) and
+  `speakeasy.md` (Control Plane; H1 Speakeasy setup, fixed Speakeasy
+  anchors). `{{ gram.oauth.callback_url }}` is the only template key;
+  `meta.yaml` validates against the schema. Consumers may surface
+  `external.md` alone when Speakeasy setup is already in context.
 - **I5 — Personas define voice.** The Writer applies the named persona
   file; reviewers judge achievability against it, not personal taste.
   Voice never alters facts.
