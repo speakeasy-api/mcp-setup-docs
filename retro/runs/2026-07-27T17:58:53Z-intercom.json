@@ -1,0 +1,61 @@
+{
+  "slug": "intercom",
+  "provider": "intercom",
+  "persona": "it-admin",
+  "timestamp": "2026-07-27T17:58:53Z",
+  "started_at": "2026-07-27T17:58:53Z",
+  "finished_at": "2026-07-27T18:09:04Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Intercom documents browser-based authorization but does not publish the MCP-specific screen sequence or exact prompt labels."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Before #identify-workspace-region: “Sign in to the intended Intercom workspace in your browser.”",
+          "problem": "The reader is not given a URL for reaching the Intercom sign-in page and must already know it or search for it.",
+          "suggestion": "Research and record the official Intercom sign-in URL, then link it from this step.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Added the official Intercom sign-in URL to research.md with provenance, meta.yaml provenance, and the linked sign-in step in external.md. Guide lint passes.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Before #identify-workspace-region: “select the intended workspace's data host region”",
+          "problem": "The sign-in step requires the reader to know the workspace region before the following section teaches them how to identify it.",
+          "suggestion": "Research and document an official region-discovery or wrong-region recovery path, then add it to the sign-in step.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Documented Intercom’s official workspace-URL region check, exact sign-in region selector, and wrong-region recovery path with provenance; updated Metadata and rendered the corrected sequence in external.md.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "force: treating research as changed for skip purposes"
+  }
+}

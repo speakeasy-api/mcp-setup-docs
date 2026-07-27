@@ -2,28 +2,12 @@
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
-2. Select **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
 
-If X appears in the catalog:
+- If X is in the catalog: choose **3rd-party server**. On the **MCP Catalog** page, find X (the search box reads **Search MCP servers...**), open its entry with **View**, and click **Add**. If the **Add to Project** dialog requests headers during installation, configure its **Upstream headers** section before continuing — follow steps 3–6 under [Connect your credentials](#connect-speakeasy-credentials). In the **Add to Project** dialog, click **Add to Project**.
+- If it is not: choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste `https://api.x.com/mcp` into **Remote MCP server URL** and click **Add server**.
 
-1. Select **3rd-party server**.
-2. On the **MCP Catalog** page, enter `X` in **Search MCP servers...**.
-3. Select **View** for X.
-4. Select **Add**.
-
-If the **Add to Project** dialog requests headers during installation, configure its **Upstream headers** section before continuing. Follow steps 3–6 under [Connect your credentials](#connect-speakeasy-credentials).
-
-5. In the **Add to Project** dialog, select **Add to Project**.
-
-If X does not appear in the catalog:
-
-1. Select **Custom remote server**.
-2. On **Add a custom remote MCP server**, paste `https://api.x.com/mcp` into **Remote MCP server URL**.
-3. Confirm that the read-only **Transport** field shows `streamable-http`.
-4. Select **Add server**.
-
-Either path creates the hosted MCP Server and opens its **Overview** page.
+Either path creates the hosted MCP server and opens its **Overview** page.
 
 <!-- screenshot: the Add Source menu or the X catalog entry, without credentials -->
 

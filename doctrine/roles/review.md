@@ -65,8 +65,9 @@ or other steps the skeleton does not carry. Gaps in that file are nits
 or open questions for a human doctrine edit — never research-target
 blockers that expand the guide past the skeleton. Fidelity already fails
 drift from the skeleton; do not fight that check. When the Dossier (via
-Pulse-verified catalog presence) selected only the catalog path or only
-the custom-remote path, do not raise blockers demanding the omitted
+Pulse-verified catalog presence, a tenanted-remote override, or
+`speakeasy_add_server`) selected only the catalog path or only the
+custom-remote path, do not raise blockers demanding the omitted
 alternate. Do not raise blockers that send the reader into Speakeasy
 during External setup only to copy **Redirect URI** when
 `{{ gram.oauth.callback_url }}` is the registered value — that mid-flow

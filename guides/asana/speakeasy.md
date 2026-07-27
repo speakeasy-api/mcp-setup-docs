@@ -2,22 +2,10 @@
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
-2. Select **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
 
-If Asana is in the catalog:
-
-1. Select **3rd-party server**.
-2. On the **MCP Catalog** page, find `Asana` using **Search MCP servers...**.
-3. Select **View**.
-4. Select **Add**.
-5. In the **Add to Project** dialog, select **Add to Project**.
-
-If Asana is not in the catalog:
-
-1. Select **Custom remote server**.
-2. On **Add a custom remote MCP server**, paste `https://mcp.asana.com/v2/mcp` into **Remote MCP server URL**.
-3. Select **Add server**.
+- If Asana is in the catalog: choose **3rd-party server**. On the **MCP Catalog** page, find Asana (the search box reads **Search MCP servers...**), open its entry with **View**, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
+- If it is not: choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste `https://mcp.asana.com/v2/mcp` into **Remote MCP server URL** and click **Add server**.
 
 Either path creates the hosted MCP server and opens its **Overview** page.
 

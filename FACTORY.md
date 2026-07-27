@@ -17,7 +17,7 @@ Repo → **Settings → Secrets and variables → Actions**:
 | --- | --- | --- |
 | `CURSOR_API_KEY` | **Yes** | Cursor API key (Dashboard → Integrations / API Keys) |
 | `AGENT_PAT` | Recommended | PAT with contents + issues + pull requests write on this repo. Falls back to `GITHUB_TOKEN` (PRs still work; label chaining is less reliable). |
-| `PULSE_REGISTRY_KEY` | Recommended | PulseMCP Sub-Registry API key — resolves Speakeasy MCP Catalog presence before research. Without it, guides keep both catalog/custom add-server paths. |
+| `PULSE_REGISTRY_KEY` | Recommended | PulseMCP Sub-Registry API key — resolves Speakeasy MCP Catalog presence before research. Without it, `speakeasy_add_server: auto` guides keep both catalog/custom paths unless remotes are tenanted or the guide forces `custom-remote` / `catalog`. |
 | `PULSE_REGISTRY_TENANT` | Recommended with key | PulseMCP tenant slug (e.g. `gram-recommended`). Required together with the key for catalog lookup. |
 
 Local `mise run draft-guide` uses the same env names (`PULSE_REGISTRY_KEY`, `PULSE_REGISTRY_TENANT`, optional `PULSE_REGISTRY_URL`) — typically from gitignored `mise.local.toml`, same as `mise run pull-catalog`.
@@ -173,7 +173,10 @@ be unavailable).
    [--notes …]` (no `--force`; lock skips still apply). Before research,
    a deterministic PulseMCP tenant lookup (`PULSE_REGISTRY_KEY` +
    `PULSE_REGISTRY_TENANT`) resolves catalog presence into operator notes
-   so research drafts a single add-server path when confident. After
+   so research drafts a single add-server path when confident. Remotes
+   marked `tenanted: true`, or guide-level `speakeasy_add_server:
+   custom-remote`, always force Custom remote (non-registry), even if
+   Pulse lists the provider. After
    research, a heuristic scope gate pauses before draft when **material**
    open questions lack `Decision N:` replies in notes (soft OQs do not
    pause). When prior artifacts exist, research revises in place;
