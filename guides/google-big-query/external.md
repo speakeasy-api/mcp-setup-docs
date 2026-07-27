@@ -4,8 +4,6 @@ setup_version: 1
 
 # Set up Google BigQuery
 
-## Prerequisites
-
 You need:
 
 - A Google Cloud project and a Google Account that can administer it, configure the **Google Auth platform**, and create OAuth credentials.
@@ -16,8 +14,6 @@ You need:
 Billing is optional for initial setup.
 
 Sign in to the [Google Cloud console](https://console.cloud.google.com).
-
-## Provider setup
 
 ### Enable the BigQuery API {#enable-bigquery-api}
 
@@ -154,7 +150,7 @@ Google can request more information through the support and developer-contact em
 
 ### Create the OAuth client {#create-oauth-client}
 
-1. Follow [Add the server in Speakeasy](#add-server-in-speakeasy).
+1. Follow [Add the server in Speakeasy](speakeasy.md#add-server-in-speakeasy).
 2. On the server's **Overview**, open **Settings**.
 3. Under **Authentication**, click **Configure Manually**.
 4. If **Use Discovered** is offered instead, click **Use Discovered**.
@@ -183,7 +179,7 @@ This opens **OAuth 2.0 client created**.
 3. In **Client secrets**, copy the **Client secret**.
 4. Store the **Client secret** as a password alongside the Client ID.
 
-Continue at [Connect your credentials](#connect-speakeasy-credentials).
+Continue at [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).
 
 If you lose the one-time **Client secret**:
 
@@ -197,36 +193,6 @@ If you lose the one-time **Client secret**:
 3. Copy the new secret.
 4. Store the new secret as a password.
 
-Continue with the new secret at [Connect your credentials](#connect-speakeasy-credentials).
+Continue with the new secret at [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).
 
 <!-- screenshot-exception: do not capture credential values; the dialog contains secrets and its visual state adds no safe setup information beyond the field labels -->
-
-## Speakeasy setup
-
-### Add the server in Speakeasy {#add-server-in-speakeasy}
-
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
-
-- If Google BigQuery is in the catalog: choose **3rd-party server**. On the **MCP Catalog** page, find Google BigQuery (the search box reads **Search MCP servers...**), open its entry with **View**, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
-- If it is not: choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste `https://bigquery.googleapis.com/mcp` into **Remote MCP server URL** and click **Add server**.
-
-Either path creates the hosted MCP server and opens its **Overview** page.
-
-If you came here from [Create the OAuth client](#create-oauth-client), return there and continue with the next step.
-
-<!-- screenshot: the Add Source menu open on the Sources page, or the provider's catalog entry -->
-
-### Connect your credentials {#connect-speakeasy-credentials}
-
-Google's web client requires its generated secret even though the Speakeasy AI Control Plane field is labeled **Client Secret (optional)**.
-
-If **Attach Remote Identity Provider** is not already open, repeat steps 2–5 from [Create the OAuth client](#create-oauth-client).
-
-1. Paste the **Client ID** from [Copy the client credentials](#copy-client-credentials) into **Client ID**.
-2. Paste the **Client secret** into **Client Secret (optional)**.
-3. In **Scope (override)**, enter `https://www.googleapis.com/auth/bigquery`.
-4. Click **Attach Identity Provider**.
-
-<!-- screenshot: Attach Remote Identity Provider showing Client Type: Manual, Redirect URI, credential labels, and scope configuration, with credential values redacted -->
-
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see Google's BigQuery MCP documentation at https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp.

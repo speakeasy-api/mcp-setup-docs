@@ -22,7 +22,7 @@ function usage(): never {
 }
 
 function resolveGuideDir(repoRoot: string, arg: string): string {
-  if (existsSync(join(arg, 'setup.md')) || existsSync(join(arg, 'meta.yaml'))) {
+  if (existsSync(join(arg, 'external.md')) || existsSync(join(arg, 'meta.yaml'))) {
     return resolve(arg)
   }
   const underGuides = join(repoRoot, 'guides', arg)

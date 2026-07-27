@@ -6,6 +6,60 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-27 — Pulse catalog presence resolves add-server path
+
+Files: `pipeline/src/pulse-catalog.ts`, `pipeline/src/workflow.ts`,
+`pipeline/src/scope-gate.ts`, `.github/workflows/guide-draft.yml`,
+`FACTORY.md`, `doctrine/speakeasy-setup.md`,
+`doctrine/roles/{technical-research,writer,fidelity,review}.md`.
+
+- Before research, the workflow queries the PulseMCP tenant catalog
+  (`PULSE_REGISTRY_KEY` + `PULSE_REGISTRY_TENANT`) and injects a
+  structured catalog-presence note into operator notes.
+- **present** → draft only the 3rd-party catalog add-server path;
+  **absent** → only Custom remote server; **ambiguous** / **skipped** →
+  keep both conditionals + soft OQ (unchanged fallback).
+- Canonical skeleton still carries both bullets; research selects which
+  to transclude when presence is known. Writer/fidelity/review honor the
+  selection and do not demand the omitted alternate.
+- Follow-up hardening: lock digests use a stable catalog token (no
+  per-run timestamp); only exact title/name matches yield `present`
+  (sole fuzzy hits are `ambiguous`); registry error bodies stay in logs,
+  not notes/locks; scope gate reads distill notes only.
+
+Invariants: I1–I8 unchanged (human edit to Speakeasy path-selection
+rule).
+
+Evidence: operator request to confirm catalog membership via Pulse
+tenant search and resolve the dual add-server conditional; multi-model
+review of PR #37.
+
+## 2026-07-27 — split setup into external.md + speakeasy.md
+
+Files: `schema/guide.v1.schema.json`, `pipeline/src/lint-guide.ts`,
+`pipeline/src/workflow.ts`, `pipeline/src/lock.ts`, `pipeline/src/cli.ts`,
+`doctrine/constitution.md` (I3/I4), `doctrine/shared.md`,
+`doctrine/roles/{writer,fidelity,review,technical-research}.md`,
+`doctrine/speakeasy-setup.md`, `doctrine/glossary.md`, `guides/README.md`,
+`README.md`, every `guides/*/setup.md` → `external.md` + `speakeasy.md`,
+matching `meta.yaml` refs.
+
+- Setup Guide is two files so consumers can hide Speakeasy setup when it
+  is already in context (e.g. an installed MCP server detail page).
+- Prerequisites fold into `external.md` opening prose (no Prerequisites
+  H2). Speakeasy account is assumed, not listed.
+- Schema: `documentation.external` / `documentation.speakeasy`; credential
+  `setup` refs are `external.md#…` or `speakeasy.md#…`.
+- Lint enforces the split; legacy `setup.md` is a blocker.
+- Migration: Speakeasy-ready guides split mechanically; box / hubspot /
+  zapier keep Gotchas in `external.md` and carry a stub `speakeasy.md`
+  pending re-draft through `draft-guide`.
+
+Invariants: I3/I4 updated (human edit). I1/I5–I8 unchanged.
+
+Evidence: operator request to section External vs Speakeasy for embed/
+hide; preference for split files over title-based slicing.
+
 ## 2026-07-24 — concern-first repo layout
 
 Files: `scripts/` → `pipeline/` + `tools/`; `docs/agents/` +

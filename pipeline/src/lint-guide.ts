@@ -1,6 +1,9 @@
 /**
  * Deterministic I4 grammar lint for a guide directory.
  * No LLM — used by the draft-guide review loop and a standalone CLI.
+ *
+ * Setup is split: external.md (provider-side) + speakeasy.md (Control Plane).
+ * Prerequisites fold into external.md opening prose — no separate H2.
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -15,20 +18,25 @@ const addFormats = require('ajv-formats') as typeof import('ajv-formats').defaul
 
 export type LintFinding = {
   severity: 'blocker' | 'nit'
-  target: 'setup' | 'research' | 'meta'
+  target: 'external' | 'speakeasy' | 'research' | 'meta'
   where: string
   problem: string
   suggestion: string
   dimension: 'lint'
 }
 
-const H2_ORDER = ['Prerequisites', 'Provider setup', 'Speakeasy setup'] as const
 const SPEAKEASY_ANCHORS = [
   'add-server-in-speakeasy',
   'connect-speakeasy-credentials',
 ] as const
+const FORBIDDEN_EXTERNAL_H2 = [
+  'Prerequisites',
+  'Provider setup',
+  'Speakeasy setup',
+] as const
 const ALLOWED_TEMPLATE_KEY = 'gram.oauth.callback_url'
 const ANCHOR_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/
+const SETUP_REF_RE = /(external|speakeasy)\.md#([a-z0-9-]+)/g
 
 type Heading = {
   level: number
@@ -103,17 +111,42 @@ function lineOfOffset(body: string, offset: number): number {
   return body.slice(0, offset).split(/\r?\n/).length
 }
 
-export function lintSetupMarkdown(setupMd: string): LintFinding[] {
+function lintTemplateKeys(
+  body: string,
+  target: 'external' | 'speakeasy'
+): LintFinding[] {
   const out: LintFinding[] = []
-  const { frontmatter, body } = stripFrontmatter(setupMd)
+  const keyRe = /\{\{\s*([^}]+?)\s*\}\}/g
+  let km: RegExpExecArray | null
+  while ((km = keyRe.exec(body)) !== null) {
+    const key = km[1]!.trim()
+    if (key !== ALLOWED_TEMPLATE_KEY) {
+      out.push(
+        finding({
+          severity: 'blocker',
+          target,
+          where: `line ${lineOfOffset(body, km.index)}`,
+          problem: `Unsupported template key {{ ${key} }}.`,
+          suggestion: `Only {{ ${ALLOWED_TEMPLATE_KEY} }} is allowed.`,
+        })
+      )
+    }
+  }
+  return out
+}
+
+/** Provider-side file: folded prerequisites + provider steps. */
+export function lintExternalMarkdown(externalMd: string): LintFinding[] {
+  const out: LintFinding[] = []
+  const { frontmatter, body } = stripFrontmatter(externalMd)
 
   if (frontmatter === null) {
     out.push(
       finding({
         severity: 'blocker',
-        target: 'setup',
+        target: 'external',
         where: 'frontmatter',
-        problem: 'setup.md is missing YAML frontmatter delimited by ---.',
+        problem: 'external.md is missing YAML frontmatter delimited by ---.',
         suggestion: 'Start the file with ---\\nsetup_version: 1\\n---',
       })
     )
@@ -124,9 +157,9 @@ export function lintSetupMarkdown(setupMd: string): LintFinding[] {
         out.push(
           finding({
             severity: 'blocker',
-            target: 'setup',
+            target: 'external',
             where: 'frontmatter',
-            problem: 'setup.md frontmatter must set setup_version: 1.',
+            problem: 'external.md frontmatter must set setup_version: 1.',
             suggestion: 'Use exactly: setup_version: 1',
           })
         )
@@ -135,9 +168,9 @@ export function lintSetupMarkdown(setupMd: string): LintFinding[] {
       out.push(
         finding({
           severity: 'blocker',
-          target: 'setup',
+          target: 'external',
           where: 'frontmatter',
-          problem: 'setup.md frontmatter is not valid YAML.',
+          problem: 'external.md frontmatter is not valid YAML.',
           suggestion: 'Fix the YAML between the opening and closing --- lines.',
         })
       )
@@ -150,154 +183,169 @@ export function lintSetupMarkdown(setupMd: string): LintFinding[] {
     out.push(
       finding({
         severity: 'blocker',
-        target: 'setup',
+        target: 'external',
         where: 'title',
-        problem: `setup.md must have exactly one H1; found ${h1s.length}.`,
+        problem: `external.md must have exactly one H1; found ${h1s.length}.`,
         suggestion: 'Keep a single "# …" title after the frontmatter.',
       })
     )
   }
 
-  const h2s = headings.filter((h) => h.level === 2)
-  if (h2s.length !== 3) {
-    out.push(
-      finding({
-        severity: 'blocker',
-        target: 'setup',
-        where: 'H2 sections',
-        problem: `setup.md must have exactly three H2 sections; found ${h2s.length}.`,
-        suggestion: `Use exactly: ${H2_ORDER.map((t) => '## ' + t).join(', ')}`,
-      })
-    )
-  } else {
-    for (let i = 0; i < 3; i++) {
-      if (h2s[i]!.text !== H2_ORDER[i]) {
-        out.push(
-          finding({
-            severity: 'blocker',
-            target: 'setup',
-            where: `H2 #${i + 1} (line ${h2s[i]!.line})`,
-            problem: `Expected "## ${H2_ORDER[i]}", found "## ${h2s[i]!.text}".`,
-            suggestion: `Rename to "## ${H2_ORDER[i]}" and keep the three H2s in order.`,
-          })
-        )
-      }
-    }
-  }
-
-  const providerIdx = headings.findIndex(
-    (h) => h.level === 2 && h.text === 'Provider setup'
-  )
-  const speakeasyIdx = headings.findIndex(
-    (h) => h.level === 2 && h.text === 'Speakeasy setup'
-  )
-
-  if (providerIdx !== -1) {
-    for (let i = providerIdx + 1; i < headings.length; i++) {
-      const h = headings[i]!
-      if (h.level === 2) break
-      if (h.level !== 3) continue
-      if (!h.anchor) {
-        out.push(
-          finding({
-            severity: 'blocker',
-            target: 'setup',
-            where: `line ${h.line}: ${h.text}`,
-            problem: 'Provider setup H3 is missing a {#kebab-case} anchor.',
-            suggestion:
-              'Add a Dossier-minted anchor, e.g. ### Create credentials {#create-credentials}',
-          })
-        )
-      } else if (!ANCHOR_RE.test(h.anchor)) {
-        out.push(
-          finding({
-            severity: 'blocker',
-            target: 'setup',
-            where: `#${h.anchor}`,
-            problem: 'Provider setup anchor is not kebab-case [a-z0-9-]+.',
-            suggestion: 'Use a Dossier-minted kebab-case id.',
-          })
-        )
-      }
-
-      const sec = sectionBody(body, headings, i)
-      const hasShot =
-        /<!--\s*screenshot:/i.test(sec) ||
-        /<!--\s*screenshot-exception:/i.test(sec) ||
-        /^screenshot:/im.test(sec)
-      if (!hasShot) {
-        out.push(
-          finding({
-            severity: 'blocker',
-            target: 'setup',
-            where: h.anchor ? `#${h.anchor}` : `line ${h.line}`,
-            problem:
-              'Provider setup step lacks a screenshot placeholder or screenshot-exception comment.',
-            suggestion:
-              'Add <!-- screenshot: … --> or <!-- screenshot-exception: … --> on its own line in the step.',
-          })
-        )
-      }
-    }
-  }
-
-  if (speakeasyIdx !== -1) {
-    const speakeasyH3 = []
-    for (let i = speakeasyIdx + 1; i < headings.length; i++) {
-      const h = headings[i]!
-      if (h.level === 2) break
-      if (h.level === 3) speakeasyH3.push(h)
-    }
-    const anchors = new Set(
-      speakeasyH3.map((h) => h.anchor).filter(Boolean) as string[]
-    )
-    for (const id of SPEAKEASY_ANCHORS) {
-      if (!anchors.has(id)) {
-        out.push(
-          finding({
-            severity: 'blocker',
-            target: 'setup',
-            where: `## Speakeasy setup`,
-            problem: `Missing canonical Speakeasy step {#${id}}.`,
-            suggestion: `Carry ### … {#${id}} from ${PATHS.speakeasySetup} via the Dossier.`,
-          })
-        )
-      }
-    }
-    for (const h of speakeasyH3) {
-      if (!h.anchor) {
-        out.push(
-          finding({
-            severity: 'blocker',
-            target: 'setup',
-            where: `line ${h.line}: ${h.text}`,
-            problem: 'Speakeasy setup H3 is missing its fixed {#…} anchor.',
-            suggestion: `Use the fixed anchors from ${PATHS.speakeasySetup}.`,
-          })
-        )
-      }
-    }
-  }
-
-  // Template keys: only {{ gram.oauth.callback_url }}
-  const keyRe = /\{\{\s*([^}]+?)\s*\}\}/g
-  let km: RegExpExecArray | null
-  while ((km = keyRe.exec(body)) !== null) {
-    const key = km[1]!.trim()
-    if (key !== ALLOWED_TEMPLATE_KEY) {
+  for (const h of headings.filter((x) => x.level === 2)) {
+    if (
+      (FORBIDDEN_EXTERNAL_H2 as readonly string[]).includes(h.text)
+    ) {
       out.push(
         finding({
           severity: 'blocker',
-          target: 'setup',
-          where: `line ${lineOfOffset(body, km.index)}`,
-          problem: `Unsupported template key {{ ${key} }}.`,
-          suggestion: `Only {{ ${ALLOWED_TEMPLATE_KEY} }} is allowed.`,
+          target: 'external',
+          where: `line ${h.line}: ## ${h.text}`,
+          problem: `external.md must not use "## ${h.text}" — prerequisites fold into opening prose; Speakeasy steps live in speakeasy.md.`,
+          suggestion:
+            h.text === 'Speakeasy setup'
+              ? 'Move this section into speakeasy.md.'
+              : 'Drop the H2 and keep the content as opening prose (Prerequisites) or H3 steps (Provider setup).',
         })
       )
     }
   }
 
+  // Screenshot + anchor rules apply to H3 steps until an optional ## Gotchas
+  // (legacy guides still carrying gotchas until re-draft).
+  const gotchasIdx = headings.findIndex(
+    (h) => h.level === 2 && h.text === 'Gotchas'
+  )
+  for (let i = 0; i < headings.length; i++) {
+    const h = headings[i]!
+    if (h.level !== 3) continue
+    if (gotchasIdx !== -1 && h.index >= headings[gotchasIdx]!.index) continue
+
+    if (!h.anchor) {
+      out.push(
+        finding({
+          severity: 'blocker',
+          target: 'external',
+          where: `line ${h.line}: ${h.text}`,
+          problem: 'External setup H3 is missing a {#kebab-case} anchor.',
+          suggestion:
+            'Add a Dossier-minted anchor, e.g. ### Create credentials {#create-credentials}',
+        })
+      )
+    } else if (!ANCHOR_RE.test(h.anchor)) {
+      out.push(
+        finding({
+          severity: 'blocker',
+          target: 'external',
+          where: `#${h.anchor}`,
+          problem: 'External setup anchor is not kebab-case [a-z0-9-]+.',
+          suggestion: 'Use a Dossier-minted kebab-case id.',
+        })
+      )
+    }
+
+    const sec = sectionBody(body, headings, i)
+    const hasShot =
+      /<!--\s*screenshot:/i.test(sec) ||
+      /<!--\s*screenshot-exception:/i.test(sec) ||
+      /^screenshot:/im.test(sec)
+    if (!hasShot) {
+      out.push(
+        finding({
+          severity: 'blocker',
+          target: 'external',
+          where: h.anchor ? `#${h.anchor}` : `line ${h.line}`,
+          problem:
+            'External setup step lacks a screenshot placeholder or screenshot-exception comment.',
+          suggestion:
+            'Add <!-- screenshot: … --> or <!-- screenshot-exception: … --> on its own line in the step.',
+        })
+      )
+    }
+  }
+
+  out.push(...lintTemplateKeys(body, 'external'))
   return out
+}
+
+export function lintSpeakeasyMarkdown(speakeasyMd: string): LintFinding[] {
+  const out: LintFinding[] = []
+  const { frontmatter, body } = stripFrontmatter(speakeasyMd)
+
+  if (frontmatter !== null) {
+    out.push(
+      finding({
+        severity: 'blocker',
+        target: 'speakeasy',
+        where: 'frontmatter',
+        problem: 'speakeasy.md must not have YAML frontmatter.',
+        suggestion:
+          'Put setup_version only on external.md; start speakeasy.md with "# Speakeasy setup".',
+      })
+    )
+  }
+
+  const headings = parseHeadings(body)
+  const h1s = headings.filter((h) => h.level === 1)
+  if (h1s.length !== 1) {
+    out.push(
+      finding({
+        severity: 'blocker',
+        target: 'speakeasy',
+        where: 'title',
+        problem: `speakeasy.md must have exactly one H1; found ${h1s.length}.`,
+        suggestion: 'Use a single "# Speakeasy setup" title.',
+      })
+    )
+  } else if (h1s[0]!.text !== 'Speakeasy setup') {
+    out.push(
+      finding({
+        severity: 'blocker',
+        target: 'speakeasy',
+        where: `line ${h1s[0]!.line}`,
+        problem: `Expected "# Speakeasy setup", found "# ${h1s[0]!.text}".`,
+        suggestion: 'Rename the H1 to Speakeasy setup.',
+      })
+    )
+  }
+
+  const h3s = headings.filter((h) => h.level === 3)
+  const anchors = new Set(
+    h3s.map((h) => h.anchor).filter(Boolean) as string[]
+  )
+  for (const id of SPEAKEASY_ANCHORS) {
+    if (!anchors.has(id)) {
+      out.push(
+        finding({
+          severity: 'blocker',
+          target: 'speakeasy',
+          where: 'speakeasy.md',
+          problem: `Missing canonical Speakeasy step {#${id}}.`,
+          suggestion: `Carry ### … {#${id}} from ${PATHS.speakeasySetup} via the Dossier.`,
+        })
+      )
+    }
+  }
+  for (const h of h3s) {
+    if (!h.anchor) {
+      out.push(
+        finding({
+          severity: 'blocker',
+          target: 'speakeasy',
+          where: `line ${h.line}: ${h.text}`,
+          problem: 'Speakeasy setup H3 is missing its fixed {#…} anchor.',
+          suggestion: `Use the fixed anchors from ${PATHS.speakeasySetup}.`,
+        })
+      )
+    }
+  }
+
+  out.push(...lintTemplateKeys(body, 'speakeasy'))
+  return out
+}
+
+/** @deprecated Use lintExternalMarkdown — kept name alias during transition. */
+export function lintSetupMarkdown(setupMd: string): LintFinding[] {
+  return lintExternalMarkdown(setupMd)
 }
 
 export function lintMetaYaml(
@@ -341,18 +389,17 @@ export function lintMetaYaml(
     }
   }
 
-  // setup.md#anchor references in meta must look like anchors
-  const refRe = /setup\.md#([a-z0-9-]+)/g
   const blob = JSON.stringify(data)
   let rm: RegExpExecArray | null
+  const refRe = new RegExp(SETUP_REF_RE.source, 'g')
   while ((rm = refRe.exec(blob)) !== null) {
-    if (!ANCHOR_RE.test(rm[1]!)) {
+    if (!ANCHOR_RE.test(rm[2]!)) {
       out.push(
         finding({
           severity: 'blocker',
           target: 'meta',
-          where: `setup.md#${rm[1]}`,
-          problem: 'meta.yaml references a non-kebab-case setup.md anchor.',
+          where: `${rm[1]}.md#${rm[2]}`,
+          problem: 'meta.yaml references a non-kebab-case setup anchor.',
           suggestion: 'Point at a Dossier-minted kebab-case anchor.',
         })
       )
@@ -373,27 +420,27 @@ export function collectAnchors(md: string): Set<string> {
 }
 
 export function lintAnchorAgreement(
-  setupMd: string,
+  externalMd: string,
+  speakeasyMd: string,
   researchMd: string | null,
   metaRaw: string | null
 ): LintFinding[] {
   const out: LintFinding[] = []
-  const setupAnchors = collectAnchors(setupMd)
+  const externalAnchors = collectAnchors(externalMd)
+  const speakeasyAnchors = collectAnchors(speakeasyMd)
+  const allSetupAnchors = new Set([...externalAnchors, ...speakeasyAnchors])
 
   if (researchMd) {
     const researchAnchors = collectAnchors(researchMd)
-    for (const id of setupAnchors) {
-      if (SPEAKEASY_ANCHORS.includes(id as (typeof SPEAKEASY_ANCHORS)[number])) {
-        continue // fixed Speakeasy anchors enter via transclusion
-      }
+    for (const id of externalAnchors) {
       if (!researchAnchors.has(id)) {
         out.push(
           finding({
             severity: 'blocker',
-            target: 'setup',
+            target: 'external',
             where: `#${id}`,
             problem:
-              'setup.md uses an anchor that does not appear in research.md (anchor contract).',
+              'external.md uses an anchor that does not appear in research.md (anchor contract).',
             suggestion:
               'Mint the anchor in the Dossier first, or reuse a Dossier id verbatim.',
           })
@@ -403,18 +450,31 @@ export function lintAnchorAgreement(
   }
 
   if (metaRaw) {
-    const refRe = /setup\.md#([a-z0-9-]+)/g
+    const refRe = new RegExp(SETUP_REF_RE.source, 'g')
     let m: RegExpExecArray | null
     while ((m = refRe.exec(metaRaw)) !== null) {
-      const id = m[1]!
-      if (!setupAnchors.has(id)) {
+      const file = m[1]!
+      const id = m[2]!
+      const inFile =
+        file === 'external' ? externalAnchors.has(id) : speakeasyAnchors.has(id)
+      if (!inFile && !allSetupAnchors.has(id)) {
         out.push(
           finding({
             severity: 'blocker',
             target: 'meta',
-            where: `setup.md#${id}`,
-            problem: 'meta.yaml references setup.md#… but that anchor is missing from setup.md.',
+            where: `${file}.md#${id}`,
+            problem: `meta.yaml references ${file}.md#… but that anchor is missing from the setup files.`,
             suggestion: 'Fix the reference or restore the matching H3 {#anchor}.',
+          })
+        )
+      } else if (!inFile) {
+        out.push(
+          finding({
+            severity: 'blocker',
+            target: 'meta',
+            where: `${file}.md#${id}`,
+            problem: `meta.yaml references ${file}.md#${id} but that anchor lives in the other setup file.`,
+            suggestion: `Point at the file that defines {#${id}}.`,
           })
         )
       }
@@ -426,26 +486,59 @@ export function lintAnchorAgreement(
 
 export function lintGuide(guideDir: string, repoRoot: string): LintFinding[] {
   const out: LintFinding[] = []
-  const setupPath = join(guideDir, 'setup.md')
+  const externalPath = join(guideDir, 'external.md')
+  const speakeasyPath = join(guideDir, 'speakeasy.md')
+  const legacySetupPath = join(guideDir, 'setup.md')
   const metaPath = join(guideDir, 'meta.yaml')
   const researchPath = join(guideDir, 'research.md')
   const schemaPath = abs(repoRoot, PATHS.guideSchema)
 
-  if (!existsSync(setupPath)) {
+  if (existsSync(legacySetupPath)) {
     out.push(
       finding({
         severity: 'blocker',
-        target: 'setup',
+        target: 'external',
         where: 'setup.md',
-        problem: 'setup.md is missing.',
-        suggestion: 'Write setup.md before review.',
+        problem:
+          'setup.md is legacy — split into external.md (provider) and speakeasy.md (Control Plane).',
+        suggestion:
+          'Move provider steps to external.md and Speakeasy steps to speakeasy.md, then delete setup.md.',
       })
     )
+  }
+
+  if (!existsSync(externalPath)) {
+    out.push(
+      finding({
+        severity: 'blocker',
+        target: 'external',
+        where: 'external.md',
+        problem: 'external.md is missing.',
+        suggestion: 'Write external.md (provider-side setup) before review.',
+      })
+    )
+  }
+
+  if (!existsSync(speakeasyPath)) {
+    out.push(
+      finding({
+        severity: 'blocker',
+        target: 'speakeasy',
+        where: 'speakeasy.md',
+        problem: 'speakeasy.md is missing.',
+        suggestion: 'Write speakeasy.md from doctrine/speakeasy-setup.md via the Dossier.',
+      })
+    )
+  }
+
+  if (!existsSync(externalPath) || !existsSync(speakeasyPath)) {
     return out
   }
 
-  const setupMd = readFileSync(setupPath, 'utf8')
-  out.push(...lintSetupMarkdown(setupMd))
+  const externalMd = readFileSync(externalPath, 'utf8')
+  const speakeasyMd = readFileSync(speakeasyPath, 'utf8')
+  out.push(...lintExternalMarkdown(externalMd))
+  out.push(...lintSpeakeasyMarkdown(speakeasyMd))
 
   let metaRaw: string | null = null
   if (!existsSync(metaPath)) {
@@ -478,7 +571,9 @@ export function lintGuide(guideDir: string, repoRoot: string): LintFinding[] {
   const researchMd = existsSync(researchPath)
     ? readFileSync(researchPath, 'utf8')
     : null
-  out.push(...lintAnchorAgreement(setupMd, researchMd, metaRaw))
+  out.push(
+    ...lintAnchorAgreement(externalMd, speakeasyMd, researchMd, metaRaw)
+  )
 
   return out
 }

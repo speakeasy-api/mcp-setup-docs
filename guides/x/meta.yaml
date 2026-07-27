@@ -11,14 +11,15 @@ credential_setup:
         - id: bearer-token
           label: Bearer Token
           setup:
-            - setup.md#copy-bearer-token
+            - external.md#copy-bearer-token
   requirements:
     - id: x-developer-account
       description: X account enrolled in the Developer Platform with authority to create an app
     - id: x-api-credits
       description: API credits available in the X Developer Console for pay-per-usage requests
 documentation:
-  setup: setup.md
+  external: external.md
+  speakeasy: speakeasy.md
 remotes:
   - id: primary
     url: https://api.x.com/mcp
