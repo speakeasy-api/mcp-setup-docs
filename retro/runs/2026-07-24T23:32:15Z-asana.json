@@ -1,0 +1,46 @@
+{
+  "slug": "asana",
+  "provider": "asana",
+  "persona": "it-admin",
+  "timestamp": "2026-07-24T23:32:15Z",
+  "started_at": "2026-07-24T23:32:15Z",
+  "finished_at": "2026-07-24T23:36:32Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "setup",
+      "where": "configure-workspace-distribution",
+      "problem": "The conditional unblock screenshot note from the Research Dossier is omitted.",
+      "suggestion": "Add a screenshot placeholder for Connected apps showing the selected app's Unblock control while excluding unrelated apps and user activity.",
+      "dimension": "fidelity"
+    }
+  ],
+  "open_questions": [
+    "Public docs do not state which Asana account permission, if any, gates app creation in the developer console.",
+    "Asana's documented protected-resource metadata URL returns 404; the live MCP challenge points to a working alternate URL."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "configure-workspace-distribution",
+          "problem": "The conditional unblock screenshot note from the Research Dossier is omitted.",
+          "suggestion": "Add a screenshot placeholder for Connected apps showing the selected app's Unblock control while excluding unrelated apps and user activity.",
+          "dimension": "fidelity"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER is drafting-equivalent. Metadata changes are observed_at-only; the unblock branch retains the same complete navigation and facts; and the added provenance wording about selecting at least one workspace documents a fact already present in BEFORE."
+  }
+}
