@@ -1,0 +1,29 @@
+{
+  "slug": "asana",
+  "provider": "asana",
+  "persona": "it-admin",
+  "timestamp": "2026-07-27T16:51:50Z",
+  "started_at": "2026-07-27T16:51:50Z",
+  "finished_at": "2026-07-27T16:57:14Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "Speakeasy MCP Catalog presence is unknown because the Pulse registry tenant was unavailable.",
+    "Public docs do not specify which Asana account permission, if any, gates developer app creation.",
+    "Asana documents a protected-resource metadata URL that returns 404, while the live MCP challenge advertises a working URL with a different path."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER preserves all draft-relevant facts, anchors, credentials, remotes, prerequisites, and Speakeasy setup branches. Changes are observed_at churn plus a soft catalog-presence open question reflecting the skipped Pulse lookup; this does not require re-drafting or invalidate prior review."
+  }
+}

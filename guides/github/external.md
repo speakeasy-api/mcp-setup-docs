@@ -7,7 +7,7 @@ setup_version: 1
 Before you begin, obtain:
 
 - Administrative access to the GitHub Enterprise Cloud organization that will own the OAuth app.
-- Standard GitHub.com hosting for the target organization. If the organization uses GitHub Enterprise Cloud with data residency, follow [GitHub's tenant-specific remote URL setup](https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/enterprise-configuration) instead of this Setup Guide.
+- Standard GitHub.com hosting for the target organization. This Setup Guide does not cover GitHub Enterprise Cloud with data residency or GitHub Enterprise Server.
 - The organization-approved public URL for this connection from the application or cloud security owner.
 - If the target organization restricts OAuth apps, access to an organization owner who can grant access — see [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).
 - A valid organization SSO session if the target organization protects resources with SSO enforcement.
@@ -32,7 +32,7 @@ If the page shows **New OAuth App**, click it. If the page instead shows **Regis
 
 1. In **Application name**, enter a recognizable public name, such as `Speakeasy AI Control Plane – GitHub MCP`.
 2. In **Homepage URL**, enter the full organization-approved public URL.
-3. Optionally, enter an **Application description**.
+3. Optionally, enter a public-safe **Application description**.
 4. In **Authorization callback URL**, enter `{{ gram.oauth.callback_url }}`.
 5. Leave **Enable Device Flow** off.
 6. Click **Register application**. This opens the app's settings page.

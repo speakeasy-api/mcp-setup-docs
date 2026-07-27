@@ -10,7 +10,6 @@
   "rounds": 3,
   "nits": [],
   "open_questions": [
-    "The OAuth page's redirect URL add/save control label requires console verification.",
     "Public docs do not specify which account permission gates developer app creation.",
     "Asana's documented protected-resource metadata URL returned 404; the live MCP challenge supplied a working metadata URL."
   ],

@@ -1,0 +1,29 @@
+{
+  "slug": "github",
+  "provider": "github",
+  "persona": "it-admin",
+  "timestamp": "2026-07-24T23:32:15Z",
+  "started_at": "2026-07-24T23:32:15Z",
+  "finished_at": "2026-07-24T23:36:22Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "The exact Speakeasy control that launches GitHub user authorization after attaching the identity provider remains undocumented.",
+    "Whether Speakeasy offers Use Discovered or requires Configure Manually, because GitHub's authorization-server metadata URL still returns 404.",
+    "Whether Speakeasy surfaces GitHub's post-connection OAuth scope challenges to users."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "Only provenance timestamps changed materially in metadata. Research added the exact local Docker image name, but the prior dossier already documented local Docker as a supported, out-of-scope alternative; it does not affect the hosted walkthrough or justify re-drafting setup.md."
+  }
+}

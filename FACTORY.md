@@ -124,13 +124,39 @@ comments around that same CLI.
 
 Label-driven GitHub Action that turns a freeform issue into a draft Guide PR.
 Mirrors a Matt Pocock–style factory: label → distill → pipeline → draft PR.
-Pipeline agents still never commit (constitution **I7**); only the Action
-commits, pushes, and opens the PR.
+Pipeline agents still never commit (constitution **I7**); the factory CLI
+(invoked by the Action) commits, pushes, and opens the PR.
 
-- Workflow: [`.github/workflows/guide-draft.yml`](.github/workflows/guide-draft.yml)
-- Distill CLI: `npm run resolve-issue` in `pipeline/`
-- Review comment formatter: [`.github/scripts/format-pipeline-review.sh`](.github/scripts/format-pipeline-review.sh)
-- Scope check formatter: [`.github/scripts/format-scope-check.sh`](.github/scripts/format-scope-check.sh)
+- Workflow (thin step glue): [`.github/workflows/guide-draft.yml`](.github/workflows/guide-draft.yml)
+- Factory CLI: `npm run factory -- <command>` in [`pipeline/src/factory/`](pipeline/src/factory/)
+- Distill (composed by `factory distill`): `npm run resolve-issue`
+- Draft (composed by `factory draft`): `npm run draft-guide`
+- Formatters (TS): `format-pipeline-review.ts`, `format-scope-check.ts`
+- Pipeline CI (typecheck + tests): [`.github/workflows/pipeline-ci.yml`](.github/workflows/pipeline-ci.yml)
+
+The workflow checks out `main`, installs `pipeline/` deps, then runs factory
+subcommands. On resume it switches to the factory branch and merges `main`
+(`checkout-resume`) so tooling stays current. If checkout / Node / `npm ci`
+fails before preflight, a pure-`gh` **Bootstrap failure fallback** still
+clears `guide:draft`, sets `guide:blocked`, and comments (factory CLI may
+be unavailable).
+
+### Factory commands
+
+| Command | Role |
+| --- | --- |
+| `ensure-labels` | Create `guide:*` labels if missing |
+| `preflight` | Resume factory PR/branch or refuse human PR → `GITHUB_OUTPUT` |
+| `refuse` / `transition-labels` / `cleanup` | Issue label transitions |
+| `checkout-resume` / `sync-main` | Resume branch + merge `main` |
+| `distill` | Fold issue comments + `resolve-issue` → slug/persona/notes |
+| `comment-resolved` | “Resolved as …” issue comment |
+| `create-branch` | `guide/issue-<N>-<slug>` (or reuse resume) |
+| `draft` | `draft-guide` + exit→outcome mapping |
+| `commit-push` | Stage guides + run records; push with lease |
+| `open-pr` | Create/update PR (GraphQL retry); draft↔ready |
+| `comment-review` | Scope check or Pipeline review on the issue |
+| `mark-blocked` | Failure comment + `guide:blocked` |
 
 ### Flow
 

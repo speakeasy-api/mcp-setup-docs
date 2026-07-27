@@ -1,0 +1,29 @@
+{
+  "slug": "x",
+  "provider": "x",
+  "persona": "it-admin",
+  "timestamp": "2026-07-24T23:32:15Z",
+  "started_at": "2026-07-24T23:32:15Z",
+  "finished_at": "2026-07-24T23:35:51Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "X does not publish exact field or submission labels for first-time Developer Platform enrollment.",
+    "X does not publish exact field or create-button labels for the new-app form.",
+    "X catalog presence in Speakeasy remains unverified; retain catalog/custom-remote conditional with search query `X`."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER is drafting-equivalent: all anchors, credentials, remote/transport, prerequisites, Speakeasy flow, and provider claims are unchanged. Deltas are observed_at timestamps and removal of a support-KB fetch-status note."
+  }
+}
