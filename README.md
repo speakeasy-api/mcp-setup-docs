@@ -27,6 +27,9 @@ Requires Node ≥ 22.13 and a Cursor API key.
 
 ```bash
 export CURSOR_API_KEY=cursor_...   # Dashboard → Integrations / API Keys
+# Optional — resolve Speakeasy catalog presence (same as mise run pull-catalog):
+# export PULSE_REGISTRY_KEY=...
+# export PULSE_REGISTRY_TENANT=gram-recommended
 
 # From repo root (installs deps as needed):
 mise run draft-guide -- box --overwrite

@@ -49,7 +49,10 @@ Work through both setup files fact by fact, in both directions:
 7. **The Speakeasy file** — the Dossier's transcluded skeleton matches the
    current `doctrine/speakeasy-setup.md` (drift is a blocker targeting
    `research`), and `speakeasy.md` renders it faithfully like any other
-   Dossier facts.
+   Dossier facts. When the Dossier selected a single add-server path
+   (Pulse-verified catalog present or absent), do not treat the omitted
+   alternate bullet as an omission — only the selected path(s) must
+   appear.
 
 ## How you report
 

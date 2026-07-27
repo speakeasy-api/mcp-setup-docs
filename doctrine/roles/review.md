@@ -64,11 +64,14 @@ login URLs, catalog-first rewrites, post-credential verification chrome,
 or other steps the skeleton does not carry. Gaps in that file are nits
 or open questions for a human doctrine edit — never research-target
 blockers that expand the guide past the skeleton. Fidelity already fails
-drift from the skeleton; do not fight that check. Do not raise blockers
-that send the reader into Speakeasy during External setup only to copy
-**Redirect URI** when `{{ gram.oauth.callback_url }}` is the registered
-value — that mid-flow trip is out of bounds unless the Dossier records
-a live-value requirement.
+drift from the skeleton; do not fight that check. When the Dossier (via
+Pulse-verified catalog presence) selected only the catalog path or only
+the custom-remote path, do not raise blockers demanding the omitted
+alternate. Do not raise blockers that send the reader into Speakeasy
+during External setup only to copy **Redirect URI** when
+`{{ gram.oauth.callback_url }}` is the registered value — that mid-flow
+trip is out of bounds unless the Dossier records a live-value
+requirement.
 
 **Owner-gloss ceiling (when scoring hedges).** Organization-specific
 values need at most one obtain-from-owner hedge per section. Re-raising

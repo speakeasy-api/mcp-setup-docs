@@ -6,6 +6,29 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-27 — Pulse catalog presence resolves add-server path
+
+Files: `pipeline/src/pulse-catalog.ts`, `pipeline/src/workflow.ts`,
+`pipeline/src/scope-gate.ts`, `.github/workflows/guide-draft.yml`,
+`FACTORY.md`, `doctrine/speakeasy-setup.md`,
+`doctrine/roles/{technical-research,writer,fidelity,review}.md`.
+
+- Before research, the workflow queries the PulseMCP tenant catalog
+  (`PULSE_REGISTRY_KEY` + `PULSE_REGISTRY_TENANT`) and injects a
+  structured catalog-presence note into operator notes.
+- **present** → draft only the 3rd-party catalog add-server path;
+  **absent** → only Custom remote server; **ambiguous** / **skipped** →
+  keep both conditionals + soft OQ (unchanged fallback).
+- Canonical skeleton still carries both bullets; research selects which
+  to transclude when presence is known. Writer/fidelity/review honor the
+  selection and do not demand the omitted alternate.
+
+Invariants: I1–I8 unchanged (human edit to Speakeasy path-selection
+rule).
+
+Evidence: operator request to confirm catalog membership via Pulse
+tenant search and resolve the dual add-server conditional.
+
 ## 2026-07-27 — split setup into external.md + speakeasy.md
 
 Files: `schema/guide.v1.schema.json`, `pipeline/src/lint-guide.ts`,

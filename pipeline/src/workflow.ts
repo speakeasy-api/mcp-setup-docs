@@ -27,6 +27,11 @@ import {
   mergeOpenQuestions,
   type ScopeGateResult,
 } from './scope-gate.ts'
+import {
+  formatCatalogNote,
+  lookupCatalogPresence,
+  mergeCatalogNotes,
+} from './pulse-catalog.ts'
 import { PATHS, abs, guideDir, personaFile, roleDoc } from './paths.ts'
 
 export const PhaseResult = withSchemaHint(
@@ -739,7 +744,28 @@ export async function runWorkflow(
     }
   }
 
-  async function draftOne(g: GuideInput): Promise<GuideResult> {
+  async function draftOne(raw: GuideInput): Promise<GuideResult> {
+    const catalog = await lookupCatalogPresence({
+      provider: raw.provider,
+      slug: raw.slug,
+    })
+    const catalogNote = formatCatalogNote(catalog)
+    log(
+      '[' +
+        raw.slug +
+        '] catalog: ' +
+        catalog.status +
+        (catalog.match
+          ? ' name=' + catalog.match.name
+          : catalog.reason
+            ? ' — ' + catalog.reason
+            : '')
+    )
+    const g: GuideInput = {
+      ...raw,
+      notes: mergeCatalogNotes(raw.notes, catalogNote),
+    }
+
     const dir = guideDir(g.slug)
     mkdirSync(dir, { recursive: true })
     const prevLock = readLock(dir)
