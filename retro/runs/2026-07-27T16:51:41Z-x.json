@@ -1,0 +1,29 @@
+{
+  "slug": "x",
+  "provider": "x",
+  "persona": "it-admin",
+  "timestamp": "2026-07-27T16:51:41Z",
+  "started_at": "2026-07-27T16:51:41Z",
+  "finished_at": "2026-07-27T16:55:17Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "Exact field and submit-control labels for first-time Developer Platform enrollment remain unpublished.",
+    "Exact field and create-control labels for app creation remain unpublished.",
+    "X's presence in the Speakeasy MCP Catalog remains unverified because the Pulse lookup was skipped."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER is drafting-equivalent to BEFORE. Changes only reinforce the existing copy-now Bearer Token warning, repeat the existing `X` catalog search term, and refresh observed_at timestamps; no facts, anchors, credentials, remotes, prerequisites, setup paths, or open questions changed."
+  }
+}
