@@ -3,10 +3,10 @@
   "slug": "asana",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-27T16:57:14Z",
+  "updated_at": "2026-07-27T18:24:37Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:5bba7106437faeb8c217d75066478c062a3fdf37b76c74e2224c9f2de6e884e5",
+      "input_digest": "sha256:4ace6f73cd97682009ab1480ed6cd5f2fcbcced2fb4f5ec5110643d5a20d29bf",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
@@ -21,33 +21,33 @@
           },
           {
             "path": "doctrine/roles/technical-research.md",
-            "digest": "sha256:3960aa5d3ad30f9ed0d9e8bd1cc93b6c0dad5c412ef9ab536ec1a75ea6f1bee1"
+            "digest": "sha256:66065c6978e8389ff59b1a5f1ba0bfe4b7d16c93189416d97119b5cbdd6f091f"
           },
           {
             "path": "doctrine/speakeasy-setup.md",
-            "digest": "sha256:3d50512ece3583a0bd9570512e215ea10377ac47f6bb9cfa35931080a7818d57"
+            "digest": "sha256:8715948a90f95187a2e093e3dfbaccb2870423ee7c90aed4eeba5c418c0bb85e"
           }
         ],
         "artifacts": [],
         "params": {
           "provider": "asana",
-          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency or error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch. Open research gaps (account permission gating developer app creation; documented protected-resource metadata URL vs live MCP challenge URL): omit detail or keep existing hedges unless verified—no console capture required.\n\nSpeakeasy MCP Catalog: skipped"
+          "notes": "Update existing guide under guides/asana; issue body empty—refresh for current MCP/auth steps unless repo diff specifies scope.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\""
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:88ad8013adf3d2f88ccac0e58f8adf3320d342b8a733a5b0ecb2e49b3c1f73b7"
+          "digest": "sha256:878899d95001a1d865c3131b7702a9ab904723ba952eaaa250017b70f8206824"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:85245b4a1a0f21af0ccda08405f50f33a033ea516e2c8093465e2d9dee948198"
+          "digest": "sha256:9d4ec4f70713f70b990c7c245fc93e6fdca44dca941a1fda8d8704d0007d1b17"
         }
       ],
-      "completed_at": "2026-07-27T16:57:14Z"
+      "completed_at": "2026-07-27T18:24:37Z"
     },
     "draft": {
-      "input_digest": "sha256:13786590ad8c3b03603cae06fdfe8058a3f90cd198a37b50342a635104d8ab3d",
+      "input_digest": "sha256:4a34f543c5e3fc5dd96b96695aa3578fdbbcefc4b5727ca199e7854c41ef8102",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:a956869fa21cc7f91fff9450fe09c86dc2014cb5f058691e03d07eb0b3acce3f",
@@ -62,7 +62,7 @@
           },
           {
             "path": "doctrine/roles/writer.md",
-            "digest": "sha256:535e7d39f6f4e745321bd1a6bfdab4c9d6ac5ae46eaf079a4c20c377acab0b2a"
+            "digest": "sha256:1e2f0afa73e8c28502f7fea0d21722a22c980326f3bd878418df27c23fa5b6b3"
           },
           {
             "path": "doctrine/personas/it-admin.md",
@@ -72,33 +72,33 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:88ad8013adf3d2f88ccac0e58f8adf3320d342b8a733a5b0ecb2e49b3c1f73b7"
+            "digest": "sha256:878899d95001a1d865c3131b7702a9ab904723ba952eaaa250017b70f8206824"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:85245b4a1a0f21af0ccda08405f50f33a033ea516e2c8093465e2d9dee948198"
+            "digest": "sha256:9d4ec4f70713f70b990c7c245fc93e6fdca44dca941a1fda8d8704d0007d1b17"
           }
         ],
         "params": {
           "provider": "asana",
-          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency or error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch. Open research gaps (account permission gating developer app creation; documented protected-resource metadata URL vs live MCP challenge URL): omit detail or keep existing hedges unless verified—no console capture required.\n\nSpeakeasy MCP Catalog: skipped",
+          "notes": "Update existing guide under guides/asana; issue body empty—refresh for current MCP/auth steps unless repo diff specifies scope.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\"",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+          "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
+          "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
         }
       ],
-      "completed_at": "2026-07-27T16:57:14Z"
+      "completed_at": "2026-07-27T18:24:37Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:c46e3baa70433bfc2022b6c13993544130a8e8de50119c610d3043176fa9e8d5",
+      "input_digest": "sha256:4c48d5857fc801ff38e46136b9e51704919442d46d0885f456b0d9c4eefcc676",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
@@ -113,30 +113,30 @@
           },
           {
             "path": "doctrine/roles/fidelity.md",
-            "digest": "sha256:070f59d37c1dc5d82048883f44fe9382ed6ef29f16c33ab848e3b2d9392574d6"
+            "digest": "sha256:472ec8a2db648c822d126dea857d3f79e9c97a8e9b5fe6a997170bef3c8d2c22"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:88ad8013adf3d2f88ccac0e58f8adf3320d342b8a733a5b0ecb2e49b3c1f73b7"
+            "digest": "sha256:878899d95001a1d865c3131b7702a9ab904723ba952eaaa250017b70f8206824"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:85245b4a1a0f21af0ccda08405f50f33a033ea516e2c8093465e2d9dee948198"
+            "digest": "sha256:9d4ec4f70713f70b990c7c245fc93e6fdca44dca941a1fda8d8704d0007d1b17"
           },
           {
             "path": "external.md",
-            "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+            "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
+            "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
           }
         ],
         "params": {
           "provider": "asana",
-          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency or error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch. Open research gaps (account permission gating developer app creation; documented protected-resource metadata URL vs live MCP challenge URL): omit detail or keep existing hedges unless verified—no console capture required.\n\nSpeakeasy MCP Catalog: skipped",
+          "notes": "Update existing guide under guides/asana; issue body empty—refresh for current MCP/auth steps unless repo diff specifies scope.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\"",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,17 +144,17 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+          "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
+          "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
         }
       ],
-      "completed_at": "2026-07-27T16:57:14Z"
+      "completed_at": "2026-07-27T18:24:37Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:8449421b112f239ae71f7d514b26547bcb99bbd7086f8e3d961b9e4efa1c4aed",
+      "input_digest": "sha256:8b3de00837891f32e8bd4b536c15c643935c1936b3c7bb04bfb98502fad16234",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
@@ -169,7 +169,7 @@
           },
           {
             "path": "doctrine/roles/review.md",
-            "digest": "sha256:2b145febb78989edbf7ac617395ffb03e8852fabe13135662534b0b7f53e91cd"
+            "digest": "sha256:7eb1e560946bbc2656afdfbdbd26d85b3d4a5579818fc4bd6629d818ce251f69"
           },
           {
             "path": "doctrine/personas/it-admin.md",
@@ -179,24 +179,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:88ad8013adf3d2f88ccac0e58f8adf3320d342b8a733a5b0ecb2e49b3c1f73b7"
+            "digest": "sha256:878899d95001a1d865c3131b7702a9ab904723ba952eaaa250017b70f8206824"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:85245b4a1a0f21af0ccda08405f50f33a033ea516e2c8093465e2d9dee948198"
+            "digest": "sha256:9d4ec4f70713f70b990c7c245fc93e6fdca44dca941a1fda8d8704d0007d1b17"
           },
           {
             "path": "external.md",
-            "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+            "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
+            "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
           }
         ],
         "params": {
           "provider": "asana",
-          "notes": "MCP endpoint: https://mcp.asana.com/v2/mcp. Do not include client secret reset/recovery or other contingency or error-recovery branches (e.g. \"what if you lose the Client secret\"). For explicit-block reversal, document full nav (profile photo > Admin console > Apps > Manage apps > Connected apps) or omit the unblock branch. Open research gaps (account permission gating developer app creation; documented protected-resource metadata URL vs live MCP challenge URL): omit detail or keep existing hedges unless verified—no console capture required.\n\nSpeakeasy MCP Catalog: skipped",
+          "notes": "Update existing guide under guides/asana; issue body empty—refresh for current MCP/auth steps unless repo diff specifies scope.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\"",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:8aca63dfa57e95a6890a83c38c5b092ffc08eda8332c5acb64d887a0e87dc5ca"
+          "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:cbed30a36a149ac0f60b5d7b9b18eaad26352f059fe1fac15c454dc472e596ef"
+          "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
         }
       ],
-      "completed_at": "2026-07-27T16:57:14Z"
+      "completed_at": "2026-07-27T18:24:37Z"
     }
   }
 }
