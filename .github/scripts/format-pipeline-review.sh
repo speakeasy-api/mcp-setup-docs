@@ -20,9 +20,16 @@ slug=$(jq -r '.slug // "?"' "$record")
 if [ -z "$guide_dir" ] && [ -n "$slug" ] && [ -d "guides/${slug}" ]; then
   guide_dir="guides/${slug}"
 fi
-setup_md=""
-if [ -n "$guide_dir" ] && [ -f "${guide_dir}/setup.md" ]; then
-  setup_md="${guide_dir}/setup.md"
+
+# Setup files to search for section quotes (external first, then speakeasy).
+guide_mds=()
+if [ -n "$guide_dir" ]; then
+  [ -f "${guide_dir}/external.md" ] && guide_mds+=("${guide_dir}/external.md")
+  [ -f "${guide_dir}/speakeasy.md" ] && guide_mds+=("${guide_dir}/speakeasy.md")
+  # Legacy single-file guides (pre-split) still quoteable until migrated.
+  if [ ${#guide_mds[@]} -eq 0 ] && [ -f "${guide_dir}/setup.md" ]; then
+    guide_mds+=("${guide_dir}/setup.md")
+  fi
 fi
 
 plain_dimension() {
@@ -40,13 +47,15 @@ plain_dimension() {
 plain_target() {
   case "$1" in
     research) echo "Needs a fact in \`research.md\` (or drop the step that depends on it)." ;;
-    setup) echo "Needs a clearer step in \`setup.md\` (the fact may already be in research)." ;;
+    external) echo "Needs a clearer step in \`external.md\` (the fact may already be in research)." ;;
+    speakeasy) echo "Needs a clearer step in \`speakeasy.md\` (canonical Control Plane flow / Dossier)." ;;
+    setup) echo "Needs a clearer step in the setup files (\`external.md\` / \`speakeasy.md\`)." ;;
     meta) echo "Needs a fix in \`meta.yaml\`." ;;
     *) echo "Target: \`$1\`" ;;
   esac
 }
 
-# Extract the H3 section whose closing anchor matches #foo from setup.md.
+# Extract the H3 section whose closing anchor matches #foo from a setup file.
 quote_section() {
   local md="$1" anchor="$2"
   [ -f "$md" ] || return 0
@@ -80,6 +89,20 @@ if len(text) > 900:
     text = text[:900].rstrip() + "\n…"
 print(text)
 PY
+}
+
+# Prefer the file that defines the anchor; fall back across all guide mds.
+quote_from_guides() {
+  local anchor="$1"
+  local md quote
+  for md in "${guide_mds[@]+"${guide_mds[@]}"}"; do
+    quote=$(quote_section "$md" "$anchor" || true)
+    if [ -n "${quote}" ]; then
+      printf '%s\n' "$quote"
+      return 0
+    fi
+  done
+  return 0
 }
 
 extract_anchor() {
@@ -159,8 +182,8 @@ if [ "$unresolved_n" -gt 0 ]; then
     echo "- **What would unblock it:** ${suggestion}"
     echo "- **$(plain_target "$target")**"
     echo
-    if [ -n "$setup_md" ] && [ -n "$anchor" ]; then
-      quote=$(quote_section "$setup_md" "$anchor" || true)
+    if [ ${#guide_mds[@]} -gt 0 ] && [ -n "$anchor" ]; then
+      quote=$(quote_from_guides "$anchor" || true)
       if [ -n "${quote}" ]; then
         echo "<details><summary>Current guide text for this section</summary>"
         echo
