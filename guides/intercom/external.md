@@ -4,9 +4,9 @@ setup_version: 1
 
 # Connect Intercom to the Speakeasy AI Control Plane
 
-Use an Intercom workspace hosted in the US or EU and an account authorized to access the intended workspace data. Intercom does not document an MCP-specific plan tier or administrator role. The server requests **Read and list users and companies**, **Read conversations**, and **Read and write articles**.
+Use an Intercom workspace hosted in the US or EU and an account authorized to access the intended workspace data. The server requests **Read and list users and companies**, **Read conversations**, and **Read and write articles**.
 
-Use [Intercom's sign-in page](https://app.intercom.com/admins/sign_in).
+Sign in through [Intercom's sign-in page](https://app.intercom.com/admins/sign_in).
 
 ### Identify the workspace region {#identify-workspace-region}
 
@@ -21,9 +21,10 @@ Use [Intercom's sign-in page](https://app.intercom.com/admins/sign_in).
    1. Reopen the sign-in page.
    2. Under **Your account region**, select the region that matches the workspace URL.
    3. Sign in again.
-6. Inspect the hostname in the browser address bar.
-7. If the hostname is `app.au.intercom.com`, stop. Intercom does not support the MCP server for Australian-hosted workspaces.
-8. Record the values that match the hostname:
+6. Open the intended Intercom workspace.
+7. Inspect the hostname in the browser address bar.
+8. If the hostname is `app.au.intercom.com`, stop. Intercom does not support the MCP server for Australian-hosted workspaces.
+9. Record the values that match the hostname:
    - For `app.intercom.com`, record remote URL `https://mcp.intercom.com/mcp` and issuer URL `https://mcp.intercom.com`.
    - For `app.eu.intercom.com`, record remote URL `https://mcp.eu.intercom.com/mcp` and issuer URL `https://mcp.eu.intercom.com`.
 

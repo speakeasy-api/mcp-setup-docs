@@ -29,9 +29,9 @@ This fills the regional authorization, token, and registration endpoints.
 10. Leave **Audience (optional)** empty.
 11. Click **Attach Identity Provider**.
 
-The Speakeasy AI Control Plane dynamically registers with Intercom. You do not need a **Client ID** or **Client Secret**.
+The Speakeasy AI Control Plane dynamically registers the OAuth client with Intercom. There is no **Client ID** or **Client Secret** to paste.
 
-<!-- screenshot: Attach Remote Identity Provider after Discover, showing the regional issuer and endpoints with Client Type set to Dynamic Client Registration (DCR) -->
+<!-- screenshot: Attach Remote Identity Provider after Discover, showing the regional issuer and endpoints with Client Type set to Dynamic Client Registration (DCR); no secret values are present -->
 
 When a client initiates Intercom access, complete the on-screen browser prompts with the intended workspace account.
 

@@ -1,0 +1,27 @@
+{
+  "slug": "intercom",
+  "provider": "intercom",
+  "persona": "it-admin",
+  "timestamp": "2026-07-27T18:17:36Z",
+  "started_at": "2026-07-27T18:17:36Z",
+  "finished_at": "2026-07-27T18:21:56Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "Intercom does not publish exact labels or screen sequence for its MCP browser authorization prompts."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER adds corroborating provenance for existing regional availability and identifies a separate Fin Agent MCP server as out of scope. No draft-relevant anchors, credentials, remotes, transports, prerequisites, setup steps, or rendered claims changed; remaining differences are observed_at churn."
+  }
+}
