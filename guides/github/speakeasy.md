@@ -2,22 +2,10 @@
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
-2. Click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
 
-If GitHub is in the catalog:
-
-1. Choose **3rd-party server**.
-2. On the **MCP Catalog** page, find `GitHub` using **Search MCP servers...**.
-3. Open its entry with **View**.
-4. Click **Add**.
-5. In the **Add to Project** dialog, click **Add to Project**.
-
-If GitHub is not in the catalog:
-
-1. Choose **Custom remote server**.
-2. On the **Add a custom remote MCP server** page, paste `https://api.githubcopilot.com/mcp/` into **Remote MCP server URL**.
-3. Click **Add server**.
+- If GitHub is in the catalog: choose **3rd-party server**. On the **MCP Catalog** page, find GitHub (the search box reads **Search MCP servers...**), open its entry with **View**, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
+- If it is not: choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste `https://api.githubcopilot.com/mcp/` into **Remote MCP server URL** and click **Add server**.
 
 Either path creates the hosted MCP server and opens its **Overview** page.
 

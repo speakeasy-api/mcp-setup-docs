@@ -2,20 +2,12 @@
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
 
-- If Google Compute Engine is in the catalog: choose **3rd-party
-  server**. On the **MCP Catalog** page, search for `Compute Engine`
-  (the search box reads **Search MCP servers...**), open the entry with
-  **View**, and click **Add**. In the **Add to Project** dialog, click
-  **Add to Project**.
-- If it is not: choose **Custom remote server**. On the **Add a custom
-  remote MCP server** page, paste `https://compute.googleapis.com/mcp`
-  into **Remote MCP server URL** and click **Add server**.
+- If Google Compute Engine is in the catalog: choose **3rd-party server**. On the **MCP Catalog** page, find Compute Engine (the search box reads **Search MCP servers...**), open its entry with **View**, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
+- If it is not: choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste `https://compute.googleapis.com/mcp` into **Remote MCP server URL** and click **Add server**.
 
-Either path creates the hosted MCP server and opens its **Overview**
-page.
+Either path creates the hosted MCP server and opens its **Overview** page.
 
 <!-- screenshot: the Add Source menu open on the Sources page, or the Google Compute Engine catalog entry -->
 

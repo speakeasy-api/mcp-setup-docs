@@ -4,17 +4,20 @@ setup_version: 1
 
 # Connect Salesforce to the Speakeasy AI Control Plane
 
-- Salesforce System Administrator access to an API-enabled production or sandbox org.
-- An Enterprise Edition or above org, or a lower-edition org where Hosted MCP Servers are available. For a lower-edition org, confirm availability in the target org before continuing.
-- Authority to create an **External Client App** and enable Hosted MCP servers.
-- Access to the Speakeasy AI Control Plane.
+Use Salesforce System Administrator credentials for an API-enabled production or sandbox org where Hosted MCP Servers are available. Salesforce documents availability for Enterprise Edition and above. You need authority to create an **External Client App** and enable Hosted MCP Servers.
 
-Sign in to the Salesforce org that will expose its records. Create credentials in that same production or sandbox org. This guide does not cover scratch orgs.
+Sign in to the Salesforce org that will expose its records. Create the credentials in that same org. This guide does not cover scratch orgs.
 
 ### Open Salesforce Setup {#open-salesforce-setup}
 
 1. At the top of any Salesforce page, select the setup gear icon.
 2. Select **Setup**.
+
+For a lower-edition org:
+
+1. In **Quick Find**, enter `MCP Servers`.
+2. Select **MCP Servers** under **API Catalog**.
+3. Confirm that Hosted MCP Servers are available in the target org before continuing.
 
 <!-- screenshot: the Salesforce page with the setup gear menu open and Setup visible -->
 
@@ -78,9 +81,10 @@ If the ticket does not specify the team's approved read, write, or delete requir
 1. Return to **Setup**.
 2. In **Quick Find**, enter `MCP Servers`.
 3. Select **MCP Servers** under **API Catalog**.
-4. Use the available control to enable the server whose API ID matches the approved choice.
-5. Record its URL from the table below, using the production or sandbox form that matches the org.
-6. Wait up to two minutes for the server to become active.
+4. Find the server whose API ID matches the approved choice.
+5. Use the available control to enable that server.
+6. Record its URL from the table below, using the production or sandbox form that matches the org.
+7. Wait up to two minutes for the server to become active.
 
 | Server | Production URL | Sandbox URL |
 | --- | --- | --- |

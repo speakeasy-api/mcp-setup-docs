@@ -6,6 +6,72 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-27 — Speakeasy skeleton: OAuth DCR credential variant
+
+Files: `doctrine/speakeasy-setup.md`.
+
+- Add **OAuth with Dynamic Client Registration (DCR)** under Connect your
+  credentials: Configure Manually / Use Discovered, Issuer URL when
+  needed, Discover, Client Type **Dynamic Client Registration (DCR)**,
+  token-endpoint auth method, empty Scope/Audience unless recorded,
+  Attach Identity Provider, no Client ID/Secret, browser prompts hedge.
+- UI label provenance: DCR attach-sheet strings from gram commit
+  `f1d60da` (2026-07-27); prior Manual / Upstream Headers remain
+  `96f7f73`.
+
+Invariants: I1–I8 unchanged (human edit to Speakeasy canonical skeleton).
+
+Evidence: Intercom MCP advertises `registration_endpoint`; draft-guide
+fidelity blocked Intercom until the skeleton carried a DCR variant;
+operator approved adding one.
+
+## 2026-07-27 — speakeasy_add_server guide-level path override
+
+Files: `schema/guide.v1.schema.json`, `pipeline/src/{pulse-catalog,workflow}.ts`,
+`doctrine/speakeasy-setup.md`,
+`doctrine/roles/{technical-research,writer,fidelity,review}.md`,
+`FACTORY.md`, `guides/salesforce/meta.yaml`.
+
+- Guide-level `speakeasy_add_server: auto | catalog | custom-remote`
+  (default auto). Use `custom-remote` when shared public URLs must still
+  skip the catalog (e.g. Salesforce); keep `remotes[].tenanted` for true
+  region/instance/org-specific URLs (e.g. Intercom).
+- Path tree: tenanted → remote; else `speakeasy_add_server` force; else
+  Pulse present/absent/dual.
+- Pipeline logs meta-read failures instead of silent fail-open; lock
+  research inputs preserve pre-refresh notes; notes/lock tokens derive
+  from `resolveAddServerPath`.
+
+Invariants: I1–I8 unchanged (human edit to Speakeasy path-selection
+rule).
+
+Evidence: multi-model review — Salesforce mislabeled as tenanted;
+dossiers must stay aligned with overrides.
+
+## 2026-07-27 — tenanted remotes force Custom remote add-server
+
+Files: `schema/guide.v1.schema.json`, `pipeline/src/pulse-catalog.ts`,
+`pipeline/src/workflow.ts`, `doctrine/speakeasy-setup.md`,
+`doctrine/roles/{technical-research,writer,fidelity,review}.md`,
+`FACTORY.md`, `guides/{intercom,salesforce}/meta.yaml`, matching
+`speakeasy.md` path wording.
+
+- Optional `remotes[].tenanted` marks region/instance/org-specific MCP
+  URLs. Any tenanted remote → Custom remote add-server only (non-registry),
+  even when Pulse returns `present`.
+- Path decision tree: tenanted → remote; else Pulse present → catalog,
+  absent → remote, ambiguous/skipped → dual + soft OQ.
+- Pipeline reads `meta.yaml` before research (and refreshes after) to
+  override catalog notes/lock tokens (`overridden-tenanted`).
+- Skeleton documents catalog / custom / dual as imperative source
+  material; research emits only the chosen path when resolved.
+
+Invariants: I1–I8 unchanged (human edit to Speakeasy path-selection
+rule).
+
+Evidence: operator request for deterministic Speakeasy setup — catalog
+vs remote, with tenanted URLs always treated as non-registry.
+
 ## 2026-07-27 — Pulse catalog presence resolves add-server path
 
 Files: `pipeline/src/pulse-catalog.ts`, `pipeline/src/workflow.ts`,

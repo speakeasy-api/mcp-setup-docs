@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { parse as parseYaml } from 'yaml'
 import { z } from 'zod'
 import {
   buildDraftInputs,
@@ -31,9 +32,84 @@ import {
   formatCatalogNote,
   lookupCatalogPresence,
   mergeCatalogNotes,
+  resolveAddServerPath,
   stableCatalogLockNote,
+  type CatalogLookupResult,
+  type SpeakeasyAddServerMode,
 } from './pulse-catalog.ts'
 import { PATHS, abs, guideDir, personaFile, roleDoc } from './paths.ts'
+
+export type GuideAddServerHints = {
+  tenanted: boolean
+  addServer: SpeakeasyAddServerMode
+  /** Set when meta.yaml could not be read/parsed; path treats as non-override. */
+  error?: string
+}
+
+/** Read remotes[].tenanted + speakeasy_add_server from meta.yaml. */
+export function readGuideAddServerHints(
+  guideDirectory: string
+): GuideAddServerHints {
+  const metaPath = join(guideDirectory, 'meta.yaml')
+  if (!existsSync(metaPath)) {
+    return { tenanted: false, addServer: 'auto' }
+  }
+  try {
+    const data = parseYaml(readFileSync(metaPath, 'utf8')) as {
+      remotes?: Array<{ tenanted?: unknown }>
+      speakeasy_add_server?: unknown
+    } | null
+    if (!data || typeof data !== 'object') {
+      return {
+        tenanted: false,
+        addServer: 'auto',
+        error: 'meta.yaml parsed to a non-object',
+      }
+    }
+    const tenanted =
+      Array.isArray(data.remotes) &&
+      data.remotes.some((r) => r && r.tenanted === true)
+    const raw = data.speakeasy_add_server
+    let addServer: SpeakeasyAddServerMode = 'auto'
+    if (raw === 'auto' || raw === 'catalog' || raw === 'custom-remote') {
+      addServer = raw
+    } else if (raw !== undefined && raw !== null) {
+      return {
+        tenanted,
+        addServer: 'auto',
+        error: `invalid speakeasy_add_server: ${JSON.stringify(raw)}`,
+      }
+    }
+    return { tenanted, addServer }
+  } catch (err) {
+    return {
+      tenanted: false,
+      addServer: 'auto',
+      error: err instanceof Error ? err.message : String(err),
+    }
+  }
+}
+
+/** @deprecated Use readGuideAddServerHints */
+export function guideHasTenantedRemote(guideDirectory: string): boolean {
+  return readGuideAddServerHints(guideDirectory).tenanted
+}
+
+function applyCatalogNotes(
+  raw: GuideInput,
+  catalog: CatalogLookupResult,
+  hints: GuideAddServerHints
+): GuideInput {
+  const opts = { tenanted: hints.tenanted, addServer: hints.addServer }
+  return {
+    ...raw,
+    catalogPromptNote: formatCatalogNote(catalog, opts),
+    lockNotes: mergeCatalogNotes(
+      raw.notes,
+      stableCatalogLockNote(catalog, opts)
+    ),
+  }
+}
 
 export const PhaseResult = withSchemaHint(
   z
@@ -294,7 +370,8 @@ export async function runWorkflow(
 
   function writeConvergedLock(
     g: GuideInput,
-    completedAt: string
+    completedAt: string,
+    opts?: { researchNotes?: string }
   ): void {
     const dir = guideDir(g.slug)
     mkdirSync(dir, { recursive: true })
@@ -304,7 +381,8 @@ export async function runWorkflow(
       model: modelId(),
       repoRoot: ROOT,
       provider: g.provider,
-      notes: notesOf(g),
+      // Prefer the notes actually sent to research (pre-refresh).
+      notes: opts?.researchNotes ?? notesOf(g),
     })
     steps.research = makeStepRecord(
       researchInputs,
@@ -772,9 +850,27 @@ export async function runWorkflow(
   }
 
   async function draftOne(raw: GuideInput): Promise<GuideResult> {
+    const dir = guideDir(raw.slug)
+    mkdirSync(dir, { recursive: true })
+
     const catalog = await lookupCatalogPresence({
       provider: raw.provider,
       slug: raw.slug,
+    })
+    let hints = readGuideAddServerHints(dir)
+    if (hints.error) {
+      log(
+        '[' +
+          raw.slug +
+          '] add-server hints: meta read warning — ' +
+          hints.error +
+          ' (treating as auto / non-tenanted)'
+      )
+    }
+    const path = resolveAddServerPath({
+      catalog,
+      tenanted: hints.tenanted,
+      addServer: hints.addServer,
     })
     log(
       '[' +
@@ -784,6 +880,12 @@ export async function runWorkflow(
         (catalog.match
           ? ' name=' + catalog.match.name
           : '') +
+        ' tenanted=' +
+        hints.tenanted +
+        ' add_server=' +
+        hints.addServer +
+        ' path=' +
+        path +
         ' tenant=' +
         catalog.tenant +
         ' observed=' +
@@ -791,14 +893,10 @@ export async function runWorkflow(
         (catalog.reason ? ' — ' + catalog.reason : '') +
         (catalog.logDetail ? ' detail=' + catalog.logDetail : '')
     )
-    const g: GuideInput = {
-      ...raw,
-      catalogPromptNote: formatCatalogNote(catalog),
-      lockNotes: mergeCatalogNotes(raw.notes, stableCatalogLockNote(catalog)),
-    }
+    let g: GuideInput = applyCatalogNotes(raw, catalog, hints)
+    // Notes actually sent to research — preserve for lock digests if hints refresh.
+    const researchLockNotes = notesOf(g)
 
-    const dir = guideDir(g.slug)
-    mkdirSync(dir, { recursive: true })
     const prevLock = readLock(dir)
     const skipped: string[] = []
     const beforeResearch = snapshotResearchOutputs(dir)
@@ -820,6 +918,38 @@ export async function runWorkflow(
         notes: research.notes,
         open_questions: research.open_questions,
       }
+    }
+
+    // Research may have set remotes[].tenanted / speakeasy_add_server — refresh for draft/lock.
+    const hintsAfter = readGuideAddServerHints(dir)
+    if (hintsAfter.error) {
+      log(
+        '[' +
+          g.slug +
+          '] add-server hints after research: meta read warning — ' +
+          hintsAfter.error
+      )
+    }
+    if (
+      hintsAfter.tenanted !== hints.tenanted ||
+      hintsAfter.addServer !== hints.addServer
+    ) {
+      hints = hintsAfter
+      g = applyCatalogNotes(raw, catalog, hints)
+      log(
+        '[' +
+          g.slug +
+          '] catalog path refreshed after research: tenanted=' +
+          hints.tenanted +
+          ' add_server=' +
+          hints.addServer +
+          ' path=' +
+          resolveAddServerPath({
+            catalog,
+            tenanted: hints.tenanted,
+            addServer: hints.addServer,
+          })
+      )
     }
 
     const researchChange = await decideResearchUnchanged(
@@ -985,7 +1115,7 @@ export async function runWorkflow(
             '] converged (lock): draft and all reviews skipped'
         )
         const finishedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
-        writeConvergedLock(g, finishedAt)
+        writeConvergedLock(g, finishedAt, { researchNotes: researchLockNotes })
         return {
           slug: g.slug,
           status: 'converged',
@@ -1107,7 +1237,7 @@ export async function runWorkflow(
             ' checklist item(s) remain'
         )
         const finishedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
-        writeConvergedLock(g, finishedAt)
+        writeConvergedLock(g, finishedAt, { researchNotes: researchLockNotes })
         return {
           slug: g.slug,
           status: 'converged',

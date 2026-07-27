@@ -219,6 +219,10 @@
           "type": "array",
           "uniqueItems": true
         },
+        "tenanted": {
+          "description": "True when the reader must paste a region, instance, or org-specific MCP URL (not a single shared public endpoint). Tenanted remotes always use Custom remote add-server — never the Speakeasy MCP Catalog — even if Pulse lists the provider. For non-tenanted URLs that must still skip the catalog, set guide-level speakeasy_add_server: custom-remote instead.",
+          "type": "boolean"
+        },
         "transport": {
           "enum": [
             "sse",
@@ -330,6 +334,15 @@
     "slug": {
       "description": "Stable Guide identity; must match the guide directory name.",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "speakeasy_add_server": {
+      "description": "How speakeasy.md adds the MCP server. auto (default): Pulse catalog when present, else Custom remote, unless any remote is tenanted (always Custom remote). catalog: force 3rd-party catalog path. custom-remote: force Custom remote (e.g. catalog mapping unreliable) even when Pulse lists the provider and remotes are not tenanted.",
+      "enum": [
+        "auto",
+        "catalog",
+        "custom-remote"
+      ],
       "type": "string"
     },
     "summary": {

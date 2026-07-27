@@ -57,9 +57,10 @@ already in context (for example an installed MCP server's detail page).
 - No frontmatter. Exactly one H1: `# Speakeasy setup`.
 - Renders the Dossier's transclusion of `doctrine/speakeasy-setup.md`: the
   fixed anchors verbatim, the add-server path(s) the Dossier chose
-  (catalog only, custom remote only, or both when presence was
-  unresolved), the guide's actual credential fields named and
-  cross-linked to the External steps that produced them
+  (catalog only, custom remote only — including when remotes are
+  tenanted or `speakeasy_add_server` forces a path — or both when Pulse
+  presence was unresolved under `auto`), the guide's actual credential
+  fields named and cross-linked to the External steps that produced them
   (`external.md#anchor-id`), and the closing provider-docs pointer as
   the file's final line.
 

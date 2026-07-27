@@ -1,0 +1,123 @@
+{
+  "slug": "salesforce",
+  "provider": "salesforce",
+  "persona": "it-admin",
+  "timestamp": "2026-07-27T17:43:04Z",
+  "started_at": "2026-07-27T17:43:04Z",
+  "finished_at": "2026-07-27T17:53:40Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Salesforce does not publish exact activation row or toggle labels for the four SObject servers.",
+    "Speakeasy OAuth compatibility with Salesforce Consumer Key-only PKCE remains unverified end to end.",
+    "Hosted MCP availability below Enterprise Edition remains unclear despite API eligibility guidance.",
+    "Canonical Speakeasy doctrine does not document the control that starts Salesforce user authorization after attaching the identity provider."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "speakeasy.md#connect-speakeasy-credentials",
+          "problem": "The only credential mapping is explicitly unverified, so the reader cannot know whether leaving the client secret empty will establish a connection.",
+          "suggestion": "Validate the Consumer Key-only configuration end to end in the Speakeasy AI Control Plane and document the confirmed credential mapping.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "Introduction: “confirm that Hosted MCP Servers are available before continuing”",
+          "problem": "The lower-edition availability check does not tell the reader where or how to perform that check.",
+          "suggestion": "Direct the reader to look for **MCP Servers** under **Setup** > **API Catalog**, or limit the guide to editions with documented availability.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Applied the external nit: research.md and external.md now direct lower-edition admins to Setup > Quick Find > MCP Servers under API Catalog. Guide lint passes.",
+      "disputed": [
+        "Blocker: End-to-end Consumer Key-only validation requires private Salesforce and Speakeasy credentials; public sources cannot establish it, and the guide already labels the mapping as unverified."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "credential_setup.options[oauth-client].fields[client-id].setup",
+          "problem": "The Client ID setup references configure-oauth-settings, but that section neither produces nor reveals the Consumer Key mapped to Client ID in the Dossier.",
+          "suggestion": "Remove external.md#configure-oauth-settings and retain external.md#copy-consumer-key as the Client ID setup reference.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Credential flow and speakeasy.md#connect-speakeasy-credentials",
+          "problem": "The Consumer Key-only Speakeasy configuration remains an unverified compatibility inference, so the first connection is not demonstrably achievable.",
+          "suggestion": "Validate attaching and authorizing the Consumer Key with an empty client secret end to end in the Speakeasy AI Control Plane, then document the confirmed mapping.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Meta: removed external.md#configure-oauth-settings from Client ID setup; retained external.md#copy-consumer-key. Guide lint passes.",
+      "disputed": [
+        "Research/achievability: end-to-end Speakeasy validation requires authenticated private-product testing unavailable from public documentation; the existing explicit hedge and open question honor the fact ceiling."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Credential flow and speakeasy.md#connect-speakeasy-credentials",
+          "problem": "The Consumer Key-only Speakeasy configuration remains explicitly unverified, so the guide does not demonstrate an achievable first connection.",
+          "suggestion": "Validate the empty-client-secret PKCE flow end to end in the Speakeasy AI Control Plane and document the confirmed credential mapping.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Credential flow and speakeasy.md#connect-speakeasy-credentials",
+          "problem": "The guide explicitly relies on an unverified Consumer Key-only configuration, so successful first connection remains unconfirmed despite the hedge.",
+          "suggestion": "Validate the empty-client-secret configuration end to end in the Speakeasy AI Control Plane, then document the confirmed mapping.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "Opening prerequisites, \"For a lower-edition org\"",
+          "problem": "The reader is told to use Quick Find in Setup before the guide explains how to open Setup.",
+          "suggestion": "Move the lower-edition availability check after open-salesforce-setup and give the documented Quick Find path to MCP Servers under API Catalog.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Applied the external nit: moved the lower-edition availability check after opening Salesforce Setup and added the documented Quick Find > MCP Servers under API Catalog path.",
+      "disputed": [
+        "Fidelity blocker: End-to-end Speakeasy validation requires non-public live credentials and evidence outside the public-documentation fact ceiling; the existing hedge must remain.",
+        "Achievability blocker: The canonical Speakeasy critical path ends at Attach Identity Provider and does not document authorization completion, so expanding or claiming successful first connection would invent an unsupported path."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "force: treating research as changed for skip purposes"
+  }
+}

@@ -50,9 +50,9 @@ Work through both setup files fact by fact, in both directions:
    current `doctrine/speakeasy-setup.md` (drift is a blocker targeting
    `research`), and `speakeasy.md` renders it faithfully like any other
    Dossier facts. When the Dossier selected a single add-server path
-   (Pulse-verified catalog present or absent), do not treat the omitted
-   alternate bullet as an omission — only the selected path(s) must
-   appear.
+   (Pulse-verified catalog present or absent, tenanted remotes, or
+   `speakeasy_add_server` override), do not treat the omitted alternate
+   bullet as an omission — only the selected path(s) must appear.
 
 ## How you report
 

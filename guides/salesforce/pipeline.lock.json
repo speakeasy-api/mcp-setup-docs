@@ -3,140 +3,140 @@
   "slug": "salesforce",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-24T23:15:05Z",
+  "updated_at": "2026-07-27T17:53:40Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:7b148ca394dd29c0adbc674e4f52e42f67cfdec9dfbbe2d791e33f96c42b9724",
+      "input_digest": "sha256:a10f7f4fcdffe62c8bee89fc90c67080ad227d14343faa0ababecc74a645b04f",
       "inputs": {
         "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:e7710a7c2f4b9f0b2667da15b3fa8df59134c5b37bfb140fe48c01dadaa16128",
+        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
-            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
           },
           {
             "path": "doctrine/shared.md",
-            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
           },
           {
             "path": "doctrine/roles/technical-research.md",
-            "digest": "sha256:3099f1e653aeadefa5a23507f1a784dbe3d86a6da02839b7a2c59f4e35d290af"
+            "digest": "sha256:66065c6978e8389ff59b1a5f1ba0bfe4b7d16c93189416d97119b5cbdd6f091f"
           },
           {
             "path": "doctrine/speakeasy-setup.md",
-            "digest": "sha256:0574748e2eb0d40a7cb4ab1e7b23157dbb8c73cd7a20f5508b24fce29f039123"
+            "digest": "sha256:7e42bb3b4ce410d0ace023cf409da503f4ebad028a91548f029af72a28e7809c"
           }
         ],
         "artifacts": [],
         "params": {
           "provider": "salesforce",
-          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing vs Hosted MCP SObject servers and manual OAuth fields; exact activation SObject row and enabled-toggle labels; Consumer Key-only PKCE through Speakeasy AI Control Plane; which Speakeasy control starts user authorization after attaching identity provider."
+          "notes": "Speakeasy MCP Catalog: overridden-custom-remote"
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:7bfcce547cc10ccb1eb50751763ef88065f734780ba84f6035dcf62ed3bf6def"
+          "digest": "sha256:f055adddf5ef15df181794cd773e8dfb9ab372b1159d133a8d893c7a7c488992"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:4a32b42098d76d19ae4721b094bddc1efcc5a624d923d21b3e0eea5c9d8c3b77"
+          "digest": "sha256:990a15b15bd3a338270fb94870b7a141786b4d747e04ad0fc449f2a6cdf99b1e"
         }
       ],
-      "completed_at": "2026-07-24T23:15:05Z"
+      "completed_at": "2026-07-27T17:53:40Z"
     },
     "draft": {
-      "input_digest": "sha256:9f9cd4aa9e88c4f6ab1bd96c1ab668a44b9e034f75d2b5071f34c0b7dc618883",
+      "input_digest": "sha256:750d7e1941e747fc526add04a2fefef96c175ab975b278e2be430c43b42ceefb",
       "inputs": {
         "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:7f71da494fd56ce71d7118e82982656f97536bb9a6bb17e56e33e392d4123da6",
+        "prompt_digest": "sha256:a956869fa21cc7f91fff9450fe09c86dc2014cb5f058691e03d07eb0b3acce3f",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
-            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
           },
           {
             "path": "doctrine/shared.md",
-            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
           },
           {
             "path": "doctrine/roles/writer.md",
-            "digest": "sha256:621ba29cfe06a63471077c490c077c72b6edd7f36741e778b33300c111f5c9ce"
+            "digest": "sha256:1e2f0afa73e8c28502f7fea0d21722a22c980326f3bd878418df27c23fa5b6b3"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:7bfcce547cc10ccb1eb50751763ef88065f734780ba84f6035dcf62ed3bf6def"
+            "digest": "sha256:f055adddf5ef15df181794cd773e8dfb9ab372b1159d133a8d893c7a7c488992"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:4a32b42098d76d19ae4721b094bddc1efcc5a624d923d21b3e0eea5c9d8c3b77"
+            "digest": "sha256:990a15b15bd3a338270fb94870b7a141786b4d747e04ad0fc449f2a6cdf99b1e"
           }
         ],
         "params": {
           "provider": "salesforce",
-          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing vs Hosted MCP SObject servers and manual OAuth fields; exact activation SObject row and enabled-toggle labels; Consumer Key-only PKCE through Speakeasy AI Control Plane; which Speakeasy control starts user authorization after attaching identity provider.",
+          "notes": "Speakeasy MCP Catalog: overridden-custom-remote",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:2a30066dc83ad87b412b9ef2b54e02971d709438d4d0ed634bd13cff2750cf48"
+          "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:f1876dceafb1980dea56cbf23cfcf19b5bf5e852d13e1d53e3124d89e42e89e1"
+          "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
         }
       ],
-      "completed_at": "2026-07-24T23:15:05Z"
+      "completed_at": "2026-07-27T17:53:40Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:558ef1d2b3be65f9159054f7c4e2e558698fef797050ab33712111d04fa73482",
+      "input_digest": "sha256:e6e19bbe9a970497cefd027814f7531dbabcae9622e7b1c1ae829719eb364cf7",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
-            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
           },
           {
             "path": "doctrine/shared.md",
-            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
           },
           {
             "path": "doctrine/roles/fidelity.md",
-            "digest": "sha256:fe73d724c57713002ee0030655222908eb77e409dc8c16aa0abfb5994de9d3b3"
+            "digest": "sha256:472ec8a2db648c822d126dea857d3f79e9c97a8e9b5fe6a997170bef3c8d2c22"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:7bfcce547cc10ccb1eb50751763ef88065f734780ba84f6035dcf62ed3bf6def"
+            "digest": "sha256:f055adddf5ef15df181794cd773e8dfb9ab372b1159d133a8d893c7a7c488992"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:7e5ff8866c5e7d9ca17d945cadc9919dd4a1c40bca9584703995d9ed4eb99daf"
+            "digest": "sha256:990a15b15bd3a338270fb94870b7a141786b4d747e04ad0fc449f2a6cdf99b1e"
           },
           {
             "path": "external.md",
-            "digest": "sha256:2a30066dc83ad87b412b9ef2b54e02971d709438d4d0ed634bd13cff2750cf48"
+            "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:f1876dceafb1980dea56cbf23cfcf19b5bf5e852d13e1d53e3124d89e42e89e1"
+            "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
           }
         ],
         "params": {
           "provider": "salesforce",
-          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing vs Hosted MCP SObject servers and manual OAuth fields; exact activation SObject row and enabled-toggle labels; Consumer Key-only PKCE through Speakeasy AI Control Plane; which Speakeasy control starts user authorization after attaching identity provider.",
+          "notes": "Speakeasy MCP Catalog: overridden-custom-remote",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,59 +144,59 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:2a30066dc83ad87b412b9ef2b54e02971d709438d4d0ed634bd13cff2750cf48"
+          "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:f1876dceafb1980dea56cbf23cfcf19b5bf5e852d13e1d53e3124d89e42e89e1"
+          "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
         }
       ],
-      "completed_at": "2026-07-24T23:15:05Z"
+      "completed_at": "2026-07-27T17:53:40Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:aa2a609d3a0722aac4193f7714f9dae24560318b5f9066238968cde9c5f48d2b",
+      "input_digest": "sha256:adc509444a91af8d2d0a1cd78ac66a5ddde8f6318c5884912644cfcc957bb4a0",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
-            "digest": "sha256:d3d09272f2edfbee65397263a5035c6e7ab82f27882f8d2fe671bb1df56476b2"
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
           },
           {
             "path": "doctrine/shared.md",
-            "digest": "sha256:205915dfd84f0373ec65dc43828bf4fda6bbd6de543fed51e21f6981d1f670a4"
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
           },
           {
             "path": "doctrine/roles/review.md",
-            "digest": "sha256:42f6b2d4408952b17dced886cac3049689d7ba06e1c16085d97fd11e48d38162"
+            "digest": "sha256:7eb1e560946bbc2656afdfbdbd26d85b3d4a5579818fc4bd6629d818ce251f69"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:22aa3a667e47ce8898a3747a0f00f1fb807f91c7c2ad8bf7a1e32cbfc2f07c9f"
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:7bfcce547cc10ccb1eb50751763ef88065f734780ba84f6035dcf62ed3bf6def"
+            "digest": "sha256:f055adddf5ef15df181794cd773e8dfb9ab372b1159d133a8d893c7a7c488992"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:7e5ff8866c5e7d9ca17d945cadc9919dd4a1c40bca9584703995d9ed4eb99daf"
+            "digest": "sha256:990a15b15bd3a338270fb94870b7a141786b4d747e04ad0fc449f2a6cdf99b1e"
           },
           {
             "path": "external.md",
-            "digest": "sha256:2a30066dc83ad87b412b9ef2b54e02971d709438d4d0ed634bd13cff2750cf48"
+            "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:f1876dceafb1980dea56cbf23cfcf19b5bf5e852d13e1d53e3124d89e42e89e1"
+            "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
           }
         ],
         "params": {
           "provider": "salesforce",
-          "notes": "Salesforce Hosted MCP Servers; primary docs: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html. Resume/revise on branch guide/issue-20-salesforce (draft PR #21). Decision 1: hedge — document lower-edition availability with soft/conditional language; do not invent Setup UI labels. Unverified (hedge/omit as needed): Speakeasy MCP Catalog listing vs Hosted MCP SObject servers and manual OAuth fields; exact activation SObject row and enabled-toggle labels; Consumer Key-only PKCE through Speakeasy AI Control Plane; which Speakeasy control starts user authorization after attaching identity provider.",
+          "notes": "Speakeasy MCP Catalog: overridden-custom-remote",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:2a30066dc83ad87b412b9ef2b54e02971d709438d4d0ed634bd13cff2750cf48"
+          "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:f1876dceafb1980dea56cbf23cfcf19b5bf5e852d13e1d53e3124d89e42e89e1"
+          "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
         }
       ],
-      "completed_at": "2026-07-24T23:15:05Z"
+      "completed_at": "2026-07-27T17:53:40Z"
     }
   }
 }

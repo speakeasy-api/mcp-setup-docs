@@ -102,15 +102,27 @@ transcluded facts is the canonical doc's path plus this run's
 observed_at.
 
 Honor any Speakeasy MCP Catalog presence fact in operator notes (Pulse
-tenant lookup: `present` / `absent` / `ambiguous` / `skipped`):
+tenant lookup: `present` / `absent` / `ambiguous` / `skipped`), **after**
+path overrides:
 
-- **present** — transclude only the catalog (3rd-party server) bullet;
-  do not emit a catalog-presence open question. Record the matched
-  registry `name` / title with `source: pulsemcp` in provenance.
-- **absent** — transclude only the Custom remote server bullet; do not
-  emit a catalog-presence open question.
-- **ambiguous** or **skipped** (or no lookup note) — keep both
-  add-server bullets and a soft open question for catalog presence.
+- Any `remotes[].tenanted: true` — transclude only the Custom remote
+  server path (treat as non-registry), even if Pulse says `present`. Do
+  not emit a catalog-presence open question. Set `tenanted: true` on
+  remotes whose URL is region, instance, or org-specific.
+- Guide `speakeasy_add_server: custom-remote` — same Custom-remote-only
+  outcome when remotes are shared public URLs but catalog use is wrong
+  (unreliable mapping, multi-endpoint selection). Record why in the
+  Dossier; keep `speakeasy_add_server: custom-remote` in `meta.yaml`.
+- Guide `speakeasy_add_server: catalog` — catalog path only.
+- **present** (auto, no tenanted remote) — transclude only the catalog
+  (3rd-party server) path; do not emit a catalog-presence open question.
+  Record the matched registry `name` / title with `source: pulsemcp` in
+  provenance.
+- **absent** (auto) — transclude only the Custom remote server path; do
+  not emit a catalog-presence open question.
+- **ambiguous** or **skipped** (or no lookup note), auto, and no
+  override — keep both add-server bullets and a soft open question for
+  catalog presence.
 
 ## Open questions
 Anything you could not confirm from documentation. Flagged, not guessed.

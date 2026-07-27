@@ -233,64 +233,186 @@ export async function lookupCatalogPresence(opts: {
   }
 }
 
+/** Effective add-server path after overrides + Pulse. */
+export type AddServerPath =
+  | 'catalog'
+  | 'custom-remote'
+  | 'dual-conditional'
+
+/** Guide-level speakeasy_add_server (omit/invalid → auto). */
+export type SpeakeasyAddServerMode = 'auto' | 'catalog' | 'custom-remote'
+
+export type AddServerPathInput = {
+  catalog: CatalogLookupResult
+  /** Any remotes[].tenanted: true */
+  tenanted: boolean
+  /** Guide-level speakeasy_add_server; default auto */
+  addServer?: SpeakeasyAddServerMode
+}
+
 /**
- * Stable lock-digest token — status + match name only.
+ * Decision tree:
+ * 1. tenanted remotes → Custom remote
+ * 2. speakeasy_add_server: custom-remote → Custom remote
+ * 3. speakeasy_add_server: catalog → catalog
+ * 4. else Pulse present → catalog, absent → custom remote, ambiguous/skipped → dual
+ */
+export function resolveAddServerPath(opts: AddServerPathInput): AddServerPath {
+  if (opts.tenanted) return 'custom-remote'
+  const mode = opts.addServer ?? 'auto'
+  if (mode === 'custom-remote') return 'custom-remote'
+  if (mode === 'catalog') return 'catalog'
+  if (opts.catalog.status === 'present' && opts.catalog.match) return 'catalog'
+  if (opts.catalog.status === 'present') return 'dual-conditional'
+  if (opts.catalog.status === 'absent') return 'custom-remote'
+  return 'dual-conditional'
+}
+
+/**
+ * Stable lock-digest token — effective path (+ match name when catalog).
  * Must not include timestamps, tenants, or volatile reason text.
  */
-export function stableCatalogLockNote(result: CatalogLookupResult): string {
-  if (result.status === 'present' && result.match) {
+export function stableCatalogLockNote(
+  result: CatalogLookupResult,
+  opts?: { tenanted?: boolean; addServer?: SpeakeasyAddServerMode }
+): string {
+  const path = resolveAddServerPath({
+    catalog: result,
+    tenanted: opts?.tenanted === true,
+    addServer: opts?.addServer,
+  })
+  if (opts?.tenanted) {
+    return 'Speakeasy MCP Catalog: overridden-tenanted'
+  }
+  if (opts?.addServer === 'custom-remote') {
+    return 'Speakeasy MCP Catalog: overridden-custom-remote'
+  }
+  if (opts?.addServer === 'catalog') {
+    if (result.match) {
+      return `Speakeasy MCP Catalog: forced-catalog name=${JSON.stringify(result.match.name)}`
+    }
+    return 'Speakeasy MCP Catalog: forced-catalog'
+  }
+  if (path === 'catalog' && result.match) {
     return `Speakeasy MCP Catalog: present name=${JSON.stringify(result.match.name)}`
+  }
+  if (path === 'custom-remote') {
+    return 'Speakeasy MCP Catalog: absent'
   }
   return `Speakeasy MCP Catalog: ${result.status}`
 }
 
 /** Operator note injected into research/draft assignment (stable across runs). */
-export function formatCatalogNote(result: CatalogLookupResult): string {
-  const header = `Speakeasy MCP Catalog: ${result.status}`
+export function formatCatalogNote(
+  result: CatalogLookupResult,
+  opts?: { tenanted?: boolean; addServer?: SpeakeasyAddServerMode }
+): string {
+  return formatAddServerPathNote({
+    catalog: result,
+    tenanted: opts?.tenanted === true,
+    addServer: opts?.addServer,
+  })
+}
+
+/**
+ * Single source for add-server path instructions (overrides + Pulse).
+ */
+export function formatAddServerPathNote(opts: AddServerPathInput): string {
+  const { catalog, tenanted } = opts
+  const addServer = opts.addServer ?? 'auto'
+  const path = resolveAddServerPath(opts)
   const queried =
-    result.queries.length > 0
-      ? `Queries: ${result.queries.map((q) => JSON.stringify(q)).join(', ')}`
+    catalog.queries.length > 0
+      ? `Queries: ${catalog.queries.map((q) => JSON.stringify(q)).join(', ')}`
       : 'Queries: (none)'
 
-  if (result.status === 'present' && result.match) {
-    const title = result.match.title
-      ? ` title=${JSON.stringify(result.match.title)}`
-      : ''
+  if (tenanted) {
     return [
-      header,
-      `Matched name=${JSON.stringify(result.match.name)}${title}`,
+      'Speakeasy MCP Catalog: overridden-tenanted',
       queried,
-      'Render only the catalog add-server path; do not leave catalog presence as an open question.',
-    ].join('\n')
-  }
-
-  if (result.status === 'absent') {
-    return [
-      header,
-      queried,
+      'One or more remotes are tenanted (region/instance/org-specific URL).',
       'Render only the Custom remote server add-server path; do not leave catalog presence as an open question.',
     ].join('\n')
   }
 
-  if (result.status === 'ambiguous') {
+  if (addServer === 'custom-remote') {
+    return [
+      'Speakeasy MCP Catalog: overridden-custom-remote',
+      queried,
+      'Guide sets speakeasy_add_server: custom-remote (force Custom remote; catalog mapping unreliable or unsuitable).',
+      'Render only the Custom remote server add-server path; do not leave catalog presence as an open question.',
+    ].join('\n')
+  }
+
+  if (addServer === 'catalog') {
+    const header = 'Speakeasy MCP Catalog: forced-catalog'
+    if (catalog.match) {
+      const title = catalog.match.title
+        ? ` title=${JSON.stringify(catalog.match.title)}`
+        : ''
+      return [
+        header,
+        `Matched name=${JSON.stringify(catalog.match.name)}${title}`,
+        queried,
+        'Guide sets speakeasy_add_server: catalog.',
+        'Render only the catalog add-server path; do not leave catalog presence as an open question.',
+      ].join('\n')
+    }
     return [
       header,
       queried,
-      result.reason ? `Reason: ${result.reason}` : '',
-      'Catalog presence is unresolved — keep both add-server conditionals and a soft open question.',
-    ]
-      .filter(Boolean)
-      .join('\n')
+      'Guide sets speakeasy_add_server: catalog.',
+      'Render only the catalog add-server path; do not leave catalog presence as an open question.',
+    ].join('\n')
   }
 
-  return [
-    header,
-    queried,
-    result.reason ? `Reason: ${result.reason}` : '',
-    'Pulse lookup unavailable — keep both add-server conditionals and a soft open question.',
-  ]
-    .filter(Boolean)
-    .join('\n')
+  const header = `Speakeasy MCP Catalog: ${catalog.status}`
+
+  switch (path) {
+    case 'catalog': {
+      if (!catalog.match) {
+        return [
+          header,
+          queried,
+          'Catalog path resolved without a match record — keep both add-server conditionals and a soft open question.',
+        ].join('\n')
+      }
+      const title = catalog.match.title
+        ? ` title=${JSON.stringify(catalog.match.title)}`
+        : ''
+      return [
+        header,
+        `Matched name=${JSON.stringify(catalog.match.name)}${title}`,
+        queried,
+        'Render only the catalog add-server path; do not leave catalog presence as an open question.',
+      ].join('\n')
+    }
+    case 'custom-remote':
+      return [
+        header,
+        queried,
+        'Render only the Custom remote server add-server path; do not leave catalog presence as an open question.',
+      ].join('\n')
+    case 'dual-conditional':
+      if (catalog.status === 'ambiguous') {
+        return [
+          header,
+          queried,
+          catalog.reason ? `Reason: ${catalog.reason}` : '',
+          'Catalog presence is unresolved — keep both add-server conditionals and a soft open question.',
+        ]
+          .filter(Boolean)
+          .join('\n')
+      }
+      return [
+        header,
+        queried,
+        catalog.reason ? `Reason: ${catalog.reason}` : '',
+        'Pulse lookup unavailable — keep both add-server conditionals and a soft open question.',
+      ]
+        .filter(Boolean)
+        .join('\n')
+  }
 }
 
 /** Merge catalog note into existing operator notes. */

@@ -1,0 +1,98 @@
+{
+  "slug": "intercom",
+  "provider": "intercom",
+  "persona": "it-admin",
+  "timestamp": "2026-07-27T17:43:04Z",
+  "started_at": "2026-07-27T17:43:04Z",
+  "finished_at": "2026-07-27T17:53:40Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "## Speakeasy setup — Connect your credentials",
+      "problem": "The Dossier transcludes a dynamic-client-registration flow and UI labels absent from the canonical doctrine/speakeasy-setup.md skeleton.",
+      "suggestion": "Pause the Guide for a human-approved canonical skeleton update covering dynamic client registration, then transclude that variant verbatim into the Dossier.",
+      "dimension": "fidelity"
+    }
+  ],
+  "nits": [],
+  "open_questions": [
+    "Intercom documents browser-based OAuth authorization but does not publish the MCP-specific screen sequence or exact button labels."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "## Speakeasy setup — Connect your credentials",
+          "problem": "The Dossier substitutes a dynamic-client-registration flow and UI labels that are absent from the canonical doctrine/speakeasy-setup.md skeleton.",
+          "suggestion": "Pause the Guide for a human-approved canonical skeleton update covering dynamic client registration, then transclude that variant verbatim into the Dossier.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "No files changed. The blocker is valid but cannot be resolved within the guide directory: the DCR flow requires a human-approved update to doctrine/speakeasy-setup.md before verbatim transclusion. The Guide remains paused.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "## Speakeasy setup — Connect your credentials",
+          "problem": "The Dossier still substitutes a dynamic-client-registration flow and UI labels absent from the canonical doctrine/speakeasy-setup.md skeleton.",
+          "suggestion": "Pause the Guide for a human-approved canonical skeleton update covering dynamic client registration, then transclude that variant verbatim into the Dossier.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "No files changed. The blocker is valid but requires a human-approved update to doctrine/speakeasy-setup.md before the DCR variant can be transcluded; doctrine is outside the permitted guide directory.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "## Speakeasy setup — Connect your credentials",
+          "problem": "The Dossier substitutes a dynamic-client-registration flow and UI labels absent from the canonical doctrine/speakeasy-setup.md skeleton.",
+          "suggestion": "Pause the Guide for a human-approved canonical skeleton update covering dynamic client registration, then transclude that variant verbatim into the Dossier.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Confirmed the blocker. No guide-only fix is valid: Dynamic Client Registration is absent from the canonical Speakeasy skeleton, and doctrine is read-only. The Guide must pause for a human-approved canonical update; files remain unchanged.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "## Speakeasy setup — Connect your credentials",
+          "problem": "The Dossier transcludes a dynamic-client-registration flow and UI labels absent from the canonical doctrine/speakeasy-setup.md skeleton.",
+          "suggestion": "Pause the Guide for a human-approved canonical skeleton update covering dynamic client registration, then transclude that variant verbatim into the Dossier.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "force: treating research as changed for skip purposes"
+  }
+}

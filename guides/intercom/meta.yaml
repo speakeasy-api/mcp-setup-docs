@@ -18,6 +18,7 @@ remotes:
   - id: us
     url: https://mcp.intercom.com/mcp
     transport: streamable-http
+    tenanted: true
     authentication:
       - oauth-dynamic
     provenance:
@@ -25,18 +26,19 @@ remotes:
         locator: https://developers.intercom.com/docs/guides/mcp
         name: Model Context Protocol (MCP)
         classification: official
-        observed_at: "2026-07-24T23:08:01Z"
+        observed_at: "2026-07-27T17:58:53Z"
       - source: endpoint-observation
         locator: https://mcp.intercom.com/mcp
         classification: official
-        observed_at: "2026-07-24T23:08:01Z"
+        observed_at: "2026-07-27T17:58:53Z"
       - source: endpoint-observation
         locator: https://mcp.intercom.com/.well-known/oauth-authorization-server
         classification: official
-        observed_at: "2026-07-24T23:08:01Z"
+        observed_at: "2026-07-27T17:58:53Z"
   - id: eu
     url: https://mcp.eu.intercom.com/mcp
     transport: streamable-http
+    tenanted: true
     authentication:
       - oauth-dynamic
     provenance:
@@ -44,77 +46,87 @@ remotes:
         locator: https://developers.intercom.com/docs/guides/mcp
         name: Model Context Protocol (MCP)
         classification: official
-        observed_at: "2026-07-24T23:08:01Z"
+        observed_at: "2026-07-27T17:58:53Z"
       - source: endpoint-observation
         locator: https://mcp.eu.intercom.com/mcp
         classification: official
-        observed_at: "2026-07-24T23:08:01Z"
+        observed_at: "2026-07-27T17:58:53Z"
       - source: endpoint-observation
         locator: https://mcp.eu.intercom.com/.well-known/oauth-authorization-server
         classification: official
-        observed_at: "2026-07-24T23:08:01Z"
+        observed_at: "2026-07-27T17:58:53Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/guides/mcp
     name: Model Context Protocol (MCP)
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/llms.txt
     name: Intercom developer documentation index
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication
     name: Authentication
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth
     name: Setting up OAuth
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: provider-documentation
     locator: https://www.intercom.com/help/en/articles/6124430-regional-data-hosting
     name: Regional Data Hosting
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
+  - source: provider-documentation
+    locator: https://www.intercom.com/help/en/articles/8771110-getting-started-faqs
+    name: Getting started FAQs
+    classification: official
+    observed_at: "2026-07-27T17:58:53Z"
+  - source: endpoint-observation
+    locator: https://app.intercom.com/admins/sign_in
+    name: Intercom sign-in page
+    classification: official
+    observed_at: "2026-07-27T17:58:53Z"
   - source: endpoint-observation
     locator: https://mcp.intercom.com/mcp
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: endpoint-observation
     locator: https://mcp.eu.intercom.com/mcp
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: endpoint-observation
     locator: https://mcp.intercom.com/.well-known/oauth-authorization-server
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: endpoint-observation
     locator: https://mcp.eu.intercom.com/.well-known/oauth-authorization-server
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: endpoint-observation
     locator: https://mcp.intercom.com/.well-known/oauth-protected-resource
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: endpoint-observation
     locator: https://mcp.eu.intercom.com/.well-known/oauth-protected-resource
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: product-source
     locator: https://github.com/speakeasy-api/gram/tree/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication
     name: Speakeasy authentication settings source
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"
   - source: product-source
     locator: https://github.com/speakeasy-api/gram/blob/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/sources/remote-mcp/autoConfigureAuth.ts
     name: Speakeasy remote MCP automatic authentication source
     classification: official
-    observed_at: "2026-07-24T23:08:01Z"
+    observed_at: "2026-07-27T17:58:53Z"

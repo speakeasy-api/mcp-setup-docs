@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: salesforce
-researched_at: 2026-07-24T23:08:01Z
+researched_at: 2026-07-27T17:43:04Z
 ---
 
 # Salesforce — Research Dossier
@@ -51,8 +51,9 @@ researched_at: 2026-07-24T23:08:01Z
   separately lists Developer, Enterprise, and Professional with API access as
   examples of API-eligible orgs, but does not explicitly promise Hosted MCP
   availability for every lower-edition org. A lower-edition org may be
-  eligible when it has API access; confirm that Hosted MCP Servers are
-  available in the target org before beginning setup.
+  eligible when it has API access; before beginning setup, use **Quick Find**
+  in **Setup** to look for **MCP Servers** under **API Catalog** and confirm
+  that Hosted MCP Servers are available in the target org.
 - **Server choice affects setup and risk:**
   - **SObject Reads** permits discovery, query, search, and relationship
     traversal but no record changes. Salesforce describes it as the safest
@@ -225,13 +226,12 @@ Per-guide values rendered into the canonical
 - Remote URL: the one production or sandbox SObject URL selected in
   {#enable-sobject-server}; all eight supported choices are in Metadata.
 - Transport: `streamable-http`; the **Transport** field is read-only.
-- Catalog status: Speakeasy's public product pages name Salesforce as a
-  pre-built SaaS integration and catalog example, but no publicly inspectable
-  catalog record establishes that the listing configures these Salesforce
-  Hosted MCP SObject URLs with this manual OAuth client. Use a catalog listing
-  only if it explicitly identifies the selected Hosted MCP SObject server,
-  matches its recorded URL, and supports the manual OAuth configuration in
-  this Guide. Otherwise, use **Custom remote server**.
+- Add-server path: use **Custom remote server** only. The operator forced
+  `speakeasy_add_server: custom-remote` because the catalog mapping is
+  unreliable or unsuitable for this Guide's selection among eight distinct
+  production and sandbox SObject URLs. Pasting the selected URL preserves the
+  server and org-type choice made in {#enable-sobject-server}. Do not render a
+  catalog path or a catalog-presence open question.
 - Authentication Option: OAuth with a manually registered client.
 - OAuth scopes: `mcp_api` and `refresh_token`.
 - Discovery: Salesforce publishes RFC 9728 protected-resource metadata for the
@@ -255,18 +255,14 @@ Per-guide values rendered into the canonical
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
-- If Salesforce is in the catalog: choose **3rd-party server**. On the
-  **MCP Catalog** page, enter `Salesforce` in **Search MCP servers...**, open
-  its entry with **View**, click **Add**, then click **Add to Project** in the
-  **Add to Project** dialog.
-- If it is not in the catalog: choose **Custom remote server**. On the
-  **Add a custom remote MCP server** page, paste the selected SObject URL into
-  **Remote MCP server URL**, then click **Add server**.
+Choose **Custom remote server**. On the **Add a custom remote MCP server**
+page, paste the selected SObject URL into **Remote MCP server URL**, then click
+**Add server**.
 
-Either path creates the hosted MCP Server and opens its **Overview** page.
+This creates the hosted MCP Server and opens its **Overview** page.
 
-Screenshot note: capture the **Add Source** menu open on the **Sources** page,
-or Salesforce's catalog entry.
+Screenshot note: capture the **Add Source** menu open on the **Sources** page
+with **Custom remote server** visible.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
@@ -291,10 +287,6 @@ limits — see Salesforce's MCP documentation at
 
 ## Open questions
 
-- Speakeasy's public product pages name Salesforce as a pre-built integration,
-  but a public catalog record was not found that ties the listing to these
-  Hosted MCP SObject servers and their manual OAuth fields. Retain the
-  catalog/custom-server conditional until the catalog entry is inspected.
 - The Hosted MCP activation page says to toggle servers on but does not publish
   the exact row labels or the enabled-toggle label/state for the four SObject
   servers. The stable server IDs are confirmed by the server reference pages.
@@ -339,7 +331,7 @@ limits — see Salesforce's MCP documentation at
   reachable and enumerated the current guide and reference pages.
   `https://help.salesforce.com/llms.txt` timed out.
 
-All observations below use `2026-07-24T23:08:01Z`.
+All observations below use `2026-07-27T17:43:04Z`.
 
 - `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt`
   — machine-readable Hosted MCP source inventory; backs documentation-property
@@ -405,10 +397,10 @@ All observations below use `2026-07-24T23:08:01Z`.
 - `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads` — live
   unauthenticated endpoint observation returned HTTP 401, backing the remote
   endpoint's OAuth protection.
-- `https://www.speakeasy.com/product/ai-control-plane` and
-  `https://www.speakeasy.com/use-cases/claude-super-app` — Speakeasy public
-  search results name Salesforce as a pre-built SaaS integration and catalog
-  example, but do not expose a catalog record or Hosted MCP configuration.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-24T23:08:01Z`; backs the fixed
+- `doctrine/speakeasy-setup.md` — observed `2026-07-27T17:43:04Z`; backs the fixed
   Speakeasy-side anchors, labels, OAuth attach flow, callback template
-  semantics, and closing pointer.
+  semantics, forced Custom remote path behavior, and closing pointer.
+- Operator note `Speakeasy MCP Catalog: overridden-custom-remote` with query
+  `salesforce` — observed `2026-07-27T17:43:04Z`; backs the decision not to
+  render or investigate a catalog path because the Guide-level
+  `speakeasy_add_server: custom-remote` override controls path selection.

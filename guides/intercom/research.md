@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: intercom
-researched_at: 2026-07-24T23:08:01Z
+researched_at: 2026-07-27T17:58:53Z
 ---
 
 # Intercom — Research Dossier
@@ -13,7 +13,10 @@ corroborates how to identify a workspace's region. Live endpoint observations
 establish the OAuth discovery behavior. Public Speakeasy AI Control Plane
 source at commit `f1d60da92f71315297941d7ee394a8d3241b1043` establishes the
 dynamic-registration controls needed because the canonical Speakeasy setup
-does not yet describe this variant.
+does not yet describe this variant. The operator's Speakeasy MCP Catalog result
+is `overridden-tenanted`: because the reader must choose a regional remote,
+this Guide uses only the Custom remote server path regardless of catalog
+presence.
 
 ## Server facts
 
@@ -100,10 +103,24 @@ authorizing user's Intercom permissions.
 There is no Intercom Developer Hub or admin-console preparation for the
 recommended dynamic OAuth path. The only provider-side decision before adding
 the server is selecting the endpoint that matches the workspace's hosted
-region.
+region. Intercom says to identify the region from the workspace URL before
+signing in: `app.intercom.com` is US, `app.eu.intercom.com` is Europe, and
+`app.au.intercom.com` is Australia. On Intercom's official sign-in page at
+`https://app.intercom.com/admins/sign_in`, the **Your account region** selector
+offers **United States**, **Europe**, and **Australia** and warns readers to
+check the account region before signing in.
 
 ### Identify the workspace region {#identify-workspace-region}
 
+- Before signing in, check the workspace URL normally used to open Intercom.
+  Intercom's documented region check is the workspace URL:
+  `app.intercom.com` is US,
+  `app.eu.intercom.com` is Europe, and `app.au.intercom.com` is Australia.
+- Open `https://app.intercom.com/admins/sign_in`. Under **Your account
+  region**, select **United States**, **Europe**, or **Australia** to match the
+  workspace URL, then sign in. Intercom warns that signing in through the wrong
+  region will not find the workspace; if that occurs, return to the sign-in
+  page and select the region that matches the workspace URL.
 - Open the intended Intercom workspace and inspect its browser URL.
 - If the host is `app.intercom.com`, record the US remote
   `https://mcp.intercom.com/mcp` and issuer
@@ -115,14 +132,13 @@ region.
   not yet supported for Australian-hosted workspaces.
 - Values copied: the matching remote URL and issuer URL for the Speakeasy
   setup below.
-- Screenshot exception: the only relevant state is the workspace hostname in
-  the browser address bar; no Intercom MCP settings screen exists for this
-  authentication path.
+- Screenshot note: capture the Intercom sign-in page with **Your account
+  region** expanded, showing **United States**, **Europe**, and **Australia**.
 
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-07-24T23:08:01Z`.
+`2026-07-27T17:58:53Z`.
 
 Per-guide values:
 
@@ -193,11 +209,6 @@ https://developers.intercom.com/docs/guides/mcp."
 
 ## Open questions
 
-- **Catalog handling for US versus EU.** Public Speakeasy product source does
-  not reveal the runtime Intercom catalog record or whether its install dialog
-  offers both regional remotes. Until confirmed, the custom-remote route is the
-  only documented way to guarantee that the selected endpoint matches the
-  workspace region.
 - **Intercom authorization-screen labels.** Intercom documents an automatic
   browser OAuth flow and says the user authorizes access, but publishes no
   MCP-specific screenshot, screen sequence, or exact button labels. The Guide
@@ -213,6 +224,8 @@ Source inventory from the sweep:
 - **Product/admin support — `www.intercom.com/help/en`:** regional-hosting and
   account-permission articles. `/help/en/llms.txt` returned 404; targeted
   search was used.
+- **Intercom application — `app.intercom.com`:** public sign-in page used to
+  confirm the current region-selector labels.
 - **Official GitHub documentation mirror —
   `github.com/intercom/intercom-mcp-server`:** found in the sweep but not used
   for current facts because its README is stale: it says US only and lists an
@@ -224,40 +237,49 @@ Source inventory from the sweep:
 Sources drawn from:
 
 - `https://developers.intercom.com/docs/guides/mcp` ("Model Context Protocol
-  (MCP)") — observed `2026-07-24T23:08:01Z`. Backs US/EU availability and
+  (MCP)") — observed `2026-07-27T17:58:53Z`. Backs US/EU availability and
   endpoint mapping, Australian exclusion, Streamable HTTP recommendation,
   deprecated SSE alternatives, automatic OAuth recommendation, Bearer-token
   alternative, required permissions, and automatic browser authentication.
 - `https://developers.intercom.com/llms.txt` — observed
-  `2026-07-24T23:08:01Z`. Backs developer-property sweep coverage.
+  `2026-07-27T17:58:53Z`. Backs developer-property sweep coverage.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication`
-  ("Authentication") — observed `2026-07-24T23:08:01Z`. Backs the distinction
+  ("Authentication") — observed `2026-07-27T17:58:53Z`. Backs the distinction
   between private-app Access Tokens and OAuth, the Developer Hub token path,
   and warnings to treat Access Tokens as passwords and not give them to
   third-party app providers.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth`
-  ("Setting up OAuth") — observed `2026-07-24T23:08:01Z`. Backs general
+  ("Setting up OAuth") — observed `2026-07-27T17:58:53Z`. Backs general
   Intercom OAuth permission behavior and regional authorization-host behavior;
   its manually registered public-app flow is not the MCP DCR path.
 - `https://www.intercom.com/help/en/articles/6124430-regional-data-hosting`
-  ("Regional Data Hosting") — observed `2026-07-24T23:08:01Z`. Corroborates
-  workspace-host mapping for US, EU, and Australia.
+  ("Regional Data Hosting") — observed `2026-07-27T17:58:53Z`. Corroborates
+  workspace-host mapping for US, EU, and Australia, and instructs readers to
+  select the correct data host region when signing in.
+- `https://www.intercom.com/help/en/articles/8771110-getting-started-faqs`
+  ("Getting started FAQs") — observed `2026-07-27T17:58:53Z`. Backs the
+  official Intercom sign-in URL
+  `https://app.intercom.com/admins/sign_in`.
+- `https://app.intercom.com/admins/sign_in` — observed
+  `2026-07-27T17:58:53Z`. Backs **Your account region**, its **United States**,
+  **Europe**, and **Australia** options, and the instruction to check the
+  account region before signing in.
 - `https://mcp.intercom.com/mcp` and
   `https://mcp.eu.intercom.com/mcp` — direct unauthenticated GET and JSON-RPC
-  initialize observations at `2026-07-24T23:08:01Z`. Both returned HTTP 401
+  initialize observations at `2026-07-27T17:58:53Z`. Both returned HTTP 401
   with a Bearer challenge lacking protected-resource and authorization-server
   metadata pointers.
 - `https://mcp.intercom.com/.well-known/oauth-authorization-server` and
   `https://mcp.eu.intercom.com/.well-known/oauth-authorization-server` —
-  observed `2026-07-24T23:08:01Z`. Back regional issuers, authorization/token/
+  observed `2026-07-27T17:58:53Z`. Back regional issuers, authorization/token/
   registration endpoints, grants, endpoint-authentication methods, and PKCE.
 - `https://mcp.intercom.com/.well-known/oauth-protected-resource`,
   `https://mcp.intercom.com/.well-known/oauth-protected-resource/mcp`,
-  and EU equivalents — observed `2026-07-24T23:08:01Z`; all returned 404.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-24T23:08:01Z`. Backs the
+  and EU equivalents — observed `2026-07-27T17:58:53Z`; all returned 404.
+- `doctrine/speakeasy-setup.md` — observed `2026-07-27T17:58:53Z`. Backs the
   canonical Speakeasy-side skeleton, fixed anchors, and exact common labels.
 - `https://github.com/speakeasy-api/gram/tree/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication`
-  — observed `2026-07-24T23:08:01Z`. `AuthenticationSetupActions.tsx`,
+  — observed `2026-07-27T17:58:53Z`. `AuthenticationSetupActions.tsx`,
   `AuthenticationSection.tsx`, `AttachRemoteIdentityProviderSheet.tsx`,
   `IssuerFormFields.tsx`, `issuerFormUtils.ts`, and
   `useIssuerDiscovery.ts` back **Use Discovered**, **Configure Manually**,
@@ -265,6 +287,6 @@ Sources drawn from:
   **Dynamic Client Registration (DCR)** defaulting, the token-endpoint
   authentication default, overrides, and **Attach Identity Provider**.
 - `https://github.com/speakeasy-api/gram/blob/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/sources/remote-mcp/autoConfigureAuth.ts`
-  — observed `2026-07-24T23:08:01Z`. Backs that automatic authentication
+  — observed `2026-07-27T17:58:53Z`. Backs that automatic authentication
   configuration first requires protected-resource metadata and silently skips
   when none is found.
