@@ -1,0 +1,48 @@
+{
+  "slug": "github",
+  "provider": "github",
+  "persona": "it-admin",
+  "timestamp": "2026-07-27T16:51:38Z",
+  "started_at": "2026-07-27T16:51:38Z",
+  "finished_at": "2026-07-27T16:57:17Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "speakeasy",
+      "where": "connect-speakeasy-credentials — \"have a user authorize the connection\"",
+      "problem": "The reader is not told how to launch user authorization before requesting organization approval.",
+      "suggestion": "Add a Dossier-backed hedge directing the user to complete authorization using the authorization control shown in the Speakeasy AI Control Plane, without inventing an unpublished label.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Confirm whether GitHub is present in the Speakeasy MCP Catalog.",
+    "Confirm the Speakeasy control that launches GitHub authorization after attaching the identity provider.",
+    "Confirm whether Speakeasy offers Use Discovered despite GitHub's authorization-server metadata URL returning 404.",
+    "Confirm whether Speakeasy surfaces GitHub's post-connection OAuth scope challenges."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "connect-speakeasy-credentials — \"have a user authorize the connection\"",
+          "problem": "The reader is not told how to launch user authorization before requesting organization approval.",
+          "suggestion": "Add a Dossier-backed hedge directing the user to complete authorization using the authorization control shown in the Speakeasy AI Control Plane, without inventing an unpublished label.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER is draft-equivalent: only observed_at timestamps changed, plus a soft catalog-lookup open question. Both add-server conditionals already existed, and no anchors, credentials, remotes, transports, prerequisites, setup facts, or provenance-backed claims changed."
+  }
+}
