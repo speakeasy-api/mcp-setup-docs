@@ -18,9 +18,10 @@ This setup provides read-only access to public data. It cannot act as a user or 
 
 1. Go to [console.x.com](https://console.x.com).
 2. Sign in with the X account that will own the developer app.
-3. If prompted, review and accept the Developer Agreement and Policy.
-4. Provide the requested information about how your organization will use the API. Obtain the wording from the application or cloud security owner if needed.
-5. Complete the remaining enrollment steps shown in the console.
+3. If prompted, review the Developer Agreement and Policy.
+4. If prompted, accept the Developer Agreement and Policy.
+5. Provide the requested information about how your organization will use the API. Obtain the wording from the application or cloud security owner if needed.
+6. Complete the remaining enrollment steps shown in the console.
 
 Successful enrollment opens the **Developer Console** dashboard. Confirm that **New App** is visible.
 

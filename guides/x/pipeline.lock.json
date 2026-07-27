@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "slug": "x",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-27T16:55:17Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:8c0bf64d320f3908c7ed76003dbcebce5060ef2cdc5e8e8ce087374eebbfb905",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:3960aa5d3ad30f9ed0d9e8bd1cc93b6c0dad5c412ef9ab536ec1a75ea6f1bee1"
+          },
+          {
+            "path": "doctrine/speakeasy-setup.md",
+            "digest": "sha256:3d50512ece3583a0bd9570512e215ea10377ac47f6bb9cfa35931080a7818d57"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token from X Developer Console. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Revise existing guides/x/ on branch guide/issue-15-x (draft PR #33). Enrollment (#enroll-developer-account) and create app (#create-x-app): hedge—keep steps; do not invent field/submit/create labels; enrollment success = Developer Console with New App visible; keep one-time credential warning on create. Prerequisites API credits: required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token: copy-now only; drop regenerate-if-missed. Add server (#add-server-in-speakeasy): catalog search term as code span `X`; keep catalog vs custom remote URL conditional until Speakeasy catalog presence verified. Open questions: unknown/omit for console label details and catalog presence—keep hedges.\n\nSpeakeasy MCP Catalog: skipped"
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:575b53548dbfd8246162eb3ef4a93296e2a68b153d9ea01dbf288752ad977b87"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:84ab1d92f4ea8c411f8c02825f353539ae31abf9fb80c9faa954600236da2505"
+        }
+      ],
+      "completed_at": "2026-07-27T16:55:17Z"
+    },
+    "draft": {
+      "input_digest": "sha256:c9343ee4dfc010b1cbb29553eb3aa062e42fe50e7caf9ad0c84e589a9791a7d2",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:a956869fa21cc7f91fff9450fe09c86dc2014cb5f058691e03d07eb0b3acce3f",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:535e7d39f6f4e745321bd1a6bfdab4c9d6ac5ae46eaf079a4c20c377acab0b2a"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:575b53548dbfd8246162eb3ef4a93296e2a68b153d9ea01dbf288752ad977b87"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:84ab1d92f4ea8c411f8c02825f353539ae31abf9fb80c9faa954600236da2505"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token from X Developer Console. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Revise existing guides/x/ on branch guide/issue-15-x (draft PR #33). Enrollment (#enroll-developer-account) and create app (#create-x-app): hedge—keep steps; do not invent field/submit/create labels; enrollment success = Developer Console with New App visible; keep one-time credential warning on create. Prerequisites API credits: required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token: copy-now only; drop regenerate-if-missed. Add server (#add-server-in-speakeasy): catalog search term as code span `X`; keep catalog vs custom remote URL conditional until Speakeasy catalog presence verified. Open questions: unknown/omit for console label details and catalog presence—keep hedges.\n\nSpeakeasy MCP Catalog: skipped",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:5fe3591515843698e8ec4ded287ad83c4987ea46c0a7a83c5c4a7534d9e56bf8"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:e541c67c15f519d1e0169d539c934a0a4d06c0ffb49ee8f603471c196f785e6d"
+        }
+      ],
+      "completed_at": "2026-07-27T16:55:17Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:80f98501b5deda2cc03553ac68bc502ad773fc13d012d0aad2de107521cea1b4",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:070f59d37c1dc5d82048883f44fe9382ed6ef29f16c33ab848e3b2d9392574d6"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:575b53548dbfd8246162eb3ef4a93296e2a68b153d9ea01dbf288752ad977b87"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:84ab1d92f4ea8c411f8c02825f353539ae31abf9fb80c9faa954600236da2505"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:5fe3591515843698e8ec4ded287ad83c4987ea46c0a7a83c5c4a7534d9e56bf8"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:e541c67c15f519d1e0169d539c934a0a4d06c0ffb49ee8f603471c196f785e6d"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token from X Developer Console. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Revise existing guides/x/ on branch guide/issue-15-x (draft PR #33). Enrollment (#enroll-developer-account) and create app (#create-x-app): hedge—keep steps; do not invent field/submit/create labels; enrollment success = Developer Console with New App visible; keep one-time credential warning on create. Prerequisites API credits: required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token: copy-now only; drop regenerate-if-missed. Add server (#add-server-in-speakeasy): catalog search term as code span `X`; keep catalog vs custom remote URL conditional until Speakeasy catalog presence verified. Open questions: unknown/omit for console label details and catalog presence—keep hedges.\n\nSpeakeasy MCP Catalog: skipped",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:5fe3591515843698e8ec4ded287ad83c4987ea46c0a7a83c5c4a7534d9e56bf8"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:e541c67c15f519d1e0169d539c934a0a4d06c0ffb49ee8f603471c196f785e6d"
+        }
+      ],
+      "completed_at": "2026-07-27T16:55:17Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:79b2fff3c6309c0e3034cd7f71e3243d040978d18748fdca12460285874cbabd",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:2b145febb78989edbf7ac617395ffb03e8852fabe13135662534b0b7f53e91cd"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:575b53548dbfd8246162eb3ef4a93296e2a68b153d9ea01dbf288752ad977b87"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:84ab1d92f4ea8c411f8c02825f353539ae31abf9fb80c9faa954600236da2505"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:5fe3591515843698e8ec4ded287ad83c4987ea46c0a7a83c5c4a7534d9e56bf8"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:e541c67c15f519d1e0169d539c934a0a4d06c0ffb49ee8f603471c196f785e6d"
+          }
+        ],
+        "params": {
+          "provider": "x",
+          "notes": "Official hosted Streamable HTTP MCP at https://api.x.com/mcp (search, users, bookmarks, trends, Articles). Read-only: app-only Bearer token from X Developer Console. Full access: OAuth 2.0 PKCE via @xdevplatform/xurl local bridge (Developer Portal app, redirect http://localhost:8080/callback, CLIENT_ID/CLIENT_SECRET). Docs: https://x-preview.mintlify.app/tools/mcp. Revise existing guides/x/ on branch guide/issue-15-x (draft PR #33). Enrollment (#enroll-developer-account) and create app (#create-x-app): hedge—keep steps; do not invent field/submit/create labels; enrollment success = Developer Console with New App visible; keep one-time credential warning on create. Prerequisites API credits: required; point to Developer Console billing/credits without purchase walkthrough. Copy Bearer Token: copy-now only; drop regenerate-if-missed. Add server (#add-server-in-speakeasy): catalog search term as code span `X`; keep catalog vs custom remote URL conditional until Speakeasy catalog presence verified. Open questions: unknown/omit for console label details and catalog presence—keep hedges.\n\nSpeakeasy MCP Catalog: skipped",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:5fe3591515843698e8ec4ded287ad83c4987ea46c0a7a83c5c4a7534d9e56bf8"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:e541c67c15f519d1e0169d539c934a0a4d06c0ffb49ee8f603471c196f785e6d"
+        }
+      ],
+      "completed_at": "2026-07-27T16:55:17Z"
+    }
+  }
+}
