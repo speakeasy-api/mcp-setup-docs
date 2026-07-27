@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: intercom
-researched_at: 2026-07-27T17:58:53Z
+researched_at: 2026-07-27T18:17:36Z
 ---
 
 # Intercom — Research Dossier
@@ -138,7 +138,7 @@ check the account region before signing in.
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-07-27T17:58:53Z`.
+`2026-07-27T18:17:36Z`.
 
 Per-guide values:
 
@@ -223,7 +223,9 @@ Source inventory from the sweep:
   was searched this run.
 - **Product/admin support — `www.intercom.com/help/en`:** regional-hosting and
   account-permission articles. `/help/en/llms.txt` returned 404; targeted
-  search was used.
+  search was used. The sweep also found the separate beta **Fin Agent API:
+  MCP Server**, which is excluded from this Guide because it has different
+  endpoints, prerequisites, and credential models.
 - **Intercom application — `app.intercom.com`:** public sign-in page used to
   confirm the current region-selector labels.
 - **Official GitHub documentation mirror —
@@ -237,49 +239,58 @@ Source inventory from the sweep:
 Sources drawn from:
 
 - `https://developers.intercom.com/docs/guides/mcp` ("Model Context Protocol
-  (MCP)") — observed `2026-07-27T17:58:53Z`. Backs US/EU availability and
+  (MCP)") — observed `2026-07-27T18:17:36Z`. Backs US/EU availability and
   endpoint mapping, Australian exclusion, Streamable HTTP recommendation,
   deprecated SSE alternatives, automatic OAuth recommendation, Bearer-token
   alternative, required permissions, and automatic browser authentication.
 - `https://developers.intercom.com/llms.txt` — observed
-  `2026-07-27T17:58:53Z`. Backs developer-property sweep coverage.
+  `2026-07-27T18:17:36Z`. Backs developer-property sweep coverage.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication`
-  ("Authentication") — observed `2026-07-27T17:58:53Z`. Backs the distinction
+  ("Authentication") — observed `2026-07-27T18:17:36Z`. Backs the distinction
   between private-app Access Tokens and OAuth, the Developer Hub token path,
   and warnings to treat Access Tokens as passwords and not give them to
   third-party app providers.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth`
-  ("Setting up OAuth") — observed `2026-07-27T17:58:53Z`. Backs general
+  ("Setting up OAuth") — observed `2026-07-27T18:17:36Z`. Backs general
   Intercom OAuth permission behavior and regional authorization-host behavior;
   its manually registered public-app flow is not the MCP DCR path.
 - `https://www.intercom.com/help/en/articles/6124430-regional-data-hosting`
-  ("Regional Data Hosting") — observed `2026-07-27T17:58:53Z`. Corroborates
+  ("Regional Data Hosting") — observed `2026-07-27T18:17:36Z`. Corroborates
   workspace-host mapping for US, EU, and Australia, and instructs readers to
   select the correct data host region when signing in.
+- `https://www.intercom.com/help/en/articles/5778275-additional-details-on-intercom-regional-data-hosting`
+  ("Additional details on Intercom Regional Data Hosting") — observed
+  `2026-07-27T18:17:36Z`. Independently confirms that the Intercom MCP server
+  is available in Europe but not Australia.
+- `https://www.intercom.com/help/en/articles/15481203-fin-agent-api-mcp-server`
+  ("Fin Agent API: MCP Server") — observed `2026-07-27T18:17:36Z`. Backs the
+  scope ruling that Intercom's beta Fin Agent API MCP Server is a distinct
+  server family with separate endpoints, feature gate, and credentials, and
+  is not part of this Guide.
 - `https://www.intercom.com/help/en/articles/8771110-getting-started-faqs`
-  ("Getting started FAQs") — observed `2026-07-27T17:58:53Z`. Backs the
+  ("Getting started FAQs") — observed `2026-07-27T18:17:36Z`. Backs the
   official Intercom sign-in URL
   `https://app.intercom.com/admins/sign_in`.
 - `https://app.intercom.com/admins/sign_in` — observed
-  `2026-07-27T17:58:53Z`. Backs **Your account region**, its **United States**,
+  `2026-07-27T18:17:36Z`. Backs **Your account region**, its **United States**,
   **Europe**, and **Australia** options, and the instruction to check the
   account region before signing in.
 - `https://mcp.intercom.com/mcp` and
   `https://mcp.eu.intercom.com/mcp` — direct unauthenticated GET and JSON-RPC
-  initialize observations at `2026-07-27T17:58:53Z`. Both returned HTTP 401
+  initialize observations at `2026-07-27T18:17:36Z`. Both returned HTTP 401
   with a Bearer challenge lacking protected-resource and authorization-server
   metadata pointers.
 - `https://mcp.intercom.com/.well-known/oauth-authorization-server` and
   `https://mcp.eu.intercom.com/.well-known/oauth-authorization-server` —
-  observed `2026-07-27T17:58:53Z`. Back regional issuers, authorization/token/
+  observed `2026-07-27T18:17:36Z`. Back regional issuers, authorization/token/
   registration endpoints, grants, endpoint-authentication methods, and PKCE.
 - `https://mcp.intercom.com/.well-known/oauth-protected-resource`,
   `https://mcp.intercom.com/.well-known/oauth-protected-resource/mcp`,
-  and EU equivalents — observed `2026-07-27T17:58:53Z`; all returned 404.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-27T17:58:53Z`. Backs the
+  and EU equivalents — observed `2026-07-27T18:17:36Z`; all returned 404.
+- `doctrine/speakeasy-setup.md` — observed `2026-07-27T18:17:36Z`. Backs the
   canonical Speakeasy-side skeleton, fixed anchors, and exact common labels.
 - `https://github.com/speakeasy-api/gram/tree/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication`
-  — observed `2026-07-27T17:58:53Z`. `AuthenticationSetupActions.tsx`,
+  — observed `2026-07-27T18:17:36Z`. `AuthenticationSetupActions.tsx`,
   `AuthenticationSection.tsx`, `AttachRemoteIdentityProviderSheet.tsx`,
   `IssuerFormFields.tsx`, `issuerFormUtils.ts`, and
   `useIssuerDiscovery.ts` back **Use Discovered**, **Configure Manually**,
@@ -287,6 +298,6 @@ Sources drawn from:
   **Dynamic Client Registration (DCR)** defaulting, the token-endpoint
   authentication default, overrides, and **Attach Identity Provider**.
 - `https://github.com/speakeasy-api/gram/blob/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/sources/remote-mcp/autoConfigureAuth.ts`
-  — observed `2026-07-27T17:58:53Z`. Backs that automatic authentication
+  — observed `2026-07-27T18:17:36Z`. Backs that automatic authentication
   configuration first requires protected-resource metadata and silently skips
   when none is found.

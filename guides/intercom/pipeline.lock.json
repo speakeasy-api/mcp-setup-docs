@@ -3,10 +3,10 @@
   "slug": "intercom",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-27T18:09:04Z",
+  "updated_at": "2026-07-27T18:21:56Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:4c01ef62c88359a410ab9bc11e24b1c26fe2e5fe8e422dcc09a2bbf29728982b",
+      "input_digest": "sha256:0680ece9f0127b880b3be39d7c4cff62e717818d2ad30c1a58e12c724a0abc9a",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
@@ -31,23 +31,23 @@
         "artifacts": [],
         "params": {
           "provider": "intercom",
-          "notes": "Speakeasy MCP Catalog: overridden-tenanted"
+          "notes": "Update existing guide at guides/intercom; issue body empty—refresh against current Intercom MCP setup/auth docs.\n\nSpeakeasy MCP Catalog: overridden-tenanted"
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:a66b91c4208f26166001df232668e1ef5470482703ef8666d1faf8f380db5c92"
+          "digest": "sha256:4929174686ba511b0f9fde3132654d2fffabf2040d66c197507dde976802c6ee"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:9d764ccb1b6c987f8c7209e0554b99552f1e0f450070703d9a1b0ec0d31d83c8"
+          "digest": "sha256:fb65106998b0bee6bc1f7881641ebd2056a302160c66ce194138fe362585880d"
         }
       ],
-      "completed_at": "2026-07-27T18:09:04Z"
+      "completed_at": "2026-07-27T18:21:56Z"
     },
     "draft": {
-      "input_digest": "sha256:844e75c976446958cab87edb5c98d8a6025aae7c7a9ba5287de21341d9a2bb4b",
+      "input_digest": "sha256:eb0ad627d4d540202f12d8badd38b920df6d886cc29436b5421cd6e3f75be19c",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:a956869fa21cc7f91fff9450fe09c86dc2014cb5f058691e03d07eb0b3acce3f",
@@ -72,33 +72,33 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:a66b91c4208f26166001df232668e1ef5470482703ef8666d1faf8f380db5c92"
+            "digest": "sha256:4929174686ba511b0f9fde3132654d2fffabf2040d66c197507dde976802c6ee"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:9d764ccb1b6c987f8c7209e0554b99552f1e0f450070703d9a1b0ec0d31d83c8"
+            "digest": "sha256:fb65106998b0bee6bc1f7881641ebd2056a302160c66ce194138fe362585880d"
           }
         ],
         "params": {
           "provider": "intercom",
-          "notes": "Speakeasy MCP Catalog: overridden-tenanted",
+          "notes": "Update existing guide at guides/intercom; issue body empty—refresh against current Intercom MCP setup/auth docs.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:c4f5dbc96895fe9ce7bba8ee742acad7280f37972b2a2b7c73cc1859f5651eb2"
+          "digest": "sha256:0d6bf9a0f1596a7542eacacbcb7236b687904b0a891055ff39c79c27648d2ed1"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:eab93cce9456550070c10cfc8a08e02e7ec79698dd868a6c1c817bdeaf903748"
+          "digest": "sha256:bbc5223372131a5f17c19715464c914ba38253e750aa0074ae70d8abd3beeed7"
         }
       ],
-      "completed_at": "2026-07-27T18:09:04Z"
+      "completed_at": "2026-07-27T18:21:56Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:7de9887a80fb280ec0c56108b3f6cc3d83c38c257ad96b06383431a18e00b2b7",
+      "input_digest": "sha256:da2f50330d8e1ed8d96a446137cb695c9af5761c56c98537f659c12c1e1d326b",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
@@ -119,24 +119,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:a66b91c4208f26166001df232668e1ef5470482703ef8666d1faf8f380db5c92"
+            "digest": "sha256:4929174686ba511b0f9fde3132654d2fffabf2040d66c197507dde976802c6ee"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:9d764ccb1b6c987f8c7209e0554b99552f1e0f450070703d9a1b0ec0d31d83c8"
+            "digest": "sha256:fb65106998b0bee6bc1f7881641ebd2056a302160c66ce194138fe362585880d"
           },
           {
             "path": "external.md",
-            "digest": "sha256:c4f5dbc96895fe9ce7bba8ee742acad7280f37972b2a2b7c73cc1859f5651eb2"
+            "digest": "sha256:0d6bf9a0f1596a7542eacacbcb7236b687904b0a891055ff39c79c27648d2ed1"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:eab93cce9456550070c10cfc8a08e02e7ec79698dd868a6c1c817bdeaf903748"
+            "digest": "sha256:bbc5223372131a5f17c19715464c914ba38253e750aa0074ae70d8abd3beeed7"
           }
         ],
         "params": {
           "provider": "intercom",
-          "notes": "Speakeasy MCP Catalog: overridden-tenanted",
+          "notes": "Update existing guide at guides/intercom; issue body empty—refresh against current Intercom MCP setup/auth docs.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,17 +144,17 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:c4f5dbc96895fe9ce7bba8ee742acad7280f37972b2a2b7c73cc1859f5651eb2"
+          "digest": "sha256:0d6bf9a0f1596a7542eacacbcb7236b687904b0a891055ff39c79c27648d2ed1"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:eab93cce9456550070c10cfc8a08e02e7ec79698dd868a6c1c817bdeaf903748"
+          "digest": "sha256:bbc5223372131a5f17c19715464c914ba38253e750aa0074ae70d8abd3beeed7"
         }
       ],
-      "completed_at": "2026-07-27T18:09:04Z"
+      "completed_at": "2026-07-27T18:21:56Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:05209e17631279410603ee853dc171a893fc8c0179cc5aba4dc30c256c7629ff",
+      "input_digest": "sha256:668edbc8f699d1a12c89a490b2df3ead48e5c44edddca0ac19e060a82f56fba9",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
@@ -179,24 +179,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:a66b91c4208f26166001df232668e1ef5470482703ef8666d1faf8f380db5c92"
+            "digest": "sha256:4929174686ba511b0f9fde3132654d2fffabf2040d66c197507dde976802c6ee"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:9d764ccb1b6c987f8c7209e0554b99552f1e0f450070703d9a1b0ec0d31d83c8"
+            "digest": "sha256:fb65106998b0bee6bc1f7881641ebd2056a302160c66ce194138fe362585880d"
           },
           {
             "path": "external.md",
-            "digest": "sha256:c4f5dbc96895fe9ce7bba8ee742acad7280f37972b2a2b7c73cc1859f5651eb2"
+            "digest": "sha256:0d6bf9a0f1596a7542eacacbcb7236b687904b0a891055ff39c79c27648d2ed1"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:eab93cce9456550070c10cfc8a08e02e7ec79698dd868a6c1c817bdeaf903748"
+            "digest": "sha256:bbc5223372131a5f17c19715464c914ba38253e750aa0074ae70d8abd3beeed7"
           }
         ],
         "params": {
           "provider": "intercom",
-          "notes": "Speakeasy MCP Catalog: overridden-tenanted",
+          "notes": "Update existing guide at guides/intercom; issue body empty—refresh against current Intercom MCP setup/auth docs.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:c4f5dbc96895fe9ce7bba8ee742acad7280f37972b2a2b7c73cc1859f5651eb2"
+          "digest": "sha256:0d6bf9a0f1596a7542eacacbcb7236b687904b0a891055ff39c79c27648d2ed1"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:eab93cce9456550070c10cfc8a08e02e7ec79698dd868a6c1c817bdeaf903748"
+          "digest": "sha256:bbc5223372131a5f17c19715464c914ba38253e750aa0074ae70d8abd3beeed7"
         }
       ],
-      "completed_at": "2026-07-27T18:09:04Z"
+      "completed_at": "2026-07-27T18:21:56Z"
     }
   }
 }
