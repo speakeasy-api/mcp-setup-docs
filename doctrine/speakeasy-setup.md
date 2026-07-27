@@ -35,6 +35,14 @@ invent a label this file does not carry.
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
+The pipeline may resolve Speakeasy MCP Catalog presence via a PulseMCP
+tenant lookup and record it in operator notes (`present` / `absent` /
+`ambiguous` / `skipped`). When presence is **present** or **absent**,
+the Dossier and `speakeasy.md` include **only** the matching bullet
+below — do not keep the alternate path or a catalog-presence open
+question. When presence is unknown (`ambiguous`, `skipped`, or no
+lookup), keep **both** bullets as a dual conditional.
+
 - If <Provider> is in the catalog: choose **3rd-party server**. On the
   **MCP Catalog** page, find <Provider> (the search box reads
   **Search MCP servers...**), open its entry with **View**, and click

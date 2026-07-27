@@ -101,6 +101,17 @@ MCP documentation page) for the closing pointer. Provenance for the
 transcluded facts is the canonical doc's path plus this run's
 observed_at.
 
+Honor any Speakeasy MCP Catalog presence fact in operator notes (Pulse
+tenant lookup: `present` / `absent` / `ambiguous` / `skipped`):
+
+- **present** — transclude only the catalog (3rd-party server) bullet;
+  do not emit a catalog-presence open question. Record the matched
+  registry `name` / title with `source: pulsemcp` in provenance.
+- **absent** — transclude only the Custom remote server bullet; do not
+  emit a catalog-presence open question.
+- **ambiguous** or **skipped** (or no lookup note) — keep both
+  add-server bullets and a soft open question for catalog presence.
+
 ## Open questions
 Anything you could not confirm from documentation. Flagged, not guessed.
 Provider-documented UI (named in prose or shown in screenshots on those
