@@ -60,6 +60,8 @@ To let users from any Asana workspace authorize the app:
 1. Under **Distribution method**, select **Any workspace**.
 2. Select **Save changes**.
 
+<!-- screenshot: Manage distribution with Distribution method and both choices visible; for Specific workspaces, also show the selected workspace list without exposing unrelated organization data -->
+
 If authorization says the app is explicitly blocked, an organization super admin must unblock it:
 
 1. Return to Asana.
@@ -72,5 +74,3 @@ If authorization says the app is explicitly blocked, an organization super admin
 8. Select **Unblock**.
 
 <!-- screenshot: Connected apps with the selected app's Unblock control; exclude user activity and unrelated apps -->
-
-<!-- screenshot: Manage distribution with Distribution method and both choices visible; for Specific workspaces, also show the selected workspace list without exposing unrelated organization data -->

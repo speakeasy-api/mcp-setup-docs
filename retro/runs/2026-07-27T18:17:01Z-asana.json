@@ -1,0 +1,54 @@
+{
+  "slug": "asana",
+  "provider": "asana",
+  "persona": "it-admin",
+  "timestamp": "2026-07-27T18:17:01Z",
+  "started_at": "2026-07-27T18:17:01Z",
+  "finished_at": "2026-07-27T18:24:37Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "Public docs do not state which Asana account permission, if any, gates app creation in the developer console.",
+    "Asana documents https://mcp.asana.com/v2/.well-known/oauth-protected-resource, which returned 404; the MCP challenge instead identifies the working https://mcp.asana.com/.well-known/oauth-protected-resource/v2 endpoint."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "open-developer-console",
+          "problem": "The opening sends the reader directly to the developer console before presenting the main-app navigation path as the next sequential route.",
+          "suggestion": "Change the opening to “Sign in to Asana,” then retain the direct developer-console URL as an alternative after the documented profile-photo navigation path.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "open-developer-console",
+          "problem": "The guide opens the direct developer-console URL and then instructs the reader to navigate there from Asana's main app.",
+          "suggestion": "Start at Asana's main app for the numbered navigation, or tell readers who use the direct URL to continue at Create the MCP app.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Updated external.md to begin with “Sign in to Asana.” The numbered steps now follow the documented main-app navigation, with the direct developer-console URL retained afterward as an alternative. This resolves both the blocker and nit.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "Catalog presence is now confirmed for Asana. This requires re-drafting speakeasy.md from conditional catalog/custom paths to the catalog-only add-server path and adds PulseMCP provenance in meta.yaml."
+  }
+}
