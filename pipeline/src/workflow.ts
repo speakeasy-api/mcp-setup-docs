@@ -56,7 +56,7 @@ export const PhaseResult = withSchemaHint(
 export const ReviewFinding = z
   .object({
     severity: z.enum(['blocker', 'nit']),
-    target: z.enum(['setup', 'research', 'meta']),
+    target: z.enum(['external', 'speakeasy', 'research', 'meta']),
     where: z.string(),
     problem: z.string(),
     suggestion: z.string(),
@@ -87,7 +87,10 @@ export const Review = withSchemaHint(
           required: ['severity', 'target', 'where', 'problem', 'suggestion'],
           properties: {
             severity: { type: 'string', enum: ['blocker', 'nit'] },
-            target: { type: 'string', enum: ['setup', 'research', 'meta'] },
+            target: {
+              type: 'string',
+              enum: ['external', 'speakeasy', 'research', 'meta'],
+            },
             where: {
               type: 'string',
               description: 'Anchor id, section, or quoted text.',
@@ -280,7 +283,10 @@ export async function runWorkflow(
       completedAt
     )
 
-    if (existsSync(join(dir, 'setup.md'))) {
+    if (
+      existsSync(join(dir, 'external.md')) &&
+      existsSync(join(dir, 'speakeasy.md'))
+    ) {
       const draftInputs = buildDraftInputs({
         model: modelId(),
         repoRoot: ROOT,
@@ -291,7 +297,10 @@ export async function runWorkflow(
       })
       steps.draft = makeStepRecord(
         draftInputs,
-        [digestGuideFile(dir, 'setup.md')],
+        [
+          digestGuideFile(dir, 'external.md'),
+          digestGuideFile(dir, 'speakeasy.md'),
+        ],
         completedAt
       )
 
@@ -310,7 +319,10 @@ export async function runWorkflow(
         })
         steps[stepId] = makeStepRecord(
           reviewInputs,
-          [digestGuideFile(dir, 'setup.md')],
+          [
+            digestGuideFile(dir, 'external.md'),
+            digestGuideFile(dir, 'speakeasy.md'),
+          ],
           completedAt
         )
       }
@@ -365,7 +377,8 @@ export async function runWorkflow(
           ].join('\n')
         : '',
       'Write research.md and meta.yaml in the guide directory. Do not write',
-      'setup.md and do not touch any path outside the guide directory.',
+      'external.md or speakeasy.md and do not touch any path outside the',
+      'guide directory.',
       '',
       'Report via structured output per your role doc: status ("ok" when the',
       'Dossier is complete enough to draft from, "blocked" per the role doc),',
@@ -398,7 +411,8 @@ export async function runWorkflow(
       'claims the Writer would need to re-render.',
       '',
       'Set materially_changed=true only when AFTER would justify re-drafting',
-      'setup.md or would invalidate a prior review of the current setup.md.',
+      'external.md / speakeasy.md or would invalidate a prior review of the',
+      'current setup files.',
       'Set materially_changed=false when AFTER is equivalent for drafting.',
       '',
       '=== BEFORE research.md ===',
@@ -511,8 +525,9 @@ export async function runWorkflow(
       '',
       assign(g),
       '',
-      "Read the guide directory's research.md and meta.yaml, then write its",
-      "setup.md in the persona's voice. The Dossier is your fact ceiling.",
+      "Read the guide directory's research.md and meta.yaml, then write",
+      'external.md (provider-side) and speakeasy.md (Control Plane) in the',
+      "persona's voice. The Dossier is your fact ceiling.",
       'Do not touch any other path.',
       '',
       'Report via structured output: status ("ok" or "blocked" per your role',
@@ -585,10 +600,10 @@ export async function runWorkflow(
       'Review round ' + round + ' reported the blocker findings below. Fix them',
       'in the guide directory: findings targeting "research" or "meta" first,',
       'following the Technical Research role doc (facts need provenance; use',
-      'the observed_at timestamp above), then findings targeting "setup",',
-      'following the Writer role doc (grammar, persona voice, the Dossier as',
-      'fact ceiling). Honor the anchor contract in shared.md. Do not touch any',
-      'path outside the guide directory.',
+      'the observed_at timestamp above), then findings targeting "external"',
+      'or "speakeasy", following the Writer role doc (grammar, persona voice,',
+      'the Dossier as fact ceiling). Honor the anchor contract in shared.md.',
+      'Do not touch any path outside the guide directory.',
       '',
       'Blocker findings (JSON):',
       JSON.stringify(blockers, null, 2),
@@ -685,7 +700,7 @@ export async function runWorkflow(
       if (!r.report) {
         findings.push({
           severity: 'blocker',
-          target: 'setup',
+          target: 'external',
           where: '(pipeline)',
           problem:
             'The ' + dim.role + ' reviewer returned no verdict this round.',
@@ -840,7 +855,7 @@ export async function runWorkflow(
       log('[' + g.slug + '] skip draft (lock)')
       skipped.push('draft')
     } else {
-      log('[' + g.slug + '] drafting setup.md for persona ' + PERSONA)
+      log('[' + g.slug + '] drafting external.md + speakeasy.md for persona ' + PERSONA)
       const draft = await agent(draftPrompt(g), {
         label: g.slug + ' draft',
         phase: g.slug + ': draft',

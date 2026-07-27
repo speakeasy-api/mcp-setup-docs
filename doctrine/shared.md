@@ -11,15 +11,16 @@ One Guide (`guides/<slug>/`) moves through four roles:
 | Role | Doc | Writes | Reads |
 | --- | --- | --- | --- |
 | Technical Research | `doctrine/roles/technical-research.md` | `guides/<slug>/research.md`, `guides/<slug>/meta.yaml` | provider public docs, `doctrine/speakeasy-setup.md` |
-| Writer | `doctrine/roles/writer.md` | `guides/<slug>/setup.md` | Research Dossier, Metadata, persona file |
-| Fidelity | `doctrine/roles/fidelity.md` | nothing (report only) | all three guide files |
-| Editorial | `doctrine/roles/review.md` | nothing (report only) | all three guide files, persona file |
+| Writer | `doctrine/roles/writer.md` | `guides/<slug>/external.md`, `guides/<slug>/speakeasy.md` | Research Dossier, Metadata, persona file |
+| Fidelity | `doctrine/roles/fidelity.md` | nothing (report only) | all four guide files |
+| Editorial | `doctrine/roles/review.md` | nothing (report only) | all four guide files, persona file |
 
 After research, the factory may pause on material open questions (scope
 gate) before Writer runs. Review rounds also run a deterministic lint
-pass (`dimension: lint`) for setup.md grammar and `meta.yaml` schema.
+pass (`dimension: lint`) for setup grammar (`external.md` /
+`speakeasy.md`) and `meta.yaml` schema.
 
-Revision agents (spawned between review rounds) may touch all three guide
+Revision agents (spawned between review rounds) may touch all four guide
 files, following the Technical Research and Writer role docs for whichever
 file they edit.
 
@@ -35,10 +36,11 @@ minted there by Technical Research (document-unique, kebab-case, one per
 step), Speakeasy-section IDs fixed in `doctrine/speakeasy-setup.md` and
 carried in by its transclusion. Downstream:
 
-- Writer carries each ID verbatim into `setup.md` headings:
-  `### Create credentials {#create-credentials}`.
-- Metadata references them as `setup.md#<anchor-id>`.
-- Fidelity verifies all three agree.
+- Writer carries each ID verbatim into `external.md` or `speakeasy.md`
+  headings: `### Create credentials {#create-credentials}`.
+- Metadata references them as `external.md#<anchor-id>` (provider) or
+  `speakeasy.md#<anchor-id>` (Control Plane).
+- Fidelity verifies the Dossier, both setup files, and Metadata agree.
 
 No role but Technical Research may invent, rename, or drop an anchor. If a
 step must split or merge, the fix starts in the Dossier.

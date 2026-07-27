@@ -105,8 +105,8 @@
         },
         "setup": {
           "items": {
-            "description": "setup.md#<section-id> reference into the guide's Setup Guide.",
-            "pattern": "^setup\\.md#[a-z0-9]+(-[a-z0-9]+)*$",
+            "description": "external.md#<section-id> (or speakeasy.md#…) reference into a setup file.",
+            "pattern": "^(external|speakeasy)\\.md#[a-z0-9]+(-[a-z0-9]+)*$",
             "type": "string"
           },
           "minItems": 1,
@@ -169,7 +169,7 @@
     },
     "documentation": {
       "additionalProperties": false,
-      "description": "Setup guide reference and Screenshot descriptors; never delivery URLs.",
+      "description": "Split setup files and Screenshot descriptors; never delivery URLs. Consumers may show external.md alone (e.g. on an already-installed MCP server detail page) or both files together.",
       "properties": {
         "assets": {
           "items": {
@@ -178,14 +178,18 @@
           "type": "array",
           "uniqueItems": true
         },
-        "setup": {
-          "description": "Guide-relative path of the Setup Guide.",
-          "minLength": 1,
-          "type": "string"
+        "external": {
+          "description": "Guide-relative path of the External setup file (provider-side; prerequisites folded into its opening prose).",
+          "const": "external.md"
+        },
+        "speakeasy": {
+          "description": "Guide-relative path of the Speakeasy setup file (Control Plane steps).",
+          "const": "speakeasy.md"
         }
       },
       "required": [
-        "setup"
+        "external",
+        "speakeasy"
       ],
       "type": "object"
     },

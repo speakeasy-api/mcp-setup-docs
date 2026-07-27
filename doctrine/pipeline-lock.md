@@ -17,7 +17,8 @@ Committed next to the guide bundle:
 guides/<slug>/
   research.md
   meta.yaml
-  setup.md
+  external.md
+  speakeasy.md
   pipeline.lock.json   ← this contract
 ```
 
@@ -33,7 +34,7 @@ guides/<slug>/
 | `review.achievability` | no | yes |
 
 Deterministic **lint** (I4 grammar / meta schema) runs every review round and
-is not a lock step — it is cheap and must see the current `setup.md`.
+is not a lock step — it is cheap and must see the current `external.md` / `speakeasy.md`.
 
 Legacy lock keys `review.voice`, `review.formatting`, and `review.concision`
 may still appear in older `pipeline.lock.json` files; the workflow no longer
@@ -57,7 +58,7 @@ All digests use the form `sha256:` + 64 lowercase hex digits (same as asset
   canonicalize the remaining structure, then sha256 the canonical bytes.
   Research refreshes always bump `observed_at`; stripping it is what makes
   “research yielded nothing new” detectable.
-- **`research.md` / `setup.md`:** sha256 of the file bytes as stored (no
+- **`research.md` / `external.md` / `speakeasy.md`:** sha256 of the file bytes as stored (no
   stripping). If frontmatter later gains volatile fields, that is a v2 concern.
 - **Reading-list files** (doctrine, persona): sha256 of file bytes as stored.
 
@@ -65,7 +66,7 @@ All digests use the form `sha256:` + 64 lowercase hex digits (same as asset
 
 - **Reading list:** repo-relative (`doctrine/glossary.md`, `doctrine/roles/writer.md`, …).
 - **Artifacts and outputs:** guide-relative (`research.md`, `meta.yaml`,
-  `setup.md`). Never absolute `repoRoot` paths — digests must be portable
+  `external.md` / `speakeasy.md`). Never absolute `repoRoot` paths — digests must be portable
   across machines.
 
 ### `input_digest`
@@ -99,7 +100,7 @@ in the workflow is an implementation detail.
 | --- | --- | --- | --- | --- |
 | `research` | resolved default model | `doctrine/glossary.md`, `doctrine/shared.md`, `doctrine/roles/technical-research.md`, `doctrine/speakeasy-setup.md` | `[]` (sources are external) | `provider`, `notes` |
 | `draft` | resolved default model | `doctrine/glossary.md`, `doctrine/shared.md`, `doctrine/roles/writer.md`, `doctrine/personas/<id>.md` | stable digests of `research.md`, `meta.yaml` | `provider`, `notes`, `persona` |
-| `review.<dim>` | resolved model for that dimension (default vs light/`sonnet` slot) | `doctrine/glossary.md`, `doctrine/shared.md`, role doc (`fidelity.md` or `review.md`), plus persona file when the dimension uses a persona | stable digests of `research.md`, `meta.yaml`, `setup.md` | `provider`, `notes`, `persona`, `dimension` |
+| `review.<dim>` | resolved model for that dimension (default vs light/`sonnet` slot) | `doctrine/glossary.md`, `doctrine/shared.md`, role doc (`fidelity.md` or `review.md`), plus persona file when the dimension uses a persona | stable digests of `research.md`, `meta.yaml`, `external.md`, `speakeasy.md` | `provider`, `notes`, `persona`, `dimension` |
 
 `model` is always the **resolved** model id (e.g. `claude-fable-5`), never a
 slot alias like `sonnet`.
@@ -269,7 +270,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
       },
       "outputs": [
         {
-          "path": "setup.md",
+          "path": "external.md",
           "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
         }
       ],
@@ -304,7 +305,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
             "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
           },
           {
-            "path": "setup.md",
+            "path": "external.md",
             "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
           }
         ],
@@ -317,7 +318,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
       },
       "outputs": [
         {
-          "path": "setup.md",
+          "path": "external.md",
           "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
         }
       ],
@@ -356,7 +357,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
             "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
           },
           {
-            "path": "setup.md",
+            "path": "external.md",
             "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
           }
         ],
@@ -369,7 +370,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
       },
       "outputs": [
         {
-          "path": "setup.md",
+          "path": "external.md",
           "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
         }
       ],
@@ -385,7 +386,7 @@ their own `dimension`, `model`, role-doc reading list, and digests.)
 ### Worked skip cases
 
 - **Draft skipped:** research stable outputs match lock → `research_unchanged`;
-  draft `input_digest` matches; `setup.md` still matches `draft.outputs`; same
+  draft `input_digest` matches; setup files still match `draft.outputs`; same
   model, prompt template, reading list, persona, and notes.
 - **Only achievability re-runs:** draft skipped as above; `review.achievability`
   model or `prompt_digest` or reading-list digest changed → that dimension

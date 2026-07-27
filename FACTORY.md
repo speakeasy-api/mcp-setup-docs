@@ -73,7 +73,7 @@ Distill re-reads the issue body **and** the comment thread into pipeline notes.
 If a factory draft PR already exists (`guide/issue-<N>-*`), **or** only the remote factory branch exists (push succeeded, PR create flaked):
 
 - The next run checks out **that branch**.
-- Prior `research.md` / `setup.md` / lock stay on disk; research revises in place.
+- Prior `research.md` / `external.md` / `speakeasy.md` / lock stay on disk; research revises in place.
 - An existing PR is **updated**; if there is no PR yet, one is opened from the branch.
 
 That includes retries after **awaiting scope**, **unconverged**, or a failed PR-open step — as long as the earlier run pushed the factory branch. (Runs that never produced files have nothing to resume from.)

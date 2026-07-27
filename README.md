@@ -2,7 +2,8 @@
 <p align="center">
     Setup guides for MCP servers behind the Speakeasy AI Control Plane.
     Each guide lives in <code>guides/&lt;slug&gt;/</code>
-    (<code>research.md</code>, <code>meta.yaml</code>, <code>setup.md</code>).
+    (<code>research.md</code>, <code>meta.yaml</code>,
+    <code>external.md</code>, <code>speakeasy.md</code>).
     <br /><br />
     <a href="https://speakeasy.com/"><img alt="Built by Speakeasy" src="https://www.speakeasy.com/assets/badges/built-by-speakeasy.svg" /></a>
     <br /><br />
