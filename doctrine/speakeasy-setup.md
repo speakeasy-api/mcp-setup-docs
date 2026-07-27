@@ -1,13 +1,15 @@
-# Speakeasy setup — canonical section
+# Speakeasy setup — canonical file
 
-The single source for every Setup Guide's `## Speakeasy setup` section:
-the steps a reader follows in the Speakeasy AI Control Plane after
-finishing the provider-side setup. This file is doctrine — maintained by
-a human, read-only to pipeline agents (constitution I7), changed only per
-invariant I8. Technical Research transcludes the skeleton below into each
-guide's Research Dossier and records the per-guide values it renders
-with; the Writer renders the section from the Dossier like any other
-facts.
+The single source for every Guide's `speakeasy.md`: the steps a reader
+follows in the Speakeasy AI Control Plane after finishing External setup
+(`external.md`). This file is doctrine — maintained by a human, read-only
+to pipeline agents (constitution I7), changed only per invariant I8.
+Technical Research transcludes the skeleton below into each guide's
+Research Dossier and records the per-guide values it renders with; the
+Writer renders `speakeasy.md` from the Dossier like any other facts.
+Consumers may omit this file when Speakeasy setup is already in context
+(for example an installed MCP server's detail page showing only
+`external.md`).
 
 UI facts below are drawn from the product source
 (`speakeasy-api/gram`, `client/dashboard`, branch `main`, commit
@@ -20,7 +22,7 @@ invent a label this file does not carry.
 - `<remote URL>` — from `meta.yaml` `remotes`. (The Control Plane
   proxies remote servers over streamable-http; the add form's
   **Transport** field is read-only.)
-- The Authentication Option the guide documents, which Provider-setup
+- The Authentication Option the guide documents, which External-setup
   step produced each credential field, and — for OAuth options — any
   scopes the provider requires.
 - `<further-reading URL>` — the provider's primary MCP documentation
@@ -49,7 +51,7 @@ page.
 
 From the server's **Overview**, open **Settings**. The Writer renders
 only the variant matching the guide's Authentication Option, names the
-guide's actual fields, and cross-links each value to the Provider-setup
+guide's actual fields, and cross-links each value to the External-setup
 step that produced it.
 
 - OAuth with a pre-registered client: under **Authentication**, click
@@ -58,17 +60,17 @@ step that produced it.
   metadata). In the **Attach Remote Identity Provider** sheet, set
   **Client Type** to **Manual**. The sheet shows the **Redirect URI**
   with a copy button — the callback URL the guide had the reader
-  register in Provider setup (`{{ gram.oauth.callback_url }}`).
+  register in External setup (`{{ gram.oauth.callback_url }}`).
   <!-- verify(operator): the template key substitutes this same Redirect URI value -->
   Paste the **Client ID** and **Client Secret (optional)** from
-  Provider setup, then click **Attach Identity Provider**. Confirm the
+  External setup, then click **Attach Identity Provider**. Confirm the
   sheet's **Redirect URI** matches the `{{ gram.oauth.callback_url }}`
   value registered under the provider's redirect/callback field in
-  Provider setup — readers paste that template key directly there; they
-  do not visit this sheet mid–Provider-setup only to copy the URI.
+  External setup — readers paste that template key directly there; they
+  do not visit this sheet mid–External-setup only to copy the URI.
 - API key / token: under **Upstream Headers**, click **Add header**,
   enter the **Header name** (for example `Authorization`), leave
-  **Value source** as **Static value**, paste the value from Provider
+  **Value source** as **Static value**, paste the value from External
   setup, check **Secret**, and click **Save**. (Catalog installs may
   collect the same headers earlier, in the **Add to Project** dialog's
   **Upstream headers** section.)
@@ -76,7 +78,8 @@ step that produced it.
 
 ## The closing pointer
 
-The guide's final line — plain prose after the last Speakeasy step:
+The guide's final line — plain prose after the last Speakeasy step in
+`speakeasy.md`:
 
 > This guide covers setup only. For anything beyond it — billing, tool
 > behavior, limits — see <Provider>'s MCP documentation at

@@ -164,7 +164,7 @@ function listPersonas(root: string): string[] {
 function guideHasContent(root: string, slug: string): boolean {
   const dir = abs(root, guideDir(slug))
   if (!existsSync(dir)) return false
-  return ['research.md', 'meta.yaml', 'setup.md'].some((f) =>
+  return ['research.md', 'meta.yaml', 'external.md', 'speakeasy.md'].some((f) =>
     existsSync(join(dir, f))
   )
 }
@@ -177,7 +177,7 @@ async function confirmOverwrite(slug: string): Promise<boolean> {
     return false
   }
   process.stderr.write(
-    `guides/${slug}/ already exists. Overwrite research.md, meta.yaml, setup.md? [y/N] `
+    `guides/${slug}/ already exists. Overwrite research.md, meta.yaml, external.md, speakeasy.md? [y/N] `
   )
   const buf = Buffer.alloc(16)
   const n = await new Promise<number>((resolve) => {

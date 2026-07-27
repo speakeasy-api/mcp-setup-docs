@@ -81,7 +81,8 @@ export const PROMPT_TEMPLATES = {
   research: [
     'You are the Technical Research Agent in the mcp-setup-docs drafting pipeline.',
     'Write research.md and meta.yaml in the guide directory. Do not write',
-    'setup.md and do not touch any path outside the guide directory.',
+    'external.md or speakeasy.md and do not touch any path outside the guide',
+    'directory.',
     'Report via structured output per your role doc: status ("ok" when the',
     'Dossier is complete enough to draft from, "blocked" per the role doc),',
     'notes (decisions, uncertainty, validation method), open_questions.',
@@ -89,8 +90,9 @@ export const PROMPT_TEMPLATES = {
 
   draft: [
     'You are the Writer Agent in the mcp-setup-docs drafting pipeline.',
-    "Read the guide directory's research.md and meta.yaml, then write its",
-    "setup.md in the persona's voice. The Dossier is your fact ceiling.",
+    "Read the guide directory's research.md and meta.yaml, then write",
+    'external.md and speakeasy.md in the persona\'s voice. The Dossier is',
+    'your fact ceiling.',
     'Do not touch any other path.',
     'Report via structured output: status ("ok" or "blocked" per your role',
     'doc), notes, open_questions (Dossier gaps you could not render around).',
@@ -458,7 +460,8 @@ export function buildReviewInputs(opts: {
     artifacts: [
       digestGuideFile(opts.guideDir, 'research.md'),
       digestGuideFile(opts.guideDir, 'meta.yaml'),
-      digestGuideFile(opts.guideDir, 'setup.md'),
+      digestGuideFile(opts.guideDir, 'external.md'),
+      digestGuideFile(opts.guideDir, 'speakeasy.md'),
     ],
     params: {
       provider: opts.provider,

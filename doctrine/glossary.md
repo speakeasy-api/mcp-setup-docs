@@ -16,8 +16,20 @@ _Avoid_: Catalog Entry, entry, integration, connector
 
 **Setup Guide**:
 The step-by-step walkthrough a user follows to configure an MCP Server — the
-prose half of a Guide.
+prose half of a Guide, authored as `external.md` (provider-side) plus
+`speakeasy.md` (Control Plane).
 _Avoid_: instructions, tutorial, readme
+
+**External setup**:
+The provider-side half of a Setup Guide (`external.md`) — account
+prerequisites and console steps that produce credentials. Consumers may
+show this file alone when Speakeasy setup is already in context.
+_Avoid_: Provider setup (as a separate file), Prerequisites (as a separate H2)
+
+**Speakeasy setup**:
+The Control Plane half of a Setup Guide (`speakeasy.md`) — add-server and
+connect-credentials steps from `doctrine/speakeasy-setup.md`.
+_Avoid_: Gram setup, Values from Gram
 
 **Metadata**:
 The structured facts backing a Guide — the MCP Server's URL and transport,
@@ -64,8 +76,8 @@ _Avoid_: stub, WIP, pending entry
 **Research Dossier**:
 The fact artifact of a Guide (`research.md`) — every fact the Setup Guide
 renders, recorded at click-through depth with provenance and minted
-Anchors. The Writer's fact ceiling: nothing enters `setup.md` that is not
-recorded here first.
+Anchors. The Writer's fact ceiling: nothing enters `external.md` or
+`speakeasy.md` that is not recorded here first.
 _Avoid_: research notes, source doc, dossier file
 
 **Persona**:
@@ -75,10 +87,11 @@ formatting rules, and the achievability bar reviewers judge against.
 _Avoid_: audience, user type, reader profile
 
 **Anchor**:
-The document-unique kebab-case ID behind each `setup.md` heading — minted
-in the Research Dossier for provider steps, fixed in
-`doctrine/speakeasy-setup.md` for Speakeasy steps — carried verbatim into
-`setup.md` headings and `meta.yaml` references.
+The document-unique kebab-case ID behind each setup heading — minted in
+the Research Dossier for provider steps (carried into `external.md`),
+fixed in `doctrine/speakeasy-setup.md` for Speakeasy steps (carried into
+`speakeasy.md`) — referenced from Metadata as `external.md#…` or
+`speakeasy.md#…`.
 _Avoid_: heading id, fragment, link id
 
 **Provenance**:

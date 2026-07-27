@@ -4,8 +4,6 @@ setup_version: 1
 
 # Box
 
-## Prerequisites
-
 You need a Box Admin or Co-Admin account for the enterprise you are
 connecting — Box Admins and Co-Admins are the roles that can add
 Integration Credentials in the Admin Console. Everything below happens
@@ -19,8 +17,6 @@ but you can only use MCP tools that are included in your current plan:
 AI tools require a Box AI-enabled plan, and the Doc Gen scope requires
 an Enterprise Advanced license. For the full plan and licensing picture,
 see [Tools are gated by plan and licensing](#plan-gated-tools).
-
-## Provider setup
 
 When people connect from the Speakeasy AI Control Plane, each user signs
 in with their own Box account. To allow that, a Box admin creates one

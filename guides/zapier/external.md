@@ -4,16 +4,12 @@ setup_version: 1
 
 # Zapier
 
-## Prerequisites
-
 A Zapier account that can sign in at mcp.zapier.com and connect the apps you
 want to expose as tools. Zapier MCP runs on the account's existing Zapier
 plan — there is no separate MCP tier — and each successful tool call consumes
 two tasks from the plan's task allowance. Everything below happens at
 [mcp.zapier.com](https://mcp.zapier.com); no prior Zapier experience is
 assumed.
-
-## Provider setup
 
 ### Create an MCP server {#create-mcp-server}
 

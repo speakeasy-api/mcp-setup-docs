@@ -2,7 +2,7 @@
 # Drafted from provider documentation. In the default dynamic-discovery mode
 # the server advertises static meta-tools; switched to manual configuration it
 # instead advertises each pre-selected action as its own dedicated tool, which
-# is per-tenant. See setup.md#server-modes.
+# is per-tenant. See external.md#server-modes.
 schema_version: 1
 slug: zapier
 title: Zapier
@@ -15,12 +15,13 @@ credential_setup:
         - id: token
           label: Connection token
           setup:
-            - setup.md#generate-connection-token
+            - external.md#generate-connection-token
   requirements:
     - id: zapier-account
       description: Dedicated Zapier validation account with an MCP server created and its connection token
 documentation:
-  setup: setup.md
+  external: external.md
+  speakeasy: speakeasy.md
 remotes:
   - id: primary
     url: https://mcp.zapier.com/api/v1/connect
