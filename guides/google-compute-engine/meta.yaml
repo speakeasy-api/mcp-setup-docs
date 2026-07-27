@@ -17,18 +17,19 @@ credential_setup:
         - id: client-id
           label: OAuth client ID
           setup:
-            - setup.md#create-oauth-client
-            - setup.md#copy-client-credentials
+            - external.md#create-oauth-client
+            - external.md#copy-client-credentials
         - id: client-secret
           label: OAuth client secret
           setup:
-            - setup.md#create-oauth-client
-            - setup.md#copy-client-credentials
+            - external.md#create-oauth-client
+            - external.md#copy-client-credentials
   requirements:
     - id: gcp-project
       description: Google Cloud project with billing enabled and the Compute Engine API enabled, an admin who can enable APIs, grant IAM roles, and configure the Google Auth platform (project Owner covers all three), and connecting users granted the MCP Tool User role plus Compute Engine roles for the operations they will perform
 documentation:
-  setup: setup.md
+  external: external.md
+  speakeasy: speakeasy.md
 remotes:
   - id: primary
     url: https://compute.googleapis.com/mcp

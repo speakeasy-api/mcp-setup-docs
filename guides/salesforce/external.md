@@ -4,16 +4,12 @@ setup_version: 1
 
 # Connect Salesforce to the Speakeasy AI Control Plane
 
-## Prerequisites
-
 - Salesforce System Administrator access to an API-enabled production or sandbox org.
 - An Enterprise Edition or above org, or a lower-edition org where Hosted MCP Servers are available. For a lower-edition org, confirm availability in the target org before continuing.
 - Authority to create an **External Client App** and enable Hosted MCP servers.
 - Access to the Speakeasy AI Control Plane.
 
 Sign in to the Salesforce org that will expose its records. Create credentials in that same production or sandbox org. This guide does not cover scratch orgs.
-
-## Provider setup
 
 ### Open Salesforce Setup {#open-salesforce-setup}
 
@@ -96,45 +92,3 @@ If the ticket does not specify the team's approved read, write, or delete requir
 If the connection fails with valid credentials, confirm that the selected server is enabled, the URL matches the server and org type, and the org has API access.
 
 <!-- screenshot: MCP Servers under API Catalog, showing the available server list and the control used to enable the chosen SObject server; record the rendered row and control labels -->
-
-## Speakeasy setup
-
-### Add the server in Speakeasy {#add-server-in-speakeasy}
-
-1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
-2. Select **Add Source**.
-
-Use a Salesforce catalog listing only if it explicitly identifies the selected Hosted MCP SObject server, matches the URL recorded in [Enable the selected SObject server](#enable-sobject-server), and supports this guide's manual OAuth configuration. The mapping of Salesforce catalog listings to these servers is unverified.
-
-1. Choose **3rd-party server**.
-2. On the **MCP Catalog** page, enter `Salesforce` in **Search MCP servers...**.
-3. Open the Salesforce entry with **View**.
-4. Select **Add**.
-5. In the **Add to Project** dialog, select **Add to Project**.
-
-Otherwise, use a custom remote server:
-
-1. Choose **Custom remote server**.
-2. On the **Add a custom remote MCP server** page, paste the URL recorded in [Enable the selected SObject server](#enable-sobject-server) into **Remote MCP server URL**.
-3. Select **Add server**.
-
-Either path creates the hosted MCP Server and opens its **Overview** page.
-
-<!-- screenshot: the Add Source menu open on the Sources page, or Salesforce's catalog entry -->
-
-### Connect your credentials {#connect-speakeasy-credentials}
-
-1. From the server's **Overview**, open **Settings**.
-2. Under **Authentication**, select **Configure Manually**.
-3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-4. Confirm that **Redirect URI** matches the `{{ gram.oauth.callback_url }}` registered in [Configure OAuth settings](#configure-oauth-settings).
-
-The Consumer Key-only mapping below is an unverified candidate configuration. Salesforce documents it for compatible public clients but not for the Speakeasy AI Control Plane. Validate it end to end before treating it as confirmed.
-
-5. Paste the [**Consumer Key**](#copy-consumer-key) into **Client ID**.
-6. Leave **Client Secret (optional)** empty.
-7. Select **Attach Identity Provider**.
-
-<!-- screenshot: Attach Remote Identity Provider with Client Type, Redirect URI, and the credential labels visible; redact the Client ID -->
-
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Salesforce's MCP documentation](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html).

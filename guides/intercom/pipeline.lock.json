@@ -87,8 +87,12 @@
       },
       "outputs": [
         {
-          "path": "setup.md",
-          "digest": "sha256:ac07aee35a70d3d6e11d3d8d20ad9fe48220491e6f7d49e6d8f162f7535b3fbb"
+          "path": "external.md",
+          "digest": "sha256:c6c8bb9904a2d760d3b0d055c541406bf5beff8ff74301b816abec1897e250a1"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:616aa74e7ebfca639b7160c082a460ce83349851b7b3df2e8e277b3dae3f5c3d"
         }
       ],
       "completed_at": "2026-07-24T23:11:55Z"
@@ -119,11 +123,15 @@
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:d21649772274d969723b1871479c668f57a37f9f7e2daa14811e725281112a8b"
+            "digest": "sha256:ed4b407a36b6b017884d845e5eb710f6c03b16a5a35a2d66a70cb4423e2851ad"
           },
           {
-            "path": "setup.md",
-            "digest": "sha256:ac07aee35a70d3d6e11d3d8d20ad9fe48220491e6f7d49e6d8f162f7535b3fbb"
+            "path": "external.md",
+            "digest": "sha256:c6c8bb9904a2d760d3b0d055c541406bf5beff8ff74301b816abec1897e250a1"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:616aa74e7ebfca639b7160c082a460ce83349851b7b3df2e8e277b3dae3f5c3d"
           }
         ],
         "params": {
@@ -135,8 +143,12 @@
       },
       "outputs": [
         {
-          "path": "setup.md",
-          "digest": "sha256:ac07aee35a70d3d6e11d3d8d20ad9fe48220491e6f7d49e6d8f162f7535b3fbb"
+          "path": "external.md",
+          "digest": "sha256:c6c8bb9904a2d760d3b0d055c541406bf5beff8ff74301b816abec1897e250a1"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:616aa74e7ebfca639b7160c082a460ce83349851b7b3df2e8e277b3dae3f5c3d"
         }
       ],
       "completed_at": "2026-07-24T23:11:55Z"
@@ -171,11 +183,15 @@
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:d21649772274d969723b1871479c668f57a37f9f7e2daa14811e725281112a8b"
+            "digest": "sha256:ed4b407a36b6b017884d845e5eb710f6c03b16a5a35a2d66a70cb4423e2851ad"
           },
           {
-            "path": "setup.md",
-            "digest": "sha256:ac07aee35a70d3d6e11d3d8d20ad9fe48220491e6f7d49e6d8f162f7535b3fbb"
+            "path": "external.md",
+            "digest": "sha256:c6c8bb9904a2d760d3b0d055c541406bf5beff8ff74301b816abec1897e250a1"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:616aa74e7ebfca639b7160c082a460ce83349851b7b3df2e8e277b3dae3f5c3d"
           }
         ],
         "params": {
@@ -187,8 +203,12 @@
       },
       "outputs": [
         {
-          "path": "setup.md",
-          "digest": "sha256:ac07aee35a70d3d6e11d3d8d20ad9fe48220491e6f7d49e6d8f162f7535b3fbb"
+          "path": "external.md",
+          "digest": "sha256:c6c8bb9904a2d760d3b0d055c541406bf5beff8ff74301b816abec1897e250a1"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:616aa74e7ebfca639b7160c082a460ce83349851b7b3df2e8e277b3dae3f5c3d"
         }
       ],
       "completed_at": "2026-07-24T23:11:55Z"

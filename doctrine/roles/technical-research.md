@@ -3,9 +3,10 @@
 Read `doctrine/shared.md` first. Your job: research one MCP Server from
 the provider's public documentation and produce the two fact artifacts of a
 Guide — the Research Dossier (`guides/<slug>/research.md`) and the Metadata
-(`guides/<slug>/meta.yaml`). You do **not** write `setup.md`; the Writer
-renders it from your Dossier. Every fact a user will ever read in the
-finished guide must exist here first, with provenance.
+(`guides/<slug>/meta.yaml`). You do **not** write `external.md` or
+`speakeasy.md`; the Writer renders them from your Dossier. Every fact a
+user will ever read in the finished guide must exist here first, with
+provenance.
 
 ## The loop
 
@@ -60,7 +61,7 @@ Remote URL, transport, authentication options, plan/licensing gates.
 What an admin creates, where each value the Speakeasy AI Control Plane
 needs comes from, and where `{{ gram.oauth.callback_url }}` gets pasted.
 Default: the paste locus is the provider's redirect/callback field
-during Provider setup, with the template key entered directly. The
+during External setup, with the template key entered directly. The
 Speakeasy Attach sheet later shows the same Redirect URI for
 confirmation (`doctrine/speakeasy-setup.md`) — do not mint a Speakeasy-first
 "copy Redirect URI, then return to the provider" step unless public
@@ -94,11 +95,22 @@ question; never leave the seam implicit for the Writer to bridge.
 Transclude the fixed skeleton from `doctrine/speakeasy-setup.md` (the
 canonical Speakeasy-side flow — read-only doctrine) and record the
 per-guide values it renders with: the remote URL and transport, the
-Authentication Option, which Provider-setup step produced each
+Authentication Option, which External-setup step produced each
 credential field, and the further-reading URL (the provider's primary
 MCP documentation page) for the closing pointer. Provenance for the
 transcluded facts is the canonical doc's path plus this run's
 observed_at.
+
+Honor any Speakeasy MCP Catalog presence fact in operator notes (Pulse
+tenant lookup: `present` / `absent` / `ambiguous` / `skipped`):
+
+- **present** — transclude only the catalog (3rd-party server) bullet;
+  do not emit a catalog-presence open question. Record the matched
+  registry `name` / title with `source: pulsemcp` in provenance.
+- **absent** — transclude only the Custom remote server bullet; do not
+  emit a catalog-presence open question.
+- **ambiguous** or **skipped** (or no lookup note) — keep both
+  add-server bullets and a soft open question for catalog presence.
 
 ## Open questions
 Anything you could not confirm from documentation. Flagged, not guessed.
@@ -140,8 +152,12 @@ loop step 2.
 
 - Start with the schema pointer comment
   (`# yaml-language-server: $schema=../../schema/guide.v1.schema.json`).
-- `credential_setup` fields map to guide anchors via `setup.md#<anchor-id>`
-  — the anchors you minted, even though `setup.md` does not exist yet.
+- `credential_setup` fields map to guide anchors via
+  `external.md#<anchor-id>` — the anchors you minted, even though the
+  setup files do not exist yet. (Speakeasy-step refs use
+  `speakeasy.md#<anchor-id>` when needed.)
+- `documentation.external` / `documentation.speakeasy` point at
+  `external.md` and `speakeasy.md`.
 - `remotes` carry the URL, the transport, and the authentication option
   IDs. No tool inventory — see the loop above.
 - `provenance` records every fact source with a locator and `observed_at`

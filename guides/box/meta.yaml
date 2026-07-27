@@ -12,18 +12,19 @@ credential_setup:
         - id: client-id
           label: Client ID
           setup:
-            - setup.md#add-integration-credentials
-            - setup.md#copy-client-credentials
+            - external.md#add-integration-credentials
+            - external.md#copy-client-credentials
         - id: client-secret
           label: Client Secret
           setup:
-            - setup.md#add-integration-credentials
-            - setup.md#copy-client-credentials
+            - external.md#add-integration-credentials
+            - external.md#copy-client-credentials
   requirements:
     - id: box-admin
       description: Box Admin or Co-Admin access to the enterprise's Admin Console (the roles that can add Integration Credentials)
 documentation:
-  setup: setup.md
+  external: external.md
+  speakeasy: speakeasy.md
 remotes:
   - id: primary
     url: https://mcp.box.com

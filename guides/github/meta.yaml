@@ -12,11 +12,11 @@ credential_setup:
         - id: client-id
           label: Client ID
           setup:
-            - setup.md#generate-oauth-credentials
+            - external.md#generate-oauth-credentials
         - id: client-secret
           label: Client secret
           setup:
-            - setup.md#generate-oauth-credentials
+            - external.md#generate-oauth-credentials
   requirements:
     - id: github-organization-admin
       description: Administrative access to the GitHub organization that will own the OAuth app
@@ -27,7 +27,8 @@ credential_setup:
     - id: organization-sso
       description: A valid organization SSO session when accessing resources protected by SSO enforcement
 documentation:
-  setup: setup.md
+  external: external.md
+  speakeasy: speakeasy.md
 remotes:
   - id: primary
     url: https://api.githubcopilot.com/mcp/

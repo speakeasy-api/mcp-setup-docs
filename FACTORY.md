@@ -17,6 +17,10 @@ Repo → **Settings → Secrets and variables → Actions**:
 | --- | --- | --- |
 | `CURSOR_API_KEY` | **Yes** | Cursor API key (Dashboard → Integrations / API Keys) |
 | `AGENT_PAT` | Recommended | PAT with contents + issues + pull requests write on this repo. Falls back to `GITHUB_TOKEN` (PRs still work; label chaining is less reliable). |
+| `PULSE_REGISTRY_KEY` | Recommended | PulseMCP Sub-Registry API key — resolves Speakeasy MCP Catalog presence before research. Without it, guides keep both catalog/custom add-server paths. |
+| `PULSE_REGISTRY_TENANT` | Recommended with key | PulseMCP tenant slug (e.g. `gram-recommended`). Required together with the key for catalog lookup. |
+
+Local `mise run draft-guide` uses the same env names (`PULSE_REGISTRY_KEY`, `PULSE_REGISTRY_TENANT`, optional `PULSE_REGISTRY_URL`) — typically from gitignored `mise.local.toml`, same as `mise run pull-catalog`.
 
 ### Labels
 
@@ -42,7 +46,7 @@ Runs can take a long time (often 20–40+ minutes). Usage burns Cursor plan toke
 
 1. **Resolved as `slug`…** — distill figured out which server / persona / notes.  
    On a retry: **Resuming on existing factory PR…** (or **Resuming on factory branch…** if the branch was pushed but PR create flaked).
-2. Sometimes **Scope check** — research finished with *material* open questions (recovery path, conflicting docs, etc.). Drafting pauses; answer with `Decision N: …`, then re-add `guide:draft`. Soft OQs (catalog presence, UI silence already hedged) do **not** pause.
+2. Sometimes **Scope check** — research finished with *material* open questions (recovery path, conflicting docs, etc.). Drafting pauses; answer with `Decision N: …`, then re-add `guide:draft`. Soft OQs (UI silence already hedged; catalog presence only when Pulse lookup was skipped or ambiguous) do **not** pause.
 3. **Pipeline review** — numbered decisions (blockers), open questions, optional nits — after a full draft run. Written so you can answer without reading the whole guide.
 4. A PR titled **`guide: <provider>`** on branch `guide/issue-<N>-<slug>`
    (`Closes #<issue>`). It stays a **draft** when the run needs a human reply
@@ -73,7 +77,7 @@ Distill re-reads the issue body **and** the comment thread into pipeline notes.
 If a factory draft PR already exists (`guide/issue-<N>-*`), **or** only the remote factory branch exists (push succeeded, PR create flaked):
 
 - The next run checks out **that branch**.
-- Prior `research.md` / `setup.md` / lock stay on disk; research revises in place.
+- Prior `research.md` / `external.md` / `speakeasy.md` / lock stay on disk; research revises in place.
 - An existing PR is **updated**; if there is no PR yet, one is opened from the branch.
 
 That includes retries after **awaiting scope**, **unconverged**, or a failed PR-open step — as long as the earlier run pushed the factory branch. (Runs that never produced files have nothing to resume from.)
@@ -140,11 +144,14 @@ commits, pushes, and opens the PR.
    existing `guides/*` slugs) → structured JSON or `needs_clarification`.
 4. **Comment** — “Resolved as `slug` …” (or resume notice) summary.
 5. **Draft** — `npm run draft-guide -- <slug> --overwrite --pause-on-scope
-   [--notes …]` (no `--force`; lock skips still apply). After research, a
-   heuristic scope gate pauses before draft when **material** open questions
-   lack `Decision N:` replies in notes (soft OQs do not pause). When prior
-   artifacts exist, research revises in place; unchanged research can skip
-   re-draft via `pipeline.lock.json`.
+   [--notes …]` (no `--force`; lock skips still apply). Before research,
+   a deterministic PulseMCP tenant lookup (`PULSE_REGISTRY_KEY` +
+   `PULSE_REGISTRY_TENANT`) resolves catalog presence into operator notes
+   so research drafts a single add-server path when confident. After
+   research, a heuristic scope gate pauses before draft when **material**
+   open questions lack `Decision N:` replies in notes (soft OQs do not
+   pause). When prior artifacts exist, research revises in place;
+   unchanged research can skip re-draft via `pipeline.lock.json`.
 6. **PR** — commit `guides/<slug>/` + matching `retro/runs/*-<slug>.json`,
    push `guide/issue-<N>-<slug>`, open or **update** the PR titled
    `guide: <provider>` (retries transient GraphQL / 5xx). Draft while
