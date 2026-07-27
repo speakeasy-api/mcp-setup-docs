@@ -22,12 +22,17 @@ Files: `pipeline/src/pulse-catalog.ts`, `pipeline/src/workflow.ts`,
 - Canonical skeleton still carries both bullets; research selects which
   to transclude when presence is known. Writer/fidelity/review honor the
   selection and do not demand the omitted alternate.
+- Follow-up hardening: lock digests use a stable catalog token (no
+  per-run timestamp); only exact title/name matches yield `present`
+  (sole fuzzy hits are `ambiguous`); registry error bodies stay in logs,
+  not notes/locks; scope gate reads distill notes only.
 
 Invariants: I1–I8 unchanged (human edit to Speakeasy path-selection
 rule).
 
 Evidence: operator request to confirm catalog membership via Pulse
-tenant search and resolve the dual add-server conditional.
+tenant search and resolve the dual add-server conditional; multi-model
+review of PR #37.
 
 ## 2026-07-27 — split setup into external.md + speakeasy.md
 

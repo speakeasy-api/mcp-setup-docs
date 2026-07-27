@@ -31,6 +31,7 @@ import {
   formatCatalogNote,
   lookupCatalogPresence,
   mergeCatalogNotes,
+  stableCatalogLockNote,
 } from './pulse-catalog.ts'
 import { PATHS, abs, guideDir, personaFile, roleDoc } from './paths.ts'
 
@@ -171,7 +172,17 @@ export const ResearchChangeJudgment = withSchemaHint(
 export type GuideInput = {
   slug: string
   provider: string
+  /** Operator / distill notes (no catalog lookup). Used by the scope gate. */
   notes?: string
+  /**
+   * Full catalog presence note for agent prompts only. Lock digests use
+   * {@link lockNotes} instead so per-run timestamps never appear there.
+   */
+  catalogPromptNote?: string
+  /**
+   * Stable catalog token merged into lock input digests (status + match name).
+   */
+  lockNotes?: string
 }
 
 export type WorkflowInput = {
@@ -262,6 +273,22 @@ export async function runWorkflow(
   }
 
   function notesOf(g: GuideInput): string {
+    // Lock digests: operator notes + stable catalog token (no timestamps).
+    if (g.lockNotes !== undefined) return g.lockNotes
+    return g.notes || ''
+  }
+
+  function promptNotesOf(g: GuideInput): string {
+    // Agent assignment: operator notes + full catalog instructions.
+    if (g.catalogPromptNote) {
+      return mergeCatalogNotes(g.notes, g.catalogPromptNote)
+    }
+    return g.notes || ''
+  }
+
+  function operatorNotesOf(g: GuideInput): string {
+    // Scope gate: distill/operator decisions only — catalog note must not
+    // contribute tokens to notesDisposeOfQuestion.
     return g.notes || ''
   }
 
@@ -353,7 +380,7 @@ export async function runWorkflow(
       '- guide directory: ' + abs(ROOT, guideDir(g.slug)) + '/',
       '- persona: ' + PERSONA + ' (' + PERSONA_FILE + ')',
       '- observed_at timestamp for provenance recorded this run: ' + NOW,
-      '- operator notes: ' + (g.notes || '(none)'),
+      '- operator notes: ' + (promptNotesOf(g) || '(none)'),
     ].join('\n')
   }
 
@@ -749,7 +776,6 @@ export async function runWorkflow(
       provider: raw.provider,
       slug: raw.slug,
     })
-    const catalogNote = formatCatalogNote(catalog)
     log(
       '[' +
         raw.slug +
@@ -757,13 +783,18 @@ export async function runWorkflow(
         catalog.status +
         (catalog.match
           ? ' name=' + catalog.match.name
-          : catalog.reason
-            ? ' — ' + catalog.reason
-            : '')
+          : '') +
+        ' tenant=' +
+        catalog.tenant +
+        ' observed=' +
+        catalog.observedAt +
+        (catalog.reason ? ' — ' + catalog.reason : '') +
+        (catalog.logDetail ? ' detail=' + catalog.logDetail : '')
     )
     const g: GuideInput = {
       ...raw,
-      notes: mergeCatalogNotes(raw.notes, catalogNote),
+      catalogPromptNote: formatCatalogNote(catalog),
+      lockNotes: mergeCatalogNotes(raw.notes, stableCatalogLockNote(catalog)),
     }
 
     const dir = guideDir(g.slug)
@@ -815,7 +846,7 @@ export async function runWorkflow(
           )
         : []
       const allOqs = mergeOpenQuestions(research.open_questions, dossierOqs)
-      const gate = evaluateScopeGate(allOqs, notesOf(g))
+      const gate = evaluateScopeGate(allOqs, operatorNotesOf(g))
       log(
         '[' +
           g.slug +

@@ -6,6 +6,10 @@
  *   PULSE_REGISTRY_KEY     required to run (else skipped)
  *   PULSE_REGISTRY_TENANT  required to run (else skipped)
  *   PULSE_REGISTRY_URL     optional, default https://api.pulsemcp.com
+ *
+ * Notes written for agents/locks are stable across runs for the same
+ * status+match (no per-run timestamps) so pipeline.lock.json digests still
+ * skip. Verbose tenant/time/error detail stays in the workflow log.
  */
 
 export type CatalogMatch = {
@@ -25,7 +29,10 @@ export type CatalogLookupResult = {
   queries: string[]
   observedAt: string
   tenant: string
+  /** Safe for notes/locks — no registry response bodies or server-name dumps. */
   reason?: string
+  /** Verbose detail for logs only (may include HTTP bodies). */
+  logDetail?: string
 }
 
 type ServerEntry = {
@@ -101,15 +108,25 @@ async function searchServers(
   })
   if (!res.ok) {
     const body = (await res.text()).slice(0, 500)
-    throw new Error(`registry returned ${res.status} for ${url}: ${body}`)
+    const err = new Error(`HTTP ${res.status}`) as Error & { logDetail?: string }
+    err.logDetail = `registry returned ${res.status} for ${url}: ${body}`
+    throw err
   }
   const data = (await res.json()) as { servers?: ServerEntry[] }
-  return data.servers ?? []
+  if (!Array.isArray(data.servers)) {
+    const err = new Error('malformed registry response') as Error & {
+      logDetail?: string
+    }
+    err.logDetail = 'registry JSON missing servers array'
+    throw err
+  }
+  return data.servers
 }
 
 /**
  * Look up whether the provider appears in the Pulse tenant catalog.
  * Never throws — missing env or HTTP errors yield status skipped.
+ * Only exact title/name matches yield present; a sole fuzzy hit is ambiguous.
  */
 export async function lookupCatalogPresence(opts: {
   provider: string
@@ -150,7 +167,7 @@ export async function lookupCatalogPresence(opts: {
     for (const q of queries) {
       const page = await searchServers(baseUrl, tenant, apiKey, q)
       for (const entry of page) {
-        const name = entry.server?.name
+        const name = entry.server?.name?.trim()
         if (!name || byName.has(name)) continue
         byName.set(name, entry)
       }
@@ -184,58 +201,52 @@ export async function lookupCatalogPresence(opts: {
         queries,
         observedAt,
         tenant,
-        reason: `multiple exact matches: ${exact.map((m) => m.name).join(', ')}`,
+        reason: `multiple exact matches (${exact.length})`,
       }
     }
 
     if (entries.length === 0) {
       return { status: 'absent', queries, observedAt, tenant }
     }
-    if (entries.length === 1) {
-      const match = toMatch(entries[0])
-      if (!match) {
-        return {
-          status: 'absent',
-          queries,
-          observedAt,
-          tenant,
-          reason: 'sole hit lacked server.name',
-        }
-      }
-      return {
-        status: 'present',
-        match,
-        queries,
-        observedAt,
-        tenant,
-      }
-    }
 
+    // Non-exact hits only — never promote a sole fuzzy hit to present.
     return {
       status: 'ambiguous',
       queries,
       observedAt,
       tenant,
-      reason: `multiple non-exact hits (${entries.length}): ${entries
-        .map((e) => e.server?.name)
-        .filter(Boolean)
-        .slice(0, 5)
-        .join(', ')}`,
+      reason: `non-exact search hits (${entries.length}); no exact title/name match`,
     }
   } catch (err) {
+    const e = err as Error & { logDetail?: string }
+    const http = /^HTTP (\d+)$/.exec(e.message)
     return {
       status: 'skipped',
       queries,
       observedAt,
       tenant,
-      reason: (err as Error).message,
+      reason: http
+        ? `registry request failed (HTTP ${http[1]})`
+        : 'registry request failed',
+      logDetail: e.logDetail || e.message,
     }
   }
 }
 
-/** Operator note injected into research/draft assignment. */
+/**
+ * Stable lock-digest token — status + match name only.
+ * Must not include timestamps, tenants, or volatile reason text.
+ */
+export function stableCatalogLockNote(result: CatalogLookupResult): string {
+  if (result.status === 'present' && result.match) {
+    return `Speakeasy MCP Catalog: present name=${JSON.stringify(result.match.name)}`
+  }
+  return `Speakeasy MCP Catalog: ${result.status}`
+}
+
+/** Operator note injected into research/draft assignment (stable across runs). */
 export function formatCatalogNote(result: CatalogLookupResult): string {
-  const header = `Speakeasy MCP Catalog (Pulse tenant ${result.tenant}, observed ${result.observedAt}): ${result.status}`
+  const header = `Speakeasy MCP Catalog: ${result.status}`
   const queried =
     result.queries.length > 0
       ? `Queries: ${result.queries.map((q) => JSON.stringify(q)).join(', ')}`
@@ -247,7 +258,7 @@ export function formatCatalogNote(result: CatalogLookupResult): string {
       : ''
     return [
       header,
-      `Matched name=${result.match.name}${title}`,
+      `Matched name=${JSON.stringify(result.match.name)}${title}`,
       queried,
       'Render only the catalog add-server path; do not leave catalog presence as an open question.',
     ].join('\n')
