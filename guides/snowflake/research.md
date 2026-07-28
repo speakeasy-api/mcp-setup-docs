@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: snowflake
-researched_at: 2026-07-28T20:27:25Z
+researched_at: 2026-07-28T20:36:30Z
 ---
 
 # Snowflake — Research Dossier
@@ -9,8 +9,8 @@ researched_at: 2026-07-28T20:27:25Z
 ## Server facts
 
 - **Scope:** Snowflake-managed MCP servers, specifically a server exposing an
-  existing Cortex Agent through a `CORTEX_AGENT_RUN` tool. This is distinct
-  from Snowflake's MCP Connectors feature for calling external MCP servers.
+  existing Cortex Agent through a `CORTEX_AGENT_RUN` tool. This Guide does not
+  cover Snowflake's MCP Connectors feature or other Snowflake MCP tool types.
 - **Remote URL:**
   `https://<account_url>/api/v2/databases/<database>/schemas/<schema>/mcp-servers/<name>`.
   It is specific to the Snowflake account and MCP object.
@@ -25,33 +25,26 @@ researched_at: 2026-07-28T20:27:25Z
   rotation. This Guide uses the first two values.
 - **Session access:** each user authenticates separately. The OAuth session
   uses the user's `DEFAULT_ROLE`; secondary roles are unsupported. The user
-  also needs a non-null `DEFAULT_WAREHOUSE`.
+  must be assigned that role, the role needs `USAGE` on the selected warehouse,
+  and the user needs a non-null `DEFAULT_WAREHOUSE`.
 - **Privileges:** the connecting role needs `USAGE` on the MCP server and
   privileges on each underlying tool. A Cortex Agent tool requires `USAGE` on
-  the referenced Cortex Agent. Creating the OAuth integration requires
-  `ACCOUNTADMIN` or global `CREATE INTEGRATION`.
+  the Agent's parent database and schema and on the referenced Cortex Agent.
+  Creating the OAuth integration requires `ACCOUNTADMIN` or global
+  `CREATE INTEGRATION`.
 - **Availability:** unavailable in the People's Republic of China and
   unsupported in government regions.
 - **PrivateLink:** SaaS clients use the public MCP URL. Accounts using
   PrivateLink set `USE_PRIVATELINK_FOR_AUTHORIZATION_ENDPOINT = TRUE` so
   browser authorization uses PrivateLink while the token endpoint remains
   publicly reachable.
-- **Network policies:** restrictive policies must allow the MCP client's
-  outbound IP addresses.
-- **Catalog mismatch:** the forced Speakeasy MCP Catalog record
-  `com.pulsemcp.mirror/gram-snowflake` version `0.0.1` does not point to the
-  account- and object-specific Snowflake URL above. It points to the fixed
-  `https://app.getgram.ai/mcp/speakeasy-team-snowflake` remote and requires one
-  string header, `Mcp-Account-Identifier`. The record has no database, schema,
-  MCP server name, or complete MCP server URL input. Therefore the catalog
-  record cannot be verified as a binding for the Snowflake-managed Cortex
-  Agent MCP server this Guide creates.
 
 ## Credential flow
 
 Who acts: a Snowflake administrator with `ACCOUNTADMIN` or delegated
-privileges. The application or data owner supplies the approved Cortex Agent,
-database, schema, MCP server name, connecting role, warehouse, and grants.
+privileges. The application or data owner supplies the approved Cortex Agent's
+database, schema, and name; the MCP server's target database, schema, and name;
+the connecting role; the warehouse; and the grants.
 
 What gets created:
 
@@ -62,13 +55,11 @@ What gets created:
 | --- | --- |
 | Client ID | `oauth_client_id` returned at {#copy-oauth-credentials} |
 | Client Secret | `oauth_client_secret` returned at {#copy-oauth-credentials} |
-| `Mcp-Account-Identifier` | Preferred `organization-account` identifier recorded at {#record-mcp-server-url} |
 
 Enter `{{ gram.oauth.callback_url }}` directly as `OAUTH_REDIRECT_URI` at
 {#create-oauth-integration}. Assemble the account-specific MCP URL at
-{#record-mcp-server-url}. The account identifier satisfies the catalog
-record's required header, but it does not identify the database, schema, or MCP
-server object and therefore does not resolve the catalog mismatch.
+{#record-mcp-server-url}. Snowflake does not support Dynamic Client
+Registration, so the manually registered client ID and secret are required.
 
 ## Console walkthrough
 
@@ -85,9 +76,10 @@ server object and therefore does not resolve the catalog mismatch.
 
 ### Create the Cortex Agent MCP server {#create-cortex-agent-mcp-server}
 
-- Obtain the approved database, schema, server name, Cortex Agent fully
-  qualified name, tool name, title, and description from the application or
-  data owner.
+- Obtain the approved MCP server database, schema, and name; Cortex Agent
+  database, schema, and name; tool name; title; and description from the
+  application or data owner. Form the Cortex Agent fully qualified name as
+  `<agent_database>.<agent_schema>.<agent_name>`.
 - In the SQL file, set the exact namespace, then create the server:
 
   ```sql
@@ -99,7 +91,7 @@ server object and therefore does not resolve the catalog mismatch.
       tools:
         - name: "<tool_name>"
           type: "CORTEX_AGENT_RUN"
-          identifier: "<database>.<schema>.<cortex_agent>"
+          identifier: "<cortex_agent_fqn>"
           description: "<approved_description>"
           title: "<approved_title>"
     $$;
@@ -113,9 +105,52 @@ server object and therefore does not resolve the catalog mismatch.
 
 ### Grant first-connection access {#grant-first-connection-access}
 
-- Have the security owner grant the connecting role `USAGE` on the MCP server,
-  `USAGE` on the Cortex Agent, and every downstream privilege the Agent needs.
-- Set each connecting user's defaults:
+- Have the security owner grant the connecting role `USAGE` on the MCP server.
+  Form the server identifier from the target database, target schema, and
+  server name retained at {#create-cortex-agent-mcp-server}:
+
+  ```sql
+  GRANT USAGE ON MCP SERVER <database>.<schema>.<server_name>
+    TO ROLE <mcp_access_role>;
+  ```
+
+- Have the security owner grant the connecting role `USAGE` on the Cortex
+  Agent's parent database and schema, using the Agent database and schema
+  obtained at {#create-cortex-agent-mcp-server}:
+
+  ```sql
+  GRANT USAGE ON DATABASE <agent_database>
+    TO ROLE <mcp_access_role>;
+
+  GRANT USAGE ON SCHEMA <agent_database>.<agent_schema>
+    TO ROLE <mcp_access_role>;
+  ```
+
+- Have the security owner grant the connecting role `USAGE` on the Cortex
+  Agent:
+
+  ```sql
+  GRANT USAGE ON AGENT <agent_database>.<agent_schema>.<agent_name>
+    TO ROLE <mcp_access_role>;
+  ```
+
+- Have the security owner grant the connecting role every downstream
+  privilege the Agent needs.
+- Have the security owner grant the connecting role `USAGE` on the selected
+  warehouse:
+
+  ```sql
+  GRANT USAGE ON WAREHOUSE <warehouse_name> TO ROLE <mcp_access_role>;
+  ```
+
+- For each connecting user, have the security owner assign the connecting role:
+
+  ```sql
+  GRANT ROLE <mcp_access_role> TO USER <username>;
+  ```
+
+- After the role assignment and warehouse grant succeed, set that user's
+  defaults:
 
   ```sql
   ALTER USER <username>
@@ -124,8 +159,10 @@ server object and therefore does not resolve the catalog mismatch.
   ```
 
 - Recovery: if authorization succeeds but initialization fails, confirm
-  `DEFAULT_WAREHOUSE` is set. If tools are unavailable, confirm
-  `DEFAULT_ROLE` has all MCP server, Agent, and downstream privileges.
+  `DEFAULT_WAREHOUSE` is set and its warehouse grants `USAGE` to the connecting
+  role. If tools are unavailable, confirm the user has `DEFAULT_ROLE` assigned
+  and that role has all MCP server, Agent parent database and schema, Agent,
+  and downstream privileges.
 - Screenshot note: successful grant and user-change results, with identities
   redacted where policy requires.
 
@@ -165,15 +202,7 @@ server object and therefore does not resolve the catalog mismatch.
 ### Record the MCP server URL {#record-mcp-server-url}
 
 - Open the account selector and select **View account details**.
-- In **Account Details**, copy the preferred account identifier in
-  `organization-account` form for the catalog's required
-  `Mcp-Account-Identifier` value. Snowflake also documents this SQL:
-
-  ```sql
-  SELECT CURRENT_ORGANIZATION_NAME() || '-' || CURRENT_ACCOUNT_NAME();
-  ```
-
-- In the same dialog, copy **Account/Server URL**. Remove `https://` and any
+- In **Account Details**, copy **Account/Server URL**. Remove `https://` and any
   trailing slash so only its hostname remains.
 - Combine that hostname with the retained object names:
   `https://<account_url>/api/v2/databases/<database>/schemas/<schema>/mcp-servers/<name>`.
@@ -196,13 +225,6 @@ Per-guide values for `doctrine/speakeasy-setup.md`:
   `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`, for query
   `snowflake`. Do not render the Custom remote path or a catalog-presence
   question.
-- Catalog input: `Mcp-Account-Identifier` is required and receives the
-  preferred `organization-account` identifier from
-  {#record-mcp-server-url}. It is not a secret.
-- Catalog binding limitation: version `0.0.1` installs the fixed
-  `https://app.getgram.ai/mcp/speakeasy-team-snowflake` remote. It exposes no
-  input for the complete account-specific MCP server URL from
-  {#record-mcp-server-url}, nor for its database, schema, or server name.
 - Authentication Option: manually registered confidential OAuth client.
 - **Client ID** and **Client Secret**: values copied at
   {#copy-oauth-credentials}.
@@ -218,17 +240,10 @@ In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 
 Choose **3rd-party server**. On **MCP Catalog**, enter `Snowflake` in
 **Search MCP servers...**, open the result with **View**, and click **Add**.
-In **Add to Project**, under **Upstream headers**, enter the preferred
-`organization-account` value from {#record-mcp-server-url} for the required
-**Mcp-Account-Identifier** field, then click **Add to Project**.
+In **Add to Project**, click **Add to Project**. This creates the hosted MCP
+server and opens its **Overview** page.
 
-This adds the catalog record and opens its **Overview** page, but the verified
-record does not bind the complete Snowflake-managed MCP server URL. Do not
-claim that this connects the Cortex Agent MCP server until the catalog record
-accepts that URL or its equivalent object coordinates.
-
-Screenshot note: **Add to Project** with **Upstream headers** and the required
-**Mcp-Account-Identifier** field visible; redact the account identifier.
+Screenshot note: the Snowflake catalog result and **Add to Project** dialog.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
@@ -241,11 +256,9 @@ registered in Snowflake. Paste the values from {#copy-oauth-credentials} into
 
 Screenshot note: the attachment sheet with labels visible and values redacted.
 
-Public Speakeasy product history verifies a **Connect** control when an OAuth
-token is unavailable in the Playground; it opens a popup for the third-party
-account. It does not establish a transition from this server's **Overview**
-page or a general post-attachment authorization control, so it is not safe to
-render as the next walkthrough action.
+When a client first requests Snowflake access, Snowflake's OAuth flow opens in
+a browser. The user signs in with their own Snowflake credentials and approves
+the consent screen. The resulting session uses that user's `DEFAULT_ROLE`.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
 limits — see Snowflake's MCP documentation at
@@ -253,16 +266,12 @@ limits — see Snowflake's MCP documentation at
 
 ## Open questions
 
-- Must the forced catalog record be corrected to accept the complete
-  account-specific Snowflake MCP server URL, or should this Guide cover a
-  different Snowflake MCP server? The current record's required account
-  identifier alone cannot select the database, schema, and MCP server object.
-- Snowflake requires restrictive network policies to allow the client's
-  outbound IPs, but the reviewed public sources do not identify the Speakeasy
-  AI Control Plane addresses.
-- Which current Speakeasy control starts end-user Snowflake authorization
-  after identity-provider attachment? **Connect** is verified only for the
-  Playground's missing-token state, not as a transition from **Overview**.
+- The forced catalog path does not expose a documented control that binds the
+  `Snowflake` catalog result to the account-specific MCP server URL assembled
+  at {#record-mcp-server-url}. Snowflake's public documentation defines that
+  URL, while the catalog observation establishes only that the result is
+  present. Human doctrine review is needed; do not invent a binding control or
+  render the Custom remote path.
 
 ## Provenance
 
@@ -278,20 +287,28 @@ limits — see Snowflake's MCP documentation at
 - **Indexes:** `https://docs.snowflake.com/llms.txt` and the Snowflake Cortex
   `llms.txt` were reachable.
 
-All sources were observed at `2026-07-28T20:27:25Z`.
+All sources were observed at `2026-07-28T20:36:30Z`.
 
 - `https://docs.snowflake.com/llms.txt` — documentation inventory and account
-  identifier guidance.
+  URL guidance.
 - `https://docs.snowflake.com/en/user-guide/snowflake-cortex/llms.txt` —
   Cortex inventory and distinction from MCP Connectors.
 - `https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp`
-  — URL, transport behavior, OAuth, access, PrivateLink, network policy,
-  role/warehouse behavior, availability, and limitations.
+  — URL, transport behavior, OAuth, access, PrivateLink, role/warehouse
+  behavior, availability, and limitations.
 - `https://docs.snowflake.com/en/sql-reference/sql/create-mcp-server` —
   Cortex Agent tool specification and creation privileges.
 - `https://docs.snowflake.com/en/user-guide/oauth-custom` and
   `https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-oauth-snowflake`
   — OAuth integration privilege, confidential client, and redirect behavior.
+- `https://docs.snowflake.com/en/sql-reference/sql/grant-role` — exact syntax
+  for assigning the connecting role to a user.
+- `https://docs.snowflake.com/en/sql-reference/sql/grant-privilege` — exact
+  syntax and supported `USAGE` privileges for MCP server and warehouse grants
+  to a role.
+- `https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-setup`
+  — exact `USAGE` grant syntax for a Cortex Agent's parent database, parent
+  schema, and fully qualified Agent identifier.
 - `https://docs.snowflake.com/en/sql-reference/functions/system_show_oauth_client_secrets`
   — exact credential keys and uppercase integration-name requirement.
 - `https://docs.snowflake.com/en/user-guide/ui-snowsight/workspaces` and
@@ -303,12 +320,7 @@ All sources were observed at `2026-07-28T20:27:25Z`.
 - `https://quickstarts.snowflake.com/guide/getting-started-with-snowflake-mcp-server/index.html`
   — official MCP creation and URL example.
 - `doctrine/speakeasy-setup.md` — canonical Speakeasy labels and anchors.
-- `https://www.speakeasy.com/docs/mcp/catalog/overview` — public catalog
-  behavior: adding a registry server creates an external MCP attachment from
-  the registry transport record.
-- `https://github.com/speakeasy-api/gram/pull/1323` — public product history
-  for the Playground **Connect** control and its OAuth popup.
 - Pulse catalog observation — query `snowflake`; matched
-  `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`, version `0.0.1`,
-  status `present`; derived binding facts are its fixed streamable-HTTP remote
-  and required `Mcp-Account-Identifier` string header.
+  `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`, status `present`.
+  This observation selects the catalog add-server path only; no
+  catalog-specific configuration controls are asserted.
