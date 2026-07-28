@@ -27,11 +27,11 @@ credential_setup:
 documentation:
   external: external.md
   speakeasy: speakeasy.md
-speakeasy_add_server: catalog
 remotes:
   - id: cortex-agent-mcp
     url: "https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>"
     transport: streamable-http
+    tenanted: true
     authentication:
       - oauth-client
 provenance:
@@ -134,11 +134,4 @@ provenance:
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-28T23:24:19Z"
-  - source: pulsemcp
-    locator: com.pulsemcp.mirror/gram-snowflake
-    name: Snowflake
-    classification: mirror
-    scope: speakeasy-mcp-catalog
-    status: present
     observed_at: "2026-07-28T23:24:19Z"
