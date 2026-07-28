@@ -10,6 +10,7 @@ import {
   digestGuideFile,
   isResearchUnchanged,
   makeStepRecord,
+  missingResearchOutputs,
   readLock,
   researchMatchesSnapshot,
   snapshotResearchOutputs,
@@ -124,11 +125,16 @@ export const PhaseResult = withSchemaHint(
     additionalProperties: false,
     required: ['status', 'notes', 'open_questions'],
     properties: {
-      status: { type: 'string', enum: ['ok', 'blocked'] },
+      status: {
+        type: 'string',
+        enum: ['ok', 'blocked'],
+        description:
+          'ok = required artifacts written and complete enough to draft from; blocked = cannot produce them from public sources.',
+      },
       notes: {
         type: 'string',
         description:
-          'Decisions made, uncertainty, and (for research) the meta.yaml validation method used.',
+          'Decisions made, uncertainty, and (for research) the meta.yaml validation method used. For research, status "ok" is only valid after research.md and meta.yaml exist on disk in the guide directory.',
       },
       open_questions: { type: 'array', items: { type: 'string' } },
     },
@@ -486,16 +492,39 @@ export async function runWorkflow(
             '',
           ].join('\n')
         : '',
-      'Write research.md and meta.yaml in the guide directory. Do not write',
-      'external.md or speakeasy.md and do not touch any path outside the',
-      'guide directory.',
+      'Write research.md and meta.yaml in the guide directory before you',
+      'report. status "ok" is invalid unless both files exist on disk.',
+      'Do not write external.md or speakeasy.md and do not touch any path',
+      'outside the guide directory.',
       '',
       'Report via structured output per your role doc: status ("ok" when the',
-      'Dossier is complete enough to draft from, "blocked" per the role doc),',
-      'notes (decisions, uncertainty, validation method), open_questions.',
+      'Dossier is on disk and complete enough to draft from, "blocked" per',
+      'the role doc), notes (decisions, uncertainty, validation method),',
+      'open_questions.',
     ]
       .filter(Boolean)
       .join('\n')
+  }
+
+  function researchWriteRemediationPrompt(
+    g: GuideInput,
+    missing: string[]
+  ): string {
+    const dir = guideDir(g.slug)
+    return [
+      'Your previous report claimed research was complete, but these required',
+      'files are still missing from the guide directory:',
+      ...missing.map((f) => '- ' + join(dir, f)),
+      '',
+      'Write them now (research.md and meta.yaml). Use the research you',
+      'already gathered in this conversation; re-read the role docs only if',
+      'needed. Do not write external.md or speakeasy.md.',
+      '',
+      assign(g),
+      '',
+      'Then report status/notes/open_questions again. status "ok" only after',
+      'both files exist on disk.',
+    ].join('\n')
   }
 
   function researchChangeJudgePrompt(
@@ -906,6 +935,21 @@ export async function runWorkflow(
       label: g.slug + ' research',
       phase: g.slug + ': research',
       schema: PhaseResult,
+      remediation: (parsed) => {
+        if (parsed.status === 'blocked') return null
+        const missing = missingResearchOutputs(dir)
+        if (missing.length === 0) return null
+        log(
+          '[' +
+            g.slug +
+            '] research reported ' +
+            parsed.status +
+            ' but missing ' +
+            missing.join(', ') +
+            '; requesting write remediation'
+        )
+        return researchWriteRemediationPrompt(g, missing)
+      },
     })
     if (!research) {
       return { slug: g.slug, status: 'failed', failed_phase: 'research' }
@@ -916,6 +960,28 @@ export async function runWorkflow(
         status: 'blocked',
         failed_phase: 'research',
         notes: research.notes,
+        open_questions: research.open_questions,
+      }
+    }
+
+    // After remediation (if any), still require on-disk artifacts before draft.
+    const missingOutputs = missingResearchOutputs(dir)
+    if (missingOutputs.length > 0) {
+      const missing = missingOutputs.join(', ')
+      log(
+        '[' +
+          g.slug +
+          '] research finished without required outputs: ' +
+          missing
+      )
+      return {
+        slug: g.slug,
+        status: 'failed',
+        failed_phase: 'research',
+        notes:
+          (research.notes ? research.notes + '\n' : '') +
+          'research completed without writing: ' +
+          missing,
         open_questions: research.open_questions,
       }
     }

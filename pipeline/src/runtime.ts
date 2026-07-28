@@ -10,6 +10,14 @@ export type AgentOptions<S extends AnyZod> = {
   schema: S
   /** Workflow may pass 'sonnet' for optional light slots (unused by current gates). */
   model?: 'sonnet' | string
+  /**
+   * After a successful parse, return a follow-up prompt to send once on the
+   * same agent (keeps conversation context), or null/undefined to accept.
+   * Used when the model reports ok without finishing required file work.
+   */
+  remediation?: (
+    parsed: z.infer<S>
+  ) => string | null | undefined | Promise<string | null | undefined>
 }
 
 export type RuntimeConfig = {
@@ -90,31 +98,26 @@ export function createRuntime(cfg: RuntimeConfig) {
       const run = await agentHandle.send(fullPrompt)
       log(`[${opts.label}] run=${run.id} agent=${agentHandle.agentId}`)
 
-      const result = await run.wait()
-      if (result.status !== 'finished') {
-        log(
-          `[${opts.label}] run ended status=${result.status}` +
-            (result.error ? ` error=${result.error.message}` : '')
-        )
-        return null
+      let parsed = await waitAndParse(run, opts)
+      if (!parsed) return null
+
+      if (opts.remediation) {
+        const followUp = await opts.remediation(parsed)
+        if (followUp) {
+          log(`[${opts.label}] sending remediation follow-up`)
+          const remRun = await agentHandle.send(
+            followUp + schemaInstruction(opts.schema)
+          )
+          log(`[${opts.label}] remediation run=${remRun.id}`)
+          const remediated = await waitAndParse(remRun, {
+            ...opts,
+            label: opts.label + ' remediation',
+          })
+          if (remediated) parsed = remediated
+        }
       }
 
-      const text = result.result ?? ''
-      let parsed: unknown
-      try {
-        parsed = extractJson(text)
-      } catch (err) {
-        log(`[${opts.label}] JSON parse failed: ${(err as Error).message}`)
-        log(`[${opts.label}] raw result (first 500 chars): ${text.slice(0, 500)}`)
-        return null
-      }
-
-      const checked = opts.schema.safeParse(parsed)
-      if (!checked.success) {
-        log(`[${opts.label}] schema validation failed: ${checked.error.message}`)
-        return null
-      }
-      return checked.data as z.infer<S>
+      return parsed
     } catch (err) {
       if (err instanceof CursorAgentError) {
         log(
@@ -124,6 +127,37 @@ export function createRuntime(cfg: RuntimeConfig) {
       }
       throw err
     }
+  }
+
+  async function waitAndParse<S extends AnyZod>(
+    run: Awaited<ReturnType<Awaited<ReturnType<typeof Agent.create>>['send']>>,
+    opts: Pick<AgentOptions<S>, 'label' | 'schema'>
+  ): Promise<z.infer<S> | null> {
+    const result = await run.wait()
+    if (result.status !== 'finished') {
+      log(
+        `[${opts.label}] run ended status=${result.status}` +
+          (result.error ? ` error=${result.error.message}` : '')
+      )
+      return null
+    }
+
+    const text = result.result ?? ''
+    let raw: unknown
+    try {
+      raw = extractJson(text)
+    } catch (err) {
+      log(`[${opts.label}] JSON parse failed: ${(err as Error).message}`)
+      log(`[${opts.label}] raw result (first 500 chars): ${text.slice(0, 500)}`)
+      return null
+    }
+
+    const checked = opts.schema.safeParse(raw)
+    if (!checked.success) {
+      log(`[${opts.label}] schema validation failed: ${checked.error.message}`)
+      return null
+    }
+    return checked.data as z.infer<S>
   }
 
   async function parallel<T>(thunks: Array<() => Promise<T>>): Promise<T[]> {
