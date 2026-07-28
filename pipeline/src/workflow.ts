@@ -11,6 +11,7 @@ import {
   isResearchUnchanged,
   makeStepRecord,
   missingResearchOutputs,
+  missingDraftOutputs,
   readLock,
   researchMatchesSnapshot,
   snapshotResearchOutputs,
@@ -666,11 +667,55 @@ export async function runWorkflow(
       '',
       "Read the guide directory's research.md and meta.yaml, then write",
       'external.md (provider-side) and speakeasy.md (Control Plane) in the',
-      "persona's voice. The Dossier is your fact ceiling.",
+      "persona's voice before you report. status \"ok\" is invalid unless",
+      'both files exist on disk. The Dossier is your fact ceiling.',
       'Do not touch any other path.',
       '',
-      'Report via structured output: status ("ok" or "blocked" per your role',
-      'doc), notes, open_questions (Dossier gaps you could not render around).',
+      'Report via structured output: status ("ok" when both setup files are',
+      'on disk and complete enough to review, "blocked" per your role doc),',
+      'notes, open_questions (Dossier gaps you could not render around).',
+    ].join('\n')
+  }
+
+  function draftWriteRemediationPrompt(
+    g: GuideInput,
+    missing: string[]
+  ): string {
+    const dir = guideDir(g.slug)
+    return [
+      'Your previous report claimed the draft was complete, but these required',
+      'files are still missing from the guide directory:',
+      ...missing.map((f) => '- ' + join(dir, f)),
+      '',
+      'Write them now (external.md and speakeasy.md) from research.md /',
+      'meta.yaml and the Writer role doc. Use work already done in this',
+      'conversation; re-read role docs only if needed. Do not touch any other',
+      'path.',
+      '',
+      assign(g),
+      '',
+      'Then report status/notes/open_questions again. status "ok" only after',
+      'both files exist on disk.',
+    ].join('\n')
+  }
+
+  function reviseWriteRemediationPrompt(
+    g: GuideInput,
+    missing: string[]
+  ): string {
+    const dir = guideDir(g.slug)
+    return [
+      'Required guide files are still missing after your revision:',
+      ...missing.map((f) => '- ' + join(dir, f)),
+      '',
+      'Write every missing file now. Use research.md and meta.yaml as the fact',
+      'ceiling for external.md / speakeasy.md. Do not touch any path outside',
+      'the guide directory. Do not claim a file exists unless it is on disk.',
+      '',
+      assign(g),
+      '',
+      'Then report notes/disputed/skipped again. notes must name which missing',
+      'files you wrote.',
     ].join('\n')
   }
 
@@ -742,6 +787,8 @@ export async function runWorkflow(
       'the observed_at timestamp above), then findings targeting "external"',
       'or "speakeasy", following the Writer role doc (grammar, persona voice,',
       'the Dossier as fact ceiling). Honor the anchor contract in shared.md.',
+      'If a finding says a required file is missing, write that file — do not',
+      'dispute or skip it as already present unless it exists on disk.',
       'Do not touch any path outside the guide directory.',
       '',
       'Blocker findings (JSON):',
@@ -1113,6 +1160,21 @@ export async function runWorkflow(
         label: g.slug + ' draft',
         phase: g.slug + ': draft',
         schema: PhaseResult,
+        remediation: (parsed) => {
+          if (parsed.status === 'blocked') return null
+          const missing = missingDraftOutputs(dir)
+          if (missing.length === 0) return null
+          log(
+            '[' +
+              g.slug +
+              '] draft reported ' +
+              parsed.status +
+              ' but missing ' +
+              missing.join(', ') +
+              '; requesting write remediation'
+          )
+          return draftWriteRemediationPrompt(g, missing)
+        },
       })
       if (!draft) {
         return {
@@ -1132,6 +1194,29 @@ export async function runWorkflow(
           research_change: researchChange,
         }
       }
+
+      const missingDraft = missingDraftOutputs(dir)
+      if (missingDraft.length > 0) {
+        const missing = missingDraft.join(', ')
+        log(
+          '[' +
+            g.slug +
+            '] draft finished without required outputs: ' +
+            missing
+        )
+        return {
+          slug: g.slug,
+          status: 'failed',
+          failed_phase: 'draft',
+          notes:
+            (draft.notes ? draft.notes + '\n' : '') +
+            'draft completed without writing: ' +
+            missing,
+          open_questions: draft.open_questions,
+          research_change: researchChange,
+        }
+      }
+
       draftRan = true
       draftOpenQuestions = draft.open_questions || []
     }
@@ -1218,13 +1303,47 @@ export async function runWorkflow(
             label: g.slug + ' revise r' + round,
             phase: g.slug + ': revise',
             schema: RevisionResult,
+            remediation: () => {
+              // After draft, setup files must stay on disk. Revision agents
+              // have claimed they exist while lint still saw ENOENT.
+              const missing = missingResearchOutputs(dir).concat(
+                missingDraftOutputs(dir)
+              )
+              if (missing.length === 0) return null
+              log(
+                '[' +
+                  g.slug +
+                  '] revise r' +
+                  round +
+                  ' missing ' +
+                  missing.join(', ') +
+                  '; requesting write remediation'
+              )
+              return reviseWriteRemediationPrompt(g, missing)
+            },
           }
         )
+        const stillMissing = missingResearchOutputs(dir).concat(
+          missingDraftOutputs(dir)
+        )
+        if (stillMissing.length > 0) {
+          log(
+            '[' +
+              g.slug +
+              '] revise r' +
+              round +
+              ' finished without required outputs: ' +
+              stillMissing.join(', ')
+          )
+        }
         entry.revision_notes = revision
           ? revision.notes
           : '(revision agent returned no report)'
         entry.disputed = revision ? revision.disputed : []
         entry.skipped = revision ? revision.skipped : []
+        if (stillMissing.length > 0) {
+          entry.missing_outputs = stillMissing
+        }
         prior = {
           round,
           blockers,
