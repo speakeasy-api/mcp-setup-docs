@@ -1,0 +1,139 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T20:36:30Z",
+  "started_at": "2026-07-28T20:36:30Z",
+  "finished_at": "2026-07-28T20:51:59Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "external",
+      "where": "create-cortex-agent-mcp-server",
+      "problem": "The guide omits the Dossier's instruction to form `<cortex_agent_fqn>` from the Cortex Agent database, schema, and name.",
+      "suggestion": "Before the SQL statement, instruct the reader to form `<cortex_agent_fqn>` as `<agent_database>.<agent_schema>.<agent_name>`.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "external",
+      "where": "create-cortex-agent-mcp-server",
+      "problem": "The SQL requires `<cortex_agent_fqn>`, but the guide only collects separate Agent database, schema, and name values and never tells the reader how to form this placeholder.",
+      "suggestion": "Tell the reader to form `<cortex_agent_fqn>` as `<agent_database>.<agent_schema>.<agent_name>`, or place those three placeholders directly in the SQL statement.",
+      "dimension": "achievability"
+    }
+  ],
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup / Add-server path",
+          "problem": "The catalog flow never uses the account-specific MCP server URL assembled in external setup, so the hosted server has no documented way to target the created Snowflake MCP server.",
+          "suggestion": "Verify and record how this catalog entry binds to the account-specific URL, then document that exact supported step; if it cannot bind without forbidden catalog-specific controls, escalate the forced catalog-path decision.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "grant-first-connection-access",
+          "problem": "The steps set a connecting role and warehouse as user defaults without ensuring that the role is assigned to each user and has USAGE on the warehouse.",
+          "suggestion": "Record and render exact browser-executable SQL steps to grant the connecting role to each user and grant that role USAGE on the selected warehouse before setting the defaults.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Grant finding: added exact GRANT USAGE ON WAREHOUSE and GRANT ROLE SQL before ALTER USER, updated recovery guidance, and added official provenance. Guide lint and metadata validation pass.",
+      "disputed": [
+        "Catalog binding finding: Snowflake public docs provide no supported Speakeasy catalog binding step, and the forced catalog-only operator decision explicitly forbids inventing catalog-specific controls."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "create-cortex-agent-mcp-server",
+          "problem": "The reader is told to obtain a fully qualified Cortex Agent name but the SQL prefixes that value with the target database and schema, producing an invalid identifier when followed literally.",
+          "suggestion": "Use one `<cortex_agent_fqn>` placeholder without additional prefixes, or collect the Agent database, schema, and object name separately.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "grant-first-connection-access",
+          "problem": "The critical-path steps for granting the connecting role `USAGE` on the MCP server and Cortex Agent provide neither executable SQL nor named browser controls.",
+          "suggestion": "Record and render exact browser-executable `GRANT USAGE` statements for both objects, including how to form their identifiers.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Speakeasy setup / Add-server path",
+          "problem": "The Guide assembles an account-specific MCP server URL that the forced catalog flow never uses or explains how it targets.",
+          "suggestion": "Record this unresolved catalog-binding gap as an open question for human doctrine review without inventing a binding control or rendering the alternate add-server path.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Fixed the Cortex Agent identifier to use <cortex_agent_fqn>. Added executable USAGE grants for the qualified MCP server and Cortex Agent, with official provenance, and rendered them in external.md. Recorded the unresolved forced-catalog binding gap as an open question without adding an alternate path or invented controls. Validated meta.yaml successfully.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "grant-first-connection-access",
+          "problem": "The generic downstream-privileges step omits executable grants for the mandatory `USAGE` privileges on the Cortex Agent's parent database and schema.",
+          "suggestion": "Collect the Agent database and schema, add exact `GRANT USAGE ON DATABASE` and `GRANT USAGE ON SCHEMA` statements to the Dossier, and render them in external.md.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Added Cortex Agent database/schema collection and exact DATABASE, SCHEMA, and AGENT USAGE grants to research.md and external.md; aligned meta.yaml requirements and provenance.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "create-cortex-agent-mcp-server",
+          "problem": "The guide omits the Dossier's instruction to form `<cortex_agent_fqn>` from the Cortex Agent database, schema, and name.",
+          "suggestion": "Before the SQL statement, instruct the reader to form `<cortex_agent_fqn>` as `<agent_database>.<agent_schema>.<agent_name>`.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "create-cortex-agent-mcp-server",
+          "problem": "The SQL requires `<cortex_agent_fqn>`, but the guide only collects separate Agent database, schema, and name values and never tells the reader how to form this placeholder.",
+          "suggestion": "Tell the reader to form `<cortex_agent_fqn>` as `<agent_database>.<agent_schema>.<agent_name>`, or place those three placeholders directly in the SQL statement.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER materially changes speakeasy.md inputs: it removes the unverified Mcp-Account-Identifier field, fixed Gram catalog URL, catalog-binding warning, and outbound-IP allowlist claim; simplifies catalog addition; and adds the first-request Snowflake OAuth authorization flow. These changes require re-drafting and invalidate review of the prior Speakeasy setup."
+  }
+}

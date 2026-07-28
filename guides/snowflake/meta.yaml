@@ -1,0 +1,122 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: snowflake
+title: Snowflake
+summary: Connect the Speakeasy AI Control Plane to a Snowflake-managed MCP server that exposes an approved Cortex Agent.
+credential_setup:
+  options:
+    - id: oauth-client
+      kind: oauth
+      client_registration: manual
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#copy-oauth-credentials
+        - id: client-secret
+          label: Client Secret
+          setup:
+            - external.md#copy-oauth-credentials
+  requirements:
+    - id: snowflake-integration-admin
+      description: Snowflake ACCOUNTADMIN access or a delegated role with the global CREATE INTEGRATION privilege
+    - id: approved-cortex-agent
+      description: An approved Cortex Agent database, schema, and name; MCP server target database, schema, and name; connecting role; warehouse; and least-privilege grant set
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+speakeasy_add_server: catalog
+remotes:
+  - id: cortex-agent-mcp
+    url: "https://<account_url>/api/v2/databases/<database>/schemas/<schema>/mcp-servers/<name>"
+    transport: streamable-http
+    authentication:
+      - oauth-client
+provenance:
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/llms.txt
+    name: Snowflake Documentation index
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/user-guide/snowflake-cortex/llms.txt
+    name: Snowflake Cortex documentation index
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp
+    name: Snowflake-managed MCP server
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/sql-reference/sql/create-mcp-server
+    name: CREATE MCP SERVER
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/user-guide/oauth-custom
+    name: Configure Snowflake OAuth for custom clients
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-oauth-snowflake
+    name: CREATE SECURITY INTEGRATION (Snowflake OAuth)
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/sql-reference/sql/grant-role
+    name: GRANT ROLE
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/sql-reference/sql/grant-privilege
+    name: GRANT privileges to role
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-setup
+    name: Cortex Agents access control and authentication
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/sql-reference/functions/system_show_oauth_client_secrets
+    name: SYSTEM$SHOW_OAUTH_CLIENT_SECRETS
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/user-guide/ui-snowsight/workspaces
+    name: Workspaces
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/user-guide/ui-snowsight/workspaces-working
+    name: Working with workspaces
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/user-guide/admin-account-identifier
+    name: Account identifiers
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-documentation
+    locator: https://docs.snowflake.com/en/user-guide/gen-conn-config
+    name: Configure a third-party application to connect to Snowflake
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: provider-quickstart
+    locator: https://quickstarts.snowflake.com/guide/getting-started-with-snowflake-mcp-server/index.html
+    name: Getting Started with Managed Snowflake MCP Server
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-07-28T20:57:37Z"
+  - source: pulsemcp
+    locator: com.pulsemcp.mirror/gram-snowflake
+    name: Snowflake
+    classification: mirror
+    scope: speakeasy-mcp-catalog
+    status: present
+    observed_at: "2026-07-28T20:57:37Z"
