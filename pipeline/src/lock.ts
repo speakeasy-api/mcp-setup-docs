@@ -18,16 +18,30 @@ export const LOCK_FILENAME = 'pipeline.lock.json'
 /** Guide-relative research outputs compared for "unchanged". */
 export const RESEARCH_OUTPUT_FILES = ['research.md', 'meta.yaml'] as const
 
+/** Guide-relative Writer outputs required after a successful draft. */
+export const DRAFT_OUTPUT_FILES = ['external.md', 'speakeasy.md'] as const
+
 export type ResearchSnapshot = {
   'research.md'?: string
   'meta.yaml'?: string
 }
 
+/** Guide-relative files from `files` that are not present on disk. */
+export function missingGuideFiles(
+  guideDir: string,
+  files: readonly string[]
+): string[] {
+  return files.filter((name) => !existsSync(join(guideDir, name)))
+}
+
 /** Guide-relative research outputs that are not present on disk. */
 export function missingResearchOutputs(guideDir: string): string[] {
-  return RESEARCH_OUTPUT_FILES.filter(
-    (name) => !existsSync(join(guideDir, name))
-  )
+  return missingGuideFiles(guideDir, RESEARCH_OUTPUT_FILES)
+}
+
+/** Guide-relative draft outputs that are not present on disk. */
+export function missingDraftOutputs(guideDir: string): string[] {
+  return missingGuideFiles(guideDir, DRAFT_OUTPUT_FILES)
 }
 
 export type ReviewDimension =
@@ -98,7 +112,8 @@ export const PROMPT_TEMPLATES = {
   draft: [
     'You are the Writer Agent in the mcp-setup-docs drafting pipeline.',
     "Read the guide directory's research.md and meta.yaml, then write",
-    'external.md and speakeasy.md in the persona\'s voice. The Dossier is',
+    'external.md and speakeasy.md in the persona\'s voice before you report.',
+    'status "ok" is invalid unless both files exist on disk. The Dossier is',
     'your fact ceiling.',
     'Do not touch any other path.',
     'Report via structured output: status ("ok" or "blocked" per your role',

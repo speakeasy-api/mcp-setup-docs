@@ -5,6 +5,8 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import {
   digestGuideFile,
+  missingDraftOutputs,
+  missingGuideFiles,
   missingResearchOutputs,
 } from './lock.ts'
 
@@ -18,6 +20,21 @@ function tempGuide(): { root: string; guideDir: string; cleanup: () => void } {
     cleanup: () => rmSync(root, { recursive: true, force: true }),
   }
 }
+
+describe('missingGuideFiles', () => {
+  it('filters to the requested names that are absent', () => {
+    const { guideDir, cleanup } = tempGuide()
+    try {
+      writeFileSync(join(guideDir, 'research.md'), '# dossier\n')
+      assert.deepEqual(
+        missingGuideFiles(guideDir, ['research.md', 'external.md']),
+        ['external.md']
+      )
+    } finally {
+      cleanup()
+    }
+  })
+})
 
 describe('missingResearchOutputs', () => {
   it('lists both files when the guide dir is empty', () => {
@@ -48,6 +65,31 @@ describe('missingResearchOutputs', () => {
       writeFileSync(join(guideDir, 'research.md'), '# dossier\n')
       writeFileSync(join(guideDir, 'meta.yaml'), 'provider: snowflake\n')
       assert.deepEqual(missingResearchOutputs(guideDir), [])
+    } finally {
+      cleanup()
+    }
+  })
+})
+
+describe('missingDraftOutputs', () => {
+  it('lists external.md and speakeasy.md when absent', () => {
+    const { guideDir, cleanup } = tempGuide()
+    try {
+      assert.deepEqual(missingDraftOutputs(guideDir), [
+        'external.md',
+        'speakeasy.md',
+      ])
+    } finally {
+      cleanup()
+    }
+  })
+
+  it('returns empty when both setup files exist', () => {
+    const { guideDir, cleanup } = tempGuide()
+    try {
+      writeFileSync(join(guideDir, 'external.md'), '# ext\n')
+      writeFileSync(join(guideDir, 'speakeasy.md'), '# sp\n')
+      assert.deepEqual(missingDraftOutputs(guideDir), [])
     } finally {
       cleanup()
     }
