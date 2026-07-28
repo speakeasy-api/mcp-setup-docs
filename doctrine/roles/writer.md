@@ -120,9 +120,10 @@ rules, and the formatting preferences. Apply all of it:
 
 ## Report
 
-Status `ok` when `external.md` and `speakeasy.md` are complete and every
-fact traces to the Dossier; status `blocked` only when Dossier gaps make
-the guide unwritable. List open questions either way — but only gaps the
+Status `ok` when `external.md` and `speakeasy.md` exist on disk, are
+complete, and every fact traces to the Dossier; status `blocked` only when
+Dossier gaps make the guide unwritable. A structured report without those
+files is incomplete. List open questions either way — but only gaps the
 Dossier does not already record. Rendering around a Dossier-listed open
 question is expected work, not a new question; restating it doubles the
 human's
