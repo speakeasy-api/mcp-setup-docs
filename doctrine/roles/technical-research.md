@@ -181,3 +181,6 @@ Report `blocked` instead of writing thin artifacts when the provider has no
 documentable remote MCP server, the documentation is unreachable, or the
 auth model cannot be determined from public sources. Say exactly what you
 looked for and where.
+
+Report `ok` only after both `research.md` and `meta.yaml` exist on disk in
+the guide directory. A structured report without those files is incomplete.

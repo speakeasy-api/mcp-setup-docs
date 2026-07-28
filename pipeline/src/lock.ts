@@ -23,6 +23,13 @@ export type ResearchSnapshot = {
   'meta.yaml'?: string
 }
 
+/** Guide-relative research outputs that are not present on disk. */
+export function missingResearchOutputs(guideDir: string): string[] {
+  return RESEARCH_OUTPUT_FILES.filter(
+    (name) => !existsSync(join(guideDir, name))
+  )
+}
+
 export type ReviewDimension =
   | 'fidelity'
   | 'achievability'
@@ -200,9 +207,15 @@ export function digestGuideFile(
   guideDir: string,
   guideRel: string
 ): PathDigest {
+  const abs = join(guideDir, guideRel)
+  if (!existsSync(abs)) {
+    throw new Error(
+      `missing required guide file: ${guideRel} (under ${guideDir})`
+    )
+  }
   return {
     path: guideRel,
-    digest: stableDigestFile(join(guideDir, guideRel), guideRel),
+    digest: stableDigestFile(abs, guideRel),
   }
 }
 
