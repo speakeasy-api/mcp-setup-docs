@@ -1,0 +1,62 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T23:24:19Z",
+  "started_at": "2026-07-28T23:24:19Z",
+  "finished_at": "2026-07-28T23:31:43Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "Server facts — forced Speakeasy MCP Catalog path",
+      "problem": "The forced generic catalog flow does not establish how requests reach the account-specific MCP Server created during External setup.",
+      "suggestion": "Record this as an open question for human verification of catalog behavior without inventing or documenting a binding control.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Server facts — “forced Speakeasy MCP Catalog path does not ask the reader to paste it”",
+          "problem": "The catalog flow has no verified mechanism connecting the generic Snowflake catalog entry to the account-specific MCP server created in External setup.",
+          "suggestion": "Resolve how the catalog entry targets the created Snowflake MCP server before shipping; do not invent an account identifier, URL, or binding control.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "No files changed; the blocker was disputed.",
+      "disputed": [
+        "Catalog achievability: no verified mechanism connects the generic catalog entry to the account-specific Snowflake MCP server, and documenting one would violate the operator’s explicit no-binding-control constraint."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Server facts — forced Speakeasy MCP Catalog path",
+          "problem": "The forced generic catalog flow does not establish how requests reach the account-specific MCP Server created during External setup.",
+          "suggestion": "Record this as an open question for human verification of catalog behavior without inventing or documenting a binding control.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "Scope changed from a read-only SYSTEM_EXECUTE_SQL server to an existing Cortex Agent exposed via CORTEX_AGENT_RUN. This changes the creation anchor and SQL, remote ID, prerequisites, required Cortex database role and Agent/tool grants, and OAuth integration settings, requiring external.md and metadata to be re-drafted and prior setup review invalidated."
+  }
+}
