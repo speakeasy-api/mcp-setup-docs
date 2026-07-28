@@ -1,0 +1,115 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T22:29:19Z",
+  "started_at": "2026-07-28T22:29:19Z",
+  "finished_at": "2026-07-28T22:41:57Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "speakeasy",
+      "where": "add-server-in-speakeasy",
+      "problem": "The catalog flow never supplies the account- and object-specific MCP server URL created during external setup, so the documented Snowflake server is not demonstrably connected.",
+      "suggestion": "Document the catalog-supported control that binds this URL, or explicitly record that the catalog entry performs the binding automatically; keep the required catalog-only path.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "provenance entry for github.com/anthropics/claude-code/issues/42419",
+          "problem": "The public runtime report is incorrectly classified as an official source, contradicting the Research Dossier.",
+          "suggestion": "Remove the optional `classification: official` field from this provenance entry.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "copy-oauth-credentials",
+          "problem": "The credential-copy step does not identify which exact role can call SYSTEM$SHOW_OAUTH_CLIENT_SECRETS after the reader switches away from ACCOUNTADMIN.",
+          "suggestion": "Record the function's ownership or privilege requirement, then instruct the reader to select that exact role before running it and delay switching away if necessary.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "create-oauth-integration step 3",
+          "problem": "The reader must decide whether the Snowflake account uses PrivateLink without being told how to obtain that account-specific fact.",
+          "suggestion": "Record who can confirm the account's PrivateLink status, then tell the reader to obtain it from the Snowflake or network security owner before constructing the statement.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy",
+          "problem": "The account-specific MCP server URL produced in external setup is never entered or otherwise bound during the catalog flow.",
+          "suggestion": "Confirm that the catalog entry supplies the account-specific remote binding; if it requires reader input, document the canonical supported control where the URL is entered or escalate the canonical gap.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Fixed all blockers: removed the runtime report’s official classification; documented the exact integration-owner role through credential retrieval; and added PrivateLink confirmation from the Snowflake account administrator or network security owner. Metadata validates and guide lint passes.",
+      "disputed": [],
+      "skipped": [
+        "Speakeasy catalog URL binding: skipped because no canonical source confirms where the account-specific URL is supplied; documenting a control would require inventing a fact."
+      ]
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "closing pointer",
+          "problem": "The required setup-only pointer from the Research Dossier was replaced with an advanced-design-only sentence, omitting billing, tool behavior, and limits.",
+          "suggestion": "Render the full closing sentence recorded in the Research Dossier, including the advanced-design addition.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy",
+          "problem": "The catalog flow never binds the account-specific MCP server URL assembled during external setup.",
+          "suggestion": "Confirm how the catalog entry receives the account-specific URL and document the canonical supported control, or route this tenanted server through the custom-remote path.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker: restored the full setup-only closing pointer, including billing, tool behavior, limits, and advanced or agent-backed designs.",
+      "disputed": [
+        "Nit: The forced catalog flow provides no documented control for binding the account-specific URL; switching to custom remote would violate the explicit catalog-only assignment."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy",
+          "problem": "The catalog flow never supplies the account- and object-specific MCP server URL created during external setup, so the documented Snowflake server is not demonstrably connected.",
+          "suggestion": "Document the catalog-supported control that binds this URL, or explicitly record that the catalog entry performs the binding automatically; keep the required catalog-only path.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "Primary setup changed from a Cortex Agent-backed server to a minimal read-only SYSTEM_EXECUTE_SQL server. This changes prerequisites, grants, creation SQL, anchors, Metadata summary/remote ID, OAuth ALLOWED_ROLES_LIST, and advanced-setup guidance, requiring external.md re-drafting and invalidating prior setup review."
+  }
+}

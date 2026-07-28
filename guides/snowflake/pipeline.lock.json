@@ -3,10 +3,10 @@
   "slug": "snowflake",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-28T22:21:52Z",
+  "updated_at": "2026-07-28T22:41:57Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:d6e56a39e4843800660bf6dc0b858e3a16df64ea2d27a8878d83756ad4070f9c",
+      "input_digest": "sha256:1040fd96f92137695724e27adb2a8f2073f545c65aa9a2e9592665e53580b725",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
@@ -31,23 +31,23 @@
         "artifacts": [],
         "params": {
           "provider": "snowflake",
-          "notes": "Update existing guide: add callout before OAuth steps that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); distinguish setup role (ACCOUNTADMIN for security integration) from runtime DEFAULT_ROLE (non-privileged role with MCP/Cortex Agent/warehouse grants). Add optional CREATE ROLE + GRANT ROLE TO USER step for <mcp_access_role> instead of assuming it exists. Error to cite: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\""
+          "notes": "Revise existing draft (PR #56): add callout before OAuth that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); use ACCOUNTADMIN only for security integration setup; runtime DEFAULT_ROLE must be non-privileged with MCP/Cortex/warehouse grants; add CREATE ROLE + GRANT ROLE TO USER for <mcp_access_role>. Re-angle guide toward a minimal MCP server with a SQL query tool that does not require configuring a full Cortex Agent; document that path as the primary flow and link to official Snowflake documentation for advanced/complex MCP servers (e.g. agent-backed setups). Cite error: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\""
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:d48f1191266badbc76dc35b810e62410ea88aae056d3ef31e66b317690f7e121"
+          "digest": "sha256:bd6118b84d05f83a6ac4a9b2da675eef581fae0e15cccb0546611dd93d29e24e"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:f1e5926aace9bafd5108f415326ca339af7457921c94772efc812c0caedee8dc"
+          "digest": "sha256:3a66342a31694f84feab09f8a0b6244c355bccfb2533af0e154c9ce246ffcc45"
         }
       ],
-      "completed_at": "2026-07-28T22:21:52Z"
+      "completed_at": "2026-07-28T22:41:57Z"
     },
     "draft": {
-      "input_digest": "sha256:a8d6ce7d8b5101b9408ddeb850e45b692947000e5e6134cefc10367d370fad69",
+      "input_digest": "sha256:dec09bb97860986d4d6bcabf4155338f7b6f63a09640d4ef06a9325c60313da7",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:bd455424d5c087fd914297fad0cf7749459452dbd94d00bd4e20e977e9fbb92b",
@@ -72,33 +72,33 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:d48f1191266badbc76dc35b810e62410ea88aae056d3ef31e66b317690f7e121"
+            "digest": "sha256:bd6118b84d05f83a6ac4a9b2da675eef581fae0e15cccb0546611dd93d29e24e"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:f1e5926aace9bafd5108f415326ca339af7457921c94772efc812c0caedee8dc"
+            "digest": "sha256:3a66342a31694f84feab09f8a0b6244c355bccfb2533af0e154c9ce246ffcc45"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Update existing guide: add callout before OAuth steps that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); distinguish setup role (ACCOUNTADMIN for security integration) from runtime DEFAULT_ROLE (non-privileged role with MCP/Cortex Agent/warehouse grants). Add optional CREATE ROLE + GRANT ROLE TO USER step for <mcp_access_role> instead of assuming it exists. Error to cite: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Revise existing draft (PR #56): add callout before OAuth that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); use ACCOUNTADMIN only for security integration setup; runtime DEFAULT_ROLE must be non-privileged with MCP/Cortex/warehouse grants; add CREATE ROLE + GRANT ROLE TO USER for <mcp_access_role>. Re-angle guide toward a minimal MCP server with a SQL query tool that does not require configuring a full Cortex Agent; document that path as the primary flow and link to official Snowflake documentation for advanced/complex MCP servers (e.g. agent-backed setups). Cite error: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
+          "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+          "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
         }
       ],
-      "completed_at": "2026-07-28T22:21:52Z"
+      "completed_at": "2026-07-28T22:41:57Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:72acb57117176212d7ebe76e4a35ae718afc96aa6912973a3597eb61169124de",
+      "input_digest": "sha256:dccc72700596541b6b3f2e5d0af4e54fc0e5c87f690192025f936deb7773e3c4",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
@@ -119,24 +119,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:d48f1191266badbc76dc35b810e62410ea88aae056d3ef31e66b317690f7e121"
+            "digest": "sha256:bd6118b84d05f83a6ac4a9b2da675eef581fae0e15cccb0546611dd93d29e24e"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:f1e5926aace9bafd5108f415326ca339af7457921c94772efc812c0caedee8dc"
+            "digest": "sha256:3a66342a31694f84feab09f8a0b6244c355bccfb2533af0e154c9ce246ffcc45"
           },
           {
             "path": "external.md",
-            "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
+            "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+            "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Update existing guide: add callout before OAuth steps that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); distinguish setup role (ACCOUNTADMIN for security integration) from runtime DEFAULT_ROLE (non-privileged role with MCP/Cortex Agent/warehouse grants). Add optional CREATE ROLE + GRANT ROLE TO USER step for <mcp_access_role> instead of assuming it exists. Error to cite: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Revise existing draft (PR #56): add callout before OAuth that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); use ACCOUNTADMIN only for security integration setup; runtime DEFAULT_ROLE must be non-privileged with MCP/Cortex/warehouse grants; add CREATE ROLE + GRANT ROLE TO USER for <mcp_access_role>. Re-angle guide toward a minimal MCP server with a SQL query tool that does not require configuring a full Cortex Agent; document that path as the primary flow and link to official Snowflake documentation for advanced/complex MCP servers (e.g. agent-backed setups). Cite error: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,17 +144,17 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
+          "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+          "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
         }
       ],
-      "completed_at": "2026-07-28T22:21:52Z"
+      "completed_at": "2026-07-28T22:41:57Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:39b51292d734d5a45a96b5c511bed5bcca64b9b4c38337ee91e77ad4dd572c53",
+      "input_digest": "sha256:3f9443e70737ff4019918f4c8388c481206561be83c5941f0787876ac34af0a7",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
@@ -179,24 +179,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:d48f1191266badbc76dc35b810e62410ea88aae056d3ef31e66b317690f7e121"
+            "digest": "sha256:bd6118b84d05f83a6ac4a9b2da675eef581fae0e15cccb0546611dd93d29e24e"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:f1e5926aace9bafd5108f415326ca339af7457921c94772efc812c0caedee8dc"
+            "digest": "sha256:3a66342a31694f84feab09f8a0b6244c355bccfb2533af0e154c9ce246ffcc45"
           },
           {
             "path": "external.md",
-            "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
+            "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+            "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Update existing guide: add callout before OAuth steps that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); distinguish setup role (ACCOUNTADMIN for security integration) from runtime DEFAULT_ROLE (non-privileged role with MCP/Cortex Agent/warehouse grants). Add optional CREATE ROLE + GRANT ROLE TO USER step for <mcp_access_role> instead of assuming it exists. Error to cite: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Revise existing draft (PR #56): add callout before OAuth that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); use ACCOUNTADMIN only for security integration setup; runtime DEFAULT_ROLE must be non-privileged with MCP/Cortex/warehouse grants; add CREATE ROLE + GRANT ROLE TO USER for <mcp_access_role>. Re-angle guide toward a minimal MCP server with a SQL query tool that does not require configuring a full Cortex Agent; document that path as the primary flow and link to official Snowflake documentation for advanced/complex MCP servers (e.g. agent-backed setups). Cite error: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
+          "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+          "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
         }
       ],
-      "completed_at": "2026-07-28T22:21:52Z"
+      "completed_at": "2026-07-28T22:41:57Z"
     }
   }
 }
