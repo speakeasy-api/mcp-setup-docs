@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: hubspot
-researched_at: 2026-07-23T01:06:26Z
+researched_at: 2026-07-28T18:22:41Z
 ---
 
 # HubSpot — Research Dossier
@@ -19,8 +19,12 @@ application with read scopes" — the pre-MCP-auth-apps flow) and is used
 only for two facts no other source states: the admin-connects-first
 behavior and the Sensitive Data Properties restriction, both flagged
 where used. The developer changelog is used for product status and for
-capability changes newer than the setup page. Every load-bearing fact
-was fetched live this run (2026-07-23, ~01:07–01:15Z).
+capability changes newer than the setup page. The primary setup page, its
+newly published documentation index, the permissions guide, and the live
+OAuth metadata were reverified at `2026-07-28T18:22:41Z`. The operator also
+confirmed that the Speakeasy MCP Catalog contains
+`com.pulsemcp.mirror/hubspot`, titled **HubSpot**, so this Guide uses only the
+catalog add-server path.
 
 ## Server facts
 
@@ -142,7 +146,9 @@ was fetched live this run (2026-07-23, ~01:07–01:15Z).
 
 Who acts: a user in the HubSpot account who can open the **Development**
 workspace from the main navigation bar — that is where **MCP Auth Apps**
-lives. No HubSpot source names the exact permission that gates this UI.
+lives. The current setup page also links directly to
+`https://app.hubspot.com/l/mcp-auth-apps/`. No HubSpot source names the exact
+permission that gates this UI.
 The KB's user-permissions guide documents a **Developer tools access**
 permission (Account tab > Settings access) that lets users "access and
 manage developer features, including: app management, developer
@@ -201,6 +207,9 @@ is documented except where flagged.
   main navigation bar of your HubSpot account, navigate to
   **Development**." Then: "In the left sidebar menu, navigate to **MCP
   Auth Apps**."
+- If navigation is unavailable, the setup page's direct account link is
+  `https://app.hubspot.com/l/mcp-auth-apps/`; opening it still requires a
+  signed-in account with access to this developer feature.
 - Where **Development** sits within the main navigation bar (position,
   icon, whether behind a "More" overflow) is not documented; if the item
   is missing, the signed-in user likely lacks developer-tools access
@@ -257,10 +266,71 @@ is documented except where flagged.
   whose appearance adds nothing beyond the copied values.
 - Recovery: none needed — the credentials remain viewable on the details
   page on later visits ("where you can view its client credentials"),
-  so there is no one-time display to miss. How to re-open an existing
-  app's details page from the **MCP Auth Apps** list is not documented;
-  most likely by clicking the app's name in the list (flagged inference
-  — see open questions; needs console verification at capture time).
+  so there is no one-time display to miss.
+
+## Speakeasy setup
+
+Canonical source: `doctrine/speakeasy-setup.md`, observed
+`2026-07-28T18:22:41Z`.
+
+Per-guide values:
+
+- Remote URL: `https://mcp.hubspot.com`
+- Transport: `streamable-http` (the add form's **Transport** field is
+  read-only)
+- Authentication Option: OAuth with a manually registered client; HubSpot
+  requires PKCE
+- Client ID and Client Secret: generated in
+  {#copy-client-credentials}
+- Redirect callback: `{{ gram.oauth.callback_url }}`, registered in HubSpot's
+  **Redirect URL** field in {#create-mcp-auth-app}
+- Scopes to type: none; HubSpot determines scopes automatically
+- OAuth discovery: HubSpot publishes protected-resource metadata pointing to
+  issuer `https://mcp.hubspot.com`, plus authorization-server metadata, but
+  does not publish a dynamic client-registration endpoint
+- Further reading:
+  `https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server`
+
+### Add the server in Speakeasy {#add-server-in-speakeasy}
+
+In the Speakeasy AI Control Plane sidebar, under **Connect**, select
+**Sources**, then click **Add Source**.
+
+Choose **3rd-party server**. On the **MCP Catalog** page, find **HubSpot**
+(the search box reads **Search MCP servers...**), open its entry with
+**View**, and click **Add**. In the **Add to Project** dialog, click
+**Add to Project**. This creates the hosted MCP server and opens its
+**Overview** page.
+
+Screenshot note: capture the **Add Source** menu or the **HubSpot** catalog
+entry. Catalog presence was resolved by the operator's Pulse lookup:
+`com.pulsemcp.mirror/hubspot`, title **HubSpot**.
+
+### Connect your credentials {#connect-speakeasy-credentials}
+
+From the server's **Overview**, open **Settings**. Under **Authentication**,
+click **Configure Manually**, or **Use Discovered** if HubSpot's published
+metadata makes that control available. In **Attach Remote Identity Provider**:
+
+1. Set **Client Type** to **Manual**.
+2. Confirm the sheet's **Redirect URI** matches the
+   `{{ gram.oauth.callback_url }}` value registered in HubSpot's
+   **Redirect URL** field in {#create-mcp-auth-app}.
+3. Paste the **Client ID** and **Client Secret (optional)** copied in
+   {#copy-client-credentials}.
+4. Leave any scope override empty; HubSpot determines scopes automatically.
+5. Click **Attach Identity Provider**.
+
+Screenshot note: capture **Attach Remote Identity Provider** with
+**Client Type** set to **Manual** and all credential values redacted.
+
+When HubSpot authorization opens, use the intended account, grant the
+permissions offered, and authorize the connection. HubSpot documents the
+sequence but not the current exact labels for these authorization controls.
+
+Closing pointer: "This guide covers setup only. For anything beyond it —
+billing, tool behavior, limits — see HubSpot's MCP documentation at
+https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server."
 
 ## Gotchas
 
@@ -347,12 +417,6 @@ admin has connected — are undocumented (see open questions).
   through July 2026 (targeted search this run; newest MCP entry remains
   the June 2026 rollup, 2026-06-29). Current status is ambiguous; the
   draft should not assert "public beta" as current fact.
-- **How multiple redirect URLs are added.** The creation dialog
-  documents a single **Redirect URL** field, yet the page says "If
-  you're including multiple redirect URLs, the first redirect URL will
-  be used as the default redirect" and the details page shows "redirect
-  URLs" plural. Presumably added via **Edit info** on the details page;
-  not documented. Needs console verification at capture time.
 - **Admin-connects-first mechanics.** Only the overview page states the
   admin must connect first; no source defines which admin role
   qualifies, or what error/experience a non-admin user gets when
@@ -364,16 +428,11 @@ admin has connected — are undocumented (see open questions).
   prerequisite ("generally available to all HubSpot accounts"). Whether
   older, non-migrated accounts lack the **Development** navigation entry
   is undocumented. The overview's statement may be stale beta-era text.
-- **Client secret rotation.** No source documents whether an MCP auth
-  app's Client secret can be regenerated or rotated from the details
-  page. Not load-bearing for setup (the secret stays viewable), recorded
-  for completeness.
-- **Re-opening an existing app's details page.** The setup page
-  documents the auto-redirect to the details page right after creation,
-  but not how to return to that page from the **MCP Auth Apps** list on
-  a later visit. Most likely the app's name in the list is a link to its
-  details page (a common list-to-detail pattern), but this is not
-  stated anywhere. Needs console verification at capture time.
+- **End-user authorization control labels.** HubSpot documents that the
+  user selects an account, grants permissions, and authorizes the
+  connection, but the public setup page does not name the current buttons
+  or show extractable labels for those controls. The Guide must direct the
+  reader to complete HubSpot's on-screen prompts without inventing labels.
 
 ## Provenance
 
@@ -382,8 +441,9 @@ properties, all checked this run:
 
 - **Developer docs — developers.hubspot.com** (source of truth for this
   guide): the setup page, the `ai-tools/mcp` overview, and the developer
-  changelog. No machine-readable index (`/llms.txt` returns 404,
-  observed this run).
+  changelog. `https://developers.hubspot.com/docs/llms.txt` now exists and
+  was searched this run; it lists the remote-server setup page and the
+  separate local developer-server pages.
 - **Product/admin KB — knowledge.hubspot.com**: no remote-MCP-server
   setup article exists; the MCP-adjacent articles there cover different
   products (HubSpot MCP Client for Breeze agents; HubSpot connectors for
@@ -398,8 +458,8 @@ properties, all checked this run:
 One entry per source drawn from:
 
 - `https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server`
-  ("Integrate AI tools with the HubSpot MCP server") — observed this run
-  (2026-07-23). The former alternate path
+  ("Integrate AI tools with the HubSpot MCP server") — reobserved at
+  `2026-07-28T18:22:41Z`. The former alternate path
   `.../build-apps/integrate-with-hubspot-mcp-server` now 308-redirects
   here (redirect observed this run; the prior run saw it serve the page
   verbatim). Backs: endpoint `https://mcp.hubspot.com`, PKCE
@@ -416,6 +476,9 @@ One entry per source drawn from:
   Streamable HTTP transport (MCP Inspector section), token
   refresh/expiry behavior. Explicitly checked this run: no beta badge
   anywhere on the page.
+- `https://developers.hubspot.com/docs/llms.txt` — observed
+  `2026-07-28T18:22:41Z`. Backs the developer-documentation sweep and
+  confirms the current remote-server setup page as the indexed MCP guide.
 - `https://developers.hubspot.com/ai-tools/mcp` ("HubSpot MCP Server"
   overview; canonical target of `https://developers.hubspot.com/mcp`,
   which 301-redirects here — redirect observed this run) — observed this
@@ -464,20 +527,22 @@ One entry per source drawn from:
   ("On the Account tab, you can set more granular permissions for
   account administration"), reached via the settings icon > **Users &
   Teams** > selecting a user.
-- Pulse mirror `com.pulsemcp.mirror/hubspot` version 0.0.1 (private
-  tenant export snapshot 2026-07-18T04:42:42Z; upstream record updated
-  2026-07-17) — backs: remote URL and `streamable-http` transport,
-  OAuth metadata mirror (authorization/token endpoints, S256,
-  `client_secret_post`), dynamic client registration `supported: false`,
-  official-server flag. Also records the legacy npm `@hubspot/mcp-server`
-  local package — out of scope for this guide.
+- Pulse catalog record `com.pulsemcp.mirror/hubspot`, title **HubSpot** —
+  observed `2026-07-28T18:22:41Z` from the operator's Speakeasy MCP Catalog
+  lookup. Backs catalog presence and the catalog-only add-server path. Prior
+  research on this record also corroborated the remote URL,
+  `streamable-http`, and absence of dynamic client registration.
 - `https://mcp.hubspot.com` +
   `https://mcp.hubspot.com/.well-known/oauth-protected-resource` +
   `https://mcp.hubspot.com/.well-known/oauth-authorization-server` —
-  direct endpoint observation this run (2026-07-23T01:09Z). Backs:
+  direct endpoint observation reverified at
+  `2026-07-28T18:22:41Z`. Backs:
   401/Bearer behavior with `resource_metadata` pointer, protected-
   resource metadata (resource `https://mcp.hubspot.com`, authorization
   server `https://mcp.hubspot.com`, `scopes_supported: []`,
   `resource_documentation: https://developers.hubspot.com/mcp`), and
   authorization-server metadata (endpoints, grant types, S256,
   `client_secret_post`, no `registration_endpoint`).
+- `doctrine/speakeasy-setup.md` — observed
+  `2026-07-28T18:22:41Z`. Backs the catalog add-server and manual OAuth
+  attachment labels, fixed Speakeasy anchors, and closing pointer.
