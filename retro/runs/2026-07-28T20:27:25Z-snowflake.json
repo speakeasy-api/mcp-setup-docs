@@ -1,0 +1,17 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T20:27:25Z",
+  "started_at": "2026-07-28T20:27:25Z",
+  "finished_at": "2026-07-28T20:32:17Z",
+  "runtime": "cursor-sdk",
+  "status": "blocked",
+  "failed_phase": "research",
+  "notes": "Updated research.md and meta.yaml. Catalog v0.0.1 requires Mcp-Account-Identifier but exposes no account-specific MCP URL or object fields, so it cannot bind the documented Cortex Agent MCP server. Playground Connect is verified, but no post-attachment authorization control is. meta.yaml validated with ajv-cli plus ajv-formats; lint and diff checks passed.",
+  "open_questions": [
+    "Must the forced catalog record accept the complete Snowflake MCP server URL, or should this Guide cover a different Snowflake MCP server?",
+    "What Speakeasy outbound IP addresses should restrictive Snowflake network policies allow?",
+    "Which current Speakeasy control starts Snowflake authorization after identity-provider attachment?"
+  ]
+}

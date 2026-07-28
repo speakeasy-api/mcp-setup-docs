@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: snowflake
-researched_at: 2026-07-28T19:30:59Z
+researched_at: 2026-07-28T20:27:25Z
 ---
 
 # Snowflake — Research Dossier
@@ -38,6 +38,14 @@ researched_at: 2026-07-28T19:30:59Z
   publicly reachable.
 - **Network policies:** restrictive policies must allow the MCP client's
   outbound IP addresses.
+- **Catalog mismatch:** the forced Speakeasy MCP Catalog record
+  `com.pulsemcp.mirror/gram-snowflake` version `0.0.1` does not point to the
+  account- and object-specific Snowflake URL above. It points to the fixed
+  `https://app.getgram.ai/mcp/speakeasy-team-snowflake` remote and requires one
+  string header, `Mcp-Account-Identifier`. The record has no database, schema,
+  MCP server name, or complete MCP server URL input. Therefore the catalog
+  record cannot be verified as a binding for the Snowflake-managed Cortex
+  Agent MCP server this Guide creates.
 
 ## Credential flow
 
@@ -54,10 +62,13 @@ What gets created:
 | --- | --- |
 | Client ID | `oauth_client_id` returned at {#copy-oauth-credentials} |
 | Client Secret | `oauth_client_secret` returned at {#copy-oauth-credentials} |
+| `Mcp-Account-Identifier` | Preferred `organization-account` identifier recorded at {#record-mcp-server-url} |
 
 Enter `{{ gram.oauth.callback_url }}` directly as `OAUTH_REDIRECT_URI` at
 {#create-oauth-integration}. Assemble the account-specific MCP URL at
-{#record-mcp-server-url}.
+{#record-mcp-server-url}. The account identifier satisfies the catalog
+record's required header, but it does not identify the database, schema, or MCP
+server object and therefore does not resolve the catalog mismatch.
 
 ## Console walkthrough
 
@@ -77,10 +88,12 @@ Enter `{{ gram.oauth.callback_url }}` directly as `OAUTH_REDIRECT_URI` at
 - Obtain the approved database, schema, server name, Cortex Agent fully
   qualified name, tool name, title, and description from the application or
   data owner.
-- In the SQL file, select the approved database and schema, then run the
-  approved form:
+- In the SQL file, set the exact namespace, then create the server:
 
   ```sql
+  USE DATABASE <database>;
+  USE SCHEMA <schema>;
+
   CREATE MCP SERVER <server_name>
     FROM SPECIFICATION $$
       tools:
@@ -151,16 +164,26 @@ Enter `{{ gram.oauth.callback_url }}` directly as `OAUTH_REDIRECT_URI` at
 
 ### Record the MCP server URL {#record-mcp-server-url}
 
-- Open the user menu and select **Connect a tool to Snowflake**. In
-  **Account Details**, copy the public **Account URL**. Alternatively, open
-  the account selector and select **View account details**.
-- Combine the account host with the retained object names:
+- Open the account selector and select **View account details**.
+- In **Account Details**, copy the preferred account identifier in
+  `organization-account` form for the catalog's required
+  `Mcp-Account-Identifier` value. Snowflake also documents this SQL:
+
+  ```sql
+  SELECT CURRENT_ORGANIZATION_NAME() || '-' || CURRENT_ACCOUNT_NAME();
+  ```
+
+- In the same dialog, copy **Account/Server URL**. Remove `https://` and any
+  trailing slash so only its hostname remains.
+- Combine that hostname with the retained object names:
   `https://<account_url>/api/v2/databases/<database>/schemas/<schema>/mcp-servers/<name>`.
+- Example shape only:
+  `https://myorg-myaccount.snowflakecomputing.com/api/v2/databases/MY_DB/schemas/MY_SCHEMA/mcp-servers/MY_SERVER`.
 - Prefer Snowflake's organization-account hostname. Some clients require
   hyphens instead of underscores in the hostname.
 - Use the public URL even for a PrivateLink account.
-- Screenshot note: **Account Details** showing **Account URL**; redact tenant
-  information if required.
+- Screenshot note: **Account Details** showing the account identifier and
+  **Account/Server URL**; redact both values.
 
 ## Speakeasy setup
 
@@ -173,6 +196,13 @@ Per-guide values for `doctrine/speakeasy-setup.md`:
   `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`, for query
   `snowflake`. Do not render the Custom remote path or a catalog-presence
   question.
+- Catalog input: `Mcp-Account-Identifier` is required and receives the
+  preferred `organization-account` identifier from
+  {#record-mcp-server-url}. It is not a secret.
+- Catalog binding limitation: version `0.0.1` installs the fixed
+  `https://app.getgram.ai/mcp/speakeasy-team-snowflake` remote. It exposes no
+  input for the complete account-specific MCP server URL from
+  {#record-mcp-server-url}, nor for its database, schema, or server name.
 - Authentication Option: manually registered confidential OAuth client.
 - **Client ID** and **Client Secret**: values copied at
   {#copy-oauth-credentials}.
@@ -188,11 +218,17 @@ In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 
 Choose **3rd-party server**. On **MCP Catalog**, enter `Snowflake` in
 **Search MCP servers...**, open the result with **View**, and click **Add**.
-In **Add to Project**, click **Add to Project**.
+In **Add to Project**, under **Upstream headers**, enter the preferred
+`organization-account` value from {#record-mcp-server-url} for the required
+**Mcp-Account-Identifier** field, then click **Add to Project**.
 
-This creates the hosted MCP server and opens its **Overview** page.
+This adds the catalog record and opens its **Overview** page, but the verified
+record does not bind the complete Snowflake-managed MCP server URL. Do not
+claim that this connects the Cortex Agent MCP server until the catalog record
+accepts that URL or its equivalent object coordinates.
 
-Screenshot note: the Snowflake catalog result or entry with its add control.
+Screenshot note: **Add to Project** with **Upstream headers** and the required
+**Mcp-Account-Identifier** field visible; redact the account identifier.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
@@ -205,21 +241,28 @@ registered in Snowflake. Paste the values from {#copy-oauth-credentials} into
 
 Screenshot note: the attachment sheet with labels visible and values redacted.
 
+Public Speakeasy product history verifies a **Connect** control when an OAuth
+token is unavailable in the Playground; it opens a popup for the third-party
+account. It does not establish a transition from this server's **Overview**
+page or a general post-attachment authorization control, so it is not safe to
+render as the next walkthrough action.
+
 This guide covers setup only. For anything beyond it — billing, tool behavior,
 limits — see Snowflake's MCP documentation at
 `https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp`.
 
 ## Open questions
 
-- The catalog record is confirmed present, but Snowflake's public
-  documentation cannot show how that record receives the account-specific MCP
-  URL. Validate that the catalog entry prompts for or binds the URL from
-  {#record-mcp-server-url}.
+- Must the forced catalog record be corrected to accept the complete
+  account-specific Snowflake MCP server URL, or should this Guide cover a
+  different Snowflake MCP server? The current record's required account
+  identifier alone cannot select the database, schema, and MCP server object.
 - Snowflake requires restrictive network policies to allow the client's
   outbound IPs, but the reviewed public sources do not identify the Speakeasy
   AI Control Plane addresses.
-- The canonical Speakeasy flow does not identify the control that begins the
-  end user's Snowflake authorization after identity-provider attachment.
+- Which current Speakeasy control starts end-user Snowflake authorization
+  after identity-provider attachment? **Connect** is verified only for the
+  Playground's missing-token state, not as a transition from **Overview**.
 
 ## Provenance
 
@@ -235,7 +278,7 @@ limits — see Snowflake's MCP documentation at
 - **Indexes:** `https://docs.snowflake.com/llms.txt` and the Snowflake Cortex
   `llms.txt` were reachable.
 
-All sources were observed at `2026-07-28T19:30:59Z`.
+All sources were observed at `2026-07-28T20:27:25Z`.
 
 - `https://docs.snowflake.com/llms.txt` — documentation inventory and account
   identifier guidance.
@@ -260,5 +303,12 @@ All sources were observed at `2026-07-28T19:30:59Z`.
 - `https://quickstarts.snowflake.com/guide/getting-started-with-snowflake-mcp-server/index.html`
   — official MCP creation and URL example.
 - `doctrine/speakeasy-setup.md` — canonical Speakeasy labels and anchors.
+- `https://www.speakeasy.com/docs/mcp/catalog/overview` — public catalog
+  behavior: adding a registry server creates an external MCP attachment from
+  the registry transport record.
+- `https://github.com/speakeasy-api/gram/pull/1323` — public product history
+  for the Playground **Connect** control and its OAuth popup.
 - Pulse catalog observation — query `snowflake`; matched
-  `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`, status `present`.
+  `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`, version `0.0.1`,
+  status `present`; derived binding facts are its fixed streamable-HTTP remote
+  and required `Mcp-Account-Identifier` string header.
