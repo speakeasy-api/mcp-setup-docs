@@ -1,24 +1,17 @@
 # yaml-language-server: $schema=../../schema/guide.v1.schema.json
-# Drafted from provider documentation. In the default dynamic-discovery mode
-# the server advertises static meta-tools; switched to manual configuration it
-# instead advertises each pre-selected action as its own dedicated tool, which
-# is per-tenant. See external.md#server-modes.
 schema_version: 1
 slug: zapier
 title: Zapier
-summary: Discover, enable, and run Zapier actions across thousands of connected apps through the hosted Zapier MCP server.
+summary: Connect Zapier so agents can discover and run actions in your connected apps.
+speakeasy_add_server: catalog
 credential_setup:
   options:
-    - id: connection-token
-      kind: api_key
-      fields:
-        - id: token
-          label: Connection token
-          setup:
-            - external.md#generate-connection-token
+    - id: oauth-dcr
+      kind: oauth
+      client_registration: dynamic
   requirements:
     - id: zapier-account
-      description: Dedicated Zapier validation account with an MCP server created and its connection token
+      description: Zapier account in an account or workspace where Zapier MCP is enabled
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -27,22 +20,48 @@ remotes:
     url: https://mcp.zapier.com/api/v1/connect
     transport: streamable-http
     authentication:
-      - connection-token
+      - oauth-dcr
 provenance:
   - source: pulsemcp
     name: com.pulsemcp.mirror/zapier
-    version: 0.0.1
     classification: mirror
-    observed_at: 2026-07-18T04:42:42Z
+    observed_at: "2026-07-28T18:22:42Z"
   - source: provider-documentation
-    locator: https://docs.zapier.com/mcp/authentication
-    observed_at: 2026-07-21T00:00:00Z
+    locator: https://docs.zapier.com/llms.txt
+    observed_at: "2026-07-28T18:22:42Z"
   - source: provider-documentation
-    locator: https://docs.zapier.com/mcp/how-tools-work
-    observed_at: 2026-07-21T00:00:00Z
+    locator: https://docs.zapier.com/mcp/get-started/connect
+    observed_at: "2026-07-28T18:22:42Z"
+  - source: provider-documentation
+    locator: https://docs.zapier.com/mcp/get-started/authentication
+    observed_at: "2026-07-28T18:22:42Z"
+  - source: provider-documentation
+    locator: https://docs.zapier.com/mcp/quickstart
+    observed_at: "2026-07-28T18:22:42Z"
+  - source: provider-documentation
+    locator: https://docs.zapier.com/mcp/overview/how-tools-work
+    observed_at: "2026-07-28T18:22:42Z"
   - source: provider-documentation
     locator: https://docs.zapier.com/mcp/usage
-    observed_at: 2026-07-21T00:00:00Z
+    observed_at: "2026-07-28T18:22:42Z"
   - source: provider-documentation
-    locator: https://help.zapier.com/hc/en-us/articles/36265551472781-Manage-tools-for-your-Zapier-MCP-server
-    observed_at: 2026-07-21T00:00:00Z
+    locator: https://docs.zapier.com/mcp/security
+    observed_at: "2026-07-28T18:22:42Z"
+  - source: provider-documentation
+    locator: https://help.zapier.com/hc/en-us/articles/36265392843917-Use-Zapier-MCP-with-your-client
+    observed_at: "2026-07-28T18:22:42Z"
+  - source: provider-documentation
+    locator: https://mcp.zapier.com/api/v1/connect
+    observed_at: "2026-07-28T18:22:42Z"
+  - source: provider-documentation
+    locator: https://mcp.zapier.com/.well-known/oauth-protected-resource/api/v1/connect
+    observed_at: "2026-07-28T18:22:42Z"
+  - source: provider-documentation
+    locator: https://mcp.zapier.com/.well-known/oauth-authorization-server
+    observed_at: "2026-07-28T18:22:42Z"
+  - source: provider-documentation
+    locator: https://zapier.com/mcp
+    observed_at: "2026-07-28T18:22:42Z"
+  - source: doctrine
+    locator: doctrine/speakeasy-setup.md
+    observed_at: "2026-07-28T18:22:42Z"

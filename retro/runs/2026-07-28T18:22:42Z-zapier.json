@@ -1,0 +1,70 @@
+{
+  "slug": "zapier",
+  "provider": "zapier",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T18:22:42Z",
+  "started_at": "2026-07-28T18:22:42Z",
+  "finished_at": "2026-07-28T18:34:22Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "Zapier does not publish exact browser sign-in and authorization prompt labels after DCR.",
+    "Zapier has not reconciled its direct-connect documentation with older server-creation guidance; the live DCR path was not authorized end to end."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Provenance",
+          "problem": "The transcluded Speakeasy setup facts lack the required provenance record for doctrine/speakeasy-setup.md and this run's observed timestamp.",
+          "suggestion": "Add a provenance record for doctrine/speakeasy-setup.md observed at 2026-07-28T18:22:42Z.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#add-server-in-speakeasy screenshot note",
+          "problem": "The screenshot note substitutes the Add to Project dialog for the canonical skeleton's Add Source menu option.",
+          "suggestion": "Restore the canonical screenshot note and propagate it to speakeasy.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The Dossier makes clicking Discover conditional although the canonical DCR skeleton requires clicking Discover to populate the endpoints.",
+          "suggestion": "Make the Discover action unconditional in the Dossier and propagate the correction to speakeasy.md.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "Opening prerequisite: “Use a Zapier account that belongs to an MCP-enabled account or workspace.”",
+          "problem": "The guide does not tell an administrator how to proceed when Zapier MCP is disabled for the workspace.",
+          "suggestion": "Add that a workspace administrator must ask their Zapier account manager to enable MCP for the workspace.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Added doctrine provenance to research.md and meta.yaml; restored the canonical Add Source screenshot note in research.md and speakeasy.md; made Discover unconditional in both files; added the disabled-workspace account-manager remedy to external.md. Metadata validates against the schema.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "Authentication changed materially from a pre-created server connection token to direct OAuth with DCR and no external credential fields or provider console steps. Prerequisites changed, the catalog-only add-server path is now explicit, and new discovery, scopes, billing, workspace-control, and tool-provisioning facts require re-drafting and invalidate prior setup review."
+  }
+}
