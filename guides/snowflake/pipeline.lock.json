@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "slug": "snowflake",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-28T21:04:46Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:728d6118b82ddc4d4d70d38cc2b6899e4899defa465ecf3752f29f9ffcff324a",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:f82583e4ba9e92f061b09e6685b3a2640a1826f6fbc27ddac52e0db68387acaf"
+          },
+          {
+            "path": "doctrine/speakeasy-setup.md",
+            "digest": "sha256:8715948a90f95187a2e093e3dfbaccb2870423ee7c90aed4eeba5c418c0bb85e"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "snowflake",
+          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document Speakeasy catalog MCP binding, Mcp-Account-Identifier, or forced catalog URL—follow Snowflake docs for server setup and OAuth. Omit Speakeasy outbound IP allowlist. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Resume PR #53; write external.md and speakeasy.md from doctrine without inventing catalog-specific controls.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\""
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:e9da94a1045142669b18a5dada889d0964bbb4bd81eb355b12846989ca80c244"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:8f6dfd0180bc69ec59a6e0ed3acca05d256c2ae3fcd0a14975f0534e162af2c5"
+        }
+      ],
+      "completed_at": "2026-07-28T21:04:46Z"
+    },
+    "draft": {
+      "input_digest": "sha256:63862e52628b3c66ead5d861f7e11546ef88dec2b78fb60854190e802abf1c92",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:bd455424d5c087fd914297fad0cf7749459452dbd94d00bd4e20e977e9fbb92b",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:7b88b10bd5ce607985054abbdce5e6b742acc7074c1461f08d34321523e17799"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:e9da94a1045142669b18a5dada889d0964bbb4bd81eb355b12846989ca80c244"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:8f6dfd0180bc69ec59a6e0ed3acca05d256c2ae3fcd0a14975f0534e162af2c5"
+          }
+        ],
+        "params": {
+          "provider": "snowflake",
+          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document Speakeasy catalog MCP binding, Mcp-Account-Identifier, or forced catalog URL—follow Snowflake docs for server setup and OAuth. Omit Speakeasy outbound IP allowlist. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Resume PR #53; write external.md and speakeasy.md from doctrine without inventing catalog-specific controls.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+        }
+      ],
+      "completed_at": "2026-07-28T21:04:46Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:ea893927c47224e53f284af6256556885c05889c2d4927d8f183b7df6aa5b145",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:472ec8a2db648c822d126dea857d3f79e9c97a8e9b5fe6a997170bef3c8d2c22"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:e9da94a1045142669b18a5dada889d0964bbb4bd81eb355b12846989ca80c244"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:8f6dfd0180bc69ec59a6e0ed3acca05d256c2ae3fcd0a14975f0534e162af2c5"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+          }
+        ],
+        "params": {
+          "provider": "snowflake",
+          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document Speakeasy catalog MCP binding, Mcp-Account-Identifier, or forced catalog URL—follow Snowflake docs for server setup and OAuth. Omit Speakeasy outbound IP allowlist. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Resume PR #53; write external.md and speakeasy.md from doctrine without inventing catalog-specific controls.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+        }
+      ],
+      "completed_at": "2026-07-28T21:04:46Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:7baad3feecfce64600b059360e35acda22ae3ed0ce2c63bed2091d7614ea7aba",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:7eb1e560946bbc2656afdfbdbd26d85b3d4a5579818fc4bd6629d818ce251f69"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:e9da94a1045142669b18a5dada889d0964bbb4bd81eb355b12846989ca80c244"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:8f6dfd0180bc69ec59a6e0ed3acca05d256c2ae3fcd0a14975f0534e162af2c5"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+          }
+        ],
+        "params": {
+          "provider": "snowflake",
+          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document Speakeasy catalog MCP binding, Mcp-Account-Identifier, or forced catalog URL—follow Snowflake docs for server setup and OAuth. Omit Speakeasy outbound IP allowlist. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Resume PR #53; write external.md and speakeasy.md from doctrine without inventing catalog-specific controls.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
+        }
+      ],
+      "completed_at": "2026-07-28T21:04:46Z"
+    }
+  }
+}

@@ -19,7 +19,7 @@ This creates the hosted MCP server and opens its **Overview** page.
 1. From **Overview**, open **Settings**.
 2. Under **Authentication**, click **Configure Manually**.
 3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-4. Confirm that **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value registered in [Create the OAuth integration](external.md#create-oauth-integration).
+4. Confirm that **Redirect URI**, shown with a copy button, matches the `{{ gram.oauth.callback_url }}` value registered in [Create the OAuth integration](external.md#create-oauth-integration).
 5. Paste the [**Client ID**](external.md#copy-oauth-credentials) into **Client ID**.
 6. Paste the [**Client Secret**](external.md#copy-oauth-credentials) into **Client Secret (optional)**.
 7. Click **Attach Identity Provider**.

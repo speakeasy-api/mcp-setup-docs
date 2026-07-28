@@ -21,7 +21,8 @@ Snowflake-managed MCP servers are unavailable in the People's Republic of China 
 ### Create the Cortex Agent MCP server {#create-cortex-agent-mcp-server}
 
 1. Obtain the approved MCP server database, schema, and name; Cortex Agent database, schema, and name; tool name; title; and description from the application or data owner.
-2. Run this statement after replacing each placeholder with its approved value:
+2. Form `<cortex_agent_fqn>` as `<agent_database>.<agent_schema>.<agent_name>`.
+3. Run this statement after replacing each placeholder with its approved value:
 
    ```sql
    USE DATABASE <database>;
@@ -38,7 +39,7 @@ Snowflake-managed MCP servers are unavailable in the People's Republic of China 
      $$;
    ```
 
-3. Retain the exact database, schema, and server name for the MCP server URL.
+4. Retain the exact database, schema, and server name for the MCP server URL.
 
 <!-- screenshot: the approved statement and successful result, excluding sensitive data from metadata -->
 

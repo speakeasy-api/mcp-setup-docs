@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: snowflake
-researched_at: 2026-07-28T20:36:30Z
+researched_at: 2026-07-28T20:57:37Z
 ---
 
 # Snowflake — Research Dossier
@@ -226,6 +226,9 @@ Per-guide values for `doctrine/speakeasy-setup.md`:
   `snowflake`. Do not render the Custom remote path or a catalog-presence
   question.
 - Authentication Option: manually registered confidential OAuth client.
+- OAuth metadata: Snowflake's MCP documentation requires the client ID and
+  secret from the security integration and does not document a discoverable
+  client setup for this path. Use **Configure Manually**.
 - **Client ID** and **Client Secret**: values copied at
   {#copy-oauth-credentials}.
 - Redirect URI: `{{ gram.oauth.callback_url }}` registered at
@@ -249,10 +252,10 @@ Screenshot note: the Snowflake catalog result and **Add to Project** dialog.
 
 From **Overview**, open **Settings**. Under **Authentication**, click
 **Configure Manually**. In **Attach Remote Identity Provider**, set
-**Client Type** to **Manual**. Confirm **Redirect URI** matches the callback
-registered in Snowflake. Paste the values from {#copy-oauth-credentials} into
-**Client ID** and **Client Secret (optional)**, then click
-**Attach Identity Provider**.
+**Client Type** to **Manual**. The sheet shows **Redirect URI** with a copy
+button. Confirm **Redirect URI** matches the callback registered in Snowflake.
+Paste the values from {#copy-oauth-credentials} into **Client ID** and
+**Client Secret (optional)**, then click **Attach Identity Provider**.
 
 Screenshot note: the attachment sheet with labels visible and values redacted.
 
@@ -266,12 +269,7 @@ limits — see Snowflake's MCP documentation at
 
 ## Open questions
 
-- The forced catalog path does not expose a documented control that binds the
-  `Snowflake` catalog result to the account-specific MCP server URL assembled
-  at {#record-mcp-server-url}. Snowflake's public documentation defines that
-  URL, while the catalog observation establishes only that the result is
-  present. Human doctrine review is needed; do not invent a binding control or
-  render the Custom remote path.
+None.
 
 ## Provenance
 
@@ -287,7 +285,7 @@ limits — see Snowflake's MCP documentation at
 - **Indexes:** `https://docs.snowflake.com/llms.txt` and the Snowflake Cortex
   `llms.txt` were reachable.
 
-All sources were observed at `2026-07-28T20:36:30Z`.
+All sources were observed at `2026-07-28T20:57:37Z`.
 
 - `https://docs.snowflake.com/llms.txt` — documentation inventory and account
   URL guidance.

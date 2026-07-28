@@ -1,0 +1,60 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T20:57:37Z",
+  "started_at": "2026-07-28T20:57:37Z",
+  "finished_at": "2026-07-28T21:04:46Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "Speakeasy setup / Open questions",
+      "problem": "The catalog flow never uses the account-specific MCP server URL assembled during External setup or explains how the catalog result reaches that server.",
+      "suggestion": "Record this as a Dossier open question for human doctrine review without inventing a binding control or rendering the custom-remote path.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Connect your credentials",
+          "problem": "The transcluded OAuth skeleton omits the canonical fact that the Attach Remote Identity Provider sheet shows Redirect URI with a copy button.",
+          "suggestion": "Add the Redirect URI copy-button fact from doctrine/speakeasy-setup.md to the Research Dossier's selected manual OAuth flow, then render it in speakeasy.md.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Added the canonical Redirect URI copy-button fact to research.md and rendered it in speakeasy.md.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Speakeasy setup / Open questions",
+          "problem": "The catalog flow never uses the account-specific MCP server URL assembled during External setup or explains how the catalog result reaches that server.",
+          "suggestion": "Record this as a Dossier open question for human doctrine review without inventing a binding control or rendering the custom-remote path.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": true,
+    "notes": "AFTER preserves all draft-relevant facts, anchors, credentials, remotes, prerequisites, and catalog-only structure. The added OAuth metadata sentence only restates the existing manual OAuth flow, and removing the catalog-binding open question adds no new control or setup step. Metadata changes are observed_at-only."
+  }
+}
