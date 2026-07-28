@@ -3,6 +3,7 @@ schema_version: 1
 slug: box
 title: Box
 summary: Access, search, and manage Box content and Box AI through the hosted Box MCP server.
+speakeasy_add_server: catalog
 credential_setup:
   options:
     - id: oauth-integration
@@ -12,12 +13,10 @@ credential_setup:
         - id: client-id
           label: Client ID
           setup:
-            - external.md#add-integration-credentials
             - external.md#copy-client-credentials
         - id: client-secret
           label: Client Secret
           setup:
-            - external.md#add-integration-credentials
             - external.md#copy-client-credentials
   requirements:
     - id: box-admin
@@ -34,126 +33,124 @@ remotes:
     provenance:
       - source: pulsemcp
         name: com.pulsemcp.mirror/box
-        version: 0.0.1
         classification: mirror
-        observed_at: 2026-07-18T04:42:42Z
+        status: present
+        scope: Speakeasy MCP Catalog
+        observed_at: "2026-07-28T15:30:04Z"
       - source: provider-documentation
         locator: https://docs.box.com/en/box-mcp/about-box-mcp-server
+        name: About Box MCP Server
         classification: official
-        observed_at: 2026-07-22T23:18:01Z
-      - source: provider-documentation
-        locator: https://developer.box.com/guides/box-mcp/setup/
-        name: Set up the MCP server
-        classification: official
-        observed_at: 2026-07-22T23:18:01Z
+        observed_at: "2026-07-28T15:30:04Z"
       - source: endpoint-observation
         locator: https://mcp.box.com/.well-known/oauth-protected-resource
         name: Box Model Context Protocol Server
         classification: official
-        observed_at: 2026-07-22T23:18:01Z
+        observed_at: "2026-07-28T15:30:04Z"
 provenance:
   - source: pulsemcp
     name: com.pulsemcp.mirror/box
-    version: 0.0.1
     classification: mirror
-    observed_at: 2026-07-18T04:42:42Z
+    status: present
+    scope: Speakeasy MCP Catalog
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/llms.txt
     name: Box docs index
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/configuring-box-mcp-server/claude-code
     name: Claude Code
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/configuring-box-mcp-server/anthropic-messages-api
     name: Anthropic Messages API
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/configuring-box-mcp-server/github-mcp-registry
     name: GitHub MCP Registry
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/about-box-mcp-server
     name: About Box MCP Server
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/tools
     name: Available Tools
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/admin-controls
     name: Manage Tool Access
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/pricing
     name: Pricing
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/faq
     name: MCP Frequently Asked Questions
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/supported-ai-platforms
     name: Supported AI Platforms
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-ai/admins/configuring-box-ai
     name: Configuring Box AI
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-ai/understanding-ai-units-in-box
     name: Understanding AI Units In Box
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-admin-tools/box-admin-reference/enterprise-settings-content-sharing-tab
     name: "Enterprise Settings: Content & Sharing Tab"
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-admin-tools/how-to-guides-for-admins/understanding-requests-to-authorize-or-allow-applications
     name: Understanding Requests to Authorize or Allow Applications
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-admin-tools/reporting-and-insights/mcp-server-activity-report
     name: MCP Server Activity Report
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://developer.box.com/guides/box-mcp/
     name: Box MCP server
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
-    locator: https://developer.box.com/guides/box-mcp/setup/
-    name: Set up the MCP server
+    locator: https://developer.box.com/guides/box-mcp/remote/
+    name: Box MCP resource documentation
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://support.box.com/hc/en-us/articles/43847256139923
     name: Managing Box MCP Servers
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: provider-documentation
     locator: https://support.box.com/hc/en-us/articles/30900136778259
     name: Adding Integration Credentials for Customer-Instance Integrations
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"
   - source: endpoint-observation
     locator: https://mcp.box.com/.well-known/oauth-protected-resource
     name: Box Model Context Protocol Server
     classification: official
-    observed_at: 2026-07-22T23:18:01Z
+    observed_at: "2026-07-28T15:30:04Z"

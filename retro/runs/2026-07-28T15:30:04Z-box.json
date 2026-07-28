@@ -1,0 +1,114 @@
+{
+  "slug": "box",
+  "provider": "box",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T15:30:04Z",
+  "started_at": "2026-07-28T15:30:04Z",
+  "finished_at": "2026-07-28T15:54:22Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Configuration surface labels and save order differ between docs.box.com and current Box support.",
+    "Exact Access scopes checkbox labels are undocumented.",
+    "Whether saved Access scopes remain editable is undocumented.",
+    "The credential-entry name field differs between current documentation sources.",
+    "The pre-filled Redirect URI value is undocumented.",
+    "Whether the Client Secret remains viewable later is undocumented.",
+    "Whether Custom Box MCP Server requires an availability state is undocumented.",
+    "Default tool enablement by category is undocumented.",
+    "Whether Enablement dropdown changes require a separate Save is undocumented.",
+    "The Box AI APIs setting without purchased Box AI Units is undocumented."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup > #connect-speakeasy-credentials",
+          "problem": "The Dossier omits the canonical fact that the Redirect URI is displayed with a copy button, so speakeasy.md omits it too.",
+          "suggestion": "Restore the copy-button fact from doctrine/speakeasy-setup.md in the Dossier and render it in speakeasy.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#add-integration-credentials",
+          "problem": "The guide covers only the **Configuration** flow, while the Dossier records a current alternate **Additional Configuration** flow with a preliminary credential-name and save step.",
+          "suggestion": "Add the Dossier-backed alternate path: open **Additional Configuration**, click **+ Add Integration Credentials**, retain or enter the credential name, click **Save**, and open the created entry.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "#check-access-scopes",
+          "problem": "The guide presents OAuth scope strings as selection guidance even though the Dossier says Box does not publish their mapping to the visible checkbox labels.",
+          "suggestion": "Add a hedge that the console labels may differ and direct readers to select the options corresponding to Box content, Box AI, and Box Doc Gen.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Research/Speakeasy blocker: recorded and rendered the Redirect URI copy button. External blocker: documented the alternate Additional Configuration credential flow. Access-scopes nit: clarified that console labels may differ from API scope strings and directed readers by tool area.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#enable-box-ai-api and #enable-doc-gen",
+          "problem": "Readers sent here before creating credentials are told to return to Access scopes, which requires a credential entry they have not created.",
+          "suggestion": "Direct prerequisite-path readers back to #find-custom-box-mcp-server, while retaining #check-access-scopes only for readers recovering a missing scope.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Updated research.md and external.md so prerequisite readers return to #find-custom-box-mcp-server, while missing-scope recovery still returns to #check-access-scopes. Validation passed.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "all observed_at fields",
+          "problem": "Unquoted timestamps parse as YAML datetime objects, so meta.yaml fails schema validation because observed_at requires a string.",
+          "suggestion": "Quote every observed_at value, then rerun schema validation.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "#enable-box-ai-api and #enable-doc-gen return links",
+          "problem": "Readers who need both features are directed to credential creation after enabling only the first feature.",
+          "suggestion": "Direct readers who need both features to complete the other prerequisite before continuing to #find-custom-box-mcp-server.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Quoted every observed_at timestamp in meta.yaml and validated the guide successfully. Updated the Box AI and Doc Gen return links in research.md and external.md so readers complete both prerequisites before credential creation when needed.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER requires re-drafting: Speakeasy is now explicitly catalog-only, Metadata adds speakeasy_add_server: catalog, and OAuth fields reference only #copy-client-credentials. External setup also gains the documented hover Custom Box MCP Server > Configure transition. Updated tool-control behavior clarifies that custom unpublished credentials inherit enterprise-wide settings."
+  }
+}

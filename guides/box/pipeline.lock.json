@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "slug": "box",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-28T15:54:22Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:ac9853e5d5458fa5bb8d64eb9988468fccd1efee60c3abaa9cda3cf97bd2eacb",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:66065c6978e8389ff59b1a5f1ba0bfe4b7d16c93189416d97119b5cbdd6f091f"
+          },
+          {
+            "path": "doctrine/speakeasy-setup.md",
+            "digest": "sha256:8715948a90f95187a2e093e3dfbaccb2870423ee7c90aed4eeba5c418c0bb85e"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "box",
+          "notes": "Update existing guide; MCP endpoint/docs: https://mcp.box.com\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/box\""
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:7287668188684abd6c9419fa578c4f2fc5e058e6046f13f273641004c6dd0dfc"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:c75195491f880460fa3490f880b4a95fff522a0ce606e5eb7fba5f0daa709163"
+        }
+      ],
+      "completed_at": "2026-07-28T15:54:22Z"
+    },
+    "draft": {
+      "input_digest": "sha256:56e32f7b21e0c587ee3ab960c7231c874ecff724ff912b6eee782b68bec77c52",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:a956869fa21cc7f91fff9450fe09c86dc2014cb5f058691e03d07eb0b3acce3f",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:1e2f0afa73e8c28502f7fea0d21722a22c980326f3bd878418df27c23fa5b6b3"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:7287668188684abd6c9419fa578c4f2fc5e058e6046f13f273641004c6dd0dfc"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:c75195491f880460fa3490f880b4a95fff522a0ce606e5eb7fba5f0daa709163"
+          }
+        ],
+        "params": {
+          "provider": "box",
+          "notes": "Update existing guide; MCP endpoint/docs: https://mcp.box.com\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/box\"",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:060b9fb6665f855642a29372ccd8120fb679b5b1867f921ad6286e4fa7311fc6"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:56659aa35033f77ef461a2933fe53809f60fbe7ca0dcef7b766942a7ecc6dc7c"
+        }
+      ],
+      "completed_at": "2026-07-28T15:54:22Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:5b9cb8cc412cf166bba175847c88c83b772f693ee9623ac2d06b71259526c790",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:472ec8a2db648c822d126dea857d3f79e9c97a8e9b5fe6a997170bef3c8d2c22"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:7287668188684abd6c9419fa578c4f2fc5e058e6046f13f273641004c6dd0dfc"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:c75195491f880460fa3490f880b4a95fff522a0ce606e5eb7fba5f0daa709163"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:060b9fb6665f855642a29372ccd8120fb679b5b1867f921ad6286e4fa7311fc6"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:56659aa35033f77ef461a2933fe53809f60fbe7ca0dcef7b766942a7ecc6dc7c"
+          }
+        ],
+        "params": {
+          "provider": "box",
+          "notes": "Update existing guide; MCP endpoint/docs: https://mcp.box.com\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/box\"",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:060b9fb6665f855642a29372ccd8120fb679b5b1867f921ad6286e4fa7311fc6"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:56659aa35033f77ef461a2933fe53809f60fbe7ca0dcef7b766942a7ecc6dc7c"
+        }
+      ],
+      "completed_at": "2026-07-28T15:54:22Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:f33aa69661fd58ac5808027829f9cfb27e10651316a9c905125d86ce14f58754",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:7eb1e560946bbc2656afdfbdbd26d85b3d4a5579818fc4bd6629d818ce251f69"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:7287668188684abd6c9419fa578c4f2fc5e058e6046f13f273641004c6dd0dfc"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:c75195491f880460fa3490f880b4a95fff522a0ce606e5eb7fba5f0daa709163"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:060b9fb6665f855642a29372ccd8120fb679b5b1867f921ad6286e4fa7311fc6"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:56659aa35033f77ef461a2933fe53809f60fbe7ca0dcef7b766942a7ecc6dc7c"
+          }
+        ],
+        "params": {
+          "provider": "box",
+          "notes": "Update existing guide; MCP endpoint/docs: https://mcp.box.com\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/box\"",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:060b9fb6665f855642a29372ccd8120fb679b5b1867f921ad6286e4fa7311fc6"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:56659aa35033f77ef461a2933fe53809f60fbe7ca0dcef7b766942a7ecc6dc7c"
+        }
+      ],
+      "completed_at": "2026-07-28T15:54:22Z"
+    }
+  }
+}
