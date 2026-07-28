@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: snowflake
-researched_at: 2026-07-28T20:57:37Z
+researched_at: 2026-07-28T22:17:09Z
 ---
 
 # Snowflake — Research Dossier
@@ -27,6 +27,13 @@ researched_at: 2026-07-28T20:57:37Z
   uses the user's `DEFAULT_ROLE`; secondary roles are unsupported. The user
   must be assigned that role, the role needs `USAGE` on the selected warehouse,
   and the user needs a non-null `DEFAULT_WAREHOUSE`.
+- **Role separation:** use an administrator role such as `ACCOUNTADMIN` only
+  to create the security integration and perform other setup that requires it.
+  Use a separate, non-privileged `<mcp_access_role>` as every connecting user's
+  runtime `DEFAULT_ROLE`. Snowflake blocks `ACCOUNTADMIN`, `SECURITYADMIN`,
+  `GLOBALORGADMIN`, and `ORGADMIN` from Snowflake OAuth authentication by
+  default; adding one to `ALLOWED_ROLES_LIST` does not override that default
+  block.
 - **Privileges:** the connecting role needs `USAGE` on the MCP server and
   privileges on each underlying tool. A Cortex Agent tool requires `USAGE` on
   the Agent's parent database and schema and on the referenced Cortex Agent.
@@ -41,10 +48,13 @@ researched_at: 2026-07-28T20:57:37Z
 
 ## Credential flow
 
-Who acts: a Snowflake administrator with `ACCOUNTADMIN` or delegated
-privileges. The application or data owner supplies the approved Cortex Agent's
-database, schema, and name; the MCP server's target database, schema, and name;
-the connecting role; the warehouse; and the grants.
+Who acts: a Snowflake administrator uses `ACCOUNTADMIN` or delegated
+privileges for setup commands. The application or data owner supplies the
+approved Cortex Agent's database, schema, and name; the MCP server's target
+database, schema, and name; a non-privileged runtime role; the warehouse; and
+the grants. The setup role and runtime role are deliberately different:
+`ACCOUNTADMIN` can create the OAuth security integration, but it must not be
+the connecting user's `DEFAULT_ROLE`.
 
 What gets created:
 
@@ -104,6 +114,14 @@ Registration, so the manually registered client ID and secret are required.
   sensitive data from metadata.
 
 ### Grant first-connection access {#grant-first-connection-access}
+
+- If the approved non-privileged role does not exist, have a role administrator
+  create it. `CREATE ROLE` requires the account-level `CREATE ROLE` privilege,
+  held by `USERADMIN` by default:
+
+  ```sql
+  CREATE ROLE IF NOT EXISTS <mcp_access_role>;
+  ```
 
 - Have the security owner grant the connecting role `USAGE` on the MCP server.
   Form the server identifier from the target database, target schema, and
@@ -168,6 +186,16 @@ Registration, so the manually registered client ID and secret are required.
 
 ### Create the OAuth integration {#create-oauth-integration}
 
+- **Role separation callout (render before any OAuth command):** use
+  `ACCOUNTADMIN` or a delegated role with `CREATE INTEGRATION` to run the setup
+  statement below, but do not use `ACCOUNTADMIN` or `SECURITYADMIN` as a
+  connecting user's runtime `DEFAULT_ROLE`. Snowflake OAuth blocks those roles
+  by default (along with `GLOBALORGADMIN` and `ORGADMIN`). If a blocked role is
+  selected, authorization can fail with:
+  `The role <role_name> requested has been explicitly blocked for use with this application by an administrator. Please try logging in with a different role, or contact your administrator.`
+  Return to {#grant-first-connection-access}, assign a non-privileged
+  `<mcp_access_role>`, grant it the required MCP server, Cortex Agent, and
+  warehouse access, and set it as the user's `DEFAULT_ROLE`.
 - Run:
 
   ```sql
@@ -285,7 +313,7 @@ None.
 - **Indexes:** `https://docs.snowflake.com/llms.txt` and the Snowflake Cortex
   `llms.txt` were reachable.
 
-All sources were observed at `2026-07-28T20:57:37Z`.
+All sources were observed at `2026-07-28T22:17:09Z`.
 
 - `https://docs.snowflake.com/llms.txt` — documentation inventory and account
   URL guidance.
@@ -298,7 +326,13 @@ All sources were observed at `2026-07-28T20:57:37Z`.
   Cortex Agent tool specification and creation privileges.
 - `https://docs.snowflake.com/en/user-guide/oauth-custom` and
   `https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-oauth-snowflake`
-  — OAuth integration privilege, confidential client, and redirect behavior.
+  — OAuth integration privilege, confidential client, redirect behavior,
+  role allow/block lists, and the default block on privileged OAuth roles.
+- `https://docs.snowflake.com/en/user-guide/oauth-snowflake-overview` — OAuth
+  role selection, the default privileged-role block, and the
+  `OAUTH_AUTHORIZE_INVALID_SCOPE` failure category.
+- `https://docs.snowflake.com/en/sql-reference/sql/create-role` — optional
+  runtime-role creation syntax and required account-level privilege.
 - `https://docs.snowflake.com/en/sql-reference/sql/grant-role` — exact syntax
   for assigning the connecting role to a user.
 - `https://docs.snowflake.com/en/sql-reference/sql/grant-privilege` — exact

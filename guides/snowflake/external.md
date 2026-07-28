@@ -4,7 +4,7 @@ setup_version: 1
 
 # Snowflake setup
 
-Use a Snowflake administrator account with **ACCOUNTADMIN** or a delegated role with global `CREATE INTEGRATION`. From the application or data owner, obtain the approved Cortex Agent's database, schema, and name; the MCP server's target database, schema, and name; the connecting role; the warehouse; and the grant set. The role that creates the MCP server needs `CREATE MCP SERVER`, `USAGE` on the target schema, a privilege on the parent database, and `USAGE` on the Cortex Agent. Sign in at `https://app.snowflake.com`.
+Use a Snowflake administrator account with `ACCOUNTADMIN` or a delegated role with global `CREATE INTEGRATION` for setup. Use a separate, non-privileged `<mcp_access_role>` as each connecting user's runtime `DEFAULT_ROLE`. From the application or data owner, obtain the approved Cortex Agent's database, schema, and name; the MCP server's target database, schema, and name; the runtime role; the warehouse; and the grant set. The role that creates the MCP server needs `CREATE MCP SERVER`, `USAGE` on the target schema, a privilege on the parent database, and `USAGE` on the Cortex Agent. Sign in at `https://app.snowflake.com`.
 
 Snowflake-managed MCP servers are unavailable in the People's Republic of China and unsupported in government regions.
 
@@ -45,48 +45,56 @@ Snowflake-managed MCP servers are unavailable in the People's Republic of China 
 
 ### Grant first-connection access {#grant-first-connection-access}
 
-1. Have the security owner run this statement with the target database, target schema, and server name retained in the previous step:
+Creating a role requires the account-level `CREATE ROLE` privilege, held by `USERADMIN` by default.
+
+1. If the approved non-privileged role does not exist, have a role administrator run:
+
+   ```sql
+   CREATE ROLE IF NOT EXISTS <mcp_access_role>;
+   ```
+
+2. Have the security owner run this statement with the target database, target schema, and server name retained in the previous step:
 
    ```sql
    GRANT USAGE ON MCP SERVER <database>.<schema>.<server_name>
      TO ROLE <mcp_access_role>;
    ```
 
-2. Have the security owner grant access to the Cortex Agent's parent database:
+3. Have the security owner grant access to the Cortex Agent's parent database:
 
    ```sql
    GRANT USAGE ON DATABASE <agent_database>
      TO ROLE <mcp_access_role>;
    ```
 
-3. Have the security owner grant access to the Cortex Agent's parent schema:
+4. Have the security owner grant access to the Cortex Agent's parent schema:
 
    ```sql
    GRANT USAGE ON SCHEMA <agent_database>.<agent_schema>
      TO ROLE <mcp_access_role>;
    ```
 
-4. Have the security owner grant access to the Cortex Agent:
+5. Have the security owner grant access to the Cortex Agent:
 
    ```sql
    GRANT USAGE ON AGENT <agent_database>.<agent_schema>.<agent_name>
      TO ROLE <mcp_access_role>;
    ```
 
-5. Have the security owner grant the connecting role every downstream privilege the Agent needs.
-6. Have the security owner run this statement to grant the connecting role access to the selected warehouse:
+6. Have the security owner grant the connecting role every downstream privilege the Agent needs.
+7. Have the security owner run this statement to grant the connecting role access to the selected warehouse:
 
    ```sql
    GRANT USAGE ON WAREHOUSE <warehouse_name> TO ROLE <mcp_access_role>;
    ```
 
-7. For each connecting user, have the security owner run this statement to assign the connecting role:
+8. For each connecting user, have the security owner run this statement to assign the connecting role:
 
    ```sql
    GRANT ROLE <mcp_access_role> TO USER <username>;
    ```
 
-8. After the role assignment and warehouse grant succeed, run this statement for that user:
+9. After the role assignment and warehouse grant succeed, run this statement for that user:
 
    ```sql
    ALTER USER <username>
@@ -99,6 +107,8 @@ If authorization succeeds but initialization fails, confirm that `DEFAULT_WAREHO
 <!-- screenshot: successful grant and user-change results, with identities redacted where policy requires -->
 
 ### Create the OAuth integration {#create-oauth-integration}
+
+> **Before you continue:** Use `ACCOUNTADMIN` or a delegated role with `CREATE INTEGRATION` to create the security integration. Do not use `ACCOUNTADMIN`, `SECURITYADMIN`, `GLOBALORGADMIN`, or `ORGADMIN` as a connecting user's runtime `DEFAULT_ROLE`; Snowflake blocks these roles from Snowflake OAuth authentication by default. Adding one to `ALLOWED_ROLES_LIST` does not override the block. If authorization reports `The role <role_name> requested has been explicitly blocked for use with this application by an administrator. Please try logging in with a different role, or contact your administrator.`, return to [Grant first-connection access](#grant-first-connection-access), assign a non-privileged `<mcp_access_role>`, grant its MCP server, Cortex Agent, downstream, and warehouse access, and set it as the user's `DEFAULT_ROLE`.
 
 1. Obtain the organization's approved integration name.
 2. For a PrivateLink account, add `USE_PRIVATELINK_FOR_AUTHORIZATION_ENDPOINT = TRUE` on a new line before the statement's final semicolon.

@@ -3,10 +3,10 @@
   "slug": "snowflake",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-28T21:04:46Z",
+  "updated_at": "2026-07-28T22:21:52Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:728d6118b82ddc4d4d70d38cc2b6899e4899defa465ecf3752f29f9ffcff324a",
+      "input_digest": "sha256:d6e56a39e4843800660bf6dc0b858e3a16df64ea2d27a8878d83756ad4070f9c",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
@@ -31,23 +31,23 @@
         "artifacts": [],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document Speakeasy catalog MCP binding, Mcp-Account-Identifier, or forced catalog URL—follow Snowflake docs for server setup and OAuth. Omit Speakeasy outbound IP allowlist. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Resume PR #53; write external.md and speakeasy.md from doctrine without inventing catalog-specific controls.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\""
+          "notes": "Update existing guide: add callout before OAuth steps that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); distinguish setup role (ACCOUNTADMIN for security integration) from runtime DEFAULT_ROLE (non-privileged role with MCP/Cortex Agent/warehouse grants). Add optional CREATE ROLE + GRANT ROLE TO USER step for <mcp_access_role> instead of assuming it exists. Error to cite: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\""
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:e9da94a1045142669b18a5dada889d0964bbb4bd81eb355b12846989ca80c244"
+          "digest": "sha256:d48f1191266badbc76dc35b810e62410ea88aae056d3ef31e66b317690f7e121"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:8f6dfd0180bc69ec59a6e0ed3acca05d256c2ae3fcd0a14975f0534e162af2c5"
+          "digest": "sha256:f1e5926aace9bafd5108f415326ca339af7457921c94772efc812c0caedee8dc"
         }
       ],
-      "completed_at": "2026-07-28T21:04:46Z"
+      "completed_at": "2026-07-28T22:21:52Z"
     },
     "draft": {
-      "input_digest": "sha256:63862e52628b3c66ead5d861f7e11546ef88dec2b78fb60854190e802abf1c92",
+      "input_digest": "sha256:a8d6ce7d8b5101b9408ddeb850e45b692947000e5e6134cefc10367d370fad69",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:bd455424d5c087fd914297fad0cf7749459452dbd94d00bd4e20e977e9fbb92b",
@@ -72,33 +72,33 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:e9da94a1045142669b18a5dada889d0964bbb4bd81eb355b12846989ca80c244"
+            "digest": "sha256:d48f1191266badbc76dc35b810e62410ea88aae056d3ef31e66b317690f7e121"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:8f6dfd0180bc69ec59a6e0ed3acca05d256c2ae3fcd0a14975f0534e162af2c5"
+            "digest": "sha256:f1e5926aace9bafd5108f415326ca339af7457921c94772efc812c0caedee8dc"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document Speakeasy catalog MCP binding, Mcp-Account-Identifier, or forced catalog URL—follow Snowflake docs for server setup and OAuth. Omit Speakeasy outbound IP allowlist. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Resume PR #53; write external.md and speakeasy.md from doctrine without inventing catalog-specific controls.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Update existing guide: add callout before OAuth steps that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); distinguish setup role (ACCOUNTADMIN for security integration) from runtime DEFAULT_ROLE (non-privileged role with MCP/Cortex Agent/warehouse grants). Add optional CREATE ROLE + GRANT ROLE TO USER step for <mcp_access_role> instead of assuming it exists. Error to cite: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+          "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
         },
         {
           "path": "speakeasy.md",
           "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
         }
       ],
-      "completed_at": "2026-07-28T21:04:46Z"
+      "completed_at": "2026-07-28T22:21:52Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:ea893927c47224e53f284af6256556885c05889c2d4927d8f183b7df6aa5b145",
+      "input_digest": "sha256:72acb57117176212d7ebe76e4a35ae718afc96aa6912973a3597eb61169124de",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
@@ -119,15 +119,15 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:e9da94a1045142669b18a5dada889d0964bbb4bd81eb355b12846989ca80c244"
+            "digest": "sha256:d48f1191266badbc76dc35b810e62410ea88aae056d3ef31e66b317690f7e121"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:8f6dfd0180bc69ec59a6e0ed3acca05d256c2ae3fcd0a14975f0534e162af2c5"
+            "digest": "sha256:f1e5926aace9bafd5108f415326ca339af7457921c94772efc812c0caedee8dc"
           },
           {
             "path": "external.md",
-            "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+            "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
           },
           {
             "path": "speakeasy.md",
@@ -136,7 +136,7 @@
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document Speakeasy catalog MCP binding, Mcp-Account-Identifier, or forced catalog URL—follow Snowflake docs for server setup and OAuth. Omit Speakeasy outbound IP allowlist. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Resume PR #53; write external.md and speakeasy.md from doctrine without inventing catalog-specific controls.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Update existing guide: add callout before OAuth steps that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); distinguish setup role (ACCOUNTADMIN for security integration) from runtime DEFAULT_ROLE (non-privileged role with MCP/Cortex Agent/warehouse grants). Add optional CREATE ROLE + GRANT ROLE TO USER step for <mcp_access_role> instead of assuming it exists. Error to cite: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,17 +144,17 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+          "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
         },
         {
           "path": "speakeasy.md",
           "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
         }
       ],
-      "completed_at": "2026-07-28T21:04:46Z"
+      "completed_at": "2026-07-28T22:21:52Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:7baad3feecfce64600b059360e35acda22ae3ed0ce2c63bed2091d7614ea7aba",
+      "input_digest": "sha256:39b51292d734d5a45a96b5c511bed5bcca64b9b4c38337ee91e77ad4dd572c53",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
@@ -179,15 +179,15 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:e9da94a1045142669b18a5dada889d0964bbb4bd81eb355b12846989ca80c244"
+            "digest": "sha256:d48f1191266badbc76dc35b810e62410ea88aae056d3ef31e66b317690f7e121"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:8f6dfd0180bc69ec59a6e0ed3acca05d256c2ae3fcd0a14975f0534e162af2c5"
+            "digest": "sha256:f1e5926aace9bafd5108f415326ca339af7457921c94772efc812c0caedee8dc"
           },
           {
             "path": "external.md",
-            "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+            "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
           },
           {
             "path": "speakeasy.md",
@@ -196,7 +196,7 @@
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document Speakeasy catalog MCP binding, Mcp-Account-Identifier, or forced catalog URL—follow Snowflake docs for server setup and OAuth. Omit Speakeasy outbound IP allowlist. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Resume PR #53; write external.md and speakeasy.md from doctrine without inventing catalog-specific controls.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Update existing guide: add callout before OAuth steps that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); distinguish setup role (ACCOUNTADMIN for security integration) from runtime DEFAULT_ROLE (non-privileged role with MCP/Cortex Agent/warehouse grants). Add optional CREATE ROLE + GRANT ROLE TO USER step for <mcp_access_role> instead of assuming it exists. Error to cite: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:a5f7c740a64a4aff500aa0636064289a78ee891b4a91562a6a09efc3832141cc"
+          "digest": "sha256:b2c665ff10b707abdf73aa623682e1b9c77c2a5b19b78611cc744f8b0f41316b"
         },
         {
           "path": "speakeasy.md",
           "digest": "sha256:4698ffa8f2e9892c516583901f35e4be433fd63dfb4ee588ff655a14f0e42b15"
         }
       ],
-      "completed_at": "2026-07-28T21:04:46Z"
+      "completed_at": "2026-07-28T22:21:52Z"
     }
   }
 }
