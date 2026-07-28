@@ -4,15 +4,13 @@
 
 1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
 2. Click **Add Source**.
-3. Choose **3rd-party server**.
-4. On the **MCP Catalog** page, enter `Snowflake` in **Search MCP servers...**.
-5. Open the Snowflake result with **View**.
-6. Click **Add**.
-7. In the **Add to Project** dialog, click **Add to Project**.
+3. Choose **Custom remote server**.
+4. On the **Add a custom remote MCP server** page, paste the account-specific URL retained in [Create the Cortex Agent MCP server](external.md#create-cortex-agent-mcp-server) into **Remote MCP server URL**.
+5. Click **Add server**.
 
 This creates the hosted MCP server and opens its **Overview** page.
 
-<!-- screenshot: the Snowflake catalog result and Add to Project dialog -->
+<!-- screenshot: the Add Source menu open on the Sources page, or the provider's catalog entry -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 

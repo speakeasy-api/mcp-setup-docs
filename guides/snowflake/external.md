@@ -15,6 +15,12 @@ Snowflake-managed MCP servers and Cortex Agents are unavailable in the People's 
 3. Select **SQL File**.
 4. Select the organization-approved role for the statement group you are running.
 5. Select an available warehouse.
+6. Before pasting any SQL from this guide, replace every complete angle-bracket placeholder, including the `<` and `>` characters, with the corresponding value supplied by the named owner.
+7. Paste each completed statement into the blank SQL file.
+8. Select the complete statement.
+9. Invoke **Run selected** with `Ctrl+Enter` on Windows/Linux or `Command+Return` on macOS.
+
+When a code block contains multiple statements, select and run each completed statement separately.
 
 <!-- screenshot: Projects > Workspaces, the + menu with SQL File, and the role/warehouse context controls -->
 
@@ -69,7 +75,7 @@ Snowflake-managed MCP servers and Cortex Agents are unavailable in the People's 
 
 ### Create the Cortex Agent MCP server {#create-cortex-agent-mcp-server}
 
-1. Obtain the approved MCP server database, schema, and name, and the MCP tool name, title, and description from the application owner.
+1. Obtain the approved MCP server database, schema, and name, and the MCP tool name, title, and description from the application owner. Obtain the approved `<mcp_server_creator_role>` name from the security owner, and confirm that role is assigned to the Snowflake user who will create the MCP server.
 2. Have the security owner grant the server-creator role access to the MCP namespace and existing Cortex Agent:
 
    ```sql
@@ -109,6 +115,12 @@ Snowflake-managed MCP servers and Cortex Agents are unavailable in the People's 
    ```
 
 6. Retain the exact MCP database, schema, and server name.
+7. Select your user name.
+8. Select **Connect a tool to Snowflake**.
+9. In the **Account Details** dialog, copy **Account/Server URL**.
+10. For `<account_url>`, use the hostname from the copied value without the leading `https://` or a trailing `/`.
+11. Form the account-specific MCP Server URL as `https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>`.
+12. Retain the URL for the Speakeasy AI Control Plane setup.
 
 <!-- screenshot: the approved CORTEX_AGENT_RUN specification and successful result, with the Cortex Agent's three-part identifier visible and organization-sensitive names redacted where policy requires -->
 
@@ -165,15 +177,23 @@ Do not capture the result because it exposes secrets.
 1. Still using the role that created and owns the integration, run:
 
    ```sql
-   SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('<INTEGRATION_NAME>');
+   WITH oauth_secrets AS (
+     SELECT PARSE_JSON(
+       SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('<INTEGRATION_NAME>')
+     ) AS secret_values
+   )
+   SELECT
+     secret_values:oauth_client_id::STRING AS "oauth_client_id",
+     secret_values:oauth_client_secret::STRING AS "oauth_client_secret"
+   FROM oauth_secrets;
    ```
 
 2. Use the uppercase, case-sensitive integration name in single quotes.
-3. Copy `oauth_client_id` as **Client ID**.
-4. Copy `oauth_client_secret` as **Client Secret**.
+3. Copy the result cell under `oauth_client_id` as **Client ID**.
+4. Copy the result cell under `oauth_client_secret` as **Client Secret**.
 5. Store both values in the approved password manager.
 6. Switch away from the integration-owner role.
 
-Do not use `oauth_client_secret_2` for initial setup.
+The query omits `oauth_client_secret_2`. Do not use that secondary secret for initial setup.
 
 <!-- screenshot-exception: the result exposes secrets and must not be captured -->

@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: snowflake
-researched_at: 2026-07-28T23:24:19Z
+researched_at: 2026-07-28T23:41:31Z
 ---
 
 # Snowflake — Research Dossier
@@ -15,9 +15,9 @@ researched_at: 2026-07-28T23:24:19Z
 - **Remote URL:**
   `https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>`.
   Snowflake constructs this account-specific endpoint from the account host
-  and MCP server object names. This URL is recorded as the MCP Server fact in
-  Metadata; the forced Speakeasy MCP Catalog path does not ask the reader to
-  paste it, and this Guide does not assert any catalog-specific account binding.
+  and MCP server object names. It is a tenanted MCP Server URL: copy the
+  account-specific URL produced by External setup into the Speakeasy AI
+  Control Plane's Custom remote server form.
 - **Transport:** remote HTTP (`streamable-http`). Snowflake documents MCP
   JSON-RPC over HTTP `POST` and supports only non-streaming responses.
 - **Authentication:** OAuth 2.0 using a manually registered, confidential
@@ -102,10 +102,17 @@ Registration, so the manually registered client ID and secret are required.
 - Sign in at `https://app.snowflake.com`.
 - Select **Projects** > **Workspaces**.
 - Select **+** beside a folder (or **+ Add New** on first use), then select
-  **SQL File**.
+  **SQL File**. This opens a blank SQL file as an editor tab.
 - Select an available warehouse and the organization-approved role for each
   statement group below. Do not leave `ACCOUNTADMIN` selected after creating
   the OAuth integration.
+- For every SQL statement below, replace each complete angle-bracket
+  placeholder, including the `<` and `>` characters, with the corresponding
+  owner-supplied value. Paste the completed statement into the SQL file,
+  select the complete statement, and invoke **Run selected** with
+  `Ctrl+Enter` on Windows/Linux or `Command+Return` on macOS. For a block that
+  contains multiple statements, select and run each completed statement
+  separately.
 - Screenshot note: **Projects** > **Workspaces**, the **+** menu with
   **SQL File**, and the role/warehouse context controls.
 
@@ -171,7 +178,9 @@ Registration, so the manually registered client ID and secret are required.
 ### Create the Cortex Agent MCP server {#create-cortex-agent-mcp-server}
 
 - Obtain the approved MCP server database, schema, name, MCP tool name, title,
-  and description from the application owner.
+  and description from the application owner. Obtain the approved
+  `<mcp_server_creator_role>` name from the security owner and confirm that
+  role is assigned to the Snowflake user who will create the MCP server.
 - Have the security owner grant the server-creator role access to the MCP
   namespace and the existing Cortex Agent:
 
@@ -215,8 +224,14 @@ Registration, so the manually registered client ID and secret are required.
 - Retain the exact MCP database, schema, and server name. Snowflake's endpoint
   shape is
   `https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>`.
-  This forced catalog flow does not ask the reader to paste that URL and does
-  not document a catalog-specific account-binding control.
+- To obtain the account URL in Snowsight, select your user name, select
+  **Connect a tool to Snowflake**, and locate the **Account Details** dialog.
+  Copy **Account/Server URL**. For `<account_url>`, use the hostname from that
+  copied value without the leading `https://` or a trailing `/`; the MCP
+  endpoint template already supplies the scheme.
+- Form the account-specific MCP Server URL from that hostname and the retained
+  MCP database, schema, and server name, then retain it for
+  {#add-server-in-speakeasy}.
 - Screenshot note: the approved `CORTEX_AGENT_RUN` specification and
   successful result. The Cortex Agent's three-part identifier should be
   visible; redact organization-sensitive names if policy requires.
@@ -279,12 +294,24 @@ Registration, so the manually registered client ID and secret are required.
 - Still using the role that created and owns the integration, run:
 
   ```sql
-  SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('<INTEGRATION_NAME>');
+  WITH oauth_secrets AS (
+    SELECT PARSE_JSON(
+      SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('<INTEGRATION_NAME>')
+    ) AS secret_values
+  )
+  SELECT
+    secret_values:oauth_client_id::STRING AS "oauth_client_id",
+    secret_values:oauth_client_secret::STRING AS "oauth_client_secret"
+  FROM oauth_secrets;
   ```
 
 - Use the uppercase, case-sensitive integration name in single quotes.
-- Copy `oauth_client_id` as **Client ID** and `oauth_client_secret` as
-  **Client Secret**. Do not use `oauth_client_secret_2` for initial setup.
+- The query parses the returned JSON object and projects the two required
+  values into separate named result columns without surrounding JSON quotes.
+- Copy the result cell under `oauth_client_id` as **Client ID**.
+- Copy the result cell under `oauth_client_secret` as **Client Secret**.
+- The query omits `oauth_client_secret_2`; do not use that secondary secret
+  for initial setup.
 - Store both selected values in the approved password manager, then switch
   away from the integration-owner role.
 - Screenshot exception: the result exposes secrets and must not be captured.
@@ -295,12 +322,12 @@ Per-guide values for `doctrine/speakeasy-setup.md`:
 
 - Provider: Snowflake.
 - Remote URL fact: the account-specific Snowflake URL template in Server
-  facts and `meta.yaml`. It is not an input on the forced catalog path.
+  facts and `meta.yaml`; External setup forms it at
+  {#create-cortex-agent-mcp-server}.
 - Transport: `streamable-http`.
-- Add-server path: catalog only. The forced catalog match is
-  `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`, for query
-  `snowflake`. Do not render the Custom remote path, an account identifier or
-  URL binding control, or a catalog-presence question.
+- Add-server path: Custom remote server only because the Snowflake MCP Server
+  URL is account-specific (`remotes[].tenanted: true`). The path is resolved;
+  do not render an alternate add-server path or presence question.
 - Authentication Option: manually registered confidential OAuth client.
 - OAuth metadata: Snowflake requires the security integration's client ID and
   secret and does not support Dynamic Client Registration. Use
@@ -317,12 +344,14 @@ Per-guide values for `doctrine/speakeasy-setup.md`:
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
-Choose **3rd-party server**. On the **MCP Catalog** page, enter `Snowflake` in
-**Search MCP servers...**, open the result with **View**, and click **Add**.
-In the **Add to Project** dialog, click **Add to Project**. This creates the
-hosted MCP server and opens its **Overview** page.
+Choose **Custom remote server**. On the **Add a custom remote MCP server**
+page, paste the account-specific URL retained at
+{#create-cortex-agent-mcp-server} into **Remote MCP server URL**, then click
+**Add server**. This creates the hosted MCP server and opens its **Overview**
+page.
 
-Screenshot note: the Snowflake catalog result and **Add to Project** dialog.
+Screenshot note: the Add Source menu open on the Sources page, or the
+provider's catalog entry.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
@@ -363,7 +392,7 @@ None.
 - **Indexes:** `https://docs.snowflake.com/llms.txt` and
   `https://docs.snowflake.com/en/user-guide/snowflake-cortex/llms.txt`.
 
-All sources were observed at `2026-07-28T23:24:19Z`.
+All sources were observed at `2026-07-28T23:41:31Z`.
 
 - `https://docs.snowflake.com/llms.txt` — documentation-property inventory and
   account URL guidance.
@@ -387,6 +416,9 @@ All sources were observed at `2026-07-28T23:24:19Z`.
   integration privileges, and privileged-role blocks.
 - `https://docs.snowflake.com/en/sql-reference/functions/system_show_oauth_client_secrets`
   — credential keys and uppercase integration-name requirement.
+- `https://docs.snowflake.com/en/user-guide/querying-semistructured` —
+  parsing JSON text into a `VARIANT`, extracting first-level JSON values into
+  separate columns, and casting string values to remove surrounding quotes.
 - `https://docs.snowflake.com/en/sql-reference/sql/create-role`,
   `https://docs.snowflake.com/en/sql-reference/sql/grant-role`,
   `https://docs.snowflake.com/en/sql-reference/sql/grant-database-role`, and
@@ -394,15 +426,13 @@ All sources were observed at `2026-07-28T23:24:19Z`.
   role creation, assignment, database-role grant, and object grants.
 - `https://docs.snowflake.com/en/user-guide/ui-snowsight/workspaces` and
   `https://docs.snowflake.com/en/user-guide/ui-snowsight/workspaces-working`
-  — current SQL editor navigation.
+  — current SQL editor navigation, blank SQL-file behavior, and the
+  **Run selected** execution control and keyboard shortcuts.
 - `https://docs.snowflake.com/en/user-guide/admin-account-identifier` and
-  `https://docs.snowflake.com/en/user-guide/gen-conn-config` — account URL and
-  preferred hostname formatting.
+  `https://docs.snowflake.com/en/user-guide/gen-conn-config` — browser path to
+  **Account Details**, the **Account/Server URL** field, and preferred
+  hostname formatting.
 - `https://quickstarts.snowflake.com/guide/getting-started-with-snowflake-mcp-server/index.html`
   — official managed MCP creation and endpoint example; PAT path not used.
 - `doctrine/speakeasy-setup.md` — canonical Speakeasy labels and fixed
   anchors.
-- Pulse catalog observation — forced catalog query `snowflake`; matched
-  `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`. This selects only
-  the catalog add-server path; no catalog-specific endpoint or account-binding
-  control is asserted.
