@@ -1,0 +1,25 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T22:17:09Z",
+  "started_at": "2026-07-28T22:17:09Z",
+  "finished_at": "2026-07-28T22:21:52Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER adds draft-relevant prerequisites and recovery guidance: privileged roles including ACCOUNTADMIN and SECURITYADMIN are blocked from custom OAuth runtime authentication; setup and runtime roles must be separated; a non-privileged MCP access role may need CREATE ROLE and GRANT ROLE TO USER steps; and the documented blocked-role error should appear before OAuth setup. external.md must be re-drafted and its prior review is invalidated; Speakeasy setup is unchanged."
+  }
+}

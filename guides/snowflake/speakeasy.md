@@ -28,4 +28,4 @@ This creates the hosted MCP server and opens its **Overview** page.
 
 When a client first requests Snowflake access, Snowflake's OAuth flow opens in a browser. Each user signs in with their own Snowflake credentials and approves the consent screen. The resulting session uses that user's `DEFAULT_ROLE`.
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see Snowflake's MCP documentation at https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp.
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits, and advanced or agent-backed MCP server designs — see [Snowflake's MCP documentation](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp).
