@@ -1,0 +1,31 @@
+{
+  "slug": "hubspot",
+  "provider": "hubspot",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T18:22:41Z",
+  "started_at": "2026-07-28T18:22:41Z",
+  "finished_at": "2026-07-28T18:30:31Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "Exact permission required for Development > MCP Auth Apps",
+    "Current MCP Auth Apps beta status",
+    "Which admin role must make the first connection",
+    "Whether older accounts require migration to the new Developer Platform",
+    "Exact labels on HubSpot's end-user authorization controls"
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER resolves Speakeasy setup to the catalog-only path, adds speakeasy_add_server: catalog and catalog provenance, and supplies the full Speakeasy rendering inputs. It also adds HubSpot’s direct MCP Auth Apps URL and changes credential anchor mappings. These deltas justify re-drafting speakeasy.md and updating external.md."
+  }
+}
