@@ -124,6 +124,32 @@ describe('resolveResearchMode', () => {
     assert.equal(r.mode, 'patch')
   })
 
+  it('fat drop body → patch (C3)', () => {
+    const r = resolveResearchMode({
+      resume: true,
+      guideDir: dir,
+      notes: 'x',
+      commentThread: thread(
+        '## Scope check (`box`)',
+        'Decision 1: drop this branch — instead document Settings > Admin > MCP'
+      ),
+    })
+    assert.equal(r.mode, 'patch')
+  })
+
+  it('short freeform fact beside drop → patch (C3)', () => {
+    const r = resolveResearchMode({
+      resume: true,
+      guideDir: dir,
+      notes: 'x',
+      commentThread: thread(
+        '## Pipeline review (`box`)',
+        'Decision 1: drop this branch\n\nThe button is now called Reset key.'
+      ),
+    })
+    assert.equal(r.mode, 'patch')
+  })
+
   it('stale drop in older comment does not skip over new freeform', () => {
     const r = resolveResearchMode({
       resume: true,

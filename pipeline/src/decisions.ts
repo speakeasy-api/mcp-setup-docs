@@ -7,8 +7,8 @@
  *
  * Accepted reply shapes (Snowflake-hardened):
  *   Decision 1: drop this branch
+ *   `Decision 1: verified — …` / > Decision 1: … / **Decision 1:** …
  *   Decision 1: hedge
- *   Decision 1: verified — …
  *   Decision: ignore the catalog …          (unnumbered)
  *   1 - ignore the catalog mcp server       (numbered dash replies)
  */
@@ -30,17 +30,13 @@ export type ExtractedDecision = {
 
 /** Template / placeholder bodies from factory comments — not human answers. */
 const TEMPLATE_BODY_RE =
-  /^(?:verified|drop this branch|hedge)\s*[—–-]\s*(?:…|\.{2,}|…)\s*$/i
+  /^(?:verified|drop this branch|hedge)\s*[—–-]\s*(?:…|\.{2,})\s*$/i
 
 const BARE_TEMPLATE_RE =
   /^(?:verified|drop this branch|hedge)\s*[—–-]\s*$/i
 
-/**
- * Scope-only dispositions — safe to skip a research crawl.
- * Bare `hedge` is NOT scope: it usually asks to add soft wording to the dossier.
- */
-const SCOPE_BODY_RE =
-  /^(?:drop(?:\s+this)?(?:\s+branch)?|omit(?:\s+this)?(?:\s+branch)?|skip(?:ping)?(?:\s+this)?(?:\s+branch)?|out of (?:band|scope))\b/i
+const SCOPE_VERB_RE =
+  /^(drop(?:\s+this)?(?:\s+branch)?|omit(?:\s+this)?(?:\s+branch)?|skip(?:ping)?(?:\s+this)?(?:\s+branch)?|out of (?:band|scope))\b(.*)$/i
 
 /** Fact-bearing / dossier-patch dispositions (includes hedge). */
 const FACT_BODY_RE =
@@ -66,12 +62,35 @@ export function isTemplateDecisionBody(body: string): boolean {
   return false
 }
 
+/**
+ * Classify a Decision body.
+ * - bare drop/omit → scope (skip-safe)
+ * - drop/omit with extra instructions → fact (must patch dossier — C3)
+ * - hedge / verified / ignore / … → fact
+ */
 export function classifyDecisionBody(body: string): DecisionKind {
   const b = body.trim()
   if (!b) return 'other'
   // hedge → patch (fact): bare or with soft wording; never skip-carry-forward
   if (/^hedge\b/i.test(b)) return 'fact'
-  if (SCOPE_BODY_RE.test(b)) return 'scope'
+
+  const scopeMatch = SCOPE_VERB_RE.exec(b)
+  if (scopeMatch) {
+    const rest = (scopeMatch[2] || '')
+      .replace(/^[—–\-:.,\s]+/, '')
+      .trim()
+    // Fat drop: "drop this branch — instead document Settings > …"
+    if (
+      rest &&
+      !isTemplateDecisionBody(rest) &&
+      rest !== '…' &&
+      rest !== '...'
+    ) {
+      return 'fact'
+    }
+    return 'scope'
+  }
+
   if (FACT_BODY_RE.test(b)) return 'fact'
   // "Decision N: custom-remote only" etc. — treat as dossier patch
   if (b.length >= 8) return 'fact'
@@ -81,8 +100,7 @@ export function classifyDecisionBody(body: string): DecisionKind {
 /**
  * Factory Scope check / Pipeline review lines look like:
  *   - `Decision 1: drop this branch` (omit the recovery/optional path)
- * Those are prompts, not answers. Human replies are bare lines:
- *   Decision 1: drop this branch
+ * Those are prompts, not answers.
  */
 function isFactoryPromptLine(rawLine: string): boolean {
   const line = rawLine.trim()
@@ -97,12 +115,35 @@ function isFactoryPromptLine(rawLine: string): boolean {
     return true
   }
   // Factory how-to numbered list ("1. Reply on **this issue**…")
-  if (
-    /^\d+\.\s+(?:Reply on|Re-add the|If a factory)/i.test(line)
-  ) {
+  if (/^\d+\.\s+(?:Reply on|Re-add the|If a factory)/i.test(line)) {
     return true
   }
   return false
+}
+
+/**
+ * Strip common markdown decoration so copy-pasted Scope check replies still
+ * parse (C1): backticks, blockquotes, bold, list markers.
+ */
+export function normalizeDecisionLine(rawLine: string): string {
+  let line = rawLine.trim()
+  // blockquote
+  line = line.replace(/^>\s*/, '')
+  // unordered list marker (human "- Decision 1: …" without template paren)
+  line = line.replace(/^[-*]\s+/, '')
+  // wrap whole line in backticks
+  if (line.startsWith('`') && line.endsWith('`') && line.length >= 2) {
+    line = line.slice(1, -1).trim()
+  }
+  // **Decision 1:** body  or  **Decision 1: body**
+  line = line.replace(
+    /^\*\*(Decision\s+\d*\s*:)\*\*\s*/i,
+    '$1 '
+  )
+  line = line.replace(/^\*\*(Decision\s+\d*\s*:[^*]+)\*\*\s*$/i, '$1')
+  // trailing/leading stray backticks around the Decision token
+  line = line.replace(/^`+(Decision\b)/i, '$1').replace(/(Decision\s+\d*\s*:[^`]*)`+\s*$/i, '$1')
+  return line.trim()
 }
 
 function canonicalDecisionLine(index: number, body: string): string {
@@ -133,7 +174,8 @@ export function extractDecisions(text: string): ExtractedDecision[] {
   const byKey = new Map<string, ExtractedDecision>()
   for (const rawLine of text.split(/\r?\n/)) {
     if (isFactoryPromptLine(rawLine)) continue
-    const line = rawLine.trim()
+    const line = normalizeDecisionLine(rawLine)
+    if (!line) continue
 
     // Decision N: body
     let m = /^Decision\s+(\d+)\s*:\s*(.+)$/i.exec(line)
@@ -162,23 +204,36 @@ export function extractDecisions(text: string): ExtractedDecision[] {
   })
 }
 
-/** Strip extracted Decision lines from text (for freeform remainder). */
+/** Strip extracted Decision lines from text (for freeform remainder / C2). */
 export function stripDecisionLines(text: string): string {
   if (!text.trim()) return ''
   const out: string[] = []
   for (const rawLine of text.split(/\r?\n/)) {
     if (isFactoryPromptLine(rawLine)) continue
-    const line = rawLine.trim()
+    // Drop the verbatim block header so re-merge is clean
+    if (/^##\s*Operator decisions\b/i.test(rawLine.trim())) continue
+
+    const line = normalizeDecisionLine(rawLine)
     if (/^Decision\s+(\d+\s*)?:\s*.+/i.test(line)) continue
     if (/^\d+\s+[—–-]\s+.+/.test(line)) continue
-    out.push(rawLine)
+
+    // Distill often pastes "Decision N: …" mid-prose. Strip those clauses so
+    // stale ids cannot leak into NOTES and satisfy the scope gate (C2).
+    let prose = rawLine
+      .replace(/\bDecision\s+\d+\s*:\s*[^.\n|;]+[.\n|;]?/gi, '')
+      .replace(/\bDecision\s*:\s*[^.\n|;]+[.\n|;]?/gi, '')
+      .replace(/(?:^|\s)\d+\s+[—–-]\s+[^.\n|;]+[.\n|;]?/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+    if (prose) out.push(prose)
   }
   return out.join('\n').trim()
 }
 
 /**
  * True when leftover operator text looks like a dossier/scope correction
- * (not just "thanks" / empty).
+ * (not just "thanks" / empty). No length escape hatch (C3) — any non-trivial
+ * remainder after stripping Decisions is substantive.
  */
 export function isSubstantiveFreeform(text: string): boolean {
   const stripped = stripDecisionLines(text)
@@ -187,17 +242,7 @@ export function isSubstantiveFreeform(text: string): boolean {
     .trim()
   if (!stripped) return false
   if (TRIVIAL_FREEFORM_RE.test(stripped)) return false
-  // Short but intentional directives
-  if (
-    /\b(?:ignore|keep|omit|drop|use|prefer|custom-remote|catalog|tenanted|revise|patch|hedge)\b/i.test(
-      stripped
-    ) &&
-    stripped.length >= 12
-  ) {
-    return true
-  }
-  // Otherwise require a bit of prose
-  return stripped.length >= 40
+  return true
 }
 
 /** Factory-authored issue comments (not human operator signal). */
@@ -209,6 +254,8 @@ export function isFactoryComment(body: string): boolean {
   if (/^##\s*Scope check\b/i.test(t)) return true
   if (/^##\s*Pipeline review\b/i.test(t)) return true
   if (/^`guide:draft`\s+run failed/i.test(t)) return true
+  if (/^`guide:draft`\s+bootstrap failed/i.test(t)) return true
+  if (/^Refused to run:/i.test(t)) return true
   if (/^Starting `draft-guide`/i.test(t)) return true
   return false
 }
@@ -231,25 +278,27 @@ export function recentOperatorComments(commentThread: string): string {
     .trim()
 }
 
+/**
+ * Build operator notes for the pipeline (C2):
+ * strip any Decision lines distill copied from the full thread, then append
+ * only Decisions from *recent* operator comments so stale N ids cannot
+ * satisfy the scope gate for new material questions.
+ */
+export function buildOperatorNotes(
+  distillNotes: string,
+  recentCommentText: string
+): string {
+  const cleaned = stripDecisionLines(distillNotes || '')
+  const recentDecisions = extractDecisions(recentCommentText || '')
+  return mergeDecisionNotes(cleaned, recentDecisions)
+}
+
 /** Append verbatim Decision lines to distill notes if missing. */
 export function mergeDecisionNotes(
   notes: string,
   decisions: ExtractedDecision[]
 ): string {
   if (decisions.length === 0) return notes || ''
-  const existingKeys = new Set(
-    extractDecisions(notes).map((d) =>
-      d.index >= 1 ? `n:${d.index}` : `u:${d.body.toLowerCase()}`
-    )
-  )
-  const missing = decisions.filter((d) => {
-    const key = d.index >= 1 ? `n:${d.index}` : `u:${d.body.toLowerCase()}`
-    return !existingKeys.has(key)
-  })
-  if (missing.length === 0) {
-    const fromNotes = extractDecisions(notes)
-    if (fromNotes.length >= decisions.length) return notes || ''
-  }
   const block = [
     '## Operator decisions (verbatim)',
     ...decisions.map((d) => d.line),

@@ -5,7 +5,11 @@ import { ghSoft } from './gh.ts'
 import { setOutput, setMultilineOutput } from './github-output.ts'
 import { writeFailureReason } from './failure-reason.ts'
 import { runPipelineScript } from './run-pipeline.ts'
-import { extractDecisions, mergeDecisionNotes } from '../decisions.ts'
+import {
+  buildOperatorNotes,
+  extractDecisions,
+  recentOperatorComments,
+} from '../decisions.ts'
 import {
   priorStatusFromRecord,
   resolveResearchMode,
@@ -49,7 +53,6 @@ export function runDistill(): void {
     '[.[].body] | join("\n\n---\n\n")',
   ])
   const comments = commentsRes.code === 0 ? commentsRes.stdout : ''
-  const threadText = [body, comments].filter(Boolean).join('\n\n')
   if (comments) {
     const combined = `${body}\n\n## Issue thread (for clarifications)\n${comments}\n`
     const bodyFile = join(runnerTemp(), 'issue-body-with-thread.txt')
@@ -61,14 +64,17 @@ export function runDistill(): void {
     console.error('factory: distill — no issue comments (body only)')
   }
 
-  // Deterministic Decision extraction — before LLM distill so templates in
-  // factory comments never masquerade as answers, and so LLM notes cannot drop them.
-  const decisions = extractDecisions(threadText)
-  if (decisions.length > 0) {
+  // Only Decisions from comments after the latest factory review enter notes
+  // (C2). Whole-thread extraction would let stale Decision 2/3 satisfy new OQs.
+  const recent = recentOperatorComments(comments)
+  const recentDecisions = extractDecisions(recent)
+  if (recentDecisions.length > 0) {
     console.error(
-      `factory: distill — extracted ${decisions.length} Decision line(s): ` +
-        decisions.map((d) => `D${d.index}/${d.kind}`).join(', '),
+      `factory: distill — recent Decision line(s): ` +
+        recentDecisions.map((d) => `D${d.index}/${d.kind}`).join(', '),
     )
+  } else {
+    console.error('factory: distill — no recent Decision lines after last factory comment')
   }
 
   const outPath = join(runnerTemp(), 'resolved.json')
@@ -88,7 +94,9 @@ export function runDistill(): void {
 
   if (resolved.status === 'ok') {
     const ok = resolved as ResolvedOk
-    const notes = mergeDecisionNotes(ok.notes ?? '', decisions)
+    // Strip Decision lines distill copied from the full thread, then append
+    // only recent verbatim Decisions.
+    const notes = buildOperatorNotes(ok.notes ?? '', recent)
 
     const resume = process.env.RESUME === 'true'
     const workspace = githubWorkspace()

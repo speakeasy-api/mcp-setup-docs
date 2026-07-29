@@ -207,10 +207,10 @@ export function formatScopeCheckComment(opts: {
 
   lines.push('### How to continue', '')
   lines.push(
-    '1. Reply on **this issue** using bare `Decision N: …` lines (not the bulleted examples above).'
+    '1. Reply on **this issue** with a **bare** line like `Decision 1: drop this branch` or `Decision 1: verified — …` (not the bulleted/backticked examples above).'
   )
   lines.push(
-    '2. Re-add the `guide:draft` label. Distill extracts your Decisions verbatim and picks research mode (`skip` for drop/hedge, `patch` for verified/keep facts, `full` if you ask to re-research).'
+    '2. Re-add the `guide:draft` label. Distill extracts recent Decisions verbatim and auto-routes research mode (`skip` for drop/omit only, `patch` for verified/hedge/freeform, `full` if you ask to re-research).'
   )
   lines.push(
     '3. The next run resumes on the factory branch, applies that research mode, then **drafts**.'

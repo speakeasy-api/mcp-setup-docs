@@ -26,6 +26,8 @@ describe('formatScopeCheck', () => {
     assert.match(md, /Decision 1: verified/)
     assert.match(md, /Soft open questions/)
     assert.match(md, /Draft PR \(research only\)/)
+    assert.match(md, /bare/)
+    assert.match(md, /auto-routes research mode/)
     assert.match(md, /x-box\.json/)
   })
 })
