@@ -1,9 +1,10 @@
 name: Go module CI
 
+# Full drift + test gate for the published module (regen / go PRs).
+# Guide-only PRs use go-module-guide-validate instead (no drift requirement).
 on:
   pull_request:
     paths:
-      - 'guides/**'
       - 'go/**'
       - 'schema/**'
       - 'mise.toml'
@@ -11,7 +12,6 @@ on:
   push:
     branches: [main]
     paths:
-      - 'guides/**'
       - 'go/**'
       - 'schema/**'
       - 'mise.toml'
@@ -36,6 +36,7 @@ jobs:
 
       - name: Fail on generated drift
         run: |
+          set -euo pipefail
           if [ -n "$(git status --porcelain -- go/)" ]; then
             echo "go/ drift detected after regenerate:"
             git status --porcelain -- go/
@@ -54,6 +55,7 @@ jobs:
 
       - name: Size budget
         run: |
+          set -euo pipefail
           size_kb="$(du -sk go/generated | awk '{print $1}')"
           echo "go/generated size: ${size_kb} KiB"
           if [ "$size_kb" -gt 5120 ]; then

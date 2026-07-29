@@ -56,4 +56,10 @@ Publishable files only: `meta.yaml`, `external.md`, `speakeasy.md`,
 declared assets. Authoring files (`research.md`, `pipeline.lock.json`)
 are never embedded.
 
-Version tags: `go/vX.Y.Z`.
+## Release flow
+
+See **[`GO-MODULE.md`](../GO-MODULE.md)** (validate → regen PR → human merge → `go/vX.Y.Z`).
+
+**First tag is manual:** `git tag -a go/v0.1.0 -m "…" && git push origin go/v0.1.0`.
+
+Version tags: `go/vX.Y.Z` (consumers install `@vX.Y.Z`).

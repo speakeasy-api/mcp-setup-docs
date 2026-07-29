@@ -1,0 +1,135 @@
+name: Go module regen
+
+# After guides (or schema) land on main, regenerate go/ and open/update a PR.
+# The regen branch is machine-owned — do not push human fixes there; fix on a
+# follow-up commit via a new guide change or workflow_dispatch after main is fixed.
+# Humans merge the PR; go-module-release then cuts go/vX.Y.Z.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'guides/**'
+      - 'schema/**'
+  workflow_dispatch:
+
+concurrency:
+  group: go-module-regen
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require AGENT_PAT
+        env:
+          AGENT_PAT: ${{ secrets.AGENT_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${AGENT_PAT}" ]; then
+            echo "AGENT_PAT is required so chore/go-module-regen PRs trigger Go module CI."
+            echo "GITHUB_TOKEN-authored PRs do not fire pull_request workflows."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AGENT_PAT }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: |
+            go/go.mod
+            go/internal/gen/go.sum
+
+      - name: Regenerate publishable tree
+        working-directory: go/internal/gen
+        run: go run .
+
+      - name: Detect drift
+        id: drift
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain -- go/)" ]; then
+            echo "dirty=true" >> "$GITHUB_OUTPUT"
+            git status --porcelain -- go/
+          else
+            echo "dirty=false" >> "$GITHUB_OUTPUT"
+            echo "go/ already in sync with guides/"
+          fi
+
+      - name: Open or update regen PR
+        if: steps.drift.outputs.dirty == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT }}
+          BRANCH: chore/go-module-regen
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$BRANCH"
+          git add -A -- go/
+          git commit -m "Sync Go module embed with guides."
+          # Machine-owned branch: lease fails loudly if the remote moved under us.
+          git fetch origin "refs/heads/${BRANCH}:refs/remotes/origin/${BRANCH}" 2>/dev/null || true
+          git push -u origin "HEAD:refs/heads/${BRANCH}" --force-with-lease
+
+          body_file="${RUNNER_TEMP:-/tmp}/go-module-regen-pr.md"
+          cat > "$body_file" <<'EOF'
+          ## Summary
+          - Regenerated `go/generated` + identity indexes from current `guides/` / `schema/`
+          - Opened by `go-module-regen` after a guide or schema change landed on `main`
+          - Branch is machine-owned — don't push fixes here; they'll be overwritten
+
+          ## Release
+          Merging this PR triggers `go-module-release` (patch bump of `go/vX.Y.Z` + GitHub Release), once `go/v0.1.0` exists.
+
+          ## Test plan
+          - [ ] `Go module CI` is green on this PR
+          - [ ] Spot-check `go/generated` / `index_gen.go` for the guides that changed
+          EOF
+          # Block scalar already strips YAML indent; body starts at column 0.
+
+          existing="$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            echo "Updated existing open PR #$existing for $BRANCH"
+            gh pr edit "$existing" --title "Sync Go module embed with guides" --body-file "$body_file"
+          else
+            gh pr create --base main --head "$BRANCH" \
+              --title "Sync Go module embed with guides" \
+              --body-file "$body_file"
+          fi
+
+      - name: Report failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh label create "go-module:regen-failed" --color "D73A4A" \
+            --description "Go module regen workflow failed" 2>/dev/null || true
+          body_file="${RUNNER_TEMP:-/tmp}/go-module-regen-fail.md"
+          printf '%s\n' \
+            'Go module regen failed on `main`.' \
+            '' \
+            "**Workflow run:** ${RUN_URL}" \
+            '' \
+            'Fix the guide/schema or generator issue, then re-run **Go module regen** (workflow_dispatch) or merge another guides change.' \
+            > "$body_file"
+          existing="$(gh issue list --label "go-module:regen-failed" --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file "$body_file"
+          else
+            gh issue create --title "Go module regen failed" \
+              --label "go-module:regen-failed" \
+              --body-file "$body_file"
+          fi
