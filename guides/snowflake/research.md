@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: snowflake
-researched_at: 2026-07-28T23:41:31Z
+researched_at: 2026-07-28T23:57:42Z
 ---
 
 # Snowflake — Research Dossier
@@ -52,6 +52,13 @@ researched_at: 2026-07-28T23:41:31Z
   Agent referenced by the server specification. The connecting runtime role
   needs `USAGE` on both the MCP server and Cortex Agent. Access to the MCP
   server alone does not grant access to its tool.
+- **Target namespace requirement:** before requesting namespace grants or
+  running `CREATE MCP SERVER`, the application owner must provide an existing,
+  approved MCP database and schema. If either object does not exist, have the
+  Snowflake object/security owner create it through the organization's approved
+  process before continuing. Snowflake's managed-MCP documentation says to
+  navigate to the desired database and schema but does not prescribe a
+  dedicated creation UI for this flow.
 - **Agent-tool privileges:** because the agent runs with the connecting user's
   default role, the application/agent owner must also grant that role every
   privilege required by the agent's configured tools. Snowflake specifically
@@ -178,7 +185,13 @@ Registration, so the manually registered client ID and secret are required.
 ### Create the Cortex Agent MCP server {#create-cortex-agent-mcp-server}
 
 - Obtain the approved MCP server database, schema, name, MCP tool name, title,
-  and description from the application owner. Obtain the approved
+  and description from the application owner. Confirm the target MCP database
+  and schema already exist before requesting grants or running the creation
+  SQL. If either is absent, have the Snowflake object/security owner create it
+  through the organization's approved process, then retain the resulting
+  database and schema names. Snowflake's public managed-MCP page does not name
+  a dedicated UI path for creating these namespace objects.
+- Obtain the approved
   `<mcp_server_creator_role>` name from the security owner and confirm that
   role is assigned to the Snowflake user who will create the MCP server.
 - Have the security owner grant the server-creator role access to the MCP
@@ -392,7 +405,7 @@ None.
 - **Indexes:** `https://docs.snowflake.com/llms.txt` and
   `https://docs.snowflake.com/en/user-guide/snowflake-cortex/llms.txt`.
 
-All sources were observed at `2026-07-28T23:41:31Z`.
+All sources were observed at `2026-07-28T23:57:42Z`.
 
 - `https://docs.snowflake.com/llms.txt` — documentation-property inventory and
   account URL guidance.

@@ -75,8 +75,13 @@ When a code block contains multiple statements, select and run each completed st
 
 ### Create the Cortex Agent MCP server {#create-cortex-agent-mcp-server}
 
-1. Obtain the approved MCP server database, schema, and name, and the MCP tool name, title, and description from the application owner. Obtain the approved `<mcp_server_creator_role>` name from the security owner, and confirm that role is assigned to the Snowflake user who will create the MCP server.
-2. Have the security owner grant the server-creator role access to the MCP namespace and existing Cortex Agent:
+1. Obtain the approved MCP server database, schema, and name, and the MCP tool name, title, and description from the application owner.
+2. Confirm that the approved MCP database and schema already exist.
+3. If either object is absent, have the Snowflake object or security owner create it through your organization's approved process.
+4. Retain the resulting MCP database and schema names.
+5. Obtain the approved `<mcp_server_creator_role>` name from the security owner.
+6. Confirm that `<mcp_server_creator_role>` is assigned to the Snowflake user who will create the MCP server.
+7. Have the security owner grant the server-creator role access to the MCP namespace and existing Cortex Agent:
 
    ```sql
    GRANT USAGE ON DATABASE <mcp_database>
@@ -98,9 +103,9 @@ When a code block contains multiple statements, select and run each completed st
      TO ROLE <mcp_server_creator_role>;
    ```
 
-3. Form and record the fully qualified Cortex Agent identifier as `<cortex_agent_fqn> = <agent_database>.<agent_schema>.<agent_name>`.
-4. Switch to `<mcp_server_creator_role>`.
-5. Run:
+8. Form and record the fully qualified Cortex Agent identifier as `<cortex_agent_fqn> = <agent_database>.<agent_schema>.<agent_name>`.
+9. Switch to `<mcp_server_creator_role>`.
+10. Run:
 
    ```sql
    CREATE MCP SERVER <mcp_database>.<mcp_schema>.<mcp_server_name>
@@ -114,13 +119,13 @@ When a code block contains multiple statements, select and run each completed st
      $$;
    ```
 
-6. Retain the exact MCP database, schema, and server name.
-7. Select your user name.
-8. Select **Connect a tool to Snowflake**.
-9. In the **Account Details** dialog, copy **Account/Server URL**.
-10. For `<account_url>`, use the hostname from the copied value without the leading `https://` or a trailing `/`.
-11. Form the account-specific MCP Server URL as `https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>`.
-12. Retain the URL for the Speakeasy AI Control Plane setup.
+11. Retain the exact MCP database, schema, and server name.
+12. Select your user name.
+13. Select **Connect a tool to Snowflake**.
+14. In the **Account Details** dialog, copy **Account/Server URL**.
+15. For `<account_url>`, use the hostname from the copied value without the leading `https://` or a trailing `/`.
+16. Form the account-specific MCP Server URL as `https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>`.
+17. Retain the URL for the Speakeasy AI Control Plane setup.
 
 <!-- screenshot: the approved CORTEX_AGENT_RUN specification and successful result, with the Cortex Agent's three-part identifier visible and organization-sensitive names redacted where policy requires -->
 

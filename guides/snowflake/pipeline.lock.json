@@ -3,10 +3,10 @@
   "slug": "snowflake",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-28T23:31:43Z",
+  "updated_at": "2026-07-29T00:01:51Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:e5fb29d7e72a8b9f853e1966e34136e95450f95522702179ca70e810c319b52f",
+      "input_digest": "sha256:716081a8071ba7fe66f05a033e13b3365e27070ebd2632f3d6237ec4be81e074",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
@@ -31,23 +31,23 @@
         "artifacts": [],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document or assume Speakeasy catalog MCP server binding (no Mcp-Account-Identifier, forced catalog URL, or account-specific URL via catalog)—treat catalog MCP as out of scope. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Omit Speakeasy outbound IP allowlist unless verified. Write external.md and speakeasy.md from doctrine without inventing catalog-specific controls; authorization follows Snowflake OAuth in linked docs.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\""
+          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted"
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:97b233030f2230bb374fb871fb1e7dad805384a85f76fb735ccb822247342e31"
+          "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:3f0d4463578625ff7b358ab09af02a21a6949e59d5ed6361ae3300e4356f0611"
+          "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
         }
       ],
-      "completed_at": "2026-07-28T23:31:43Z"
+      "completed_at": "2026-07-29T00:01:51Z"
     },
     "draft": {
-      "input_digest": "sha256:e81e9392b7a5d8a89d428ca3b34e2ec690313291dccd989692a4af1946a5d69b",
+      "input_digest": "sha256:5dc6e0e2999383319fe07404230c605e30b3d1be72bfa7f7c34561b797e1d329",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:bd455424d5c087fd914297fad0cf7749459452dbd94d00bd4e20e977e9fbb92b",
@@ -72,33 +72,33 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:97b233030f2230bb374fb871fb1e7dad805384a85f76fb735ccb822247342e31"
+            "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:3f0d4463578625ff7b358ab09af02a21a6949e59d5ed6361ae3300e4356f0611"
+            "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document or assume Speakeasy catalog MCP server binding (no Mcp-Account-Identifier, forced catalog URL, or account-specific URL via catalog)—treat catalog MCP as out of scope. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Omit Speakeasy outbound IP allowlist unless verified. Write external.md and speakeasy.md from doctrine without inventing catalog-specific controls; authorization follows Snowflake OAuth in linked docs.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:e7c1cd9d3214c7b8f5f54eb659a0431f183876babe780cd416915d4a9e6e8c69"
+          "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:e949832e519c14af05cad31a0e9abd179f9fef54ca5a17c0fc6550e834e938b2"
+          "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
         }
       ],
-      "completed_at": "2026-07-28T23:31:43Z"
+      "completed_at": "2026-07-29T00:01:51Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:6f3819105e65ea720fcd8e0a7dd3cabf5cfbc33bba5bc52b202ca38f15715d96",
+      "input_digest": "sha256:9141cb5e7bf62967749df56e4991d8fa47bb45cdcddb6325b5a72e361b7c7936",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
@@ -119,24 +119,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:97b233030f2230bb374fb871fb1e7dad805384a85f76fb735ccb822247342e31"
+            "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:3f0d4463578625ff7b358ab09af02a21a6949e59d5ed6361ae3300e4356f0611"
+            "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
           },
           {
             "path": "external.md",
-            "digest": "sha256:e7c1cd9d3214c7b8f5f54eb659a0431f183876babe780cd416915d4a9e6e8c69"
+            "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:e949832e519c14af05cad31a0e9abd179f9fef54ca5a17c0fc6550e834e938b2"
+            "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document or assume Speakeasy catalog MCP server binding (no Mcp-Account-Identifier, forced catalog URL, or account-specific URL via catalog)—treat catalog MCP as out of scope. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Omit Speakeasy outbound IP allowlist unless verified. Write external.md and speakeasy.md from doctrine without inventing catalog-specific controls; authorization follows Snowflake OAuth in linked docs.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,17 +144,17 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:e7c1cd9d3214c7b8f5f54eb659a0431f183876babe780cd416915d4a9e6e8c69"
+          "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:e949832e519c14af05cad31a0e9abd179f9fef54ca5a17c0fc6550e834e938b2"
+          "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
         }
       ],
-      "completed_at": "2026-07-28T23:31:43Z"
+      "completed_at": "2026-07-29T00:01:51Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:f71e871d856341dbd378b863409cad1f249acd79b4eefeb5028f6ca23d98321a",
+      "input_digest": "sha256:827b40987fe36d2caea235ed8e115192b96f8f7252366a8f76ca3ab3a38a44c8",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
@@ -179,24 +179,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:97b233030f2230bb374fb871fb1e7dad805384a85f76fb735ccb822247342e31"
+            "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:3f0d4463578625ff7b358ab09af02a21a6949e59d5ed6361ae3300e4356f0611"
+            "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
           },
           {
             "path": "external.md",
-            "digest": "sha256:e7c1cd9d3214c7b8f5f54eb659a0431f183876babe780cd416915d4a9e6e8c69"
+            "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:e949832e519c14af05cad31a0e9abd179f9fef54ca5a17c0fc6550e834e938b2"
+            "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; prefer OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Do not document or assume Speakeasy catalog MCP server binding (no Mcp-Account-Identifier, forced catalog URL, or account-specific URL via catalog)—treat catalog MCP as out of scope. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Omit Speakeasy outbound IP allowlist unless verified. Write external.md and speakeasy.md from doctrine without inventing catalog-specific controls; authorization follows Snowflake OAuth in linked docs.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:e7c1cd9d3214c7b8f5f54eb659a0431f183876babe780cd416915d4a9e6e8c69"
+          "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:e949832e519c14af05cad31a0e9abd179f9fef54ca5a17c0fc6550e834e938b2"
+          "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
         }
       ],
-      "completed_at": "2026-07-28T23:31:43Z"
+      "completed_at": "2026-07-29T00:01:51Z"
     }
   }
 }
