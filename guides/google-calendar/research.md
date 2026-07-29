@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: google-calendar
-researched_at: 2026-07-29T21:55:53Z
+researched_at: 2026-07-29T22:37:27Z
 ---
 
 # Google Calendar — Research Dossier
@@ -43,10 +43,11 @@ researched_at: 2026-07-29T21:55:53Z
 
 A Google Cloud project administrator enables both APIs, grants connecting
 users **MCP Tool User**, configures Google Auth platform, and creates one OAuth
-2.0 **Web application** client. Enabling APIs requires
-`serviceusage.services.enable`, normally through **Service Usage Admin** or
-**Owner**. Google's IAM procedure names **Project IAM Admin** for granting
-project roles.
+2.0 **Web application** client. The operator who enables services must have
+`serviceusage.services.enable`. **Service Usage Admin** and **Owner** normally
+provide this permission, but neither role is strictly required; another
+predefined or custom role can provide it. Google's IAM procedure names
+**Project IAM Admin** for granting project roles.
 
 Paste `{{ gram.oauth.callback_url }}` directly into **Authorized redirect
 URIs** in {#create-oauth-client}. The Speakeasy AI Control Plane later shows
@@ -76,8 +77,9 @@ selected.
 - Reopen **API Library**, search for `Google Calendar MCP API`, open
   **Google Calendar MCP API**, and click **Enable**. Continue if already
   enabled.
-- Permission gate: `serviceusage.services.enable`, normally through
-  **Service Usage Admin** or **Owner**.
+- Permission gate: `serviceusage.services.enable`. **Service Usage Admin** and
+  **Owner** normally provide it, but another predefined or custom role can
+  provide it.
 - Values entered: both API names. Values copied: none.
 - Screenshot note: **Google Calendar MCP API** in its enabled state.
 - Transition: open the project's **IAM** page.
@@ -147,13 +149,20 @@ selected.
 - Under **Client secrets**, copy **Client secret** to the same store.
 - Keep both for {#connect-speakeasy-credentials}.
 - Screenshot exception: do not capture a one-time secret.
-- Recovery: if the secret is missed, Google says to delete it and create a
-  new one before continuing.
+- Recovery: if the secret is missed, reopen **Google Auth platform** >
+  **Clients**, select the same project, and click the client under **OAuth 2.0
+  Client IDs**. On the client details page, find the missed secret under
+  **Client secrets**, click **Disable**, and click the delete button next to
+  the disabled secret. Click **Add Secret**, then immediately copy the new
+  secret to the approved secret store before continuing.
 - Transition: if Workspace restricts Calendar access, complete the conditional
   step; otherwise return to the Speakeasy AI Control Plane.
 
 ### Permit the OAuth app under Workspace policy if required {#permit-workspace-app}
 
+- Before deciding whether to complete this step, confirm with the Workspace
+  security owner whether the applicable Calendar app-access policy restricts
+  unconfigured or limited apps.
 - Sign in at `https://admin.google.com` with **Service Settings
   administrator** privilege.
 - Go to **Security** > **Access and data control** > **API controls**.
@@ -172,7 +181,7 @@ selected.
 ## Speakeasy setup
 
 Transcluded from `doctrine/speakeasy-setup.md`, observed at
-`2026-07-29T21:55:53Z`. Fixed anchors are carried verbatim.
+`2026-07-29T22:37:27Z`. Fixed anchors are carried verbatim.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
@@ -236,13 +245,13 @@ Documentation-property sweep:
   `/llms.txt` returned 404.
 - `docs.cloud.google.com` and `cloud.google.com`: MCP authentication, Service
   Usage, and IAM. Drawn from.
-- `support.google.com/cloud`: Auth platform Audience and Data Access. Drawn
-  from.
+- `support.google.com/cloud`: Auth platform Audience, Data Access, and OAuth
+  client management. Drawn from.
 - `support.google.com/a`: Workspace API controls. Drawn from.
 - Google Workspace Codelabs and Google Cloud Blog: swept, not drawn from;
   current product/admin documentation was preferred.
 
-All entries were observed at `2026-07-29T21:55:53Z`:
+All entries were observed at `2026-07-29T22:37:27Z`:
 
 - `https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server`
   — endpoint, APIs, OAuth, scopes, client creation, and security requirement.
@@ -262,6 +271,8 @@ All entries were observed at `2026-07-29T21:55:53Z`:
 - `https://docs.cloud.google.com/iam/docs/grant-role-console` — IAM labels.
 - `https://support.google.com/cloud/answer/15549945` — Audience and Testing.
 - `https://support.google.com/cloud/answer/15549135` — Data Access controls.
+- `https://support.google.com/cloud/answer/15549257` — OAuth client details,
+  one-time secret visibility, and controls for replacing a missed secret.
 - `https://support.google.com/a/answer/7281227` — Workspace API controls.
 - `https://calendarmcp.googleapis.com/mcp/v1` — successful MCP initialize.
 - `https://calendarmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1`

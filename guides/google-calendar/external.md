@@ -4,7 +4,7 @@ setup_version: 1
 
 # Google Calendar setup
 
-Use a Google Cloud project where you can enable services, grant project roles, configure **Google Auth platform**, and create OAuth credentials. Enabling services requires **Service Usage Admin** or **Owner**; granting project roles requires **Project IAM Admin**. Each connecting user must have access to the calendars and events they will use.
+Use a Google Cloud project where you can enable services, grant project roles, configure **Google Auth platform**, and create OAuth credentials. Enabling services requires `serviceusage.services.enable`, normally provided by **Service Usage Admin** or **Owner**; another predefined or custom role can provide it. Google's IAM procedure names **Project IAM Admin** for granting project roles. Each connecting user must have access to the calendars and events they will use.
 
 Before you begin, have the application or security owner configure prompt and response screening for malicious content or prompt injection.
 
@@ -98,13 +98,27 @@ This opens **OAuth 2.0 client created**.
 1. In **OAuth 2.0 client created**, copy **Client ID** to the approved secret store.
 2. Under **Client secrets**, copy **Client secret** to the same store.
 
-Keep both values for [connecting your credentials](speakeasy.md#connect-speakeasy-credentials). If you miss the one-time secret, delete it and create a new one before continuing.
+Keep both values for [connecting your credentials](speakeasy.md#connect-speakeasy-credentials).
+
+If you miss the one-time secret:
+
+1. Reopen **Google Auth platform** > **Clients**.
+2. Confirm that the same project is selected.
+3. Under **OAuth 2.0 Client IDs**, click the client you created.
+4. Under **Client secrets**, find the missed secret.
+5. Click **Disable**.
+6. Click the delete button next to the disabled secret.
+
+Prepare the approved secret store before the next action. The new secret is visible only when it is created.
+
+7. Click **Add Secret**.
+8. Immediately copy the new secret to the approved secret store.
 
 <!-- screenshot-exception: do not capture a one-time secret -->
 
 ### Permit the OAuth app under Workspace policy if required {#permit-workspace-app}
 
-Complete this step only if your organization restricts Google Calendar access for unconfigured or limited apps.
+Confirm the applicable Calendar app-access policy with the Workspace security owner. Complete this step only if the policy restricts Google Calendar access for unconfigured or limited apps.
 
 1. Sign in at `https://admin.google.com` with the **Service Settings administrator** privilege.
 2. Open **Security** > **Access and data control** > **API controls**.
