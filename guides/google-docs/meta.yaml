@@ -1,0 +1,133 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: google-docs
+title: Google Docs
+summary: Read and update Google Docs through Google's hosted Docs MCP server.
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: oauth-client
+      kind: oauth
+      client_registration: manual
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#create-oauth-client
+            - external.md#copy-client-credentials
+        - id: client-secret
+          label: Client Secret
+          setup:
+            - external.md#create-oauth-client
+            - external.md#copy-client-credentials
+  requirements:
+    - id: google-cloud-project
+      description: A Google Cloud project and an administrator who can enable the Google Docs API and Google Docs MCP API, configure the Google Auth platform, and create OAuth credentials
+    - id: workspace-api-access
+      description: When organizational API controls restrict high-risk Drive and Docs scopes or unconfigured apps, a Google Workspace Service Settings administrator who can allow the OAuth client
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: hosted
+    url: https://docsmcp.googleapis.com/mcp/v1
+    transport: streamable-http
+    authentication:
+      - oauth-client
+    provenance:
+      - source: provider-documentation
+        locator: https://developers.google.com/workspace/docs/api/guides/configure-mcp-server
+        name: Configure the Docs MCP server
+        classification: official
+        observed_at: "2026-07-29T20:37:14Z"
+      - source: endpoint-observation
+        locator: https://docsmcp.googleapis.com/mcp/v1
+        name: Google Docs MCP endpoint
+        classification: official
+        observed_at: "2026-07-29T20:37:14Z"
+      - source: endpoint-observation
+        locator: https://docsmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
+        name: Google Docs MCP protected-resource metadata
+        classification: official
+        observed_at: "2026-07-29T20:37:14Z"
+provenance:
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/docs/api/guides/configure-mcp-server
+    name: Configure the Docs MCP server
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/guides/configure-mcp-servers
+    name: Configure the Google Workspace MCP servers
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/guides/configure-oauth-consent
+    name: Configure the OAuth consent screen and choose scopes
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/guides/create-credentials
+    name: Create access credentials
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/guides/enable-apis
+    name: Enable Google Workspace APIs
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/docs/api/auth
+    name: Choose Google Docs API scopes
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/guides/configure-mcp-security
+    name: Configure security for Google Workspace MCP servers
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
+    name: Set up authentication to Google and Google Cloud MCP servers
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/service-usage/docs/enable-disable
+    name: Enable and disable services
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://support.google.com/a/answer/7281227?hl=en
+    name: Control which apps access Google Workspace data
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://support.google.com/cloud/answer/15549945
+    name: Manage App Audience
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: provider-documentation
+    locator: https://support.google.com/cloud/answer/15549135
+    name: Manage App Data Access
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: endpoint-observation
+    locator: https://docsmcp.googleapis.com/mcp/v1
+    name: Google Docs MCP endpoint
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: endpoint-observation
+    locator: https://docsmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
+    name: Google Docs MCP protected-resource metadata
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: endpoint-observation
+    locator: https://accounts.google.com/.well-known/oauth-authorization-server
+    name: Google authorization-server metadata
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-07-29T20:37:14Z"
