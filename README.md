@@ -9,7 +9,7 @@
     <br /><br />
     <a href="./guides/"><strong>Guides</strong></a> ·
     <a href="./FACTORY.md"><strong>Factory</strong></a> ·
-    <a href="./GO-MODULE.md"><strong>Go module</strong></a>
+    <a href="./go"><strong>Go SDK</strong></a>
 </p>
 
 <hr />
