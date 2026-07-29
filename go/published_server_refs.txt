@@ -5,7 +5,13 @@ asana/hosted
 box/hosted
 github/hosted
 google-big-query/hosted
+google-calendar/hosted
 google-compute-engine/hosted
+google-docs/hosted
+google-drive/hosted
+google-people/hosted
+google-sheets/hosted
+google-slides/hosted
 hubspot/hosted
 intercom/eu
 intercom/us

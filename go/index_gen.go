@@ -10,7 +10,13 @@ var generatedSlugs = []GuideSlug{
 	"box",
 	"github",
 	"google-big-query",
+	"google-calendar",
 	"google-compute-engine",
+	"google-docs",
+	"google-drive",
+	"google-people",
+	"google-sheets",
+	"google-slides",
 	"hubspot",
 	"intercom",
 	"salesforce",
@@ -77,6 +83,16 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 			{ID: "hosted", URL: "https://bigquery.googleapis.com/mcp", Transport: "streamable-http", Tenanted: false},
 		},
 	},
+	"google-calendar": {
+		Slug:               "google-calendar",
+		Title:              "Google Calendar",
+		Summary:            "Connect Google Calendar data through Google's hosted Calendar MCP server.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://calendarmcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
+		},
+	},
 	"google-compute-engine": {
 		Slug:               "google-compute-engine",
 		Title:              "Google Compute Engine",
@@ -85,6 +101,56 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		Aliases:            []string{"com.googleapis.compute/mcp"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://compute.googleapis.com/mcp", Transport: "streamable-http", Tenanted: false},
+		},
+	},
+	"google-docs": {
+		Slug:               "google-docs",
+		Title:              "Google Docs",
+		Summary:            "Read and update Google Docs through Google's hosted Docs MCP server.",
+		SpeakeasyAddServer: "custom-remote",
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://docsmcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
+		},
+	},
+	"google-drive": {
+		Slug:               "google-drive",
+		Title:              "Google Drive",
+		Summary:            "Connect Google's hosted Drive MCP server to read and create files under each user's existing Drive permissions.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://drivemcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
+		},
+	},
+	"google-people": {
+		Slug:               "google-people",
+		Title:              "Google People",
+		Summary:            "Connect Google profile, contacts, and directory data through Google's hosted People API MCP server.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://people.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
+		},
+	},
+	"google-sheets": {
+		Slug:               "google-sheets",
+		Title:              "Google Sheets",
+		Summary:            "Connect Google Sheets data through Google's hosted Sheets MCP server.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://sheetsmcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
+		},
+	},
+	"google-slides": {
+		Slug:               "google-slides",
+		Title:              "Google Slides",
+		Summary:            "Connect Google Slides data through Google's hosted Slides MCP server.",
+		SpeakeasyAddServer: "custom-remote",
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://slidesmcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
 		},
 	},
 	"hubspot": {
@@ -216,11 +282,20 @@ var generatedURLToRefs = map[string][]ServerRef{
 	"https://bigquery.googleapis.com/mcp": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
+	"https://calendarmcp.googleapis.com/mcp/v1": {
+		{Guide: "google-calendar", Remote: "hosted"},
+	},
 	"https://compute.googleapis.com/mcp": {
 		{Guide: "google-compute-engine", Remote: "hosted"},
 	},
 	"https://docs.x.com/mcp": {
 		{Guide: "x-docs", Remote: "docs"},
+	},
+	"https://docsmcp.googleapis.com/mcp/v1": {
+		{Guide: "google-docs", Remote: "hosted"},
+	},
+	"https://drivemcp.googleapis.com/mcp/v1": {
+		{Guide: "google-drive", Remote: "hosted"},
 	},
 	"https://mcp.asana.com/v2/mcp": {
 		{Guide: "asana", Remote: "hosted"},
@@ -239,6 +314,15 @@ var generatedURLToRefs = map[string][]ServerRef{
 	},
 	"https://mcp.zapier.com/api/v1/connect": {
 		{Guide: "zapier", Remote: "hosted"},
+	},
+	"https://people.googleapis.com/mcp/v1": {
+		{Guide: "google-people", Remote: "hosted"},
+	},
+	"https://sheetsmcp.googleapis.com/mcp/v1": {
+		{Guide: "google-sheets", Remote: "hosted"},
+	},
+	"https://slidesmcp.googleapis.com/mcp/v1": {
+		{Guide: "google-slides", Remote: "hosted"},
 	},
 }
 
@@ -337,6 +421,18 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"CREATE SECURITY INTEGRATION (Snowflake OAuth)": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
 	},
+	"Choose Google Calendar API scopes": {
+		{Guide: "google-calendar", Remote: "hosted"},
+	},
+	"Choose Google Docs API scopes": {
+		{Guide: "google-docs", Remote: "hosted"},
+	},
+	"Choose Google Drive API scopes": {
+		{Guide: "google-drive", Remote: "hosted"},
+	},
+	"Choose Google Slides API scopes": {
+		{Guide: "google-slides", Remote: "hosted"},
+	},
 	"Claude Code": {
 		{Guide: "box", Remote: "hosted"},
 	},
@@ -381,9 +477,46 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Configure an email channel for OAuth with Gmail": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
+	"Configure security for Google Workspace MCP servers": {
+		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
+	},
+	"Configure the Calendar MCP server": {
+		{Guide: "google-calendar", Remote: "hosted"},
+	},
+	"Configure the Docs MCP server": {
+		{Guide: "google-docs", Remote: "hosted"},
+	},
+	"Configure the Drive MCP server": {
+		{Guide: "google-drive", Remote: "hosted"},
+	},
+	"Configure the Google Workspace MCP servers": {
+		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
+	},
 	"Configure the OAuth consent screen and choose scopes": {
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
+	},
+	"Configure the People API MCP server": {
+		{Guide: "google-people", Remote: "hosted"},
+	},
+	"Configure the Sheets MCP server": {
+		{Guide: "google-sheets", Remote: "hosted"},
+	},
+	"Configure the Slides MCP server": {
+		{Guide: "google-slides", Remote: "hosted"},
 	},
 	"Configuring Box AI": {
 		{Guide: "box", Remote: "hosted"},
@@ -414,8 +547,21 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "sobject-reads-production"},
 		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
 	},
+	"Control which apps access Google Workspace data": {
+		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
+	},
 	"Cortex Agents access control and authentication": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
+	},
+	"Create access credentials": {
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
 	},
 	"Create an External Client App": {
 		{Guide: "salesforce", Remote: "sobject-all-production"},
@@ -433,6 +579,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Create future reservation requests": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
+	"Create projects": {
+		{Guide: "google-sheets", Remote: "hosted"},
+	},
 	"Creating an OAuth app": {
 		{Guide: "github", Remote: "hosted"},
 	},
@@ -442,9 +591,22 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Developer updates for June 2026": {
 		{Guide: "hubspot", Remote: "hosted"},
 	},
+	"Drive MCP file eligibility": {
+		{Guide: "google-drive", Remote: "hosted"},
+	},
+	"Enable Google Workspace APIs": {
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+	},
 	"Enable and disable services": {
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
 	},
 	"Enterprise Settings: Content & Sharing Tab": {
 		{Guide: "box", Remote: "hosted"},
@@ -479,6 +641,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"GitHub Remote MCP Integration Guide for MCP Host Authors": {
 		{Guide: "github", Remote: "hosted"},
 	},
+	"Google Calendar MCP endpoint": {
+		{Guide: "google-calendar", Remote: "hosted"},
+	},
+	"Google Calendar MCP protected-resource metadata": {
+		{Guide: "google-calendar", Remote: "hosted"},
+	},
 	"Google Cloud MCP quotas and system limits": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
@@ -490,12 +658,64 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
 	},
+	"Google Docs MCP endpoint": {
+		{Guide: "google-docs", Remote: "hosted"},
+	},
+	"Google Docs MCP protected-resource metadata": {
+		{Guide: "google-docs", Remote: "hosted"},
+	},
+	"Google Drive MCP endpoint": {
+		{Guide: "google-drive", Remote: "hosted"},
+	},
+	"Google Drive MCP protected-resource metadata": {
+		{Guide: "google-drive", Remote: "hosted"},
+	},
+	"Google Drive MCP reference": {
+		{Guide: "google-drive", Remote: "hosted"},
+	},
+	"Google People API MCP endpoint": {
+		{Guide: "google-people", Remote: "hosted"},
+	},
+	"Google People API MCP protected-resource metadata": {
+		{Guide: "google-people", Remote: "hosted"},
+	},
+	"Google Sheets MCP endpoint": {
+		{Guide: "google-sheets", Remote: "hosted"},
+	},
+	"Google Sheets MCP protected-resource metadata": {
+		{Guide: "google-sheets", Remote: "hosted"},
+	},
+	"Google Slides MCP endpoint": {
+		{Guide: "google-slides", Remote: "hosted"},
+	},
+	"Google Slides MCP protected-resource metadata": {
+		{Guide: "google-slides", Remote: "hosted"},
+	},
+	"Google Workspace developer release notes": {
+		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
+	},
+	"Google and Google Cloud products with MCP support": {
+		{Guide: "google-people", Remote: "hosted"},
+	},
 	"Google authorization-server metadata": {
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
 	},
 	"Grant an IAM role by using the Google Cloud console": {
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
 	},
 	"HubSpot MCP Server": {
 		{Guide: "hubspot", Remote: "hosted"},
@@ -545,15 +765,33 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Manage App Audience": {
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
 	},
 	"Manage App Data Access": {
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
+	},
+	"Manage MCP servers": {
+		{Guide: "google-drive", Remote: "hosted"},
 	},
 	"Manage OAuth App Branding": {
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
+	},
+	"Manage OAuth Clients": {
+		{Guide: "google-calendar", Remote: "hosted"},
 	},
 	"Manage Tool Access": {
 		{Guide: "box", Remote: "hosted"},
@@ -580,6 +818,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"OAuth Scopes": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
+	},
+	"People API MCP reference": {
+		{Guide: "google-people", Remote: "hosted"},
 	},
 	"Policies & Governance for the GitHub MCP Server": {
 		{Guide: "github", Remote: "hosted"},
@@ -740,6 +981,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Set up authentication to Google and Google Cloud MCP servers": {
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
 	},
 	"Setting up OAuth": {
 		{Guide: "intercom", Remote: "eu"},
@@ -773,6 +1020,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "asana", Remote: "hosted"},
 		{Guide: "github", Remote: "hosted"},
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
 		{Guide: "hubspot", Remote: "hosted"},
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
@@ -810,6 +1063,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Supported products": {
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
 	},
 	"Try BigQuery using the sandbox": {
 		{Guide: "google-big-query", Remote: "hosted"},
@@ -842,6 +1096,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Using OAuth 2.0 to Access Google APIs": {
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
 	},
 	"V2 MCP server now generally available": {
 		{Guide: "asana", Remote: "hosted"},
