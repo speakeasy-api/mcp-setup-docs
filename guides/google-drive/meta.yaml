@@ -1,0 +1,157 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: google-drive
+title: Google Drive
+summary: Connect Google's hosted Drive MCP server to read and create files under each user's existing Drive permissions.
+credential_setup:
+  options:
+    - id: oauth-client
+      kind: oauth
+      client_registration: manual
+      fields:
+        - id: client-id
+          label: OAuth client ID
+          setup:
+            - external.md#create-oauth-client
+            - external.md#copy-client-credentials
+        - id: client-secret
+          label: OAuth client secret
+          setup:
+            - external.md#create-oauth-client
+            - external.md#copy-client-credentials
+  requirements:
+    - id: google-cloud-project
+      description: A Google Cloud project whose administrator can enable the Google Drive API and Google Drive MCP API, configure the Google Auth platform, create OAuth credentials, and grant connecting users the MCP Tool User role
+    - id: workspace-policy-access
+      description: Google accounts with access to the intended Drive files and, when high-risk Drive scopes are restricted, a Workspace Service Settings administrator who can approve the OAuth client
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: hosted
+    url: https://drivemcp.googleapis.com/mcp/v1
+    transport: streamable-http
+    authentication:
+      - oauth-client
+    provenance:
+      - source: provider-documentation
+        locator: https://developers.google.com/workspace/drive/api/guides/configure-mcp-server
+        name: Configure the Drive MCP server
+        classification: official
+        observed_at: "2026-07-29T20:37:22Z"
+      - source: provider-documentation
+        locator: https://developers.google.com/workspace/drive/api/reference/mcp
+        name: Google Drive MCP reference
+        classification: official
+        observed_at: "2026-07-29T20:37:22Z"
+      - source: provider-documentation
+        locator: https://docs.cloud.google.com/mcp/supported-products
+        name: Supported products
+        classification: official
+        observed_at: "2026-07-29T20:37:22Z"
+      - source: endpoint-observation
+        locator: https://drivemcp.googleapis.com/mcp/v1
+        name: Google Drive MCP endpoint
+        classification: official
+        observed_at: "2026-07-29T20:37:22Z"
+      - source: endpoint-observation
+        locator: https://drivemcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
+        name: Google Drive MCP protected-resource metadata
+        classification: official
+        observed_at: "2026-07-29T20:37:22Z"
+provenance:
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/drive/api/guides/configure-mcp-server
+    name: Configure the Drive MCP server
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/drive/api/reference/mcp
+    name: Google Drive MCP reference
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/drive/api/guides/api-specific-auth
+    name: Choose Google Drive API scopes
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/drive/api/guides/drive-mcp-server-file-eligibility
+    name: Drive MCP file eligibility
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/guides/configure-oauth-consent
+    name: Configure the OAuth consent screen and choose scopes
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/guides/create-credentials#oauth-client-id
+    name: Create access credentials
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/identity/protocols/oauth2#expiration
+    name: Using OAuth 2.0 to Access Google APIs
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/mcp/supported-products
+    name: Supported products
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
+    name: Set up authentication to Google and Google Cloud MCP servers
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/mcp/manage-mcp-servers
+    name: Manage MCP servers
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/service-usage/docs/enable-disable
+    name: Enable and disable services
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/iam/docs/grant-role-console
+    name: Grant an IAM role by using the Google Cloud console
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://support.google.com/cloud/answer/15549945
+    name: Manage App Audience
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://support.google.com/cloud/answer/15549135
+    name: Manage App Data Access
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: provider-documentation
+    locator: https://support.google.com/a/answer/7281227
+    name: Control which apps access Google Workspace data
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: endpoint-observation
+    locator: https://drivemcp.googleapis.com/mcp/v1
+    name: Google Drive MCP endpoint
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: endpoint-observation
+    locator: https://drivemcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
+    name: Google Drive MCP protected-resource metadata
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: endpoint-observation
+    locator: https://accounts.google.com/.well-known/oauth-authorization-server
+    name: Google authorization-server metadata
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-07-29T20:37:22Z"
