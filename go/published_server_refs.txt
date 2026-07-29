@@ -18,5 +18,6 @@ salesforce/sobject-mutations-sandbox
 salesforce/sobject-reads-production
 salesforce/sobject-reads-sandbox
 snowflake/cortex-agent-mcp
+x-docs/docs
 x/hosted
 zapier/hosted

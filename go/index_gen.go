@@ -16,6 +16,7 @@ var generatedSlugs = []GuideSlug{
 	"salesforce",
 	"snowflake",
 	"x",
+	"x-docs",
 	"zapier",
 }
 
@@ -144,6 +145,16 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 			{ID: "hosted", URL: "https://api.x.com/mcp", Transport: "streamable-http", Tenanted: false},
 		},
 	},
+	"x-docs": {
+		Slug:               "x-docs",
+		Title:              "X Docs",
+		Summary:            "Connect X's public documentation MCP server for searching and reading X API documentation.",
+		SpeakeasyAddServer: "catalog",
+		Aliases:            []string{"com.pulsemcp.mirror/x-docs"},
+		Remotes: []generatedRemote{
+			{ID: "docs", URL: "https://docs.x.com/mcp", Transport: "streamable-http", Tenanted: false},
+		},
+	},
 	"zapier": {
 		Slug:               "zapier",
 		Title:              "Zapier",
@@ -165,6 +176,7 @@ var generatedAliasToSlug = map[string]GuideSlug{
 	"com.pulsemcp.mirror/gram-snowflake":    "snowflake",
 	"com.pulsemcp.mirror/hubspot":           "hubspot",
 	"com.pulsemcp.mirror/intercom":          "intercom",
+	"com.pulsemcp.mirror/x-docs":            "x-docs",
 	"com.pulsemcp.mirror/xdevplatform-xmcp": "x",
 	"com.pulsemcp.mirror/zapier":            "zapier",
 	"io.github.github/github-mcp-server":    "github",
@@ -206,6 +218,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	},
 	"https://compute.googleapis.com/mcp": {
 		{Guide: "google-compute-engine", Remote: "hosted"},
+	},
+	"https://docs.x.com/mcp": {
+		{Guide: "x-docs", Remote: "docs"},
 	},
 	"https://mcp.asana.com/v2/mcp": {
 		{Guide: "asana", Remote: "hosted"},
@@ -522,6 +537,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "box", Remote: "hosted"},
 	},
 	"MCP servers for the X API and X developer docs": {
+		{Guide: "x-docs", Remote: "docs"},
 		{Guide: "x", Remote: "hosted"},
 	},
 	"Make your first Google Health API call": {
@@ -769,6 +785,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "sobject-reads-production"},
 		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
+		{Guide: "x-docs", Remote: "docs"},
 		{Guide: "x", Remote: "hosted"},
 	},
 	"Spring 2026 Spotlight": {
@@ -842,7 +859,14 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "x", Remote: "hosted"},
 	},
 	"X Developer Platform documentation index": {
+		{Guide: "x-docs", Remote: "docs"},
 		{Guide: "x", Remote: "hosted"},
+	},
+	"X Docs": {
+		{Guide: "x-docs", Remote: "docs"},
+	},
+	"X Docs MCP": {
+		{Guide: "x-docs", Remote: "docs"},
 	},
 	"com.googleapis.compute/mcp": {
 		{Guide: "google-compute-engine", Remote: "hosted"},
