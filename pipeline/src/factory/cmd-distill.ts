@@ -107,6 +107,7 @@ export function runDistill(): void {
       resume,
       guideDir: guideDirectory,
       notes,
+      commentThread: comments,
       priorStatus,
       explicit,
     })

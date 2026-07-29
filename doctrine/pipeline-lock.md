@@ -116,12 +116,15 @@ mode after distill. Local CLI: `--research-mode full|patch|skip`.
 | Mode | When | Behavior |
 | --- | --- | --- |
 | `full` | Cold start; notes ask to re-research; fail-closed default | Provider-docs research as today (always the historical default). |
-| `skip` | Resume with prior `research.md`+`meta.yaml` and **only** scope Decisions (`drop` / `hedge` / `omit`) | Do not call the research agent. Carry the dossier forward. Run Records use `research_change.method: carried-forward` and may list `research` under top-level `skipped`. |
-| `patch` | Resume with fact-bearing Decisions (`verified — …`, keep/prefer/use…) | Bounded research agent: amend the dossier from operator notes **without** re-crawling provider docs. New operator facts get issue/Decision provenance. Run Records use `research_change.method: patch`. |
+| `skip` | Resume with prior dossier; **new** comments are only `drop` / `omit` Decisions (no freeform) | Do not call the research agent. Carry the dossier forward. Run Records use `research_change.method: carried-forward` and may list `research` under top-level `skipped`. |
+| `patch` | New comments include fact/hedge Decisions, unnumbered `Decision:`, `N - …` replies, or substantive freeform | Bounded research agent: amend the dossier from operator notes **without** re-crawling provider docs. New operator facts get issue/Decision provenance. Run Records use `research_change.method: patch`. |
 
 Additive operator facts must land in the Dossier before Writer runs (I1).
-`skip` is only for scope dispositions that remove or soften existing
-dossier material. Ambiguous resumes fail closed to `full`.
+`skip` is only for drop/omit with no freeform remainder — never when the
+operator also wrote prose corrections, and never for bare `hedge` (that
+patches). Routing inspects comments after the latest factory Scope check /
+Pipeline review so stale Decisions cannot mask new freeform. Ambiguous
+resumes (no new comments) fail closed to `full`.
 
 ## Research unchanged
 

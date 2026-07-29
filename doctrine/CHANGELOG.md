@@ -15,11 +15,13 @@ Files: `doctrine/pipeline-lock.md`, `doctrine/shared.md`,
 `.github/workflows/guide-draft.yml`.
 
 - Same `guide:draft` label; distill auto-routes research cost:
-  **skip** (scope-only Decisions: drop/hedge/omit), **patch** (fact-bearing
-  Decisions / dossier corrections without provider re-crawl), **full**
-  (cold start / re-research ask / fail-closed).
-- Deterministic `Decision N:` extraction ignores factory template examples
-  and appends a verbatim block so distill cannot drop answers.
+  **skip** (drop/omit-only, no freeform), **patch** (fact/hedge Decisions,
+  unnumbered `Decision:`, `N - …` replies, or substantive freeform without
+  provider re-crawl), **full** (cold start / re-research / no new comments).
+- Deterministic Decision extraction ignores factory template examples and
+  appends a verbatim block so distill cannot drop answers. Routing uses
+  comments after the latest factory review so stale Decisions cannot force
+  skip over new prose. Bare `hedge` patches (does not skip).
 - Patch mode: bounded research agent amends `research.md`/`meta.yaml` with
   issue/Decision provenance for operator-supplied facts (I1/I2).
 - Run Records gain `research_mode` and `research_change.method` values
@@ -30,9 +32,9 @@ Writer); I8 satisfied by this changelog entry (human-directed factory
 change).
 
 Evidence: operator latency complaint (Decision replies paying full
-research); Snowflake iterations losing dossier corrections across full
-re-runs; multi-model counsel (ship class-gated skip + patch, not bare
-skip for `verified —` facts).
+research); Snowflake issue #51 freeform / `Decision:` / bare-`hedge`
+replies mis-routed under Decision-N-only skip; multi-model counsel (ship
+class-gated skip + patch, not bare skip for `verified —` facts).
 
 ## 2026-07-27 — Speakeasy skeleton: OAuth DCR credential variant
 

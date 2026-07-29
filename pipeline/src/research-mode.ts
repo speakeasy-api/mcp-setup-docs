@@ -1,16 +1,18 @@
 /**
  * Auto-route research cost on factory resume (same `guide:draft` label).
  *
- * - full  — cold start, force-research ask, or fail-closed default
- * - skip  — resume + only scope dispositions (drop/hedge/omit); no crawl
- * - patch — resume + fact-bearing Decisions / dossier corrections; amend
- *           research.md without a provider-docs re-spree
+ * - full  — cold start, force-research ask, or no new operator signal
+ * - skip  — resume + only drop/omit Decisions; no substantive freeform
+ * - patch — fact/hedge Decisions, unnumbered Decision:, numbered "N - …",
+ *           or substantive freeform after the last factory review
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   extractDecisions,
+  isSubstantiveFreeform,
   notesForceFullResearch,
+  recentOperatorComments,
   summarizeDecisionKinds,
   type ExtractedDecision,
 } from './decisions.ts'
@@ -22,8 +24,13 @@ export type ResearchModeInput = {
   resume: boolean
   /** Absolute path to guides/<slug>/ */
   guideDir: string
-  /** Distill + verbatim Decision notes. */
+  /** Distill + verbatim Decision notes (for force-research / prompts). */
   notes: string
+  /**
+   * Raw issue comment thread (bodies joined by `\n\n---\n\n`).
+   * Used to find operator replies after the last factory review.
+   */
+  commentThread?: string
   /**
    * Prior run status from newest run record when known.
    * awaiting_scope + scope-only Decisions → strongest skip candidate.
@@ -62,19 +69,22 @@ export function priorStatusFromRecord(
 }
 
 /**
- * Classify research mode. Fail closed to `full` when signals are ambiguous.
+ * Classify research mode.
+ *
+ * Routing prefers *recent* operator comments (after the last factory
+ * Scope check / Pipeline review). Distill prose alone must not force
+ * patch — otherwise every resume looks freeform.
  */
 export function resolveResearchMode(input: ResearchModeInput): ResearchModeResult {
+  const allDecisions = extractDecisions(input.notes)
+
   if (input.explicit === 'full' || input.explicit === 'skip' || input.explicit === 'patch') {
     return {
       mode: input.explicit,
       reason: `explicit --research-mode=${input.explicit}`,
-      decisions: extractDecisions(input.notes),
+      decisions: allDecisions,
     }
   }
-
-  const decisions = extractDecisions(input.notes)
-  const kinds = summarizeDecisionKinds(decisions)
 
   if (!input.resume || !hasResearchArtifacts(input.guideDir)) {
     return {
@@ -82,44 +92,75 @@ export function resolveResearchMode(input: ResearchModeInput): ResearchModeResul
       reason: input.resume
         ? 'resume without research.md+meta.yaml — full research'
         : 'cold start — full research',
-      decisions,
+      decisions: allDecisions,
     }
   }
 
-  if (notesForceFullResearch(input.notes)) {
+  // Factory always passes commentThread (possibly ''). Local CLI omits it and
+  // classifies from --notes alone.
+  const factoryRouted = input.commentThread !== undefined
+  const recent = recentOperatorComments(input.commentThread || '')
+
+  if (notesForceFullResearch(input.notes) || notesForceFullResearch(recent)) {
     return {
       mode: 'full',
       reason: 'notes request re-research / docs moved — full research',
+      decisions: allDecisions,
+    }
+  }
+
+  if (factoryRouted && !recent) {
+    return {
+      mode: 'full',
+      reason:
+        'resume with no new operator comments — full research (fail closed)',
+      decisions: allDecisions,
+    }
+  }
+
+  // Factory: classify from comments after the last factory review only.
+  // Local: classify from notes.
+  const routeText = factoryRouted ? recent : input.notes
+  const decisions = extractDecisions(routeText)
+  const kinds = summarizeDecisionKinds(decisions)
+  const freeform = isSubstantiveFreeform(routeText)
+
+  // Never skip when freeform dossier/scope corrections arrived.
+  if (freeform) {
+    return {
+      mode: 'patch',
+      reason:
+        'resume with substantive freeform operator comment — patch research.md',
       decisions,
     }
   }
 
-  // Scope-only: every extracted Decision is drop/hedge/omit, and at least one exists.
+  // Scope-only drop/omit, no freeform remainder.
   if (decisions.length > 0 && kinds.fact === 0 && kinds.other === 0) {
     return {
       mode: 'skip',
       reason:
         input.priorStatus === 'awaiting_scope'
-          ? 'awaiting_scope resume with scope-only Decisions — skip research crawl'
-          : 'resume with scope-only Decisions — skip research crawl',
+          ? 'awaiting_scope resume with drop/omit-only Decisions — skip research crawl'
+          : 'resume with drop/omit-only Decisions — skip research crawl',
       decisions,
     }
   }
 
-  // Fact / keep / verified / freeform dossier corrections → patch
+  // Fact / hedge / verified / unnumbered Decision: / "N - …"
   if (kinds.fact > 0 || kinds.other > 0) {
     return {
       mode: 'patch',
       reason:
-        'resume with fact-bearing or dossier-update Decisions — patch research.md',
+        'resume with fact/hedge/dossier-update Decisions — patch research.md',
       decisions,
     }
   }
 
-  // Resume with no Decision lines — could be label re-add noise; fail closed.
   return {
     mode: 'full',
-    reason: 'resume without classifiable Decisions — full research (fail closed)',
+    reason:
+      'resume without classifiable Decisions or freeform — full research (fail closed)',
     decisions,
   }
 }
@@ -127,9 +168,9 @@ export function resolveResearchMode(input: ResearchModeInput): ResearchModeResul
 export function researchModeLabel(mode: ResearchMode): string {
   switch (mode) {
     case 'skip':
-      return 'skip (scope-only; carry dossier forward)'
+      return 'skip (drop/omit-only; carry dossier forward)'
     case 'patch':
-      return 'patch (amend dossier from operator Decisions; no provider re-crawl)'
+      return 'patch (amend dossier from operator Decisions/comments; no provider re-crawl)'
     default:
       return 'full (provider research)'
   }

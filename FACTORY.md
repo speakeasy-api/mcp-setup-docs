@@ -79,11 +79,16 @@ Scope check / Pipeline review comments do not count as answers).
 
 Same label every time. Distill chooses how expensive research is:
 
-| Mode | Trigger (resume + prior dossier) | What happens |
+| Mode | Trigger (new comments after the last factory review) | What happens |
 | --- | --- | --- |
-| `skip` | Only scope answers (`drop` / `hedge` / `omit`) | Carry `research.md` forward; draft/review |
-| `patch` | Fact answers (`verified — …`, keep/prefer/use…) or dossier corrections | Amend the Dossier from your notes **without** re-crawling provider docs; then draft/review |
-| `full` | Cold start; “re-research” / “docs moved” in notes; or unclear | Full provider research (historical default) |
+| `skip` | Only `drop` / `omit` Decisions — **no** freeform prose | Carry `research.md` forward; draft/review |
+| `patch` | `verified — …`, bare `hedge`, `Decision: …`, `1 - …` replies, or any substantive freeform (“ignore catalog”, “keep X”) | Amend the Dossier from your notes **without** re-crawling provider docs; then draft/review |
+| `full` | Cold start; “re-research” / “docs moved”; re-label with no new comment | Full provider research (historical default) |
+
+Reply shapes that count: `Decision N: …`, unnumbered `Decision: …`, or
+`N - …` (dash) lines. Factory template bullets do not count. Bare `hedge`
+patches the dossier (it does not skip). Freeform corrections always patch —
+they never combine with an older `drop` into a skip.
 
 To force a full crawl on resume, include e.g. `re-research` or `docs moved` in
 the issue body or a comment.

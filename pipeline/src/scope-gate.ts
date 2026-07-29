@@ -96,7 +96,12 @@ export function mergeOpenQuestions(
  * Uses {@link extractDecisions} so factory template examples do not count.
  */
 export function parsedDecisionNumbers(notes: string): Set<number> {
-  return new Set(extractDecisions(notes).map((d) => d.index))
+  // Unnumbered `Decision: …` uses index 0 — not a Scope check answer id.
+  return new Set(
+    extractDecisions(notes)
+      .map((d) => d.index)
+      .filter((n) => n >= 1)
+  )
 }
 
 /**
