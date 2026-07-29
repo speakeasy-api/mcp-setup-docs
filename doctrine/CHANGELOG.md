@@ -6,6 +6,42 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-29 — dossier-backed render fixes are not chrome Decisions
+
+Files: `pipeline/src/{findings,workflow}.ts`,
+`pipeline/src/factory/format-pipeline-review.ts`,
+`pipeline/src/factory/formatters.test.ts`,
+`pipeline/src/findings.test.ts`, `pipeline/src/scope-gate.ts`,
+`doctrine/roles/fidelity.md`, `FACTORY.md`,
+`retro/notes/2026-07-29-dossier-backed-render-not-decision.md`.
+
+- **Narrow finalization salvage (unwind of Phase 0 cut):** Phase 0/1 locked
+  “no salvage recheck loop.” This restores **only** dossier-backed
+  setup-file fidelity salvage (shared `shouldSalvageFinalization`): when
+  every blocker after the last-round confirmatory review is fidelity on
+  `external` / `speakeasy`, one revise (blockers only — no nits) + recheck.
+  Research, meta, and achievability gaps still surface with no salvage.
+  Polish / spiral stay gone.
+- **Factory review comment:** those misses → **Render fixes**
+  (`Decision N: apply` / `override`) instead of verified / drop / hedge;
+  removed the “fact may already be in research” hedge. Shared predicate
+  with the workflow so salvage and the comment agree.
+- **Fidelity opening prose:** sharpened existing omission check #3 so
+  every round re-checks opening prose against Dossier Server facts /
+  Credential flow permissions — not only the prior contested locus (no
+  net new section; tightened the existing rule).
+
+Invariants: I1 strengthened (render the Dossier; do not escalate a known
+fact as console capture). I6 preserved — capped rounds, structured
+findings; salvage is one bounded extra revise only for dossier-backed
+setup fidelity, then unresolved still surfaces. I8 — this entry.
+
+Evidence: [PR #79](https://github.com/speakeasy-api/mcp-setup-docs/pull/79)
+Pipeline review Decision 1 (opening prerequisites already in research;
+escalated as verified/drop/hedge);
+`retro/notes/2026-07-29-dossier-backed-render-not-decision.md` (operator
+direction).
+
 ## 2026-07-29 — guide stability: stamp digests + lock rebaseline
 
 Files: `doctrine/pipeline-lock.md`, `doctrine/roles/writer.md`,

@@ -33,7 +33,10 @@ Work through both setup files fact by fact, in both directions:
    ("you can edit this later from the same page"), later-ops Reset
    callouts, and soft restatements of capabilities already implied by the
    steps are out of scope — score those as nits if worth mentioning, not
-   blockers.
+   blockers. **Every round** re-check `external.md` opening prose against
+   Dossier Server facts / Credential flow permissions and prerequisites —
+   do not only re-verify the prior contested locus; late opening
+   distortions are still blockers.
 4. **The anchor contract** — every Dossier provider-step anchor appears in
    `external.md` verbatim and in order; every `external.md#<anchor>` or
    `speakeasy.md#<anchor>` reference in `meta.yaml` resolves; no anchor
