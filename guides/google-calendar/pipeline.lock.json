@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "slug": "google-calendar",
+  "persona": "it-admin",
+  "runtime": "cursor-sdk",
+  "updated_at": "2026-07-29T22:44:39Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:94467df8ffa2072b22dd714a564201260f080093a059a0b29828506f2a0d0000",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:f82583e4ba9e92f061b09e6685b3a2640a1826f6fbc27ddac52e0db68387acaf"
+          },
+          {
+            "path": "doctrine/speakeasy-setup.md",
+            "digest": "sha256:8715948a90f95187a2e093e3dfbaccb2870423ee7c90aed4eeba5c418c0bb85e"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "google-calendar",
+          "notes": "Remote MCP endpoint: https://calendarmcp.googleapis.com/mcp/v1. Setup docs: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server. Decision 1 (apply): In opening prerequisites, state that enabling services requires serviceusage.services.enable, normally provided by Service Usage Admin or Owner — do not imply those roles are strictly required. Open questions (mutating Calendar with read/free-busy scopes; Use Discovered vs advertised scopes): omit or keep existing hedges unless verified.\n\nSpeakeasy MCP Catalog: absent"
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:709a771e574c62872ead3bb18bc980bcb238d5132e1893cde69ce07701c33ab7"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:711cc565e8b4ab0e2a42b86cdffc7b04e9a248f919c4e00b0b688a30482650d6"
+        }
+      ],
+      "completed_at": "2026-07-29T22:44:39Z"
+    },
+    "draft": {
+      "input_digest": "sha256:cd49469b37223640b1832b65f2a05d8cf9a13e9f6ba615e092ea1df3d81a6d57",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:173386a5aa3c64a259806a54d79809bd61a07ca69072f1325edc443bac682be0",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:d41f77accebf79a55b259d6483fafe4f8997c8e946e6ffa719e68bb16bde59f7"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:709a771e574c62872ead3bb18bc980bcb238d5132e1893cde69ce07701c33ab7"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:711cc565e8b4ab0e2a42b86cdffc7b04e9a248f919c4e00b0b688a30482650d6"
+          }
+        ],
+        "params": {
+          "provider": "google-calendar",
+          "notes": "Remote MCP endpoint: https://calendarmcp.googleapis.com/mcp/v1. Setup docs: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server. Decision 1 (apply): In opening prerequisites, state that enabling services requires serviceusage.services.enable, normally provided by Service Usage Admin or Owner — do not imply those roles are strictly required. Open questions (mutating Calendar with read/free-busy scopes; Use Discovered vs advertised scopes): omit or keep existing hedges unless verified.\n\nSpeakeasy MCP Catalog: absent",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:716e47c10686cbce49612703d7985467cc12567bff0401adabd70b55cefe4450"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:99372389a0dcffabcbd03b00a40280ca1dd44af2eea384f8c666af148d4e5e67"
+        }
+      ],
+      "completed_at": "2026-07-29T22:44:39Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:9b0a6ff22463164f9cd8c86498ff15d8f0f64b02f7fda6a93b2fed5a52ff1a9f",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:f1c64906d2702d25c5db118f0a1a471b4962333a506c235ffebccf67413aa7f3"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:709a771e574c62872ead3bb18bc980bcb238d5132e1893cde69ce07701c33ab7"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:711cc565e8b4ab0e2a42b86cdffc7b04e9a248f919c4e00b0b688a30482650d6"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:716e47c10686cbce49612703d7985467cc12567bff0401adabd70b55cefe4450"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:99372389a0dcffabcbd03b00a40280ca1dd44af2eea384f8c666af148d4e5e67"
+          }
+        ],
+        "params": {
+          "provider": "google-calendar",
+          "notes": "Remote MCP endpoint: https://calendarmcp.googleapis.com/mcp/v1. Setup docs: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server. Decision 1 (apply): In opening prerequisites, state that enabling services requires serviceusage.services.enable, normally provided by Service Usage Admin or Owner — do not imply those roles are strictly required. Open questions (mutating Calendar with read/free-busy scopes; Use Discovered vs advertised scopes): omit or keep existing hedges unless verified.\n\nSpeakeasy MCP Catalog: absent",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:716e47c10686cbce49612703d7985467cc12567bff0401adabd70b55cefe4450"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:99372389a0dcffabcbd03b00a40280ca1dd44af2eea384f8c666af148d4e5e67"
+        }
+      ],
+      "completed_at": "2026-07-29T22:44:39Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:5a3084e53d484c5b0b7a97bef0162d77f8770bbd45dc02de5a3022e404648f28",
+      "inputs": {
+        "model": "gpt-5.6-sol",
+        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:7eb1e560946bbc2656afdfbdbd26d85b3d4a5579818fc4bd6629d818ce251f69"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:709a771e574c62872ead3bb18bc980bcb238d5132e1893cde69ce07701c33ab7"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:711cc565e8b4ab0e2a42b86cdffc7b04e9a248f919c4e00b0b688a30482650d6"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:716e47c10686cbce49612703d7985467cc12567bff0401adabd70b55cefe4450"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:99372389a0dcffabcbd03b00a40280ca1dd44af2eea384f8c666af148d4e5e67"
+          }
+        ],
+        "params": {
+          "provider": "google-calendar",
+          "notes": "Remote MCP endpoint: https://calendarmcp.googleapis.com/mcp/v1. Setup docs: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server. Decision 1 (apply): In opening prerequisites, state that enabling services requires serviceusage.services.enable, normally provided by Service Usage Admin or Owner — do not imply those roles are strictly required. Open questions (mutating Calendar with read/free-busy scopes; Use Discovered vs advertised scopes): omit or keep existing hedges unless verified.\n\nSpeakeasy MCP Catalog: absent",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:716e47c10686cbce49612703d7985467cc12567bff0401adabd70b55cefe4450"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:99372389a0dcffabcbd03b00a40280ca1dd44af2eea384f8c666af148d4e5e67"
+        }
+      ],
+      "completed_at": "2026-07-29T22:44:39Z"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "slug": "google-calendar",
+  "provider": "google-calendar",
+  "persona": "it-admin",
+  "timestamp": "2026-07-29T22:37:27Z",
+  "started_at": "2026-07-29T22:37:27Z",
+  "finished_at": "2026-07-29T22:44:39Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "permit-workspace-app",
+      "problem": "The organizational-unit step omits the controls needed to select specific organizational units.",
+      "suggestion": "Record and render the documented path: click **Select org units** > **Include organizations**, select the required units, then click **Select**.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Google documents event mutation but specifies only calendar-list read, event free/busy, and event read scopes; how write authorization is obtained remains undocumented.",
+    "Protected-resource metadata advertises broader Calendar scopes; whether Use Discovered narrows these automatically remains undocumented, so the three documented scopes remain the manual override."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "copy-oauth-credentials recovery",
+          "problem": "The recovery instruction for a missed one-time client secret does not identify the Google Auth platform path or controls needed to delete and recreate it.",
+          "suggestion": "Research and record the exact recovery path and control labels, then render those steps before the reader continues to Speakeasy setup.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "permit-workspace-app section introduction",
+          "problem": "The conditional branch assumes the reader already knows whether Workspace policy restricts Calendar access for unconfigured or limited apps.",
+          "suggestion": "Tell the reader to confirm the applicable Calendar app-access policy with the Workspace security owner before deciding whether to complete this section.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker: documented and rendered the exact missed-secret recovery path and controls, with provenance. Nit: added Workspace security-owner policy confirmation before the conditional section.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "permit-workspace-app",
+          "problem": "The organizational-unit step omits the controls needed to select specific organizational units.",
+          "suggestion": "Record and render the documented path: click **Select org units** > **Include organizations**, select the required units, then click **Select**.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "The service-enablement prerequisite materially changed: it now explicitly requires serviceusage.services.enable and clarifies that Service Usage Admin or Owner normally supplies it but is not mandatory because another predefined or custom role may suffice. This warrants re-rendering external.md’s opening prerequisites; remotes, credentials, anchors, scopes, and Speakeasy setup are otherwise unchanged."
+  },
+  "notes_digest": "sha256:9f0f9d1f247d20cdb738ad4d720f3aae4b0a60e6394fe47f78e62116272c702b",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 0
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "slug": "google-calendar",
+  "provider": "google-calendar",
+  "persona": "it-admin",
+  "timestamp": "2026-07-29T21:55:53Z",
+  "started_at": "2026-07-29T21:55:53Z",
+  "finished_at": "2026-07-29T22:11:13Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "external",
+      "where": "opening prerequisites",
+      "problem": "The guide says enabling services requires Service Usage Admin or Owner, while the Dossier says the required permission is serviceusage.services.enable and those roles only normally supply it.",
+      "suggestion": "State that enabling services requires serviceusage.services.enable, normally provided by Service Usage Admin or Owner.",
+      "dimension": "fidelity"
+    }
+  ],
+  "nits": [],
+  "open_questions": [
+    "Google documents mutating Calendar behavior but requires only read/free-busy scopes; public docs do not explain write authorization.",
+    "Protected-resource metadata advertises broader scopes than the setup guide; public docs do not confirm whether Use Discovered narrows them automatically."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#copy-oauth-credentials",
+          "problem": "The immediate recovery path for a missed one-time client secret does not tell the reader where to delete the unusable credential or create its replacement.",
+          "suggestion": "Research and record the provider-documented recovery path and controls, then render those steps; if Google does not publish the labels, record that silence and add a Dossier-backed console hedge.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "external.md#permit-workspace-app",
+          "problem": "The reader is not told how to determine whether the organization's Calendar access policy makes this conditional step necessary.",
+          "suggestion": "Record how to check applicability or instruct the reader to obtain confirmation from the Workspace application or security owner, then add that direction before the conditional procedure.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker: added the documented OAuth secret replacement path and controls, with provenance. Nit: added steps to check whether Google Calendar access is Restricted before configuring app access. Metadata validates against the schema; no lint errors.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "external.md#copy-oauth-credentials",
+          "problem": "The missed-secret recovery sequence omits the Dossier's warning that deleting a secret cannot be undone.",
+          "suggestion": "Add the irreversible-deletion warning before the step that deletes the disabled secret.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "external.md#copy-oauth-credentials",
+          "problem": "The recovery branch directs the reader to delete a disabled secret without warning that deletion cannot be undone.",
+          "suggestion": "Add the Dossier-backed irreversibility warning immediately before the delete step.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Added the Dossier-backed irreversible-deletion warning immediately before the disabled-secret deletion step, resolving both findings.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "external.md#copy-oauth-credentials",
+          "problem": "The recovery sequence makes disabling and deleting a secret unconditional, while the Dossier requires those actions only when the client already has two secrets.",
+          "suggestion": "Nest the identify, disable, warning, and delete steps under the two-secret condition.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Nested secret identification, disabling, deletion warning, and deletion under the two-secret condition in external.md.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "opening prerequisites",
+          "problem": "The guide says enabling services requires Service Usage Admin or Owner, while the Dossier says the required permission is serviceusage.services.enable and those roles only normally supply it.",
+          "suggestion": "State that enabling services requires serviceusage.services.enable, normally provided by Service Usage Admin or Owner.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}
