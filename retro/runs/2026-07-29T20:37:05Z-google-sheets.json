@@ -1,0 +1,94 @@
+{
+  "slug": "google-sheets",
+  "provider": "google-sheets",
+  "persona": "it-admin",
+  "timestamp": "2026-07-29T20:37:05Z",
+  "started_at": "2026-07-29T20:37:05Z",
+  "finished_at": "2026-07-29T20:54:19Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Google's setup page and protected-resource metadata publish different Drive scopes. The Dossier follows the setup page; whether Use Discovered provides equivalent access is unconfirmed."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "configure-oauth-consent",
+          "problem": "The first-time wizard steps are presented unconditionally even when the Google Auth platform is already configured.",
+          "suggestion": "Make steps 3–13 conditional on clicking Get Started, then route both branches to Data Access.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "connect-speakeasy-credentials",
+          "problem": "The transcluded Manual OAuth skeleton omits the canonical fact that the Redirect URI has a copy button.",
+          "suggestion": "Restore the copy-button detail from doctrine/speakeasy-setup.md and render it in speakeasy.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "configure-oauth-consent",
+          "problem": "An administrator using an already-configured Google Auth platform may skip adding connecting accounts as test users because the condition applies only to readers who selected the External audience themselves.",
+          "suggestion": "Tell every reader to open Audience, check whether the app is External and in Testing, and add all connecting accounts under Test users when both conditions apply.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "copy-oauth-credentials",
+          "problem": "The missed-secret recovery names no navigation path or exact controls for deleting the unavailable secret and creating its replacement.",
+          "suggestion": "Research and record the browser-only recovery path with exact console labels, then add those steps after the missed-secret warning in external.md.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Made the first-time OAuth wizard conditional and routed both branches to Data Access; required every reader to verify External/Testing status and add test users; restored the Redirect URI copy-button detail; documented and rendered the exact browser recovery path for replacing a missed client secret, with provenance. Metadata and guide lint pass.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "opening prerequisite prose",
+          "problem": "The screening prerequisite omits Google's requirement to document a non-Model Armor solution so users can accept its risk.",
+          "suggestion": "State that the security owner may use Model Armor or must document any alternative screening solution for users.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "configure-oauth-consent",
+          "problem": "The existing-configuration branch does not say what to do when an Internal audience excludes a connecting user.",
+          "suggestion": "Record the supported remediation and render a Dossier-backed stop-and-consult-owner hedge for this case.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker: added Model Armor-or-documented-alternative screening prerequisite to research, metadata, and external guide. Nit: documented and rendered the Internal-audience remediation and owner-consultation stop. Metadata validates successfully.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}
