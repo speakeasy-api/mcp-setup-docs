@@ -3,6 +3,8 @@ schema_version: 1
 slug: box
 title: Box
 summary: Access, search, and manage Box content and Box AI through the hosted Box MCP server.
+aliases:
+  - com.pulsemcp.mirror/box
 speakeasy_add_server: catalog
 credential_setup:
   options:

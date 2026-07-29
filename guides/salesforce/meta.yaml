@@ -3,6 +3,8 @@ schema_version: 1
 slug: salesforce
 title: Salesforce
 summary: Connect to Salesforce records through hosted SObject MCP servers with selectable read, write, and delete boundaries.
+aliases:
+  - com.pulsemcp.mirror/gram-salesforce
 credential_setup:
   options:
     - id: oauth-client

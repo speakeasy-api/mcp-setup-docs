@@ -3,6 +3,8 @@ schema_version: 1
 slug: intercom
 title: Intercom
 summary: Connect a US- or EU-hosted Intercom workspace through Intercom's hosted MCP server using a manually registered OAuth app.
+aliases:
+  - com.pulsemcp.mirror/intercom
 credential_setup:
   options:
     - id: oauth-manual

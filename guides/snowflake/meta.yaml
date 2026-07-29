@@ -3,6 +3,8 @@ schema_version: 1
 slug: snowflake
 title: Snowflake
 summary: Connect the Speakeasy AI Control Plane to a Snowflake-managed MCP server that exposes an existing Cortex Agent.
+aliases:
+  - com.pulsemcp.mirror/gram-snowflake
 speakeasy_add_server: custom-remote
 credential_setup:
   options:
