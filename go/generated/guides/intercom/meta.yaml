@@ -1,0 +1,116 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: intercom
+title: Intercom
+summary: Connect a US- or EU-hosted Intercom workspace through Intercom's hosted MCP server using a manually registered OAuth app.
+aliases:
+  - com.pulsemcp.mirror/intercom
+credential_setup:
+  options:
+    - id: oauth-manual
+      kind: oauth
+      client_registration: manual
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#copy-client-credentials
+        - id: client-secret
+          label: Client Secret (optional)
+          setup:
+            - external.md#copy-client-credentials
+  requirements:
+    - id: supported-intercom-workspace
+      description: An Intercom workspace hosted in the US or EU
+    - id: developer-hub-app-access
+      description: Access to Intercom's Developer Hub with permission to create and configure an OAuth app for the intended workspace
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: us
+    url: https://mcp.intercom.com/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-manual
+    provenance:
+      - source: provider-documentation
+        locator: https://developers.intercom.com/docs/guides/mcp
+        name: Model Context Protocol (MCP)
+        classification: official
+        observed_at: "2026-07-29T15:06:51Z"
+      - source: operator-validation
+        locator: draft-guide operator notes for intercom
+        status: manual OAuth validated
+        observed_at: "2026-07-29T15:06:51Z"
+  - id: eu
+    url: https://mcp.eu.intercom.com/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-manual
+    provenance:
+      - source: provider-documentation
+        locator: https://developers.intercom.com/docs/guides/mcp
+        name: Model Context Protocol (MCP)
+        classification: official
+        observed_at: "2026-07-29T15:06:51Z"
+      - source: operator-validation
+        locator: draft-guide operator notes for intercom
+        status: manual OAuth validated
+        observed_at: "2026-07-29T15:06:51Z"
+provenance:
+  - source: provider-documentation
+    locator: https://developers.intercom.com/docs/guides/mcp
+    name: Model Context Protocol (MCP)
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: provider-documentation
+    locator: https://developers.intercom.com/docs/build-an-integration/getting-started
+    name: Set up a Workspace
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: provider-documentation
+    locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth
+    name: Setting up OAuth
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: provider-documentation
+    locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/oauth-scopes
+    name: OAuth Scopes
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: provider-documentation
+    locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication
+    name: Authentication
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: provider-documentation
+    locator: https://developers.intercom.com/llms.txt
+    name: Intercom developer documentation index
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: provider-documentation
+    locator: https://www.intercom.com/help/en/articles/6124430-regional-data-hosting
+    name: Regional Data Hosting
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: endpoint-observation
+    locator: https://app.intercom.com/admins/sign_in
+    name: Intercom sign-in page
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: endpoint-observation
+    locator: https://mcp.intercom.com/.well-known/oauth-authorization-server
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: operator-validation
+    locator: draft-guide operator notes for intercom
+    status: manual OAuth recommended; DCR requires callback allowlisting
+    observed_at: "2026-07-29T15:06:51Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-07-29T15:06:51Z"

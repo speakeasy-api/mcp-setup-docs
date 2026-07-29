@@ -1,5 +1,6 @@
 [tools]
 claude = "latest"
+go = "1.22"
 node = "24"
 pitchfork = "latest"
 
@@ -42,3 +43,12 @@ dir = "tools/mcp-oauth-probe"
 depends = ["_mcp-oauth-probe-install"]
 # Usage (from repo root): mise run probe-mcp-oauth -- <mcp-url> [--json]
 run = "npm run probe --"
+
+[tasks.generate-go]
+description = "Sync publishable guide files into go/generated for the Go module"
+dir = "go/internal/gen"
+run = "go run ."
+
+[tasks.check-go]
+description = "Regenerate go/generated, fail on drift, then test the Go module"
+run = "bash go/check.sh"
