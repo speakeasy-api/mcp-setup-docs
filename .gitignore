@@ -4,3 +4,9 @@ mise.local.toml
 # Pulled PulseMCP catalog snapshot (local only)
 pulse-catalog.json
 tools/pulse-catalog/pulse-catalog.json
+
+# Local scratch / probe dirs
+.tmp-*/
+.tmp-gram/
+.tmp-probe/
+.tmp-probe2/

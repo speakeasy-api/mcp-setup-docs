@@ -1,0 +1,3 @@
+go/generated/** linguist-generated=true
+go/index_gen.go linguist-generated=true
+go/embed_assets_gen.go linguist-generated=true
