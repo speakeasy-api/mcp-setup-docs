@@ -65,22 +65,26 @@ jobs:
           git commit -m "Sync Go module embed with guides."
           git push -u origin "$BRANCH" --force
 
-          body='## Summary
-- Regenerated `go/generated` + identity indexes from current `guides/` / `schema/`
-- Opened by `go-module-regen` after a guide or schema change landed on `main`
+          cat > /tmp/go-module-regen-pr.md <<'EOF'
+          ## Summary
+          - Regenerated `go/generated` + identity indexes from current `guides/` / `schema/`
+          - Opened by `go-module-regen` after a guide or schema change landed on `main`
 
-## Release
-Merging this PR triggers `go-module-release` (patch bump of `go/vX.Y.Z` + GitHub Release), once `go/v0.1.0` exists.
+          ## Release
+          Merging this PR triggers `go-module-release` (patch bump of `go/vX.Y.Z` + GitHub Release), once `go/v0.1.0` exists.
 
-## Test plan
-- [ ] `Go module CI` is green on this PR
-- [ ] Spot-check `go/generated` / `index_gen.go` for the guides that changed'
+          ## Test plan
+          - [ ] `Go module CI` is green on this PR
+          - [ ] Spot-check `go/generated` / `index_gen.go` for the guides that changed
+          EOF
+          # Strip the leading spaces YAML preserved in the heredoc body.
+          sed -i 's/^          //' /tmp/go-module-regen-pr.md
 
           if gh pr view "$BRANCH" --json number --jq .number >/dev/null 2>&1; then
             echo "Updated existing PR for $BRANCH"
-            gh pr edit "$BRANCH" --title "Sync Go module embed with guides" --body "$body"
+            gh pr edit "$BRANCH" --title "Sync Go module embed with guides" --body-file /tmp/go-module-regen-pr.md
           else
             gh pr create --base main --head "$BRANCH" \
               --title "Sync Go module embed with guides" \
-              --body "$body"
+              --body-file /tmp/go-module-regen-pr.md
           fi
