@@ -10,28 +10,24 @@
 
 This creates the hosted MCP server and opens its **Overview** page.
 
-<!-- screenshot: the Add Source menu and the Add a custom remote MCP server page with the matching Intercom remote URL -->
+<!-- screenshot: the Add Source menu or the Add a custom remote MCP server page with the matching Intercom remote URL -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
 1. From the server's **Overview**, open **Settings**.
 2. Under **Authentication**, click **Configure Manually**.
-3. In **Attach Remote Identity Provider**, enter the issuer URL from [Identify the workspace region](external.md#identify-workspace-region) in **Issuer URL**.
-4. Keep the auto-derived **Slug** unless your project naming policy requires a different value.
-5. Keep **Display name (optional)** unless your project naming policy requires a different value.
-6. Under **Endpoints**, click **Discover**.
-
-This fills the regional authorization, token, and registration endpoints.
-
-7. Under **Session Client**, keep **Client Type** set to **Dynamic Client Registration (DCR)**.
-8. Keep **Token Endpoint Auth Method** at the discovered default `client_secret_basic`.
+3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
+4. Enter `https://mcp.intercom.com` as **Issuer URL**.
+5. Under **Endpoints**, set the authorization endpoint to `https://app.intercom.com/oauth`.
+6. Set the token endpoint to `https://api.intercom.io/auth/eagle/token`.
+7. Paste the **Client ID** from [Copy the client credentials](external.md#copy-client-credentials).
+8. Paste the **Client Secret (optional)** from [Copy the client credentials](external.md#copy-client-credentials).
 9. Leave **Scope (override)** empty.
 10. Leave **Audience (optional)** empty.
-11. Click **Attach Identity Provider**.
+11. Confirm that **Redirect URI** is `https://app.getgram.ai/mcp/remote_login_callback`, matching the value registered in [Configure OAuth](external.md#configure-oauth).
+12. Click **Attach Identity Provider**.
 
-The Speakeasy AI Control Plane dynamically registers the OAuth client with Intercom. There is no **Client ID** or **Client Secret** to paste.
-
-<!-- screenshot: Attach Remote Identity Provider after Discover, showing the regional issuer and endpoints with Client Type set to Dynamic Client Registration (DCR); no secret values are present -->
+<!-- screenshot: Attach Remote Identity Provider with Client Type set to Manual and the issuer, authorization, and token endpoint fields visible; fully redact the Client ID and Client Secret -->
 
 When a client initiates Intercom access, complete the on-screen browser prompts with the intended workspace account.
 

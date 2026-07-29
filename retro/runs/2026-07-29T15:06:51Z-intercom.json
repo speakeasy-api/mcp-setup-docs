@@ -1,0 +1,81 @@
+{
+  "slug": "intercom",
+  "provider": "intercom",
+  "persona": "it-admin",
+  "timestamp": "2026-07-29T15:06:51Z",
+  "started_at": "2026-07-29T15:06:51Z",
+  "finished_at": "2026-07-29T15:15:59Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "speakeasy",
+      "where": "connect-speakeasy-credentials, steps 5–6",
+      "problem": "The authorization and token endpoint fields are not identified by exact UI labels.",
+      "suggestion": "Record this canonical UI-label gap for human doctrine review, then render the exact labels once established.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Intercom does not publish its authorization-screen sequence or exact approval-button labels.",
+    "Intercom does not name the OAuth page control that persists changes.",
+    "Intercom does not publish the DCR callback-allowlisting process, eligibility rules, or turnaround time."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "configure-oauth, step 3",
+          "problem": "The guide omits the documented **Add redirect URL** control required to register the callback.",
+          "suggestion": "Instruct the reader to select **Add redirect URL** before entering `{{ gram.oauth.callback_url }}`.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy screenshot placeholder",
+          "problem": "The placeholder requires both setup screens while the Research Dossier specifies either screen.",
+          "suggestion": "Replace “and” with “or” in the screenshot placeholder.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "create-oauth-app",
+          "problem": "The Dossier neither establishes exact labels nor records public-documentation silence for the required app-name and workspace fields.",
+          "suggestion": "Record an open question about these unpublished field labels so the conceptual wording in `external.md` is explicitly supported.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "External blocker: added the documented Add redirect URL action before entering the callback. Research nit: recorded public-documentation silence on exact app-name and workspace field labels. Speakeasy nit: changed the screenshot placeholder from “and” to “or.”",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "connect-speakeasy-credentials, steps 5–6",
+          "problem": "The authorization and token endpoint fields are not identified by exact UI labels.",
+          "suggestion": "Record this canonical UI-label gap for human doctrine review, then render the exact labels once established.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "Authentication changed from DCR to a manually registered OAuth app because DCR requires callback allowlisting. AFTER adds Developer Hub prerequisites and anchors, Client ID/Secret fields, callback registration, manual issuer/auth/token endpoints, and revised minimum permissions. These changes require re-drafting both setup files and invalidate prior review."
+  }
+}
