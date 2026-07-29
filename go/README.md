@@ -37,4 +37,4 @@ Publishable files only: `meta.yaml`, `external.md`, `speakeasy.md`,
 declared assets. Authoring files (`research.md`, `pipeline.lock.json`)
 are never embedded.
 
-Version tags: `go/vX.Y.Z`. See `research/go-module-execution-plan.md`.
+Version tags: `go/vX.Y.Z`.

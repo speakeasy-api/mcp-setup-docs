@@ -8,7 +8,4 @@
 //
 // Module path: github.com/speakeasy-api/mcp-setup-docs/go
 // Version tags: go/vX.Y.Z
-//
-// See research/go-module-publish.md and research/go-module-execution-plan.md
-// in the repository for packaging and semver policy.
 package guides
