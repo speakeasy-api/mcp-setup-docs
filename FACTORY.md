@@ -212,3 +212,4 @@ Hard failures (exit `1`, missing artifacts) take the blocked path with no PR.
 - [`README.md`](README.md) — short how-to (issue flow + local CLI)
 - [`doctrine/constitution.md`](doctrine/constitution.md) — agents never commit (I7); the Action does
 - [`retro/notes/`](retro/notes/) — human signal for `/tune-pipeline` after factory runs
+- [`proposals/browser-verification.md`](proposals/browser-verification.md) — counsel consensus for an opt-in post-convergence browser verify + tear-down phase (not implemented yet)
