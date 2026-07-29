@@ -119,6 +119,39 @@ jobs:
           git push origin "$TAG"
 
           notes_file="${RUNNER_TEMP:-/tmp}/go-module-release-notes.md"
+          base_guides="${RUNNER_TEMP:-/tmp}/go-module-release-guides-base.txt"
+          head_guides="${RUNNER_TEMP:-/tmp}/go-module-release-guides-head.txt"
+          git ls-tree -d --name-only "${PREV}:go/generated/guides" 2>/dev/null \
+            | sort -u > "$base_guides" || : > "$base_guides"
+          git ls-tree -d --name-only "HEAD:go/generated/guides" 2>/dev/null \
+            | sort -u > "$head_guides" || : > "$head_guides"
+
+          mapfile -t added_guides < <(comm -13 "$base_guides" "$head_guides")
+          mapfile -t removed_guides < <(comm -23 "$base_guides" "$head_guides")
+          updated_guides=()
+          while IFS= read -r slug; do
+            [ -z "$slug" ] && continue
+            if ! git diff --quiet "$PREV" -- "go/generated/guides/${slug}"; then
+              updated_guides+=("$slug")
+            fi
+          done < <(comm -12 "$base_guides" "$head_guides")
+
+          mapfile -t other_files < <(
+            git diff --name-only "$PREV" -- go/ \
+              | grep -v '^go/generated/guides/' \
+              | sort -u || true
+          )
+
+          fmt_backticks() {
+            local out="" s
+            for s in "$@"; do
+              [ -z "$s" ] && continue
+              if [ -n "$out" ]; then out+=", "; fi
+              out+="\`${s}\`"
+            done
+            printf '%s' "$out"
+          }
+
           {
             echo "Go module \`github.com/speakeasy-api/mcp-setup-docs/go@${MODULE_VER}\`"
             echo
@@ -127,11 +160,23 @@ jobs:
             echo '```'
             echo
             echo "### Changes since ${PREV}"
-            notes="$(git log --pretty=format:'- %s (%h)' "${PREV}..HEAD" -- go/ | head -80 || true)"
-            if [ -z "$notes" ]; then
+            if [ "${#added_guides[@]}" -gt 0 ]; then
+              echo "- **Added guides:** $(fmt_backticks "${added_guides[@]}")"
+            fi
+            if [ "${#updated_guides[@]}" -gt 0 ]; then
+              echo "- **Updated guides:** $(fmt_backticks "${updated_guides[@]}")"
+            fi
+            if [ "${#removed_guides[@]}" -gt 0 ]; then
+              echo "- **Removed guides:** $(fmt_backticks "${removed_guides[@]}")"
+            fi
+            if [ "${#other_files[@]}" -gt 0 ]; then
+              echo "- **Other:** $(fmt_backticks "${other_files[@]}")"
+            fi
+            if [ "${#added_guides[@]}" -eq 0 ] \
+              && [ "${#updated_guides[@]}" -eq 0 ] \
+              && [ "${#removed_guides[@]}" -eq 0 ] \
+              && [ "${#other_files[@]}" -eq 0 ]; then
               echo "- Sync publishable guides into the Go module embed"
-            else
-              printf '%s\n' "$notes"
             fi
           } > "$notes_file"
 
