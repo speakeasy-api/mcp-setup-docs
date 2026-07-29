@@ -1,0 +1,69 @@
+{
+  "slug": "google-docs",
+  "provider": "google-docs",
+  "persona": "it-admin",
+  "timestamp": "2026-07-29T20:37:14Z",
+  "started_at": "2026-07-29T20:37:14Z",
+  "finished_at": "2026-07-29T20:48:39Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "Google's setup page requires drive.file, while live protected-resource metadata advertises drive and omits drive.file."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — catalog lookup result",
+          "problem": "The Dossier reports the catalog lookup as absent, while the operator notes classify it as overridden-custom-remote because the catalog mapping is unsuitable.",
+          "suggestion": "Replace the absent-result claim with the override classification and reason, retaining only the Custom remote path.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The Manual OAuth transclusion omits the canonical fact that the Attach Remote Identity Provider sheet shows the Redirect URI with a copy button.",
+          "suggestion": "Add the missing Redirect URI copy-button fact from doctrine/speakeasy-setup.md to the Dossier's selected Manual OAuth skeleton.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#copy-client-credentials",
+          "problem": "The current-session recovery path for a missed one-time client secret does not name the screens and controls needed to delete and replace it.",
+          "suggestion": "Research and document the exact Google Auth platform navigation and control labels for deleting the lost secret and creating a replacement before continuing.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "external.md#allow-workspace-oauth-client",
+          "problem": "A reader who does not already know the organization's Workspace API-control policy cannot determine whether this conditional section applies.",
+          "suggestion": "Tell the reader to ask the Workspace security owner whether high-risk Drive and Docs scopes or unconfigured apps are restricted before skipping this section.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Updated catalog classification to overridden-custom-remote and retained only Custom remote setup. Added the canonical Redirect URI copy-button fact. Documented the official Google Auth Platform secret replacement controls with provenance. Added the Workspace security-owner check before skipping API controls. Updated rendered guides and metadata; schema validation passed.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}
