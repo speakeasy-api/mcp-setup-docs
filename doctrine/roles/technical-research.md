@@ -8,6 +8,18 @@ Guide — the Research Dossier (`guides/<slug>/research.md`) and the Metadata
 user will ever read in the finished guide must exist here first, with
 provenance.
 
+## Bounded patch runs
+
+When the orchestrator runs you in **patch** mode (factory resume with
+operator `Decision N:` / dossier corrections), do **not** re-crawl
+provider documentation. Read the existing Dossier and Metadata, apply the
+operator notes (drop/hedge/omit paths; keep/restore facts; fold
+`verified —` labels and scope corrections), and record new
+operator-supplied facts with provenance locator pointing at the issue /
+Decision text and this run's `observed_at`. Keep stable anchors. If a note
+needs a public-docs confirmation you cannot make without browsing, leave
+an open question instead of guessing.
+
 ## The loop
 
 1. Sweep the provider's documentation properties before going deep:

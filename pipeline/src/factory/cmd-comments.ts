@@ -19,6 +19,10 @@ export function runCommentResolved(): void {
   const resume = process.env.RESUME === 'true'
   const resumePrUrl = process.env.RESUME_PR_URL || ''
   const resumeBranch = process.env.RESUME_BRANCH || ''
+  const researchMode = process.env.RESEARCH_MODE || 'full'
+  const researchModeLabel =
+    process.env.RESEARCH_MODE_LABEL || researchMode
+  const researchModeReason = process.env.RESEARCH_MODE_REASON || ''
 
   const lines: string[] = []
   if (resume) {
@@ -36,6 +40,13 @@ export function runCommentResolved(): void {
     )
   } else {
     lines.push(`Resolved as \`${slug}\` (${provider}), persona \`${persona}\`.`)
+  }
+  lines.push('')
+  lines.push(
+    `**Research mode:** \`${researchMode}\` — ${researchModeLabel}`,
+  )
+  if (researchModeReason) {
+    lines.push(`_${researchModeReason}_`)
   }
   if (notes) {
     lines.push('')

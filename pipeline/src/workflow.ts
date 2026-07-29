@@ -31,6 +31,10 @@ import {
   type ScopeGateResult,
 } from './scope-gate.ts'
 import {
+  researchModeLabel,
+  type ResearchMode,
+} from './research-mode.ts'
+import {
   formatCatalogNote,
   lookupCatalogPresence,
   mergeCatalogNotes,
@@ -281,10 +285,16 @@ export type WorkflowInput = {
    * material open questions lack Decision N replies in notes.
    */
   pauseOnScope?: boolean
+  /**
+   * Research cost mode (factory auto-route or CLI --research-mode).
+   * full = provider crawl (default); patch = amend dossier from notes;
+   * skip = carry dossier forward (scope-only Decisions).
+   */
+  researchMode?: ResearchMode
 }
 
 export type ResearchChangeInfo = {
-  method: 'digest' | 'judge' | 'none'
+  method: 'digest' | 'judge' | 'none' | 'carried-forward' | 'patch'
   unchanged: boolean
   notes?: string
 }
@@ -310,6 +320,8 @@ export type GuideResult = {
   research_change?: ResearchChangeInfo
   /** Present when status is awaiting_scope. */
   scope?: ScopeGateResult
+  /** Research cost mode used this run. */
+  research_mode?: ResearchMode
 }
 
 type Dimension = {
@@ -349,6 +361,7 @@ export async function runWorkflow(
   const MAX_ROUNDS = input.maxRounds || 3
   const FORCE = input.force === true
   const PAUSE_ON_SCOPE = input.pauseOnScope === true
+  const RESEARCH_MODE: ResearchMode = input.researchMode || 'full'
   const { log, agent, parallel, pipeline, modelId } = rt
 
   function guideDir(slug: string): string {
@@ -505,6 +518,48 @@ export async function runWorkflow(
     ]
       .filter(Boolean)
       .join('\n')
+  }
+
+  /**
+   * Bounded dossier amend — apply operator Decisions/notes to existing
+   * research.md / meta.yaml without re-crawling provider documentation.
+   */
+  function patchResearchPrompt(g: GuideInput): string {
+    const dir = guideDir(g.slug)
+    return [
+      'You are the Technical Research Agent in a **bounded patch** run.',
+      'Repo root: ' + ROOT,
+      '',
+      'Read first, in order, then follow your role doc for Dossier format and',
+      'invariants — but do **not** re-crawl or browse provider documentation.',
+      readingList(ROOT, PERSONA_FILE, ['technical-research.md'], false),
+      '',
+      assign(g),
+      '',
+      'Prior research.md and meta.yaml already exist at:',
+      abs(ROOT, dir) + '/',
+      '',
+      'Your job:',
+      '1. Read the existing research.md and meta.yaml.',
+      '2. Apply operator notes and every `Decision N:` line — drop/hedge/omit',
+      '   paths, keep/restore facts the notes say to keep, and fold any',
+      '   operator-verified labels or scope corrections into the Dossier.',
+      '3. For new operator-supplied facts, record provenance with locator',
+      '   pointing at the GitHub issue / Decision text and observed_at = the',
+      '   run timestamp above. Do not invent console paths beyond what the',
+      '   notes assert.',
+      '4. Keep stable anchors when facts are unchanged. Do not rewrite the',
+      '   Dossier from a blank slate. Do not widen scope beyond the notes.',
+      '5. Do not fetch or browse external URLs. If a note requires verifying',
+      '   something only public docs can confirm, record an open question',
+      '   instead of guessing — and say so in notes.',
+      '',
+      'Write research.md and meta.yaml before you report. status "ok" only',
+      'when both files exist on disk. Do not write external.md or speakeasy.md.',
+      '',
+      'Report via structured output: status, notes (what you patched),',
+      'open_questions.',
+    ].join('\n')
   }
 
   function researchWriteRemediationPrompt(
@@ -976,111 +1031,210 @@ export async function runWorkflow(
     const prevLock = readLock(dir)
     const skipped: string[] = []
     const beforeResearch = snapshotResearchOutputs(dir)
+    const modeExtras = { research_mode: RESEARCH_MODE }
 
-    log('[' + g.slug + '] researching ' + g.provider)
-    const research = await agent(researchPrompt(g), {
-      label: g.slug + ' research',
-      phase: g.slug + ': research',
-      schema: PhaseResult,
-      remediation: (parsed) => {
-        if (parsed.status === 'blocked') return null
-        const missing = missingResearchOutputs(dir)
-        if (missing.length === 0) return null
+    log(
+      '[' +
+        g.slug +
+        '] research_mode=' +
+        RESEARCH_MODE +
+        ' (' +
+        researchModeLabel(RESEARCH_MODE) +
+        ')'
+    )
+
+    let research: {
+      status: 'ok' | 'blocked'
+      notes: string
+      open_questions: string[]
+    } | null = null
+    let researchChange: ResearchChangeInfo = {
+      method: 'none',
+      unchanged: false,
+      notes: 'research not started',
+    }
+
+    if (RESEARCH_MODE === 'skip') {
+      const missing = missingResearchOutputs(dir)
+      if (missing.length > 0) {
         log(
           '[' +
             g.slug +
-            '] research reported ' +
-            parsed.status +
-            ' but missing ' +
+            '] research_mode=skip but missing ' +
             missing.join(', ') +
-            '; requesting write remediation'
+            '; falling back to full research'
         )
-        return researchWriteRemediationPrompt(g, missing)
-      },
-    })
-    if (!research) {
-      return { slug: g.slug, status: 'failed', failed_phase: 'research' }
-    }
-    if (research.status === 'blocked') {
-      return {
-        slug: g.slug,
-        status: 'blocked',
-        failed_phase: 'research',
-        notes: research.notes,
-        open_questions: research.open_questions,
+        // Fall through to full by reassigning — handled below via runResearch flag
+      } else {
+        skipped.push('research')
+        research = {
+          status: 'ok',
+          notes: 'research skipped — dossier carried forward (scope-only Decisions)',
+          open_questions: existsSync(join(dir, 'research.md'))
+            ? extractOpenQuestionsFromResearch(
+                readFileSync(join(dir, 'research.md'), 'utf8')
+              )
+            : [],
+        }
+        researchChange = {
+          method: 'carried-forward',
+          unchanged: true,
+          notes: 'research_mode=skip; prior research.md/meta.yaml reused',
+        }
+        log(
+          '[' +
+            g.slug +
+            '] research_change method=carried-forward unchanged=true — skip crawl'
+        )
       }
     }
 
-    // After remediation (if any), still require on-disk artifacts before draft.
-    const missingOutputs = missingResearchOutputs(dir)
-    if (missingOutputs.length > 0) {
-      const missing = missingOutputs.join(', ')
+    if (!research) {
+      const patch = RESEARCH_MODE === 'patch' && beforeResearch
+      if (RESEARCH_MODE === 'patch' && !beforeResearch) {
+        log(
+          '[' +
+            g.slug +
+            '] research_mode=patch but no prior dossier; using full research'
+        )
+      }
       log(
         '[' +
           g.slug +
-          '] research finished without required outputs: ' +
-          missing
+          '] researching ' +
+          g.provider +
+          (patch ? ' (patch mode)' : '')
       )
+      research = await agent(patch ? patchResearchPrompt(g) : researchPrompt(g), {
+        label: g.slug + (patch ? ' research-patch' : ' research'),
+        phase: g.slug + (patch ? ': research-patch' : ': research'),
+        schema: PhaseResult,
+        remediation: (parsed) => {
+          if (parsed.status === 'blocked') return null
+          const missing = missingResearchOutputs(dir)
+          if (missing.length === 0) return null
+          log(
+            '[' +
+              g.slug +
+              '] research reported ' +
+              parsed.status +
+              ' but missing ' +
+              missing.join(', ') +
+              '; requesting write remediation'
+          )
+          return researchWriteRemediationPrompt(g, missing)
+        },
+      })
+      if (!research) {
+        return {
+          slug: g.slug,
+          status: 'failed',
+          failed_phase: 'research',
+          ...modeExtras,
+        }
+      }
+      if (research.status === 'blocked') {
+        return {
+          slug: g.slug,
+          status: 'blocked',
+          failed_phase: 'research',
+          notes: research.notes,
+          open_questions: research.open_questions,
+          ...modeExtras,
+        }
+      }
+
+      // After remediation (if any), still require on-disk artifacts before draft.
+      const missingOutputs = missingResearchOutputs(dir)
+      if (missingOutputs.length > 0) {
+        const missing = missingOutputs.join(', ')
+        log(
+          '[' +
+            g.slug +
+            '] research finished without required outputs: ' +
+            missing
+        )
+        return {
+          slug: g.slug,
+          status: 'failed',
+          failed_phase: 'research',
+          notes:
+            (research.notes ? research.notes + '\n' : '') +
+            'research completed without writing: ' +
+            missing,
+          open_questions: research.open_questions,
+          ...modeExtras,
+        }
+      }
+
+      // Research may have set remotes[].tenanted / speakeasy_add_server — refresh for draft/lock.
+      const hintsAfter = readGuideAddServerHints(dir)
+      if (hintsAfter.error) {
+        log(
+          '[' +
+            g.slug +
+            '] add-server hints after research: meta read warning — ' +
+            hintsAfter.error
+        )
+      }
+      if (
+        hintsAfter.tenanted !== hints.tenanted ||
+        hintsAfter.addServer !== hints.addServer
+      ) {
+        hints = hintsAfter
+        g = applyCatalogNotes(raw, catalog, hints)
+        log(
+          '[' +
+            g.slug +
+            '] catalog path refreshed after research: tenanted=' +
+            hints.tenanted +
+            ' add_server=' +
+            hints.addServer +
+            ' path=' +
+            resolveAddServerPath({
+              catalog,
+              tenanted: hints.tenanted,
+              addServer: hints.addServer,
+            })
+        )
+      }
+
+      if (patch) {
+        researchChange = {
+          method: 'patch',
+          unchanged: false,
+          notes: 'research_mode=patch; dossier amended from operator notes',
+        }
+      } else {
+        researchChange = await decideResearchUnchanged(
+          g,
+          dir,
+          prevLock,
+          beforeResearch
+        )
+      }
+      log(
+        '[' +
+          g.slug +
+          '] research_change method=' +
+          researchChange.method +
+          ' unchanged=' +
+          researchChange.unchanged +
+          (researchChange.notes ? ' — ' + researchChange.notes : '')
+      )
+    }
+
+    // TypeScript: research is set on all surviving paths
+    if (!research) {
       return {
         slug: g.slug,
         status: 'failed',
         failed_phase: 'research',
-        notes:
-          (research.notes ? research.notes + '\n' : '') +
-          'research completed without writing: ' +
-          missing,
-        open_questions: research.open_questions,
+        ...modeExtras,
       }
     }
 
-    // Research may have set remotes[].tenanted / speakeasy_add_server — refresh for draft/lock.
-    const hintsAfter = readGuideAddServerHints(dir)
-    if (hintsAfter.error) {
-      log(
-        '[' +
-          g.slug +
-          '] add-server hints after research: meta read warning — ' +
-          hintsAfter.error
-      )
-    }
-    if (
-      hintsAfter.tenanted !== hints.tenanted ||
-      hintsAfter.addServer !== hints.addServer
-    ) {
-      hints = hintsAfter
-      g = applyCatalogNotes(raw, catalog, hints)
-      log(
-        '[' +
-          g.slug +
-          '] catalog path refreshed after research: tenanted=' +
-          hints.tenanted +
-          ' add_server=' +
-          hints.addServer +
-          ' path=' +
-          resolveAddServerPath({
-            catalog,
-            tenanted: hints.tenanted,
-            addServer: hints.addServer,
-          })
-      )
-    }
-
-    const researchChange = await decideResearchUnchanged(
-      g,
-      dir,
-      prevLock,
-      beforeResearch
-    )
     const researchUnchanged = researchChange.unchanged
-    log(
-      '[' +
-        g.slug +
-        '] research_change method=' +
-        researchChange.method +
-        ' unchanged=' +
-        researchUnchanged +
-        (researchChange.notes ? ' — ' + researchChange.notes : '')
-    )
 
     if (PAUSE_ON_SCOPE) {
       const dossierOqs = existsSync(join(dir, 'research.md'))
@@ -1124,6 +1278,7 @@ export async function runWorkflow(
               unanswered: gate.unanswered,
             },
           ],
+          ...modeExtras,
         }
       }
     }
@@ -1182,6 +1337,7 @@ export async function runWorkflow(
           status: 'failed',
           failed_phase: 'draft',
           research_change: researchChange,
+          ...modeExtras,
         }
       }
       if (draft.status === 'blocked') {
@@ -1192,6 +1348,7 @@ export async function runWorkflow(
           notes: draft.notes,
           open_questions: draft.open_questions,
           research_change: researchChange,
+          ...modeExtras,
         }
       }
 
@@ -1214,6 +1371,7 @@ export async function runWorkflow(
             missing,
           open_questions: draft.open_questions,
           research_change: researchChange,
+          ...modeExtras,
         }
       }
 
@@ -1276,6 +1434,7 @@ export async function runWorkflow(
           history: [],
           skipped,
           research_change: researchChange,
+          ...modeExtras,
         }
       }
 
@@ -1399,6 +1558,7 @@ export async function runWorkflow(
             history,
             research_change: researchChange,
             ...(skipped.length ? { skipped } : {}),
+            ...modeExtras,
           }
         }
 
@@ -1432,6 +1592,7 @@ export async function runWorkflow(
           history,
           research_change: researchChange,
           ...(skipped.length ? { skipped } : {}),
+          ...modeExtras,
         }
       }
     }
@@ -1441,6 +1602,7 @@ export async function runWorkflow(
       status: 'failed',
       failed_phase: 'review',
       research_change: researchChange,
+      ...modeExtras,
     }
   }
 

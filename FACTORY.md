@@ -45,7 +45,8 @@ Runs can take a long time (often 20–40+ minutes). Usage burns Cursor plan toke
 ### What you get
 
 1. **Resolved as `slug`…** — distill figured out which server / persona / notes.  
-   On a retry: **Resuming on existing factory PR…** (or **Resuming on factory branch…** if the branch was pushed but PR create flaked).
+   On a retry: **Resuming on existing factory PR…** (or **Resuming on factory branch…** if the branch was pushed but PR create flaked).  
+   The comment also states **Research mode** (`full` / `patch` / `skip`) — see [Research modes](#research-modes).
 2. Sometimes **Scope check** — research finished with *material* open questions (recovery path, conflicting docs, etc.). Drafting pauses; answer with `Decision N: …`, then re-add `guide:draft`. Soft OQs (UI silence already hedged; catalog presence only when Pulse lookup was skipped or ambiguous) do **not** pause.
 3. **Pipeline review** — numbered decisions (blockers), open questions, optional nits — after a full draft run. Written so you can answer without reading the whole guide.
 4. A PR titled **`guide: <provider>`** on branch `guide/issue-<N>-<slug>`
@@ -71,6 +72,21 @@ Then:
 2. Add **`guide:draft` again** (the `labeled` event only fires when the label is newly applied).
 
 Distill re-reads the issue body **and** the comment thread into pipeline notes.
+`Decision N:` lines are extracted **verbatim** (factory template examples in
+Scope check / Pipeline review comments do not count as answers).
+
+### Research modes
+
+Same label every time. Distill chooses how expensive research is:
+
+| Mode | Trigger (resume + prior dossier) | What happens |
+| --- | --- | --- |
+| `skip` | Only scope answers (`drop` / `hedge` / `omit`) | Carry `research.md` forward; draft/review |
+| `patch` | Fact answers (`verified — …`, keep/prefer/use…) or dossier corrections | Amend the Dossier from your notes **without** re-crawling provider docs; then draft/review |
+| `full` | Cold start; “re-research” / “docs moved” in notes; or unclear | Full provider research (historical default) |
+
+To force a full crawl on resume, include e.g. `re-research` or `docs moved` in
+the issue body or a comment.
 
 ### Resume (not a full restart)
 
@@ -170,17 +186,20 @@ be unavailable).
    existing `guides/*` slugs) → structured JSON or `needs_clarification`.
 4. **Comment** — “Resolved as `slug` …” (or resume notice) summary.
 5. **Draft** — `npm run draft-guide -- <slug> --overwrite --pause-on-scope
-   [--notes …]` (no `--force`; lock skips still apply). Before research,
+   --research-mode <full|patch|skip> [--notes …]` (no `--force`; lock
+   skips still apply). Distill sets `--research-mode` from resume +
+   Decision class (see [Research modes](#research-modes)). Before research,
    a deterministic PulseMCP tenant lookup (`PULSE_REGISTRY_KEY` +
    `PULSE_REGISTRY_TENANT`) resolves catalog presence into operator notes
    so research drafts a single add-server path when confident. Remotes
    marked `tenanted: true`, or guide-level `speakeasy_add_server:
    custom-remote`, always force Custom remote (non-registry), even if
    Pulse lists the provider. After
-   research, a heuristic scope gate pauses before draft when **material**
-   open questions lack `Decision N:` replies in notes (soft OQs do not
-   pause). When prior artifacts exist, research revises in place;
-   unchanged research can skip re-draft via `pipeline.lock.json`.
+   research (or skip/patch), a heuristic scope gate pauses before draft when
+   **material** open questions lack `Decision N:` replies in notes (soft
+   OQs do not pause). When prior artifacts exist, research revises in place
+   (or patches / carries forward); unchanged research can skip re-draft via
+   `pipeline.lock.json`.
 6. **PR** — commit `guides/<slug>/` + matching `retro/runs/*-<slug>.json`,
    push `guide/issue-<N>-<slug>`, open or **update** the PR titled
    `guide: <provider>` (retries transient GraphQL / 5xx). Draft while
@@ -204,6 +223,7 @@ Hard failures (exit `1`, missing artifacts) take the blocked path with no PR.
 
 - No queued/promote state machine, no `guide:review` auto-label on the PR.
 - No LLM judge for the scope gate (keyword heuristic only — material vs soft).
+- No separate `guide:revise` label — research mode auto-routes on `guide:draft`.
 - Distill `needs_clarification` and the post-research scope gate are the
   intentional stops before / mid heavy pipeline.
 

@@ -290,13 +290,13 @@ export function formatPipelineReview(
   lines.push('### How to retry')
   lines.push('')
   lines.push(
-    '1. Reply on **this issue** using the `Decision N: …` lines above (and answer open questions).',
+    '1. Reply on **this issue** using bare `Decision N: …` lines (not bulleted template examples).',
   )
   lines.push(
-    '2. Re-add the `guide:draft` label. Distill reads the issue body **and** comments into pipeline notes.',
+    '2. Re-add the `guide:draft` label. Distill extracts Decisions verbatim and auto-routes research mode (`skip` / `patch` / `full`).',
   )
   lines.push(
-    '3. If a factory draft PR already exists (`guide/issue-<N>-*`), the next run **resumes on that branch** and revises prior research/setup instead of starting blank.',
+    '3. If a factory draft PR already exists (`guide/issue-<N>-*`), the next run **resumes on that branch** (patch or skip research when Decisions allow) instead of starting blank.',
   )
   lines.push('')
   if (recordPath) {

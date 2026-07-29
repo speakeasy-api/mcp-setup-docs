@@ -6,6 +6,7 @@
  * fallback (dual add-server conditional). When lookup resolves
  * present/absent, research should not emit those OQs at all.
  */
+import { extractDecisions } from './decisions.ts'
 export type ScopeDecision = {
   index: number // 1-based
   question: string
@@ -92,16 +93,10 @@ export function mergeOpenQuestions(
 /**
  * Which Decision N lines appear in operator notes / issue thread text.
  * Returns the set of answered decision numbers (1-based).
+ * Uses {@link extractDecisions} so factory template examples do not count.
  */
 export function parsedDecisionNumbers(notes: string): Set<number> {
-  const found = new Set<number>()
-  const re = /Decision\s+(\d+)\s*:/gi
-  let m: RegExpExecArray | null
-  while ((m = re.exec(notes)) !== null) {
-    const n = Number(m[1])
-    if (Number.isFinite(n) && n >= 1) found.add(n)
-  }
-  return found
+  return new Set(extractDecisions(notes).map((d) => d.index))
 }
 
 /**
@@ -207,13 +202,13 @@ export function formatScopeCheckComment(opts: {
 
   lines.push('### How to continue', '')
   lines.push(
-    '1. Reply on **this issue** using the `Decision N: …` lines above (and optionally soft OQs).'
+    '1. Reply on **this issue** using bare `Decision N: …` lines (not the bulleted examples above).'
   )
   lines.push(
-    '2. Re-add the `guide:draft` label. Distill folds your replies into pipeline notes.'
+    '2. Re-add the `guide:draft` label. Distill extracts your Decisions verbatim and picks research mode (`skip` for drop/hedge, `patch` for verified/keep facts, `full` if you ask to re-research).'
   )
   lines.push(
-    '3. The next run resumes on the factory branch, revises research if needed, then **drafts**.'
+    '3. The next run resumes on the factory branch, applies that research mode, then **drafts**.'
   )
   lines.push('')
   lines.push('_Source: research open questions · scope gate_')

@@ -28,7 +28,7 @@ guides/<slug>/
 
 | Key | Always run? | Skippable? |
 | --- | --- | --- |
-| `research` | yes | no (record only) |
+| `research` | default yes; see [Research modes](#research-modes) | record-only in lock; orchestrator may carry forward or patch |
 | `draft` | no | yes |
 | `review.fidelity` | no | yes |
 | `review.achievability` | no | yes |
@@ -108,10 +108,26 @@ slot alias like `sonnet`.
 Top-level `runtime` (e.g. `cursor-sdk`) is observational and **must not**
 appear inside `inputs` or affect `input_digest`.
 
+## Research modes
+
+Factory auto-routing (same `guide:draft` label) selects a research cost
+mode after distill. Local CLI: `--research-mode full|patch|skip`.
+
+| Mode | When | Behavior |
+| --- | --- | --- |
+| `full` | Cold start; notes ask to re-research; fail-closed default | Provider-docs research as today (always the historical default). |
+| `skip` | Resume with prior `research.md`+`meta.yaml` and **only** scope Decisions (`drop` / `hedge` / `omit`) | Do not call the research agent. Carry the dossier forward. Run Records use `research_change.method: carried-forward` and may list `research` under top-level `skipped`. |
+| `patch` | Resume with fact-bearing Decisions (`verified — …`, keep/prefer/use…) | Bounded research agent: amend the dossier from operator notes **without** re-crawling provider docs. New operator facts get issue/Decision provenance. Run Records use `research_change.method: patch`. |
+
+Additive operator facts must land in the Dossier before Writer runs (I1).
+`skip` is only for scope dispositions that remove or soften existing
+dossier material. Ambiguous resumes fail closed to `full`.
+
 ## Research unchanged
 
-Research **always executes**. After it completes, set in-memory
-`research_unchanged` (not a lockfile field) as follows:
+Unless mode is `skip`, research **executes** (full or patch). After it
+completes, set in-memory `research_unchanged` (not a lockfile field) as
+follows:
 
 1. **No prior outputs** (first run for this guide): `research_unchanged = false`.
 2. **Stable digest fast path:** snapshot `research.md` / `meta.yaml` before
@@ -130,7 +146,11 @@ Research **always executes**. After it completes, set in-memory
    (downstream skips are already bypassed). `--overwrite` does **not** do this.
 
 Run Records may include `research_change: { method, unchanged, notes }` where
-`method` is `digest` | `judge` | `none`.
+`method` is `digest` | `judge` | `none` | `carried-forward` | `patch`, and
+optional top-level `research_mode`: `full` | `patch` | `skip`.
+
+When mode is `skip`, set `research_unchanged = true` with
+`method: carried-forward` and do not run the digest/judge paths above.
 
 ## Skip predicates
 
@@ -396,5 +416,8 @@ their own `dimension`, `model`, role-doc reading list, and digests.)
 
 - Generating lockfiles for existing guides until a successful converge writes one
 - Caching revision by input digest
-- Hashing live upstream HTTP sources so research itself can be skipped
-  (research always runs by design)
+- Hashing live upstream HTTP sources so research can be skipped without
+  operator Decisions (auto-skip still requires classifiable scope/fact
+  Decisions on resume; see [Research modes](#research-modes))
+- Content-addressed Decision ids (positional `Decision N:` remains; factory
+  template examples are filtered out of answer detection)

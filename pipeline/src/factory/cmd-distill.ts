@@ -1,10 +1,19 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { issueNumber, ghRepo, runnerTemp, repoRoot } from './env.ts'
+import { issueNumber, ghRepo, runnerTemp, repoRoot, githubWorkspace } from './env.ts'
 import { ghSoft } from './gh.ts'
 import { setOutput, setMultilineOutput } from './github-output.ts'
 import { writeFailureReason } from './failure-reason.ts'
 import { runPipelineScript } from './run-pipeline.ts'
+import { extractDecisions, mergeDecisionNotes } from '../decisions.ts'
+import {
+  priorStatusFromRecord,
+  resolveResearchMode,
+  researchModeLabel,
+  type ResearchMode,
+} from '../research-mode.ts'
+import { newestRunRecord } from './run-record.ts'
+import { guideDir } from '../paths.ts'
 
 type ResolvedOk = {
   status: 'ok'
@@ -40,6 +49,7 @@ export function runDistill(): void {
     '[.[].body] | join("\n\n---\n\n")',
   ])
   const comments = commentsRes.code === 0 ? commentsRes.stdout : ''
+  const threadText = [body, comments].filter(Boolean).join('\n\n')
   if (comments) {
     const combined = `${body}\n\n## Issue thread (for clarifications)\n${comments}\n`
     const bodyFile = join(runnerTemp(), 'issue-body-with-thread.txt')
@@ -49,6 +59,16 @@ export function runDistill(): void {
     console.error('factory: distill — included issue comment thread')
   } else {
     console.error('factory: distill — no issue comments (body only)')
+  }
+
+  // Deterministic Decision extraction — before LLM distill so templates in
+  // factory comments never masquerade as answers, and so LLM notes cannot drop them.
+  const decisions = extractDecisions(threadText)
+  if (decisions.length > 0) {
+    console.error(
+      `factory: distill — extracted ${decisions.length} Decision line(s): ` +
+        decisions.map((d) => `D${d.index}/${d.kind}`).join(', '),
+    )
   }
 
   const outPath = join(runnerTemp(), 'resolved.json')
@@ -68,13 +88,39 @@ export function runDistill(): void {
 
   if (resolved.status === 'ok') {
     const ok = resolved as ResolvedOk
+    const notes = mergeDecisionNotes(ok.notes ?? '', decisions)
+
+    const resume = process.env.RESUME === 'true'
+    const workspace = githubWorkspace()
+    const slug = ok.slug
+    const guideDirectory = join(workspace, guideDir(slug))
+    const priorRecord = newestRunRecord(workspace, slug)
+    const priorStatus = priorStatusFromRecord(priorRecord)
+
+    const explicitEnv = process.env.RESEARCH_MODE as ResearchMode | undefined
+    const explicit =
+      explicitEnv === 'full' || explicitEnv === 'patch' || explicitEnv === 'skip'
+        ? explicitEnv
+        : undefined
+
+    const routed = resolveResearchMode({
+      resume,
+      guideDir: guideDirectory,
+      notes,
+      priorStatus,
+      explicit,
+    })
+
     console.error(
-      `factory: distill ok — slug=${ok.slug} provider=${ok.provider} persona=${ok.persona ?? 'it-admin'}`,
+      `factory: distill ok — slug=${ok.slug} provider=${ok.provider} persona=${ok.persona ?? 'it-admin'} research_mode=${routed.mode} (${routed.reason})`,
     )
     setOutput('slug', ok.slug)
     setOutput('provider', ok.provider)
     setOutput('persona', ok.persona ?? 'it-admin')
-    setMultilineOutput('notes', ok.notes ?? '')
+    setOutput('research_mode', routed.mode)
+    setOutput('research_mode_reason', routed.reason)
+    setOutput('research_mode_label', researchModeLabel(routed.mode))
+    setMultilineOutput('notes', notes)
     process.exit(0)
   }
 

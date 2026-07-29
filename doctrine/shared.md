@@ -26,7 +26,10 @@ file they edit.
 
 Skip-if-unchanged for draft and per-dimension review is defined by the
 pipeline lockfile contract (`guides/<slug>/pipeline.lock.json`); see
-[`pipeline-lock.md`](pipeline-lock.md). Research always runs. Lock semantics
+[`pipeline-lock.md`](pipeline-lock.md). Research defaults to a full
+provider pass; on factory resume the orchestrator may **skip** (scope-only
+Decisions) or **patch** the dossier from operator notes without a
+provider re-crawl — see Research modes in that contract. Lock semantics
 are for orchestrators — agents do not read or write the lockfile.
 
 ## The anchor contract

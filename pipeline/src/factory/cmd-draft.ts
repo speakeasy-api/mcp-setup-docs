@@ -14,9 +14,19 @@ export function runDraft(): void {
   }
   const persona = process.env.PERSONA || 'it-admin'
   const notes = process.env.NOTES || ''
+  const researchMode = process.env.RESEARCH_MODE || 'full'
   const workspace = githubWorkspace()
 
-  const args = [slug, '--overwrite', '--pause-on-scope']
+  if (
+    researchMode !== 'full' &&
+    researchMode !== 'patch' &&
+    researchMode !== 'skip'
+  ) {
+    writeFailureReason(`Invalid RESEARCH_MODE: ${researchMode}`)
+    process.exit(1)
+  }
+
+  const args = [slug, '--overwrite', '--pause-on-scope', '--research-mode', researchMode]
   if (persona && persona !== 'it-admin') {
     args.push('--persona', persona)
   }
@@ -25,7 +35,7 @@ export function runDraft(): void {
   }
 
   console.error(
-    `factory: draft starting slug=${slug} persona=${persona} pause-on-scope=true`,
+    `factory: draft starting slug=${slug} persona=${persona} pause-on-scope=true research-mode=${researchMode}`,
   )
   const code = runPipelineScript('src/cli.ts', args)
   console.error(`factory: draft-guide exited ${code}`)
@@ -38,6 +48,8 @@ export function runDraft(): void {
   } else {
     console.error(`factory: no run record found for ${slug}`)
   }
+
+  setOutput('research_mode', researchMode)
 
   const mapped = mapDraftOutcome({ exitCode: code, slug, workspace })
   if (mapped.ok) {
