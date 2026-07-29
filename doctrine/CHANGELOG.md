@@ -41,6 +41,12 @@ extraction + live Scope check wording; notes merge only *recent*
 Decisions (strip distill leaks of stale N ids from the scope gate);
 fat `drop … — instead …` and short freeform → patch, not skip.
 
+Follow-up (same day, Opus #2): quote-reply copies of Scope check
+templates do not count as answers; `guides/<slug>/scope-answers.json`
+persists Decisions keyed by question text across renumbered rounds;
+issue-body `Decision N:` lines are accepted (FACTORY.md path) with
+recent comments winning on the same index.
+
 ## 2026-07-27 — Speakeasy skeleton: OAuth DCR credential variant
 
 Files: `doctrine/speakeasy-setup.md`.

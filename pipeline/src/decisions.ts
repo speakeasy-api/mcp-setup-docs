@@ -97,27 +97,43 @@ export function classifyDecisionBody(body: string): DecisionKind {
   return 'other'
 }
 
+/** Factory "Reply with one of" parentheticals — not human nav notes. */
+const FACTORY_TEMPLATE_PAREN_RE =
+  /\((?:paste exact|paste the exact|omit the recovery|keep a soft(?:er)? line)/i
+
 /**
- * Factory Scope check / Pipeline review lines look like:
- *   - `Decision 1: drop this branch` (omit the recovery/optional path)
- * Those are prompts, not answers.
+ * True when a line is a factory Scope check / Pipeline review template
+ * option (including GitHub quote-reply copies with leading `>`).
  */
-function isFactoryPromptLine(rawLine: string): boolean {
-  const line = rawLine.trim()
-  // Bullet + backtick-wrapped Decision (template option)
-  if (/^[-*]\s+`Decision\s+\d*\s*:/i.test(line)) return true
-  // Bullet Decision with trailing parenthetical explanation
-  if (
-    /^[-*]\s+`?Decision\s+\d*\s*:/i.test(line) &&
-    /\)\s*$/.test(line) &&
-    /\(/.test(line)
-  ) {
-    return true
-  }
+export function isFactoryPromptLine(rawLine: string): boolean {
+  const raw = rawLine.trim()
+  if (!raw) return false
+
   // Factory how-to numbered list ("1. Reply on **this issue**…")
-  if (/^\d+\.\s+(?:Reply on|Re-add the|If a factory)/i.test(line)) {
+  const unquoted = raw.replace(/^(?:>\s*)+/, '')
+  if (/^\d+\.\s+(?:Reply on|Re-add the|If a factory)/i.test(unquoted)) {
     return true
   }
+
+  // Quote-reply / raw — bullet + backtick Decision = Scope check template (C1).
+  // Do NOT treat a bare backticked human reply (`Decision 1: verified — …`)
+  // as a template; only list-shaped copies of the factory options.
+  for (const line of [raw, unquoted]) {
+    if (!line) continue
+    if (/^[-*]\s+`Decision\s+\d*\s*:/i.test(line)) return true
+    if (
+      /Decision\s+\d*\s*:/i.test(line) &&
+      FACTORY_TEMPLATE_PAREN_RE.test(line)
+    ) {
+      return true
+    }
+  }
+
+  // After normalize, body is only a template placeholder (verified — …)
+  const normalized = normalizeDecisionLine(raw)
+  const m = /^Decision\s+\d*\s*:\s*(.+)$/i.exec(normalized)
+  if (m && isTemplateDecisionBody(m[1] || '')) return true
+
   return false
 }
 
@@ -279,18 +295,46 @@ export function recentOperatorComments(commentThread: string): string {
 }
 
 /**
- * Build operator notes for the pipeline (C2):
- * strip any Decision lines distill copied from the full thread, then append
- * only Decisions from *recent* operator comments so stale N ids cannot
- * satisfy the scope gate for new material questions.
+ * Build operator notes for the pipeline:
+ * - strip Decision lines distill copied from the full thread (C2)
+ * - append Decisions from the issue body (C3 — documented path)
+ * - append Decisions from *recent* operator comments (recent wins on index)
+ *
+ * Scope-gate accumulation across rounds is handled by scope-answers.json
+ * (question-keyed), not by merging the whole comment thread.
  */
 export function buildOperatorNotes(
   distillNotes: string,
-  recentCommentText: string
+  recentCommentText: string,
+  issueBody = ''
 ): string {
   const cleaned = stripDecisionLines(distillNotes || '')
-  const recentDecisions = extractDecisions(recentCommentText || '')
-  return mergeDecisionNotes(cleaned, recentDecisions)
+  const byKey = new Map<string, ExtractedDecision>()
+  for (const d of extractDecisions(issueBody || '')) {
+    const key = d.index >= 1 ? `n:${d.index}` : `u:${d.body.toLowerCase()}`
+    byKey.set(key, d)
+  }
+  // Recent comments override body on the same index
+  for (const d of extractDecisions(recentCommentText || '')) {
+    const key = d.index >= 1 ? `n:${d.index}` : `u:${d.body.toLowerCase()}`
+    byKey.set(key, d)
+  }
+  const decisions = [...byKey.values()].sort((a, b) => {
+    if (a.index !== b.index) return a.index - b.index
+    return a.line.localeCompare(b.line)
+  })
+  return mergeDecisionNotes(cleaned, decisions)
+}
+
+/**
+ * Prose portion of notes for dispose-heuristics — excludes verbatim Decision
+ * blocks and persisted ledger dumps so a lone `drop` cannot clear unrelated OQs.
+ */
+export function notesProseForDispose(notes: string): string {
+  return (notes || '')
+    .replace(/##\s*Operator decisions[\s\S]*?(?=##\s|\s*$)/gi, '')
+    .replace(/##\s*Persisted scope answers[\s\S]*?(?=##\s|\s*$)/gi, '')
+    .trim()
 }
 
 /** Append verbatim Decision lines to distill notes if missing. */

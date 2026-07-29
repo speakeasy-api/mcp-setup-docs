@@ -50,28 +50,29 @@ export function formatScopeCheck(record: ScopeRecord, prUrl = '', recordPath = '
     lines.push('')
 
     if (hasStructured) {
+      // Always renumber 1..k for this listing (row.index is dossier-order;
+      // cross-round memory is scope-answers.json keyed by question text).
       let i = 0
       for (const row of unanswered as ScopeUnanswered[]) {
         i++
-        const idx = row.index ?? i
         const question =
           row.question ?? (typeof row === 'string' ? row : '')
         const why =
           row.why_material ??
           'Scope choice that changes what the Writer should document.'
-        lines.push(`#### ${idx}. ${question}`)
+        lines.push(`#### ${i}. ${question}`)
         lines.push('')
         lines.push(`- **Why this blocks draft:** ${why}`)
         lines.push('')
         lines.push('**Reply with one of:**')
         lines.push(
-          `- \`Decision ${idx}: verified — …\` (paste exact labels / path to document)`,
+          `- \`Decision ${i}: verified — …\` (paste exact labels / path to document)`,
         )
         lines.push(
-          `- \`Decision ${idx}: drop this branch\` (omit the recovery/optional path)`,
+          `- \`Decision ${i}: drop this branch\` (omit the recovery/optional path)`,
         )
         lines.push(
-          `- \`Decision ${idx}: hedge — …\` (keep a soft line; do not invent chrome)`,
+          `- \`Decision ${i}: hedge — …\` (keep a soft line; do not invent chrome)`,
         )
         lines.push('')
       }

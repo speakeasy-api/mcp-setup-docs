@@ -422,5 +422,7 @@ their own `dimension`, `model`, role-doc reading list, and digests.)
 - Hashing live upstream HTTP sources so research can be skipped without
   operator Decisions (auto-skip still requires classifiable scope/fact
   Decisions on resume; see [Research modes](#research-modes))
-- Content-addressed Decision ids (positional `Decision N:` remains; factory
-  template examples are filtered out of answer detection)
+- Content-addressed Decision ids as the primary reply UX (positional
+  `Decision N:` remains per Scope check listing; `scope-answers.json` keys
+  answers by question text across rounds; factory template examples —
+  including quote-replies — are filtered out of answer detection)

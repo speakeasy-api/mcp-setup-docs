@@ -5,6 +5,7 @@ import {
   classifyDecisionBody,
   extractDecisions,
   isFactoryComment,
+  isFactoryPromptLine,
   isSubstantiveFreeform,
   isTemplateDecisionBody,
   mergeDecisionNotes,
@@ -89,6 +90,26 @@ Decision 2: verified — confirm button is "**Reset secret**"
     assert.equal(ds.length, 0)
   })
 
+  it('ignores GitHub quote-reply copies of Scope check templates (C1)', () => {
+    // Quote-reply strips visual context; `>` + backtick template must not
+    // satisfy the scope gate as a human Decision.
+    const quoted = [
+      '> - `Decision 1: verified — …` (paste exact labels / path to document)',
+      '> - `Decision 1: drop this branch` (omit the recovery/optional path)',
+      '> - `Decision 1: hedge — …` (keep a soft line; do not invent chrome)',
+    ].join('\n')
+    for (const line of quoted.split('\n')) {
+      assert.equal(isFactoryPromptLine(line), true, line)
+    }
+    assert.equal(extractDecisions(quoted).length, 0)
+
+    // Real reply after a quote-reply still counts.
+    const withReply = `${quoted}\n\nDecision 1: drop this branch`
+    const ds = extractDecisions(withReply)
+    assert.equal(ds.length, 1)
+    assert.equal(ds[0]!.kind, 'scope')
+  })
+
   it('accepts unnumbered Decision: and numbered dash replies', () => {
     assert.equal(
       extractDecisions(
@@ -120,7 +141,7 @@ describe('isSubstantiveFreeform (C3)', () => {
   })
 })
 
-describe('buildOperatorNotes (C2)', () => {
+describe('buildOperatorNotes (C2/C3)', () => {
   it('keeps only recent Decisions — strips distill leaks of stale N ids', () => {
     const distill =
       'Prefer OAuth. Decision 2: Ignore this. Decision 3: follow oauth per #1.'
@@ -131,6 +152,26 @@ describe('buildOperatorNotes (C2)', () => {
     assert.equal(extractDecisions(notes).map((d) => d.index).join(','), '1')
     assert.equal(notes.includes('Decision 2:'), false)
     assert.equal(notes.includes('Decision 3:'), false)
+  })
+
+  it('includes issue-body Decisions when comments are empty (C3)', () => {
+    const body = 'Decision 1: drop this branch\nDecision 2: verified — Admin ▸ MCP'
+    const notes = buildOperatorNotes('prefer OAuth', '', body)
+    assert.match(notes, /Decision 1: drop this branch/)
+    assert.match(notes, /Decision 2: verified/)
+    assert.deepEqual(
+      extractDecisions(notes).map((d) => d.index),
+      [1, 2]
+    )
+  })
+
+  it('lets recent comments override the same Decision index from the body', () => {
+    const body = 'Decision 1: drop this branch'
+    const recent = 'Decision 1: hedge — soft line only'
+    const notes = buildOperatorNotes('notes', recent, body)
+    const ds = extractDecisions(notes)
+    assert.equal(ds.length, 1)
+    assert.equal(ds[0]!.body, 'hedge — soft line only')
   })
 
   it('recentOperatorComments scopes after last factory review', () => {

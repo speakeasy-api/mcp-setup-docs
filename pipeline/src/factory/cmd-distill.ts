@@ -43,7 +43,9 @@ export function runDistill(): void {
 
   const n = issueNumber()
   const repo = ghRepo()
-  let body = process.env.ISSUE_BODY || ''
+  // Preserve the issue body before folding comments (C3 — body Decisions).
+  const issueBody = process.env.ISSUE_BODY || ''
+  let body = issueBody
 
   console.error(`factory: distill — folding issue #${n} comments into body`)
   const commentsRes = ghSoft([
@@ -64,17 +66,20 @@ export function runDistill(): void {
     console.error('factory: distill — no issue comments (body only)')
   }
 
-  // Only Decisions from comments after the latest factory review enter notes
-  // (C2). Whole-thread extraction would let stale Decision 2/3 satisfy new OQs.
+  // Recent comments + issue body Decisions enter notes. Cross-round accumulation
+  // for the scope gate uses guides/<slug>/scope-answers.json (question-keyed).
   const recent = recentOperatorComments(comments)
   const recentDecisions = extractDecisions(recent)
-  if (recentDecisions.length > 0) {
+  const bodyDecisions = extractDecisions(issueBody)
+  if (recentDecisions.length > 0 || bodyDecisions.length > 0) {
     console.error(
-      `factory: distill — recent Decision line(s): ` +
-        recentDecisions.map((d) => `D${d.index}/${d.kind}`).join(', '),
+      `factory: distill — Decision line(s): recent=` +
+        recentDecisions.map((d) => `D${d.index}/${d.kind}`).join(',') +
+        ' body=' +
+        bodyDecisions.map((d) => `D${d.index}/${d.kind}`).join(','),
     )
   } else {
-    console.error('factory: distill — no recent Decision lines after last factory comment')
+    console.error('factory: distill — no recent/body Decision lines')
   }
 
   const outPath = join(runnerTemp(), 'resolved.json')
@@ -95,8 +100,8 @@ export function runDistill(): void {
   if (resolved.status === 'ok') {
     const ok = resolved as ResolvedOk
     // Strip Decision lines distill copied from the full thread, then append
-    // only recent verbatim Decisions.
-    const notes = buildOperatorNotes(ok.notes ?? '', recent)
+    // issue-body + recent verbatim Decisions (recent wins on index).
+    const notes = buildOperatorNotes(ok.notes ?? '', recent, issueBody)
 
     const resume = process.env.RESUME === 'true'
     const workspace = githubWorkspace()

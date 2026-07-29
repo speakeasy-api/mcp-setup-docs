@@ -6,7 +6,12 @@
  * fallback (dual add-server conditional). When lookup resolves
  * present/absent, research should not emit those OQs at all.
  */
-import { extractDecisions } from './decisions.ts'
+import { extractDecisions, notesProseForDispose } from './decisions.ts'
+import {
+  ledgerAnswersQuestion,
+  normalizeQuestionKey,
+  type ScopeAnswersFile,
+} from './scope-answers.ts'
 export type ScopeDecision = {
   index: number // 1-based
   question: string
@@ -107,14 +112,17 @@ export function parsedDecisionNumbers(notes: string): Set<number> {
 /**
  * Freeform fallback: notes that clearly dispose of an OQ without Decision N.
  * Conservative — only matches strong dispose verbs + overlapping keywords.
+ * Ignores the verbatim Decision / ledger blocks so a lone drop cannot clear
+ * unrelated questions.
  */
 export function notesDisposeOfQuestion(notes: string, question: string): boolean {
-  if (!notes.trim()) return false
-  const n = notes.toLowerCase()
+  const prose = notesProseForDispose(notes)
+  if (!prose.trim()) return false
+  const n = prose.toLowerCase()
   const q = question.toLowerCase()
   const dispose =
     /\b(?:hedge|omit|drop(?:ping)?(?:\s+this)?(?:\s+branch)?|skip(?:ping)?|out of (?:band|scope)|do not (?:invent|document)|unknown\s*\/\s*omit)\b/i.test(
-      notes
+      prose
     )
   if (!dispose) return false
   // Require at least one distinctive token overlap (≥4 chars) from the question.
@@ -128,7 +136,8 @@ export function notesDisposeOfQuestion(notes: string, question: string): boolean
 
 export function evaluateScopeGate(
   openQuestions: string[],
-  notes: string
+  notes: string,
+  ledger?: ScopeAnswersFile | null
 ): ScopeGateResult {
   const material: ScopeDecision[] = []
   const soft: string[] = []
@@ -144,9 +153,22 @@ export function evaluateScopeGate(
     }
   }
 
-  const decisions = parsedDecisionNumbers(notes)
+  // Scope check listings renumber unanswered as Decision 1..k each round.
+  // Match notes against that pending list (ledger-cleared), not dossier order.
+  const pending = material.filter(
+    (d) => !(ledger && ledgerAnswersQuestion(ledger, d.question))
+  )
+  const answeredByNotes = new Set<string>()
+  for (const d of extractDecisions(notes)) {
+    if (d.index < 1) continue
+    const target = pending[d.index - 1]
+    if (target) answeredByNotes.add(normalizeQuestionKey(target.question))
+  }
+
   const unanswered = material.filter((d) => {
-    if (decisions.has(d.index)) return false
+    // Question-keyed ledger survives index renumbering across rounds (C2).
+    if (ledger && ledgerAnswersQuestion(ledger, d.question)) return false
+    if (answeredByNotes.has(normalizeQuestionKey(d.question))) return false
     if (notesDisposeOfQuestion(notes, d.question)) return false
     return true
   })
@@ -176,19 +198,23 @@ export function formatScopeCheckComment(opts: {
   }
 
   lines.push(`### Decisions needed (${gate.unanswered.length})`, '')
+  // Renumber 1..k each round — indices are ephemeral; scope-answers.json
+  // keys by question text so prior rounds' answers still count.
+  let n = 0
   for (const d of gate.unanswered) {
-    lines.push(`#### ${d.index}. ${d.question}`, '')
+    n++
+    lines.push(`#### ${n}. ${d.question}`, '')
     lines.push(`- **Why this blocks draft:** ${d.why_material}`)
     lines.push('')
     lines.push('**Reply with one of:**')
     lines.push(
-      `- \`Decision ${d.index}: verified — …\` (paste exact labels / path to document)`
+      `- \`Decision ${n}: verified — …\` (paste exact labels / path to document)`
     )
     lines.push(
-      `- \`Decision ${d.index}: drop this branch\` (omit the recovery/optional path)`
+      `- \`Decision ${n}: drop this branch\` (omit the recovery/optional path)`
     )
     lines.push(
-      `- \`Decision ${d.index}: hedge — …\` (keep a soft line; do not invent chrome)`
+      `- \`Decision ${n}: hedge — …\` (keep a soft line; do not invent chrome)`
     )
     lines.push('')
   }

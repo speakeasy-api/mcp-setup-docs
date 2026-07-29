@@ -34,6 +34,13 @@ import {
   researchModeLabel,
   type ResearchMode,
 } from './research-mode.ts'
+import { extractDecisions, stripDecisionLines } from './decisions.ts'
+import {
+  formatLedgerNotes,
+  mergeDecisionsIntoLedger,
+  readScopeAnswers,
+  writeScopeAnswers,
+} from './scope-answers.ts'
 import {
   formatCatalogNote,
   lookupCatalogPresence,
@@ -1243,7 +1250,41 @@ export async function runWorkflow(
           )
         : []
       const allOqs = mergeOpenQuestions(research.open_questions, dossierOqs)
-      const gate = evaluateScopeGate(allOqs, operatorNotesOf(g))
+      // Persist Decision→question answers across rounds (C2). Scope check
+      // listings renumber unanswered as Decision 1..k each round; the ledger
+      // keys by question text so prior answers survive that renumbering.
+      //
+      // Numbering for this round = material OQs not yet in the ledger (ignore
+      // current notes when building the map — otherwise Decision 1 would shift
+      // onto Q2 after notes already cleared Q1).
+      let ledger = readScopeAnswers(dir, g.slug)
+      const opNotes = operatorNotesOf(g)
+      const decided = extractDecisions(opNotes)
+      const listing = evaluateScopeGate(allOqs, '', ledger)
+      ledger = mergeDecisionsIntoLedger(
+        ledger,
+        listing.unanswered.map((d) => d.question),
+        decided,
+        NOW
+      )
+      writeScopeAnswers(dir, ledger)
+      // Surface persisted answers to Writer/research on skip/patch resumes.
+      const ledgerNote = formatLedgerNotes(ledger)
+      if (ledgerNote && !opNotes.includes('## Persisted scope answers')) {
+        g = {
+          ...g,
+          notes: [opNotes, ledgerNote].filter(Boolean).join('\n\n'),
+        }
+      }
+
+      // Decision N lines were just folded into the ledger against this round's
+      // listing. Re-matching them here would renumber onto the next pending OQ.
+      // Keep freeform dispose prose; answeredness comes from the ledger.
+      const gate = evaluateScopeGate(
+        allOqs,
+        stripDecisionLines(operatorNotesOf(g)),
+        ledger
+      )
       log(
         '[' +
           g.slug +
@@ -1252,7 +1293,9 @@ export async function runWorkflow(
           ' unanswered=' +
           gate.unanswered.length +
           ' soft=' +
-          gate.soft.length
+          gate.soft.length +
+          ' ledger=' +
+          ledger.answers.length
       )
       if (gate.pause) {
         log(
@@ -1276,6 +1319,7 @@ export async function runWorkflow(
               material: gate.material,
               soft: gate.soft,
               unanswered: gate.unanswered,
+              ledger_answers: ledger.answers.length,
             },
           ],
           ...modeExtras,

@@ -73,7 +73,12 @@ Then:
 
 Distill re-reads the issue body **and** the comment thread into pipeline notes.
 `Decision N:` lines are extracted **verbatim** (factory template examples in
-Scope check / Pipeline review comments do not count as answers).
+Scope check / Pipeline review comments — including GitHub quote-reply copies —
+do not count as answers). Issue-body Decisions count; comments after the latest
+factory review win on the same index. Across Scope check rounds, answers are
+remembered in `guides/<slug>/scope-answers.json` (keyed by question text), so
+you can answer Decision 1 on one resume and Decision 1 again for the next
+remaining question without the gate forgetting the first.
 
 ### Research modes
 

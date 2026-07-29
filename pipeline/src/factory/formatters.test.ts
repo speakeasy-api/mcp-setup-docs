@@ -30,6 +30,24 @@ describe('formatScopeCheck', () => {
     assert.match(md, /auto-routes research mode/)
     assert.match(md, /x-box\.json/)
   })
+
+  it('renumbers unanswered to Decision 1..k even when row.index is stale', () => {
+    const md = formatScopeCheck({
+      slug: 'box',
+      scope: {
+        unanswered: [
+          {
+            index: 3,
+            question: 'Is destructive rotation in scope?',
+            why_material: 'Changes Writer scope',
+          },
+        ],
+      },
+    })
+    assert.match(md, /#### 1\. Is destructive rotation/)
+    assert.match(md, /Decision 1: drop this branch/)
+    assert.equal(md.includes('Decision 3:'), false)
+  })
 })
 
 describe('partitionFindings', () => {
