@@ -1,0 +1,25 @@
+{
+  "slug": "x-docs",
+  "provider": "x-docs",
+  "persona": "it-admin",
+  "timestamp": "2026-07-29T20:05:42Z",
+  "started_at": "2026-07-29T20:05:42Z",
+  "finished_at": "2026-07-29T20:09:48Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}
