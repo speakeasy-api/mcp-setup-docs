@@ -2,10 +2,9 @@ package guides
 
 import "embed"
 
-// Core publishable guide files. Asset PNGs, when present, are listed
-// explicitly in generated/embed_gen.go (a zero-match glob is a compile error).
+// Publishable guide tree. The generator only copies meta.yaml, external.md,
+// speakeasy.md, and schema-declared assets into generated/guides, so embedding
+// the directory is safe and keeps screenshots reachable via Guide.Assets.
 //
-//go:embed generated/guides/*/meta.yaml
-//go:embed generated/guides/*/external.md
-//go:embed generated/guides/*/speakeasy.md
+//go:embed generated/guides
 var embedded embed.FS

@@ -1,18 +1,13 @@
 package guides
 
 import (
-	"errors"
+	"fmt"
 	"io/fs"
 	"path"
 	"regexp"
 )
 
-var (
-	// ErrNotFound is reserved for fallible APIs; Lookup uses comma-ok.
-	ErrNotFound = errors.New("guides: not found")
-
-	kebab = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
-)
+var kebab = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
 
 // Remote is one MCP server endpoint documented by a guide.
 type Remote struct {
@@ -22,16 +17,19 @@ type Remote struct {
 	Tenanted  bool
 }
 
-// Guide is one published setup guide with raw content bytes.
+// Guide is one published setup guide with typed identity fields and raw
+// content bytes. Meta remains available for fields not yet promoted.
 type Guide struct {
-	Slug      GuideSlug
-	Title     string
-	Meta      []byte // raw meta.yaml
-	External  []byte // raw external.md
-	Speakeasy []byte // raw speakeasy.md
-	Assets    fs.FS  // nil when the guide declares no assets
-	Remotes   []Remote
-	Aliases   []string
+	Slug               GuideSlug
+	Title              string
+	Summary            string
+	SpeakeasyAddServer string // e.g. "catalog", "custom-remote"; empty if unset
+	Meta               []byte // raw meta.yaml
+	External           []byte // raw external.md
+	Speakeasy          []byte // raw speakeasy.md
+	Assets             fs.FS  // nil when the guide declares no assets
+	Remotes            []Remote
+	Aliases            []string
 }
 
 // Slugs returns all guide slugs in sorted order.
@@ -47,31 +45,43 @@ func Guides() []Guide {
 	for _, slug := range generatedSlugs {
 		g, ok := Lookup(slug)
 		if !ok {
-			continue
+			panic(fmt.Sprintf("guides: missing embed for %s", slug))
 		}
 		out = append(out, g)
 	}
 	return out
 }
 
-// Lookup returns the guide for slug.
+// Lookup returns the guide for slug. Missing slugs return ok=false.
+// A known slug with a corrupt embed panics — that indicates a packaging bug.
 func Lookup(slug GuideSlug) (Guide, bool) {
+	if _, ok := generatedGuides[slug]; !ok {
+		return Guide{}, false
+	}
+	g, err := lookup(slug)
+	if err != nil {
+		panic(fmt.Sprintf("guides: corrupt embed for %s: %v", slug, err))
+	}
+	return g, true
+}
+
+func lookup(slug GuideSlug) (Guide, error) {
 	meta, ok := generatedGuides[slug]
 	if !ok {
-		return Guide{}, false
+		return Guide{}, errNotFound
 	}
 	base := path.Join("generated", "guides", string(slug))
 	metaBytes, err := embedded.ReadFile(path.Join(base, "meta.yaml"))
 	if err != nil {
-		return Guide{}, false
+		return Guide{}, err
 	}
 	external, err := embedded.ReadFile(path.Join(base, "external.md"))
 	if err != nil {
-		return Guide{}, false
+		return Guide{}, err
 	}
 	speakeasy, err := embedded.ReadFile(path.Join(base, "speakeasy.md"))
 	if err != nil {
-		return Guide{}, false
+		return Guide{}, err
 	}
 
 	remotes := make([]Remote, len(meta.Remotes))
@@ -88,7 +98,6 @@ func Lookup(slug GuideSlug) (Guide, bool) {
 
 	var assets fs.FS
 	if sub, err := fs.Sub(embedded, path.Join(base, "assets")); err == nil {
-		// Only expose Assets when the subtree has at least one file.
 		var hasFile bool
 		_ = fs.WalkDir(sub, ".", func(p string, d fs.DirEntry, err error) error {
 			if err != nil {
@@ -106,15 +115,17 @@ func Lookup(slug GuideSlug) (Guide, bool) {
 	}
 
 	return Guide{
-		Slug:      meta.Slug,
-		Title:     meta.Title,
-		Meta:      metaBytes,
-		External:  external,
-		Speakeasy: speakeasy,
-		Assets:    assets,
-		Remotes:   remotes,
-		Aliases:   aliases,
-	}, true
+		Slug:               meta.Slug,
+		Title:              meta.Title,
+		Summary:            meta.Summary,
+		SpeakeasyAddServer: meta.SpeakeasyAddServer,
+		Meta:               metaBytes,
+		External:           external,
+		Speakeasy:          speakeasy,
+		Assets:             assets,
+		Remotes:            remotes,
+		Aliases:            aliases,
+	}, nil
 }
 
 // LookupServer returns the guide and remote for a ServerRef.
@@ -140,3 +151,5 @@ func FS() fs.FS {
 	}
 	return sub
 }
+
+var errNotFound = fmt.Errorf("guides: not found")

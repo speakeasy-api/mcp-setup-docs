@@ -193,6 +193,111 @@ func TestSchemaVersion(t *testing.T) {
 	}
 }
 
+func TestEmbedTreeMatchesSlugs(t *testing.T) {
+	slugs := map[string]bool{}
+	for _, s := range guides.Slugs() {
+		slugs[string(s)] = true
+	}
+	entries, err := fs.ReadDir(guides.FS(), ".")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if !e.IsDir() {
+			t.Errorf("unexpected non-dir in embed root: %s", e.Name())
+			continue
+		}
+		if !slugs[e.Name()] {
+			t.Errorf("stale embedded guide dir %q not in Slugs()", e.Name())
+		}
+		delete(slugs, e.Name())
+	}
+	for s := range slugs {
+		t.Errorf("slug %q missing from embedded tree", s)
+	}
+}
+
+func TestByURLRoundTripIndexableRemotes(t *testing.T) {
+	for _, slug := range guides.Slugs() {
+		g, ok := guides.Lookup(slug)
+		if !ok {
+			t.Fatalf("lookup %s", slug)
+		}
+		for _, r := range g.Remotes {
+			if strings.ContainsAny(r.URL, "<>{}") {
+				if ms := guides.ByURL(r.URL); len(ms) != 0 {
+					t.Fatalf("templated URL %q should not be indexed, got %#v", r.URL, ms)
+				}
+				continue
+			}
+			ms := guides.ByURL(r.URL)
+			found := false
+			for _, m := range ms {
+				if m.Ref.Guide == slug && m.Ref.Remote == r.ID {
+					found = true
+				}
+			}
+			if !found {
+				t.Fatalf("ByURL(%q) did not resolve %s/%s; got %#v (norm=%q)",
+					r.URL, slug, r.ID, ms, guides.NormalizeURL(r.URL))
+			}
+		}
+	}
+}
+
+func TestSummaryAndAddServerPromoted(t *testing.T) {
+	g, ok := guides.Lookup("box")
+	if !ok {
+		t.Fatal("box missing")
+	}
+	if g.Summary == "" {
+		t.Fatal("expected Summary to be promoted onto Guide")
+	}
+	if g.SpeakeasyAddServer == "" {
+		t.Fatal("expected SpeakeasyAddServer to be promoted onto Guide")
+	}
+}
+
+func TestPublishedServerRefsStillResolve(t *testing.T) {
+	data, err := os.ReadFile("published_server_refs.txt")
+	if err != nil {
+		t.Fatalf("published_server_refs.txt: %v", err)
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		ref, err := guides.ParseServerRef(line)
+		if err != nil {
+			t.Errorf("bad published ref %q: %v", line, err)
+			continue
+		}
+		if _, _, ok := guides.LookupServer(ref); !ok {
+			t.Errorf("published ref %s no longer resolves", line)
+		}
+	}
+}
+
+func TestHostedDefaultForVendorSingleRemote(t *testing.T) {
+	for _, slug := range []guides.GuideSlug{"box", "github", "asana", "hubspot"} {
+		g, ok := guides.Lookup(slug)
+		if !ok {
+			t.Fatalf("missing %s", slug)
+		}
+		if len(g.Remotes) != 1 || g.Remotes[0].ID != "hosted" {
+			t.Fatalf("%s: want single hosted remote, got %#v", slug, g.Remotes)
+		}
+	}
+	sf, ok := guides.Lookup("snowflake")
+	if !ok {
+		t.Fatal("snowflake missing")
+	}
+	if len(sf.Remotes) != 1 || sf.Remotes[0].ID != "cortex-agent-mcp" {
+		t.Fatalf("snowflake should keep cortex-agent-mcp, got %#v", sf.Remotes)
+	}
+}
+
 func onDiskGuideSlugs() (map[string]bool, error) {
 	// tests run with cwd = go/
 	entries, err := os.ReadDir("../guides")

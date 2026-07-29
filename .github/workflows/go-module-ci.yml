@@ -6,6 +6,7 @@ on:
       - 'guides/**'
       - 'go/**'
       - 'schema/**'
+      - 'mise.toml'
       - '.github/workflows/go-module-ci.yml'
   push:
     branches: [main]
@@ -13,6 +14,7 @@ on:
       - 'guides/**'
       - 'go/**'
       - 'schema/**'
+      - 'mise.toml'
       - '.github/workflows/go-module-ci.yml'
 
 jobs:
@@ -33,7 +35,12 @@ jobs:
         run: go run .
 
       - name: Fail on generated drift
-        run: git diff --exit-code -- go/
+        run: |
+          if [ -n "$(git status --porcelain -- go/)" ]; then
+            echo "go/ drift detected after regenerate:"
+            git status --porcelain -- go/
+            exit 1
+          fi
 
       - name: gofmt
         working-directory: go
@@ -61,10 +68,17 @@ jobs:
             fi
           done < <(find go/generated -type f -print0)
 
+      - name: LICENSE present in module
+        run: test -f go/LICENSE
+
       - name: go vet
         working-directory: go
         run: go vet .
 
       - name: go test
         working-directory: go
+        run: go test .
+
+      - name: generator tests
+        working-directory: go/internal/gen
         run: go test .

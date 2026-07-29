@@ -27,74 +27,92 @@ type generatedRemote struct {
 }
 
 type generatedGuide struct {
-	Slug    GuideSlug
-	Title   string
-	Aliases []string
-	Remotes []generatedRemote
+	Slug               GuideSlug
+	Title              string
+	Summary            string
+	SpeakeasyAddServer string
+	Aliases            []string
+	Remotes            []generatedRemote
 }
 
 var generatedGuides = map[GuideSlug]generatedGuide{
 	"asana": {
-		Slug:    "asana",
-		Title:   "Asana",
-		Aliases: []string{"com.pulsemcp.mirror/asana-mcp"},
+		Slug:               "asana",
+		Title:              "Asana",
+		Summary:            "Connect an Asana workspace so users can access and manage their permitted Asana work through the hosted Asana MCP server.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{"com.pulsemcp.mirror/asana-mcp"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://mcp.asana.com/v2/mcp", Transport: "streamable-http", Tenanted: false},
 		},
 	},
 	"box": {
-		Slug:    "box",
-		Title:   "Box",
-		Aliases: []string{"com.pulsemcp.mirror/box"},
+		Slug:               "box",
+		Title:              "Box",
+		Summary:            "Access, search, and manage Box content and Box AI through the hosted Box MCP server.",
+		SpeakeasyAddServer: "catalog",
+		Aliases:            []string{"com.pulsemcp.mirror/box"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://mcp.box.com", Transport: "streamable-http", Tenanted: false},
 		},
 	},
 	"github": {
-		Slug:    "github",
-		Title:   "GitHub",
-		Aliases: []string{"io.github.github/github-mcp-server"},
+		Slug:               "github",
+		Title:              "GitHub",
+		Summary:            "Connect GitHub so users can work with repositories and other resources their GitHub account is permitted to access through GitHub's hosted MCP server.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{"io.github.github/github-mcp-server"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://api.githubcopilot.com/mcp/", Transport: "streamable-http", Tenanted: false},
 		},
 	},
 	"google-big-query": {
-		Slug:    "google-big-query",
-		Title:   "Google BigQuery",
-		Aliases: []string{"com.pulsemcp.mirror/google-bigquery"},
+		Slug:               "google-big-query",
+		Title:              "Google BigQuery",
+		Summary:            "Query and manage BigQuery data through Google's hosted BigQuery MCP server.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{"com.pulsemcp.mirror/google-bigquery"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://bigquery.googleapis.com/mcp", Transport: "streamable-http", Tenanted: false},
 		},
 	},
 	"google-compute-engine": {
-		Slug:    "google-compute-engine",
-		Title:   "Google Compute Engine",
-		Aliases: []string{"com.googleapis.compute/mcp"},
+		Slug:               "google-compute-engine",
+		Title:              "Google Compute Engine",
+		Summary:            "Manage Compute Engine VM instances, disks, instance groups, snapshots, and images through Google's hosted Compute Engine MCP server.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{"com.googleapis.compute/mcp"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://compute.googleapis.com/mcp", Transport: "streamable-http", Tenanted: false},
 		},
 	},
 	"hubspot": {
-		Slug:    "hubspot",
-		Title:   "HubSpot",
-		Aliases: []string{"com.pulsemcp.mirror/hubspot"},
+		Slug:               "hubspot",
+		Title:              "HubSpot",
+		Summary:            "Connect HubSpot's hosted MCP server using an MCP auth app and OAuth.",
+		SpeakeasyAddServer: "catalog",
+		Aliases:            []string{"com.pulsemcp.mirror/hubspot"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://mcp.hubspot.com", Transport: "streamable-http", Tenanted: false},
 		},
 	},
 	"intercom": {
-		Slug:    "intercom",
-		Title:   "Intercom",
-		Aliases: []string{"com.pulsemcp.mirror/intercom"},
+		Slug:               "intercom",
+		Title:              "Intercom",
+		Summary:            "Connect a US- or EU-hosted Intercom workspace through Intercom's hosted MCP server using a manually registered OAuth app.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{"com.pulsemcp.mirror/intercom"},
 		Remotes: []generatedRemote{
 			{ID: "us", URL: "https://mcp.intercom.com/mcp", Transport: "streamable-http", Tenanted: true},
 			{ID: "eu", URL: "https://mcp.eu.intercom.com/mcp", Transport: "streamable-http", Tenanted: true},
 		},
 	},
 	"salesforce": {
-		Slug:    "salesforce",
-		Title:   "Salesforce",
-		Aliases: []string{"com.pulsemcp.mirror/gram-salesforce"},
+		Slug:               "salesforce",
+		Title:              "Salesforce",
+		Summary:            "Connect to Salesforce records through hosted SObject MCP servers with selectable read, write, and delete boundaries.",
+		SpeakeasyAddServer: "custom-remote",
+		Aliases:            []string{"com.pulsemcp.mirror/gram-salesforce"},
 		Remotes: []generatedRemote{
 			{ID: "sobject-reads-production", URL: "https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads", Transport: "streamable-http", Tenanted: false},
 			{ID: "sobject-reads-sandbox", URL: "https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads", Transport: "streamable-http", Tenanted: false},
@@ -107,25 +125,31 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"snowflake": {
-		Slug:    "snowflake",
-		Title:   "Snowflake",
-		Aliases: []string{"com.pulsemcp.mirror/gram-snowflake"},
+		Slug:               "snowflake",
+		Title:              "Snowflake",
+		Summary:            "Connect the Speakeasy AI Control Plane to a Snowflake-managed MCP server that exposes an existing Cortex Agent.",
+		SpeakeasyAddServer: "custom-remote",
+		Aliases:            []string{"com.pulsemcp.mirror/gram-snowflake"},
 		Remotes: []generatedRemote{
 			{ID: "cortex-agent-mcp", URL: "https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>", Transport: "streamable-http", Tenanted: true},
 		},
 	},
 	"x": {
-		Slug:    "x",
-		Title:   "X",
-		Aliases: []string{"com.pulsemcp.mirror/xdevplatform-xmcp"},
+		Slug:               "x",
+		Title:              "X",
+		Summary:            "Connect the hosted X MCP server for read-only public-data access using an app-only Bearer Token.",
+		SpeakeasyAddServer: "",
+		Aliases:            []string{"com.pulsemcp.mirror/xdevplatform-xmcp"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://api.x.com/mcp", Transport: "streamable-http", Tenanted: false},
 		},
 	},
 	"zapier": {
-		Slug:    "zapier",
-		Title:   "Zapier",
-		Aliases: []string{"com.pulsemcp.mirror/zapier"},
+		Slug:               "zapier",
+		Title:              "Zapier",
+		Summary:            "Connect Zapier so agents can discover and run actions in your connected apps.",
+		SpeakeasyAddServer: "catalog",
+		Aliases:            []string{"com.pulsemcp.mirror/zapier"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://mcp.zapier.com/api/v1/connect", Transport: "streamable-http", Tenanted: false},
 		},
@@ -147,9 +171,6 @@ var generatedAliasToSlug = map[string]GuideSlug{
 }
 
 var generatedURLToRefs = map[string][]ServerRef{
-	"https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>": {
-		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
-	},
 	"https://api.githubcopilot.com/mcp": {
 		{Guide: "github", Remote: "hosted"},
 	},

@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -38,11 +39,13 @@ type remoteMeta struct {
 }
 
 type metaFile struct {
-	SchemaVersion int      `yaml:"schema_version"`
-	Slug          string   `yaml:"slug"`
-	Title         string   `yaml:"title"`
-	Aliases       []string `yaml:"aliases"`
-	Documentation struct {
+	SchemaVersion      int      `yaml:"schema_version"`
+	Slug               string   `yaml:"slug"`
+	Title              string   `yaml:"title"`
+	Summary            string   `yaml:"summary"`
+	SpeakeasyAddServer string   `yaml:"speakeasy_add_server"`
+	Aliases            []string `yaml:"aliases"`
+	Documentation      struct {
 		External  string      `yaml:"external"`
 		Speakeasy string      `yaml:"speakeasy"`
 		Assets    []assetMeta `yaml:"assets"`
@@ -59,13 +62,15 @@ type remoteIndex struct {
 }
 
 type guideIndex struct {
-	Slug              string
-	Title             string
-	Aliases           []string
-	Remotes           []remoteIndex
-	ProvenanceNames   []string
-	RemoteProvenances [][]string // parallel to Remotes
-	AssetPaths        []string
+	Slug               string
+	Title              string
+	Summary            string
+	SpeakeasyAddServer string
+	Aliases            []string
+	Remotes            []remoteIndex
+	ProvenanceNames    []string
+	RemoteProvenances  [][]string // parallel to Remotes
+	AssetPaths         []string
 }
 
 func main() {
@@ -106,18 +111,15 @@ func run() error {
 		return fmt.Errorf("no guide directories under %s", guidesSrc)
 	}
 
-	// Stale generated Go sources from older layouts.
-	for _, stale := range []string{
-		filepath.Join(outRoot, "index_gen.go"),
-		filepath.Join(outRoot, "embed_gen.go"),
-	} {
-		_ = os.Remove(stale)
+	if err := os.MkdirAll(outGuides, 0o755); err != nil {
+		return err
 	}
 
 	guides := make([]guideIndex, 0, len(slugs))
 	aliasToSlug := map[string]string{}
 	urlToRefs := map[string][]string{} // normalized URL → "slug/remote"
 	provToRefs := map[string][]string{}
+	currentRefs := map[string]struct{}{}
 
 	for _, slug := range slugs {
 		srcDir := filepath.Join(guidesSrc, slug)
@@ -155,7 +157,11 @@ func run() error {
 			}
 		}
 
+		// Rebuild each guide dir from scratch so deleted assets/files cannot linger.
 		dstDir := filepath.Join(outGuides, slug)
+		if err := os.RemoveAll(dstDir); err != nil {
+			return err
+		}
 		if err := os.MkdirAll(dstDir, 0o755); err != nil {
 			return err
 		}
@@ -166,8 +172,10 @@ func run() error {
 		}
 
 		g := guideIndex{
-			Slug:  meta.Slug,
-			Title: meta.Title,
+			Slug:               meta.Slug,
+			Title:              meta.Title,
+			Summary:            meta.Summary,
+			SpeakeasyAddServer: meta.SpeakeasyAddServer,
 		}
 		seenRemote := map[string]struct{}{}
 		for _, r := range meta.Remotes {
@@ -191,8 +199,13 @@ func run() error {
 				Tenanted:  r.Tenanted,
 			})
 			ref := slug + "/" + r.ID
-			norm := normalizeURL(r.URL)
-			urlToRefs[norm] = append(urlToRefs[norm], ref)
+			currentRefs[ref] = struct{}{}
+			if isIndexableURL(r.URL) {
+				norm := normalizeURL(r.URL)
+				if norm != "" {
+					urlToRefs[norm] = append(urlToRefs[norm], ref)
+				}
+			}
 			var names []string
 			for _, p := range r.Provenance {
 				if p.Name == "" {
@@ -228,7 +241,6 @@ func run() error {
 			}
 			seenProv[p.Name] = struct{}{}
 			g.ProvenanceNames = append(g.ProvenanceNames, p.Name)
-			// Guide-level provenance resolves to every remote of that guide.
 			for _, r := range g.Remotes {
 				ref := slug + "/" + r.ID
 				provToRefs[p.Name] = append(provToRefs[p.Name], ref)
@@ -265,7 +277,11 @@ func run() error {
 		guides = append(guides, g)
 	}
 
-	// Alias must not collide with another guide's slug.
+	// Drop generated guide dirs that no longer exist on disk.
+	if err := pruneStaleGuideDirs(outGuides, slugs); err != nil {
+		return err
+	}
+
 	slugSet := map[string]struct{}{}
 	for _, g := range guides {
 		slugSet[g.Slug] = struct{}{}
@@ -288,13 +304,94 @@ func run() error {
 		provToRefs[n] = uniq(refs)
 	}
 
+	if err := syncPublishedRefs(filepath.Join(moduleRoot, "published_server_refs.txt"), currentRefs); err != nil {
+		return err
+	}
 	if err := writeIndex(filepath.Join(moduleRoot, "index_gen.go"), guides, aliasToSlug, urlToRefs, provToRefs); err != nil {
 		return err
 	}
-	if err := writeEmbedGen(filepath.Join(moduleRoot, "embed_assets_gen.go"), guides); err != nil {
+	// Older layouts left a separate assets embed file; remove if present.
+	_ = os.Remove(filepath.Join(moduleRoot, "embed_assets_gen.go"))
+	return nil
+}
+
+func pruneStaleGuideDirs(outGuides string, slugs []string) error {
+	keep := map[string]struct{}{}
+	for _, s := range slugs {
+		keep[s] = struct{}{}
+	}
+	entries, err := os.ReadDir(outGuides)
+	if err != nil {
 		return err
 	}
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		if _, ok := keep[e.Name()]; ok {
+			continue
+		}
+		if err := os.RemoveAll(filepath.Join(outGuides, e.Name())); err != nil {
+			return fmt.Errorf("prune stale guide %s: %w", e.Name(), err)
+		}
+	}
 	return nil
+}
+
+// syncPublishedRefs enforces append-only remote ids after first publish.
+// New refs are added automatically; removing a previously published ref fails.
+func syncPublishedRefs(path string, current map[string]struct{}) error {
+	published, err := readPublishedRefs(path)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	var missing []string
+	for ref := range published {
+		if _, ok := current[ref]; !ok {
+			missing = append(missing, ref)
+		}
+	}
+	sort.Strings(missing)
+	if len(missing) > 0 {
+		return fmt.Errorf("published ServerRefs were removed (append-only after first tag): %v\nre-add the remote id or intentionally rewrite %s after a deprecation review", missing, path)
+	}
+	merged := map[string]struct{}{}
+	for ref := range published {
+		merged[ref] = struct{}{}
+	}
+	for ref := range current {
+		merged[ref] = struct{}{}
+	}
+	refs := make([]string, 0, len(merged))
+	for ref := range merged {
+		refs = append(refs, ref)
+	}
+	sort.Strings(refs)
+	var b strings.Builder
+	b.WriteString("# Append-only list of published ServerRefs (slug/remote-id).\n")
+	b.WriteString("# Generator adds new refs automatically; removing a line without\n")
+	b.WriteString("# restoring the remote will fail go generate / CI.\n")
+	for _, ref := range refs {
+		b.WriteString(ref)
+		b.WriteByte('\n')
+	}
+	return os.WriteFile(path, []byte(b.String()), 0o644)
+}
+
+func readPublishedRefs(path string) (map[string]struct{}, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	out := map[string]struct{}{}
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		out[line] = struct{}{}
+	}
+	return out, nil
 }
 
 func findModuleRoot() (string, error) {
@@ -302,33 +399,29 @@ func findModuleRoot() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// When run as go run ./internal/gen from go/, cwd is go/.
-	// When run from go/internal/gen, cwd is that dir.
 	candidates := []string{wd, filepath.Join(wd, "..", "..")}
 	for _, c := range candidates {
-		if _, err := os.Stat(filepath.Join(c, "go.mod")); err == nil {
-			// Prefer the published module root (…/go/go.mod), not this nested module.
-			data, err := os.ReadFile(filepath.Join(c, "go.mod"))
-			if err != nil {
-				continue
-			}
-			if strings.Contains(string(data), "module github.com/speakeasy-api/mcp-setup-docs/go\n") ||
-				strings.Contains(string(data), "module github.com/speakeasy-api/mcp-setup-docs/go\r\n") {
+		mod := filepath.Join(c, "go.mod")
+		data, err := os.ReadFile(mod)
+		if err != nil {
+			continue
+		}
+		text := string(data)
+		if strings.Contains(text, "module github.com/speakeasy-api/mcp-setup-docs/go\n") ||
+			strings.Contains(text, "module github.com/speakeasy-api/mcp-setup-docs/go\r\n") {
+			if !strings.Contains(text, "/internal/gen") {
 				return filepath.Clean(c), nil
 			}
 		}
 	}
-	// Walk up looking for the published module.
 	dir := wd
 	for {
 		mod := filepath.Join(dir, "go.mod")
 		if data, err := os.ReadFile(mod); err == nil {
-			if strings.HasPrefix(strings.TrimSpace(string(data)), "module github.com/speakeasy-api/mcp-setup-docs/go\n") ||
-				strings.Contains(string(data), "module github.com/speakeasy-api/mcp-setup-docs/go\n") {
-				// Exclude the nested gen module path suffix.
-				if !strings.Contains(string(data), "/internal/gen") {
-					return dir, nil
-				}
+			text := string(data)
+			if strings.Contains(text, "module github.com/speakeasy-api/mcp-setup-docs/go") &&
+				!strings.Contains(text, "/internal/gen") {
+				return dir, nil
 			}
 		}
 		parent := filepath.Dir(dir)
@@ -374,11 +467,41 @@ func uniq(in []string) []string {
 	return out
 }
 
-// normalizeURL matches package guides URL normalization for the index.
+// isIndexableURL excludes templated / placeholder endpoints from ByURL.
+func isIndexableURL(raw string) bool {
+	return !strings.ContainsAny(raw, "<>{}")
+}
+
+// normalizeURL must match package guides.NormalizeURL exactly.
 func normalizeURL(raw string) string {
 	s := strings.TrimSpace(raw)
-	s = strings.TrimSuffix(s, "/")
-	// Lowercase scheme and host only.
+	if s == "" {
+		return ""
+	}
+	u, err := url.Parse(s)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return normalizeURLFallback(s)
+	}
+	scheme := strings.ToLower(u.Scheme)
+	host := strings.ToLower(u.Host)
+	if scheme == "https" {
+		host = strings.TrimSuffix(host, ":443")
+	}
+	path := u.EscapedPath()
+	if path == "/" {
+		path = ""
+	} else {
+		path = strings.TrimSuffix(path, "/")
+	}
+	out := scheme + "://" + host + path
+	if u.RawQuery != "" {
+		out += "?" + u.RawQuery
+	}
+	return out
+}
+
+func normalizeURLFallback(s string) string {
+	s = strings.TrimSuffix(strings.TrimSpace(s), "/")
 	if i := strings.Index(s, "://"); i >= 0 {
 		scheme := strings.ToLower(s[:i])
 		rest := s[i+3:]
@@ -387,14 +510,13 @@ func normalizeURL(raw string) string {
 			hostEnd = j
 		}
 		host := strings.ToLower(rest[:hostEnd])
-		// Strip default ports.
 		host = strings.TrimSuffix(host, ":443")
 		pathQuery := rest[hostEnd:]
 		if fq := strings.Index(pathQuery, "#"); fq >= 0 {
 			pathQuery = pathQuery[:fq]
 		}
-		s = scheme + "://" + host + pathQuery
-		s = strings.TrimSuffix(s, "/")
+		pathQuery = strings.TrimSuffix(pathQuery, "/")
+		return scheme + "://" + host + pathQuery
 	}
 	return s
 }

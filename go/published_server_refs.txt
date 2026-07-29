@@ -1,0 +1,22 @@
+# Append-only list of published ServerRefs (slug/remote-id).
+# Generator adds new refs automatically; removing a line without
+# restoring the remote will fail go generate / CI.
+asana/hosted
+box/hosted
+github/hosted
+google-big-query/hosted
+google-compute-engine/hosted
+hubspot/hosted
+intercom/eu
+intercom/us
+salesforce/sobject-all-production
+salesforce/sobject-all-sandbox
+salesforce/sobject-deletes-production
+salesforce/sobject-deletes-sandbox
+salesforce/sobject-mutations-production
+salesforce/sobject-mutations-sandbox
+salesforce/sobject-reads-production
+salesforce/sobject-reads-sandbox
+snowflake/cortex-agent-mcp
+x/hosted
+zapier/hosted
