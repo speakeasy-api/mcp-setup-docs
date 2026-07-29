@@ -82,12 +82,72 @@ jobs:
           git fetch origin "refs/heads/${BRANCH}:refs/remotes/origin/${BRANCH}" 2>/dev/null || true
           git push -u origin "HEAD:refs/heads/${BRANCH}" --force-with-lease
 
+          # Guide-level + other go/ drift vs main (aggregated across open regen PR).
+          base_guides="${RUNNER_TEMP:-/tmp}/go-module-regen-guides-base.txt"
+          head_guides="${RUNNER_TEMP:-/tmp}/go-module-regen-guides-head.txt"
+          git ls-tree -d --name-only "origin/main:go/generated/guides" 2>/dev/null \
+            | sort -u > "$base_guides" || : > "$base_guides"
+          if [ -d go/generated/guides ]; then
+            find go/generated/guides -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -u > "$head_guides"
+          else
+            : > "$head_guides"
+          fi
+
+          mapfile -t added_guides < <(comm -13 "$base_guides" "$head_guides")
+          mapfile -t removed_guides < <(comm -23 "$base_guides" "$head_guides")
+          updated_guides=()
+          while IFS= read -r slug; do
+            [ -z "$slug" ] && continue
+            if ! git diff --quiet "origin/main" -- "go/generated/guides/${slug}"; then
+              updated_guides+=("$slug")
+            fi
+          done < <(comm -12 "$base_guides" "$head_guides")
+
+          mapfile -t other_files < <(
+            git diff --name-only "origin/main" -- go/ \
+              | grep -v '^go/generated/guides/' \
+              | sort -u || true
+          )
+
+          fmt_backticks() {
+            local out="" s
+            for s in "$@"; do
+              [ -z "$s" ] && continue
+              if [ -n "$out" ]; then out+=", "; fi
+              out+="\`${s}\`"
+            done
+            printf '%s' "$out"
+          }
+
           body_file="${RUNNER_TEMP:-/tmp}/go-module-regen-pr.md"
-          cat > "$body_file" <<'EOF'
+          {
+            cat <<'EOF'
           ## Summary
           - Regenerated `go/generated` + identity indexes from current `guides/` / `schema/`
           - Opened by `go-module-regen` after a guide or schema change landed on `main`
           - Branch is machine-owned — don't push fixes here; they'll be overwritten
+
+          ## Changes
+          EOF
+            if [ "${#added_guides[@]}" -gt 0 ]; then
+              echo "- **Added guides:** $(fmt_backticks "${added_guides[@]}")"
+            fi
+            if [ "${#updated_guides[@]}" -gt 0 ]; then
+              echo "- **Updated guides:** $(fmt_backticks "${updated_guides[@]}")"
+            fi
+            if [ "${#removed_guides[@]}" -gt 0 ]; then
+              echo "- **Removed guides:** $(fmt_backticks "${removed_guides[@]}")"
+            fi
+            if [ "${#other_files[@]}" -gt 0 ]; then
+              echo "- **Other:** $(fmt_backticks "${other_files[@]}")"
+            fi
+            if [ "${#added_guides[@]}" -eq 0 ] \
+              && [ "${#updated_guides[@]}" -eq 0 ] \
+              && [ "${#removed_guides[@]}" -eq 0 ] \
+              && [ "${#other_files[@]}" -eq 0 ]; then
+              echo "- _(diff vs \`main\` had no classifiable paths)_"
+            fi
+            cat <<'EOF'
 
           ## Release
           Merging this PR triggers `go-module-release` (patch bump of `go/vX.Y.Z` + GitHub Release), once `go/v0.1.0` exists.
@@ -96,7 +156,7 @@ jobs:
           - [ ] `Go module CI` is green on this PR
           - [ ] Spot-check `go/generated` / `index_gen.go` for the guides that changed
           EOF
-          # Block scalar already strips YAML indent; body starts at column 0.
+          } > "$body_file"
 
           existing="$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number // empty')"
           if [ -n "$existing" ]; then

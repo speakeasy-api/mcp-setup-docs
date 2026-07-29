@@ -1,0 +1,82 @@
+{
+  "slug": "google-people",
+  "provider": "google-people",
+  "persona": "it-admin",
+  "timestamp": "2026-07-29T21:55:51Z",
+  "started_at": "2026-07-29T21:55:51Z",
+  "finished_at": "2026-07-29T22:07:25Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#configure-oauth-consent",
+          "problem": "The first-time wizard steps are presented unconditionally even though the Dossier limits them to projects where Google Auth platform is not configured.",
+          "suggestion": "Place steps 3–13 under the unconfigured-project condition and direct already-configured projects straight to Data Access.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#create-oauth-client",
+          "problem": "The guide omits the Dossier's instruction that Authorized JavaScript origins is not needed for this flow.",
+          "suggestion": "Tell the reader to leave Authorized JavaScript origins empty.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup > #connect-speakeasy-credentials",
+          "problem": "The transcluded Manual OAuth flow omits the canonical fact that the Redirect URI has a copy button.",
+          "suggestion": "Restore the Redirect URI copy-button fact from doctrine/speakeasy-setup.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "Closing pointer",
+          "problem": "The final sentence does not faithfully render the canonical closing pointer recorded in the Dossier.",
+          "suggestion": "Use the Dossier's exact setup-only closing sentence and retain the Google documentation link.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#configure-oauth-consent, step 6",
+          "problem": "The guide directs readers to choose Internal whenever available without checking whether every connecting account belongs to the Google Cloud organization, so outside accounts can be blocked from authorization.",
+          "suggestion": "Direct readers to choose Internal only when every connecting account belongs to the organization; otherwise choose External and follow the test-user steps when applicable.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#copy-oauth-credentials, \"If you miss the one-time secret, delete it and create a new one\"",
+          "problem": "The immediate recovery path does not identify what must be deleted or the browser controls needed to replace the missed one-time secret.",
+          "suggestion": "Research and record the exact Google Auth platform navigation and control labels for deleting the affected credential and recreating it, then render that recovery path in external.md.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Conditioned the first-time OAuth wizard on an unconfigured project; corrected Internal/External audience selection; instructed readers to leave JavaScript origins empty; restored the Redirect URI copy-button fact; added researched, provenanced secret-replacement controls; rendered that recovery path; and restored the canonical setup-only closing pointer.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}

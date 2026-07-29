@@ -113,7 +113,7 @@ export function notesDisposeOfQuestion(notes: string, question: string): boolean
   const n = notes.toLowerCase()
   const q = question.toLowerCase()
   const dispose =
-    /\b(?:hedge|omit|drop(?:ping)?(?:\s+this)?(?:\s+branch)?|skip(?:ping)?|out of (?:band|scope)|do not (?:invent|document)|unknown\s*\/\s*omit)\b/i.test(
+    /\b(?:hedge|omit|drop(?:ping)?(?:\s+this)?(?:\s+branch)?|skip(?:ping)?|apply|override|out of (?:band|scope)|do not (?:invent|document)|unknown\s*\/\s*omit)\b/i.test(
       notes
     )
   if (!dispose) return false

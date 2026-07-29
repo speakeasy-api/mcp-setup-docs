@@ -32,7 +32,7 @@ describe('formatScopeCheck', () => {
 
 describe('partitionFindings', () => {
   it('dedupes gate findings preferring fidelity', () => {
-    const { decisions, legacy } = partitionFindings([
+    const { renderFixes, decisions, legacy } = partitionFindings([
       {
         dimension: 'achievability',
         target: 'external',
@@ -52,14 +52,85 @@ describe('partitionFindings', () => {
         problem: 'v',
       },
     ])
-    assert.equal(decisions.length, 1)
-    assert.equal(decisions[0]!.dimension, 'fidelity')
+    assert.equal(renderFixes.length, 1)
+    assert.equal(renderFixes[0]!.dimension, 'fidelity')
+    assert.equal(decisions.length, 0)
     assert.equal(legacy.length, 1)
     assert.equal(legacy[0]!.dimension, 'voice')
+  })
+
+  it('splits dossier render fixes from research decisions', () => {
+    const { renderFixes, decisions } = partitionFindings([
+      {
+        dimension: 'fidelity',
+        target: 'external',
+        where: 'opening prerequisites',
+        problem: 'roles only; permission name omitted',
+        suggestion: 'state serviceusage.services.enable, normally via those roles',
+      },
+      {
+        dimension: 'fidelity',
+        target: 'research',
+        where: 'auth #copy-creds',
+        problem: 'missing secret name',
+        suggestion: 'name the field',
+      },
+      {
+        dimension: 'achievability',
+        target: 'external',
+        where: 'step #recover',
+        problem: 'recovery path unclear',
+        suggestion: 'name the control or hedge',
+      },
+    ])
+    assert.equal(renderFixes.length, 1)
+    assert.equal(renderFixes[0]!.target, 'external')
+    assert.equal(decisions.length, 2)
   })
 })
 
 describe('formatPipelineReview', () => {
+  it('renders render-fix apply UX separately from research decisions', () => {
+    const md = formatPipelineReview(
+      {
+        slug: 'google-calendar',
+        status: 'unconverged',
+        rounds: 3,
+        unresolved: [
+          {
+            dimension: 'fidelity',
+            target: 'external',
+            where: 'opening prerequisites',
+            problem:
+              'The guide says enabling requires Service Usage Admin or Owner, while the Dossier names serviceusage.services.enable.',
+            suggestion:
+              'State that enabling requires serviceusage.services.enable, normally provided by Service Usage Admin or Owner.',
+          },
+          {
+            dimension: 'fidelity',
+            target: 'research',
+            where: 'auth #copy-creds',
+            problem: 'missing secret name',
+            suggestion: 'name the field',
+          },
+        ],
+        open_questions: ['What is the exact button label?'],
+        nits: [],
+      },
+      '',
+      '',
+      'run.json',
+    )
+    assert.match(md, /## Pipeline review \(`google-calendar`\)/)
+    assert.match(md, /Render fixes \(1\)/)
+    assert.match(md, /Dossier already has the wording/)
+    assert.match(md, /Decision 1: apply/)
+    assert.doesNotMatch(md, /Decision 1: verified/)
+    assert.match(md, /Decisions needed \(1\)/)
+    assert.match(md, /Decision 2: verified/)
+    assert.doesNotMatch(md, /the fact may already be in research/)
+  })
+
   it('renders converged outcome and decisions', () => {
     const md = formatPipelineReview(
       {

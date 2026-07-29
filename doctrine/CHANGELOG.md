@@ -6,6 +6,70 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-29 — dossier-backed render fixes are not chrome Decisions
+
+Files: `pipeline/src/{findings,workflow}.ts`,
+`pipeline/src/factory/format-pipeline-review.ts`,
+`pipeline/src/factory/formatters.test.ts`,
+`pipeline/src/findings.test.ts`, `pipeline/src/scope-gate.ts`,
+`doctrine/roles/fidelity.md`, `FACTORY.md`,
+`retro/notes/2026-07-29-dossier-backed-render-not-decision.md`.
+
+- **Narrow finalization salvage (unwind of Phase 0 cut):** Phase 0/1 locked
+  “no salvage recheck loop.” This restores **only** dossier-backed
+  setup-file fidelity salvage (shared `shouldSalvageFinalization`): when
+  every blocker after the last-round confirmatory review is fidelity on
+  `external` / `speakeasy`, one revise (blockers only — no nits) + recheck.
+  Research, meta, and achievability gaps still surface with no salvage.
+  Polish / spiral stay gone.
+- **Factory review comment:** those misses → **Render fixes**
+  (`Decision N: apply` / `override`) instead of verified / drop / hedge;
+  removed the “fact may already be in research” hedge. Shared predicate
+  with the workflow so salvage and the comment agree.
+- **Fidelity opening prose:** sharpened existing omission check #3 so
+  every round re-checks opening prose against Dossier Server facts /
+  Credential flow permissions — not only the prior contested locus (no
+  net new section; tightened the existing rule).
+
+Invariants: I1 strengthened (render the Dossier; do not escalate a known
+fact as console capture). I6 preserved — capped rounds, structured
+findings; salvage is one bounded extra revise only for dossier-backed
+setup fidelity, then unresolved still surfaces. I8 — this entry.
+
+Evidence: [PR #79](https://github.com/speakeasy-api/mcp-setup-docs/pull/79)
+Pipeline review Decision 1 (opening prerequisites already in research;
+escalated as verified/drop/hedge);
+`retro/notes/2026-07-29-dossier-backed-render-not-decision.md` (operator
+direction).
+
+## 2026-07-29 — guide stability: stamp digests + lock rebaseline
+
+Files: `doctrine/pipeline-lock.md`, `doctrine/roles/writer.md`,
+`pipeline/src/{lock,workflow}.ts`, `retro/README.md`.
+
+- **Stable `research.md` digests** normalize frontmatter `researched_at` and
+  ISO-8601-Z provenance stamp tokens (not bare calendar dates), mirroring
+  `observed_at` stripping for `meta.yaml`, so stamp-only research refreshes
+  hit the digest fast path.
+- **Non-material judge:** keep AFTER on disk; when notes match the lock,
+  rebaseline in-memory lock research/draft/review artifact digests so
+  draft and round-1 review can skip. Supersedes the 2026-07-23 claim that
+  keep-AFTER alone still drove skips (it did not — digest mismatch forced
+  full rewrites).
+- **Notes guard:** when operator notes differ from the lock, never skip via
+  research equivalence and never restore BEFORE (note incorporations stay
+  on disk; draft runs).
+- **Writer / revise:** when setup files exist, edit in place / minimal diff;
+  silent restyling is a defect. Run Records gain `notes_digest` and optional
+  `setup_churn`.
+
+Invariants: I2 preserved — this-run stamps stay on disk. I1/I5/I6 preserved —
+dossier ceiling and review gates unchanged; skips only fire when
+draft-equivalent.
+
+Evidence: 14/14 historical `unchanged=true` runs still drafted
+(`retro/runs/*`); retro validation of note-added / restore-BEFORE risk.
+
 ## 2026-07-27 — Speakeasy skeleton: OAuth DCR credential variant
 
 Files: `doctrine/speakeasy-setup.md`.
