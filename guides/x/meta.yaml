@@ -2,54 +2,91 @@
 schema_version: 1
 slug: x
 title: X
-summary: Connect X's public documentation MCP server for searching and retrieving X developer documentation.
+summary: Connect the hosted X MCP server for read-only public-data access using an app-only Bearer Token.
 aliases:
   - com.pulsemcp.mirror/xdevplatform-xmcp
-speakeasy_add_server: catalog
 credential_setup:
   options:
-    - id: public
-      kind: open
+    - id: app-only-bearer
+      kind: api_key
+      fields:
+        - id: bearer-token
+          label: Bearer Token
+          setup:
+            - external.md#copy-bearer-token
+  requirements:
+    - id: x-developer-account
+      description: X account enrolled in the Developer Platform with authority to create an app
+    - id: x-api-credits
+      description: API credits available in the X Developer Console for pay-per-usage requests
 documentation:
   external: external.md
   speakeasy: speakeasy.md
 remotes:
-  - id: docs
-    url: https://docs.x.com/mcp
+  - id: hosted
+    url: https://api.x.com/mcp
     transport: streamable-http
     authentication:
-      - public
+      - app-only-bearer
     provenance:
       - source: provider-documentation
-        locator: https://docs.x.com/mcp
-        name: X Docs MCP
+        locator: https://x-preview.mintlify.app/tools/mcp
+        name: MCP servers for the X API and X developer docs
         classification: official
-        observed_at: "2026-07-29T19:57:31Z"
+        observed_at: "2026-07-27T16:51:41Z"
 provenance:
-  - source: provider-documentation
-    locator: https://docs.x.com/mcp
-    name: X Docs MCP
-    classification: official
-    observed_at: "2026-07-29T19:57:31Z"
   - source: provider-documentation
     locator: https://x-preview.mintlify.app/tools/mcp
     name: MCP servers for the X API and X developer docs
     classification: official
-    observed_at: "2026-07-29T19:57:31Z"
+    observed_at: "2026-07-27T16:51:41Z"
   - source: provider-documentation
     locator: https://docs.x.com/llms.txt
     name: X Developer Platform documentation index
     classification: official
-    observed_at: "2026-07-29T19:57:31Z"
-  - source: pulsemcp
-    locator: com.pulsemcp.mirror/xdevplatform-xmcp
-    name: X
-    classification: mirror
-    scope: tenant
-    status: present
-    observed_at: "2026-07-29T19:57:31Z"
+    observed_at: "2026-07-27T16:51:41Z"
+  - source: provider-documentation
+    locator: https://x-preview.mintlify.app/x-api/getting-started/getting-access
+    name: Getting Access
+    classification: official
+    observed_at: "2026-07-27T16:51:41Z"
+  - source: provider-documentation
+    locator: https://x-preview.mintlify.app/fundamentals/developer-portal
+    name: Developer Console
+    classification: official
+    observed_at: "2026-07-27T16:51:41Z"
+  - source: provider-documentation
+    locator: https://x-preview.mintlify.app/fundamentals/developer-apps
+    name: Apps
+    classification: official
+    observed_at: "2026-07-27T16:51:41Z"
+  - source: provider-documentation
+    locator: https://x-preview.mintlify.app/fundamentals/authentication/overview
+    name: Authentication
+    classification: official
+    observed_at: "2026-07-27T16:51:41Z"
+  - source: provider-documentation
+    locator: https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/application-only
+    name: App only authentication and OAuth 2.0 Bearer Token
+    classification: official
+    observed_at: "2026-07-27T16:51:41Z"
+  - source: provider-documentation
+    locator: https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/authorization-code
+    name: OAuth 2.0 Authorization Code Flow with PKCE
+    classification: official
+    observed_at: "2026-07-27T16:51:41Z"
+  - source: provider-documentation
+    locator: https://x-preview.mintlify.app/x-api/getting-started/pricing
+    name: X API pay-per-usage pricing and credits
+    classification: official
+    observed_at: "2026-07-27T16:51:41Z"
+  - source: provider-open-source
+    locator: https://raw.githubusercontent.com/xdevplatform/xurl/main/README.md
+    name: xurl
+    classification: official
+    observed_at: "2026-07-27T16:51:41Z"
   - source: speakeasy-product-documentation
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-29T19:57:31Z"
+    observed_at: "2026-07-27T16:51:41Z"
