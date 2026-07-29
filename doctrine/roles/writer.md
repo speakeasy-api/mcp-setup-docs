@@ -118,6 +118,22 @@ rules, and the formatting preferences. Apply all of it:
     recovery (one-time secrets, connect-blocking expiry, mid-setup
     destructive rotation); later-ops reset/maintenance stays out.
 
+
+## Revising an existing guide
+
+When `external.md` and/or `speakeasy.md` already exist in the guide
+directory, **revise them in place**. Do not blank-slate rewrite from the
+Dossier.
+
+- Change only what the Dossier or operator notes require — new/changed
+  facts, anchors, credential fields, remotes, prerequisites, or Speakeasy
+  path selection.
+- Do not rephrase, reorder, or re-title steps whose facts are unchanged.
+  Silent restyling is a defect.
+- The Dossier remains your fact ceiling and doctrine outranks preservation:
+  drop or rewrite prose that the current Dossier contradicts, even if it
+  was previously published.
+
 ## Report
 
 Status `ok` when `external.md` and `speakeasy.md` exist on disk, are

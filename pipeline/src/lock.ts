@@ -109,16 +109,33 @@ export const PROMPT_TEMPLATES = {
     'notes (decisions, uncertainty, validation method), open_questions.',
   ].join('\n'),
 
-  draft: [
-    'You are the Writer Agent in the mcp-setup-docs drafting pipeline.',
-    "Read the guide directory's research.md and meta.yaml, then write",
-    'external.md and speakeasy.md in the persona\'s voice before you report.',
-    'status "ok" is invalid unless both files exist on disk. The Dossier is',
-    'your fact ceiling.',
-    'Do not touch any other path.',
-    'Report via structured output: status ("ok" or "blocked" per your role',
-    'doc), notes, open_questions (Dossier gaps you could not render around).',
-  ].join('\n'),
+  /**
+   * Writer prompt digest template. `existing` selects the in-place revise
+   * variant when setup files already exist on disk.
+   */
+  draft(existing: boolean): string {
+    const base = [
+      'You are the Writer Agent in the mcp-setup-docs drafting pipeline.',
+      "Read the guide directory's research.md and meta.yaml, then write",
+      'external.md and speakeasy.md in the persona\'s voice before you report.',
+      'status "ok" is invalid unless both files exist on disk. The Dossier is',
+      'your fact ceiling.',
+      'Do not touch any other path.',
+    ]
+    if (existing) {
+      base.push(
+        'Setup files already exist: revise them in place. Change only what the',
+        'Dossier or operator notes require; do not rephrase, reorder, or',
+        're-title steps whose facts are unchanged. Silent restyling is a defect.',
+        'Dossier facts and doctrine outrank preservation of stale prose.'
+      )
+    }
+    base.push(
+      'Report via structured output: status ("ok" or "blocked" per your role',
+      'doc), notes, open_questions (Dossier gaps you could not render around).'
+    )
+    return base.join('\n')
+  },
 
   review(dimension: ReviewDimension): string {
     const lines = [
@@ -148,6 +165,25 @@ export function digestBytes(data: Buffer | string): string {
 
 export function promptDigest(template: string): string {
   return digestBytes(template)
+}
+
+/** Full ISO-8601 instants ending in Z — provenance stamps, not bare dates. */
+const ISO8601Z_RE = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z/g
+
+/**
+ * Normalize research.md for stable digests: drop frontmatter researched_at
+ * and replace ISO-8601-Z provenance stamp tokens. Bare calendar dates stay.
+ */
+export function normalizeResearchMdForDigest(content: string): string {
+  const withoutResearchedAt = content.replace(
+    /^researched_at:\s*.+$/m,
+    'researched_at: <PROVENANCE_STAMP>'
+  )
+  return withoutResearchedAt.replace(ISO8601Z_RE, '<ISO8601Z>')
+}
+
+export function stableDigestResearchMd(content: string): string {
+  return digestBytes(normalizeResearchMdForDigest(content))
 }
 
 /** Recursively omit observed_at keys (for stable meta.yaml digests). */
@@ -198,7 +234,7 @@ export function inputDigest(inputs: StepInputs): string {
 
 /**
  * Stable content digest for a file on disk.
- * guideRel: guide-relative name used to decide meta.yaml stripping
+ * guideRel: guide-relative name used to decide meta.yaml / research.md rules
  *   (e.g. "meta.yaml"); when omitted, basename of absPath is used.
  */
 export function stableDigestFile(absPath: string, guideRel?: string): string {
@@ -207,6 +243,9 @@ export function stableDigestFile(absPath: string, guideRel?: string): string {
   if (name === 'meta.yaml') {
     const parsed = parseYaml(raw.toString('utf8'))
     return digestBytes(canonicalize(omitObservedAt(parsed)))
+  }
+  if (name === 'research.md') {
+    return stableDigestResearchMd(raw.toString('utf8'))
   }
   return digestBytes(raw)
 }
@@ -320,11 +359,78 @@ export function snapshotStableDigests(
     if (content === undefined) continue
     if (name === 'meta.yaml') {
       out[name] = digestBytes(canonicalize(omitObservedAt(parseYaml(content))))
+    } else if (name === 'research.md') {
+      out[name] = stableDigestResearchMd(content)
     } else {
       out[name] = digestBytes(content)
     }
   }
   return out
+}
+
+/**
+ * True when operator/lock notes match the previous research step's params.notes.
+ * Missing research step → false (cannot claim note continuity).
+ */
+export function researchNotesMatchLock(
+  lock: PipelineLock | null,
+  notes: string
+): boolean {
+  const locked = lock?.steps.research?.inputs.params.notes
+  if (locked === undefined) return false
+  return locked === notes
+}
+
+/**
+ * After a non-material research refresh, keep AFTER on disk and rewrite
+ * in-memory lock digests so draft/review skip checks compare against the
+ * current research artifacts. Setup-file outputs are left unchanged.
+ */
+export function rebaselineLockResearchArtifacts(
+  lock: PipelineLock,
+  guideDir: string
+): PipelineLock {
+  const researchOutputs = RESEARCH_OUTPUT_FILES.map((name) =>
+    digestGuideFile(guideDir, name)
+  )
+  const byPath = new Map(researchOutputs.map((o) => [o.path, o.digest]))
+
+  const steps: Partial<Record<StepId, StepRecord>> = { ...lock.steps }
+
+  if (steps.research) {
+    steps.research = {
+      ...steps.research,
+      outputs: researchOutputs,
+    }
+  }
+
+  for (const stepId of Object.keys(steps) as StepId[]) {
+    if (stepId === 'research') continue
+    const entry = steps[stepId]
+    if (!entry) continue
+    let touched = false
+    const newArtifacts = entry.inputs.artifacts.map((a) => {
+      const next = byPath.get(a.path)
+      if (next === undefined || next === a.digest) return a
+      touched = true
+      return { path: a.path, digest: next }
+    })
+    if (!touched) continue
+    const newInputs: StepInputs = {
+      ...entry.inputs,
+      artifacts: newArtifacts,
+    }
+    steps[stepId] = {
+      ...entry,
+      inputs: newInputs,
+      input_digest: inputDigest(newInputs),
+    }
+  }
+
+  return {
+    ...lock,
+    steps,
+  }
 }
 
 /** True when every research output present in the snapshot matches on disk. */
@@ -449,9 +555,10 @@ export function buildDraftInputs(opts: {
   notes: string
   persona: string
 }): StepInputs {
+  const existing = missingDraftOutputs(opts.guideDir).length === 0
   return {
     model: opts.model,
-    prompt_digest: promptDigest(PROMPT_TEMPLATES.draft),
+    prompt_digest: promptDigest(PROMPT_TEMPLATES.draft(existing)),
     reading_list: draftReadingList(opts.repoRoot, opts.persona),
     artifacts: [
       digestGuideFile(opts.guideDir, 'research.md'),

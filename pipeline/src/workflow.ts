@@ -7,13 +7,16 @@ import {
   buildResearchInputs,
   buildReviewInputs,
   canSkipStep,
+  digestBytes,
   digestGuideFile,
   isResearchUnchanged,
   makeStepRecord,
   missingResearchOutputs,
   missingDraftOutputs,
   readLock,
+  rebaselineLockResearchArtifacts,
   researchMatchesSnapshot,
+  researchNotesMatchLock,
   snapshotResearchOutputs,
   writeLock,
   type PipelineLock,
@@ -324,6 +327,16 @@ export type ResearchChangeInfo = {
   method: 'digest' | 'judge' | 'none'
   unchanged: boolean
   notes?: string
+  /**
+   * When true, caller should rebaseline in-memory lock research artifact
+   * digests to on-disk AFTER so draft/review skips can fire.
+   */
+  rebaseline?: boolean
+}
+
+export type SetupChurn = {
+  external_md_lines?: number
+  speakeasy_md_lines?: number
 }
 
 export type GuideResult = {
@@ -345,6 +358,10 @@ export type GuideResult = {
   skipped?: string[]
   /** How research_unchanged was decided this run. */
   research_change?: ResearchChangeInfo
+  /** sha256 of lock notes (operator + stable catalog token). */
+  notes_digest?: string
+  /** Line churn in setup files when draft ran (before → after). */
+  setup_churn?: SetupChurn
   /** Present when status is awaiting_scope. */
   scope?: ScopeGateResult
 }
@@ -396,6 +413,44 @@ export async function runWorkflow(
     // Lock digests: operator notes + stable catalog token (no timestamps).
     if (g.lockNotes !== undefined) return g.lockNotes
     return g.notes || ''
+  }
+
+  function snapshotSetupFiles(dir: string): {
+    'external.md'?: string
+    'speakeasy.md'?: string
+  } {
+    const snap: { 'external.md'?: string; 'speakeasy.md'?: string } = {}
+    for (const name of ['external.md', 'speakeasy.md'] as const) {
+      const absPath = join(dir, name)
+      if (existsSync(absPath)) snap[name] = readFileSync(absPath, 'utf8')
+    }
+    return snap
+  }
+
+  function lineCount(text: string | undefined): number {
+    if (text === undefined || text.length === 0) return 0
+    return text.split('\n').length
+  }
+
+  /** Absolute line-count delta for setup files (before → after). */
+  function measureSetupChurn(
+    before: { 'external.md'?: string; 'speakeasy.md'?: string },
+    dir: string
+  ): SetupChurn {
+    const afterExt = existsSync(join(dir, 'external.md'))
+      ? readFileSync(join(dir, 'external.md'), 'utf8')
+      : undefined
+    const afterSp = existsSync(join(dir, 'speakeasy.md'))
+      ? readFileSync(join(dir, 'speakeasy.md'), 'utf8')
+      : undefined
+    return {
+      external_md_lines: Math.abs(
+        lineCount(afterExt) - lineCount(before['external.md'])
+      ),
+      speakeasy_md_lines: Math.abs(
+        lineCount(afterSp) - lineCount(before['speakeasy.md'])
+      ),
+    }
   }
 
   function promptNotesOf(g: GuideInput): string {
@@ -669,19 +724,32 @@ export async function runWorkflow(
       }
     }
     if (!judgment.materially_changed) {
-      // Keep AFTER on disk. Restoring BEFORE used to throw away a legitimate
-      // researched_at / observed_at refresh to this run's NOW, after which
-      // fidelity burned a full round re-stamping provenance. Non-material
-      // wording that sticks is acceptable; draft/review skips still use
-      // unchanged=true.
+      // Keep AFTER on disk. When notes match the lock, caller rebases in-memory
+      // lock digests so draft/review skips can fire without discarding soft
+      // research improvements or note incorporations.
+      if (!researchNotesMatchLock(prevLock, notesOf(g))) {
+        log(
+          '[' +
+            g.slug +
+            '] research not material but notes changed; keeping AFTER, no skip'
+        )
+        return {
+          method: 'judge',
+          unchanged: false,
+          notes:
+            'operator notes changed since lock; keeping AFTER and treating as changed for skip. judge: ' +
+            judgment.notes,
+        }
+      }
       log(
         '[' +
           g.slug +
-          '] research not material; keeping AFTER (incl. provenance stamps)'
+          '] research not material; keeping AFTER and rebasing lock digests'
       )
       return {
         method: 'judge',
         unchanged: true,
+        rebaseline: true,
         notes: judgment.notes,
       }
     }
@@ -693,6 +761,26 @@ export async function runWorkflow(
   }
 
   function draftPrompt(g: GuideInput): string {
+    const dir = guideDir(g.slug)
+    const existing = missingDraftOutputs(dir).length === 0
+    const writeLines = existing
+      ? [
+          "Read the guide directory's research.md and meta.yaml, then revise",
+          "existing external.md and speakeasy.md in place in the persona's",
+          'voice before you report. Change only what the Dossier or operator',
+          'notes require; do not rephrase, reorder, or re-title steps whose',
+          'facts are unchanged. Silent restyling is a defect. Dossier facts',
+          'and doctrine outrank preservation of stale prose. status "ok" is',
+          'invalid unless both files exist on disk. The Dossier is your fact',
+          'ceiling. Do not touch any other path.',
+        ]
+      : [
+          "Read the guide directory's research.md and meta.yaml, then write",
+          'external.md (provider-side) and speakeasy.md (Control Plane) in the',
+          "persona's voice before you report. status \"ok\" is invalid unless",
+          'both files exist on disk. The Dossier is your fact ceiling.',
+          'Do not touch any other path.',
+        ]
     return [
       'You are the Writer Agent in the mcp-setup-docs drafting pipeline.',
       'Repo root: ' + ROOT,
@@ -702,11 +790,7 @@ export async function runWorkflow(
       '',
       assign(g),
       '',
-      "Read the guide directory's research.md and meta.yaml, then write",
-      'external.md (provider-side) and speakeasy.md (Control Plane) in the',
-      "persona's voice before you report. status \"ok\" is invalid unless",
-      'both files exist on disk. The Dossier is your fact ceiling.',
-      'Do not touch any other path.',
+      ...writeLines,
       '',
       'Report via structured output: status ("ok" when both setup files are',
       'on disk and complete enough to review, "blocked" per your role doc),',
@@ -827,6 +911,8 @@ export async function runWorkflow(
       'If a finding says a required file is missing, write that file — do not',
       'dispute or skip it as already present unless it exists on disk.',
       'Do not touch any path outside the guide directory.',
+      'Apply a minimal diff: change only what each finding requires; leave',
+      'unaffected prose, ordering, and titles alone.',
       '',
       'Blocker findings (JSON):',
       JSON.stringify(blockers, null, 2),
@@ -1011,8 +1097,10 @@ export async function runWorkflow(
     const researchLockNotes = notesOf(g)
 
     const prevLock = readLock(dir)
+    let workingLock: PipelineLock | null = prevLock
     const skipped: string[] = []
     const beforeResearch = snapshotResearchOutputs(dir)
+    const beforeSetup = snapshotSetupFiles(dir)
 
     log('[' + g.slug + '] researching ' + g.provider)
     const research = await agent(researchPrompt(g), {
@@ -1121,13 +1209,49 @@ export async function runWorkflow(
       }
     }
 
-    const researchChange = await decideResearchUnchanged(
+    let researchChange = await decideResearchUnchanged(
       g,
       dir,
       prevLock,
       beforeResearch
     )
-    const researchUnchanged = researchChange.unchanged
+    let researchUnchanged = researchChange.unchanged
+    const notesDigest = digestBytes(notesOf(g))
+    let setupChurn: SetupChurn | undefined
+    function resultExtras(): Partial<GuideResult> {
+      return {
+        notes_digest: notesDigest,
+        ...(setupChurn ? { setup_churn: setupChurn } : {}),
+        ...(skipped.length ? { skipped } : {}),
+      }
+    }
+
+    // Notes guard: never skip via research equivalence when the operator ask changed.
+    if (
+      researchUnchanged &&
+      prevLock &&
+      !researchNotesMatchLock(prevLock, notesOf(g))
+    ) {
+      researchUnchanged = false
+      researchChange = {
+        ...researchChange,
+        unchanged: false,
+        rebaseline: false,
+        notes:
+          'operator notes changed since lock; treating as changed for skip. ' +
+          (researchChange.notes || ''),
+      }
+    } else if (
+      researchUnchanged &&
+      workingLock &&
+      (researchChange.rebaseline || researchChange.method === 'digest')
+    ) {
+      // Align lock research artifact digests with on-disk AFTER so draft/review
+      // skips work (stamp-normalized digests + soft non-material wording).
+      workingLock = rebaselineLockResearchArtifacts(workingLock, dir)
+      log('[' + g.slug + '] rebaselined lock research artifact digests')
+    }
+
     log(
       '[' +
         g.slug +
@@ -1172,6 +1296,7 @@ export async function runWorkflow(
           open_questions: gate.unanswered.map((d) => d.question),
           scope: gate,
           research_change: researchChange,
+          ...resultExtras(),
           history: [
             {
               phase: 'scope_gate',
@@ -1195,7 +1320,7 @@ export async function runWorkflow(
       persona: PERSONA,
     })
     const skipDraft = canSkipStep(
-      prevLock,
+      workingLock,
       g.slug,
       'draft',
       draftInputs,
@@ -1238,6 +1363,7 @@ export async function runWorkflow(
           status: 'failed',
           failed_phase: 'draft',
           research_change: researchChange,
+          ...resultExtras(),
         }
       }
       if (draft.status === 'blocked') {
@@ -1248,6 +1374,7 @@ export async function runWorkflow(
           notes: draft.notes,
           open_questions: draft.open_questions,
           research_change: researchChange,
+          ...resultExtras(),
         }
       }
 
@@ -1270,11 +1397,13 @@ export async function runWorkflow(
             missing,
           open_questions: draft.open_questions,
           research_change: researchChange,
+          ...resultExtras(),
         }
       }
 
       draftRan = true
       draftOpenQuestions = draft.open_questions || []
+      setupChurn = measureSetupChurn(beforeSetup, dir)
     }
 
     const openQuestions = (research.open_questions || []).concat(
@@ -1299,7 +1428,7 @@ export async function runWorkflow(
           (allowSkip ? ' (lock skips allowed)' : '')
       )
       let { blockers, nits, skippedDims } = await reviewRound(g, round, prior, {
-        lock: prevLock,
+        lock: workingLock,
         allowSkip,
       })
       if (allowSkip) {
@@ -1332,6 +1461,7 @@ export async function runWorkflow(
           history: [],
           skipped,
           research_change: researchChange,
+          ...resultExtras(),
         }
       }
 
@@ -1423,7 +1553,7 @@ export async function runWorkflow(
             ' blocker(s) were addressed)'
         )
         const fin = await reviewRound(g, round, prior, {
-          lock: prevLock,
+          lock: workingLock,
           allowSkip: false,
         })
         const finEntry: Record<string, unknown> = {
@@ -1454,7 +1584,7 @@ export async function runWorkflow(
             open_questions: openQuestions,
             history,
             research_change: researchChange,
-            ...(skipped.length ? { skipped } : {}),
+            ...resultExtras(),
           }
         }
 
@@ -1487,7 +1617,7 @@ export async function runWorkflow(
           open_questions: openQuestions,
           history,
           research_change: researchChange,
-          ...(skipped.length ? { skipped } : {}),
+          ...resultExtras(),
         }
       }
     }
@@ -1497,6 +1627,7 @@ export async function runWorkflow(
       status: 'failed',
       failed_phase: 'review',
       research_change: researchChange,
+      ...resultExtras(),
     }
   }
 
