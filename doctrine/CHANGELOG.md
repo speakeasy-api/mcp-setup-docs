@@ -36,6 +36,11 @@ research); Snowflake issue #51 freeform / `Decision:` / bare-`hedge`
 replies mis-routed under Decision-N-only skip; multi-model counsel (ship
 class-gated skip + patch, not bare skip for `verified —` facts).
 
+Follow-up (same day): Opus review C1–C3 — decorate-tolerant Decision
+extraction + live Scope check wording; notes merge only *recent*
+Decisions (strip distill leaks of stale N ids from the scope gate);
+fat `drop … — instead …` and short freeform → patch, not skip.
+
 ## 2026-07-27 — Speakeasy skeleton: OAuth DCR credential variant
 
 Files: `doctrine/speakeasy-setup.md`.
