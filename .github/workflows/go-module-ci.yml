@@ -1,9 +1,10 @@
 name: Go module CI
 
+# Validates the published module. Guide-only PRs do not run this — after a
+# guide merges, go-module-regen opens a PR that updates go/ and is checked here.
 on:
   pull_request:
     paths:
-      - 'guides/**'
       - 'go/**'
       - 'schema/**'
       - 'mise.toml'
@@ -11,7 +12,6 @@ on:
   push:
     branches: [main]
     paths:
-      - 'guides/**'
       - 'go/**'
       - 'schema/**'
       - 'mise.toml'

@@ -56,4 +56,14 @@ Publishable files only: `meta.yaml`, `external.md`, `speakeasy.md`,
 declared assets. Authoring files (`research.md`, `pipeline.lock.json`)
 are never embedded.
 
-Version tags: `go/vX.Y.Z`.
+## Release flow
+
+1. Guide/schema changes merge to `main` (guide PRs do not need to update `go/`).
+2. `go-module-regen` regenerates the embed and opens/updates `chore/go-module-regen`.
+3. A human merges that PR once `Go module CI` is green.
+4. `go-module-release` cuts the next `go/vX.Y.Z` tag + GitHub Release (patch bump by default).
+
+**First tag is manual:** `git tag -a go/v0.1.0 -m "…" && git push origin go/v0.1.0`.
+Until that exists, the release workflow no-ops.
+
+Version tags: `go/vX.Y.Z` (consumers install `@vX.Y.Z`).

@@ -1,0 +1,115 @@
+name: Go module release
+
+# After a go/ sync (or API change) merges to main, cut the next go/vX.Y.Z tag
+# and GitHub Release. Requires an initial manual go/v0.1.0 tag first.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'go/generated/**'
+      - 'go/index_gen.go'
+      - 'go/published_server_refs.txt'
+      - 'go/*.go'
+      - 'go/go.mod'
+      - 'go/embed.go'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Semver bump (patch, minor, major)
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: go-module-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Resolve next version
+        id: ver
+        env:
+          BUMP: ${{ github.event.inputs.bump || 'patch' }}
+        run: |
+          set -euo pipefail
+          latest="$(git tag -l 'go/v*' | sort -V | tail -1 || true)"
+          if [ -z "$latest" ]; then
+            echo "No go/v* tags yet. Cut go/v0.1.0 manually once, then re-run."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+
+          ver="${latest#go/v}"
+          IFS=. read -r major minor patch <<<"$ver"
+          case "$BUMP" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
+            *) echo "unknown bump: $BUMP"; exit 1 ;;
+          esac
+          next="go/v${major}.${minor}.${patch}"
+          module_ver="v${major}.${minor}.${patch}"
+          echo "tag=$next" >> "$GITHUB_OUTPUT"
+          echo "module_ver=$module_ver" >> "$GITHUB_OUTPUT"
+          echo "Next tag: $next (module @${module_ver})"
+
+      - name: Create tag and GitHub Release
+        if: steps.ver.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.ver.outputs.tag }}
+          MODULE_VER: ${{ steps.ver.outputs.module_ver }}
+          PREV: ${{ steps.ver.outputs.latest }}
+        run: |
+          set -euo pipefail
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists; nothing to do"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "mcp-setup-docs Go module ${MODULE_VER}"
+          git push origin "$TAG"
+
+          notes="$(git log --pretty=format:'- %s (%h)' "${PREV}..HEAD" -- go/ | head -80 || true)"
+          if [ -z "$notes" ]; then
+            notes="- Sync publishable guides into the Go module embed"
+          fi
+
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes "Go module \`github.com/speakeasy-api/mcp-setup-docs/go@${MODULE_VER}\`
+
+          \`\`\`bash
+          go get github.com/speakeasy-api/mcp-setup-docs/go@${MODULE_VER}
+          \`\`\`
+
+          ### Changes since ${PREV}
+          ${notes}"
+
+      - name: Prime module proxy
+        if: steps.ver.outputs.skip != 'true'
+        env:
+          MODULE_VER: ${{ steps.ver.outputs.module_ver }}
+        run: |
+          set -euo pipefail
+          # Best-effort: proxy indexing can lag; don't fail the release on it.
+          GOPROXY=https://proxy.golang.org go list -m "github.com/speakeasy-api/mcp-setup-docs/go@${MODULE_VER}" \
+            || echo "proxy prime not ready yet for @${MODULE_VER}"

@@ -1,0 +1,86 @@
+name: Go module regen
+
+# After guides (or schema) land on main, regenerate go/ and open/update a PR.
+# Humans merge that PR; go-module-release then cuts go/vX.Y.Z.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'guides/**'
+      - 'schema/**'
+  workflow_dispatch:
+
+concurrency:
+  group: go-module-regen
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: |
+            go/go.mod
+            go/internal/gen/go.sum
+
+      - name: Regenerate publishable tree
+        working-directory: go/internal/gen
+        run: go run .
+
+      - name: Detect drift
+        id: drift
+        run: |
+          if [ -n "$(git status --porcelain -- go/)" ]; then
+            echo "dirty=true" >> "$GITHUB_OUTPUT"
+            git status --porcelain -- go/
+          else
+            echo "dirty=false" >> "$GITHUB_OUTPUT"
+            echo "go/ already in sync with guides/"
+          fi
+
+      - name: Open or update regen PR
+        if: steps.drift.outputs.dirty == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          BRANCH: chore/go-module-regen
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$BRANCH"
+          git add -A -- go/
+          git commit -m "Sync Go module embed with guides."
+          git push -u origin "$BRANCH" --force
+
+          body='## Summary
+- Regenerated `go/generated` + identity indexes from current `guides/` / `schema/`
+- Opened by `go-module-regen` after a guide or schema change landed on `main`
+
+## Release
+Merging this PR triggers `go-module-release` (patch bump of `go/vX.Y.Z` + GitHub Release), once `go/v0.1.0` exists.
+
+## Test plan
+- [ ] `Go module CI` is green on this PR
+- [ ] Spot-check `go/generated` / `index_gen.go` for the guides that changed'
+
+          if gh pr view "$BRANCH" --json number --jq .number >/dev/null 2>&1; then
+            echo "Updated existing PR for $BRANCH"
+            gh pr edit "$BRANCH" --title "Sync Go module embed with guides" --body "$body"
+          else
+            gh pr create --base main --head "$BRANCH" \
+              --title "Sync Go module embed with guides" \
+              --body "$body"
+          fi
