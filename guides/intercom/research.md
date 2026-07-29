@@ -1,22 +1,22 @@
 ---
 research_version: 1
 slug: intercom
-researched_at: 2026-07-27T18:17:36Z
+researched_at: 2026-07-29T15:06:51Z
 ---
 
 # Intercom — Research Dossier
 
-Source ruling for this guide: Intercom's developer guide **Model Context
-Protocol (MCP)** is authoritative for regional endpoints, transport,
-authentication choices, and required permissions. The Intercom Help Center
-corroborates how to identify a workspace's region. Live endpoint observations
-establish the OAuth discovery behavior. Public Speakeasy AI Control Plane
-source at commit `f1d60da92f71315297941d7ee394a8d3241b1043` establishes the
-dynamic-registration controls needed because the canonical Speakeasy setup
-does not yet describe this variant. The operator's Speakeasy MCP Catalog result
-is `overridden-tenanted`: because the reader must choose a regional remote,
-this Guide uses only the Custom remote server path regardless of catalog
-presence.
+Source ruling for this revision: Intercom's public MCP guide remains
+authoritative for regional server URLs, transport, and server availability.
+Intercom's current Developer Hub guides are authoritative for creating an app,
+enabling OAuth, exact permission labels, callback requirements, and the
+authorization and token endpoints. The operator's current connection
+validation overrides the prior DCR recommendation: DCR fails when Intercom has
+not allowlisted the Speakeasy callback, so this Guide documents a manually
+registered Intercom OAuth app as the recommended, deterministic path. The
+operator's Speakeasy MCP Catalog result is `overridden-tenanted`; because the
+reader chooses a region-specific remote URL, only the Custom remote server path
+is rendered.
 
 ## Server facts
 
@@ -25,132 +25,169 @@ presence.
   - EU: `https://mcp.eu.intercom.com/mcp`
   Intercom says `app.intercom.com` identifies a US-hosted workspace and
   `app.eu.intercom.com` identifies an EU-hosted workspace.
-- **Region availability:** the server is available for US- and EU-hosted
-  workspaces. Australian-hosted workspaces are not supported. Requests to the
-  EU endpoint are processed within the EU.
+- **Region availability:** Intercom documents its MCP server for US- and
+  EU-hosted workspaces. Australian-hosted workspaces are not supported.
+  Requests to the EU endpoint are processed within the EU.
 - **Transport:** `streamable-http`, called **Streamable HTTP** by Intercom and
-  recommended over the deprecated SSE endpoints.
-- **Authentication Option documented by this Guide:** Intercom's recommended
-  automatic browser-based OAuth flow with Dynamic Client Registration (DCR).
-  No Intercom developer app, Client ID, Client Secret, access token, or
-  callback registration is created manually.
-  - Intercom also supports a Bearer access token, but this Guide does not use
-    it. Intercom's general authentication guidance says an Access Token is for
-    a private app accessing its own workspace, must be treated like a
-    password, and must not be given to a third-party app provider. OAuth is
-    therefore the safer documented path for the Speakeasy AI Control Plane.
-  - Live US authorization-server metadata at
-    `https://mcp.intercom.com/.well-known/oauth-authorization-server`
-    advertises issuer `https://mcp.intercom.com`, authorization endpoint
-    `https://mcp.intercom.com/authorize`, token endpoint
-    `https://mcp.intercom.com/token`, registration endpoint
-    `https://mcp.intercom.com/register`, authorization-code and refresh-token
-    grants, `client_secret_basic`, `client_secret_post`, and `none` token
-    endpoint authentication, plus PKCE `plain` and `S256`.
-  - The EU metadata publishes the equivalent values on
-    `https://mcp.eu.intercom.com`.
-  - Both MCP endpoints return HTTP 401 to an unauthenticated initialize
-    request. Their `WWW-Authenticate` challenges do not advertise
-    `resource_metadata` or `auth_server_metadata`, and both origin- and
-    path-style protected-resource metadata URLs return 404.
-- **Speakeasy discovery consequence:** automatic authentication setup and
-  **Use Discovered** currently require protected-resource metadata, so they do
-  not activate for Intercom. The supported route is **Configure Manually**,
-  enter the regional issuer origin, then click **Discover**. That discovery
-  reads the authorization-server metadata directly and exposes
-  **Dynamic Client Registration (DCR)**. Thus the Speakeasy AI Control Plane
-  can discover Intercom's authorization-server metadata without
-  protected-resource metadata only after the issuer URL is supplied; it does
-  not infer that issuer automatically from the Intercom MCP endpoint.
-- **Permissions requested by the MCP server:** **Read and list users and
-  companies**, **Read conversations**, and **Read and write articles**.
-  Intercom documents these as the permissions an access token needs for the
-  server's contact/company, conversation, and Help Center article operations.
-  The dynamic OAuth path has no manual scope field to complete; leave
-  **Scope (override)** empty in the Speakeasy AI Control Plane.
-- **Authorization model:** Intercom says authentication verifies the user's
-  permissions. The public MCP documentation does not name an administrator
-  role or plan tier required to authorize the server. No MCP-specific plan gate
-  is documented.
+  recommended over its deprecated SSE URLs.
+- **Authentication Option documented by this Guide:** OAuth with a
+  pre-registered Intercom Developer Hub app. The Speakeasy AI Control Plane
+  receives the app's **Client ID** and **Client secret** and uses:
+  - Issuer URL: `https://mcp.intercom.com`
+  - Authorization endpoint: `https://app.intercom.com/oauth`
+  - Token endpoint: `https://api.intercom.io/auth/eagle/token`
+  The issuer and endpoint combination was validated by the operator for the
+  manual attachment flow. Intercom's OAuth guide independently documents the
+  US authorization endpoint and Eagle token endpoint.
+- **Why manual registration is recommended:** Intercom's live MCP
+  authorization-server metadata advertises a DCR endpoint, but the operator
+  observed that registration fails unless Intercom has allowlisted the
+  callback `https://app.getgram.ai/mcp/remote_login_callback`. Manually
+  registering the callback in the Developer Hub avoids that dependency.
+  Organizations that prefer DCR can ask Intercom to allowlist the callback;
+  Intercom does not publish a self-service allowlisting procedure or
+  turnaround time.
+- **OAuth redirect requirement:** Intercom requires HTTPS redirect URLs and
+  allows more than one through **Add redirect URL**. Register
+  `{{ gram.oauth.callback_url }}`; operator validation confirms that it
+  resolves to `https://app.getgram.ai/mcp/remote_login_callback`.
+- **Minimum permissions for the validated read-only setup:**
+  - **Read and list users and companies**
+  - **Read conversations**
+  - **Read one admin**
+  - **Read and List articles**
+  These are exact Developer Hub checkbox labels, and each exists in Intercom's
+  current OAuth-scope documentation. The operator validated this least-
+  privilege set. Intercom's MCP guide instead broadly says **Read and write
+  articles** is required because the server also advertises article creation
+  and update operations. With the minimum set above, article write operations
+  are intentionally unavailable; select **Read and Write Articles** instead
+  only when the organization intends to permit those operations.
+- **Authorization behavior:** the user sees the permissions requested by the
+  app and, after approval, Intercom redirects to the registered callback with
+  an authorization code. Actual access remains subject to that user's Intercom
+  permissions.
+- **Plan and role gates:** Intercom's public MCP and OAuth pages do not name an
+  MCP-specific paid plan or exact administrator role. Its app-creation guide
+  says apps are created in the Developer Hub and that public-app developers
+  use a development workspace. The person following this Guide therefore
+  needs access to the Developer Hub and permission to create an app for the
+  intended workspace.
+- **Other supported authentication:** Intercom's MCP server also supports a
+  Bearer access token. This Guide does not use it because Intercom says a
+  private-app Access Token is password-equivalent and must not be given to a
+  third-party app provider.
 
 ## Credential flow
 
-No provider-side credential is created. The Speakeasy AI Control Plane
-dynamically registers itself at the regional Intercom registration endpoint
-when the operator attaches the identity provider.
+An Intercom administrator creates one app in the Developer Hub, enables OAuth,
+registers the Speakeasy callback, and grants the minimum permissions. Intercom
+then exposes a **Client ID** and **Client secret** on the app's **Basic
+Information** page.
 
-Per region, the values used in the Speakeasy AI Control Plane are:
-
-| Value | Origin |
+| Speakeasy value | Origin |
 | --- | --- |
-| Remote MCP server URL | The regional endpoint selected in {#identify-workspace-region} |
-| Issuer URL | The origin of that endpoint: `https://mcp.intercom.com` for US or `https://mcp.eu.intercom.com` for EU |
-| Client type | **Dynamic Client Registration (DCR)**, offered after **Discover** reads the regional authorization-server metadata |
+| Client ID | Intercom Developer Hub app, **Basic Information** ({#copy-client-credentials}) |
+| Client Secret (optional) | Intercom Developer Hub app, **Basic Information** ({#copy-client-credentials}) |
+| Redirect URI registered with Intercom | `{{ gram.oauth.callback_url }}` in the app's **Redirect URLs** ({#configure-oauth}) |
+| Issuer URL | Operator-validated constant `https://mcp.intercom.com` |
+| Authorization endpoint | Intercom-documented `https://app.intercom.com/oauth` |
+| Token endpoint | Intercom-documented `https://api.intercom.io/auth/eagle/token` |
 
-`{{ gram.oauth.callback_url }}` is not pasted into Intercom. DCR sends the
-Speakeasy callback automatically during client registration. Leave
-**Scope (override)** and **Audience (optional)** empty; neither Intercom nor
-its live metadata documents a value to enter.
-
-When an MCP client first needs Intercom access, Intercom's recommended OAuth
-path opens a browser so the signed-in user can authorize access. The provider
-documentation says the browser flow is automatic, but does not document the
-screen sequence or its exact button labels. Access remains subject to the
-authorizing user's Intercom permissions.
+Intercom's OAuth guide calls the generated values `client_id` and
+`client_secret`. It does not say the secret is shown only once, so no one-time
+copy warning is warranted from public documentation.
 
 ## Console walkthrough
 
-There is no Intercom Developer Hub or admin-console preparation for the
-recommended dynamic OAuth path. The only provider-side decision before adding
-the server is selecting the endpoint that matches the workspace's hosted
-region. Intercom says to identify the region from the workspace URL before
-signing in: `app.intercom.com` is US, `app.eu.intercom.com` is Europe, and
-`app.au.intercom.com` is Australia. On Intercom's official sign-in page at
-`https://app.intercom.com/admins/sign_in`, the **Your account region** selector
-offers **United States**, **Europe**, and **Australia** and warns readers to
-check the account region before signing in.
+The transition-complete path starts at Intercom's documented Developer Hub URL.
+The prior region-selection anchor remains stable because it still determines
+which MCP Server URL the reader adds later.
 
 ### Identify the workspace region {#identify-workspace-region}
 
-- Before signing in, check the workspace URL normally used to open Intercom.
-  Intercom's documented region check is the workspace URL:
-  `app.intercom.com` is US,
-  `app.eu.intercom.com` is Europe, and `app.au.intercom.com` is Australia.
-- Open `https://app.intercom.com/admins/sign_in`. Under **Your account
-  region**, select **United States**, **Europe**, or **Australia** to match the
-  workspace URL, then sign in. Intercom warns that signing in through the wrong
-  region will not find the workspace; if that occurs, return to the sign-in
-  page and select the region that matches the workspace URL.
 - Open the intended Intercom workspace and inspect its browser URL.
-- If the host is `app.intercom.com`, record the US remote
-  `https://mcp.intercom.com/mcp` and issuer
-  `https://mcp.intercom.com`.
-- If the host is `app.eu.intercom.com`, record the EU remote
-  `https://mcp.eu.intercom.com/mcp` and issuer
-  `https://mcp.eu.intercom.com`.
-- If the host is `app.au.intercom.com`, stop: Intercom says the MCP server is
-  not yet supported for Australian-hosted workspaces.
-- Values copied: the matching remote URL and issuer URL for the Speakeasy
-  setup below.
-- Screenshot note: capture the Intercom sign-in page with **Your account
-  region** expanded, showing **United States**, **Europe**, and **Australia**.
+- If its host is `app.intercom.com`, record the US remote
+  `https://mcp.intercom.com/mcp`.
+- If its host is `app.eu.intercom.com`, record the EU remote
+  `https://mcp.eu.intercom.com/mcp`.
+- If its host is `app.au.intercom.com`, stop: Intercom says its MCP server is
+  not supported for Australian-hosted workspaces.
+- Recovery: if sign-in cannot find the workspace, return to Intercom's sign-in
+  page and select the data-host region matching the workspace URL. Intercom's
+  current sign-in page labels the selector **Your account region** and offers
+  **United States**, **Europe**, and **Australia**.
+- Screenshot note: capture the intended workspace URL with tenant-identifying
+  path details obscured, or the sign-in page with **Your account region**
+  expanded.
+
+### Create the OAuth app {#create-oauth-app}
+
+- Open `https://app.intercom.com/a/apps/_/developer-hub`. This opens the
+  **Developer Hub** at **Your Apps**.
+- Click **New App**. Intercom's prose uses **New App**; its current
+  documentation screenshot describes the highlighted control as **Create new
+  app**.
+- In the modal, enter an organization-approved app name and select the
+  workspace the connection will access.
+- Click **Create app**. Intercom creates the app, pre-installs it in the
+  selected workspace, and opens the app configuration.
+- Screenshot note: capture **Your Apps** with the new-app control and the
+  creation modal showing the app-name and workspace choices, with identifying
+  values obscured.
+
+### Configure OAuth {#configure-oauth}
+
+- In the created app, open **Authentication**.
+- Select **Use OAuth**. Intercom says this reveals **Redirect URLs** and
+  **Permissions**.
+- Under **Redirect URLs**, select **Add redirect URL**.
+- Enter `{{ gram.oauth.callback_url }}`. Intercom
+  requires HTTPS; this value resolves to the operator-validated callback
+  `https://app.getgram.ai/mcp/remote_login_callback`.
+- Under **Permissions**, select:
+  - **Read and list users and companies**
+  - **Read conversations**
+  - **Read one admin**
+  - **Read and List articles**
+- If article creation or update through the MCP server is explicitly required,
+  select **Read and Write Articles** instead of **Read and List articles**.
+- Complete the page's save or confirmation control. Intercom's public guide
+  names and shows the fields but does not name that control.
+- Screenshot note: capture **Authentication** with **Use OAuth** enabled,
+  **Redirect URLs** showing the callback, and the four minimum permission
+  checkboxes selected. Do not include a token or secret.
+
+### Copy the client credentials {#copy-client-credentials}
+
+- From **Authentication**, open the app's **Basic Information** page.
+  Intercom documents this page as the location of the `client_id` and
+  `client_secret`.
+- Copy the **Client ID** and **Client secret** into a password manager for the
+  Speakeasy setup.
+- Screenshot note: capture **Basic Information** with the locations of the
+  **Client ID** and **Client secret**, with both values fully redacted.
 
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-07-27T18:17:36Z`.
+`2026-07-29T15:06:51Z`.
 
 Per-guide values:
 
 - Remote URL: the US or EU URL selected in
   {#identify-workspace-region}
-- Transport: `streamable-http` (the add form's **Transport** field is
-  read-only)
-- Authentication Option: OAuth with dynamic client registration
-- Provider credential fields: none
-- Provider callback registration: none; DCR registers the callback
-  automatically
-- Provider scopes to type: none; leave **Scope (override)** empty
+- Transport: `streamable-http`
+- Add-server path: Custom remote only because both URLs are region-specific
+  (`tenanted: true`); ignore catalog presence
+- Authentication Option: OAuth with a pre-registered client
+- Client ID and Client Secret: produced in
+  {#copy-client-credentials}
+- Redirect URI: registered in {#configure-oauth}
+- Issuer URL: `https://mcp.intercom.com`
+- Authorization endpoint: `https://app.intercom.com/oauth`
+- Token endpoint: `https://api.intercom.io/auth/eagle/token`
+- Scopes: chosen in Intercom; no Speakeasy scope override
 - Further reading:
   `https://developers.intercom.com/docs/guides/mcp`
 
@@ -164,44 +201,37 @@ the regional remote URL selected in {#identify-workspace-region} into
 **Remote MCP server URL**, then click **Add server**. This creates the hosted
 MCP server and opens its **Overview** page.
 
-Screenshot note: capture the **Add Source** menu and, for the deterministic
-regional path, the **Add a custom remote MCP server** page with the matching
-Intercom remote URL.
+Screenshot note: capture the **Add Source** menu or the **Add a custom remote
+MCP server** page with the matching Intercom remote URL.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings** and locate
-**Authentication**.
+From the server's **Overview**, open **Settings**. Under **Authentication**,
+click **Configure Manually**. In **Attach Remote Identity Provider**:
 
-Intercom does not publish protected-resource metadata. **Use Discovered** is
-therefore unavailable; click **Configure Manually**. In **Attach Remote
-Identity Provider**:
+1. Set **Client Type** to **Manual**.
+2. Enter `https://mcp.intercom.com` as **Issuer URL**.
+3. Under **Endpoints**, set the authorization endpoint to
+   `https://app.intercom.com/oauth` and the token endpoint to
+   `https://api.intercom.io/auth/eagle/token`. Do not use the MCP issuer's
+   discovered `/authorize` and `/token` endpoints for this manual app.
+4. Paste the **Client ID** and **Client Secret (optional)** from
+   {#copy-client-credentials}.
+5. Leave **Scope (override)** and **Audience (optional)** empty because
+   permissions were selected in Intercom.
+6. Confirm that the sheet's **Redirect URI** is
+   `https://app.getgram.ai/mcp/remote_login_callback`, matching the value
+   registered through `{{ gram.oauth.callback_url }}` in {#configure-oauth}.
+7. Click **Attach Identity Provider**.
 
-1. Enter the regional issuer origin from {#identify-workspace-region} in
-   **Issuer URL**.
-2. Keep the auto-derived **Slug** and optional **Display name (optional)**,
-   unless project naming policy requires different values.
-3. Under **Endpoints**, click **Discover**. The regional authorization,
-   token, and registration endpoints are filled from Intercom's RFC 8414
-   metadata.
-4. Under **Session Client**, keep **Client Type** set to **Dynamic Client
-   Registration (DCR)**. DCR is the first and default choice when a
-   registration endpoint is discovered.
-5. Keep **Token Endpoint Auth Method** at the discovered default
-   `client_secret_basic`.
-6. Leave **Scope (override)** and **Audience (optional)** empty.
-7. Click **Attach Identity Provider**. The Speakeasy AI Control Plane
-   dynamically registers the OAuth client with Intercom; there is no Client ID
-   or Client Secret to paste.
+Screenshot note: capture **Attach Remote Identity Provider** with **Client
+Type** set to **Manual** and the issuer, authorization, and token endpoint
+fields visible. Fully redact the Client ID and Client Secret.
 
-Screenshot note: capture **Attach Remote Identity Provider** after
-**Discover**, showing the regional issuer and endpoints plus **Client Type**
-set to **Dynamic Client Registration (DCR)**. No secret values are present.
-
-When a client initiates Intercom access, complete the browser-based Intercom
-authorization using the intended workspace account. Public Intercom
-documentation says to use the on-screen OAuth prompts but does not publish
-their exact labels.
+When a client first needs Intercom access, complete Intercom's browser
+authorization prompts with the intended workspace account. Intercom says the
+screen presents the requested permissions but does not publish the current
+button labels.
 
 Closing pointer: "This guide covers setup only. For anything beyond it —
 billing, tool behavior, limits — see Intercom's MCP documentation at
@@ -209,95 +239,74 @@ https://developers.intercom.com/docs/guides/mcp."
 
 ## Open questions
 
-- **Intercom authorization-screen labels.** Intercom documents an automatic
-  browser OAuth flow and says the user authorizes access, but publishes no
-  MCP-specific screenshot, screen sequence, or exact button labels. The Guide
-  must say to complete the on-screen prompts without inventing a label.
+- **App-creation field labels:** Intercom's public app-creation documentation
+  requires an app name and workspace selection but does not publish the exact
+  labels for those fields. The Guide must describe those inputs conceptually
+  without inventing labels.
+- **Intercom authorization-screen labels:** Intercom documents the browser
+  authorization behavior but not the current sequence or exact approval-button
+  labels. The Guide must direct the reader to complete the on-screen prompts
+  without inventing labels.
+- **OAuth page save control:** Intercom's public OAuth guide names and shows
+  **Use OAuth**, **Redirect URLs**, **Add redirect URL**, and the permission
+  checkboxes, but does not name the control that persists changes.
+- **DCR allowlisting process:** operator validation established that DCR needs
+  callback allowlisting, but Intercom publishes no request path, eligibility
+  rule, or turnaround time. Manual OAuth remains the recommended path.
 
 ## Provenance
 
 Source inventory from the sweep:
 
-- **Developer documentation — `developers.intercom.com`:** primary MCP and
-  OAuth documentation. `https://developers.intercom.com/llms.txt` exists and
-  was searched this run.
-- **Product/admin support — `www.intercom.com/help/en`:** regional-hosting and
-  account-permission articles. `/help/en/llms.txt` returned 404; targeted
-  search was used. The sweep also found the separate beta **Fin Agent API:
-  MCP Server**, which is excluded from this Guide because it has different
-  endpoints, prerequisites, and credential models.
-- **Intercom application — `app.intercom.com`:** public sign-in page used to
-  confirm the current region-selector labels.
+- **Developer documentation — `developers.intercom.com`:** primary MCP,
+  Developer Hub, authentication, and OAuth-scope documentation.
+  `https://developers.intercom.com/llms.txt` exists and was searched.
+- **Product/admin support — `www.intercom.com/help/en`:** current regional
+  hosting documentation. Its `/help/en/llms.txt` property is not published.
+- **Intercom application — `app.intercom.com`:** public sign-in and Developer
+  Hub entry URLs; authenticated configuration was not live-probed.
 - **Official GitHub documentation mirror —
-  `github.com/intercom/intercom-mcp-server`:** found in the sweep but not used
-  for current facts because its README is stale: it says US only and lists an
-  older, smaller server surface, while the live developer guide adds EU.
-- **Speakeasy public product source — `github.com/speakeasy-api/gram`:**
-  consulted only for Speakeasy-side dynamic OAuth behavior and exact labels
-  absent from `doctrine/speakeasy-setup.md`.
+  `github.com/intercom/intercom-mcp-server`:** found in the prior sweep but
+  not used because its README was stale relative to the live MCP guide.
+- **Speakeasy setup doctrine — `doctrine/speakeasy-setup.md`:** canonical
+  Speakeasy-side flow and fixed anchors.
 
 Sources drawn from:
 
 - `https://developers.intercom.com/docs/guides/mcp` ("Model Context Protocol
-  (MCP)") — observed `2026-07-27T18:17:36Z`. Backs US/EU availability and
-  endpoint mapping, Australian exclusion, Streamable HTTP recommendation,
-  deprecated SSE alternatives, automatic OAuth recommendation, Bearer-token
-  alternative, required permissions, and automatic browser authentication.
-- `https://developers.intercom.com/llms.txt` — observed
-  `2026-07-27T18:17:36Z`. Backs developer-property sweep coverage.
-- `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication`
-  ("Authentication") — observed `2026-07-27T18:17:36Z`. Backs the distinction
-  between private-app Access Tokens and OAuth, the Developer Hub token path,
-  and warnings to treat Access Tokens as passwords and not give them to
-  third-party app providers.
+  (MCP)") — observed `2026-07-29T15:06:51Z`. Backs US/EU URLs and availability,
+  Australian exclusion, Streamable HTTP, OAuth and Bearer alternatives, the
+  browser authorization behavior, and the public MCP page's broader
+  **Read and write articles** recommendation.
+- `https://developers.intercom.com/docs/build-an-integration/getting-started`
+  and its `.md` representation — observed `2026-07-29T15:06:51Z`. Back the
+  Developer Hub URL and **Your Apps**, **New App**, **Create app**, app-name,
+  workspace-selection, and pre-install behavior.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth`
-  ("Setting up OAuth") — observed `2026-07-27T18:17:36Z`. Backs general
-  Intercom OAuth permission behavior and regional authorization-host behavior;
-  its manually registered public-app flow is not the MCP DCR path.
+  and its `.md` representation — observed `2026-07-29T15:06:51Z`. Back **Use
+  OAuth**, **Authentication**, **Redirect URLs**, HTTPS, **Add redirect URL**,
+  permissions, **Basic Information**, Client ID/secret, the US authorization
+  endpoint, callback behavior, and the Eagle token endpoint.
+- `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/oauth-scopes`
+  — observed `2026-07-29T15:06:51Z`. Backs exact permission labels and their
+  access meanings.
+- `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication`
+  — observed `2026-07-29T15:06:51Z`. Backs the private Access Token warning and
+  OAuth-versus-token distinction.
+- `https://developers.intercom.com/llms.txt` — observed
+  `2026-07-29T15:06:51Z`. Backs developer-property sweep coverage.
 - `https://www.intercom.com/help/en/articles/6124430-regional-data-hosting`
-  ("Regional Data Hosting") — observed `2026-07-27T18:17:36Z`. Corroborates
-  workspace-host mapping for US, EU, and Australia, and instructs readers to
-  select the correct data host region when signing in.
-- `https://www.intercom.com/help/en/articles/5778275-additional-details-on-intercom-regional-data-hosting`
-  ("Additional details on Intercom Regional Data Hosting") — observed
-  `2026-07-27T18:17:36Z`. Independently confirms that the Intercom MCP server
-  is available in Europe but not Australia.
-- `https://www.intercom.com/help/en/articles/15481203-fin-agent-api-mcp-server`
-  ("Fin Agent API: MCP Server") — observed `2026-07-27T18:17:36Z`. Backs the
-  scope ruling that Intercom's beta Fin Agent API MCP Server is a distinct
-  server family with separate endpoints, feature gate, and credentials, and
-  is not part of this Guide.
-- `https://www.intercom.com/help/en/articles/8771110-getting-started-faqs`
-  ("Getting started FAQs") — observed `2026-07-27T18:17:36Z`. Backs the
-  official Intercom sign-in URL
-  `https://app.intercom.com/admins/sign_in`.
+  ("Regional Data Hosting") — observed `2026-07-29T15:06:51Z`. Backs the
+  workspace-host mapping and wrong-region sign-in recovery.
 - `https://app.intercom.com/admins/sign_in` — observed
-  `2026-07-27T18:17:36Z`. Backs **Your account region**, its **United States**,
-  **Europe**, and **Australia** options, and the instruction to check the
-  account region before signing in.
-- `https://mcp.intercom.com/mcp` and
-  `https://mcp.eu.intercom.com/mcp` — direct unauthenticated GET and JSON-RPC
-  initialize observations at `2026-07-27T18:17:36Z`. Both returned HTTP 401
-  with a Bearer challenge lacking protected-resource and authorization-server
-  metadata pointers.
-- `https://mcp.intercom.com/.well-known/oauth-authorization-server` and
-  `https://mcp.eu.intercom.com/.well-known/oauth-authorization-server` —
-  observed `2026-07-27T18:17:36Z`. Back regional issuers, authorization/token/
-  registration endpoints, grants, endpoint-authentication methods, and PKCE.
-- `https://mcp.intercom.com/.well-known/oauth-protected-resource`,
-  `https://mcp.intercom.com/.well-known/oauth-protected-resource/mcp`,
-  and EU equivalents — observed `2026-07-27T18:17:36Z`; all returned 404.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-27T18:17:36Z`. Backs the
-  canonical Speakeasy-side skeleton, fixed anchors, and exact common labels.
-- `https://github.com/speakeasy-api/gram/tree/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication`
-  — observed `2026-07-27T18:17:36Z`. `AuthenticationSetupActions.tsx`,
-  `AuthenticationSection.tsx`, `AttachRemoteIdentityProviderSheet.tsx`,
-  `IssuerFormFields.tsx`, `issuerFormUtils.ts`, and
-  `useIssuerDiscovery.ts` back **Use Discovered**, **Configure Manually**,
-  **Issuer URL**, **Discover**, the endpoint fields, **Client Type**,
-  **Dynamic Client Registration (DCR)** defaulting, the token-endpoint
-  authentication default, overrides, and **Attach Identity Provider**.
-- `https://github.com/speakeasy-api/gram/blob/f1d60da92f71315297941d7ee394a8d3241b1043/client/dashboard/src/pages/sources/remote-mcp/autoConfigureAuth.ts`
-  — observed `2026-07-27T18:17:36Z`. Backs that automatic authentication
-  configuration first requires protected-resource metadata and silently skips
-  when none is found.
+  `2026-07-29T15:06:51Z`. Backs the current region-selector labels.
+- `https://mcp.intercom.com/.well-known/oauth-authorization-server` —
+  observed `2026-07-29T15:06:51Z`. Confirms that the MCP issuer advertises DCR
+  and separate `/authorize` and `/token` endpoints.
+- Operator validation recorded for this run — observed
+  `2026-07-29T15:06:51Z`. Backs DCR callback-allowlist failure, the recommended
+  manual OAuth path, callback URL, validated issuer/authorization/token values,
+  and the least-privilege permission set.
+- `doctrine/speakeasy-setup.md` — observed `2026-07-29T15:06:51Z`. Backs the
+  canonical Speakeasy skeleton, fixed anchors, exact common labels, and
+  tenanted Custom-remote path selection.
