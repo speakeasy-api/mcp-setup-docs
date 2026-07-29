@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { createRuntime } from './runtime.ts'
 import { runWorkflow, type GuideInput } from './workflow.ts'
 import { PATHS, abs, guideDir } from './paths.ts'
+import type { ResearchMode } from './research-mode.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -21,6 +22,10 @@ Options:
   --force            Bypass pipeline.lock.json skips (implies --overwrite)
   --pause-on-scope   After research, pause before draft when material open
                      questions lack Decision N replies in --notes (factory)
+  --research-mode <full|patch|skip>
+                     Research cost mode (default: full). patch amends the
+                     dossier from notes without re-crawling; skip carries
+                     prior research.md forward (scope-only Decisions).
   --repo-root <path> Repo root (default: two levels above this package)
   --model <id>       Default Cursor model id (default: gpt-5.6-sol)
   --light-model <id> Model for "sonnet" slots (default: composer-2.5)
@@ -68,6 +73,7 @@ function parseArgs(argv: string[]) {
   let overwrite = false
   let force = false
   let pauseOnScope = false
+  let researchMode: ResearchMode = 'full'
   let repoRoot: string | undefined
   // Heavy slots (research / draft / fidelity / achievability / revision)
   // default to GPT-5.6 Sol at high effort; light model kept for optional overrides.
@@ -89,6 +95,15 @@ function parseArgs(argv: string[]) {
     }
     if (a === '--pause-on-scope') {
       pauseOnScope = true
+      continue
+    }
+    if (a === '--research-mode') {
+      const v = argv[++i] || usage()
+      if (v !== 'full' && v !== 'patch' && v !== 'skip') {
+        console.error(`Invalid --research-mode: ${v}`)
+        usage()
+      }
+      researchMode = v
       continue
     }
     if (a === '--persona') {
@@ -140,6 +155,7 @@ function parseArgs(argv: string[]) {
     overwrite,
     force,
     pauseOnScope,
+    researchMode,
     repoRoot,
     model,
     lightModel,
@@ -269,7 +285,7 @@ async function main() {
   console.error(
     `draft-guide (cursor-sdk): persona=${args.persona} guides=${guides
       .map((g) => g.slug)
-      .join(',')} model=${args.model} effort=${args.effort || '(default)'} light=${args.lightModel}`
+      .join(',')} model=${args.model} effort=${args.effort || '(default)'} light=${args.lightModel} research-mode=${args.researchMode}`
   )
 
   const out = await runWorkflow(rt, {
@@ -280,6 +296,7 @@ async function main() {
     maxRounds: args.maxRounds,
     force: args.force,
     pauseOnScope: args.pauseOnScope,
+    researchMode: args.researchMode,
   })
 
   const finishedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')

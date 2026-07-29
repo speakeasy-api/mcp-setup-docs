@@ -6,6 +6,41 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-29 — Research modes: skip / patch / full on factory resume
+
+Files: `doctrine/pipeline-lock.md`, `doctrine/shared.md`,
+`doctrine/roles/technical-research.md`, `FACTORY.md`, `retro/README.md`,
+`pipeline/src/{decisions,research-mode,workflow,cli}.ts`,
+`pipeline/src/factory/{cmd-distill,cmd-draft,cmd-comments}.ts`,
+`.github/workflows/guide-draft.yml`.
+
+- Same `guide:draft` label; distill auto-routes research cost:
+  **skip** (drop/omit-only, no freeform), **patch** (fact/hedge Decisions,
+  unnumbered `Decision:`, `N - …` replies, or substantive freeform without
+  provider re-crawl), **full** (cold start / re-research / no new comments).
+- Deterministic Decision extraction ignores factory template examples and
+  appends a verbatim block so distill cannot drop answers. Routing uses
+  comments after the latest factory review so stale Decisions cannot force
+  skip over new prose. Bare `hedge` patches (does not skip).
+- Patch mode: bounded research agent amends `research.md`/`meta.yaml` with
+  issue/Decision provenance for operator-supplied facts (I1/I2).
+- Run Records gain `research_mode` and `research_change.method` values
+  `carried-forward` | `patch`.
+
+Invariants: I1 strengthened (additive facts still hit the Dossier before
+Writer); I8 satisfied by this changelog entry (human-directed factory
+change).
+
+Evidence: operator latency complaint (Decision replies paying full
+research); Snowflake issue #51 freeform / `Decision:` / bare-`hedge`
+replies mis-routed under Decision-N-only skip; multi-model counsel (ship
+class-gated skip + patch, not bare skip for `verified —` facts).
+
+Follow-up (same day): Opus review C1–C3 — decorate-tolerant Decision
+extraction + live Scope check wording; notes merge only *recent*
+Decisions (strip distill leaks of stale N ids from the scope gate);
+fat `drop … — instead …` and short freeform → patch, not skip.
+
 ## 2026-07-27 — Speakeasy skeleton: OAuth DCR credential variant
 
 Files: `doctrine/speakeasy-setup.md`.

@@ -1,10 +1,23 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { issueNumber, ghRepo, runnerTemp, repoRoot } from './env.ts'
+import { issueNumber, ghRepo, runnerTemp, repoRoot, githubWorkspace } from './env.ts'
 import { ghSoft } from './gh.ts'
 import { setOutput, setMultilineOutput } from './github-output.ts'
 import { writeFailureReason } from './failure-reason.ts'
 import { runPipelineScript } from './run-pipeline.ts'
+import {
+  buildOperatorNotes,
+  extractDecisions,
+  recentOperatorComments,
+} from '../decisions.ts'
+import {
+  priorStatusFromRecord,
+  resolveResearchMode,
+  researchModeLabel,
+  type ResearchMode,
+} from '../research-mode.ts'
+import { newestRunRecord } from './run-record.ts'
+import { guideDir } from '../paths.ts'
 
 type ResolvedOk = {
   status: 'ok'
@@ -51,6 +64,19 @@ export function runDistill(): void {
     console.error('factory: distill — no issue comments (body only)')
   }
 
+  // Only Decisions from comments after the latest factory review enter notes
+  // (C2). Whole-thread extraction would let stale Decision 2/3 satisfy new OQs.
+  const recent = recentOperatorComments(comments)
+  const recentDecisions = extractDecisions(recent)
+  if (recentDecisions.length > 0) {
+    console.error(
+      `factory: distill — recent Decision line(s): ` +
+        recentDecisions.map((d) => `D${d.index}/${d.kind}`).join(', '),
+    )
+  } else {
+    console.error('factory: distill — no recent Decision lines after last factory comment')
+  }
+
   const outPath = join(runnerTemp(), 'resolved.json')
   const root = repoRoot()
   const code = runPipelineScript(
@@ -68,13 +94,42 @@ export function runDistill(): void {
 
   if (resolved.status === 'ok') {
     const ok = resolved as ResolvedOk
+    // Strip Decision lines distill copied from the full thread, then append
+    // only recent verbatim Decisions.
+    const notes = buildOperatorNotes(ok.notes ?? '', recent)
+
+    const resume = process.env.RESUME === 'true'
+    const workspace = githubWorkspace()
+    const slug = ok.slug
+    const guideDirectory = join(workspace, guideDir(slug))
+    const priorRecord = newestRunRecord(workspace, slug)
+    const priorStatus = priorStatusFromRecord(priorRecord)
+
+    const explicitEnv = process.env.RESEARCH_MODE as ResearchMode | undefined
+    const explicit =
+      explicitEnv === 'full' || explicitEnv === 'patch' || explicitEnv === 'skip'
+        ? explicitEnv
+        : undefined
+
+    const routed = resolveResearchMode({
+      resume,
+      guideDir: guideDirectory,
+      notes,
+      commentThread: comments,
+      priorStatus,
+      explicit,
+    })
+
     console.error(
-      `factory: distill ok — slug=${ok.slug} provider=${ok.provider} persona=${ok.persona ?? 'it-admin'}`,
+      `factory: distill ok — slug=${ok.slug} provider=${ok.provider} persona=${ok.persona ?? 'it-admin'} research_mode=${routed.mode} (${routed.reason})`,
     )
     setOutput('slug', ok.slug)
     setOutput('provider', ok.provider)
     setOutput('persona', ok.persona ?? 'it-admin')
-    setMultilineOutput('notes', ok.notes ?? '')
+    setOutput('research_mode', routed.mode)
+    setOutput('research_mode_reason', routed.reason)
+    setOutput('research_mode_label', researchModeLabel(routed.mode))
+    setMultilineOutput('notes', notes)
     process.exit(0)
   }
 

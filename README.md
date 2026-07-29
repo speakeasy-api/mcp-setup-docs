@@ -35,6 +35,7 @@ export CURSOR_API_KEY=cursor_...   # Dashboard → Integrations / API Keys
 mise run draft-guide -- box --overwrite
 mise run draft-guide -- box --overwrite --notes "prefer ADC docs"
 mise run draft-guide -- x --overwrite --pause-on-scope
+mise run draft-guide -- box --overwrite --research-mode patch --notes "Decision 1: keep PrivateLink note"
 
 # Or:
 cd pipeline && npm install

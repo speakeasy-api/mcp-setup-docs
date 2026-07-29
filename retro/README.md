@@ -35,10 +35,11 @@ factory) when a run completes: `runs/<UTC timestamp>-<slug>.json`.
   "unresolved": ["… only when unconverged …"],
   "open_questions": ["…"],
   "skipped": ["… optional: step ids skipped via pipeline.lock.json, e.g. draft, review.fidelity …"],
+  "research_mode": "full | patch | skip",
   "research_change": {
-    "method": "digest | judge | none",
+    "method": "digest | judge | none | carried-forward | patch",
     "unchanged": true,
-    "notes": "… optional rationale from digest fast path or research-change judge …"
+    "notes": "… optional rationale from digest fast path, research-change judge, skip, or patch …"
   },
   "scope": {
     "pause": true,
@@ -54,9 +55,9 @@ provenance) so the timing pair reads standalone; `finished_at` is captured
 when the record is written, so it is an upper bound on completion. Records
 before 2026-07-22 carry neither. Older records may still contain retired
 `polish_*` / `recheck` history fields. Top-level `skipped` lists pipeline
-steps omitted by the lockfile contract; `research_change` records how
-`research_unchanged` was decided (see
-[`doctrine/pipeline-lock.md`](../doctrine/pipeline-lock.md)).
+steps omitted by the lockfile contract (including `research` when mode is
+`skip`); `research_mode` / `research_change` record how research ran (see
+[`doctrine/pipeline-lock.md`](../doctrine/pipeline-lock.md) Research modes).
 
 ## `notes/` — Retro Notes (human-written)
 
