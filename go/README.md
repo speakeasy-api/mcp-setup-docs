@@ -2,6 +2,10 @@
 
 Embedded Speakeasy MCP setup guides for Go consumers.
 
+```bash
+go get github.com/speakeasy-api/mcp-setup-docs/go@go/v0.1.0
+```
+
 ```go
 import guides "github.com/speakeasy-api/mcp-setup-docs/go"
 
@@ -9,6 +13,8 @@ g, ok := guides.Lookup("intercom")
 ref, _ := guides.ParseServerRef("intercom/eu")
 _, remote, ok := guides.LookupServer(ref)
 matches := guides.ByURL("https://mcp.box.com")
+// Pulse / registry name → guide (no default remote invented)
+matches = guides.Resolve("io.github.github/github-mcp-server")
 ```
 
 ## Identifiers
@@ -19,6 +25,7 @@ matches := guides.ByURL("https://mcp.box.com")
   provenance name, endpoint URL). They never invent a default remote.
 - Single-endpoint guides use remote id `hosted` (append-only after first
   tag).
+
 ## Develop
 
 ```bash
