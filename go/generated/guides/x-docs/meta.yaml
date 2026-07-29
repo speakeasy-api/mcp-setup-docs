@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: x-docs
+title: X Docs
+summary: Connect X's public documentation MCP server for searching and reading X API documentation.
+aliases:
+  - com.pulsemcp.mirror/x-docs
+speakeasy_add_server: catalog
+credential_setup:
+  options:
+    - id: public
+      kind: open
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: docs
+    url: https://docs.x.com/mcp
+    transport: streamable-http
+    authentication:
+      - public
+    provenance:
+      - source: provider-runtime
+        locator: https://docs.x.com/mcp
+        name: X Docs MCP
+        classification: official
+        version: 1.0.0
+        status: reachable-without-authentication
+        observed_at: "2026-07-29T20:05:42Z"
+provenance:
+  - source: provider-runtime
+    locator: https://docs.x.com/mcp
+    name: X Docs MCP
+    classification: official
+    version: 1.0.0
+    status: reachable-without-authentication
+    observed_at: "2026-07-29T20:05:42Z"
+  - source: provider-documentation
+    locator: https://x-preview.mintlify.app/tools/mcp
+    name: MCP servers for the X API and X developer docs
+    classification: official
+    observed_at: "2026-07-29T20:05:42Z"
+  - source: provider-documentation
+    locator: https://x-preview.mintlify.app/llms.txt
+    name: X Developer Platform documentation index
+    classification: official
+    observed_at: "2026-07-29T20:05:42Z"
+  - source: pulsemcp
+    locator: com.pulsemcp.mirror/x-docs
+    name: X Docs
+    classification: mirror
+    scope: tenant
+    status: present
+    observed_at: "2026-07-29T20:05:42Z"
+  - source: speakeasy-product-documentation
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-07-29T20:05:42Z"
