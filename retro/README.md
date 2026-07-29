@@ -38,7 +38,13 @@ factory) when a run completes: `runs/<UTC timestamp>-<slug>.json`.
   "research_change": {
     "method": "digest | judge | none",
     "unchanged": true,
-    "notes": "… optional rationale from digest fast path or research-change judge …"
+    "notes": "… optional rationale from digest fast path or research-change judge …",
+    "rebaseline": true
+  },
+  "notes_digest": "sha256:… of lock notes (operator + stable catalog token) …",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 0
   },
   "scope": {
     "pause": true,
@@ -57,6 +63,9 @@ before 2026-07-22 carry neither. Older records may still contain retired
 steps omitted by the lockfile contract; `research_change` records how
 `research_unchanged` was decided (see
 [`doctrine/pipeline-lock.md`](../doctrine/pipeline-lock.md)).
+`notes_digest` makes note-driven vs research-driven re-runs auditable;
+`setup_churn` (when draft ran) reports absolute line-count deltas for
+`external.md` / `speakeasy.md`.
 
 ## `notes/` — Retro Notes (human-written)
 

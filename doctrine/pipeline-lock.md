@@ -58,8 +58,14 @@ All digests use the form `sha256:` + 64 lowercase hex digits (same as asset
   canonicalize the remaining structure, then sha256 the canonical bytes.
   Research refreshes always bump `observed_at`; stripping it is what makes
   “research yielded nothing new” detectable.
-- **`research.md` / `external.md` / `speakeasy.md`:** sha256 of the file bytes as stored (no
-  stripping). If frontmatter later gains volatile fields, that is a v2 concern.
+- **`research.md`:** normalize before hashing — replace frontmatter
+  `researched_at` with a sentinel and replace ISO-8601-Z provenance stamp
+  tokens (for example inline observed ISO-8601-Z citations) with a sentinel. Bare
+  calendar dates are **not** stripped. Research refreshes always bump these
+  stamps; normalizing them is what makes stamp-only churn hit the digest
+  fast path.
+- **`external.md` / `speakeasy.md`:** sha256 of the file bytes as stored (no
+  stripping).
 - **Reading-list files** (doctrine, persona): sha256 of file bytes as stored.
 
 ### Paths
@@ -122,15 +128,24 @@ Research **always executes**. After it completes, set in-memory
    equivalent for drafting (ignore `observed_at` churn and wording/reordering
    that does not change draft-relevant facts, anchors, credentials, remotes,
    prerequisites, or provenance-backed claims).
-4. When the judge says not material, the orchestrator **restores** the
-   pre-research snapshot on disk so artifact digests still match the lock and
-   draft/review skips remain valid. When the judge says material (or returns
-   no verdict), keep AFTER and set `research_unchanged = false`.
-5. **`--force`:** skip the judge; treat research as changed for skip purposes
+4. When the judge says not material **and** operator/lock notes match the
+   previous research step's `params.notes`, keep AFTER on disk and
+   **rebaseline** the in-memory lock: rewrite research outputs and
+   draft/review artifact digests for `research.md` / `meta.yaml` to the
+   AFTER files, then recompute those steps' `input_digest`s. Setup-file
+   outputs stay as locked so draft/review can skip. Soft research wording
+   improvements are retained without forcing a setup rewrite.
+5. When the judge says not material **but** notes differ from the lock, keep
+   AFTER and set `research_unchanged = false` (draft must run against the
+   refreshed dossier; never roll research back). When the judge says
+   material (or returns no verdict), keep AFTER and set
+   `research_unchanged = false`.
+6. **`--force`:** skip the judge; treat research as changed for skip purposes
    (downstream skips are already bypassed). `--overwrite` does **not** do this.
 
-Run Records may include `research_change: { method, unchanged, notes }` where
-`method` is `digest` | `judge` | `none`.
+Run Records may include `research_change: { method, unchanged, notes,
+rebaseline? }` where `method` is `digest` | `judge` | `none`, plus
+`notes_digest`, optional `setup_churn`, and `skipped` step ids.
 
 ## Skip predicates
 

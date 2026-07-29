@@ -6,6 +6,34 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-29 — guide stability: stamp digests + lock rebaseline
+
+Files: `doctrine/pipeline-lock.md`, `doctrine/roles/writer.md`,
+`pipeline/src/{lock,workflow}.ts`, `retro/README.md`.
+
+- **Stable `research.md` digests** normalize frontmatter `researched_at` and
+  ISO-8601-Z provenance stamp tokens (not bare calendar dates), mirroring
+  `observed_at` stripping for `meta.yaml`, so stamp-only research refreshes
+  hit the digest fast path.
+- **Non-material judge:** keep AFTER on disk; when notes match the lock,
+  rebaseline in-memory lock research/draft/review artifact digests so
+  draft and round-1 review can skip. Supersedes the 2026-07-23 claim that
+  keep-AFTER alone still drove skips (it did not — digest mismatch forced
+  full rewrites).
+- **Notes guard:** when operator notes differ from the lock, never skip via
+  research equivalence and never restore BEFORE (note incorporations stay
+  on disk; draft runs).
+- **Writer / revise:** when setup files exist, edit in place / minimal diff;
+  silent restyling is a defect. Run Records gain `notes_digest` and optional
+  `setup_churn`.
+
+Invariants: I2 preserved — this-run stamps stay on disk. I1/I5/I6 preserved —
+dossier ceiling and review gates unchanged; skips only fire when
+draft-equivalent.
+
+Evidence: 14/14 historical `unchanged=true` runs still drafted
+(`retro/runs/*`); retro validation of note-added / restore-BEFORE risk.
+
 ## 2026-07-27 — Speakeasy skeleton: OAuth DCR credential variant
 
 Files: `doctrine/speakeasy-setup.md`.
