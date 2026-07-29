@@ -58,10 +58,10 @@ are never embedded.
 
 ## Release flow
 
-1. Guide/schema changes merge to `main` (guide PRs do not need to update `go/`).
-2. `go-module-regen` regenerates the embed and opens/updates `chore/go-module-regen`.
+1. Guide/schema PRs are validated by `go-module-guide-validate` (generator + size; no `go/` sync required).
+2. After merge to `main`, `go-module-regen` regenerates the embed and opens/updates `chore/go-module-regen` (machine-owned branch; requires `AGENT_PAT` so CI runs on the PR).
 3. A human merges that PR once `Go module CI` is green.
-4. `go-module-release` cuts the next `go/vX.Y.Z` tag + GitHub Release (patch bump by default).
+4. `go-module-release` verifies the module, then cuts the next `go/vX.Y.Z` tag + GitHub Release (patch bump by default).
 
 **First tag is manual:** `git tag -a go/v0.1.0 -m "…" && git push origin go/v0.1.0`.
 Until that exists, the release workflow no-ops.

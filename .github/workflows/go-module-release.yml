@@ -7,11 +7,16 @@ on:
     branches: [main]
     paths:
       - 'go/generated/**'
-      - 'go/index_gen.go'
       - 'go/published_server_refs.txt'
-      - 'go/*.go'
       - 'go/go.mod'
+      - 'go/LICENSE'
+      - 'go/doc.go'
       - 'go/embed.go'
+      - 'go/generate.go'
+      - 'go/guides.go'
+      - 'go/index_gen.go'
+      - 'go/ref.go'
+      - 'go/resolve.go'
   workflow_dispatch:
     inputs:
       bump:
@@ -41,13 +46,20 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: |
+            go/go.mod
+            go/internal/gen/go.sum
+
       - name: Resolve next version
         id: ver
         env:
           BUMP: ${{ github.event.inputs.bump || 'patch' }}
         run: |
           set -euo pipefail
-          latest="$(git tag -l 'go/v*' | sort -V | tail -1 || true)"
+          latest="$(git tag -l 'go/v*' --sort=-v:refname | grep -E '^go/v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)"
           if [ -z "$latest" ]; then
             echo "No go/v* tags yet. Cut go/v0.1.0 manually once, then re-run."
             echo "skip=true" >> "$GITHUB_OUTPUT"
@@ -70,6 +82,24 @@ jobs:
           echo "module_ver=$module_ver" >> "$GITHUB_OUTPUT"
           echo "Next tag: $next (module @${module_ver})"
 
+      - name: Verify module before tagging
+        if: steps.ver.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          (cd go/internal/gen && go run .)
+          if [ -n "$(git status --porcelain -- go/)" ]; then
+            echo "go/ drift on main; refusing to tag:"
+            git status --porcelain -- go/
+            exit 1
+          fi
+          (cd go && gofmt -l . | tee /tmp/gofmt.out)
+          if [ -s /tmp/gofmt.out ]; then
+            echo "gofmt needed before release"
+            exit 1
+          fi
+          (cd go && go vet . && go test .)
+          (cd go/internal/gen && go test .)
+
       - name: Create tag and GitHub Release
         if: steps.ver.outputs.skip != 'true'
         env:
@@ -88,21 +118,24 @@ jobs:
           git tag -a "$TAG" -m "mcp-setup-docs Go module ${MODULE_VER}"
           git push origin "$TAG"
 
-          notes="$(git log --pretty=format:'- %s (%h)' "${PREV}..HEAD" -- go/ | head -80 || true)"
-          if [ -z "$notes" ]; then
-            notes="- Sync publishable guides into the Go module embed"
-          fi
+          notes_file="${RUNNER_TEMP:-/tmp}/go-module-release-notes.md"
+          {
+            echo "Go module \`github.com/speakeasy-api/mcp-setup-docs/go@${MODULE_VER}\`"
+            echo
+            echo '```bash'
+            echo "go get github.com/speakeasy-api/mcp-setup-docs/go@${MODULE_VER}"
+            echo '```'
+            echo
+            echo "### Changes since ${PREV}"
+            notes="$(git log --pretty=format:'- %s (%h)' "${PREV}..HEAD" -- go/ | head -80 || true)"
+            if [ -z "$notes" ]; then
+              echo "- Sync publishable guides into the Go module embed"
+            else
+              printf '%s\n' "$notes"
+            fi
+          } > "$notes_file"
 
-          gh release create "$TAG" \
-            --title "$TAG" \
-            --notes "Go module \`github.com/speakeasy-api/mcp-setup-docs/go@${MODULE_VER}\`
-
-          \`\`\`bash
-          go get github.com/speakeasy-api/mcp-setup-docs/go@${MODULE_VER}
-          \`\`\`
-
-          ### Changes since ${PREV}
-          ${notes}"
+          gh release create "$TAG" --title "$TAG" --notes-file "$notes_file"
 
       - name: Prime module proxy
         if: steps.ver.outputs.skip != 'true'

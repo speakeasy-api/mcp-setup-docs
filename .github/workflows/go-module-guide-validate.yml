@@ -1,0 +1,48 @@
+name: Go module guide validate
+
+# Pre-merge validation for guide/schema PRs: run the generator (meta parse,
+# aliases, append-only refs, assets, size) but do not require go/ to be synced.
+# Post-merge sync is handled by go-module-regen.
+on:
+  pull_request:
+    paths:
+      - 'guides/**'
+      - 'schema/**'
+      - '.github/workflows/go-module-guide-validate.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: |
+            go/go.mod
+            go/internal/gen/go.sum
+
+      - name: Regenerate (validate only)
+        working-directory: go/internal/gen
+        run: go run .
+
+      - name: Size budget
+        run: |
+          set -euo pipefail
+          size_kb="$(du -sk go/generated | awk '{print $1}')"
+          echo "go/generated size: ${size_kb} KiB"
+          if [ "$size_kb" -gt 5120 ]; then
+            echo "publishable payload exceeds 5 MiB budget"
+            exit 1
+          fi
+          while IFS= read -r -d '' f; do
+            bytes="$(wc -c < "$f")"
+            if [ "$bytes" -gt 524288 ]; then
+              echo "file exceeds 512 KiB: $f ($bytes bytes)"
+              exit 1
+            fi
+          done < <(find go/generated -type f -print0)
+
+      - name: Discard generated output
+        run: git checkout -- go/ || true
