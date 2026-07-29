@@ -1,0 +1,91 @@
+{
+  "slug": "google-drive",
+  "provider": "google-drive",
+  "persona": "it-admin",
+  "timestamp": "2026-07-29T20:37:22Z",
+  "started_at": "2026-07-29T20:37:22Z",
+  "finished_at": "2026-07-29T20:51:07Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "#open-questions",
+      "problem": "The Dossier does not record that exact Speakeasy scope-field and add-control labels are unavailable.",
+      "suggestion": "Add an open question documenting the missing labels while retaining the conceptual scope-configuration wording.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "#connect-speakeasy-credentials, scope configuration",
+      "problem": "The reader must infer where and how to enter the two required scopes because the Dossier neither provides control labels nor records their absence as an open question.",
+      "suggestion": "Record the unpublished scope-control labels as an open question and render a conceptual hedge directing the reader to enter both values in the sheet's available scope controls without inventing labels.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Current client-secret recovery control labels are undocumented.",
+    "Specific Google data scope-selection labels are undocumented.",
+    "External restricted-scope review outcomes depend on the organization's implementation."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The transcluded manual OAuth flow omits the canonical fact that the Redirect URI has a copy button, so it does not match doctrine/speakeasy-setup.md.",
+          "suggestion": "Restore the current canonical manual OAuth skeleton in research.md, then rerender speakeasy.md from it while retaining the Google Drive scopes.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "#connect-speakeasy-credentials, steps 7–8",
+          "problem": "The scope steps do not name the field or control used to add provider-required scopes.",
+          "suggestion": "After the canonical Speakeasy setup documents the relevant UI labels, name the exact scope field and add control for both values.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Restored the canonical Redirect URI copy-button fact in research.md and rerendered it in speakeasy.md.",
+      "disputed": [],
+      "skipped": [
+        "Scope-control labels: skipped because canonical Speakeasy documentation does not provide the exact field or add-control labels; adding them would invent facts."
+      ]
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#open-questions",
+          "problem": "The Dossier does not record that exact Speakeasy scope-field and add-control labels are unavailable.",
+          "suggestion": "Add an open question documenting the missing labels while retaining the conceptual scope-configuration wording.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials, scope configuration",
+          "problem": "The reader must infer where and how to enter the two required scopes because the Dossier neither provides control labels nor records their absence as an open question.",
+          "suggestion": "Record the unpublished scope-control labels as an open question and render a conceptual hedge directing the reader to enter both values in the sheet's available scope controls without inventing labels.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}
