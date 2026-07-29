@@ -298,6 +298,155 @@ func TestHostedDefaultForVendorSingleRemote(t *testing.T) {
 	}
 }
 
+func TestQueryMechanisms(t *testing.T) {
+	// Full-corpus matrix for the consumer-facing lookup surface.
+	// Each row is derived from the embedded index so new guides/aliases
+	// are covered automatically when the generator runs.
+
+	t.Run("slug", func(t *testing.T) {
+		for _, slug := range guides.Slugs() {
+			ms := guides.Resolve(string(slug))
+			found := false
+			for _, m := range ms {
+				if m.Kind == guides.MatchSlug && m.Ref.Guide == slug && m.Ref.Remote == "" {
+					found = true
+				}
+				if m.Kind == guides.MatchSlug && m.Ref.Remote != "" {
+					t.Fatalf("Resolve(%q) invented a remote on slug match: %#v", slug, m)
+				}
+			}
+			if !found {
+				t.Fatalf("Resolve(%q) missing MatchSlug; got %#v", slug, ms)
+			}
+			g, ok := guides.Lookup(slug)
+			if !ok {
+				t.Fatalf("Lookup(%q) failed after Resolve matched", slug)
+			}
+			if len(g.Meta) == 0 || len(g.External) == 0 || len(g.Speakeasy) == 0 {
+				t.Fatalf("Lookup(%q) returned empty content", slug)
+			}
+		}
+	})
+
+	t.Run("server_ref", func(t *testing.T) {
+		for _, slug := range guides.Slugs() {
+			g, ok := guides.Lookup(slug)
+			if !ok {
+				t.Fatalf("Lookup(%q)", slug)
+			}
+			for _, r := range g.Remotes {
+				query := guides.ServerRef{Guide: slug, Remote: r.ID}.String()
+				ms := guides.Resolve(query)
+				found := false
+				for _, m := range ms {
+					if m.Kind == guides.MatchServerRef && m.Ref.Guide == slug && m.Ref.Remote == r.ID {
+						found = true
+					}
+				}
+				if !found {
+					t.Fatalf("Resolve(%q) missing MatchServerRef; got %#v", query, ms)
+				}
+				_, remote, ok := guides.LookupServer(guides.ServerRef{Guide: slug, Remote: r.ID})
+				if !ok {
+					t.Fatalf("LookupServer(%q) failed", query)
+				}
+				if remote.URL != r.URL {
+					t.Fatalf("LookupServer(%q) URL=%q want %q", query, remote.URL, r.URL)
+				}
+			}
+		}
+	})
+
+	t.Run("alias", func(t *testing.T) {
+		seen := map[string]guides.GuideSlug{}
+		for _, slug := range guides.Slugs() {
+			g, ok := guides.Lookup(slug)
+			if !ok {
+				t.Fatalf("Lookup(%q)", slug)
+			}
+			for _, alias := range g.Aliases {
+				if other, ok := seen[alias]; ok {
+					t.Fatalf("alias %q claimed by both %s and %s", alias, other, slug)
+				}
+				seen[alias] = slug
+
+				ms := guides.Resolve(alias)
+				found := false
+				for _, m := range ms {
+					if m.Kind == guides.MatchAlias && m.Ref.Guide == slug && m.Ref.Remote == "" {
+						found = true
+					}
+				}
+				if !found {
+					t.Fatalf("Resolve(%q) missing MatchAlias→%s; got %#v", alias, slug, ms)
+				}
+			}
+		}
+		if len(seen) == 0 {
+			t.Fatal("corpus has no aliases; matrix would be vacuous")
+		}
+	})
+
+	t.Run("url", func(t *testing.T) {
+		indexed := 0
+		for _, slug := range guides.Slugs() {
+			g, ok := guides.Lookup(slug)
+			if !ok {
+				t.Fatalf("Lookup(%q)", slug)
+			}
+			for _, r := range g.Remotes {
+				if strings.ContainsAny(r.URL, "<>{}") {
+					if ms := guides.ByURL(r.URL); len(ms) != 0 {
+						t.Fatalf("templated ByURL(%q) should be empty, got %#v", r.URL, ms)
+					}
+					if ms := guides.Resolve(r.URL); hasKind(ms, guides.MatchEndpoint) {
+						t.Fatalf("templated Resolve(%q) should not MatchEndpoint, got %#v", r.URL, ms)
+					}
+					continue
+				}
+				indexed++
+				ms := guides.ByURL(r.URL)
+				if !hasServerRef(ms, slug, r.ID, guides.MatchEndpoint) {
+					t.Fatalf("ByURL(%q) missing %s/%s; got %#v", r.URL, slug, r.ID, ms)
+				}
+				ms = guides.Resolve(r.URL)
+				if !hasServerRef(ms, slug, r.ID, guides.MatchEndpoint) {
+					t.Fatalf("Resolve(%q) missing MatchEndpoint %s/%s; got %#v", r.URL, slug, r.ID, ms)
+				}
+			}
+		}
+		if indexed == 0 {
+			t.Fatal("no indexable URLs in corpus")
+		}
+	})
+
+	t.Run("unknown", func(t *testing.T) {
+		for _, q := range []string{"", "   ", "not-a-guide", "box/nope", "https://example.com/not-a-guide"} {
+			if ms := guides.Resolve(q); len(ms) != 0 {
+				t.Fatalf("Resolve(%q) should be empty, got %#v", q, ms)
+			}
+		}
+	})
+}
+
+func hasKind(ms []guides.Match, kind guides.MatchKind) bool {
+	for _, m := range ms {
+		if m.Kind == kind {
+			return true
+		}
+	}
+	return false
+}
+
+func hasServerRef(ms []guides.Match, slug guides.GuideSlug, remote guides.RemoteID, kind guides.MatchKind) bool {
+	for _, m := range ms {
+		if m.Kind == kind && m.Ref.Guide == slug && m.Ref.Remote == remote {
+			return true
+		}
+	}
+	return false
+}
+
 func onDiskGuideSlugs() (map[string]bool, error) {
 	// tests run with cwd = go/
 	entries, err := os.ReadDir("../guides")
