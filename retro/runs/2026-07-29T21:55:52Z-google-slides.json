@@ -1,0 +1,109 @@
+{
+  "slug": "google-slides",
+  "provider": "google-slides",
+  "persona": "it-admin",
+  "timestamp": "2026-07-29T21:55:52Z",
+  "started_at": "2026-07-29T21:55:52Z",
+  "finished_at": "2026-07-29T22:11:57Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Google's setup page requires four scopes, while protected-resource metadata additionally advertises the broader Drive scope."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Server facts; Speakeasy setup catalog decision",
+          "problem": "The Dossier records the catalog lookup as absent, but the operator specified a custom-remote override and Metadata records that override.",
+          "suggestion": "Replace the absence claims with the custom-remote override and its unreliable-or-unsuitable catalog-mapping rationale.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The transcluded Manual OAuth skeleton omits the canonical fact that the Redirect URI has a copy button.",
+          "suggestion": "Synchronize this section with the current Manual OAuth skeleton in doctrine/speakeasy-setup.md while retaining the guide-specific fields and scopes.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "Final closing pointer",
+          "problem": "The final line does not faithfully render the canonical two-sentence closing pointer recorded in the Dossier.",
+          "suggestion": "Use: \"This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see Google's Slides MCP documentation at [the documented URL].\"",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#copy-oauth-credentials",
+          "problem": "The reader is told to delete and recreate a missed one-time secret without the navigation path or control labels needed to do so.",
+          "suggestion": "Add the exact browser path and control labels for generating a replacement client secret before continuing.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Transition from #copy-oauth-credentials to #allow-workspace-oauth-client",
+          "problem": "The reader has no stated way to determine whether Workspace API controls restrict the scopes or block unconfigured apps.",
+          "suggestion": "Tell the reader to confirm this policy state with the Workspace Service Settings administrator or security owner before choosing whether to complete the restricted-organization step.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Updated research to record the custom-remote override and rationale; synchronized Manual OAuth copy-button facts; documented the supported Add Secret recovery path with provenance; added the policy-owner confirmation gate; and corrected the canonical closing pointer. Updated external.md and speakeasy.md accordingly. Guide lint passes.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The transcluded flow confirms the Redirect URI before attaching credentials, while the canonical Manual OAuth skeleton places that confirmation after Attach Identity Provider.",
+          "suggestion": "Synchronize the action order with doctrine/speakeasy-setup.md, then update speakeasy.md to match.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "provenance",
+          "problem": "Metadata omits the Google client-secret recovery source and workflow operator notes used by the Dossier.",
+          "suggestion": "Add provenance records for support.google.com/cloud/answer/15549257?hl=en and the custom-remote operator override using the assigned observed_at timestamp.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#allow-workspace-oauth-client",
+          "problem": "The guide tells the reader to continue even though app-access changes may remain unapplied for up to 24 hours, leaving no recovery when initial authorization is blocked.",
+          "suggestion": "Tell the reader to retry browser authorization until the change applies, allowing up to 24 hours after clicking Finish.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Reordered Manual OAuth so Redirect URI confirmation follows credential attachment in research.md and speakeasy.md. Added client-secret recovery and custom-remote override provenance to meta.yaml. Added up-to-24-hour browser authorization retry guidance to research.md and external.md. Metadata schema validation passed.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}
