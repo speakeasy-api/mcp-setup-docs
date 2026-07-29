@@ -45,9 +45,9 @@ Created automatically on regen failure if missing:
 
 1. **Guide PR** — edit `guides/<slug>/` only. `Go module guide validate` must be green. Do **not** commit `go/` changes on the guide PR.
 2. **Merge to `main`** — `go-module-regen` runs.
-3. **Regen PR** — bot opens or updates [`chore/go-module-regen`](https://github.com/speakeasy-api/mcp-setup-docs/compare/main...chore/go-module-regen). Multiple guide merges while it is open are **aggregated** into that same PR.
+3. **Regen PR** — bot opens or updates [`chore/go-module-regen`](https://github.com/speakeasy-api/mcp-setup-docs/compare/main...chore/go-module-regen). Multiple guide merges while it is open are **aggregated** into that same PR. The PR body lists guide-level added/updated/removed drift (and other `go/` files) vs `main`.
 4. **Human merge** — wait for `Go module CI` green, then merge. Branch is **machine-owned**; don’t push fixes there (they’ll be overwritten on the next regen).
-5. **Release** — `go-module-release` re-verifies the module, patch-bumps to the next `go/vX.Y.Z`, creates a GitHub Release, and best-effort primes `proxy.golang.org`.
+5. **Release** — `go-module-release` re-verifies the module, patch-bumps to the next `go/vX.Y.Z`, creates a GitHub Release (notes list guide-level added/updated/removed since the previous tag), and best-effort primes `proxy.golang.org`.
 
 ```text
 guides PR ──validate──► main ──regen──► chore/go-module-regen PR
