@@ -1,84 +1,97 @@
 ---
 research_version: 1
 slug: snowflake
-researched_at: 2026-07-28T22:29:19Z
+researched_at: 2026-07-28T23:57:42Z
 ---
 
 # Snowflake — Research Dossier
 
 ## Server facts
 
-- **Primary scope:** a minimal Snowflake-managed MCP server with one
-  `SYSTEM_EXECUTE_SQL` tool. It lets an MCP client submit SQL without first
-  creating a Cortex Agent. The walkthrough keeps the tool read-only and
-  assigns an explicit warehouse.
-- **Advanced scope:** Snowflake also supports Cortex Search, Cortex Analyst,
-  Cortex Agent, and generic UDF/stored-procedure tools. Those require
-  tool-specific objects and grants and are not part of this first-connection
-  flow. Use Snowflake's managed MCP server documentation for those designs.
+- **Scope:** a Snowflake-managed MCP server that exposes one existing Cortex
+  Agent through a `CORTEX_AGENT_RUN` tool. SQL execution, Cortex Search,
+  Cortex Analyst, generic UDF/stored-procedure tools, and creation or design of
+  the Cortex Agent itself are outside this Guide.
 - **Remote URL:**
-  `https://<account_url>/api/v2/databases/<database>/schemas/<schema>/mcp-servers/<name>`.
-  It is specific to the Snowflake account and MCP server object.
+  `https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>`.
+  Snowflake constructs this account-specific endpoint from the account host
+  and MCP server object names. It is a tenanted MCP Server URL: copy the
+  account-specific URL produced by External setup into the Speakeasy AI
+  Control Plane's Custom remote server form.
 - **Transport:** remote HTTP (`streamable-http`). Snowflake documents MCP
   JSON-RPC over HTTP `POST` and supports only non-streaming responses.
-- **Authentication:** OAuth 2.0 using a manually registered confidential
-  Snowflake OAuth security integration. Snowflake recommends OAuth instead of
-  hardcoded Programmatic Access Tokens. Dynamic Client Registration is not
-  supported.
+- **Authentication:** OAuth 2.0 using a manually registered, confidential
+  custom Snowflake OAuth security integration. Snowflake recommends OAuth over
+  hardcoded Programmatic Access Tokens and does not support Dynamic Client
+  Registration for its managed MCP server.
 - **Credentials:** `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS` returns
-  `oauth_client_id`, `oauth_client_secret`, and a secondary secret for
+  `oauth_client_id`, `oauth_client_secret`, and a secondary secret used for
   rotation. This Guide uses the first two values.
+- **Existing-agent requirement:** the application owner must supply an
+  existing Cortex Agent's database, schema, and agent name. Before creating the
+  MCP server, combine them as
+  `<cortex_agent_fqn> = <agent_database>.<agent_schema>.<agent_name>`.
+  `CORTEX_AGENT_RUN` requires this fully qualified identifier.
 - **Session access:** each user authenticates separately. The OAuth session
-  uses the user's `DEFAULT_ROLE`; secondary roles are unsupported. The user
-  must be assigned that role, the role needs `USAGE` on the MCP server and
-  warehouse plus least-privilege access to queried data, and the user needs a
-  non-null `DEFAULT_WAREHOUSE`.
-- **Role separation:** use `ACCOUNTADMIN` only for the OAuth security
-  integration statement in this Guide. Create and grant the non-privileged
-  `<mcp_access_role>` with role/security administration, and create the MCP
-  server with a role delegated the required object privileges. Never use
-  `ACCOUNTADMIN`, `SECURITYADMIN`, `GLOBALORGADMIN`, or `ORGADMIN` as the
-  connecting OAuth role. Snowflake blocks those privileged roles by default;
-  putting one in `ALLOWED_ROLES_LIST` does not override the block. This Guide
-  does not weaken that account security policy.
-- **SQL tool behavior:** `SYSTEM_EXECUTE_SQL` defaults to `read_only: true`;
-  this Guide sets it explicitly. The runtime role's Snowflake privileges still
-  determine which data can be queried. SQL tool responses are truncated at
-  250 KB.
-- **Creation/access privileges:** the server-creator role needs `CREATE MCP
-  SERVER` on the target schema and access to its parent namespace. The runtime
-  role needs `USAGE` on the MCP server, warehouse, and relevant databases and
-  schemas, plus `SELECT` only on approved tables or views. Agent-backed
-  advanced setups additionally need `USAGE` on the Cortex Agent and its
-  namespace.
-- **Availability:** unavailable in the People's Republic of China and
+  uses the user's `DEFAULT_ROLE`; secondary roles are unsupported. Each user
+  needs a non-null `DEFAULT_WAREHOUSE`. The default role needs `USAGE` on the
+  MCP server, the Cortex Agent and their parent namespaces, `USAGE` on the
+  default warehouse, and the privileges required by every object the existing
+  agent invokes.
+- **Cortex access gate:** the runtime role needs the
+  `SNOWFLAKE.CORTEX_AGENT_USER` database role (or the broader
+  `SNOWFLAKE.CORTEX_USER` database role). This Guide grants the narrower role.
+- **Role separation:** use `ACCOUNTADMIN` only for the OAuth integration, or
+  use an organization-approved delegated role with global
+  `CREATE INTEGRATION`. Use non-privileged roles for MCP creation and runtime.
+  Snowflake blocks `ACCOUNTADMIN`, `SECURITYADMIN`, `GLOBALORGADMIN`, and
+  `ORGADMIN` from custom Snowflake OAuth by default; adding one to
+  `ALLOWED_ROLES_LIST` does not override that block.
+- **Creation/access privileges:** the MCP-server creator needs `CREATE MCP
+  SERVER` on the target schema, namespace access, and `USAGE` on the Cortex
+  Agent referenced by the server specification. The connecting runtime role
+  needs `USAGE` on both the MCP server and Cortex Agent. Access to the MCP
+  server alone does not grant access to its tool.
+- **Target namespace requirement:** before requesting namespace grants or
+  running `CREATE MCP SERVER`, the application owner must provide an existing,
+  approved MCP database and schema. If either object does not exist, have the
+  Snowflake object/security owner create it through the organization's approved
+  process before continuing. Snowflake's managed-MCP documentation says to
+  navigate to the desired database and schema but does not prescribe a
+  dedicated creation UI for this flow.
+- **Agent-tool privileges:** because the agent runs with the connecting user's
+  default role, the application/agent owner must also grant that role every
+  privilege required by the agent's configured tools. Snowflake specifically
+  calls out namespace and object access for Cortex Search services, semantic
+  views and their data, functions or procedures, and referenced agents. The
+  exact set is agent-specific and must come from the agent owner.
+- **Availability:** Snowflake-managed MCP servers and Cortex Agents are not
+  available in the People's Republic of China; managed MCP servers are also
   unsupported in government regions.
-- **PrivateLink:** SaaS clients use the public MCP URL. Accounts using
-  PrivateLink set `USE_PRIVATELINK_FOR_AUTHORIZATION_ENDPOINT = TRUE` so
-  browser authorization uses PrivateLink while the token endpoint remains
-  publicly reachable.
+- **PrivateLink:** SaaS clients use the public MCP URL. PrivateLink accounts
+  add `USE_PRIVATELINK_FOR_AUTHORIZATION_ENDPOINT = TRUE` to the OAuth
+  integration so browser authorization uses PrivateLink while the token
+  endpoint remains publicly reachable.
 
 ## Credential flow
 
 Who acts: a Snowflake role/security administrator creates and assigns the
-runtime role and grants its least-privilege access. A role delegated `CREATE
-MCP SERVER` creates the server. `ACCOUNTADMIN` (or an organization-approved
-role with global `CREATE INTEGRATION`) is used only for the OAuth security
-integration. The data owner supplies the approved query database/schema and
-tables or views, MCP object database/schema/name, warehouse, connecting users,
-and tool description.
+runtime role. The Cortex Agent owner supplies the existing agent's three-part
+name and the complete privileges its configured tools require. A role
+delegated `CREATE MCP SERVER` creates the server. `ACCOUNTADMIN`, or a
+delegated integration-owner role with global `CREATE INTEGRATION`, creates the
+OAuth security integration.
 
 What gets created:
 
 1. A non-privileged `<mcp_access_role>` assigned to each connecting user.
-2. A read-only Snowflake MCP server with one SQL execution tool.
+2. A Snowflake-managed MCP server with one Cortex Agent tool.
 3. A confidential custom OAuth security integration restricted to
    `<mcp_access_role>`.
 
 Keep the role that creates the OAuth security integration selected through
-credential retrieval. That role owns the integration; in this walkthrough it
-is `ACCOUNTADMIN` or the organization-approved delegated integration-owner
-role. Switch away only after `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS` succeeds.
+credential retrieval because that role owns the integration. Switch away only
+after `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS` succeeds.
 
 | Speakeasy value | Snowflake origin |
 | --- | --- |
@@ -86,8 +99,7 @@ role. Switch away only after `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS` succeeds.
 | Client Secret | `oauth_client_secret` returned at {#copy-oauth-credentials} |
 
 Enter `{{ gram.oauth.callback_url }}` directly as `OAUTH_REDIRECT_URI` at
-{#create-oauth-integration}. Assemble the account-specific MCP URL at
-{#record-mcp-server-url}. Snowflake does not support Dynamic Client
+{#create-oauth-integration}. Snowflake does not support Dynamic Client
 Registration, so the manually registered client ID and secret are required.
 
 ## Console walkthrough
@@ -97,23 +109,38 @@ Registration, so the manually registered client ID and secret are required.
 - Sign in at `https://app.snowflake.com`.
 - Select **Projects** > **Workspaces**.
 - Select **+** beside a folder (or **+ Add New** on first use), then select
-  **SQL File**.
+  **SQL File**. This opens a blank SQL file as an editor tab.
 - Select an available warehouse and the organization-approved role for each
   statement group below. Do not leave `ACCOUNTADMIN` selected after creating
   the OAuth integration.
+- For every SQL statement below, replace each complete angle-bracket
+  placeholder, including the `<` and `>` characters, with the corresponding
+  owner-supplied value. Paste the completed statement into the SQL file,
+  select the complete statement, and invoke **Run selected** with
+  `Ctrl+Enter` on Windows/Linux or `Command+Return` on macOS. For a block that
+  contains multiple statements, select and run each completed statement
+  separately.
 - Screenshot note: **Projects** > **Workspaces**, the **+** menu with
   **SQL File**, and the role/warehouse context controls.
 
 ### Create and assign the MCP access role {#grant-first-connection-access}
 
-- Obtain the approved non-privileged role name, connecting usernames,
-  warehouse, query database/schema, and approved tables or views from the
-  security and data owners.
+- Obtain the approved non-privileged role name, connecting usernames, default
+  warehouse, existing Cortex Agent database/schema/name, and the complete
+  agent-tool grants from the security and agent owners.
 - With `USERADMIN` or a delegated role holding account-level `CREATE ROLE`,
-  create the role:
+  create the runtime role:
 
   ```sql
   CREATE ROLE IF NOT EXISTS <mcp_access_role>;
+  ```
+
+- With `ACCOUNTADMIN` or the role authorized to grant Snowflake database
+  roles, grant the Cortex Agents-only database role:
+
+  ```sql
+  GRANT DATABASE ROLE SNOWFLAKE.CORTEX_AGENT_USER
+    TO ROLE <mcp_access_role>;
   ```
 
 - With the role that owns `<mcp_access_role>` or holds `MANAGE GRANTS`, assign
@@ -123,35 +150,28 @@ Registration, so the manually registered client ID and secret are required.
   GRANT ROLE <mcp_access_role> TO USER <username>;
   ```
 
-- With the security/data owner role, grant warehouse and query namespace
+- With the security/agent owner role, grant warehouse and existing-agent
   access:
 
   ```sql
   GRANT USAGE ON WAREHOUSE <warehouse_name>
     TO ROLE <mcp_access_role>;
 
-  GRANT USAGE ON DATABASE <query_database>
+  GRANT USAGE ON DATABASE <agent_database>
     TO ROLE <mcp_access_role>;
 
-  GRANT USAGE ON SCHEMA <query_database>.<query_schema>
-    TO ROLE <mcp_access_role>;
-  ```
-
-- Grant `SELECT` only on the tables or views approved by the data owner. Use
-  one of the applicable object-specific forms; do not substitute an entire
-  schema unless that broader grant was approved:
-
-  ```sql
-  GRANT SELECT ON TABLE <query_database>.<query_schema>.<table_name>
+  GRANT USAGE ON SCHEMA <agent_database>.<agent_schema>
     TO ROLE <mcp_access_role>;
 
-  GRANT SELECT ON VIEW <query_database>.<query_schema>.<view_name>
+  GRANT USAGE ON AGENT <agent_database>.<agent_schema>.<agent_name>
     TO ROLE <mcp_access_role>;
   ```
 
-- After the role assignment and warehouse grant succeed, use the role that
-  owns each user (or is otherwise authorized to alter that user) to set the
-  defaults:
+- Have the agent owner grant `<mcp_access_role>` every additional privilege
+  required by the objects configured in that agent. Do not infer these grants
+  from MCP server access; Snowflake evaluates the agent using the connecting
+  user's default role.
+- With the role authorized to alter each user, set the defaults:
 
   ```sql
   ALTER USER <username>
@@ -159,15 +179,23 @@ Registration, so the manually registered client ID and secret are required.
         DEFAULT_WAREHOUSE = '<warehouse_name>';
   ```
 
-- Screenshot note: successful role, grant, and user-change results, with
-  identities redacted where policy requires.
+- Screenshot note: successful role, database-role, object-grant, and
+  user-change results, with identities redacted where policy requires.
 
-### Create the SQL query MCP server {#create-sql-query-mcp-server}
+### Create the Cortex Agent MCP server {#create-cortex-agent-mcp-server}
 
-- Obtain the approved MCP server database, schema, name, SQL tool name, title,
-  description, and warehouse from the application/security owner.
-- If the approved server-creator role does not already have the required
-  access, have the security owner grant it:
+- Obtain the approved MCP server database, schema, name, MCP tool name, title,
+  and description from the application owner. Confirm the target MCP database
+  and schema already exist before requesting grants or running the creation
+  SQL. If either is absent, have the Snowflake object/security owner create it
+  through the organization's approved process, then retain the resulting
+  database and schema names. Snowflake's public managed-MCP page does not name
+  a dedicated UI path for creating these namespace objects.
+- Obtain the approved
+  `<mcp_server_creator_role>` name from the security owner and confirm that
+  role is assigned to the Snowflake user who will create the MCP server.
+- Have the security owner grant the server-creator role access to the MCP
+  namespace and the existing Cortex Agent:
 
   ```sql
   GRANT USAGE ON DATABASE <mcp_database>
@@ -178,43 +206,54 @@ Registration, so the manually registered client ID and secret are required.
 
   GRANT CREATE MCP SERVER ON SCHEMA <mcp_database>.<mcp_schema>
     TO ROLE <mcp_server_creator_role>;
+
+  GRANT USAGE ON DATABASE <agent_database>
+    TO ROLE <mcp_server_creator_role>;
+
+  GRANT USAGE ON SCHEMA <agent_database>.<agent_schema>
+    TO ROLE <mcp_server_creator_role>;
+
+  GRANT USAGE ON AGENT <agent_database>.<agent_schema>.<agent_name>
+    TO ROLE <mcp_server_creator_role>;
   ```
 
-- Switch to `<mcp_server_creator_role>`. Do not use `ACCOUNTADMIN` for this
-  step.
-- Set the namespace and create a single read-only SQL execution tool:
+- Before running `CREATE MCP SERVER`, form and record the fully qualified
+  Cortex Agent identifier exactly as:
+  `<cortex_agent_fqn> = <agent_database>.<agent_schema>.<agent_name>`.
+- Switch to `<mcp_server_creator_role>` and create the server:
 
   ```sql
-  USE DATABASE <mcp_database>;
-  USE SCHEMA <mcp_schema>;
-
-  CREATE MCP SERVER <server_name>
+  CREATE MCP SERVER <mcp_database>.<mcp_schema>.<mcp_server_name>
     FROM SPECIFICATION $$
       tools:
-        - name: "<sql_tool_name>"
-          type: "SYSTEM_EXECUTE_SQL"
-          title: "<approved_title>"
+        - title: "<approved_title>"
+          name: "<mcp_tool_name>"
+          type: "CORTEX_AGENT_RUN"
+          identifier: "<cortex_agent_fqn>"
           description: "<approved_description>"
-          config:
-            read_only: true
-            warehouse: "<warehouse_name>"
     $$;
   ```
 
-- Retain the exact MCP database, schema, and server name for the URL.
-- For a more complex server using Cortex Agent, Search, Analyst, UDF, stored
-  procedure, multiple tools, or write-capable SQL, stop here and follow
-  Snowflake's advanced managed MCP server documentation:
-  `https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp`.
-  Those variants require their own tool-specific objects, risk review, and
-  grants; for example, an Agent tool requires `USAGE` on its Cortex Agent.
-- Screenshot note: the approved statement and successful result, excluding
-  sensitive object metadata where policy requires.
+- Retain the exact MCP database, schema, and server name. Snowflake's endpoint
+  shape is
+  `https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>`.
+- To obtain the account URL in Snowsight, select your user name, select
+  **Connect a tool to Snowflake**, and locate the **Account Details** dialog.
+  Copy **Account/Server URL**. For `<account_url>`, use the hostname from that
+  copied value without the leading `https://` or a trailing `/`; the MCP
+  endpoint template already supplies the scheme.
+- Form the account-specific MCP Server URL from that hostname and the retained
+  MCP database, schema, and server name, then retain it for
+  {#add-server-in-speakeasy}.
+- Screenshot note: the approved `CORTEX_AGENT_RUN` specification and
+  successful result. The Cortex Agent's three-part identifier should be
+  visible; redact organization-sensitive names if policy requires.
 
 ### Grant access to the MCP server {#grant-mcp-server-access}
 
 - With the security owner role, grant the runtime role namespace access and
-  `USAGE` on the server retained at {#create-sql-query-mcp-server}:
+  `USAGE` on the MCP server created at
+  {#create-cortex-agent-mcp-server}:
 
   ```sql
   GRANT USAGE ON DATABASE <mcp_database>
@@ -223,34 +262,26 @@ Registration, so the manually registered client ID and secret are required.
   GRANT USAGE ON SCHEMA <mcp_database>.<mcp_schema>
     TO ROLE <mcp_access_role>;
 
-  GRANT USAGE ON MCP SERVER <mcp_database>.<mcp_schema>.<server_name>
+  GRANT USAGE ON MCP SERVER <mcp_database>.<mcp_schema>.<mcp_server_name>
     TO ROLE <mcp_access_role>;
   ```
 
 - Recovery: if authorization succeeds but initialization fails, confirm the
-  connecting user's `DEFAULT_ROLE` and `DEFAULT_WAREHOUSE`, role assignment,
-  and warehouse `USAGE`. If the SQL tool is unavailable or a query is denied,
-  confirm MCP server `USAGE` and the approved database/schema/object grants.
+  user's `DEFAULT_ROLE`, `DEFAULT_WAREHOUSE`, role assignment, and warehouse
+  `USAGE`. If the MCP server is visible but the Agent tool cannot run, confirm
+  `SNOWFLAKE.CORTEX_AGENT_USER`, Cortex Agent `USAGE`, parent namespace
+  `USAGE`, and every privilege required by the agent's configured tools.
 - Screenshot note: successful MCP namespace and server grants.
 
 ### Create the OAuth integration {#create-oauth-integration}
 
-- **Callout to render before the OAuth command:** `ACCOUNTADMIN` and
-  `SECURITYADMIN` are setup/admin roles, not connecting roles. Snowflake
-  blocks `ACCOUNTADMIN`, `SECURITYADMIN`, `GLOBALORGADMIN`, and `ORGADMIN`
-  from custom Snowflake OAuth by default, even if a privileged role is added
-  to `ALLOWED_ROLES_LIST`. Use `ACCOUNTADMIN` only for this integration setup;
-  the connecting user's `DEFAULT_ROLE` must be the non-privileged
-  `<mcp_access_role>` from {#grant-first-connection-access}, with MCP server,
-  query-data, and warehouse grants. A publicly reported failure shows the
-  exact Snowflake message pattern:
-  `The role ALL requested has been explicitly blocked for use with this application by an administrator. Please try logging in with a different role, or contact your administrator.`
-  If Snowflake names a blocked role, return to
-  {#grant-first-connection-access} and {#grant-mcp-server-access}; do not
-  broaden or disable the privileged-role block.
-- Obtain the approved integration name and confirm whether the account uses
-  PrivateLink with the Snowflake account administrator or network security
-  owner before constructing the statement.
+- Before the command, confirm that the connecting users' `DEFAULT_ROLE` is the
+  non-privileged `<mcp_access_role>`. `ACCOUNTADMIN`, `SECURITYADMIN`,
+  `GLOBALORGADMIN`, and `ORGADMIN` are setup/admin roles and are blocked from
+  custom Snowflake OAuth by default, even when listed in
+  `ALLOWED_ROLES_LIST`.
+- Obtain the approved integration name and ask the account/network security
+  owner whether this Snowflake account uses PrivateLink.
 - Switch to `ACCOUNTADMIN`, or an organization-approved delegated role with
   global `CREATE INTEGRATION`, and run:
 
@@ -261,64 +292,59 @@ Registration, so the manually registered client ID and secret are required.
     ENABLED = TRUE
     OAUTH_CLIENT_TYPE = 'CONFIDENTIAL'
     OAUTH_REDIRECT_URI = '{{ gram.oauth.callback_url }}'
+    OAUTH_USE_SECONDARY_ROLES = NONE
     ALLOWED_ROLES_LIST = ('<mcp_access_role>');
   ```
 
-- Use the organization's approved integration name. An unquoted name is stored
-  uppercase; the secrets function requires that case-sensitive uppercase name.
-- For PrivateLink, add
+- For a PrivateLink account, add
   `USE_PRIVATELINK_FOR_AUTHORIZATION_ENDPOINT = TRUE`.
-- Keep this exact integration-owner role selected for
-  {#copy-oauth-credentials}.
+- An unquoted integration name is stored uppercase. Keep the exact
+  integration-owner role selected for {#copy-oauth-credentials}.
 - Screenshot note: the statement and successful result; no credential appears.
 
 ### Copy the OAuth credentials {#copy-oauth-credentials}
 
-- Still using the exact role that created and owns the integration
-  (`ACCOUNTADMIN` or the delegated integration-owner role), run:
+- Still using the role that created and owns the integration, run:
 
   ```sql
-  SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('<INTEGRATION_NAME>');
+  WITH oauth_secrets AS (
+    SELECT PARSE_JSON(
+      SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('<INTEGRATION_NAME>')
+    ) AS secret_values
+  )
+  SELECT
+    secret_values:oauth_client_id::STRING AS "oauth_client_id",
+    secret_values:oauth_client_secret::STRING AS "oauth_client_secret"
+  FROM oauth_secrets;
   ```
 
-- Use the uppercase integration name in single quotes.
-- Copy `oauth_client_id` as **Client ID** and `oauth_client_secret` as
-  **Client Secret**. Do not use `oauth_client_secret_2` for initial setup.
-- Store both selected values in the approved password manager.
-- Switch away from this integration-owner role after the function succeeds.
+- Use the uppercase, case-sensitive integration name in single quotes.
+- The query parses the returned JSON object and projects the two required
+  values into separate named result columns without surrounding JSON quotes.
+- Copy the result cell under `oauth_client_id` as **Client ID**.
+- Copy the result cell under `oauth_client_secret` as **Client Secret**.
+- The query omits `oauth_client_secret_2`; do not use that secondary secret
+  for initial setup.
+- Store both selected values in the approved password manager, then switch
+  away from the integration-owner role.
 - Screenshot exception: the result exposes secrets and must not be captured.
-
-### Record the MCP server URL {#record-mcp-server-url}
-
-- Open the account selector and select **View account details**.
-- In **Account Details**, copy **Account/Server URL**. Remove `https://` and any
-  trailing slash so only its hostname remains.
-- Combine that hostname with the MCP object names retained at
-  {#create-sql-query-mcp-server}:
-  `https://<account_url>/api/v2/databases/<database>/schemas/<schema>/mcp-servers/<name>`.
-- Example shape only:
-  `https://myorg-myaccount.snowflakecomputing.com/api/v2/databases/MY_DB/schemas/MY_SCHEMA/mcp-servers/MY_SERVER`.
-- Prefer Snowflake's organization-account hostname. Some clients require
-  hyphens instead of underscores in the hostname.
-- Use the public URL even for a PrivateLink account.
-- Screenshot note: **Account Details** showing the account identifier and
-  **Account/Server URL**; redact both values.
 
 ## Speakeasy setup
 
 Per-guide values for `doctrine/speakeasy-setup.md`:
 
 - Provider: Snowflake.
-- Remote URL: the account-specific URL from {#record-mcp-server-url}.
+- Remote URL fact: the account-specific Snowflake URL template in Server
+  facts and `meta.yaml`; External setup forms it at
+  {#create-cortex-agent-mcp-server}.
 - Transport: `streamable-http`.
-- Add-server path: catalog only. The forced catalog match is
-  `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`, for query
-  `snowflake`. Do not render the Custom remote path or a catalog-presence
-  question.
+- Add-server path: Custom remote server only because the Snowflake MCP Server
+  URL is account-specific (`remotes[].tenanted: true`). The path is resolved;
+  do not render an alternate add-server path or presence question.
 - Authentication Option: manually registered confidential OAuth client.
-- OAuth metadata: Snowflake's MCP documentation requires the client ID and
-  secret from the security integration and does not support Dynamic Client
-  Registration. Use **Configure Manually**.
+- OAuth metadata: Snowflake requires the security integration's client ID and
+  secret and does not support Dynamic Client Registration. Use
+  **Configure Manually**.
 - **Client ID** and **Client Secret**: values copied at
   {#copy-oauth-credentials}.
 - Redirect URI: `{{ gram.oauth.callback_url }}` registered at
@@ -331,31 +357,33 @@ Per-guide values for `doctrine/speakeasy-setup.md`:
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
-Choose **3rd-party server**. On the **MCP Catalog** page, enter `Snowflake` in
-**Search MCP servers...**, open the result with **View**, and click **Add**.
-In the **Add to Project** dialog, click **Add to Project**. This creates the
-hosted MCP server and opens its **Overview** page.
+Choose **Custom remote server**. On the **Add a custom remote MCP server**
+page, paste the account-specific URL retained at
+{#create-cortex-agent-mcp-server} into **Remote MCP server URL**, then click
+**Add server**. This creates the hosted MCP server and opens its **Overview**
+page.
 
-Screenshot note: the Snowflake catalog result and **Add to Project** dialog.
+Screenshot note: the Add Source menu open on the Sources page, or the
+provider's catalog entry.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
 From the server's **Overview**, open **Settings**. Under **Authentication**,
 click **Configure Manually**. In the **Attach Remote Identity Provider**
-sheet, set **Client Type** to **Manual**. The sheet shows **Redirect URI** with
-a copy button. Confirm **Redirect URI** matches the callback registered in
-Snowflake. Paste the values from {#copy-oauth-credentials} into **Client ID**
-and **Client Secret (optional)**, then click **Attach Identity Provider**.
+sheet, set **Client Type** to **Manual**. Confirm the displayed
+**Redirect URI** matches the callback registered in Snowflake. Paste the
+values from {#copy-oauth-credentials} into **Client ID** and
+**Client Secret (optional)**, then click **Attach Identity Provider**.
 
 Screenshot note: the attachment sheet with labels visible and values redacted.
 
 When a client first requests Snowflake access, Snowflake's OAuth flow opens in
-a browser. The user signs in with their own Snowflake credentials and approves
-the consent screen. The resulting session uses that user's `DEFAULT_ROLE`.
+a browser. The user signs in with their own Snowflake credentials and consents
+to the non-privileged default role. The resulting session uses that user's
+`DEFAULT_ROLE`.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
-limits, and advanced or agent-backed MCP server designs — see Snowflake's MCP
-documentation at
+limits — see Snowflake's MCP documentation at
 `https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp`.
 
 ## Open questions
@@ -367,64 +395,57 @@ None.
 ### Source inventory
 
 - **Product/admin, SQL, and developer docs — `docs.snowflake.com`:** primary
-  MCP, OAuth, SQL, grants, account URL, and current Snowsight Workspaces facts.
+  managed MCP, Cortex Agent access, OAuth, SQL, grants, account URL, and
+  current Workspaces facts.
 - **Developer quickstarts — `quickstarts.snowflake.com`:** reviewed the
-  managed MCP quickstart. It uses a PAT and broader demo setup, so the current
-  product docs and OAuth assignment take precedence.
+  managed MCP quickstart. It uses a PAT and a broader demonstration, so the
+  current product docs and OAuth assignment take precedence.
 - **Support/community — `community.snowflake.com`:** searched; no public
-  article added setup facts.
-- **Public client runtime reports — `github.com/anthropics`:** used only to
-  corroborate the exact blocked-role error text; Snowflake documentation is
-  authoritative for the privileged-role policy.
-- **Indexes:** `https://docs.snowflake.com/llms.txt` and the Snowflake Cortex
-  `llms.txt` were reachable.
+  article added first-connection facts.
+- **Indexes:** `https://docs.snowflake.com/llms.txt` and
+  `https://docs.snowflake.com/en/user-guide/snowflake-cortex/llms.txt`.
 
-All sources were observed at `2026-07-28T22:29:19Z`.
+All sources were observed at `2026-07-28T23:57:42Z`.
 
 - `https://docs.snowflake.com/llms.txt` — documentation-property inventory and
   account URL guidance.
 - `https://docs.snowflake.com/en/user-guide/snowflake-cortex/llms.txt` —
   Cortex documentation inventory.
 - `https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp`
-  — managed MCP overview; URL and transport behavior; minimal SQL execution
-  tool and read-only/warehouse settings; OAuth; access control; PrivateLink;
-  default-role/default-warehouse behavior; advanced tool types; availability;
-  SQL response truncation; and limitations.
+  — managed MCP overview; URL, transport, OAuth, role/default-warehouse
+  behavior, `CORTEX_AGENT_RUN`, access control, PrivateLink, availability, and
+  limitations.
 - `https://docs.snowflake.com/en/sql-reference/sql/create-mcp-server` —
-  `SYSTEM_EXECUTE_SQL` specification, creation privileges, and advanced
-  Cortex Agent example.
+  `CORTEX_AGENT_RUN` specification and creator/tool privilege requirements.
+- `https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-setup`
+  — `SNOWFLAKE.CORTEX_AGENT_USER`, default-role behavior, Agent and namespace
+  grants, and privileges required by agent tools.
+- `https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-manage`
+  — existing Agent UI location and agent-object context.
 - `https://docs.snowflake.com/en/user-guide/oauth-custom`,
   `https://docs.snowflake.com/en/user-guide/oauth-snowflake-overview`, and
   `https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-oauth-snowflake`
-  — custom confidential OAuth integration, `ALLOWED_ROLES_LIST`, integration
-  privilege, role behavior, and the default privileged-role block.
-- `https://docs.snowflake.com/en/user-guide/security-access-control-privileges`
-  — integration `OWNERSHIP` and owner-equivalent administration privileges.
-- `https://docs.snowflake.com/en/user-guide/admin-security-privatelink` —
-  Snowflake account-administrator responsibility for enabling and verifying
-  account PrivateLink configuration.
-- `https://github.com/anthropics/claude-code/issues/42419` — public runtime
-  report containing the exact “role ... explicitly blocked” Snowflake error;
-  used only for the quoted error text.
-- `https://docs.snowflake.com/en/sql-reference/sql/create-role` — role creation
-  syntax and required account-level privilege.
-- `https://docs.snowflake.com/en/sql-reference/sql/grant-role` — assigning a
-  role to a user.
-- `https://docs.snowflake.com/en/sql-reference/sql/grant-privilege` — `USAGE`
-  and `SELECT` grant syntax for the server, warehouse, namespaces, tables, and
-  views.
+  — confidential custom OAuth, `ALLOWED_ROLES_LIST`, secondary-role behavior,
+  integration privileges, and privileged-role blocks.
 - `https://docs.snowflake.com/en/sql-reference/functions/system_show_oauth_client_secrets`
   — credential keys and uppercase integration-name requirement.
+- `https://docs.snowflake.com/en/user-guide/querying-semistructured` —
+  parsing JSON text into a `VARIANT`, extracting first-level JSON values into
+  separate columns, and casting string values to remove surrounding quotes.
+- `https://docs.snowflake.com/en/sql-reference/sql/create-role`,
+  `https://docs.snowflake.com/en/sql-reference/sql/grant-role`,
+  `https://docs.snowflake.com/en/sql-reference/sql/grant-database-role`, and
+  `https://docs.snowflake.com/en/sql-reference/sql/grant-privilege` — runtime
+  role creation, assignment, database-role grant, and object grants.
 - `https://docs.snowflake.com/en/user-guide/ui-snowsight/workspaces` and
   `https://docs.snowflake.com/en/user-guide/ui-snowsight/workspaces-working`
-  — current SQL editor navigation.
+  — current SQL editor navigation, blank SQL-file behavior, and the
+  **Run selected** execution control and keyboard shortcuts.
 - `https://docs.snowflake.com/en/user-guide/admin-account-identifier` and
-  `https://docs.snowflake.com/en/user-guide/gen-conn-config` — account details
-  navigation, URL, and preferred hostname.
+  `https://docs.snowflake.com/en/user-guide/gen-conn-config` — browser path to
+  **Account Details**, the **Account/Server URL** field, and preferred
+  hostname formatting.
 - `https://quickstarts.snowflake.com/guide/getting-started-with-snowflake-mcp-server/index.html`
-  — official MCP creation and URL example.
-- `doctrine/speakeasy-setup.md` — canonical Speakeasy labels and fixed anchors.
-- Pulse catalog observation — forced catalog query `snowflake`; matched
-  `com.pulsemcp.mirror/gram-snowflake`, title `Snowflake`. This selects the
-  catalog add-server path only; no catalog-specific configuration controls are
-  asserted.
+  — official managed MCP creation and endpoint example; PAT path not used.
+- `doctrine/speakeasy-setup.md` — canonical Speakeasy labels and fixed
+  anchors.

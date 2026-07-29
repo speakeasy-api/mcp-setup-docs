@@ -1,0 +1,120 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T23:41:31Z",
+  "started_at": "2026-07-28T23:41:31Z",
+  "finished_at": "2026-07-28T23:54:41Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "create-cortex-agent-mcp-server",
+      "problem": "The Guide does not confirm that the supplied MCP database and schema already exist, so the namespace grants and server creation can fail.",
+      "suggestion": "Require the security or application owner to supply an existing approved MCP database and schema or create them before the namespace grants run.",
+      "dimension": "achievability"
+    }
+  ],
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "add-server-in-speakeasy screenshot note",
+          "problem": "The Dossier replaces the canonical Add Source menu screenshot note with an untranscluded custom-server-page note.",
+          "suggestion": "Restore the canonical screenshot note from doctrine/speakeasy-setup.md and render it faithfully in speakeasy.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "create-cortex-agent-mcp-server",
+          "problem": "Neither the Research Dossier nor External setup tells the reader where to obtain `<account_url>`, so the required account-specific MCP Server URL cannot be formed.",
+          "suggestion": "Research the browser-accessible source for the Snowflake account URL and add exact steps for copying the value before forming the MCP Server URL.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "open-snowflake-workspace",
+          "problem": "The Research Dossier and External setup do not identify how to enter and execute SQL after opening the SQL file.",
+          "suggestion": "Record the documented Workspace execution controls, then tell the reader where to paste each statement and which named control executes it.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "SQL statements throughout External setup",
+          "problem": "The executable SQL contains angle-bracket placeholders without telling the reader to replace each complete token with the corresponding owner-supplied value.",
+          "suggestion": "Before the first SQL statement, instruct the reader to replace every angle-bracket placeholder, including the brackets, with the supplied value.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Restored the canonical Add Source screenshot note in research.md and speakeasy.md. Added documented Account Details steps for obtaining Account/Server URL and forming the MCP Server URL. Added SQL editor paste and Run selected controls. Added explicit replacement instructions for all angle-bracket placeholders. meta.yaml retains the tenanted custom-remote configuration and current provenance timestamp. Schema and guide lint pass.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "copy-oauth-credentials",
+          "problem": "The command returns one JSON object, but the persona cannot identify and copy the two nested credential values without interpreting JSON.",
+          "suggestion": "Provide a researched SQL query that projects `oauth_client_id` and `oauth_client_secret` into separate named result columns, then instruct the reader to copy each result cell.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Fixed copy-oauth-credentials: added a provenance-backed SQL query that projects oauth_client_id and oauth_client_secret into separate result columns, updated the reader steps to copy each cell, and recorded the source in research.md and meta.yaml. Metadata validates against the schema.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "create-cortex-agent-mcp-server",
+          "problem": "The reader is told to use `<mcp_server_creator_role>` without obtaining its name or confirming they can select it.",
+          "suggestion": "In step 1, instruct the reader to obtain an approved server-creator role name from the security owner and confirm that role is assigned to their user.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Added the approved server-creator role name and user-assignment confirmation to the Research Dossier, then rendered it in External setup step 1.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "create-cortex-agent-mcp-server",
+          "problem": "The Guide does not confirm that the supplied MCP database and schema already exist, so the namespace grants and server creation can fail.",
+          "suggestion": "Require the security or application owner to supply an existing approved MCP database and schema or create them before the namespace grants run.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "The add-server flow changed materially from catalog-only to Custom remote-only. AFTER requires pasting the account-specific tenanted MCP Server URL, removes the Pulse catalog binding, and adds speakeasy_add_server: custom-remote. This requires re-drafting speakeasy.md and updating external.md to retain the URL for that step."
+  }
+}

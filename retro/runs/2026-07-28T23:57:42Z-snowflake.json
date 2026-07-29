@@ -1,0 +1,25 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T23:57:42Z",
+  "started_at": "2026-07-28T23:57:42Z",
+  "finished_at": "2026-07-29T00:01:51Z",
+  "runtime": "cursor-sdk",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER adds a draft-relevant prerequisite: confirm an approved MCP database and schema exist, or have an owner create them, before grants and CREATE MCP SERVER. This requires re-drafting external.md; OAuth, remotes, anchors, and Speakeasy setup are unchanged."
+  }
+}

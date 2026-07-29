@@ -3,10 +3,10 @@
   "slug": "snowflake",
   "persona": "it-admin",
   "runtime": "cursor-sdk",
-  "updated_at": "2026-07-28T22:41:57Z",
+  "updated_at": "2026-07-29T00:01:51Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:1040fd96f92137695724e27adb2a8f2073f545c65aa9a2e9592665e53580b725",
+      "input_digest": "sha256:716081a8071ba7fe66f05a033e13b3365e27070ebd2632f3d6237ec4be81e074",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
@@ -31,23 +31,23 @@
         "artifacts": [],
         "params": {
           "provider": "snowflake",
-          "notes": "Revise existing draft (PR #56): add callout before OAuth that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); use ACCOUNTADMIN only for security integration setup; runtime DEFAULT_ROLE must be non-privileged with MCP/Cortex/warehouse grants; add CREATE ROLE + GRANT ROLE TO USER for <mcp_access_role>. Re-angle guide toward a minimal MCP server with a SQL query tool that does not require configuring a full Cortex Agent; document that path as the primary flow and link to official Snowflake documentation for advanced/complex MCP servers (e.g. agent-backed setups). Cite error: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\""
+          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted"
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:bd6118b84d05f83a6ac4a9b2da675eef581fae0e15cccb0546611dd93d29e24e"
+          "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:3a66342a31694f84feab09f8a0b6244c355bccfb2533af0e154c9ce246ffcc45"
+          "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
         }
       ],
-      "completed_at": "2026-07-28T22:41:57Z"
+      "completed_at": "2026-07-29T00:01:51Z"
     },
     "draft": {
-      "input_digest": "sha256:dec09bb97860986d4d6bcabf4155338f7b6f63a09640d4ef06a9325c60313da7",
+      "input_digest": "sha256:5dc6e0e2999383319fe07404230c605e30b3d1be72bfa7f7c34561b797e1d329",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:bd455424d5c087fd914297fad0cf7749459452dbd94d00bd4e20e977e9fbb92b",
@@ -72,33 +72,33 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:bd6118b84d05f83a6ac4a9b2da675eef581fae0e15cccb0546611dd93d29e24e"
+            "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:3a66342a31694f84feab09f8a0b6244c355bccfb2533af0e154c9ce246ffcc45"
+            "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Revise existing draft (PR #56): add callout before OAuth that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); use ACCOUNTADMIN only for security integration setup; runtime DEFAULT_ROLE must be non-privileged with MCP/Cortex/warehouse grants; add CREATE ROLE + GRANT ROLE TO USER for <mcp_access_role>. Re-angle guide toward a minimal MCP server with a SQL query tool that does not require configuring a full Cortex Agent; document that path as the primary flow and link to official Snowflake documentation for advanced/complex MCP servers (e.g. agent-backed setups). Cite error: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
+          "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
+          "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
         }
       ],
-      "completed_at": "2026-07-28T22:41:57Z"
+      "completed_at": "2026-07-29T00:01:51Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:dccc72700596541b6b3f2e5d0af4e54fc0e5c87f690192025f936deb7773e3c4",
+      "input_digest": "sha256:9141cb5e7bf62967749df56e4991d8fa47bb45cdcddb6325b5a72e361b7c7936",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
@@ -119,24 +119,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:bd6118b84d05f83a6ac4a9b2da675eef581fae0e15cccb0546611dd93d29e24e"
+            "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:3a66342a31694f84feab09f8a0b6244c355bccfb2533af0e154c9ce246ffcc45"
+            "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
           },
           {
             "path": "external.md",
-            "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
+            "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
+            "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Revise existing draft (PR #56): add callout before OAuth that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); use ACCOUNTADMIN only for security integration setup; runtime DEFAULT_ROLE must be non-privileged with MCP/Cortex/warehouse grants; add CREATE ROLE + GRANT ROLE TO USER for <mcp_access_role>. Re-angle guide toward a minimal MCP server with a SQL query tool that does not require configuring a full Cortex Agent; document that path as the primary flow and link to official Snowflake documentation for advanced/complex MCP servers (e.g. agent-backed setups). Cite error: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,17 +144,17 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
+          "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
+          "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
         }
       ],
-      "completed_at": "2026-07-28T22:41:57Z"
+      "completed_at": "2026-07-29T00:01:51Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:3f9443e70737ff4019918f4c8388c481206561be83c5941f0787876ac34af0a7",
+      "input_digest": "sha256:827b40987fe36d2caea235ed8e115192b96f8f7252366a8f76ca3ab3a38a44c8",
       "inputs": {
         "model": "gpt-5.6-sol",
         "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
@@ -179,24 +179,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:bd6118b84d05f83a6ac4a9b2da675eef581fae0e15cccb0546611dd93d29e24e"
+            "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:3a66342a31694f84feab09f8a0b6244c355bccfb2533af0e154c9ce246ffcc45"
+            "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
           },
           {
             "path": "external.md",
-            "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
+            "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
+            "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Revise existing draft (PR #56): add callout before OAuth that ACCOUNTADMIN/SECURITYADMIN cannot be OAuth connecting roles (Snowflake blocks privileged roles on custom OAuth apps); use ACCOUNTADMIN only for security integration setup; runtime DEFAULT_ROLE must be non-privileged with MCP/Cortex/warehouse grants; add CREATE ROLE + GRANT ROLE TO USER for <mcp_access_role>. Re-angle guide toward a minimal MCP server with a SQL query tool that does not require configuring a full Cortex Agent; document that path as the primary flow and link to official Snowflake documentation for advanced/complex MCP servers (e.g. agent-backed setups). Cite error: role explicitly blocked for use with this application.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/gram-snowflake\"",
+          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:91a5ba1f396df71ca2239b462fb6660e5ec305085c5275b08d7bb816d6a8b47d"
+          "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:5f08c2de4b2b6b625ee0b3e9a7884da748210e8ff79044837e98a9204b362d01"
+          "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
         }
       ],
-      "completed_at": "2026-07-28T22:41:57Z"
+      "completed_at": "2026-07-29T00:01:51Z"
     }
   }
 }
