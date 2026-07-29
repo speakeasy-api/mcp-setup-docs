@@ -17,12 +17,29 @@ func writeIndex(path string, guides []guideIndex, aliasToSlug map[string]string,
 	b.WriteString("// SchemaVersion is the guide.v1 schema_version embedded at generation time.\n")
 	b.WriteString("const SchemaVersion = 1\n\n")
 
+	writeSlugList(&b, guides)
+	writeGeneratedTypes(&b)
+	writeGuidesMap(&b, guides)
+	writeAliasIndex(&b, aliasToSlug)
+	if err := writeURLIndex(&b, urlToRefs); err != nil {
+		return err
+	}
+	if err := writeProvenanceIndex(&b, provToRefs); err != nil {
+		return err
+	}
+
+	return writeFormattedGo(path, b.String())
+}
+
+func writeSlugList(b *strings.Builder, guides []guideIndex) {
 	b.WriteString("var generatedSlugs = []GuideSlug{\n")
 	for _, g := range guides {
-		fmt.Fprintf(&b, "\t%q,\n", g.Slug)
+		fmt.Fprintf(b, "\t%q,\n", g.Slug)
 	}
 	b.WriteString("}\n\n")
+}
 
+func writeGeneratedTypes(b *strings.Builder) {
 	b.WriteString("type generatedRemote struct {\n")
 	b.WriteString("\tID        RemoteID\n")
 	b.WriteString("\tURL       string\n")
@@ -38,82 +55,89 @@ func writeIndex(path string, guides []guideIndex, aliasToSlug map[string]string,
 	b.WriteString("\tAliases            []string\n")
 	b.WriteString("\tRemotes            []generatedRemote\n")
 	b.WriteString("}\n\n")
+}
 
+func writeGuidesMap(b *strings.Builder, guides []guideIndex) {
 	b.WriteString("var generatedGuides = map[GuideSlug]generatedGuide{\n")
 	for _, g := range guides {
-		fmt.Fprintf(&b, "\t%q: {\n", g.Slug)
-		fmt.Fprintf(&b, "\t\tSlug:               %q,\n", g.Slug)
-		fmt.Fprintf(&b, "\t\tTitle:              %q,\n", g.Title)
-		fmt.Fprintf(&b, "\t\tSummary:            %q,\n", g.Summary)
-		fmt.Fprintf(&b, "\t\tSpeakeasyAddServer: %q,\n", g.SpeakeasyAddServer)
-		b.WriteString("\t\tAliases: []string{")
-		for i, a := range g.Aliases {
-			if i > 0 {
-				b.WriteString(", ")
-			}
-			fmt.Fprintf(&b, "%q", a)
-		}
-		b.WriteString("},\n")
+		fmt.Fprintf(b, "\t%q: {\n", g.Slug)
+		fmt.Fprintf(b, "\t\tSlug:               %q,\n", g.Slug)
+		fmt.Fprintf(b, "\t\tTitle:              %q,\n", g.Title)
+		fmt.Fprintf(b, "\t\tSummary:            %q,\n", g.Summary)
+		fmt.Fprintf(b, "\t\tSpeakeasyAddServer: %q,\n", g.SpeakeasyAddServer)
+		writeStringSliceLiteral(b, "\t\tAliases: ", g.Aliases)
 		b.WriteString("\t\tRemotes: []generatedRemote{\n")
 		for _, r := range g.Remotes {
-			fmt.Fprintf(&b, "\t\t\t{ID: %q, URL: %q, Transport: %q, Tenanted: %v},\n",
+			fmt.Fprintf(b, "\t\t\t{ID: %q, URL: %q, Transport: %q, Tenanted: %v},\n",
 				r.ID, r.URL, r.Transport, r.Tenanted)
 		}
 		b.WriteString("\t\t},\n")
 		b.WriteString("\t},\n")
 	}
 	b.WriteString("}\n\n")
+}
 
-	b.WriteString("var generatedAliasToSlug = map[string]GuideSlug{\n")
-	aliases := make([]string, 0, len(aliasToSlug))
-	for a := range aliasToSlug {
-		aliases = append(aliases, a)
+func writeStringSliceLiteral(b *strings.Builder, prefix string, values []string) {
+	b.WriteString(prefix)
+	b.WriteString("[]string{")
+	for i, v := range values {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		fmt.Fprintf(b, "%q", v)
 	}
-	sort.Strings(aliases)
-	for _, a := range aliases {
-		fmt.Fprintf(&b, "\t%q: %q,\n", a, aliasToSlug[a])
+	b.WriteString("},\n")
+}
+
+func writeAliasIndex(b *strings.Builder, aliasToSlug map[string]string) {
+	b.WriteString("var generatedAliasToSlug = map[string]GuideSlug{\n")
+	for _, alias := range sortedKeys(aliasToSlug) {
+		fmt.Fprintf(b, "\t%q: %q,\n", alias, aliasToSlug[alias])
 	}
 	b.WriteString("}\n\n")
+}
 
+func writeURLIndex(b *strings.Builder, urlToRefs map[string][]string) error {
 	b.WriteString("var generatedURLToRefs = map[string][]ServerRef{\n")
-	urls := make([]string, 0, len(urlToRefs))
-	for u := range urlToRefs {
-		urls = append(urls, u)
-	}
-	sort.Strings(urls)
-	for _, u := range urls {
+	for _, u := range sortedKeys(urlToRefs) {
 		b.WriteString("\t" + strconv.Quote(u) + ": {\n")
 		for _, ref := range urlToRefs[u] {
 			guide, remote, ok := strings.Cut(ref, "/")
 			if !ok {
 				return fmt.Errorf("bad ref in url index: %q", ref)
 			}
-			fmt.Fprintf(&b, "\t\t{Guide: %q, Remote: %q},\n", guide, remote)
+			fmt.Fprintf(b, "\t\t{Guide: %q, Remote: %q},\n", guide, remote)
 		}
 		b.WriteString("\t},\n")
 	}
 	b.WriteString("}\n\n")
+	return nil
+}
 
+func writeProvenanceIndex(b *strings.Builder, provToRefs map[string][]string) error {
 	b.WriteString("var generatedProvenanceToRefs = map[string][]ServerRef{\n")
-	names := make([]string, 0, len(provToRefs))
-	for n := range provToRefs {
-		names = append(names, n)
-	}
-	sort.Strings(names)
-	for _, n := range names {
-		b.WriteString("\t" + strconv.Quote(n) + ": {\n")
-		for _, ref := range provToRefs[n] {
+	for _, name := range sortedKeys(provToRefs) {
+		b.WriteString("\t" + strconv.Quote(name) + ": {\n")
+		for _, ref := range provToRefs[name] {
 			guide, remote, ok := strings.Cut(ref, "/")
 			if !ok {
 				return fmt.Errorf("bad ref in provenance index: %q", ref)
 			}
-			fmt.Fprintf(&b, "\t\t{Guide: %q, Remote: %q},\n", guide, remote)
+			fmt.Fprintf(b, "\t\t{Guide: %q, Remote: %q},\n", guide, remote)
 		}
 		b.WriteString("\t},\n")
 	}
 	b.WriteString("}\n")
+	return nil
+}
 
-	return writeFormattedGo(path, b.String())
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func writeFormattedGo(path, src string) error {
