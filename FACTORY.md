@@ -47,7 +47,7 @@ Runs can take a long time (often 20–40+ minutes). Usage burns Cursor plan toke
 1. **Resolved as `slug`…** — distill figured out which server / persona / notes.  
    On a retry: **Resuming on existing factory PR…** (or **Resuming on factory branch…** if the branch was pushed but PR create flaked).
 2. Sometimes **Scope check** — research finished with *material* open questions (recovery path, conflicting docs, etc.). Drafting pauses; answer with `Decision N: …`, then re-add `guide:draft`. Soft OQs (UI silence already hedged; catalog presence only when Pulse lookup was skipped or ambiguous) do **not** pause.
-3. **Pipeline review** — numbered decisions (blockers), open questions, optional nits — after a full draft run. Written so you can answer without reading the whole guide.
+3. **Pipeline review** — after a full draft run: **Render fixes** (setup-file fidelity; Dossier already has the wording — reply `apply` / `override`), **Decisions** (research/meta/achievability gaps — verified / drop / hedge), open questions, optional nits. Written so you can answer without reading the whole guide.
 4. A PR titled **`guide: <provider>`** on branch `guide/issue-<N>-<slug>`
    (`Closes #<issue>`). It stays a **draft** when the run needs a human reply
    (awaiting scope or unconverged); **converged** runs open ready for review.
@@ -59,9 +59,12 @@ Persona defaults to `it-admin` unless distill confidently picks another file und
 Reply on the **issue** (preferred) using the templates from the **Scope check** or **Pipeline review** comment, for example:
 
 ```text
-Decision 1: drop this branch
-Decision 2: verified — confirm button is "**Reset secret**"; new secret appears under **Credentials**
+Decision 1: apply
+Decision 2: drop this branch
+Decision 3: verified — confirm button is "**Reset secret**"; new secret appears under **Credentials**
 ```
+
+Use `apply` for **Render fixes** (fidelity on `external.md` / `speakeasy.md` when research already has the fact). Use verified / drop / hedge for scope or research gaps.
 
 Or edit the issue body with the same facts. You do **not** need to paste the guide.
 

@@ -1,13 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
+import {
+  isDossierRenderFix,
+  type FindingLike,
+} from '../findings.ts'
 
-export type Finding = {
-  dimension?: string
-  target?: string
-  where?: string
-  problem?: string
-  suggestion?: string
-}
+export type Finding = FindingLike
 
 export type ReviewRecord = {
   status?: string
@@ -17,6 +15,8 @@ export type ReviewRecord = {
   open_questions?: string[]
   nits?: Array<Finding | string>
 }
+
+export { isDossierRenderFix, shouldSalvageFinalization } from '../findings.ts'
 
 function plainDimension(dim: string): string {
   switch (dim) {
@@ -37,12 +37,23 @@ function plainDimension(dim: string): string {
   }
 }
 
-function plainTarget(target: string): string {
+function plainTargetRenderFix(target: string): string {
+  switch (target) {
+    case 'external':
+      return 'Render fix in `external.md` — the Dossier already has the wording; apply the suggestion (no new research).'
+    case 'speakeasy':
+      return 'Render fix in `speakeasy.md` — the Dossier / Speakeasy canonical already has the wording; apply the suggestion.'
+    default:
+      return `Render fix in \`${target}\` — apply the Dossier wording (no new research).`
+  }
+}
+
+function plainTargetDecision(target: string): string {
   switch (target) {
     case 'research':
       return 'Needs a fact in `research.md` (or drop the step that depends on it).'
     case 'external':
-      return 'Needs a clearer step in `external.md` (the fact may already be in research).'
+      return 'Needs a clearer step in `external.md`.'
     case 'speakeasy':
       return 'Needs a clearer step in `speakeasy.md` (canonical Control Plane flow / Dossier).'
     case 'setup':
@@ -88,6 +99,9 @@ function isGate(f: Finding): boolean {
 
 /** Dedupe gate findings by target + locus; prefer fidelity > lint > achievability. */
 export function partitionFindings(unresolved: Finding[]): {
+  /** Setup-file fidelity: apply Dossier wording — not a chrome/scope Decision. */
+  renderFixes: Finding[]
+  /** Research/meta gaps, achievability judgment, lint — need a human reply. */
   decisions: Finding[]
   legacy: Finding[]
 } {
@@ -102,15 +116,17 @@ export function partitionFindings(unresolved: Finding[]): {
     if (la !== lb) return la < lb ? -1 : 1
     return rank(a) - rank(b)
   })
-  const decisions: Finding[] = []
+  const deduped: Finding[] = []
   const seen = new Set<string>()
   for (const f of gates) {
     const key = `${f.target ?? ''}\0${locus(f)}`
     if (seen.has(key)) continue
     seen.add(key)
-    decisions.push(f)
+    deduped.push(f)
   }
-  return { decisions, legacy }
+  const renderFixes = deduped.filter(isDossierRenderFix)
+  const decisions = deduped.filter((f) => !isDossierRenderFix(f))
+  return { renderFixes, decisions, legacy }
 }
 
 function quoteSection(mdPath: string, anchor: string): string {
@@ -164,6 +180,51 @@ function quoteFromGuides(guideMds: string[], anchor: string): string {
   return ''
 }
 
+function appendFindingSection(
+  lines: string[],
+  opts: {
+    index: number
+    row: Finding
+    targetLine: string
+    replyLines: string[]
+    guideMds: string[]
+  },
+): void {
+  const { index, row, targetLine, replyLines, guideMds } = opts
+  const dim = row.dimension ?? '?'
+  const where = row.where ?? '?'
+  const problem = row.problem ?? ''
+  const suggestion = row.suggestion ?? ''
+  const anchor = extractAnchor(where)
+
+  lines.push(`#### ${index}. ${plainDimension(dim)}`)
+  lines.push('')
+  lines.push(`- **Where in the guide:** \`${where}\``)
+  if (anchor) lines.push(`- **Section anchor:** \`${anchor}\``)
+  lines.push(`- **What's wrong:** ${problem}`)
+  lines.push(`- **What would unblock it:** ${suggestion}`)
+  lines.push(`- **${targetLine}**`)
+  lines.push('')
+
+  if (guideMds.length > 0 && anchor) {
+    const quote = quoteFromGuides(guideMds, anchor)
+    if (quote) {
+      lines.push('<details><summary>Current guide text for this section</summary>')
+      lines.push('')
+      lines.push('```markdown')
+      lines.push(quote)
+      lines.push('```')
+      lines.push('')
+      lines.push('</details>')
+      lines.push('')
+    }
+  }
+
+  lines.push('**Reply with one of:**')
+  for (const r of replyLines) lines.push(r)
+  lines.push('')
+}
+
 /** Format a Pipeline review comment from a run record. */
 export function formatPipelineReview(
   record: ReviewRecord,
@@ -196,55 +257,50 @@ export function formatPipelineReview(
   }
   lines.push('')
 
-  const { decisions, legacy } = partitionFindings(record.unresolved ?? [])
+  const { renderFixes, decisions, legacy } = partitionFindings(
+    record.unresolved ?? [],
+  )
+
+  let decisionIndex = 0
+
+  if (renderFixes.length > 0) {
+    lines.push(`### Render fixes (${renderFixes.length}) — Dossier already has the fact`)
+    lines.push('')
+    lines.push(
+      'These are setup-file fidelity misses. Research already recorded the wording; the Writer (or a re-run) should apply the suggestion. Do **not** treat them as console-capture Decisions.',
+    )
+    lines.push('')
+    for (const row of renderFixes) {
+      decisionIndex++
+      appendFindingSection(lines, {
+        index: decisionIndex,
+        row,
+        targetLine: plainTargetRenderFix(row.target ?? '?'),
+        replyLines: [
+          `- \`Decision ${decisionIndex}: apply\` (use the suggestion / re-run — no new labels needed)`,
+          `- \`Decision ${decisionIndex}: override — …\` (different wording than the suggestion)`,
+        ],
+        guideMds,
+      })
+    }
+  }
 
   if (decisions.length > 0) {
     lines.push(`### Decisions needed (${decisions.length})`)
     lines.push('')
-    let i = 0
     for (const row of decisions) {
-      i++
-      const dim = row.dimension ?? '?'
-      const target = row.target ?? '?'
-      const where = row.where ?? '?'
-      const problem = row.problem ?? ''
-      const suggestion = row.suggestion ?? ''
-      const anchor = extractAnchor(where)
-
-      lines.push(`#### ${i}. ${plainDimension(dim)}`)
-      lines.push('')
-      lines.push(`- **Where in the guide:** \`${where}\``)
-      if (anchor) lines.push(`- **Section anchor:** \`${anchor}\``)
-      lines.push(`- **What's wrong:** ${problem}`)
-      lines.push(`- **What would unblock it:** ${suggestion}`)
-      lines.push(`- **${plainTarget(target)}**`)
-      lines.push('')
-
-      if (guideMds.length > 0 && anchor) {
-        const quote = quoteFromGuides(guideMds, anchor)
-        if (quote) {
-          lines.push('<details><summary>Current guide text for this section</summary>')
-          lines.push('')
-          lines.push('```markdown')
-          lines.push(quote)
-          lines.push('```')
-          lines.push('')
-          lines.push('</details>')
-          lines.push('')
-        }
-      }
-
-      lines.push('**Reply with one of:**')
-      lines.push(
-        `- \`Decision ${i}: verified — …\` (paste the exact button / field / nav labels)`,
-      )
-      lines.push(
-        `- \`Decision ${i}: drop this branch\` (remove the recovery/optional path until we can verify it)`,
-      )
-      lines.push(
-        `- \`Decision ${i}: hedge — …\` (keep a softer “if you see X, ask your admin” line instead of exact clicks)`,
-      )
-      lines.push('')
+      decisionIndex++
+      appendFindingSection(lines, {
+        index: decisionIndex,
+        row,
+        targetLine: plainTargetDecision(row.target ?? '?'),
+        replyLines: [
+          `- \`Decision ${decisionIndex}: verified — …\` (paste the exact button / field / nav labels)`,
+          `- \`Decision ${decisionIndex}: drop this branch\` (remove the recovery/optional path until we can verify it)`,
+          `- \`Decision ${decisionIndex}: hedge — …\` (keep a softer “if you see X, ask your admin” line instead of exact clicks)`,
+        ],
+        guideMds,
+      })
     }
   }
 
@@ -290,13 +346,13 @@ export function formatPipelineReview(
   lines.push('### How to retry')
   lines.push('')
   lines.push(
-    '1. Reply on **this issue** using the `Decision N: …` lines above (and answer open questions).',
+    '1. Reply on **this issue** using the `Decision N: …` lines above (render fixes: `apply` / `override`; scope gaps: verified / drop / hedge) and answer open questions.',
   )
   lines.push(
     '2. Re-add the `guide:draft` label. Distill reads the issue body **and** comments into pipeline notes.',
   )
   lines.push(
-    '3. If a factory draft PR already exists (`guide/issue-<N>-*`), the next run **resumes on that branch** and revises prior research/setup instead of starting blank.',
+    '3. If a factory draft PR already exists (`guide/issue-<N>-*`), the next run **resumes on that branch** and revises prior research/setup instead of starting blank. Late setup-file fidelity misses get one automatic salvage revise at finalization before surfacing here.',
   )
   lines.push('')
   if (recordPath) {

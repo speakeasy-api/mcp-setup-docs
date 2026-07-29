@@ -25,6 +25,7 @@ import {
   type StepId,
   type StepRecord,
 } from './lock.ts'
+import { shouldSalvageFinalization } from './findings.ts'
 import { lintGuide } from './lint-guide.ts'
 import { withSchemaHint, type Runtime } from './runtime.ts'
 import {
@@ -891,7 +892,8 @@ export async function runWorkflow(
     g: GuideInput,
     round: number,
     blockers: unknown[],
-    nits: unknown[]
+    nits: unknown[],
+    extraNote?: string | null
   ): string {
     const lines = [
       'You are a Revision Agent in the mcp-setup-docs drafting pipeline.',
@@ -902,6 +904,11 @@ export async function runWorkflow(
       '',
       assign(g),
       '',
+    ]
+    if (extraNote) {
+      lines.push(extraNote, '')
+    }
+    lines.push(
       'Review round ' + round + ' reported the blocker findings below. Fix them',
       'in the guide directory: findings targeting "research" or "meta" first,',
       'following the Technical Research role doc (facts need provenance; use',
@@ -917,7 +924,7 @@ export async function runWorkflow(
       'Blocker findings (JSON):',
       JSON.stringify(blockers, null, 2),
       '',
-    ]
+    )
     if (nits.length > 0) {
       lines.push(
         'After the blockers, also apply each nit finding below whose',
@@ -1544,7 +1551,10 @@ export async function runWorkflow(
         }
 
         // Last round: one confirmatory review after the final revise.
-        // No salvage / polish tails — unresolved blockers surface to a human.
+        // Narrow salvage: when every remaining blocker is a setup-file
+        // fidelity miss (Dossier already has the fact), one revise +
+        // recheck. Research/meta/achievability gaps still surface to a human.
+        // No polish pass.
         log(
           '[' +
             g.slug +
@@ -1568,29 +1578,116 @@ export async function runWorkflow(
         history.push(finEntry)
 
         if (fin.blockers.length > 0) {
-          log(
-            '[' +
-              g.slug +
-              '] not converged: ' +
-              fin.blockers.length +
-              ' blocker(s) after finalization review'
-          )
-          return {
-            slug: g.slug,
-            status: 'unconverged',
-            rounds: round,
-            unresolved: fin.blockers,
-            nits: fin.nits,
-            open_questions: openQuestions,
-            history,
-            research_change: researchChange,
-            ...resultExtras(),
-          }
-        }
+          if (shouldSalvageFinalization(fin.blockers)) {
+            log(
+              '[' +
+                g.slug +
+                '] finalization salvage revise (' +
+                fin.blockers.length +
+                ' dossier-backed render fix(es))'
+            )
+            const salvageNote =
+              'Finalization salvage: every remaining blocker is a setup-file ' +
+              'fidelity miss. The Dossier already has the fact — apply the ' +
+              'suggestion wording into external.md / speakeasy.md. Do not ' +
+              'invent new research, do not expand scope, do not demand console ' +
+              'capture. Do not apply nits in this salvage pass.'
+            // Blockers only — nits of any target must not widen salvage.
+            const salvage = await agent(
+              revisionPrompt(g, round, fin.blockers, [], salvageNote),
+              {
+                label: g.slug + ' revise finalization',
+                phase: g.slug + ': revise',
+                schema: RevisionResult,
+                remediation: () => {
+                  const missing = missingResearchOutputs(dir).concat(
+                    missingDraftOutputs(dir)
+                  )
+                  if (missing.length === 0) return null
+                  return reviseWriteRemediationPrompt(g, missing)
+                },
+              }
+            )
+            finEntry.revision_notes = salvage
+              ? salvage.notes
+              : '(revision agent returned no report)'
+            finEntry.disputed = salvage ? salvage.disputed : []
+            finEntry.skipped = salvage ? salvage.skipped : []
+            prior = {
+              round,
+              finalization: true,
+              blockers: fin.blockers,
+              nits: fin.nits,
+              revision_notes: finEntry.revision_notes,
+              disputed: finEntry.disputed,
+              skipped_nits: finEntry.skipped,
+            }
 
-        blockers = fin.blockers
-        nits = fin.nits
-        entry = finEntry
+            log('[' + g.slug + '] finalization recheck after salvage revise')
+            const recheck = await reviewRound(g, round, prior, {
+              lock: workingLock,
+              allowSkip: false,
+            })
+            const recheckEntry: Record<string, unknown> = {
+              round,
+              finalization_recheck: true,
+              blockers: recheck.blockers,
+              nits: recheck.nits,
+              ...(recheck.skippedDims.length
+                ? { skipped_dimensions: recheck.skippedDims }
+                : {}),
+            }
+            history.push(recheckEntry)
+
+            if (recheck.blockers.length > 0) {
+              log(
+                '[' +
+                  g.slug +
+                  '] not converged: ' +
+                  recheck.blockers.length +
+                  ' blocker(s) after finalization salvage'
+              )
+              return {
+                slug: g.slug,
+                status: 'unconverged',
+                rounds: round,
+                unresolved: recheck.blockers,
+                nits: recheck.nits,
+                open_questions: openQuestions,
+                history,
+                research_change: researchChange,
+                ...resultExtras(),
+              }
+            }
+
+            blockers = recheck.blockers
+            nits = recheck.nits
+            entry = recheckEntry
+          } else {
+            log(
+              '[' +
+                g.slug +
+                '] not converged: ' +
+                fin.blockers.length +
+                ' blocker(s) after finalization review'
+            )
+            return {
+              slug: g.slug,
+              status: 'unconverged',
+              rounds: round,
+              unresolved: fin.blockers,
+              nits: fin.nits,
+              open_questions: openQuestions,
+              history,
+              research_change: researchChange,
+              ...resultExtras(),
+            }
+          }
+        } else {
+          blockers = fin.blockers
+          nits = fin.nits
+          entry = finEntry
+        }
       }
 
       {
