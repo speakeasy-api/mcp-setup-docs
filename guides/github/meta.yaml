@@ -3,6 +3,8 @@ schema_version: 1
 slug: github
 title: GitHub
 summary: Connect GitHub so users can work with repositories and other resources their GitHub account is permitted to access through GitHub's hosted MCP server.
+aliases:
+  - io.github.github/github-mcp-server
 credential_setup:
   options:
     - id: oauth-app

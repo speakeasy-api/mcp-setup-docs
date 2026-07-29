@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { z } from 'zod'
@@ -46,6 +46,43 @@ export type GuideAddServerHints = {
   addServer: SpeakeasyAddServerMode
   /** Set when meta.yaml could not be read/parsed; path treats as non-override. */
   error?: string
+}
+
+function ensureMetaAlias(
+  guideDirectory: string,
+  slug: string,
+  alias: string | undefined
+): { changed: boolean; reason?: string } {
+  const nextAlias = (alias ?? '').trim()
+  if (!nextAlias || nextAlias === slug) return { changed: false }
+
+  const metaPath = join(guideDirectory, 'meta.yaml')
+  if (!existsSync(metaPath)) {
+    return { changed: false, reason: 'meta.yaml missing' }
+  }
+
+  const text = readFileSync(metaPath, 'utf8')
+  if (text.includes(`\n  - ${nextAlias}\n`) || text.endsWith(`\n  - ${nextAlias}`)) {
+    return { changed: false }
+  }
+
+  const aliasBlock = /^aliases:\n((?:  - .*\n)*)/m.exec(text)
+  if (aliasBlock && aliasBlock.index !== undefined) {
+    const insertAt = aliasBlock.index + aliasBlock[0].length
+    const updated = text.slice(0, insertAt) + `  - ${nextAlias}\n` + text.slice(insertAt)
+    writeFileSync(metaPath, updated)
+    return { changed: true }
+  }
+
+  const summaryLine = /^summary:.*\n/m.exec(text)
+  if (!summaryLine || summaryLine.index === undefined) {
+    return { changed: false, reason: 'summary line not found' }
+  }
+  const insertAt = summaryLine.index + summaryLine[0].length
+  const updated =
+    text.slice(0, insertAt) + `aliases:\n  - ${nextAlias}\n` + text.slice(insertAt)
+  writeFileSync(metaPath, updated)
+  return { changed: true }
 }
 
 /** Read remotes[].tenanted + speakeasy_add_server from meta.yaml. */
@@ -1063,6 +1100,25 @@ export async function runWorkflow(
             addServer: hints.addServer,
           })
       )
+    }
+
+    if (catalog.match?.name) {
+      const aliasResult = ensureMetaAlias(dir, g.slug, catalog.match.name)
+      if (aliasResult.changed) {
+        log(
+          '[' +
+            g.slug +
+            '] added catalog alias to meta.yaml: ' +
+            JSON.stringify(catalog.match.name)
+        )
+      } else if (aliasResult.reason) {
+        log(
+          '[' +
+            g.slug +
+            '] catalog alias not applied: ' +
+            aliasResult.reason
+        )
+      }
     }
 
     const researchChange = await decideResearchUnchanged(

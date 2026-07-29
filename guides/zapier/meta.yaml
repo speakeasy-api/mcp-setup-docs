@@ -3,6 +3,8 @@ schema_version: 1
 slug: zapier
 title: Zapier
 summary: Connect Zapier so agents can discover and run actions in your connected apps.
+aliases:
+  - com.pulsemcp.mirror/zapier
 speakeasy_add_server: catalog
 credential_setup:
   options:

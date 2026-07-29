@@ -3,6 +3,8 @@ schema_version: 1
 slug: hubspot
 title: HubSpot
 summary: Connect HubSpot's hosted MCP server using an MCP auth app and OAuth.
+aliases:
+  - com.pulsemcp.mirror/hubspot
 speakeasy_add_server: catalog
 credential_setup:
   options:

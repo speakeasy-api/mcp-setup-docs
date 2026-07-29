@@ -3,6 +3,8 @@ schema_version: 1
 slug: asana
 title: Asana
 summary: Connect an Asana workspace so users can access and manage their permitted Asana work through the hosted Asana MCP server.
+aliases:
+  - com.pulsemcp.mirror/asana-mcp
 credential_setup:
   options:
     - id: oauth-mcp-app

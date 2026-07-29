@@ -3,6 +3,8 @@ schema_version: 1
 slug: google-big-query
 title: Google BigQuery
 summary: Query and manage BigQuery data through Google's hosted BigQuery MCP server.
+aliases:
+  - com.pulsemcp.mirror/google-bigquery
 credential_setup:
   options:
     - id: oauth-client

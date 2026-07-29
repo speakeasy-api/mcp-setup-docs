@@ -3,6 +3,8 @@ schema_version: 1
 slug: x
 title: X
 summary: Connect the hosted X MCP server for read-only public-data access using an app-only Bearer Token.
+aliases:
+  - com.pulsemcp.mirror/xdevplatform-xmcp
 credential_setup:
   options:
     - id: app-only-bearer
