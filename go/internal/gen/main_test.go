@@ -138,6 +138,42 @@ remotes:
 		t.Fatal(err)
 	}
 
+	// A guide whose ONLY reason to need setup is a tenanted remote: the
+	// option is public and asks nothing of the reader upstream. No real
+	// guide has this shape, so without this fixture nothing would notice
+	// the tenanted term being dropped from SetupRequired.
+	tenantDir := filepath.Join(root, "guides", "tenant")
+	if err := os.MkdirAll(tenantDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	tenantMeta := `schema_version: 1
+slug: tenant
+title: Tenant
+summary: A guide whose only setup burden is a tenanted URL.
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+credential_setup:
+  options:
+    - id: public
+      kind: open
+      upstream_setup: none
+remotes:
+  - id: hosted
+    url: https://mcp.example.com/tenant
+    transport: streamable-http
+    tenanted: true
+`
+	for name, body := range map[string]string{
+		"meta.yaml":    tenantMeta,
+		"external.md":  "# external\n",
+		"speakeasy.md": "# speakeasy\n",
+	} {
+		if err := os.WriteFile(filepath.Join(tenantDir, name), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
 	stale := filepath.Join(moduleRoot, "generated", "guides", "zz-stale")
 	if err := os.MkdirAll(stale, 0o755); err != nil {
 		t.Fatal(err)
@@ -185,6 +221,17 @@ remotes:
 		if !strings.Contains(string(idx), want) {
 			t.Errorf("index_gen.go missing %q", want)
 		}
+	}
+
+	_, afterTenant, _ := strings.Cut(string(idx), `"tenant": {`)
+	tenantEntry, _, _ := strings.Cut(afterTenant, "\n\t},")
+	if !strings.Contains(tenantEntry, "SetupRequired:      true,") {
+		t.Errorf("tenanted remote must force SetupRequired=true, got:\n%s", tenantEntry)
+	}
+	// Guards the fixture itself: if its option ever needs setup, the
+	// assertion above would pass for the wrong reason.
+	if !strings.Contains(tenantEntry, `UpstreamSetup: "none", SpeakeasySetup: "none"`) {
+		t.Errorf("tenant fixture no longer isolates the tenanted term:\n%s", tenantEntry)
 	}
 }
 
