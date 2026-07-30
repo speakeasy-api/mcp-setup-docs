@@ -17,6 +17,24 @@ type Remote struct {
 	Tenanted  bool
 }
 
+// CredentialOption is one supported way to acquire and present credentials
+// for a guide's MCP servers.
+type CredentialOption struct {
+	ID   string
+	Kind string // "api_key", "oauth", or "open"
+	// ClientRegistration is "dynamic" or "manual" when Kind is "oauth",
+	// and empty otherwise.
+	ClientRegistration string
+	// UpstreamSetup is "none" when the reader opens nothing at the provider,
+	// and "provider-steps" when they must do something there — including
+	// lookups, such as finding a region-specific URL, that configure nothing.
+	UpstreamSetup string
+	// SpeakeasySetup is the work this option needs in the Speakeasy AI
+	// Control Plane: "none", "dcr", "manual-oauth", or "headers". Derived
+	// from Kind and ClientRegistration at generation time.
+	SpeakeasySetup string
+}
+
 // Guide is one published setup guide with typed identity fields and raw
 // content bytes. Meta remains available for fields not yet promoted.
 type Guide struct {
@@ -24,12 +42,20 @@ type Guide struct {
 	Title              string
 	Summary            string
 	SpeakeasyAddServer string // e.g. "catalog", "custom-remote"; empty if unset
-	Meta               []byte // raw meta.yaml
-	External           []byte // raw external.md
-	Speakeasy          []byte // raw speakeasy.md
-	Assets             fs.FS  // nil when the guide declares no assets
-	Remotes            []Remote
-	Aliases            []string
+	// SetupRequired reports whether the reader must do anything beyond
+	// adding the server. False means the guide has nothing to teach and a
+	// consumer may hide it. True when any option needs upstream or
+	// Speakeasy-side setup, or any remote is tenanted — a tenanted remote
+	// means the reader must be told how to find their own URL even when no
+	// credential work remains.
+	SetupRequired     bool
+	Meta              []byte // raw meta.yaml
+	External          []byte // raw external.md
+	Speakeasy         []byte // raw speakeasy.md
+	Assets            fs.FS  // nil when the guide declares no assets
+	Remotes           []Remote
+	CredentialOptions []CredentialOption
+	Aliases           []string
 }
 
 // Slugs returns all guide slugs in sorted order.
@@ -93,6 +119,16 @@ func lookup(slug GuideSlug) (Guide, error) {
 			Tenanted:  r.Tenanted,
 		}
 	}
+	options := make([]CredentialOption, len(meta.CredentialOptions))
+	for i, o := range meta.CredentialOptions {
+		options[i] = CredentialOption{
+			ID:                 o.ID,
+			Kind:               o.Kind,
+			ClientRegistration: o.ClientRegistration,
+			UpstreamSetup:      o.UpstreamSetup,
+			SpeakeasySetup:     o.SpeakeasySetup,
+		}
+	}
 	aliases := make([]string, len(meta.Aliases))
 	copy(aliases, meta.Aliases)
 
@@ -119,11 +155,13 @@ func lookup(slug GuideSlug) (Guide, error) {
 		Title:              meta.Title,
 		Summary:            meta.Summary,
 		SpeakeasyAddServer: meta.SpeakeasyAddServer,
+		SetupRequired:      meta.SetupRequired,
 		Meta:               metaBytes,
 		External:           external,
 		Speakeasy:          speakeasy,
 		Assets:             assets,
 		Remotes:            remotes,
+		CredentialOptions:  options,
 		Aliases:            aliases,
 	}, nil
 }

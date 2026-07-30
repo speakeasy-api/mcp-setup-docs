@@ -9,6 +9,7 @@ credential_setup:
     - id: oauth-client
       kind: oauth
       client_registration: manual
+      upstream_setup: provider-steps
       fields:
         - id: client-id
           label: Client ID

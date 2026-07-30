@@ -466,3 +466,78 @@ func onDiskGuideSlugs() (map[string]bool, error) {
 	}
 	return out, nil
 }
+
+func TestCredentialOptionsArePopulated(t *testing.T) {
+	for _, g := range guides.Guides() {
+		if len(g.CredentialOptions) == 0 {
+			t.Errorf("%s: no credential options", g.Slug)
+			continue
+		}
+		for _, o := range g.CredentialOptions {
+			switch o.UpstreamSetup {
+			case "none", "provider-steps":
+			default:
+				t.Errorf("%s/%s: bad UpstreamSetup %q", g.Slug, o.ID, o.UpstreamSetup)
+			}
+			switch o.SpeakeasySetup {
+			case "none", "dcr", "manual-oauth", "headers":
+			default:
+				t.Errorf("%s/%s: bad SpeakeasySetup %q", g.Slug, o.ID, o.SpeakeasySetup)
+			}
+			// client_registration is meaningful only for oauth.
+			if (o.Kind == "oauth") != (o.ClientRegistration != "") {
+				t.Errorf("%s/%s: kind %q with client_registration %q",
+					g.Slug, o.ID, o.Kind, o.ClientRegistration)
+			}
+		}
+	}
+}
+
+// SetupRequired is the show/hide verdict consumers rely on, so recompute it
+// from its inputs rather than trusting the generated value. The tenanted term
+// has no guide exercising it alone today, which is exactly why it needs a test.
+func TestSetupRequiredMatchesItsInputs(t *testing.T) {
+	for _, g := range guides.Guides() {
+		want := false
+		for _, o := range g.CredentialOptions {
+			if o.UpstreamSetup != "none" || o.SpeakeasySetup != "none" {
+				want = true
+			}
+		}
+		for _, r := range g.Remotes {
+			if r.Tenanted {
+				want = true
+			}
+		}
+		if g.SetupRequired != want {
+			t.Errorf("%s: SetupRequired=%v, recomputed %v", g.Slug, g.SetupRequired, want)
+		}
+	}
+}
+
+// Guards the two exemplars the design was calibrated on: x-docs is the only
+// guide a consumer may hide, and zapier must stay visible on its DCR attach
+// steps despite needing nothing upstream.
+func TestSetupRequiredExemplars(t *testing.T) {
+	xdocs, ok := guides.Lookup("x-docs")
+	if !ok {
+		t.Fatal("x-docs missing")
+	}
+	if xdocs.SetupRequired {
+		t.Error("x-docs: want SetupRequired=false (public, nothing to do)")
+	}
+
+	zapier, ok := guides.Lookup("zapier")
+	if !ok {
+		t.Fatal("zapier missing")
+	}
+	if !zapier.SetupRequired {
+		t.Error("zapier: want SetupRequired=true (DCR attach is real work)")
+	}
+	if zapier.CredentialOptions[0].UpstreamSetup != "none" {
+		t.Errorf("zapier: want UpstreamSetup=none, got %q", zapier.CredentialOptions[0].UpstreamSetup)
+	}
+	if zapier.CredentialOptions[0].SpeakeasySetup != "dcr" {
+		t.Errorf("zapier: want SpeakeasySetup=dcr, got %q", zapier.CredentialOptions[0].SpeakeasySetup)
+	}
+}
