@@ -175,6 +175,32 @@ loop step 2.
 - `provenance` records every fact source with a locator and `observed_at`
   (use the timestamp the workflow passed you).
 
+### `upstream_setup` (required on every Authentication Option)
+
+Consumers use this to decide whether to show the guide at all, so a wrong
+`none` hides a guide the reader needs.
+
+- `none` — the reader opens nothing at the provider. No console, no
+  documentation lookup, no hostname check.
+- `provider-steps` — anything else, **including steps that configure
+  nothing**: finding a region-specific URL, an instance hostname, a
+  project ID. Needing to be told counts, even when nothing is created.
+
+Two boundaries to hold:
+
+- **Standing is not a step.** Accounts, plan tiers, roles, seats, and
+  credits are prerequisites — they belong in `credential_setup.requirements`,
+  not here. A guide whose only provider-side content is "have an account on
+  a plan where this is enabled" is `upstream_setup: none`.
+- **When in doubt, `provider-steps`.** A wrongly shown guide is noise; a
+  wrongly hidden one strands the reader with no instructions.
+
+Do not record what happens inside Speakeasy here — that is derived from
+`kind` + `client_registration` and must never be written by hand. If a DCR
+provider requires the reader to paste an **Issuer URL** because the Control
+Plane cannot discover it, the derivation has no way to express the extra
+work: raise an open question rather than filing it as ordinary DCR.
+
 ## When to report blocked
 
 Report `blocked` instead of writing thin artifacts when the provider has no

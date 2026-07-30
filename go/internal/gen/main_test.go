@@ -113,6 +113,12 @@ documentation:
   assets:
     - path: assets/shot.png
       content_hash: ""
+credential_setup:
+  options:
+    - id: oauth-app
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
 remotes:
   - id: hosted
     url: https://mcp.example.com/demo
@@ -171,9 +177,54 @@ remotes:
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"Summary:", "SpeakeasyAddServer:", "https://mcp.example.com/demo", "com.example/demo"} {
+	for _, want := range []string{
+		"Summary:", "SpeakeasyAddServer:", "https://mcp.example.com/demo", "com.example/demo",
+		"SetupRequired:      true,",
+		`{ID: "oauth-app", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},`,
+	} {
 		if !strings.Contains(string(idx), want) {
 			t.Errorf("index_gen.go missing %q", want)
 		}
+	}
+}
+
+func TestDeriveSpeakeasySetup(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		opt  credentialOptionMeta
+		want string
+	}{
+		{"open", credentialOptionMeta{ID: "public", Kind: "open"}, "none"},
+		{"api key", credentialOptionMeta{ID: "token", Kind: "api_key"}, "headers"},
+		{"oauth dcr", credentialOptionMeta{ID: "o", Kind: "oauth", ClientRegistration: "dynamic"}, "dcr"},
+		{"oauth manual", credentialOptionMeta{ID: "o", Kind: "oauth", ClientRegistration: "manual"}, "manual-oauth"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := deriveSpeakeasySetup("demo", tc.opt)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got != tc.want {
+				t.Errorf("got %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestDeriveSpeakeasySetupRejectsGaps(t *testing.T) {
+	// Both cases are unreachable through schema validation; the generator
+	// must still refuse rather than invent a value.
+	for _, tc := range []struct {
+		name string
+		opt  credentialOptionMeta
+	}{
+		{"oauth without client_registration", credentialOptionMeta{ID: "o", Kind: "oauth"}},
+		{"unknown kind", credentialOptionMeta{ID: "o", Kind: "mtls"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if _, err := deriveSpeakeasySetup("demo", tc.opt); err == nil {
+				t.Fatal("expected an error, got nil")
+			}
+		})
 	}
 }

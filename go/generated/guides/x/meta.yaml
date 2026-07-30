@@ -9,6 +9,7 @@ credential_setup:
   options:
     - id: app-only-bearer
       kind: api_key
+      upstream_setup: provider-steps
       fields:
         - id: bearer-token
           label: Bearer Token

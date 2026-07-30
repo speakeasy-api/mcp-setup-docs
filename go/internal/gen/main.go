@@ -38,6 +38,13 @@ type remoteMeta struct {
 	Provenance []provenanceMeta `yaml:"provenance"`
 }
 
+type credentialOptionMeta struct {
+	ID                 string `yaml:"id"`
+	Kind               string `yaml:"kind"`
+	ClientRegistration string `yaml:"client_registration"`
+	UpstreamSetup      string `yaml:"upstream_setup"`
+}
+
 type metaFile struct {
 	SchemaVersion      int      `yaml:"schema_version"`
 	Slug               string   `yaml:"slug"`
@@ -50,6 +57,9 @@ type metaFile struct {
 		Speakeasy string      `yaml:"speakeasy"`
 		Assets    []assetMeta `yaml:"assets"`
 	} `yaml:"documentation"`
+	CredentialSetup struct {
+		Options []credentialOptionMeta `yaml:"options"`
+	} `yaml:"credential_setup"`
 	Remotes    []remoteMeta     `yaml:"remotes"`
 	Provenance []provenanceMeta `yaml:"provenance"`
 }
@@ -61,16 +71,52 @@ type remoteIndex struct {
 	Tenanted  bool
 }
 
+type credentialOptionIndex struct {
+	ID                 string
+	Kind               string
+	ClientRegistration string
+	UpstreamSetup      string
+	SpeakeasySetup     string
+}
+
 type guideIndex struct {
 	Slug               string
 	Title              string
 	Summary            string
 	SpeakeasyAddServer string
+	SetupRequired      bool
 	Aliases            []string
 	Remotes            []remoteIndex
+	CredentialOptions  []credentialOptionIndex
 	ProvenanceNames    []string
 	RemoteProvenances  [][]string // parallel to Remotes
 	AssetPaths         []string
+}
+
+// deriveSpeakeasySetup maps an Authentication Option onto the work the reader
+// does in the Speakeasy AI Control Plane. The mapping is total because the
+// guide schema requires client_registration for oauth and forbids it
+// otherwise; a gap here means meta.yaml bypassed schema validation.
+func deriveSpeakeasySetup(slug string, o credentialOptionMeta) (string, error) {
+	switch o.Kind {
+	case "open":
+		return "none", nil
+	case "api_key":
+		return "headers", nil
+	case "oauth":
+		switch o.ClientRegistration {
+		case "dynamic":
+			return "dcr", nil
+		case "manual":
+			return "manual-oauth", nil
+		default:
+			return "", fmt.Errorf(
+				"%s: option %s: kind oauth needs client_registration dynamic or manual, got %q",
+				slug, o.ID, o.ClientRegistration)
+		}
+	default:
+		return "", fmt.Errorf("%s: option %s: unknown kind %q", slug, o.ID, o.Kind)
+	}
 }
 
 func main() {
@@ -215,6 +261,50 @@ func run() error {
 				provToRefs[p.Name] = append(provToRefs[p.Name], ref)
 			}
 			g.RemoteProvenances = append(g.RemoteProvenances, names)
+		}
+
+		// SetupRequired is the show/hide verdict for downstream consumers:
+		// false only when the reader has nothing to do beyond adding the
+		// server. Any option needing setup on either side flips it, and so
+		// does a tenanted remote — the reader must be told how to find their
+		// own URL even when no credential work remains.
+		seenOption := map[string]struct{}{}
+		for _, o := range meta.CredentialSetup.Options {
+			if !kebab.MatchString(o.ID) {
+				return fmt.Errorf("%s: option id %q is not kebab-case", slug, o.ID)
+			}
+			if _, ok := seenOption[o.ID]; ok {
+				return fmt.Errorf("%s: duplicate option id %q", slug, o.ID)
+			}
+			seenOption[o.ID] = struct{}{}
+			switch o.UpstreamSetup {
+			case "none", "provider-steps":
+			default:
+				return fmt.Errorf("%s: option %s: upstream_setup must be none or provider-steps, got %q",
+					slug, o.ID, o.UpstreamSetup)
+			}
+			speakeasySetup, err := deriveSpeakeasySetup(slug, o)
+			if err != nil {
+				return err
+			}
+			g.CredentialOptions = append(g.CredentialOptions, credentialOptionIndex{
+				ID:                 o.ID,
+				Kind:               o.Kind,
+				ClientRegistration: o.ClientRegistration,
+				UpstreamSetup:      o.UpstreamSetup,
+				SpeakeasySetup:     speakeasySetup,
+			})
+			if o.UpstreamSetup != "none" || speakeasySetup != "none" {
+				g.SetupRequired = true
+			}
+		}
+		if len(g.CredentialOptions) == 0 {
+			return fmt.Errorf("%s: credential_setup.options is empty", slug)
+		}
+		for _, r := range g.Remotes {
+			if r.Tenanted {
+				g.SetupRequired = true
+			}
 		}
 
 		for _, a := range meta.Aliases {

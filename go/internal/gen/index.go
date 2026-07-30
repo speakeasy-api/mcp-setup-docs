@@ -47,13 +47,23 @@ func writeGeneratedTypes(b *strings.Builder) {
 	b.WriteString("\tTenanted  bool\n")
 	b.WriteString("}\n\n")
 
+	b.WriteString("type generatedCredentialOption struct {\n")
+	b.WriteString("\tID                 string\n")
+	b.WriteString("\tKind               string\n")
+	b.WriteString("\tClientRegistration string\n")
+	b.WriteString("\tUpstreamSetup      string\n")
+	b.WriteString("\tSpeakeasySetup     string\n")
+	b.WriteString("}\n\n")
+
 	b.WriteString("type generatedGuide struct {\n")
 	b.WriteString("\tSlug               GuideSlug\n")
 	b.WriteString("\tTitle              string\n")
 	b.WriteString("\tSummary            string\n")
 	b.WriteString("\tSpeakeasyAddServer string\n")
+	b.WriteString("\tSetupRequired      bool\n")
 	b.WriteString("\tAliases            []string\n")
 	b.WriteString("\tRemotes            []generatedRemote\n")
+	b.WriteString("\tCredentialOptions  []generatedCredentialOption\n")
 	b.WriteString("}\n\n")
 }
 
@@ -65,11 +75,18 @@ func writeGuidesMap(b *strings.Builder, guides []guideIndex) {
 		fmt.Fprintf(b, "\t\tTitle:              %q,\n", g.Title)
 		fmt.Fprintf(b, "\t\tSummary:            %q,\n", g.Summary)
 		fmt.Fprintf(b, "\t\tSpeakeasyAddServer: %q,\n", g.SpeakeasyAddServer)
+		fmt.Fprintf(b, "\t\tSetupRequired: %v,\n", g.SetupRequired)
 		writeStringSliceLiteral(b, "\t\tAliases: ", g.Aliases)
 		b.WriteString("\t\tRemotes: []generatedRemote{\n")
 		for _, r := range g.Remotes {
 			fmt.Fprintf(b, "\t\t\t{ID: %q, URL: %q, Transport: %q, Tenanted: %v},\n",
 				r.ID, r.URL, r.Transport, r.Tenanted)
+		}
+		b.WriteString("\t\t},\n")
+		b.WriteString("\t\tCredentialOptions: []generatedCredentialOption{\n")
+		for _, o := range g.CredentialOptions {
+			fmt.Fprintf(b, "\t\t\t{ID: %q, Kind: %q, ClientRegistration: %q, UpstreamSetup: %q, SpeakeasySetup: %q},\n",
+				o.ID, o.Kind, o.ClientRegistration, o.UpstreamSetup, o.SpeakeasySetup)
 		}
 		b.WriteString("\t\t},\n")
 		b.WriteString("\t},\n")
