@@ -72,11 +72,8 @@ type remoteIndex struct {
 }
 
 type credentialOptionIndex struct {
-	ID                 string
-	Kind               string
-	ClientRegistration string
-	UpstreamSetup      string
-	SpeakeasySetup     string
+	credentialOptionMeta
+	SpeakeasySetup string
 }
 
 type guideIndex struct {
@@ -244,6 +241,13 @@ func run() error {
 				Transport: r.Transport,
 				Tenanted:  r.Tenanted,
 			})
+			// Tenanted remotes require setup regardless of credential options:
+			// the reader must be told how to find their own URL even when no
+			// credential work remains. See the SetupRequired comment below for
+			// the full verdict.
+			if r.Tenanted {
+				g.SetupRequired = true
+			}
 			ref := slug + "/" + r.ID
 			currentRefs[ref] = struct{}{}
 			if isIndexableURL(r.URL) {
@@ -265,9 +269,9 @@ func run() error {
 
 		// SetupRequired is the show/hide verdict for downstream consumers:
 		// false only when the reader has nothing to do beyond adding the
-		// server. Any option needing setup on either side flips it, and so
-		// does a tenanted remote — the reader must be told how to find their
-		// own URL even when no credential work remains.
+		// server. Tenanted remotes are folded in above, in the remotes loop;
+		// here, any credential option needing setup on either side flips it
+		// too.
 		seenOption := map[string]struct{}{}
 		for _, o := range meta.CredentialSetup.Options {
 			if !kebab.MatchString(o.ID) {
@@ -288,11 +292,8 @@ func run() error {
 				return err
 			}
 			g.CredentialOptions = append(g.CredentialOptions, credentialOptionIndex{
-				ID:                 o.ID,
-				Kind:               o.Kind,
-				ClientRegistration: o.ClientRegistration,
-				UpstreamSetup:      o.UpstreamSetup,
-				SpeakeasySetup:     speakeasySetup,
+				credentialOptionMeta: o,
+				SpeakeasySetup:       speakeasySetup,
 			})
 			if o.UpstreamSetup != "none" || speakeasySetup != "none" {
 				g.SetupRequired = true
@@ -300,11 +301,6 @@ func run() error {
 		}
 		if len(g.CredentialOptions) == 0 {
 			return fmt.Errorf("%s: credential_setup.options is empty", slug)
-		}
-		for _, r := range g.Remotes {
-			if r.Tenanted {
-				g.SetupRequired = true
-			}
 		}
 
 		for _, a := range meta.Aliases {

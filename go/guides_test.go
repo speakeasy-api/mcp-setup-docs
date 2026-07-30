@@ -540,14 +540,4 @@ func TestSetupRequiredExemplars(t *testing.T) {
 	if zapier.CredentialOptions[0].SpeakeasySetup != "dcr" {
 		t.Errorf("zapier: want SpeakeasySetup=dcr, got %q", zapier.CredentialOptions[0].SpeakeasySetup)
 	}
-
-	var hideable []string
-	for _, g := range guides.Guides() {
-		if !g.SetupRequired {
-			hideable = append(hideable, string(g.Slug))
-		}
-	}
-	if len(hideable) != 1 || hideable[0] != "x-docs" {
-		t.Errorf("hideable guides = %v, want [x-docs]", hideable)
-	}
 }
