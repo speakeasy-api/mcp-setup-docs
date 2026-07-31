@@ -23,7 +23,13 @@ import { type z } from 'zod'
 import { extractJson } from './json.ts'
 import { type AnyZod, schemaInstruction } from './schema-hint.ts'
 import { buildAgentEnv, writesOutsideAllowed } from './pi-guard.ts'
-import { classifyPiRun, type PiRun } from './pi-stream.ts'
+import {
+  classifyPiRun,
+  formatToolCalls,
+  parsePiStream,
+  toolCallCounts,
+  type PiRun,
+} from './pi-stream.ts'
 import { gitSoft } from './factory/git.ts'
 
 export type AgentOptions<S extends AnyZod> = {
@@ -191,9 +197,10 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
       log(`[${opts.label}] pi run failed (${outcome.kind}): ${outcome.message}`)
       return null
     }
-    if (outcome.costUsd > 0) {
-      log(`[${opts.label}] cost $${outcome.costUsd.toFixed(4)}`)
-    }
+    const tools = formatToolCalls(toolCallCounts(parsePiStream(run.stdout)))
+    log(
+      `[${opts.label}] cost $${outcome.costUsd.toFixed(4)} tools: ${tools || '(none)'}`
+    )
 
     const strayWrites = writesOutsideAllowed(
       porcelain(cfg.repoRoot),

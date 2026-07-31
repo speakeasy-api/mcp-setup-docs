@@ -5,6 +5,8 @@ import {
   finalText,
   parsePiStream,
   streamError,
+  formatToolCalls,
+  toolCallCounts,
   totalCostUsd,
 } from './pi-stream.ts'
 
@@ -252,5 +254,28 @@ describe('classifyPiRun', () => {
     for (const run of failures) {
       assert.equal(classifyPiRun(run).ok, false)
     }
+  })
+})
+
+describe('toolCallCounts', () => {
+  it('counts tool_execution_start by name', () => {
+    const stdout = [
+      SESSION,
+      '{"type":"tool_execution_start","toolName":"read","args":{}}',
+      '{"type":"tool_execution_start","toolName":"bash","args":{}}',
+      '{"type":"tool_execution_start","toolName":"read","args":{}}',
+      '{"type":"tool_execution_end","toolName":"read","isError":false}',
+      agentEnd('done'),
+    ].join('\n')
+    const counts = toolCallCounts(parsePiStream(stdout))
+    assert.deepEqual(counts, { read: 2, bash: 1 })
+    assert.equal(formatToolCalls(counts), 'read=2 bash=1')
+  })
+
+  it('is empty when the agent called nothing', () => {
+    // The signal that distinguishes "fetched fresh docs" from "re-read a prior
+    // dossier and touched nothing".
+    assert.deepEqual(toolCallCounts(parsePiStream([SESSION, agentEnd('x')].join('\n'))), {})
+    assert.equal(formatToolCalls({}), '')
   })
 })

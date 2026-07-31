@@ -77,6 +77,31 @@ export function finalText(events: PiEvent[]): string | null {
   return text
 }
 
+/**
+ * How many times each tool was called, e.g. `{read: 12, bash: 3}`.
+ *
+ * Without this the run is a black box: "research finished in 76s" cannot be
+ * told apart from "research re-read a prior dossier and fetched nothing",
+ * which is exactly the question that decides whether the dossier is grounded.
+ */
+export function toolCallCounts(events: PiEvent[]): Record<string, number> {
+  const counts: Record<string, number> = {}
+  for (const event of events) {
+    if (event.type !== 'tool_execution_start') continue
+    const name = typeof event.toolName === 'string' ? event.toolName : 'unknown'
+    counts[name] = (counts[name] ?? 0) + 1
+  }
+  return counts
+}
+
+/** `read=12 bash=3`, or '' when the agent called nothing. */
+export function formatToolCalls(counts: Record<string, number>): string {
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, n]) => `${name}=${n}`)
+    .join(' ')
+}
+
 /** Whole-run spend, summed across turns. A multi-turn run has several `turn_end`s. */
 export function totalCostUsd(events: PiEvent[]): number {
   let total = 0
