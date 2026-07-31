@@ -1,9 +1,8 @@
 /**
  * Agent runtime backed by a direct `spawn` of the `pi` CLI over OpenRouter.
  *
- * Exposes the same surface as `runtime.ts` — `{ log, agent, pipeline, modelId }`
- * — so `workflow.ts` is untouched. Three things make this more than
- * a spawn wrapper:
+ * Exposes the surface `workflow.ts` consumes — `{ log, agent, pipeline,
+ * modelId }`. Three things make this more than a spawn wrapper:
  *
  *  - **Session continuity.** Remediation sends one follow-up that must land in
  *    the *same* conversation ("use the research you already gathered"). pi has

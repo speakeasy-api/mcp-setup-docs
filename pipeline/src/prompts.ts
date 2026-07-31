@@ -296,5 +296,3 @@ export function createPrompts(ctx: PromptContext) {
     reviewLockPrompt,
   }
 }
-
-export type Prompts = ReturnType<typeof createPrompts>
