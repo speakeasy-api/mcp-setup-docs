@@ -1,0 +1,95 @@
+--- doctrine/roles/technical-research.md	2026-07-31 13:09:03.242483124 -0700
++++ doctrine/roles/technical-research.northstar.md	2026-07-31 13:09:03.302548278 -0700
+@@ -10,12 +10,36 @@
+ 
+ ## The loop
+ 
+-1. Sweep the provider's documentation properties before going deep:
+-   developer docs, product/admin docs, and the support KB are often
+-   separate sites, and any of them may publish a machine-readable index
+-   (try `/llms.txt`). Where properties conflict on console UI, prefer
+-   the current product/admin docs and record the conflict.
+-2. Research the provider's public MCP documentation: remote URL, transport,
++1. Find the north star before you sweep: the provider's own purpose-built,
++   current MCP setup doc — published on the provider's own site, written
++   to instruct a reader to set up this MCP server, and the most recent
++   when several compete (a doc citing newer features, better spec
++   support, or a newer-versioned MCP URL beats an older launch blog
++   post). That doc sets the spine of the walkthrough and **wins
++   conflicts** against the provider's own older material. Still sweep the
++   provider's documentation properties — developer docs, product/admin
++   docs, and the support KB are often separate sites, and any of them may
++   publish a machine-readable index (try `/llms.txt`) — but scope the
++   sweep to filling named gaps the north star leaves, not to surveying
++   everything. Where properties conflict on console UI, prefer the
++   current product/admin docs and record the conflict.
++2. Work the chase list. Purpose-built MCP docs are written for the
++   vendor's own first-party clients: they reliably carry the identity
++   facts (endpoint, transport, auth model, scopes) and reliably omit the
++   entitlement facts. After reading the north star, explicitly check for
++   three things it commonly drops, and go to the sub-flow doc when it
++   does: (a) the IAM or role grant the connection requires, (b) the
++   admin-side enable/allow toggle, (c) the exact credential-dialog field
++   labels. Absence of these from the north star is not evidence they are
++   unnecessary.
++3. Never read a reference index whole. Release-note streams, IAM and
++   access-control references, OAuth scope inventories, and `llms.txt`
++   indexes are reference indexes, not procedure docs. Fetch the specific
++   section, or search within the page for the one fact you need, record
++   that fact, and move on. Do not cite a reference index as a
++   documentation property that was "swept" — that is not evidence of
++   coverage.
++4. Research the provider's public MCP documentation: remote URL, transport,
+    authentication model, the console path an admin follows, and the
+    caveats that change what an admin must do during setup (one-time
+    secrets, plan or license gates on a step) — recorded in the step they
+@@ -28,20 +52,20 @@
+    runtime source of truth, so do not catalog it. Record an individual
+    tool only where it matters to setup — a tool that bills differently,
+    needs a license, is off by default, or is restricted.
+-3. When the provider documents a sub-flow (API enablement, role grants,
++5. When the provider documents a sub-flow (API enablement, role grants,
+    consent screens, credential dialogs), fetch that documentation too,
+    quote its exact UI labels, and record each fetched page as a provenance
+    locator. Labels the provider names **or shows** (including screenshots
+    on those pages) are confirmed facts — record them; do not leave them
+    for live console verification.
+-4. Write the Dossier and the Metadata.
+-5. Validate `meta.yaml` against `schema/guide.v1.schema.json` (draft-07)
++6. Write the Dossier and the Metadata.
++7. Validate `meta.yaml` against `schema/guide.v1.schema.json` (draft-07)
+    and fix until it conforms. Try
+    `npx --yes ajv-cli validate -s schema/guide.v1.schema.json -d guides/<slug>/meta.yaml`
+    or a Python `jsonschema` one-liner; if no validator will run, read the
+    schema and check field by field — and say in your report which method
+    you used.
+-6. Report: status, open questions, and what you decided vs. were unsure of.
++8. Report: status, open questions, and what you decided vs. were unsure of.
+ 
+ ## Dossier format (`research.md`)
+ 
+@@ -138,10 +162,11 @@
+ verification."
+ 
+ ## Provenance
+-First, the source inventory from the sweep: every documentation property
+-found (developer, product/admin, support KB), including any you did not
+-draw from — reviewers audit coverage here, not just citations. Then one
+-entry per source: locator + observed date + which facts it backs.
++First, the source inventory: the north star, plus every source a fact in
++this Dossier rests on — a property that was swept but backs nothing is
++not coverage, so do not list it. Then any genuine conflict you found
++between provider properties, and which side won. Then one entry per
++source: locator + observed date + which facts it backs.
+ ```
+ 
+ You mint every provider-step anchor ID here — document-unique,
+@@ -158,7 +183,7 @@
+ account type, plan tier, and permissions required. If a fact would matter
+ to someone who has never opened the console *during first-connect setup*,
+ it belongs in the Dossier. Post-setup / later-ops surfaces do not — see
+-loop step 2.
++loop step 4.
+ 
+ ## meta.yaml essentials
+ 
