@@ -20,6 +20,7 @@ import {
   snapshotResearchOutputs,
   writeLock,
   type PipelineLock,
+  type RenderedPrompt,
   type ResearchSnapshot,
   type ReviewDimension,
   type StepId,
@@ -43,7 +44,10 @@ import {
   type CatalogLookupResult,
   type SpeakeasyAddServerMode,
 } from './pulse-catalog.ts'
-import { PATHS, abs, guideDir, personaFile, roleDoc } from './paths.ts'
+// Deliberately not importing paths.ts's repo-relative `guideDir`: the local
+// helper inside runWorkflow returns an absolute path under the same name, and
+// the shadowing already produced one doubled-root prompt.
+import { PATHS, abs, personaFile, roleDoc } from './paths.ts'
 
 export type GuideAddServerHints = {
   tenanted: boolean
@@ -483,6 +487,7 @@ export async function runWorkflow(
       provider: g.provider,
       // Prefer the notes actually sent to research (pre-refresh).
       notes: opts?.researchNotes ?? notesOf(g),
+      prompt: researchLockPrompt(g),
     })
     steps.research = makeStepRecord(
       researchInputs,
@@ -504,6 +509,7 @@ export async function runWorkflow(
         provider: g.provider,
         notes: notesOf(g),
         persona: PERSONA,
+        prompt: draftLockPrompt(g),
       })
       steps.draft = makeStepRecord(
         draftInputs,
@@ -526,6 +532,7 @@ export async function runWorkflow(
           dimension: dim.role,
           roleDoc: dim.doc,
           withPersona: dim.persona,
+          prompt: reviewLockPrompt(g, dim),
         })
         steps[stepId] = makeStepRecord(
           reviewInputs,
@@ -555,11 +562,76 @@ export async function runWorkflow(
       'Assignment:',
       '- slug: ' + g.slug,
       '- provider: ' + g.provider,
-      '- guide directory: ' + abs(ROOT, guideDir(g.slug)) + '/',
+      '- guide directory: ' + guideDir(g.slug) + '/',
       '- persona: ' + PERSONA + ' (' + PERSONA_FILE + ')',
       '- observed_at timestamp for provenance recorded this run: ' + NOW,
       '- operator notes: ' + (promptNotesOf(g) || '(none)'),
     ].join('\n')
+  }
+
+  /** Round line, shared so `reviewLockPrompt` cannot drift from the real one. */
+  function roundLine(round: number): string {
+    return 'This is review round ' + round + ' of at most ' + MAX_ROUNDS + '.'
+  }
+
+  /**
+   * The round a review prompt is rendered at when it is being hashed rather
+   * than sent. Any value works — the line is stripped — but it must be fixed.
+   */
+  const LOCK_ROUND = 1
+
+  /**
+   * Spans of a rendered prompt that `prompt_digest` must ignore, per
+   * PATHS.pipelineLockDoc: everything the lock already records in `params` or
+   * `reading_list`, plus per-run context.
+   *
+   * - `assign(g)` carries slug, provider, guide directory, persona, operator
+   *   notes (with the catalog note merged in) and `NOW`. Stripping the block
+   *   whole is why notes containing newlines cost nothing here.
+   * - `PERSONA_FILE` appears a second time in the reading list, but only when
+   *   the prompt was built with `withPersona` — `persona` below must match the
+   *   flag its builder passes to `readingList`, and `stripVolatile` throws if
+   *   it does not.
+   * - `ROOT` normalizes the absolute paths in the reading list; digests have to
+   *   be portable across machines.
+   * - The round line carries `MAX_ROUNDS`, so `--max-rounds` would otherwise
+   *   bust every guide's review entries.
+   *
+   * Outer-first: the assignment block contains `PERSONA_FILE`, which contains
+   * `ROOT`.
+   */
+  function volatileSpans(
+    g: GuideInput,
+    opts: { persona: boolean; round?: number }
+  ): string[] {
+    const spans = [assign(g)]
+    if (opts.round !== undefined) spans.push(roundLine(opts.round))
+    if (opts.persona) spans.push(PERSONA_FILE)
+    spans.push(ROOT)
+    return spans
+  }
+
+  function researchLockPrompt(g: GuideInput): RenderedPrompt {
+    return {
+      text: researchPrompt(g),
+      volatile: volatileSpans(g, { persona: false }),
+    }
+  }
+
+  function draftLockPrompt(g: GuideInput): RenderedPrompt {
+    return {
+      text: draftPrompt(g),
+      volatile: volatileSpans(g, { persona: true }),
+    }
+  }
+
+  function reviewLockPrompt(g: GuideInput, dim: Dimension): RenderedPrompt {
+    // `prior` is per-round runtime context, never a lock input, so the hashed
+    // rendering is always the round-1 one that has none.
+    return {
+      text: reviewerPrompt(g, dim, LOCK_ROUND, null),
+      volatile: volatileSpans(g, { persona: dim.persona, round: LOCK_ROUND }),
+    }
   }
 
   function researchPrompt(g: GuideInput): string {
@@ -866,7 +938,7 @@ export async function runWorkflow(
       )
     }
     lines.push(
-      'This is review round ' + round + ' of at most ' + MAX_ROUNDS + '.',
+      roundLine(round),
       'Review the current files in the guide directory. You never edit files.'
     )
     if (prior) {
@@ -983,6 +1055,7 @@ export async function runWorkflow(
             dimension: dim.role,
             roleDoc: dim.doc,
             withPersona: dim.persona,
+            prompt: reviewLockPrompt(g, dim),
           })
           if (
             canSkipStep(lockOpts.lock, g.slug, stepId, inputs, dir, {
@@ -1325,6 +1398,7 @@ export async function runWorkflow(
       provider: g.provider,
       notes: notesOf(g),
       persona: PERSONA,
+      prompt: draftLockPrompt(g),
     })
     const skipDraft = canSkipStep(
       workingLock,
