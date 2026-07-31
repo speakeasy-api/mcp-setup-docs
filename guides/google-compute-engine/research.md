@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: google-compute-engine
-researched_at: 2026-07-23T15:15:19Z
+researched_at: 2026-07-31T19:17:08Z
 ---
 
 # Google Compute Engine — Research Dossier
@@ -15,10 +15,11 @@ docs set (`/mcp/*` — overview, supported products, authentication,
 release notes, quotas). The OAuth consent-screen walkthrough lives on a
 third property, `developers.google.com` (the Google Auth platform is
 shared across Google products). `cloud.google.com` paths 301-redirect to
-`docs.cloud.google.com` (redirect observed this run). Every load-bearing
-fact was fetched live this run (2026-07-23, ~15:18–15:30Z), and endpoint
-behavior was corroborated by direct observation against
-`https://compute.googleapis.com/mcp`.
+`docs.cloud.google.com` (redirect observed this run). The sound prior source sweep and click-through research were retained. This
+run reverified the primary Compute Engine MCP page, the shared authentication
+page, and the protected-resource metadata endpoint; all remained publicly
+reachable and consistent with the recorded server URL, manual OAuth model,
+and endpoint-advertised scope.
 
 ## Server facts
 
@@ -352,8 +353,12 @@ all steps below happen inside this one project.
   OAuth Consent Screen settings in Branding, Audience, and Data
   Access." — the wizard only runs behind **Get Started**; a project
   whose platform is already configured (no not-configured message)
-  goes straight to the **Data Access** scope step and, for External
-  apps, the **Audience** test-user step. The wizard runs as follows
+  goes straight to the **Data Access** scope step. Before deciding whether
+  to add test users, direct the admin to **Audience** to check the configured
+  audience and publishing status; publishing status is documented on that
+  page, while the exact user-type display is not. If either value is not
+  evident, the admin should obtain it from the application or cloud security
+  owner. The wizard runs as follows
   (consent guide, verbatim labels):
   - "Under **App Information**, in **App name**, enter an App name" —
     a recognizable name such as `Speakeasy AI Control Plane`; "In
@@ -481,17 +486,21 @@ flow; anchors `{#add-server-in-speakeasy}` and
 `{#connect-speakeasy-credentials}` are fixed there and carried
 verbatim — never re-minted). Provenance for the transcluded facts:
 `doctrine/speakeasy-setup.md` (product source `speakeasy-api/gram`,
-`client/dashboard`, `main` @ `96f7f73`), observed this run
-(2026-07-23T15:15:19Z). Per-guide values the skeleton renders with:
+`client/dashboard`, `main` @ `96f7f73` for add-server and manual OAuth
+labels), observed this run (2026-07-31T19:17:08Z). Per-guide values the
+skeleton renders with:
 
-- **Remote URL**: `https://compute.googleapis.com/mcp` (the add form's
-  **Transport** field is read-only; the Control Plane proxies remote
-  servers over streamable-http, matching this server's transport).
-- Whether Google Compute Engine appears in the Speakeasy MCP Catalog
-  is unverified — the Writer renders both skeleton branches
-  (**3rd-party server** and **Custom remote server**) as the skeleton
-  provides; the search term for the catalog branch is
-  `Compute Engine`.
+- **Add-server path**: catalog only. The Speakeasy MCP Catalog lookup is
+  present, matched registry name `com.googleapis.compute/mcp`, title
+  **Google Compute Engine**. In **Sources**, click **Add Source**, choose
+  **3rd-party server**, search for `Google Compute Engine` on the **MCP
+  Catalog** page using **Search MCP servers...**, open the matched entry
+  with **View**, click **Add**, and then click **Add to Project** in the
+  **Add to Project** dialog. This creates the hosted MCP server and opens
+  its **Overview** page. Do not render the Custom remote server path.
+- **Remote URL**: `https://compute.googleapis.com/mcp` (catalog-backed
+  server fact; the Control Plane proxies remote servers over
+  streamable-http, matching this server's transport).
 - **Authentication Option**: `oauth-client` (OAuth with a
   pre-registered client; `client_registration: manual`). The provider
   publishes discoverable OAuth metadata (protected-resource and
@@ -500,13 +509,11 @@ verbatim — never re-minted). Provenance for the transcluded facts:
   unsupported, so a manually created client is required either way;
   the manual path (**Configure Manually**, **Client Type** →
   **Manual**) is the documented fit.
-- The **Redirect URI** shown in the **Attach Remote Identity
-  Provider** sheet (`{{ gram.oauth.callback_url }}`) is the value the
-  reader registers under **Authorized redirect URIs** in
-  {#create-oauth-client}. Sequence note for the Writer: the reader
-  needs that value before finishing {#create-oauth-client}, so the
-  guide must have them copy it from the sheet (or the template value)
-  before the provider-side client-creation step completes.
+- The **Redirect URI** shown later in the **Attach Remote Identity
+  Provider** sheet is the same callback represented by
+  `{{ gram.oauth.callback_url }}`. In {#create-oauth-client}, the reader
+  pastes that template key directly into **Authorized redirect URIs**;
+  do not send the reader into Speakeasy mid-way through External setup.
 - Credential fields and their producing steps:
   - **Client ID** ← {#copy-client-credentials}.
   - **Client Secret (optional)** ← {#copy-client-credentials} — for
@@ -584,14 +591,12 @@ verbatim — never re-minted). Provenance for the transcluded facts:
   new one" is documented, but no fetched page names the console
   surface (the client's detail page is the presumed location). Needs
   console verification at capture time.
-- **Speakeasy MCP Catalog presence.** Whether a Google Compute Engine
-  entry exists in the catalog determines which add-server branch the
-  reader lands in; verifiable only in the product at capture time.
 
 ## Provenance
 
-Source inventory from the sweep. Google's documentation spans three
-properties, all checked this run:
+Source inventory from the retained sweep. Google's documentation spans three
+properties; the primary product and authentication pages were rechecked this
+run:
 
 - **Product/developer docs — docs.cloud.google.com** (source of truth
   for this guide): the Compute Engine MCP page and reference, the
@@ -617,8 +622,10 @@ properties, all checked this run:
   from Supported products), and the `/mcp` product landing page
   (marketing shell over the doc links above).
 
-One entry per source drawn from (all fetched live this run,
-2026-07-23; `observed_at` recorded as this run's workflow timestamp):
+One entry per source drawn from. The complete sweep below was performed in
+the prior run; this run re-fetched the primary Compute MCP page, shared MCP
+authentication setup page, and live protected-resource metadata. Metadata
+provenance uses this run's workflow timestamp, `2026-07-31T19:17:08Z`:
 
 - `https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp`
   ("Use the Compute Engine MCP server"; page footer "Last updated
@@ -725,14 +732,13 @@ One entry per source drawn from (all fetched live this run,
   **Manually add scopes** text box for unlisted scopes and the
   **Update** button on the scopes panel, and the KB's styled-caps
   printing of those button labels.
-- Pulse mirror `com.googleapis.compute/mcp` version 1.0.0 (private
-  tenant export snapshot 2026-07-18T04:42:42Z; record published
-  2026-04-21, last updated 2026-07-17; official-server flag) — backs:
-  remote URL and `streamable-http` transport, header-auth option
-  shape, `x-goog-user-project` billing-attribution header (bearer-
-  token method only), documentation URL.
-- `https://compute.googleapis.com/mcp` — direct endpoint observation
-  this run (2026-07-23T15:24Z): unauthenticated `tools/list` → HTTP
+- Speakeasy MCP Catalog lookup, matched registry name
+  `com.googleapis.compute/mcp`, title **Google Compute Engine**, observed
+  2026-07-31T19:17:08Z (`source: pulsemcp`) — backs the catalog-only
+  add-server path. The prior mirror record also backs the remote URL and
+  `streamable-http` transport.
+- `https://compute.googleapis.com/mcp` — prior direct endpoint observation
+  (2026-07-23T15:24Z): unauthenticated `tools/list` → HTTP
   200 with tool list (`create_instance` carrying
   `destructiveHint: true`); unauthenticated `tools/call` → HTTP 401
   "Request is missing required authentication credential. Expected

@@ -1,0 +1,121 @@
+{
+  "slug": "google-compute-engine",
+  "provider": "google-compute-engine",
+  "persona": "it-admin",
+  "timestamp": "2026-07-31T19:17:08Z",
+  "started_at": "2026-07-31T19:17:08Z",
+  "finished_at": "2026-07-31T19:24:14Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "external",
+      "where": "#consent-screen, steps 4 and 8",
+      "problem": "The guide does not tell the administrator which organization-specific addresses to use for the required User support email and Contact Information fields.",
+      "suggestion": "Add one section-level hedge directing the administrator to obtain the support and contact email addresses from the application or cloud security owner when they are not specified in the setup ticket.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Google's Compute MCP page lists compute.read-only and compute.read-write scope strings, while the live protected-resource metadata advertises only https://www.googleapis.com/auth/compute; the Dossier uses the endpoint-advertised scope pending confirmation of the alternatives.",
+    "Public docs do not establish whether declaring the Compute scope under Data Access is required for Internal apps; the walkthrough includes it unconditionally.",
+    "Some console navigation seams are inferred because public docs provide deep links or destination names rather than complete menu paths, particularly IAM and Google Auth platform subsection navigation.",
+    "Google does not publicly classify the Compute scope as non-sensitive, sensitive, or restricted, so External-app verification requirements remain uncertain.",
+    "Google documents operation-dependent Compute permissions but not a minimal role set for read-only MCP use.",
+    "Google documents deleting and recreating a lost client secret but does not name the exact console control or detail-page path."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose: “project Owner covers all three”",
+          "problem": "The guide states definitively that Project Owner covers the entire setup even though the Research Dossier records this only as a flagged inference.",
+          "suggestion": "Replace the Owner assertion with the documented required permissions, or explicitly qualify Owner as an inferred example.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "credential_setup.requirements[gcp-project]",
+          "problem": "The requirement states definitively that Project Owner covers all three administrative tasks even though the Research Dossier marks that conclusion as an inference.",
+          "suggestion": "Describe the required permissions without asserting Owner coverage, or qualify the Owner statement to preserve the Dossier's uncertainty.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose: “you point the Speakeasy AI Control Plane at that address”",
+          "problem": "This wording describes a custom-remote action even though the resolved add-server path is catalog-only and never asks the reader to enter the remote URL.",
+          "suggestion": "Say that the catalog entry connects to Google's hosted MCP Server at that URL without requiring an installation or pasted remote URL.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "grant-iam-roles, step 9",
+          "problem": "The guide says Service Account User is required for creating VMs, while the Dossier limits that requirement to creating a VM that runs as a service account.",
+          "suggestion": "State that Service Account User is needed when creating VMs that run as a service account, preserving the documented condition.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "enable-compute-engine-api step 3 and grant-iam-roles step 1",
+          "problem": "The guide presents the navigation-menu paths as confirmed labels although the Dossier records those paths as inferred from documentation and deep links.",
+          "suggestion": "Qualify the menu paths as likely routes or direct readers through the documented API Library and IAM links until capture verifies the navigation.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "copy-client-credentials recovery paragraph",
+          "problem": "The guide presents opening the client from the Clients list as confirmed recovery chrome although the Dossier records that surface as an inference.",
+          "suggestion": "Hedge the transition, for example by directing the reader to the client details from the Clients page without claiming a provider-documented exact path.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "#consent-screen — “If the app's user type is External”",
+          "problem": "A reader inheriting an already-configured Google Auth platform is not told how to determine whether the app is External and Testing before deciding whether to add test users.",
+          "suggestion": "Direct the reader to check the configured audience and publishing status on the Audience page, with a hedge to obtain those values from the application or cloud security owner if the console does not make them evident.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Updated external.md to replace the definitive Project Owner claim with the documented permissions; describe the catalog entry as connecting to Google’s hosted MCP Server without installation or pasting a remote URL; condition Service Account User on VMs that run as a service account; qualify the inferred API Library and IAM navigation routes and provide documented direct links; hedge the client-secret recovery transition; and direct admins to check audience and publishing status on the Audience page, with an owner fallback when values are unclear. Updated meta.yaml to remove the unsupported Project Owner assertion from credential_setup.requirements[gcp-project]. Updated research.md first to record the Audience-page check and owner fallback as part of the Dossier fact ceiling. Existing anchors and the catalog-only Speakeasy path were preserved.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "#consent-screen, steps 4 and 8",
+          "problem": "The guide does not tell the administrator which organization-specific addresses to use for the required User support email and Contact Information fields.",
+          "suggestion": "Add one section-level hedge directing the administrator to obtain the support and contact email addresses from the application or cloud security owner when they are not specified in the setup ticket.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "The Speakeasy add-server flow materially changed from unresolved catalog presence with both catalog and custom-remote branches to a confirmed catalog-only path. AFTER adds `speakeasy_add_server: catalog`, records the matched `com.googleapis.compute/mcp` / Google Compute Engine catalog entry, removes the catalog open question, and specifies the catalog UI sequence. This requires re-rendering `speakeasy.md` and invalidates review of the previous dual-path setup. Provider credentials, remote URL, transport, prerequisites, and anchors are otherwise unchanged."
+  },
+  "notes_digest": "sha256:f97d58468d16f2d0cfdbc80b329140c52159bee6ad69cfeede9f4ea4ac72ab44",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 1
+  }
+}
