@@ -2,7 +2,7 @@
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createPiRuntime } from './runtime-pi.ts'
+import { createPiRuntime, type UsageReport } from './runtime-pi.ts'
 import { allowedPrefixesFor } from './pi-guard.ts'
 import { runWorkflow } from './workflow.ts'
 import { type GuideInput } from './prompts.ts'
@@ -180,7 +180,8 @@ function writeRunRecord(
   provider: string,
   persona: string,
   result: Record<string, unknown>,
-  runtime: string
+  runtime: string,
+  usage: UsageReport
 ) {
   const slug = String(result.slug)
   const dir = abs(root, PATHS.retroRunsDir)
@@ -195,6 +196,9 @@ function writeRunRecord(
     finished_at: finishedAt,
     runtime,
     ...result,
+    // After the spread: what the run cost is the runtime's record, not the
+    // workflow's, and must not be shadowed by a result key of the same name.
+    usage,
   }
   writeFileSync(path, JSON.stringify(body, null, 2) + '\n')
   return path
@@ -272,7 +276,10 @@ async function main() {
       g?.provider || result.slug,
       out.persona,
       result as unknown as Record<string, unknown>,
-      'pi'
+      'pi',
+      // Narrowed to this guide's phases (`"<slug>: <kind>"`), so a multi-guide
+      // invocation does not bill every record for the whole run.
+      rt.usage(result.slug)
     )
     console.error(`run record: ${path}`)
     console.log(JSON.stringify(result, null, 2))

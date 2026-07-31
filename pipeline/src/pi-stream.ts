@@ -102,15 +102,83 @@ export function formatToolCalls(counts: Record<string, number>): string {
     .join(' ')
 }
 
-/** Whole-run spend, summed across turns. A multi-turn run has several `turn_end`s. */
-export function totalCostUsd(events: PiEvent[]): number {
-  let total = 0
+/**
+ * Whole-run spend *and* token counts, summed across turns.
+ *
+ * `turn_end.message.usage` carries both, in pi's own field names — verbatim from
+ * a live 0.57.1 capture (see `pi-stream.test.ts`):
+ *
+ *   usage: {input, output, cacheRead, cacheWrite, totalTokens,
+ *           cost: {input, output, cacheRead, cacheWrite, total}}
+ *
+ * A missing field is recorded as 0 and flagged via `tokensReported`, never
+ * inferred: 0 tokens and "pi told us nothing" are different facts, and only the
+ * flag keeps a cost-only stream from reading as a free run.
+ */
+export type PiUsage = {
+  costUsd: number
+  inputTokens: number
+  outputTokens: number
+  cacheReadTokens: number
+  cacheWriteTokens: number
+  totalTokens: number
+  /** True once any `turn_end` carried at least one token field. */
+  tokensReported: boolean
+}
+
+/** A finite number, or null — so an absent field stays distinguishable from 0. */
+function num(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+/** Whole-run usage, summed across turns. A multi-turn run has several `turn_end`s. */
+export function totalUsage(events: PiEvent[]): PiUsage {
+  const total: PiUsage = {
+    costUsd: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    cacheReadTokens: 0,
+    cacheWriteTokens: 0,
+    totalTokens: 0,
+    tokensReported: false,
+  }
   for (const event of events) {
     if (event.type !== 'turn_end') continue
-    const cost = asRecord(asRecord(asRecord(event.message)?.usage)?.cost)
-    if (typeof cost?.total === 'number') total += cost.total
+    const usage = asRecord(asRecord(event.message)?.usage)
+    if (!usage) continue
+
+    total.costUsd += num(asRecord(usage.cost)?.total) ?? 0
+
+    const input = num(usage.input)
+    const output = num(usage.output)
+    const cacheRead = num(usage.cacheRead)
+    const cacheWrite = num(usage.cacheWrite)
+    const turnTotal = num(usage.totalTokens)
+    if (
+      input !== null ||
+      output !== null ||
+      cacheRead !== null ||
+      cacheWrite !== null ||
+      turnTotal !== null
+    ) {
+      total.tokensReported = true
+    }
+
+    total.inputTokens += input ?? 0
+    total.outputTokens += output ?? 0
+    total.cacheReadTokens += cacheRead ?? 0
+    total.cacheWriteTokens += cacheWrite ?? 0
+    // Prefer pi's own total; whether cacheRead is a subset of input is not
+    // knowable from the stream, so the fallback sums only the two that cannot
+    // overlap rather than inventing a wider one.
+    total.totalTokens += turnTotal ?? (input ?? 0) + (output ?? 0)
   }
   return total
+}
+
+/** Whole-run spend, summed across turns. */
+export function totalCostUsd(events: PiEvent[]): number {
+  return totalUsage(events).costUsd
 }
 
 /**
@@ -146,7 +214,7 @@ function errorCarriers(event: PiEvent): Record<string, unknown>[] {
 }
 
 export type PiOutcome =
-  | { ok: true; text: string; costUsd: number }
+  | { ok: true; text: string; costUsd: number; usage: PiUsage }
   | { ok: false; kind: 'spawn' | 'auth' | 'api' | 'truncated'; message: string }
 
 export type PiRun = {
@@ -193,7 +261,8 @@ export function classifyPiRun(run: PiRun): PiOutcome {
     }
   }
 
-  return { ok: true, text, costUsd: totalCostUsd(events) }
+  const usage = totalUsage(events)
+  return { ok: true, text, costUsd: usage.costUsd, usage }
 }
 
 function firstLine(text: string): string {

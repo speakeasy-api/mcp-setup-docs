@@ -27,7 +27,9 @@ import {
   formatToolCalls,
   parsePiStream,
   toolCallCounts,
+  totalUsage,
   type PiRun,
+  type PiUsage,
 } from './pi-stream.ts'
 import { gitSoft } from './factory/git.ts'
 
@@ -167,6 +169,57 @@ function defaultRunPi(piBin: string): RunPi {
     })
 }
 
+/** The six numbers the run record carries, per phase and per agent. */
+export type UsageTotals = {
+  costUsd: number
+  inputTokens: number
+  outputTokens: number
+  cacheReadTokens: number
+  cacheWriteTokens: number
+  totalTokens: number
+}
+
+export type AgentUsage = UsageTotals & {
+  label: string
+  phase: string
+  /** pi turns billed to this agent — a remediation turn is its own entry. */
+  calls: number
+  /** False when pi reported cost but no token counts; the zeros then mean "unknown". */
+  usage_reported: boolean
+}
+
+export type UsageReport = {
+  reported: true
+  total: UsageTotals
+  by_phase: Record<string, UsageTotals>
+  by_agent: AgentUsage[]
+}
+
+function zeroTotals(): UsageTotals {
+  return {
+    costUsd: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    cacheReadTokens: 0,
+    cacheWriteTokens: 0,
+    totalTokens: 0,
+  }
+}
+
+function addInto(target: UsageTotals, src: UsageTotals): void {
+  target.costUsd += src.costUsd
+  target.inputTokens += src.inputTokens
+  target.outputTokens += src.outputTokens
+  target.cacheReadTokens += src.cacheReadTokens
+  target.cacheWriteTokens += src.cacheWriteTokens
+  target.totalTokens += src.totalTokens
+}
+
+/** Float sums produce 0.030000000000000002; the record should not. */
+function rounded(totals: UsageTotals): UsageTotals {
+  return { ...totals, costUsd: Math.round(totals.costUsd * 1e6) / 1e6 }
+}
+
 export function createPiRuntime(cfg: PiRuntimeConfig) {
   const runPi = cfg.runPi ?? defaultRunPi(cfg.piBin)
   const porcelain = cfg.porcelain ?? defaultPorcelain
@@ -199,6 +252,51 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
     return baseline
   }
 
+  /**
+   * Spend ledger, keyed `label :: phase`, accumulated across every turn.
+   *
+   * Charged in `turn`, before the outcome is judged: a phase that failed
+   * classification or tripped I7 still burned tokens, and an experiment that
+   * only counts the turns that worked understates what the method costs.
+   */
+  const ledger = new Map<string, AgentUsage>()
+  function chargeUsage(label: string, phase: string, spent: PiUsage) {
+    const key = `${label} :: ${phase}`
+    let entry = ledger.get(key)
+    if (!entry) {
+      entry = { ...zeroTotals(), label, phase, calls: 0, usage_reported: false }
+      ledger.set(key, entry)
+    }
+    entry.calls += 1
+    entry.usage_reported = entry.usage_reported || spent.tokensReported
+    addInto(entry, spent)
+  }
+
+  /**
+   * Snapshot of the ledger. `phasePrefix` narrows it to one guide — every agent
+   * phase is `"<slug>: <kind>"`, so a run record covers its own guide rather
+   * than the whole invocation when several guides were drafted together.
+   */
+  function usage(phasePrefix?: string): UsageReport {
+    const entries = [...ledger.values()].filter(
+      (e) => !phasePrefix || e.phase === phasePrefix || e.phase.startsWith(phasePrefix + ':')
+    )
+    const total = zeroTotals()
+    const byPhase: Record<string, UsageTotals> = {}
+    for (const entry of entries) {
+      addInto(total, entry)
+      addInto((byPhase[entry.phase] ??= zeroTotals()), entry)
+    }
+    return {
+      reported: true,
+      total: rounded(total),
+      by_phase: Object.fromEntries(
+        Object.entries(byPhase).map(([phase, t]) => [phase, rounded(t)])
+      ),
+      by_agent: entries.map((entry) => ({ ...entry, ...rounded(entry) })),
+    }
+  }
+
   /** One pi turn. `sessionPath` is shared across turns to keep the conversation. */
   async function turn(
     prompt: string,
@@ -214,14 +312,17 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
     // In `turn` rather than `agent` so the remediation turn carries it too.
     const run = await runPi({ args, prompt: prompt + PATH_CONTRACT, env, cwd: cfg.repoRoot })
     const outcome = classifyPiRun(run)
+    const events = parsePiStream(run.stdout)
+    chargeUsage(opts.label, opts.phase, outcome.ok ? outcome.usage : totalUsage(events))
 
     if (!outcome.ok) {
       log(`[${opts.label}] pi run failed (${outcome.kind}): ${outcome.message}`)
       return null
     }
-    const tools = formatToolCalls(toolCallCounts(parsePiStream(run.stdout)))
+    const tools = formatToolCalls(toolCallCounts(events))
     log(
-      `[${opts.label}] cost $${outcome.costUsd.toFixed(4)} tools: ${tools || '(none)'}`
+      `[${opts.label}] cost $${outcome.costUsd.toFixed(4)} ` +
+        `tokens ${outcome.usage.totalTokens} tools: ${tools || '(none)'}`
     )
 
     const strayWrites = writesOutsideAllowed(
@@ -322,7 +423,7 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
     return piModelSlug(cfg.model)
   }
 
-  return { log, agent, pipeline, modelId }
+  return { log, agent, pipeline, modelId, usage }
 }
 
 function defaultPorcelain(repoRoot: string): string {
