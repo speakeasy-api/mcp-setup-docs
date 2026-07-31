@@ -1,8 +1,8 @@
 /**
  * Agent runtime backed by a direct `spawn` of the `pi` CLI over OpenRouter.
  *
- * Exposes the same surface as `runtime.ts` — `{ log, agent, parallel, pipeline,
- * modelId }` — so `workflow.ts` is untouched. Three things make this more than
+ * Exposes the same surface as `runtime.ts` — `{ log, agent, pipeline, modelId }`
+ * — so `workflow.ts` is untouched. Three things make this more than
  * a spawn wrapper:
  *
  *  - **Session continuity.** Remediation sends one follow-up that must land in
@@ -75,7 +75,7 @@ export type RunPi = (input: {
  * tighten research, it disables it.
  */
 export function toolsForPhase(phase: string): string[] {
-  const kind = phase.includes(':') ? phase.split(':').pop()!.trim() : phase.trim()
+  const kind = phase.split(':').pop()!.trim()
   if (kind === 'review' || kind === 'research-judge') {
     return ['read', 'grep', 'find', 'ls']
   }
@@ -311,10 +311,6 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
     }
   }
 
-  async function parallel<T>(thunks: Array<() => Promise<T>>): Promise<T[]> {
-    return Promise.all(thunks.map((fn) => fn()))
-  }
-
   async function pipeline<T, R>(items: T[], fn: (item: T) => Promise<R>): Promise<R[]> {
     // Serialized: every guide shares one .git index, and concurrent agents make
     // the tripwire's `git status` read another guide's writes as a breach.
@@ -327,7 +323,7 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
     return piModelSlug(cfg.model)
   }
 
-  return { log, agent, parallel, pipeline, modelId }
+  return { log, agent, pipeline, modelId }
 }
 
 function defaultPorcelain(repoRoot: string): string {

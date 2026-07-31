@@ -53,8 +53,7 @@ import {
 } from './prompts.ts'
 
 // The hashed prompts live in prompts.ts so a test can render one; see the
-// header there. Re-exported because cli.ts has always imported it from here.
-export type { GuideInput }
+// header there.
 
 export type GuideAddServerHints = {
   tenanted: boolean
@@ -368,7 +367,7 @@ export async function runWorkflow(
   const MAX_ROUNDS = input.maxRounds || 3
   const FORCE = input.force === true
   const PAUSE_ON_SCOPE = input.pauseOnScope === true
-  const { log, agent, parallel, pipeline, modelId } = rt
+  const { log, agent, pipeline, modelId } = rt
   const P = createPrompts({
     repoRoot: ROOT,
     timestamp: NOW,
@@ -799,8 +798,8 @@ export async function runWorkflow(
   ): Promise<{ blockers: Finding[]; nits: Finding[]; skippedDims: string[] }> {
     const dir = guideDir(g.slug)
 
-    const results = await parallel(
-      DIMENSIONS.map((dim) => async () => {
+    const results = await Promise.all(
+      DIMENSIONS.map(async (dim) => {
         const stepId = ('review.' + dim.role) as StepId
         if (lockOpts.allowSkip) {
           const inputs = buildReviewInputs({

@@ -4,7 +4,8 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createPiRuntime } from './runtime-pi.ts'
 import { allowedPrefixesFor } from './pi-guard.ts'
-import { runWorkflow, type GuideInput } from './workflow.ts'
+import { runWorkflow } from './workflow.ts'
+import { type GuideInput } from './prompts.ts'
 import { PATHS, abs, guideDir } from './paths.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -16,7 +17,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
  */
 function resolvePiBin(): string {
   const pinned = join(__dirname, '..', 'node_modules', '.bin', 'pi')
-  return existsSync(pinned) ? pinned : 'pi'
+  return pinned
 }
 
 function usage(): never {

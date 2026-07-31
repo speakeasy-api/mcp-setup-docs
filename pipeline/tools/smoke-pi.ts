@@ -6,7 +6,8 @@ import { z } from 'zod'
 import { createPiRuntime } from '../src/runtime-pi.ts'
 import { withSchemaHint } from '../src/schema-hint.ts'
 
-const REPO = '/home/walker/github.com/speakeasy-api/mcp-setup-docs/.claude/worktrees/sandcastle-factory'
+// Defaults to the cwd, so run this from the repo root (or pass the root as argv[2]).
+const REPO = process.argv[2] ?? process.cwd()
 const PI = REPO + '/pipeline/node_modules/.bin/pi'
 
 const Report = withSchemaHint(
