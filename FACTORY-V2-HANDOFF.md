@@ -150,10 +150,11 @@ locators with 22 bash calls in 200s — near 1:1, consistent with genuinely
 re-fetching each, and the independently verified facts point the same way. It is
 *probably* honest but **not proven**; see the session-deletion gap below.
 
-## Corrections to `FACTORY-V2.md` — it is wrong in four places
+## Corrections to `FACTORY-V2.md` — it is wrong in five places
 
-Trust this file over the design doc where they disagree. All four were found by
-live probing; the evidence is in `factory-v2-evidence/probe-pi-session.md`.
+Trust this file over the design doc where they disagree. The first four were
+found by live probing; the evidence is in
+`factory-v2-evidence/probe-pi-session.md`.
 
 **1. `--no-session` cannot be used.** The design mandates it. It is mutually
 exclusive with remediation: with `--no-session`, turn 2 starts a fresh
@@ -193,6 +194,15 @@ a setup-heavy guide:
 | researchLines | 131..307 | 259..307 |
 | anchors | 1..7 | 5..7 |
 | setupSteps | 0..73 | 48..73 |
+
+**5. Stage 5 does not need a doctrine rewrite.** §8 says to "rewrite
+`doctrine/pipeline-lock.md:93-102` in the same commit" as the lock-scheme change,
+and §9 repeats it. Not so: that section already requires exactly the exclusions
+the new scheme makes, and it already says "the contract only requires a stable
+byte sequence; hashing the template source in the workflow is an implementation
+detail." The instruction was written for Stage 7's prompt-file design, where
+`prompt_args` would have needed a schema field. `9787bb7` landed with `doctrine/`
+untouched, as I8 requires. **Do not open `doctrine/` for this.**
 
 ## Hard constraints
 
@@ -260,7 +270,7 @@ also means CI needs no new global-install step.
 - **`--effort` is ignored on the pi path.** pi encodes it as a `:<thinking>`
   suffix on the model pattern; I did not guess at the values. The CLI still
   prints `effort=high`, which is now misleading on `--runtime pi`.
-- **`workflow.ts:545` still hardcodes `runtime: 'cursor-sdk'`** in the lock.
+- **`workflow.ts:514` still hardcodes `runtime: 'cursor-sdk'`** in the lock.
   `cli.ts`'s run record was fixed; the lock's was not, because it sits outside
   the seam. Not read by any skip predicate, so it is cosmetic.
 - **`modelId()` returns the full slug** (`openrouter/openai/gpt-5.6-sol`) on the
@@ -310,7 +320,7 @@ list:
 | `pipeline/src/cli.ts` | `250` (key selection), `45`, `55` (usage text) |
 | `pipeline/package.json` | `17` + lockfile |
 | `.github/workflows/guide-draft.yml` | `88`, `119` — **`:88` currently broken** |
-| `FACTORY.md` | `18`, `106` |
+| `FACTORY.md` | `18`, `106`; `3` also says "Same Cursor SDK pipeline" |
 | `README.md` | `30` |
 | `mise.toml` | `23` (comment; `18` also says "via the Cursor SDK") |
 | `pipeline/src/pi-guard.ts` | `26` — in `DENIED_ENV`; drop with the rest |
@@ -372,12 +382,12 @@ Three decisions worth not re-deriving:
 
 One thing to know when reading it: `cmd-distill.ts` **does not branch on
 `resolve-issue`'s exit code** — it branches on `resolved.status` in the output
-file (`:69`, `:81`) and uses the code only inside a failure message (`:63`). So
+file (`:72`, `:84`) and uses the code only inside a failure message (`:66`). So
 the exit-table change above alters which message reaches the issue, not control
 flow. `resolve-issue.ts` also gained an `isCliEntry()` guard so the test file can
 import `distill` without the CLI running and calling `process.exit`; the house
 idiom would be a `-cli.ts` split, which needs `package.json` and
-`cmd-distill.ts:57` to move with it.
+`cmd-distill.ts:59` to move with it.
 
 `fec5184` swapped `cmd-distill.ts`'s pre-flight gate to `OPENROUTER_API_KEY` and
 made it trim first, matching `resolve-issue.ts:363`. Without the trim a
