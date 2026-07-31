@@ -113,6 +113,12 @@ documentation:
   assets:
     - path: assets/shot.png
       content_hash: ""
+credential_setup:
+  options:
+    - id: oauth-app
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
 remotes:
   - id: hosted
     url: https://mcp.example.com/demo
@@ -130,6 +136,42 @@ remotes:
 	png := []byte{0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a}
 	if err := os.WriteFile(filepath.Join(assetsDir, "shot.png"), png, 0o644); err != nil {
 		t.Fatal(err)
+	}
+
+	// A guide whose ONLY reason to need setup is a tenanted remote: the
+	// option is public and asks nothing of the reader upstream. No real
+	// guide has this shape, so without this fixture nothing would notice
+	// the tenanted term being dropped from SetupRequired.
+	tenantDir := filepath.Join(root, "guides", "tenant")
+	if err := os.MkdirAll(tenantDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	tenantMeta := `schema_version: 1
+slug: tenant
+title: Tenant
+summary: A guide whose only setup burden is a tenanted URL.
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+credential_setup:
+  options:
+    - id: public
+      kind: open
+      upstream_setup: none
+remotes:
+  - id: hosted
+    url: https://mcp.example.com/tenant
+    transport: streamable-http
+    tenanted: true
+`
+	for name, body := range map[string]string{
+		"meta.yaml":    tenantMeta,
+		"external.md":  "# external\n",
+		"speakeasy.md": "# speakeasy\n",
+	} {
+		if err := os.WriteFile(filepath.Join(tenantDir, name), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	stale := filepath.Join(moduleRoot, "generated", "guides", "zz-stale")
@@ -171,9 +213,65 @@ remotes:
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"Summary:", "SpeakeasyAddServer:", "https://mcp.example.com/demo", "com.example/demo"} {
+	for _, want := range []string{
+		"Summary:", "SpeakeasyAddServer:", "https://mcp.example.com/demo", "com.example/demo",
+		"SetupRequired:      true,",
+		`{ID: "oauth-app", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},`,
+	} {
 		if !strings.Contains(string(idx), want) {
 			t.Errorf("index_gen.go missing %q", want)
 		}
+	}
+
+	_, afterTenant, _ := strings.Cut(string(idx), `"tenant": {`)
+	tenantEntry, _, _ := strings.Cut(afterTenant, "\n\t},")
+	if !strings.Contains(tenantEntry, "SetupRequired:      true,") {
+		t.Errorf("tenanted remote must force SetupRequired=true, got:\n%s", tenantEntry)
+	}
+	// Guards the fixture itself: if its option ever needs setup, the
+	// assertion above would pass for the wrong reason.
+	if !strings.Contains(tenantEntry, `UpstreamSetup: "none", SpeakeasySetup: "none"`) {
+		t.Errorf("tenant fixture no longer isolates the tenanted term:\n%s", tenantEntry)
+	}
+}
+
+func TestDeriveSpeakeasySetup(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		opt  credentialOptionMeta
+		want string
+	}{
+		{"open", credentialOptionMeta{ID: "public", Kind: "open"}, "none"},
+		{"api key", credentialOptionMeta{ID: "token", Kind: "api_key"}, "headers"},
+		{"oauth dcr", credentialOptionMeta{ID: "o", Kind: "oauth", ClientRegistration: "dynamic"}, "dcr"},
+		{"oauth manual", credentialOptionMeta{ID: "o", Kind: "oauth", ClientRegistration: "manual"}, "manual-oauth"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := deriveSpeakeasySetup("demo", tc.opt)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got != tc.want {
+				t.Errorf("got %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestDeriveSpeakeasySetupRejectsGaps(t *testing.T) {
+	// Both cases are unreachable through schema validation; the generator
+	// must still refuse rather than invent a value.
+	for _, tc := range []struct {
+		name string
+		opt  credentialOptionMeta
+	}{
+		{"oauth without client_registration", credentialOptionMeta{ID: "o", Kind: "oauth"}},
+		{"unknown kind", credentialOptionMeta{ID: "o", Kind: "mtls"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if _, err := deriveSpeakeasySetup("demo", tc.opt); err == nil {
+				t.Fatal("expected an error, got nil")
+			}
+		})
 	}
 }

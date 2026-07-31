@@ -55,9 +55,36 @@
     },
     "authentication_option": {
       "additionalProperties": false,
-      "description": "One supported credential-acquisition and credential-presentation path.",
+      "allOf": [
+        {
+          "else": {
+            "not": {
+              "required": [
+                "client_registration"
+              ]
+            }
+          },
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "oauth"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "client_registration"
+            ]
+          }
+        }
+      ],
+      "description": "One supported credential-acquisition and credential-presentation path. Consumers derive the Speakeasy-side setup shape from kind + client_registration: open -> none; oauth + dynamic -> dcr; oauth + manual -> manual-oauth; api_key -> headers. That mapping is total (client_registration is required for oauth and forbidden otherwise) and must not be recorded separately.",
       "properties": {
         "client_registration": {
+          "description": "How the OAuth client is registered. Required when kind is oauth; forbidden otherwise.",
           "enum": [
             "dynamic",
             "manual"
@@ -81,11 +108,19 @@
             "oauth",
             "open"
           ]
+        },
+        "upstream_setup": {
+          "description": "Whether the reader must do anything at the provider to use this Authentication Option. none only when the reader opens nothing at the provider: no console, no documentation lookup, no hostname check. provider-steps otherwise, including steps that configure nothing (finding a region URL, an instance hostname, a project ID). When in doubt choose provider-steps: a wrongly hidden guide strands the reader, while a wrongly shown one is only noise. Account, plan, role, and credit prerequisites are standing rather than steps and belong in credential_setup.requirements, not here.",
+          "enum": [
+            "none",
+            "provider-steps"
+          ]
         }
       },
       "required": [
         "id",
-        "kind"
+        "kind",
+        "upstream_setup"
       ],
       "type": "object"
     },
@@ -296,7 +331,7 @@
       "type": "object"
     }
   },
-  "description": "One authored Guide (meta.yaml), schema_version 1.",
+  "description": "One authored Guide (meta.yaml), schema_version 1. Consumers deciding whether to show a guide at all derive setup_required = any option's upstream_setup is not none, OR any option's derived Speakeasy setup is not none, OR any remote is tenanted. False means the reader has nothing to do beyond adding the server and the guide can be hidden. The tenanted term is load-bearing: a tenanted remote always means the reader must be told how to find their own URL. Resolve ambiguity toward true.",
   "properties": {
     "aliases": {
       "items": {

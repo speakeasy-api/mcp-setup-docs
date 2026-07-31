@@ -43,6 +43,60 @@ Known divergence, deliberate: the illustrative lock at `:203` is labelled
 did use it. The sample follows current doctrine, not that file, until box
 next runs.
 
+## 2026-07-30 — first-class "no setup required" fact for consumers
+
+Files: `schema/guide.v1.schema.json`, `guides/*/meta.yaml` (all 18),
+`go/internal/gen/{main,index,main_test}.go`, `go/guides.go`,
+`go/guides_test.go`, `go/index_gen.go`, `go/generated/**`,
+`doctrine/roles/technical-research.md`.
+
+Downstream consumers need to decide whether to show a guide at all: a
+guide that asks nothing of the reader beyond adding the server should be
+hidden. Nothing in `meta.yaml` recorded that. `kind: open` covered the
+fully public case (x-docs) and `client_registration: dynamic` the full-DCR
+case (zapier), but neither said whether the *reader* had work to do, and
+no field distinguished "no console work" from "no guide needed."
+
+- **One new recorded field.** `credential_setup.options[].upstream_setup`
+  (`none` | `provider-steps`), required on every option. Records reader
+  **action** at the provider, including lookups that configure nothing.
+  Standing — accounts, plans, roles, credits — stays in
+  `credential_setup.requirements`, where it already lived.
+- **Two derived facts, computed at generation, never hand-recorded.**
+  Per option, `SpeakeasySetup` from `kind` + `client_registration`
+  (`open`→none, `oauth`+`dynamic`→dcr, `oauth`+`manual`→manual-oauth,
+  `api_key`→headers). Per guide, `SetupRequired` = any option needing
+  upstream or Speakeasy setup, OR any remote `tenanted`. The tenanted term
+  is load-bearing: a tenanted remote means the reader must be told how to
+  find their own URL even when no credential work remains.
+- **Schema hardening so the derivation is total.** `kind: oauth` now
+  requires `client_registration`; `open` and `api_key` forbid it. All 18
+  guides already conformed — no backfill beyond `upstream_setup`.
+- **Researcher guidance** (`technical-research.md`, `meta.yaml
+  essentials`): the none/provider-steps test, lookups count, standing is
+  not a step, when in doubt choose `provider-steps`, and raise an open
+  question rather than filing DCR-with-a-pasted-issuer as ordinary DCR.
+
+Result: `SetupRequired` is false for **x-docs** alone. Zapier stays true
+on its twelve-step DCR attach flow despite needing nothing upstream.
+
+Deferred deliberately: `client_registration: dynamic-issuer` (no guide
+instantiates it; adding an enum value with no exemplar invites
+miscategorization), and a `glossary.md` vocabulary entry (the glossary
+sits in the research, draft, and review reading lists, so it is batched
+with a future doctrine change).
+
+Invariants: I1–I7 unchanged. I8 — this entry; direct human edit
+(design settled with Walker in a grilling session, 2026-07-30). Known
+cost: the `technical-research.md` edit changes every guide's research
+`input_digest`, so research re-runs once per guide on next pipeline
+touch; draft/review skips survive the existing auto-rebaseline
+(`pipeline/src/workflow.ts` research-unchanged branch).
+
+Evidence: operator direction (Walker, 2026-07-30) — consumers must be
+able to hide guides that require no real setup; x-docs and zapier
+examined as the two candidate exemplars.
+
 ## 2026-07-29 — dossier-backed render fixes are not chrome Decisions
 
 Files: `pipeline/src/{findings,workflow}.ts`,

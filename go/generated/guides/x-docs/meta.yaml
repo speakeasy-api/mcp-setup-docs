@@ -10,6 +10,7 @@ credential_setup:
   options:
     - id: public
       kind: open
+      upstream_setup: none
 documentation:
   external: external.md
   speakeasy: speakeasy.md

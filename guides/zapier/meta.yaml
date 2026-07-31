@@ -11,6 +11,7 @@ credential_setup:
     - id: oauth-dcr
       kind: oauth
       client_registration: dynamic
+      upstream_setup: none
   requirements:
     - id: zapier-account
       description: Zapier account in an account or workspace where Zapier MCP is enabled
