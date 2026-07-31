@@ -3,10 +3,22 @@ import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRuntime } from './runtime.ts'
+import { createPiRuntime } from './runtime-pi.ts'
+import { allowedPrefixesFor } from './pi-guard.ts'
 import { runWorkflow, type GuideInput } from './workflow.ts'
 import { PATHS, abs, guideDir } from './paths.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+/**
+ * Prefer the version pinned in this package over whatever `pi` a machine
+ * happens to have on PATH — the two published scopes can coexist there, and
+ * their stream formats differ.
+ */
+function resolvePiBin(): string {
+  const pinned = join(__dirname, '..', 'node_modules', '.bin', 'pi')
+  return existsSync(pinned) ? pinned : 'pi'
+}
 
 function usage(): never {
   console.error(`Usage:
@@ -28,6 +40,10 @@ Options:
   --light-effort <level>
                      Reasoning effort for light slots (default: none /
                      omit param — Composer has no effort knob)
+  --runtime <name>   Agent runtime: cursor (default) or pi. The pi runtime
+                     spawns the pinned pi CLI against OpenRouter and needs
+                     OPENROUTER_API_KEY instead of CURSOR_API_KEY; --model
+                     then takes an OpenRouter slug (e.g. openai/gpt-5.6-sol).
 
 Exit codes:
   0  all guides converged
@@ -36,7 +52,9 @@ Exit codes:
   3  awaiting_scope (--pause-on-scope; research written, no draft)
 
 Env:
-  CURSOR_API_KEY     Required (user or team service-account key)
+  CURSOR_API_KEY     Required for --runtime cursor
+  OPENROUTER_API_KEY Required for --runtime pi
+  DRAFT_RUNTIME      Fallback for --runtime (set to "pi" to opt in)
   CURSOR_MODEL       Fallback for --model
   CURSOR_MODEL_LIGHT Fallback for --light-model
   CURSOR_EFFORT      Fallback for --effort
@@ -75,6 +93,9 @@ function parseArgs(argv: string[]) {
   let lightModel = process.env.CURSOR_MODEL_LIGHT || 'composer-2.5'
   let effort = process.env.CURSOR_EFFORT || 'high'
   let lightEffort = process.env.CURSOR_EFFORT_LIGHT || ''
+  // Strangler seam: `cursor` stays the default until the pi path is validated.
+  let runtime: 'cursor' | 'pi' =
+    process.env.DRAFT_RUNTIME === 'pi' ? 'pi' : 'cursor'
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!
@@ -124,6 +145,15 @@ function parseArgs(argv: string[]) {
       lightEffort = argv[++i] || usage()
       continue
     }
+    if (a === '--runtime') {
+      const value = argv[++i] || usage()
+      if (value !== 'cursor' && value !== 'pi') {
+        console.error(`Unknown runtime "${value}". Expected: cursor, pi`)
+        usage()
+      }
+      runtime = value
+      continue
+    }
     if (a.startsWith('-')) {
       console.error('Unknown flag: ' + a)
       usage()
@@ -145,6 +175,7 @@ function parseArgs(argv: string[]) {
     lightModel,
     effort,
     lightEffort,
+    runtime,
   }
 }
 
@@ -193,7 +224,8 @@ function writeRunRecord(
   finishedAt: string,
   provider: string,
   persona: string,
-  result: Record<string, unknown>
+  result: Record<string, unknown>,
+  runtime: string
 ) {
   const slug = String(result.slug)
   const dir = abs(root, PATHS.retroRunsDir)
@@ -206,7 +238,7 @@ function writeRunRecord(
     timestamp: startedAt,
     started_at: startedAt,
     finished_at: finishedAt,
-    runtime: 'cursor-sdk',
+    runtime,
     ...result,
   }
   writeFileSync(path, JSON.stringify(body, null, 2) + '\n')
@@ -215,9 +247,10 @@ function writeRunRecord(
 
 async function main() {
   const args = parseArgs(process.argv.slice(2))
-  const apiKey = process.env.CURSOR_API_KEY?.trim()
+  const keyName = args.runtime === 'pi' ? 'OPENROUTER_API_KEY' : 'CURSOR_API_KEY'
+  const apiKey = process.env[keyName]?.trim()
   if (!apiKey) {
-    console.error('CURSOR_API_KEY is required')
+    console.error(`${keyName} is required for --runtime ${args.runtime}`)
     process.exit(1)
   }
 
@@ -259,15 +292,26 @@ async function main() {
       ? { params: [{ id: 'effort', value: args.lightEffort }] }
       : {}),
   }
-  const rt = createRuntime({
-    apiKey,
-    repoRoot,
-    defaultModel,
-    lightModel,
-  })
+  const rt =
+    args.runtime === 'pi'
+      ? createPiRuntime({
+          apiKey,
+          repoRoot,
+          model: args.model,
+          piBin: resolvePiBin(),
+          // Every guide in this invocation, so the tripwire does not flag a
+          // sibling guide's legitimate output as a breach.
+          allowedPrefixes: guides.flatMap((g) => allowedPrefixesFor(g.slug)),
+        })
+      : createRuntime({
+          apiKey,
+          repoRoot,
+          defaultModel,
+          lightModel,
+        })
 
   console.error(
-    `draft-guide (cursor-sdk): persona=${args.persona} guides=${guides
+    `draft-guide (${args.runtime}): persona=${args.persona} guides=${guides
       .map((g) => g.slug)
       .join(',')} model=${args.model} effort=${args.effort || '(default)'} light=${args.lightModel}`
   )
@@ -291,7 +335,8 @@ async function main() {
       finishedAt,
       g?.provider || result.slug,
       out.persona,
-      result as unknown as Record<string, unknown>
+      result as unknown as Record<string, unknown>,
+      args.runtime === 'pi' ? 'pi' : 'cursor-sdk'
     )
     console.error(`run record: ${path}`)
     console.log(JSON.stringify(result, null, 2))

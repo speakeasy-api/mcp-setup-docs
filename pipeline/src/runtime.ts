@@ -1,8 +1,11 @@
 import { Agent, CursorAgentError, type ModelSelection } from '@cursor/sdk'
-import { type ZodType, type z } from 'zod'
+import { type z } from 'zod'
 import { extractJson } from './json.ts'
+import { type AnyZod, schemaInstruction, withSchemaHint } from './schema-hint.ts'
 
-type AnyZod = ZodType<unknown, z.ZodTypeDef, unknown>
+// Re-exported so `workflow.ts` keeps importing it from here while both runtimes
+// share one hint map.
+export { withSchemaHint }
 
 export type AgentOptions<S extends AnyZod> = {
   label: string
@@ -42,30 +45,6 @@ function resolveModel(cfg: RuntimeConfig, model?: string): ModelSelection {
 function modelLabel(selection: ModelSelection): string {
   const effort = selection.params?.find((p) => p.id === 'effort')?.value
   return effort ? `${selection.id} (effort=${effort})` : selection.id
-}
-
-const SCHEMA_HINTS = new WeakMap<AnyZod, string>()
-
-/** Attach a JSON Schema (or example) shown to the model for structured reports. */
-export function withSchemaHint<T extends AnyZod>(schema: T, hint: unknown): T {
-  SCHEMA_HINTS.set(schema, JSON.stringify(hint, null, 2))
-  return schema
-}
-
-function schemaInstruction(schema: AnyZod): string {
-  const hint =
-    SCHEMA_HINTS.get(schema) ||
-    '(see phase prompt for required keys; return a flat JSON object)'
-  return [
-    '',
-    '---',
-    'STRUCTURED REPORT (required):',
-    'When your file work is done, end your final message with ONLY a single JSON',
-    'object matching this schema. No markdown fences, no commentary before or',
-    'after the JSON. The orchestrator parses your final message as JSON.',
-    '',
-    hint,
-  ].join('\n')
 }
 
 export function createRuntime(cfg: RuntimeConfig) {
