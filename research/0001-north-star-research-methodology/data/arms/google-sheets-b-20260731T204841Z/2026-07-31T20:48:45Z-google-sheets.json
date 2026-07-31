@@ -1,0 +1,292 @@
+{
+  "slug": "google-sheets",
+  "provider": "google-sheets",
+  "persona": "it-admin",
+  "timestamp": "2026-07-31T20:48:45Z",
+  "started_at": "2026-07-31T20:48:45Z",
+  "finished_at": "2026-07-31T20:58:08Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "permit-workspace-app — after “Configure new app”",
+      "problem": "The Workspace app-access sequence jumps directly from selecting “Configure new app” to entering the Client ID without naming the intervening app-type control, so a cold reader may have to guess which option to choose.",
+      "suggestion": "Research and record the exact app-type option for configuring an OAuth client, then add that selection before the Client ID search in research.md and external.md.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Google's purpose-built setup page requires drive.file, while live protected-resource metadata advertises the broader drive scope and omits drive.file. Public documentation does not explain this discovery mismatch; the documented four-scope manual override is used.",
+    "The Sheets MCP page does not say whether every already-admitted Developer Preview project automatically receives Sheets MCP access or whether Google must separately enable this feature after project registration. API enablement in a registered project is the documented path."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Server facts and Speakeasy setup — “both catalog queries were absent”",
+          "problem": "The Research Dossier records the catalog queries as absent even though the operator notes specify a forced Custom remote override because catalog mapping is unreliable or unsuitable.",
+          "suggestion": "Replace the catalog-absence claims with the supplied override rationale, retain `speakeasy_add_server: custom-remote`, and continue rendering only the Custom remote path.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — after “Further-reading URL”",
+          "problem": "The transcluded Speakeasy skeleton omits the canonical closing-pointer sentence required by `doctrine/speakeasy-setup.md`.",
+          "suggestion": "Add the canonical closing pointer to the Dossier using Google as the provider and the recorded Sheets MCP documentation URL.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "Final line — “For provider details, see Set up the Sheets MCP server.”",
+          "problem": "The final line replaces the canonical setup-only closing pointer with wording not rendered from the Research Dossier or current Speakeasy skeleton.",
+          "suggestion": "Replace it with: “This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see Google's MCP documentation at https://developers.google.com/workspace/sheets/api/guides/configure-mcp-server.”",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "enroll-developer-preview — “Google Cloud Project number”",
+          "problem": "The reader is required to enter the project’s numeric project number but is never told where to find or copy it.",
+          "suggestion": "Research and record the exact Google Cloud console path and field label for the project number, then add those retrieval steps before the enrollment form asks for it.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "enroll-developer-preview and connect-speakeasy-credentials — “admitted to Developer Preview”",
+          "problem": "The guide enrolls one Workspace account but later requires the connecting account to be admitted without explaining whether every connecting user needs separate acceptance.",
+          "suggestion": "Confirm whether Developer Preview admission is per connecting account and, if it is, instruct the reader to repeat the documented enrollment process for every account that will authorize a connection.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Updated research.md to replace catalog-absence claims with the operator-supplied Custom remote override rationale while retaining speakeasy_add_server: custom-remote; added the canonical setup-only closing pointer; documented the Google Cloud console path Navigation menu > Cloud overview > Dashboard > Project info and Project number field with official provenance; clarified that Developer Preview enrollment applies to the single submitted account and must be repeated for every connecting account. Updated meta.yaml with the project-identification provenance and per-account preview requirement. Updated external.md with project-number retrieval steps, per-account enrollment instructions, and the clarified prerequisite. Updated speakeasy.md with the exact canonical closing pointer. Existing anchors, titles, ordering, and the Custom remote-only path were preserved.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — “Connect your credentials”",
+          "problem": "The transcluded Manual OAuth skeleton omits the canonical fact that the Attach Remote Identity Provider sheet shows the Redirect URI with a copy button.",
+          "suggestion": "Restore the canonical Redirect URI sentence from doctrine/speakeasy-setup.md while retaining the direct-paste and later-confirmation flow.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "permit-workspace-app — “choose Trusted or Specific Google data”",
+          "problem": "The conditional Workspace-policy flow allows the reader to choose Specific Google data but does not document the subsequent controls for selecting the Google services or data the app may access.",
+          "suggestion": "Research and record the exact continuation after Specific Google data, then render the required service/data selections before Continue; alternatively, instruct the reader to choose Trusted when organizational policy permits and omit the incomplete Specific Google data branch.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Speakeasy setup: restored the canonical fact in research.md and speakeasy.md that the Attach Remote Identity Provider sheet shows Redirect URI with a copy button, while retaining direct template-key registration and later confirmation. Workspace policy: removed the incomplete Specific Google data branch from the walkthrough; research.md and external.md now instruct the security owner to choose Trusted when organizational policy permits before continuing.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "permit-workspace-app — after “Configure new app”",
+          "problem": "The Workspace app-access sequence jumps directly from selecting “Configure new app” to entering the Client ID without naming the intervening app-type control, so a cold reader may have to guess which option to choose.",
+          "suggestion": "Research and record the exact app-type option for configuring an OAuth client, then add that selection before the Client ID search in research.md and external.md.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:a0b636960a116e3a0d6732b158869cfcc3ba900dcc452413867104452101f398",
+  "setup_churn": {
+    "external_md_lines": 147,
+    "speakeasy_md_lines": 28
+  },
+  "usage": {
+    "reported": true,
+    "total": {
+      "costUsd": 3.672736,
+      "inputTokens": 300,
+      "outputTokens": 34734,
+      "cacheReadTokens": 2015794,
+      "cacheWriteTokens": 259411,
+      "totalTokens": 2310239
+    },
+    "by_phase": {
+      "google-sheets: research": {
+        "costUsd": 1.430395,
+        "inputTokens": 93,
+        "outputTokens": 11555,
+        "cacheReadTokens": 1337034,
+        "cacheWriteTokens": 66362,
+        "totalTokens": 1415044
+      },
+      "google-sheets: draft": {
+        "costUsd": 0.250346,
+        "inputTokens": 24,
+        "outputTokens": 3373,
+        "cacheReadTokens": 69534,
+        "cacheWriteTokens": 18283,
+        "totalTokens": 91214
+      },
+      "google-sheets: review": {
+        "costUsd": 1.400939,
+        "inputTokens": 117,
+        "outputTokens": 14525,
+        "cacheReadTokens": 290670,
+        "cacheWriteTokens": 131083,
+        "totalTokens": 436395
+      },
+      "google-sheets: revise": {
+        "costUsd": 0.591057,
+        "inputTokens": 66,
+        "outputTokens": 5281,
+        "cacheReadTokens": 318556,
+        "cacheWriteTokens": 43683,
+        "totalTokens": 367586
+      }
+    },
+    "by_agent": [
+      {
+        "costUsd": 1.430395,
+        "inputTokens": 93,
+        "outputTokens": 11555,
+        "cacheReadTokens": 1337034,
+        "cacheWriteTokens": 66362,
+        "totalTokens": 1415044,
+        "label": "google-sheets research",
+        "phase": "google-sheets: research",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.250346,
+        "inputTokens": 24,
+        "outputTokens": 3373,
+        "cacheReadTokens": 69534,
+        "cacheWriteTokens": 18283,
+        "totalTokens": 91214,
+        "label": "google-sheets draft",
+        "phase": "google-sheets: draft",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.236119,
+        "inputTokens": 18,
+        "outputTokens": 2625,
+        "cacheReadTokens": 41633,
+        "cacheWriteTokens": 21834,
+        "totalTokens": 66110,
+        "label": "google-sheets review:fidelity r1",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.261747,
+        "inputTokens": 24,
+        "outputTokens": 2638,
+        "cacheReadTokens": 53711,
+        "cacheWriteTokens": 24901,
+        "totalTokens": 81274,
+        "label": "google-sheets review:achievability r1",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.348702,
+        "inputTokens": 36,
+        "outputTokens": 3757,
+        "cacheReadTokens": 187311,
+        "cacheWriteTokens": 22745,
+        "totalTokens": 213849,
+        "label": "google-sheets revise r1",
+        "phase": "google-sheets: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.249004,
+        "inputTokens": 18,
+        "outputTokens": 2757,
+        "cacheReadTokens": 45257,
+        "cacheWriteTokens": 22972,
+        "totalTokens": 71004,
+        "label": "google-sheets review:fidelity r2",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.247931,
+        "inputTokens": 24,
+        "outputTokens": 2624,
+        "cacheReadTokens": 63245,
+        "cacheWriteTokens": 21995,
+        "totalTokens": 87888,
+        "label": "google-sheets review:achievability r2",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.242355,
+        "inputTokens": 30,
+        "outputTokens": 1524,
+        "cacheReadTokens": 131245,
+        "cacheWriteTokens": 20938,
+        "totalTokens": 153737,
+        "label": "google-sheets revise r2",
+        "phase": "google-sheets: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.186618,
+        "inputTokens": 21,
+        "outputTokens": 1923,
+        "cacheReadTokens": 47734,
+        "cacheWriteTokens": 16793,
+        "totalTokens": 66471,
+        "label": "google-sheets review:achievability r3",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.21952,
+        "inputTokens": 12,
+        "outputTokens": 1958,
+        "cacheReadTokens": 39090,
+        "cacheWriteTokens": 22588,
+        "totalTokens": 63648,
+        "label": "google-sheets review:fidelity r3",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: google-sheets
+title: Google Sheets
+summary: Connect the Google Sheets remote MCP server with a Developer Preview-enabled Google Cloud project and OAuth credentials.
+credential_setup:
+  requirements:
+    - id: developer-preview-access
+      description: Membership in the Google Workspace Developer Preview Program with the selected Google Cloud project registered for the preview.
+    - id: google-cloud-project-access
+      description: Access to manage APIs and Google Auth Platform configuration in the registered Google Cloud project.
+  options:
+    - id: oauth-client
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#create-oauth-client
+        - id: client-secret
+          label: Client Secret
+          setup:
+            - external.md#create-oauth-client
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: google-sheets
+    url: https://sheetsmcp.googleapis.com/mcp/v1
+    transport: streamable-http
+    authentication:
+      - oauth-client
+    provenance:
+      - source: google-developers
+        classification: official
+        locator: https://developers.google.com/workspace/sheets/api/guides/configure-mcp-server
+        observed_at: "2026-07-31T20:38:04Z"
+      - source: live-protocol-probe
+        classification: official
+        locator: https://sheetsmcp.googleapis.com/mcp/v1
+        observed_at: "2026-07-31T20:38:04Z"
+provenance:
+  - source: google-developers
+    classification: official
+    locator: https://developers.google.com/workspace/sheets/api/guides/configure-mcp-server
+    observed_at: "2026-07-31T20:38:04Z"
+  - source: google-developers
+    classification: official
+    locator: https://developers.google.com/workspace/guides/configure-mcp-servers
+    observed_at: "2026-07-31T20:38:04Z"
+  - source: google-developers
+    classification: official
+    locator: https://developers.google.com/workspace/preview
+    observed_at: "2026-07-31T20:38:04Z"
+  - source: google-developers
+    classification: official
+    locator: https://developers.google.com/workspace/guides/configure-oauth-consent
+    observed_at: "2026-07-31T20:38:04Z"
+  - source: google-cloud-docs
+    classification: official
+    locator: https://cloud.google.com/resource-manager/docs/creating-managing-projects
+    observed_at: "2026-07-31T20:38:04Z"
+  - source: google-cloud-docs
+    classification: official
+    locator: https://cloud.google.com/endpoints/docs/openapi/enable-api
+    observed_at: "2026-07-31T20:38:04Z"
+  - source: live-protocol-probe
+    classification: official
+    locator: https://sheetsmcp.googleapis.com/mcp/v1
+    observed_at: "2026-07-31T20:38:04Z"
+  - source: oauth-metadata-probe
+    classification: official
+    locator: https://sheetsmcp.googleapis.com/.well-known/oauth-protected-resource
+    observed_at: "2026-07-31T20:38:04Z"
+  - source: speakeasy-doctrine
+    classification: official
+    locator: doctrine/speakeasy-setup.md
+    observed_at: "2026-07-31T20:38:04Z"
