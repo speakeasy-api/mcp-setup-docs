@@ -343,11 +343,6 @@ export function lintSpeakeasyMarkdown(speakeasyMd: string): LintFinding[] {
   return out
 }
 
-/** @deprecated Use lintExternalMarkdown — kept name alias during transition. */
-export function lintSetupMarkdown(setupMd: string): LintFinding[] {
-  return lintExternalMarkdown(setupMd)
-}
-
 export function lintMetaYaml(
   metaRaw: string,
   schema: object

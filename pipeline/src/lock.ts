@@ -325,17 +325,6 @@ export function snapshotResearchOutputs(guideDir: string): ResearchSnapshot | nu
   return any ? snap : null
 }
 
-export function restoreResearchSnapshot(
-  guideDir: string,
-  snap: ResearchSnapshot
-): void {
-  for (const name of RESEARCH_OUTPUT_FILES) {
-    const content = snap[name]
-    if (content === undefined) continue
-    writeFileSync(join(guideDir, name), content)
-  }
-}
-
 /** Stable digests of snapshot contents (same rules as on-disk files). */
 export function snapshotStableDigests(
   snap: ResearchSnapshot
