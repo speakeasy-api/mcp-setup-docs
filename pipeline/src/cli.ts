@@ -2,7 +2,6 @@
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createRuntime } from './runtime.ts'
 import { createPiRuntime } from './runtime-pi.ts'
 import { allowedPrefixesFor } from './pi-guard.ts'
 import { runWorkflow, type GuideInput } from './workflow.ts'
@@ -34,16 +33,8 @@ Options:
   --pause-on-scope   After research, pause before draft when material open
                      questions lack Decision N replies in --notes (factory)
   --repo-root <path> Repo root (default: two levels above this package)
-  --model <id>       Default Cursor model id (default: gpt-5.6-sol)
-  --light-model <id> Model for "sonnet" slots (default: composer-2.5)
-  --effort <level>   Reasoning effort for heavy slots (default: high)
-  --light-effort <level>
-                     Reasoning effort for light slots (default: none /
-                     omit param — Composer has no effort knob)
-  --runtime <name>   Agent runtime: cursor (default) or pi. The pi runtime
-                     spawns the pinned pi CLI against OpenRouter and needs
-                     OPENROUTER_API_KEY instead of CURSOR_API_KEY; --model
-                     then takes an OpenRouter slug (e.g. openai/gpt-5.6-sol).
+  --model <id>       OpenRouter slug (provider/model) for every agent slot
+                     (default: openai/gpt-5.6-sol)
 
 Exit codes:
   0  all guides converged
@@ -52,13 +43,8 @@ Exit codes:
   3  awaiting_scope (--pause-on-scope; research written, no draft)
 
 Env:
-  CURSOR_API_KEY     Required for --runtime cursor
-  OPENROUTER_API_KEY Required for --runtime pi
-  DRAFT_RUNTIME      Fallback for --runtime (set to "pi" to opt in)
-  CURSOR_MODEL       Fallback for --model
-  CURSOR_MODEL_LIGHT Fallback for --light-model
-  CURSOR_EFFORT      Fallback for --effort
-  CURSOR_EFFORT_LIGHT Fallback for --light-effort
+  OPENROUTER_API_KEY Required
+  DRAFT_MODEL        Fallback for --model
 
 Examples:
   npm run draft-guide -- box
@@ -87,15 +73,8 @@ function parseArgs(argv: string[]) {
   let force = false
   let pauseOnScope = false
   let repoRoot: string | undefined
-  // Heavy slots (research / draft / fidelity / achievability / revision)
-  // default to GPT-5.6 Sol at high effort; light model kept for optional overrides.
-  let model = process.env.CURSOR_MODEL || 'gpt-5.6-sol'
-  let lightModel = process.env.CURSOR_MODEL_LIGHT || 'composer-2.5'
-  let effort = process.env.CURSOR_EFFORT || 'high'
-  let lightEffort = process.env.CURSOR_EFFORT_LIGHT || ''
-  // Strangler seam: `cursor` stays the default until the pi path is validated.
-  let runtime: 'cursor' | 'pi' =
-    process.env.DRAFT_RUNTIME === 'pi' ? 'pi' : 'cursor'
+  // Every slot runs the same model; `runtime-pi.ts` prepends `openrouter/`.
+  let model = process.env.DRAFT_MODEL || 'openai/gpt-5.6-sol'
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!
@@ -133,27 +112,6 @@ function parseArgs(argv: string[]) {
       model = argv[++i] || usage()
       continue
     }
-    if (a === '--light-model') {
-      lightModel = argv[++i] || usage()
-      continue
-    }
-    if (a === '--effort') {
-      effort = argv[++i] || usage()
-      continue
-    }
-    if (a === '--light-effort') {
-      lightEffort = argv[++i] || usage()
-      continue
-    }
-    if (a === '--runtime') {
-      const value = argv[++i] || usage()
-      if (value !== 'cursor' && value !== 'pi') {
-        console.error(`Unknown runtime "${value}". Expected: cursor, pi`)
-        usage()
-      }
-      runtime = value
-      continue
-    }
     if (a.startsWith('-')) {
       console.error('Unknown flag: ' + a)
       usage()
@@ -172,10 +130,6 @@ function parseArgs(argv: string[]) {
     pauseOnScope,
     repoRoot,
     model,
-    lightModel,
-    effort,
-    lightEffort,
-    runtime,
   }
 }
 
@@ -247,10 +201,9 @@ function writeRunRecord(
 
 async function main() {
   const args = parseArgs(process.argv.slice(2))
-  const keyName = args.runtime === 'pi' ? 'OPENROUTER_API_KEY' : 'CURSOR_API_KEY'
-  const apiKey = process.env[keyName]?.trim()
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim()
   if (!apiKey) {
-    console.error(`${keyName} is required for --runtime ${args.runtime}`)
+    console.error('OPENROUTER_API_KEY is required')
     process.exit(1)
   }
 
@@ -282,38 +235,20 @@ async function main() {
   }
 
   const startedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
-  const defaultModel = {
-    id: args.model,
-    ...(args.effort ? { params: [{ id: 'effort', value: args.effort }] } : {}),
-  }
-  const lightModel = {
-    id: args.lightModel,
-    ...(args.lightEffort
-      ? { params: [{ id: 'effort', value: args.lightEffort }] }
-      : {}),
-  }
-  const rt =
-    args.runtime === 'pi'
-      ? createPiRuntime({
-          apiKey,
-          repoRoot,
-          model: args.model,
-          piBin: resolvePiBin(),
-          // Every guide in this invocation, so the tripwire does not flag a
-          // sibling guide's legitimate output as a breach.
-          allowedPrefixes: guides.flatMap((g) => allowedPrefixesFor(g.slug)),
-        })
-      : createRuntime({
-          apiKey,
-          repoRoot,
-          defaultModel,
-          lightModel,
-        })
+  const rt = createPiRuntime({
+    apiKey,
+    repoRoot,
+    model: args.model,
+    piBin: resolvePiBin(),
+    // Every guide in this invocation, so the tripwire does not flag a
+    // sibling guide's legitimate output as a breach.
+    allowedPrefixes: guides.flatMap((g) => allowedPrefixesFor(g.slug)),
+  })
 
   console.error(
-    `draft-guide (${args.runtime}): persona=${args.persona} guides=${guides
+    `draft-guide (pi): persona=${args.persona} guides=${guides
       .map((g) => g.slug)
-      .join(',')} model=${args.model} effort=${args.effort || '(default)'} light=${args.lightModel}`
+      .join(',')} model=${args.model}`
   )
 
   const out = await runWorkflow(rt, {
@@ -336,7 +271,7 @@ async function main() {
       g?.provider || result.slug,
       out.persona,
       result as unknown as Record<string, unknown>,
-      args.runtime === 'pi' ? 'pi' : 'cursor-sdk'
+      'pi'
     )
     console.error(`run record: ${path}`)
     console.log(JSON.stringify(result, null, 2))

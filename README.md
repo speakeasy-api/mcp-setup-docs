@@ -24,10 +24,10 @@ How it works (labels, scope checks, Decisions, resume): **[`FACTORY.md`](FACTORY
 
 ## Run locally
 
-Requires Node ≥ 22.13 and a Cursor API key.
+Requires Node ≥ 22.13 and an OpenRouter API key.
 
 ```bash
-export CURSOR_API_KEY=cursor_...   # Dashboard → Integrations / API Keys
+export OPENROUTER_API_KEY=sk-or-...   # openrouter.ai → Keys
 # Optional — resolve Speakeasy catalog presence (same as mise run pull-catalog):
 # export PULSE_REGISTRY_KEY=...
 # export PULSE_REGISTRY_TENANT=gram-recommended

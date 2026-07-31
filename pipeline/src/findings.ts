@@ -14,7 +14,7 @@ export type FindingLike = {
 /**
  * Setup-file fidelity miss: the Dossier already has the fact; render it.
  * Targets match ReviewFinding (`external` | `speakeasy`); legacy `setup`
- * is not emitted by the Cursor SDK workflow.
+ * is not emitted by the drafting pipeline.
  */
 export function isDossierRenderFix(f: FindingLike): boolean {
   return (

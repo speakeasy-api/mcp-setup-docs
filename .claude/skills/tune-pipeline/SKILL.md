@@ -17,7 +17,7 @@ adding; no-change is a valid outcome.
    `doctrine/CHANGELOG.md` (what already changed, what was rejected —
    do not re-propose either without new evidence), then the current
    doctrine: every file in `doctrine/`, `doctrine/personas/`, and the
-   Cursor SDK workflow under `pipeline/`.
+   draft-guide workflow under `pipeline/`.
 2. **Read the signal**: everything in `retro/runs/` and `retro/notes/`
    not already cited by a changelog entry. If the corpus is large (more
    than ~10 run records), fan out reader subagents — one per review

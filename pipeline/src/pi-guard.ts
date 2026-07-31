@@ -5,8 +5,9 @@
  * boundary:
  *
  *  - `writesOutsideAllowed` enforces I7 (the agent writes only inside its own
- *    guide directory, and never commits or pushes). Under `@cursor/sdk` this
- *    was prompt text; here it is a post-run assertion against `git status`.
+ *    guide directory, and never commits or pushes) as a post-run assertion
+ *    against `git status` — a check the agent cannot talk its way past, rather
+ *    than an instruction in its prompt that it may or may not follow.
  *  - `buildAgentEnv` keeps orchestrator secrets out of the subprocess. Spawning
  *    with `process.env` would hand the agent every credential in the shell.
  */

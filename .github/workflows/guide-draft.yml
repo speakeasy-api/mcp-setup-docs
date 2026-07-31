@@ -85,7 +85,7 @@ jobs:
         if: steps.preflight.outputs.refused != 'true'
         working-directory: pipeline
         env:
-          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: npm run factory -- distill
 
       - name: Comment resolved intent
@@ -116,7 +116,7 @@ jobs:
         if: steps.preflight.outputs.refused != 'true' && success()
         working-directory: pipeline
         env:
-          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PULSE_REGISTRY_KEY: ${{ secrets.PULSE_REGISTRY_KEY }}
           PULSE_REGISTRY_TENANT: ${{ secrets.PULSE_REGISTRY_TENANT }}
           SLUG: ${{ steps.distill.outputs.slug }}

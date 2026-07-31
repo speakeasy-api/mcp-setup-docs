@@ -1,4 +1,4 @@
-# Handoff — Factory v2, after the lock scheme
+# Handoff — Factory v2, after the cutover
 
 > Supersedes the original handoff (see `git log FACTORY-V2-HANDOFF.md` for it).
 > Paste everything below the line into a fresh session started in the
@@ -8,11 +8,32 @@
 
 ## Where this stands
 
-**Stages 1 and 2 and the lock scheme are done and committed.** `--runtime pi`
-drives all four phases against OpenRouter and has taken a real guide from an
-empty directory to `status: converged`; `resolve-issue.ts` no longer imports
-`@cursor/sdk`; `prompt_digest` now hashes the prompt the agent actually gets.
-Nine commits:
+**The migration is code-complete. `pi` + OpenRouter is the only runtime.**
+`@cursor/sdk` is gone from `package.json` and the lockfile, `runtime.ts` is
+deleted, and no code path anywhere reads `CURSOR_API_KEY`. What remains is a
+merge and one secret deletion — see "What is left".
+
+Two things gate the last step, and the order matters:
+
+1. **`main` is still entirely Cursor-era.** `cmd-distill.ts:26` gates on
+   `CURSOR_API_KEY`, `package.json:17` still depends on `@cursor/sdk`, and
+   `guide-draft.yml:88,119` still pass the Cursor secret. Because
+   `issues:labeled` always runs the workflow from the **default branch**, the
+   factory on `main` works today and would break the moment the secret is
+   deleted.
+2. **So: merge this branch first, delete `CURSOR_API_KEY` from repo secrets
+   second.** Never the other way round. The same fact means the CI half of this
+   change *cannot be exercised before merge* — the workflow file on this branch
+   never runs. That is why the CI verification here is a static audit.
+
+`OPENROUTER_API_KEY` was minted and added to repo secrets on 2026-07-31.
+
+### Stages 1 and 2 and the lock scheme (earlier work)
+
+`--runtime pi` drove all four phases against OpenRouter and took a real guide
+from an empty directory to `status: converged`; `resolve-issue.ts` no longer
+imports `@cursor/sdk`; `prompt_digest` now hashes the prompt the agent actually
+gets. Nine commits:
 
 | Commit | What |
 | --- | --- |
@@ -28,39 +49,74 @@ Nine commits:
 
 At `9787bb7`: tests 112/112, `npm run typecheck` clean, all 18 guides lint `ok`.
 
-**The `CURSOR_API_KEY` goal is NOT met yet.** One deliberate breakage remains —
-read the next section before running anything in CI.
+### The cutover itself
 
-## Your task — finish the cutover, in this order
+Working-tree state after the cutover (see "What is left" for what to do with it):
 
-**⚠️ First, the thing that is still broken.** `resolve-issue.ts` and its caller
-both speak OpenRouter now, but the workflow does not:
-`.github/workflows/guide-draft.yml:88` passes only
-`CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}` to the distill step, so in CI
-that step fails with `OPENROUTER_API_KEY secret is not set`.
+| Change | What |
+| --- | --- |
+| `pipeline/src/runtime.ts` | **deleted** (161 lines) |
+| `pipeline/src/cli.ts` | −105 lines: `--runtime`, `--effort`, `--light-model`, `--light-effort` and the `DRAFT_RUNTIME` / `CURSOR_MODEL*` / `CURSOR_EFFORT*` fallbacks all gone; unconditional `createPiRuntime`; key read is `OPENROUTER_API_KEY` |
+| `pipeline/src/workflow.ts` | imports `withSchemaHint` from `schema-hint.ts` and `PiRuntime as Runtime` from `runtime-pi.ts`; lock `runtime` is `'pi'` |
+| `pipeline/package.json` + lockfile | `@cursor/sdk` removed; `npm ci` installs 154 packages, was 164 |
+| `.github/workflows/guide-draft.yml` | both steps (`:88` distill, `:119` draft) now pass `OPENROUTER_API_KEY` |
+| Docs + prose | `FACTORY.md` (5 spots), `README.md`, `mise.toml`, `retro/README.md`, `.claude/skills/tune-pipeline/SKILL.md`, `schema/pipeline-lock.v1.schema.json`, `cmd-pr.ts`, `findings.ts`, `pi-guard.ts`, `runtime-pi.ts` |
 
-**Do not merge this branch to `main` until that is fixed.** It was left alone on
-purpose: pointing the workflow at `OPENROUTER_API_KEY` before that secret exists
-in GitHub breaks CI immediately, and minting it is a human decision (see Hard
-constraints — a fresh spend-capped key, not the dev one).
+Verified from a **clean install** (`rm -rf node_modules && npm ci`), not an
+incremental one — `npm uninstall` leaves the rest of `node_modules` untouched, so
+"typecheck passes" alone only proves nothing *imports* the package, not that the
+lockfile is installable without it:
 
-Then, in order:
+- typecheck clean; **112/112 tests**; all **18 guides lint `ok`**
+- `node_modules/@cursor` absent; `pi --version` → `0.83.0`, matching the pin
+- `--runtime`, `--effort`, `--light-model` all now **exit 64 with "Unknown
+  flag"** rather than being silently ignored. That was the failure mode worth
+  checking: a stale CI invocation or shell alias carrying a removed flag now
+  fails visibly at startup instead of quietly doing something different.
 
-1. **Cutover** — flip the default to `pi`, delete `runtime.ts` and its
-   `@cursor/sdk` import, drop the dependency from `package.json` + lockfile.
-2. **CI** (§9 Stage 6) — mint the spend-capped key, swap the secret on both
-   `guide-draft.yml` steps (`:88` distill, `:119` draft), then delete
-   `CURSOR_API_KEY` from repo secrets and from the docs listed below.
-   **When this merges, the goal is met.**
+**Two defaults changed.** `--model` now takes an OpenRouter slug and defaults to
+`openai/gpt-5.6-sol` (was the Cursor slug `gpt-5.6-sol`); its env fallback is
+`DRAFT_MODEL` (was `CURSOR_MODEL`).
 
-Stage 2 is still unvalidated against real inputs: replay ~10 past labelled
-issues and confirm slug and persona match what the Cursor path produced. The
-unit tests cover every branch of `distill()`, but nothing has yet checked that
-the OpenRouter light model classifies as well as `composer-2.5` did.
+**`--effort` was deleted rather than reimplemented.** It was silently ignored on
+the pi path while the banner still printed `effort=high`. pi encodes reasoning
+effort as a `:<thinking>` suffix on the model pattern; the valid values were
+never established, so guessing at them was out of scope. If effort control is
+wanted back, that suffix is where it goes.
 
-One free check worth doing before the cutover run: `e39c1e6` changed what every
-agent is told about where to write. Nothing in the corpus depends on it, but the
-first pi run after it is the first run whose assignment block was correct.
+### Stage 2 is now validated against real inputs
+
+11 past factory-processed issues replayed through `resolve-issue.ts` on
+`openai/gpt-5.6-sol`: **11/11 agreement** on slug, provider, persona and
+`ok`/`needs_clarification`, zero infrastructure failures. Ground truth was the
+factory's own "resolved intent" comment, corroborated by the
+`guide/issue-<N>-<slug>` branch name; the two agreed on all 11. The exit-2
+clarification path had no historical examples, so it was probed with three
+synthetic ambiguous inputs and exits 2 correctly on all three.
+
+**Read the methodology before trusting the number.** `resolve-issue.ts` embeds
+*today's* `guides/` slug list into the prompt and tells the model to prefer
+matching one. Replaying against the live worktree therefore hands the model
+answers that did not exist when the issue ran — and it showed the new path
+"beating" Cursor on issue #64 by picking `x-docs`. Reconstructing `guides/` and
+`doctrine/personas/` as of each issue's actual merge commit erased that: #64
+resolves to `x`, the same answer Cursor gave. **The honest result is parity, not
+improvement.** A naive replay would have shipped the claim that the new model is
+smarter about X Docs; it is not, it was reading the answer off the present-day
+repo.
+
+Two limits worth carrying forward:
+
+- **Persona classification is untested and currently untestable.**
+  `doctrine/personas/` holds exactly one file, and `normalizeOk()` rewrites any
+  unrecognised persona to `it-admin` — so that column could not have disagreed
+  no matter what the model returned. It stays untested until a second persona
+  exists.
+- **#64 is a shared blind spot, not a regression.** Both classifiers chose `x`
+  for "create x docs mcp guide" (`docs.x.com/mcp` is a *different* server from
+  the `api.x.com/mcp` one in `guides/x/`); a human forced `x-docs` on the resume
+  run. Neither path distinguishes two MCP servers from one vendor given only a
+  URL, and arguably both should have returned `needs_clarification`.
 
 ## What the generation test showed
 
@@ -267,16 +323,17 @@ also means CI needs no new global-install step.
 
 ## Known gaps in Stage 1
 
-- **`--effort` is ignored on the pi path.** pi encodes it as a `:<thinking>`
-  suffix on the model pattern; I did not guess at the values. The CLI still
-  prints `effort=high`, which is now misleading on `--runtime pi`.
-- **`workflow.ts:514` still hardcodes `runtime: 'cursor-sdk'`** in the lock.
-  `cli.ts`'s run record was fixed; the lock's was not, because it sits outside
-  the seam. Not read by any skip predicate, so it is cosmetic.
-- **`modelId()` returns the full slug** (`openrouter/openai/gpt-5.6-sol`) on the
-  pi path, so locks written under pi will not match Cursor-era locks. Expected —
-  all 16 go cold at cutover — but it means you cannot mix runtimes across a
-  guide's history without `--force`.
+- ~~**`--effort` is ignored on the pi path.**~~ Closed at cutover by deleting the
+  flag rather than implementing it — see "The cutover itself".
+- ~~**`workflow.ts:514` hardcodes `runtime: 'cursor-sdk'`**~~ — now `'pi'`.
+- **`modelId()` returns the full slug** (`openrouter/openai/gpt-5.6-sol`), so
+  **every committed lock goes cold on first contact.** `runtime` is
+  observational and excluded from digests, but `model` sits inside `inputs` and
+  does feed `input_digest` (`lock.ts:520/527`, `539/548`, `564/576`). So the
+  first post-cutover run of each guide skips nothing and re-runs every phase.
+  That is inherent to the cutover and was always the plan — but it means the
+  first full run is a full re-run of all 18 guides. Know that before launching
+  one and watching the bill.
 - **The pi session is deleted in a `finally`, so a finished run cannot be
   audited.** This is what keeps the `observed_at` question at "probably honest"
   instead of proven: the tool *counts* survive in the log, the actual `curl`
@@ -299,34 +356,96 @@ whole-swap rather than per-phase:
    real regression (the dropped endpoint-probe fields) and one style drift
    (`Click` → `Select`) to settle before cutover. See "What the generation test
    showed".
-2. ~~**`resolve-issue.ts`**~~ — **done** in `ce2106b`, gate fixed in `fec5184`.
-   Still needs the replay validation described under "Your task"; only its unit
-   tests have run.
+2. ~~**`resolve-issue.ts`**~~ — **done** in `ce2106b`, gate fixed in `fec5184`,
+   replay-validated 11/11 (see "Stage 2 is now validated against real inputs").
 3. ~~**Lock scheme**~~ — **done** in `9787bb7`. See "What the lock scheme
    changed" below.
-4. **Cutover** — flip the default, delete `runtime.ts`/`json.ts`, drop
-   `@cursor/sdk`.
-5. **CI** (§9 Stage 6) — swap the secret on both steps of `guide-draft.yml`
-   (`:88` distill, `:119` draft), mint a spend-capped disposable key per run,
-   then delete `CURSOR_API_KEY` everywhere. **When this merges, the goal is met.**
+4. ~~**Cutover**~~ — **done**, uncommitted in the working tree. Note `json.ts`
+   was **not** deleted: an earlier version of this doc said to, and that was
+   wrong — `extractJson` is imported by `resolve-issue.ts:12` and
+   `runtime-pi.ts:23`, both of which survive.
+5. ~~**CI**~~ — **done**, uncommitted. `OPENROUTER_API_KEY` was minted and added
+   to repo secrets on 2026-07-31.
 
-The full blast radius for that last step, **as of `9787bb7`**. The prose is the
-part that gets missed — `README.md` was absent from the earlier version of this
-list:
+### CI was audited statically, and one question was then settled by running it
 
-| Where | Lines |
-| --- | --- |
-| `pipeline/src/runtime.ts` | `1` (import) |
-| `pipeline/src/cli.ts` | `250` (key selection), `45`, `55` (usage text) |
-| `pipeline/package.json` | `17` + lockfile |
-| `.github/workflows/guide-draft.yml` | `88`, `119` — **`:88` currently broken** |
-| `FACTORY.md` | `18`, `106`; `3` also says "Same Cursor SDK pipeline" |
-| `README.md` | `30` |
-| `mise.toml` | `23` (comment; `18` also says "via the Cursor SDK") |
-| `pipeline/src/pi-guard.ts` | `26` — in `DENIED_ENV`; drop with the rest |
+The workflow file on this branch cannot execute before merge, so the CI check
+was a static trace of all 18 steps: **zero env gaps, zero surviving
+`CURSOR_API_KEY` reads, zero removed flags passed, `npm ci --dry-run` exit 0.**
+`cmd-draft.ts:30` calls `runPipelineScript` with no `opts`, so the subprocess
+inherits `OPENROUTER_API_KEY` via the `process.env` branch; `cmd-distill.ts:62`
+builds `{ ...process.env, ISSUE_BODY: body }`, and the spread carries it. Both
+fine.
 
-Plus GitHub repo secrets themselves. The `resolve-issue.ts` and
-`cmd-distill.ts` rows are gone — `ce2106b` and `fec5184` cleared them.
+**The audit raised one thing nobody had considered, and it was worth the
+scare.** `~/.pi/agent/auth.json` exists on the dev machine, dated *before* both
+generation-test runs — so every local `pi` run may have authenticated from that
+stored credential rather than from `OPENROUTER_API_KEY`, and a GitHub runner has
+a fresh `HOME` with no `~/.pi`. CI would have been the first execution where the
+env-key path was load-bearing.
+
+**Settled by execution, not by reading:** `pi` was run with
+`HOME=$(mktemp -d)` (verified empty) and the key supplied only via the
+environment. It authenticated and completed — `provider: "openrouter"`,
+`model: "openai/gpt-5.6-sol"`, `stopReason: "stop"`. Cost $0.0033. The env-key
+path works with no credential store, and the new default slug resolves at
+OpenRouter. **Do not re-derive this by reading pi's docs — it is verified.**
+
+**Not settled, and unsettleable without a runner:** whether pi's `bash` tool
+behaves identically on a GitHub runner (research depends on it for `curl`), and
+whether the `OPENROUTER_API_KEY` secret's *value* is valid and funded — only its
+name and mint date are observable.
+
+### ⚠️ A pre-existing bug that will disguise the first post-cutover failure
+
+**Not caused by the migration** — it behaves identically on the Cursor runtime —
+but the first post-cutover run is exactly when a novel failure mode is likeliest,
+and this is what would hide it. Every link verified by reading the cited code:
+
+1. `workflow.ts:895-896` — `draftOne` runs `mkdirSync(guideDir(slug))` **before
+   the first agent call**.
+2. `workflow.ts:969-970` — a `null` from the research agent (what *any* pi
+   failure produces, since `classifyPiRun` decides success rather than the exit
+   code) returns `{ status: 'failed', failed_phase: 'research' }`.
+3. `cli.ts:284-287` — `failed`, `blocked` and `unconverged` **all collapse to
+   exit 2**. The factory cannot tell them apart.
+4. `draft-outcome.ts:36-40` — exit 2 plus an existing `guides/<slug>/` ⇒
+   `unconverged`, `ok: true`. The directory exists because of step 1, so the
+   `existsSync` guard meant to catch "the pipeline produced nothing" can never
+   fire.
+5. `cmd-git.ts:69-78` — `retro/runs/<ts>-<slug>.json` is always written, so the
+   commit is non-empty and the push proceeds.
+
+**Result: a run where no agent ever executed opens a draft PR containing only a
+run record, described as "unconverged (reviewers still had blockers after max
+rounds)", and never applies `guide:blocked`.** The natural human response is to
+re-run it, and each re-run pays in full while never revealing the real failure.
+
+The narrow fix is to stop collapsing `failed` into exit 2 at `cli.ts:284-287`.
+Left undone deliberately: it changes the exit-code contract between `cli.ts` and
+`draft-outcome.ts`, which is factory semantics rather than migration scope.
+
+**The only steps left are a merge and a deletion, in this order:**
+
+1. **Commit and merge this branch.** Everything above is working-tree state.
+   Merging the pipeline changes *without* the `guide-draft.yml` change would
+   break every CI draft run at `cli.ts` with `OPENROUTER_API_KEY is required`.
+   They must land together.
+2. **Then delete `CURSOR_API_KEY` from repo secrets.** Not before — see the two
+   ordering constraints at the top of this doc.
+
+The blast-radius table that used to live here is gone because every row is
+cleared. One row was resolved the other way and is worth stating so nobody
+"finishes the job" by deleting it:
+
+**`pipeline/src/pi-guard.ts` keeps `'CURSOR_API_KEY'` in `DENIED_ENV`.** The old
+table said to drop it. Do not. `buildAgentEnv` iterates `ALLOWED_ENV` and never
+reads `DENIED_ENV` — so it looks inert — but `pi-guard.test.ts:22-29` seeds every
+`DENIED_ENV` name into a source env and asserts none survive into the agent's.
+The list *is* the guarantee, via the test. Keeping the entry asserts that a stale
+Cursor key still exported in a developer's shell can never reach the agent, which
+stays true and useful long after this repo stops using one. Removing it deletes a
+real test case and buys nothing.
 
 ## What the lock scheme changed
 
@@ -400,11 +519,21 @@ the problem.
 - Branch `worktree-sandcastle-factory`, worktree at
   `.claude/worktrees/sandcastle-factory`. `guides/google-calendar/` was restored
   after the test, so the committed guide is still the Cursor-generated reference.
-- Tree is clean apart from `retro/runs/2026-07-31T14:58:27Z-*` (failed) and
-  `…T15:07:07Z-*` (converged), the two run records from the generation test.
-  Nothing under `retro/runs/` has ever been tracked, and it sits inside the
-  tripwire allowlist, so leaving them costs nothing.
-- `pipeline/node_modules` installed (164 packages, includes pinned pi).
+- **The cutover is uncommitted working-tree state.** `git status` shows the ten
+  modified files, the `D pipeline/src/runtime.ts` deletion, and the two
+  untracked run records below. Commit them together — the pipeline half and the
+  `guide-draft.yml` half must not be split across commits that could merge
+  separately.
+- `retro/runs/2026-07-31T14:58:27Z-*` (failed) and `…T15:07:07Z-*` (converged)
+  are the two run records from the generation test. Nothing under `retro/runs/`
+  has ever been tracked, and it sits inside the tripwire allowlist, so leaving
+  them untracked costs nothing.
+- `pipeline/node_modules` installed (**154** packages after the `@cursor/sdk`
+  removal; was 164). Includes the pinned pi at `0.83.0`.
+- Pre-existing, not caused by the cutover: `npm audit` reports one high-severity
+  advisory (`brace-expansion` DoS) nested under
+  `@earendil-works/pi-coding-agent` — it arrived with the **pi** dependency.
+  `npm audit fix` would rewrite the lockfile, so it was left alone.
 - `pipeline/src/prompts.ts` is new as of `9787bb7` and now owns the research,
   draft and review prompts. `workflow.ts` lost ~300 lines to it and re-exports
   `GuideInput` so `cli.ts` is unchanged.
@@ -440,8 +569,17 @@ push, do not run `git checkout/reset/stash/clean`" — they share this worktree.
 
 Five gotchas, all hit for real:
 
-1. **The prompt pastes without submitting** — the pane shows the text in the
-   input box and the agent stays `idle`. Fix: `herdr agent send-keys <name> enter`.
+1. **The prompt sometimes pastes without submitting** — the pane shows the text
+   in the input box and the agent stays `idle`. **It is intermittent, not
+   deterministic**: in one session the first round of three prompts all
+   submitted fine and the second round of three all stalled. So do not assume
+   either way — check, and check *properly*. `agent prompt`'s own response is
+   not evidence: it returns a snapshot taken before the agent reacts, so it says
+   `idle` even when the prompt did submit. The reliable check is
+   `herdr agent read <name> --source visible` a few seconds later — if the brief
+   text is sitting after the `❯`, it stalled. The documented fix is
+   `herdr agent send-keys <name> enter`, but see gotcha 4: that call is the one
+   the classifier denies, so in practice the user has to press Enter.
 2. **New agents start in `⏸ manual mode`** and will block on every edit and
    bash call. Ask the user to flip them to auto *before* prompting; it costs
    them seconds and costs you a stall otherwise.

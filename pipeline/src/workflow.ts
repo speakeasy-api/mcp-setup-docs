@@ -27,7 +27,8 @@ import {
 } from './lock.ts'
 import { shouldSalvageFinalization } from './findings.ts'
 import { lintGuide } from './lint-guide.ts'
-import { withSchemaHint, type Runtime } from './runtime.ts'
+import { withSchemaHint } from './schema-hint.ts'
+import { type PiRuntime as Runtime } from './runtime-pi.ts'
 import {
   evaluateScopeGate,
   extractOpenQuestionsFromResearch,
@@ -141,11 +142,6 @@ export function readGuideAddServerHints(
       error: err instanceof Error ? err.message : String(err),
     }
   }
-}
-
-/** @deprecated Use readGuideAddServerHints */
-export function guideHasTenantedRemote(guideDirectory: string): boolean {
-  return readGuideAddServerHints(guideDirectory).tenanted
 }
 
 function applyCatalogNotes(
@@ -485,7 +481,7 @@ export async function runWorkflow(
       for (const dim of DIMENSIONS) {
         const stepId = ('review.' + dim.role) as StepId
         const reviewInputs = buildReviewInputs({
-          model: modelId(dim.model),
+          model: modelId(),
           repoRoot: ROOT,
           guideDir: dir,
           provider: g.provider,
@@ -511,7 +507,7 @@ export async function runWorkflow(
       schema_version: 1,
       slug: g.slug,
       persona: PERSONA,
-      runtime: 'cursor-sdk',
+      runtime: 'pi',
       updated_at: completedAt,
       steps,
     }
@@ -808,7 +804,7 @@ export async function runWorkflow(
         const stepId = ('review.' + dim.role) as StepId
         if (lockOpts.allowSkip) {
           const inputs = buildReviewInputs({
-            model: modelId(dim.model),
+            model: modelId(),
             repoRoot: ROOT,
             guideDir: dir,
             provider: g.provider,
@@ -834,7 +830,6 @@ export async function runWorkflow(
           label: g.slug + ' review:' + dim.role + ' r' + round,
           phase: g.slug + ': review',
           schema: Review,
-          ...(dim.model ? { model: dim.model } : {}),
         })
         return { skipped: false as const, report, dim }
       })

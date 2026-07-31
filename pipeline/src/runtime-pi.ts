@@ -36,7 +36,6 @@ export type AgentOptions<S extends AnyZod> = {
   label: string
   phase: string
   schema: S
-  model?: 'sonnet' | string
   remediation?: (
     parsed: z.infer<S>
   ) => string | null | undefined | Promise<string | null | undefined>
@@ -299,8 +298,8 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
               label: opts.label + ' remediation',
               schema: opts.schema,
             })
-            // Soft failure: a bad remediation keeps the original report, matching
-            // the cursor runtime. The workflow re-checks disk itself.
+            // Soft failure: a bad remediation keeps the original report rather
+            // than discarding it. The workflow re-checks disk itself.
             if (remediated) parsed = remediated
           }
         }

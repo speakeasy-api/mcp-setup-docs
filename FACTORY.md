@@ -1,6 +1,6 @@
 # Guide draft factory
 
-Turn a GitHub issue into a draft MCP Setup Guide PR. Same Cursor SDK pipeline
+Turn a GitHub issue into a draft MCP Setup Guide PR. Same drafting pipeline
 as `mise run draft-guide` / `npm run draft-guide`, driven by a label instead of
 a local CLI.
 
@@ -15,7 +15,7 @@ Repo → **Settings → Secrets and variables → Actions**:
 
 | Secret | Required? | What it is |
 | --- | --- | --- |
-| `CURSOR_API_KEY` | **Yes** | Cursor API key (Dashboard → Integrations / API Keys) |
+| `OPENROUTER_API_KEY` | **Yes** | OpenRouter API key (openrouter.ai → Keys) |
 | `AGENT_PAT` | Recommended | PAT with contents + issues + pull requests write on this repo. Falls back to `GITHUB_TOKEN` (PRs still work; label chaining is less reliable). |
 | `PULSE_REGISTRY_KEY` | Recommended | PulseMCP Sub-Registry API key — resolves Speakeasy MCP Catalog presence before research. Without it, `speakeasy_add_server: auto` guides keep both catalog/custom paths unless remotes are tenanted or the guide forces `custom-remote` / `catalog`. |
 | `PULSE_REGISTRY_TENANT` | Recommended with key | PulseMCP tenant slug (e.g. `gram-recommended`). Required together with the key for catalog lookup. |
@@ -40,7 +40,7 @@ The workflow creates these if missing. You can also create them by hand:
 2. Add the label **`guide:draft`**.
 3. Watch the issue comments and the **Actions** tab (`Guide draft` workflow).
 
-Runs can take a long time (often 20–40+ minutes). Usage burns Cursor plan tokens.
+Runs can take a long time (often 20–40+ minutes). Usage burns OpenRouter credits.
 
 ### What you get
 
@@ -103,7 +103,7 @@ A non-factory open PR that already `Closes #<issue>` (collaborator-authored) blo
 ## Local equivalent
 
 ```bash
-export CURSOR_API_KEY=cursor_...
+export OPENROUTER_API_KEY=sk-or-...
 mise run draft-guide -- asana --overwrite --notes "drop secret-reset recovery branch"
 # Match factory: pause before draft when material OQs lack Decision N replies
 mise run draft-guide -- x --overwrite --pause-on-scope
@@ -169,7 +169,7 @@ be unavailable).
    branch. Refuse only for non-factory collaborator PRs that target the
    same issue.
 2. **Labels** — remove `guide:draft` + `guide:blocked`, add `guide:in-progress`.
-3. **Distill** — light Cursor agent reads title + body + issue comments (+
+3. **Distill** — light distill agent reads title + body + issue comments (+
    existing `guides/*` slugs) → structured JSON or `needs_clarification`.
 4. **Comment** — “Resolved as `slug` …” (or resume notice) summary.
 5. **Draft** — `npm run draft-guide -- <slug> --overwrite --pause-on-scope

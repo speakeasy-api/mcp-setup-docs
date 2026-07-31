@@ -35,7 +35,6 @@ export type Dimension = {
   role: ReviewDimension
   doc: string
   persona: boolean
-  model?: 'sonnet'
 }
 
 /** Review gates only — voice/formatting/concision are Writer self-check. */
