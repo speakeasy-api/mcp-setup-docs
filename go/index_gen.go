@@ -127,7 +127,7 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		Slug:               "google-compute-engine",
 		Title:              "Google Compute Engine",
 		Summary:            "Manage Compute Engine VM instances, disks, instance groups, snapshots, and images through Google's hosted Compute Engine MCP server.",
-		SpeakeasyAddServer: "",
+		SpeakeasyAddServer: "catalog",
 		SetupRequired:      true,
 		Aliases:            []string{"com.googleapis.compute/mcp"},
 		Remotes: []generatedRemote{
@@ -740,6 +740,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
 	},
+	"Google Compute Engine": {
+		{Guide: "google-compute-engine", Remote: "hosted"},
+	},
 	"Google Docs MCP endpoint": {
 		{Guide: "google-docs", Remote: "hosted"},
 	},
@@ -1204,9 +1207,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"X Docs MCP": {
 		{Guide: "x-docs", Remote: "docs"},
-	},
-	"com.googleapis.compute/mcp": {
-		{Guide: "google-compute-engine", Remote: "hosted"},
 	},
 	"com.pulsemcp.mirror/box": {
 		{Guide: "box", Remote: "hosted"},
