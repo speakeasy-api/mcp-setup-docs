@@ -148,6 +148,33 @@ describe('createPiRuntime.agent', () => {
     }
   })
 
+  it('states the filesystem contract on every turn, including remediation', async () => {
+    // Regression: `assign()` hands the agent an absolute guide directory while pi
+    // runs with cwd = repoRoot. On the first fresh-draft run the model rendered
+    // that path without its leading slash, and pi resolved it relative to cwd,
+    // building `<repoRoot>/home/walker/.../research.md`. The tripwire caught it;
+    // this keeps it from happening.
+    const { runPi, calls } = stubPi([
+      agentEndWith('{"status":"ok","notes":"first"}'),
+      agentEndWith('{"status":"ok","notes":"second"}'),
+    ])
+    const rt = createPiRuntime(config({ runPi }))
+    await rt.agent('base prompt', {
+      label: 'asana research',
+      phase: 'asana: research',
+      schema: Report,
+      remediation: (parsed) => (parsed.notes === 'first' ? 'follow up' : null),
+    })
+    assert.equal(calls.length, 2)
+    for (const call of calls) {
+      assert.match(call.prompt, /working directory is the repo root/)
+      assert.match(call.prompt, /bare "home\/"/)
+    }
+    // Appended, not substituted for the caller's prompt.
+    assert.match(calls[0]!.prompt, /^base prompt/)
+    assert.match(calls[1]!.prompt, /^follow up/)
+  })
+
   it('reuses one session path across the remediation turn', async () => {
     // The follow-up must resume the same conversation, not start over.
     const { runPi, calls } = stubPi([

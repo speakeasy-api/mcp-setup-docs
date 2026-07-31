@@ -87,6 +87,29 @@ export function toolsForPhase(phase: string): string[] {
   return ['read', 'edit', 'write', 'grep', 'find', 'ls']
 }
 
+/**
+ * Restates where the agent is standing, appended to every prompt.
+ *
+ * `workflow.ts`'s `assign()` hands the agent an *absolute* guide directory while
+ * pi runs with `cwd = repoRoot`, so the two encodings are both valid and the
+ * model has to pick one. On the first fresh-draft run it picked neither cleanly:
+ * it rendered the absolute path with the leading slash missing, and pi — which
+ * resolves genuine absolute paths correctly, verified live — read that as
+ * relative and built a shadow tree at `<repoRoot>/home/walker/…/research.md`.
+ *
+ * The I7 tripwire failed the phase, so this was never silent corruption. This
+ * removes the ambiguity that produced it; the tripwire remains the backstop.
+ */
+const PATH_CONTRACT = [
+  '',
+  '',
+  'Filesystem contract: your working directory is the repo root. Every path you',
+  'give a tool must either begin with "/" (a true absolute path) or be relative',
+  'to the repo root, e.g. "guides/<slug>/research.md". A path that begins with a',
+  'bare "home/" is neither: it creates a shadow copy of the tree inside the repo',
+  'and fails the run.',
+].join('\n')
+
 /** OpenRouter slugs are `provider/model`; pi wants them under its `openrouter` provider. */
 export function piModelSlug(model: string): string {
   return model.startsWith('openrouter/') ? model : `openrouter/${model}`
@@ -190,7 +213,8 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
     })
     const before = baselineOffenders()
 
-    const run = await runPi({ args, prompt, env, cwd: cfg.repoRoot })
+    // In `turn` rather than `agent` so the remediation turn carries it too.
+    const run = await runPi({ args, prompt: prompt + PATH_CONTRACT, env, cwd: cfg.repoRoot })
     const outcome = classifyPiRun(run)
 
     if (!outcome.ok) {
