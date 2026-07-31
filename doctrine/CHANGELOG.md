@@ -6,6 +6,43 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-07-31 — pipeline-lock examples follow the pi runtime
+
+Files: `doctrine/pipeline-lock.md`.
+
+- **Runtime naming (`:8`, `:114`, `:203`):** the contract described itself
+  as honored by "the Cursor SDK workflow" and used `cursor-sdk` as the
+  `runtime` example and in the illustrative lock. `7e635e1` replaced the
+  `@cursor/sdk` runtime with a direct spawn of the `pi` CLI over
+  OpenRouter, deleted `pipeline/src/runtime.ts`, and set the lock literal
+  to `runtime: 'pi'` (`pipeline/src/workflow.ts`). Prose is now
+  runtime-neutral ("the drafting pipeline"); the two examples say `pi`.
+- **Model slot alias (`:109`, `:111-112`):** the `review.<dim>` row read
+  "default vs light/`sonnet` slot" and the example forbade "a slot alias
+  like `sonnet`". No slot mechanism survives: `7e635e1` removed
+  `Dimension.model`, `AgentOptions.model` and the `dim.model` spread along
+  with `resolveModel`, which held the `'sonnet'` → light-model branch. The
+  **rule is kept** — a resolved id, never an alias — because it still binds
+  any future runtime that reintroduces slots; only its illustration moved.
+- **Model examples (`:209`, `:250`, `:297`):** `claude-fable-5` → the
+  OpenRouter slug `openrouter/openai/gpt-5.6-sol`, which is what
+  `modelId()` now returns and therefore what `input_digest` covers.
+
+No normative rule changed. Digest exclusions, the `runtime`-is-observational
+constraint, and the resolved-id requirement all stand as written; this entry
+only corrects examples and one runtime name that `7e635e1` falsified.
+
+Evidence: commits `7e635e1` (runtime cutover) and `e4fa3d7` (removal of the
+code left unused by it), PR #84; run records
+`retro/runs/2026-07-31T15:07:07Z-google-calendar.json` (converged fresh
+draft on pi, `runtime: "pi"`) and `…T14:58:27Z-…` (the failed first run).
+
+Known divergence, deliberate: the illustrative lock at `:203` is labelled
+`guides/box/pipeline.lock.json`, and the real file still records
+`"runtime": "cursor-sdk"` — correct, as a historical record of a run that
+did use it. The sample follows current doctrine, not that file, until box
+next runs.
+
 ## 2026-07-29 — dossier-backed render fixes are not chrome Decisions
 
 Files: `pipeline/src/{findings,workflow}.ts`,
