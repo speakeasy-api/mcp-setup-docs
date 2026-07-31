@@ -1,0 +1,203 @@
+{
+  "slug": "github",
+  "provider": "github",
+  "persona": "it-admin",
+  "timestamp": "2026-07-31T20:49:47Z",
+  "started_at": "2026-07-31T20:49:47Z",
+  "finished_at": "2026-07-31T20:55:30Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#configure-token-access, step 4",
+          "problem": "The guide omits the Dossier’s warning that an organization will not appear under Resource owner when it blocks fine-grained personal access tokens.",
+          "suggestion": "After step 4, state that an organization will not appear if it blocks fine-grained personal access tokens, so the reader knows why the required owner may be unavailable.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#generate-personal-access-token — “wait for an organization administrator to approve it”",
+          "problem": "A reader whose token is pending is not told where the approver must go or which controls complete the approval required before first connection.",
+          "suggestion": "Research GitHub’s documented pending-token approval path, record the exact navigation and controls in the Research Dossier, and render either those steps or a precise handoff to the approver in external.md.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Speakeasy setup, catalog-path rationale",
+          "problem": "The Dossier attributes catalog-only selection solely to Pulse presence even though Metadata records the operator’s forced `speakeasy_add_server: catalog` override.",
+          "suggestion": "Record that `speakeasy_add_server: catalog` forces the catalog-only path, with the matched Pulse entry as corroborating provenance.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "external.md#configure-token-access — “grant the minimum repository, organization, and account permissions for the operations supplied by the application owner”",
+          "problem": "The reader must translate requested operations into GitHub permission names and access levels without being told to obtain those exact selections from the application owner.",
+          "suggestion": "Record and render a hedge directing the reader to obtain the exact GitHub permission names and access levels from the application owner before completing the Permissions section.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Research blocker: added GitHub’s documented organization-owner approval path, exact controls, provenance locator, and observed_at timestamp to research.md and meta.yaml; rendered the approver handoff in external.md. External blocker: added the warning after Resource owner that organizations blocking fine-grained personal access tokens do not appear. Catalog nit: recorded that the speakeasy_add_server: catalog override forces the catalog-only path, with the matched Pulse entry as corroboration. Permissions nit: recorded and rendered a direction to obtain the exact GitHub permission names and access levels from the application owner.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:7ed2661a0add745d9e53c858f72284556197fcad9430624309cf1dd917117329",
+  "setup_churn": {
+    "external_md_lines": 45,
+    "speakeasy_md_lines": 30
+  },
+  "usage": {
+    "reported": true,
+    "total": {
+      "costUsd": 2.188707,
+      "inputTokens": 195,
+      "outputTokens": 18490,
+      "cacheReadTokens": 1261214,
+      "cacheWriteTokens": 160388,
+      "totalTokens": 1440287
+    },
+    "by_phase": {
+      "github: research": {
+        "costUsd": 1.073798,
+        "inputTokens": 69,
+        "outputTokens": 7067,
+        "cacheReadTokens": 903823,
+        "cacheWriteTokens": 65525,
+        "totalTokens": 976484
+      },
+      "github: draft": {
+        "costUsd": 0.192069,
+        "inputTokens": 24,
+        "outputTokens": 2332,
+        "cacheReadTokens": 63529,
+        "cacheWriteTokens": 14436,
+        "totalTokens": 80321
+      },
+      "github: review": {
+        "costUsd": 0.650342,
+        "inputTokens": 66,
+        "outputTokens": 5929,
+        "cacheReadTokens": 139847,
+        "cacheWriteTokens": 64355,
+        "totalTokens": 210197
+      },
+      "github: revise": {
+        "costUsd": 0.272497,
+        "inputTokens": 36,
+        "outputTokens": 3162,
+        "cacheReadTokens": 154015,
+        "cacheWriteTokens": 16072,
+        "totalTokens": 173285
+      }
+    },
+    "by_agent": [
+      {
+        "costUsd": 1.073798,
+        "inputTokens": 69,
+        "outputTokens": 7067,
+        "cacheReadTokens": 903823,
+        "cacheWriteTokens": 65525,
+        "totalTokens": 976484,
+        "label": "github research",
+        "phase": "github: research",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.192069,
+        "inputTokens": 24,
+        "outputTokens": 2332,
+        "cacheReadTokens": 63529,
+        "cacheWriteTokens": 14436,
+        "totalTokens": 80321,
+        "label": "github draft",
+        "phase": "github: draft",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.206169,
+        "inputTokens": 18,
+        "outputTokens": 1745,
+        "cacheReadTokens": 41095,
+        "cacheWriteTokens": 21309,
+        "totalTokens": 64167,
+        "label": "github review:fidelity r1",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.148681,
+        "inputTokens": 21,
+        "outputTokens": 2139,
+        "cacheReadTokens": 45300,
+        "cacheWriteTokens": 9881,
+        "totalTokens": 57341,
+        "label": "github review:achievability r1",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.272497,
+        "inputTokens": 36,
+        "outputTokens": 3162,
+        "cacheReadTokens": 154015,
+        "cacheWriteTokens": 16072,
+        "totalTokens": 173285,
+        "label": "github revise r1",
+        "phase": "github: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.122902,
+        "inputTokens": 12,
+        "outputTokens": 734,
+        "cacheReadTokens": 23519,
+        "cacheWriteTokens": 14250,
+        "totalTokens": 38515,
+        "label": "github review:achievability r2",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.17259,
+        "inputTokens": 15,
+        "outputTokens": 1311,
+        "cacheReadTokens": 29933,
+        "cacheWriteTokens": 18915,
+        "totalTokens": 50174,
+        "label": "github review:fidelity r2",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      }
+    ]
+  }
+}

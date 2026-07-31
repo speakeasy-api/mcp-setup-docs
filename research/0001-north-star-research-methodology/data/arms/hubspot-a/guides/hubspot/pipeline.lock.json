@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "slug": "hubspot",
+  "persona": "it-admin",
+  "runtime": "pi",
+  "updated_at": "2026-07-31T20:26:49Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:0631217b1181643ebf0c9493156ba5470ba557bf195d21ff76903936c3446726",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:255c60266361ff6711b0b04829329485020218f5a0460f70aa30f30d9c1711fc",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:88f093f873c705128a0a31eb38be298a2ee11f4d50815552739925337f8ac3ad"
+          },
+          {
+            "path": "doctrine/speakeasy-setup.md",
+            "digest": "sha256:8715948a90f95187a2e093e3dfbaccb2870423ee7c90aed4eeba5c418c0bb85e"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "hubspot",
+          "notes": "Speakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/hubspot\""
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:a0ff1b206d07de67fcce42c371154fe9bf0ab51e9ea8fae7a58f75dde825ddb6"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:cd1d3e3b0aadca03584d70090151827b45f42e1b0de287645835ea278c64f101"
+        }
+      ],
+      "completed_at": "2026-07-31T20:26:49Z"
+    },
+    "draft": {
+      "input_digest": "sha256:628915513a80706af13e35c0d9f0b8cb831543e1771543d4aad841373af2b369",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:ad649d12e8bf3882a1593555c0c4d31681ac50aa891177b1a8f766a563d85d6c",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:d41f77accebf79a55b259d6483fafe4f8997c8e946e6ffa719e68bb16bde59f7"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:a0ff1b206d07de67fcce42c371154fe9bf0ab51e9ea8fae7a58f75dde825ddb6"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:cd1d3e3b0aadca03584d70090151827b45f42e1b0de287645835ea278c64f101"
+          }
+        ],
+        "params": {
+          "provider": "hubspot",
+          "notes": "Speakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/hubspot\"",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:2fb2e5e0162f0519f1bd1a2dd5f33117fa783a6dadad2e085075e62301308c07"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:c93cd8008280ed5f11c7e3aa962c08521710319a78e7b534ea00b86b5cdb7957"
+        }
+      ],
+      "completed_at": "2026-07-31T20:26:49Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:feb522422ceaf3fc6158da6bd9e7f0441f1c0d49a93d2205df92738a85593aef",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:2885ba720bba92fbed782f1ac13fdbd065c3f1a294302ee85792fc4f61866e1f",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:f1c64906d2702d25c5db118f0a1a471b4962333a506c235ffebccf67413aa7f3"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:a0ff1b206d07de67fcce42c371154fe9bf0ab51e9ea8fae7a58f75dde825ddb6"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:cd1d3e3b0aadca03584d70090151827b45f42e1b0de287645835ea278c64f101"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:2fb2e5e0162f0519f1bd1a2dd5f33117fa783a6dadad2e085075e62301308c07"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:c93cd8008280ed5f11c7e3aa962c08521710319a78e7b534ea00b86b5cdb7957"
+          }
+        ],
+        "params": {
+          "provider": "hubspot",
+          "notes": "Speakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/hubspot\"",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:2fb2e5e0162f0519f1bd1a2dd5f33117fa783a6dadad2e085075e62301308c07"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:c93cd8008280ed5f11c7e3aa962c08521710319a78e7b534ea00b86b5cdb7957"
+        }
+      ],
+      "completed_at": "2026-07-31T20:26:49Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:c17d71d465fddc249a8443af8cf562ae5d033f8494090263d67a8fd0d2a56cd8",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:0b287f892ece7611416030973e4b1952db4c173e3023930bf238685d39b79cdf",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:7eb1e560946bbc2656afdfbdbd26d85b3d4a5579818fc4bd6629d818ce251f69"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:a0ff1b206d07de67fcce42c371154fe9bf0ab51e9ea8fae7a58f75dde825ddb6"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:cd1d3e3b0aadca03584d70090151827b45f42e1b0de287645835ea278c64f101"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:2fb2e5e0162f0519f1bd1a2dd5f33117fa783a6dadad2e085075e62301308c07"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:c93cd8008280ed5f11c7e3aa962c08521710319a78e7b534ea00b86b5cdb7957"
+          }
+        ],
+        "params": {
+          "provider": "hubspot",
+          "notes": "Speakeasy MCP Catalog: forced-catalog name=\"com.pulsemcp.mirror/hubspot\"",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:2fb2e5e0162f0519f1bd1a2dd5f33117fa783a6dadad2e085075e62301308c07"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:c93cd8008280ed5f11c7e3aa962c08521710319a78e7b534ea00b86b5cdb7957"
+        }
+      ],
+      "completed_at": "2026-07-31T20:26:49Z"
+    }
+  }
+}

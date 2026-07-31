@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: github
+title: GitHub
+summary: Connect the hosted GitHub MCP Server with a fine-grained personal access token.
+aliases:
+  - io.github.github/github-mcp-server
+speakeasy_add_server: catalog
+credential_setup:
+  requirements:
+    - id: github-account
+      description: A GitHub account with access to the repositories or organization resources the MCP Server should reach.
+    - id: pat-policy
+      description: Organization and enterprise policies that permit a fine-grained personal access token with the required resource owner, lifetime, and permissions.
+  options:
+    - id: personal-access-token
+      kind: api_key
+      upstream_setup: provider-steps
+      fields:
+        - id: authorization
+          label: Authorization
+          setup:
+            - external.md#configure-and-generate-token
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: github
+    url: https://api.githubcopilot.com/mcp/
+    transport: streamable-http
+    authentication:
+      - personal-access-token
+    provenance:
+      - source: github
+        classification: official
+        locator: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
+        observed_at: "2026-07-31T20:39:35Z"
+      - source: github-docs
+        classification: official
+        locator: https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/set-up-the-github-mcp-server
+        observed_at: "2026-07-31T20:39:35Z"
+provenance:
+  - source: github
+    classification: official
+    locator: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
+    observed_at: "2026-07-31T20:39:35Z"
+  - source: github-docs
+    classification: official
+    locator: https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/set-up-the-github-mcp-server
+    observed_at: "2026-07-31T20:39:35Z"
+  - source: github-docs
+    classification: official
+    locator: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+    observed_at: "2026-07-31T20:39:35Z"
+  - source: github-docs
+    classification: official
+    locator: https://docs.github.com/en/organizations/managing-programmatic-access-to-your-organization/setting-a-personal-access-token-policy-for-your-organization
+    observed_at: "2026-07-31T20:39:35Z"
+  - source: github-docs
+    classification: official
+    locator: https://docs.github.com/en/organizations/managing-programmatic-access-to-your-organization/managing-requests-for-personal-access-tokens-in-your-organization
+    observed_at: "2026-07-31T20:39:35Z"
+  - source: github-docs
+    classification: official
+    locator: https://docs.github.com/llms.txt
+    observed_at: "2026-07-31T20:39:35Z"
+  - source: github
+    classification: official
+    locator: https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/
+    observed_at: "2026-07-31T20:39:35Z"
+  - source: doctrine
+    classification: official
+    locator: doctrine/speakeasy-setup.md
+    observed_at: "2026-07-31T20:39:35Z"
+  - source: pulsemcp
+    classification: mirror
+    locator: io.github.github/github-mcp-server
+    name: GitHub
+    status: present
+    scope: speakeasy-mcp-catalog
+    observed_at: "2026-07-31T20:39:35Z"

@@ -1,0 +1,12 @@
+{
+  "slug": "hubspot",
+  "arm": "a",
+  "exit_code": 0,
+  "wall_clock_seconds": 612,
+  "git_sha": "360bbd94c8188a298a97e763da604c0147e862bd",
+  "doctrine_file": "doctrine/roles/technical-research.md",
+  "doctrine_sha256": "88f093f873c705128a0a31eb38be298a2ee11f4d50815552739925337f8ac3ad",
+  "started_at": "20260731T201630Z",
+  "worktree": "/tmp/ns-exp/hubspot-a-20260731T201630Z",
+  "run_record": "2026-07-31T20:16:37Z-hubspot.json"
+}

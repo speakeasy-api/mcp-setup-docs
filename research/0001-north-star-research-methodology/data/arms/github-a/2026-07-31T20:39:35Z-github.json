@@ -1,0 +1,256 @@
+{
+  "slug": "github",
+  "provider": "github",
+  "persona": "it-admin",
+  "timestamp": "2026-07-31T20:39:35Z",
+  "started_at": "2026-07-31T20:39:35Z",
+  "finished_at": "2026-07-31T20:49:42Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#configure-and-generate-token, step 8",
+          "problem": "The reader must leave the guide and determine required fine-grained permissions from GitHub REST API operation pages without knowing which operations the MCP Server will perform.",
+          "suggestion": "Record and render a concrete obtain-from-owner path: require the application or cloud security owner to provide the intended GitHub operations and exact fine-grained permission levels before token creation, rather than asking this persona to derive them from API documentation.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#configure-and-generate-token, “If SAML single sign-on protects the intended organization resources, authorize the token for that organization before testing.”",
+          "problem": "The guide requires SAML authorization for first connection but provides no screen path, controls, or indication of how the reader completes it.",
+          "suggestion": "Research GitHub’s documented fine-grained-token SAML authorization flow and add the exact browser path and named controls, or clarify from the documentation that authorization occurs during token creation and state what the reader must verify.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#configure-and-generate-token, “If the token is marked `pending`, wait for an organization administrator to approve it”",
+          "problem": "A pending token blocks access to intended private organization resources, but the guide does not tell the administrator how to approve it or tell the requester how to confirm approval.",
+          "suggestion": "Record the documented organization approval path and approval-state indicator, then render the exact controls for an administrator or explicitly tell the requester whom to contact and what visible status confirms that setup can continue.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Updated research.md first, then external.md and meta.yaml. Finding 1: replaced the REST API research burden with a concrete obtain-from-owner path requiring intended GitHub operations and exact fine-grained permission levels before token creation. Finding 2: documented that fine-grained PAT SAML authorization occurs during creation by selecting the organization as Resource owner, with no separate post-creation authorization screen. Finding 3: added the organization-owner approval path through Your organizations > Settings > Third-party Access > Personal access tokens > Pending requests > Approve, plus the requester path and the disappearance of the pending marker as the continuation indicator. Added the GitHub approval documentation locator and 2026-07-31T20:39:35Z provenance to research.md and meta.yaml. Existing anchors and the catalog-only Speakeasy path were preserved.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#configure-and-generate-token, “If an organization is absent, it may have blocked fine-grained personal access tokens.”",
+          "problem": "A reader whose intended organization is absent cannot continue and is not told whom to contact or what policy change to request.",
+          "suggestion": "Record and render a recovery path that tells the reader to contact an organization owner and request that fine-grained personal access tokens be permitted for the organization, including the documented settings path if the owner is expected to make the change directly.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "external.md#configure-and-generate-token, step 9",
+          "problem": "The instruction to “enter” supplied permission levels does not identify how the reader applies permission names and access levels in GitHub's permission controls.",
+          "suggestion": "Record and render the documented action for locating each supplied permission and selecting its supplied access level under the appropriate repository, organization, or account permission category.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker: added a documented recovery path to research.md and external.md for an absent organization, directing the reader to an organization owner and providing the GitHub settings path and controls for permitting fine-grained PAT access; added the official policy source with the required observed_at timestamp to research.md and meta.yaml. Nit: clarified in research.md and external.md how to open the appropriate permission category, locate each supplied permission, and select its supplied access level from the dropdown. Anchors and the catalog-only Speakeasy path remain unchanged.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:7ed2661a0add745d9e53c858f72284556197fcad9430624309cf1dd917117329",
+  "setup_churn": {
+    "external_md_lines": 41,
+    "speakeasy_md_lines": 30
+  },
+  "usage": {
+    "reported": true,
+    "total": {
+      "costUsd": 2.690285,
+      "inputTokens": 258,
+      "outputTokens": 25760,
+      "cacheReadTokens": 1230727,
+      "cacheWriteTokens": 208133,
+      "totalTokens": 1464878
+    },
+    "by_phase": {
+      "github: research": {
+        "costUsd": 0.877132,
+        "inputTokens": 60,
+        "outputTokens": 6132,
+        "cacheReadTokens": 675394,
+        "cacheWriteTokens": 56828,
+        "totalTokens": 738414
+      },
+      "github: draft": {
+        "costUsd": 0.228792,
+        "inputTokens": 24,
+        "outputTokens": 2078,
+        "cacheReadTokens": 55764,
+        "cacheWriteTokens": 22152,
+        "totalTokens": 80018
+      },
+      "github: review": {
+        "costUsd": 1.041916,
+        "inputTokens": 111,
+        "outputTokens": 10071,
+        "cacheReadTokens": 255236,
+        "cacheWriteTokens": 97858,
+        "totalTokens": 363276
+      },
+      "github: revise": {
+        "costUsd": 0.542445,
+        "inputTokens": 63,
+        "outputTokens": 7479,
+        "cacheReadTokens": 244333,
+        "cacheWriteTokens": 31295,
+        "totalTokens": 283170
+      }
+    },
+    "by_agent": [
+      {
+        "costUsd": 0.877132,
+        "inputTokens": 60,
+        "outputTokens": 6132,
+        "cacheReadTokens": 675394,
+        "cacheWriteTokens": 56828,
+        "totalTokens": 738414,
+        "label": "github research",
+        "phase": "github: research",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.228792,
+        "inputTokens": 24,
+        "outputTokens": 2078,
+        "cacheReadTokens": 55764,
+        "cacheWriteTokens": 22152,
+        "totalTokens": 80018,
+        "label": "github draft",
+        "phase": "github: draft",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.159637,
+        "inputTokens": 18,
+        "outputTokens": 1028,
+        "cacheReadTokens": 41064,
+        "cacheWriteTokens": 17308,
+        "totalTokens": 59418,
+        "label": "github review:fidelity r1",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.195669,
+        "inputTokens": 24,
+        "outputTokens": 2442,
+        "cacheReadTokens": 54902,
+        "cacheWriteTokens": 15174,
+        "totalTokens": 72542,
+        "label": "github review:achievability r1",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.300294,
+        "inputTokens": 33,
+        "outputTokens": 4489,
+        "cacheReadTokens": 132281,
+        "cacheWriteTokens": 15891,
+        "totalTokens": 152694,
+        "label": "github revise r1",
+        "phase": "github: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.188947,
+        "inputTokens": 9,
+        "outputTokens": 1304,
+        "cacheReadTokens": 11877,
+        "cacheWriteTokens": 23015,
+        "totalTokens": 36205,
+        "label": "github review:fidelity r2",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.196866,
+        "inputTokens": 21,
+        "outputTokens": 2990,
+        "cacheReadTokens": 53509,
+        "cacheWriteTokens": 12849,
+        "totalTokens": 69369,
+        "label": "github review:achievability r2",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.242151,
+        "inputTokens": 30,
+        "outputTokens": 2990,
+        "cacheReadTokens": 112052,
+        "cacheWriteTokens": 15404,
+        "totalTokens": 130476,
+        "label": "github revise r2",
+        "phase": "github: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.170505,
+        "inputTokens": 18,
+        "outputTokens": 1035,
+        "cacheReadTokens": 46118,
+        "cacheWriteTokens": 18609,
+        "totalTokens": 65780,
+        "label": "github review:fidelity r3",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.130292,
+        "inputTokens": 21,
+        "outputTokens": 1272,
+        "cacheReadTokens": 47766,
+        "cacheWriteTokens": 10903,
+        "totalTokens": 59962,
+        "label": "github review:achievability r3",
+        "phase": "github: review",
+        "calls": 1,
+        "usage_reported": true
+      }
+    ]
+  }
+}

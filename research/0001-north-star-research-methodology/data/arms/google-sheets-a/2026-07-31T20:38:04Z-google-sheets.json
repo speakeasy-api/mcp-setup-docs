@@ -1,0 +1,348 @@
+{
+  "slug": "google-sheets",
+  "provider": "google-sheets",
+  "persona": "it-admin",
+  "timestamp": "2026-07-31T20:38:04Z",
+  "started_at": "2026-07-31T20:38:04Z",
+  "finished_at": "2026-07-31T20:48:34Z",
+  "runtime": "pi",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#connect-speakeasy-credentials",
+      "problem": "The Research Dossier moves the Redirect URI confirmation before credential entry and attachment, while the canonical Speakeasy skeleton places it after clicking **Attach Identity Provider**.",
+      "suggestion": "Restore the canonical action order in the Research Dossier, then update speakeasy.md to render that order faithfully.",
+      "dimension": "fidelity"
+    }
+  ],
+  "nits": [],
+  "open_questions": [
+    "Which exact Google Cloud IAM roles or permissions does an administrator need to enable both APIs and configure Google Auth Platform? Google's public Sheets MCP page does not specify them.",
+    "Does Google expose OAuth protected-resource metadata at another well-known URL that would allow Use Discovered? A public request to https://sheetsmcp.googleapis.com/.well-known/oauth-protected-resource did not return metadata, and the provider documentation only describes manually registered OAuth clients."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose: “Sign in to the Developer Preview page and the Google Cloud console with the account that manages this project.”",
+          "problem": "The Research Dossier does not establish that the Google Workspace account used for Developer Preview must be the same account that manages the Google Cloud project.",
+          "suggestion": "Describe the two access requirements separately without asserting that one account must satisfy both.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose",
+          "problem": "The opening omits the Dossier's permission fact that the MCP Server inherits the connected Google user's permissions and data-governance controls.",
+          "suggestion": "Add a concise opening statement that users must connect an intended Google account whose existing permissions provide the required Sheets access.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — closing pointer",
+          "problem": "The Dossier records only a further-reading URL instead of transcluding the canonical closing sentence required by doctrine/speakeasy-setup.md.",
+          "suggestion": "Replace the abbreviated further-reading note with the canonical setup-only closing sentence using the Google Sheets MCP documentation URL, then rerender speakeasy.md from it.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "provenance",
+          "problem": "Metadata omits the Dossier's protected-resource metadata probe used to support the manual OAuth configuration decision.",
+          "suggestion": "Add a provenance record for https://sheetsmcp.googleapis.com/.well-known/oauth-protected-resource with the run's observed_at timestamp.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#join-developer-preview, step 4",
+          "problem": "The application requires Google Cloud project information before readers without a project are told how to create one.",
+          "suggestion": "Move the new-project path before application submission, then direct the reader back to the Developer Preview form with the created project selected.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#configure-oauth-consent, “If Google Auth Platform not configured yet appears”",
+          "problem": "Readers whose Google Auth Platform is already configured are sent into first-time setup controls such as Get Started and Next that will not appear.",
+          "suggestion": "Wrap the first-time configuration steps in the unconfigured-state condition and explicitly tell readers with an existing configuration to continue at Add the Google Sheets scopes.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "#join-developer-preview",
+          "problem": "The Dossier does not record the application form's field and submission-control labels or state that Google's public documentation omits them.",
+          "suggestion": "Research the published form labels and control name, or add an open question documenting the public-doc silence so the guide can use a Dossier-backed console-label hedge.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Updated research.md to transclude the canonical setup-only closing sentence, document public silence around Developer Preview form labels, place project creation before preview application, clarify the return to the registered project, and distinguish first-time OAuth configuration from an existing configuration. Added the protected-resource metadata probe to meta.yaml provenance with observed_at 2026-07-31T20:38:04Z. Updated external.md to separate Developer Preview and Google Cloud access requirements, explain inherited Google-account permissions and governance controls, move project creation before application submission, and condition first-time Google Auth Platform controls correctly. Rerendered speakeasy.md with the canonical closing sentence and retained only the Custom remote server path.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose: “Sign in to the Developer Preview page with the Google Workspace account applying to the program.”",
+          "problem": "The Research Dossier says the application supplies a Google Workspace account but does not establish that the browser must be signed in with that account.",
+          "suggestion": "Remove the sign-in identity requirement and say to open the Developer Preview page, then supply the intended Google Workspace account in the application.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#configure-oauth-consent — “If Google Auth Platform is already configured, continue at Add the Google Sheets scopes.”",
+          "problem": "Readers with an existing External OAuth configuration that remains in testing can skip adding the intended Google account as a test user, causing authorization to fail during first connection.",
+          "suggestion": "Research and record how readers identify an existing External configuration that is still in testing, then add a conditional path that uses Audience > Test users > Add users before proceeding to the scopes.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Research blocker: updated research.md with the documented Audience check for an existing OAuth configuration; when User type is External and Publishing status is Testing, the admin adds the intended Google account under Test users before adding scopes. Expanded the existing OAuth-consent provenance record with those labels and retained the supplied observed_at timestamp. External fidelity blocker: removed the unsupported requirement to sign in to the Developer Preview page as the applying account and instead directs the reader to open the page and supply the intended Google Workspace account in the application. External achievability rendering: added the existing-configuration Audience/Test users path under the existing configure-oauth-consent anchor. No anchors or Metadata references changed.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#configure-oauth-consent — existing Google Auth Platform path, steps 3–5",
+          "problem": "The conditional applies only to clicking **Add users**, while the following steps unconditionally tell readers to enter an email address and click **Save** even when the user type is not External or the publishing status is not Testing.",
+          "suggestion": "Place the **Add users**, email-entry, and **Save** actions together under the condition that **User type** is **External** and **Publishing status** is **Testing**; otherwise direct the reader to continue to the scopes.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#configure-oauth-consent — “If Google Auth Platform is already configured” steps 3–5",
+          "problem": "Readers whose existing configuration is not both External and Testing are still told to enter an email address and click Save even though the Add users dialog was never opened.",
+          "suggestion": "Make entering the intended Google account and clicking Save substeps of the External-and-Testing condition, and explicitly tell all other readers to continue at Add the Google Sheets scopes.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Both blocker findings addressed in guides/google-sheets/external.md: grouped Add users, email entry, and Save as substeps under the External-and-Testing condition, then directed every reader to continue at Add the Google Sheets scopes.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The Research Dossier moves the Redirect URI confirmation before credential entry and attachment, while the canonical Speakeasy skeleton places it after clicking **Attach Identity Provider**.",
+          "suggestion": "Restore the canonical action order in the Research Dossier, then update speakeasy.md to render that order faithfully.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:f7613dc3de169ed89e3a885b8274150a918f457e1040e1f6d43d283709954eff",
+  "setup_churn": {
+    "external_md_lines": 104,
+    "speakeasy_md_lines": 26
+  },
+  "usage": {
+    "reported": true,
+    "total": {
+      "costUsd": 3.69266,
+      "inputTokens": 315,
+      "outputTokens": 36765,
+      "cacheReadTokens": 1541420,
+      "cacheWriteTokens": 290788,
+      "totalTokens": 1869288
+    },
+    "by_phase": {
+      "google-sheets: research": {
+        "costUsd": 1.089903,
+        "inputTokens": 69,
+        "outputTokens": 9945,
+        "cacheReadTokens": 813491,
+        "cacheWriteTokens": 61514,
+        "totalTokens": 885019
+      },
+      "google-sheets: draft": {
+        "costUsd": 0.218488,
+        "inputTokens": 24,
+        "outputTokens": 2570,
+        "cacheReadTokens": 65611,
+        "cacheWriteTokens": 17354,
+        "totalTokens": 85559
+      },
+      "google-sheets: review": {
+        "costUsd": 1.607862,
+        "inputTokens": 144,
+        "outputTokens": 15247,
+        "cacheReadTokens": 315227,
+        "cacheWriteTokens": 158739,
+        "totalTokens": 489357
+      },
+      "google-sheets: revise": {
+        "costUsd": 0.776407,
+        "inputTokens": 78,
+        "outputTokens": 9003,
+        "cacheReadTokens": 347091,
+        "cacheWriteTokens": 53181,
+        "totalTokens": 409353
+      }
+    },
+    "by_agent": [
+      {
+        "costUsd": 1.089903,
+        "inputTokens": 69,
+        "outputTokens": 9945,
+        "cacheReadTokens": 813491,
+        "cacheWriteTokens": 61514,
+        "totalTokens": 885019,
+        "label": "google-sheets research",
+        "phase": "google-sheets: research",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.218488,
+        "inputTokens": 24,
+        "outputTokens": 2570,
+        "cacheReadTokens": 65611,
+        "cacheWriteTokens": 17354,
+        "totalTokens": 85559,
+        "label": "google-sheets draft",
+        "phase": "google-sheets: draft",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.178141,
+        "inputTokens": 21,
+        "outputTokens": 2200,
+        "cacheReadTokens": 42035,
+        "cacheWriteTokens": 14563,
+        "totalTokens": 58819,
+        "label": "google-sheets review:achievability r1",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.215663,
+        "inputTokens": 12,
+        "outputTokens": 2762,
+        "cacheReadTokens": 28935,
+        "cacheWriteTokens": 18924,
+        "totalTokens": 50633,
+        "label": "google-sheets review:fidelity r1",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.371183,
+        "inputTokens": 30,
+        "outputTokens": 5363,
+        "cacheReadTokens": 152810,
+        "cacheWriteTokens": 21398,
+        "totalTokens": 179601,
+        "label": "google-sheets revise r1",
+        "phase": "google-sheets: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.276512,
+        "inputTokens": 15,
+        "outputTokens": 2463,
+        "cacheReadTokens": 27543,
+        "cacheWriteTokens": 30204,
+        "totalTokens": 60225,
+        "label": "google-sheets review:achievability r2",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.189025,
+        "inputTokens": 18,
+        "outputTokens": 1848,
+        "cacheReadTokens": 48628,
+        "cacheWriteTokens": 17469,
+        "totalTokens": 67963,
+        "label": "google-sheets review:fidelity r2",
+        "phase": "google-sheets: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.214358,
+        "inputTokens": 21,
+        "outputTokens": 2109,
+        "cacheReadTokens": 98803,
+        "cacheWriteTokens": 16253,
+        "totalTokens": 117186,
+        "label": "google-sheets revise r2",
+        "phase": "google-sheets: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.485639,
+        "inputTokens": 36,
+        "outputTokens": 3836,
+        "cacheReadTokens": 72408,
+        "cacheWriteTokens": 53468,
+        "totalTokens": 129748,
+        "label": "google-sheets review:fidelity r3",
+        "phase": "google-sheets: review",
+        "calls": 2,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.262883,
+        "inputTokens": 42,
+        "outputTokens": 2138,
+        "cacheReadTokens": 95678,
+        "cacheWriteTokens": 24111,
+        "totalTokens": 121969,
+        "label": "google-sheets review:achievability r3",
+        "phase": "google-sheets: review",
+        "calls": 2,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.190867,
+        "inputTokens": 27,
+        "outputTokens": 1531,
+        "cacheReadTokens": 95478,
+        "cacheWriteTokens": 15530,
+        "totalTokens": 112566,
+        "label": "google-sheets revise r3",
+        "phase": "google-sheets: revise",
+        "calls": 1,
+        "usage_reported": true
+      }
+    ]
+  }
+}
