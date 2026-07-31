@@ -1,4 +1,4 @@
-# Handoff — Factory v2, after Stage 2
+# Handoff — Factory v2, after the lock scheme
 
 > Supersedes the original handoff (see `git log FACTORY-V2-HANDOFF.md` for it).
 > Paste everything below the line into a fresh session started in the
@@ -8,53 +8,47 @@
 
 ## Where this stands
 
-**Stages 1 and 2 are done and committed.** `--runtime pi` drives all four phases
-against OpenRouter and has taken a real guide from an empty directory to
-`status: converged`; `resolve-issue.ts` no longer imports `@cursor/sdk`. Six
-commits:
+**Stages 1 and 2 and the lock scheme are done and committed.** `--runtime pi`
+drives all four phases against OpenRouter and has taken a real guide from an
+empty directory to `status: converged`; `resolve-issue.ts` no longer imports
+`@cursor/sdk`; `prompt_digest` now hashes the prompt the agent actually gets.
+Nine commits:
 
 | Commit | What |
 | --- | --- |
 | `e9dd912` | The design (`FACTORY-V2.md`) plus nine research reports |
 | `50fb40c` | The pi runtime behind `--runtime`, tests 34 → 85 |
 | `62fefe0` | Per-phase tool-call logging |
-| `3b7c204` | The `PATH_CONTRACT` fix found by the fresh-draft run, tests 87 → 88 |
+| `3b7c204` | `PATH_CONTRACT`, tests 87 → 88 — a fix for the wrong cause, see below |
 | `ce2106b` | Stage 2: `resolve-issue.ts` onto a direct OpenRouter `fetch`, tests 88 → 100 |
-| `816a9dc` | This file, recording what the generation test measured |
+| `816a9dc` | Recording what the generation test measured |
+| `fec5184` | `cmd-distill.ts` gates on `OPENROUTER_API_KEY` |
+| `e39c1e6` | **The doubled-repo-root bug in `assign()`** — the real cause of run 1 |
+| `9787bb7` | Lock scheme: `prompt_digest` over the rendered prompt, tests 100 → 112 |
 
-At `ce2106b`: tests 100/100, `npm run typecheck` clean.
+At `9787bb7`: tests 112/112, `npm run typecheck` clean, all 18 guides lint `ok`.
 
-**The `CURSOR_API_KEY` goal is NOT met yet**, and the tree is now in a
-**deliberate half-migrated state** — read the next section before running
-anything in CI.
+**The `CURSOR_API_KEY` goal is NOT met yet.** One deliberate breakage remains —
+read the next section before running anything in CI.
 
 ## Your task — finish the cutover, in this order
 
-**⚠️ First, the thing that is currently broken.** `ce2106b` moved
-`resolve-issue.ts` onto `OPENROUTER_API_KEY`, but its two callers still speak
-Cursor. In CI the distill step now passes `cmd-distill.ts`'s gate and *then*
-dies with `OPENROUTER_API_KEY is required`:
+**⚠️ First, the thing that is still broken.** `resolve-issue.ts` and its caller
+both speak OpenRouter now, but the workflow does not:
+`.github/workflows/guide-draft.yml:88` passes only
+`CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}` to the distill step, so in CI
+that step fails with `OPENROUTER_API_KEY secret is not set`.
 
-- `pipeline/src/factory/cmd-distill.ts:26` still hard-gates on `CURSOR_API_KEY`
-  before spawning `src/resolve-issue.ts`.
-- `.github/workflows/guide-draft.yml:88` passes only
-  `CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}` to that step.
-
-**Do not merge this branch to `main` until both are fixed.** They were left
-alone on purpose: pointing the workflow at `OPENROUTER_API_KEY` before that
-secret exists in GitHub breaks CI immediately, and minting it is a human
-decision (see Hard constraints — use a fresh spend-capped key, not the dev one).
+**Do not merge this branch to `main` until that is fixed.** It was left alone on
+purpose: pointing the workflow at `OPENROUTER_API_KEY` before that secret exists
+in GitHub breaks CI immediately, and minting it is a human decision (see Hard
+constraints — a fresh spend-capped key, not the dev one).
 
 Then, in order:
 
-1. **`cmd-distill.ts:26`** — swap the gate to `OPENROUTER_API_KEY`. Safe and
-   local; do this first so the code is at least self-consistent.
-2. **Lock scheme** (§9 Stage 5) — `prompt_digest` over the rendered prompt with
-   `NOW` stripped. Two regression tests: two runs differing only in `NOW` produce
-   an identical `input_digest`, and editing a prompt builder *does* change it.
-3. **Cutover** — flip the default to `pi`, delete `runtime.ts` and its
+1. **Cutover** — flip the default to `pi`, delete `runtime.ts` and its
    `@cursor/sdk` import, drop the dependency from `package.json` + lockfile.
-4. **CI** (§9 Stage 6) — mint the spend-capped key, swap the secret on both
+2. **CI** (§9 Stage 6) — mint the spend-capped key, swap the secret on both
    `guide-draft.yml` steps (`:88` distill, `:119` draft), then delete
    `CURSOR_API_KEY` from repo secrets and from the docs listed below.
    **When this merges, the goal is met.**
@@ -64,6 +58,10 @@ issues and confirm slug and persona match what the Cursor path produced. The
 unit tests cover every branch of `distill()`, but nothing has yet checked that
 the OpenRouter light model classifies as well as `composer-2.5` did.
 
+One free check worth doing before the cutover run: `e39c1e6` changed what every
+agent is told about where to write. Nothing in the corpus depends on it, but the
+first pi run after it is the first run whose assignment block was correct.
+
 ## What the generation test showed
 
 The fresh-draft run on `google-calendar` is **done**, and it answered the
@@ -71,12 +69,32 @@ question that was the migration's largest open risk.
 
 **Run 1 failed, and usefully.** ~$0.75, dead at research on the I7 tripwire: the
 agent wrote to `<repoRoot>/home/walker/…/guides/google-calendar/research.md`.
-Root cause is a genuine ambiguity, not a model lapse — `workflow.ts`'s `assign()`
-(~`:558`) hands the agent an **absolute** guide directory while pi runs with
-`cwd = repoRoot`, so both encodings are valid; the model rendered the absolute
-path *without its leading slash* and pi resolved that as relative. A live probe
-cleared pi (`dist/utils/paths.js:60`, `resolvePath` branches on `isAbsolute`).
-Fixed in `3b7c204`; see `PATH_CONTRACT` under "What Stage 1 built".
+
+⚠️ **The root cause recorded here was wrong, twice over.** It was first blamed on
+pi's path resolution (a live probe cleared pi — `dist/utils/paths.js:60`,
+`resolvePath` branches on `isAbsolute`), then on the model rendering an absolute
+path without its leading slash. Neither. `workflow.ts`'s `assign()` was building
+the guide directory as `abs(ROOT, guideDir(slug))`, where the `guideDir` in scope
+is a **local** helper returning an already-absolute path — so `abs` glued the
+repo root on a second time and the prompt literally said:
+
+```
+- guide directory: /repo/home/walker/…/repo/guides/google-calendar/
+```
+
+The agent did what it was told. Present since `aa5964c`, on `main`, on both
+runtimes — the Cursor-era guides came out fine only because the agent inferred
+the real directory from the reading list instead of believing the assignment.
+Fixed in `e39c1e6`, which also drops the shadowed import so the name cannot
+collide again.
+
+`PATH_CONTRACT` (`3b7c204`) therefore fixed a cause that did not exist. It stays:
+two sentences telling the agent where it is standing are worth keeping, and its
+regression test is unaffected. But do not treat it as load-bearing.
+
+**The lesson is about the diagnosis, not the bug.** Two plausible stories about
+model behaviour were accepted before anyone evaluated the expression. If a prompt
+says something surprising, print it.
 
 **Run 2 converged.** `status: converged`, 2 review rounds, **$2.25**, ~7 minutes
 (15:07:07 → 15:14:21). `lint-guide: ok`, no tripwire. Per-phase:
@@ -223,7 +241,8 @@ Four design points worth not re-deriving:
   or be repo-relative. It is appended inside `turn`, not `agent`, so the
   remediation turn carries it too; the regression test pins both turns. Deliberately
   **runtime-local**: `workflow.ts`, `doctrine/`, and the Cursor path are untouched,
-  so the fix cannot change what the Cursor runtime produces.
+  so the fix cannot change what the Cursor runtime produces. It was written to fix
+  run 1 and did not — see the correction under "What the generation test showed".
 
 `withSchemaHint` had to move to `schema-hint.ts` and be re-exported from
 `runtime.ts`: hints are keyed by zod schema *identity* and `workflow.ts` calls it
@@ -270,34 +289,67 @@ whole-swap rather than per-phase:
    real regression (the dropped endpoint-probe fields) and one style drift
    (`Click` → `Select`) to settle before cutover. See "What the generation test
    showed".
-2. ~~**`resolve-issue.ts`**~~ — **done** in `ce2106b`. Still needs the
-   replay validation described under "Your task"; only its unit tests have run.
-3. **Lock scheme** (§9 Stage 5) — `prompt_digest` over the rendered prompt with
-   `NOW` stripped. Two regression tests: two runs differing only in `NOW` produce
-   an identical `input_digest`, and editing a prompt builder *does* change it.
+2. ~~**`resolve-issue.ts`**~~ — **done** in `ce2106b`, gate fixed in `fec5184`.
+   Still needs the replay validation described under "Your task"; only its unit
+   tests have run.
+3. ~~**Lock scheme**~~ — **done** in `9787bb7`. See "What the lock scheme
+   changed" below.
 4. **Cutover** — flip the default, delete `runtime.ts`/`json.ts`, drop
    `@cursor/sdk`.
 5. **CI** (§9 Stage 6) — swap the secret on both steps of `guide-draft.yml`
    (`:88` distill, `:119` draft), mint a spend-capped disposable key per run,
    then delete `CURSOR_API_KEY` everywhere. **When this merges, the goal is met.**
 
-The full blast radius for that last step, **as of `ce2106b`**. The prose is the
+The full blast radius for that last step, **as of `9787bb7`**. The prose is the
 part that gets missed — `README.md` was absent from the earlier version of this
 list:
 
 | Where | Lines |
 | --- | --- |
 | `pipeline/src/runtime.ts` | `1` (import) |
-| `pipeline/src/factory/cmd-distill.ts` | `26` (pre-flight gate) — **currently broken, see "Your task"** |
 | `pipeline/src/cli.ts` | `250` (key selection), `45`, `55` (usage text) |
 | `pipeline/package.json` | `17` + lockfile |
 | `.github/workflows/guide-draft.yml` | `88`, `119` — **`:88` currently broken** |
 | `FACTORY.md` | `18`, `106` |
 | `README.md` | `30` |
 | `mise.toml` | `23` (comment; `18` also says "via the Cursor SDK") |
+| `pipeline/src/pi-guard.ts` | `26` — in `DENIED_ENV`; drop with the rest |
 
-Plus GitHub repo secrets themselves. The `resolve-issue.ts` rows are gone —
-`ce2106b` cleared them.
+Plus GitHub repo secrets themselves. The `resolve-issue.ts` and
+`cmd-distill.ts` rows are gone — `ce2106b` and `fec5184` cleared them.
+
+## What the lock scheme changed
+
+`prompt_digest` used to hash `PROMPT_TEMPLATES` in `lock.ts`: a hand-written
+shadow of each prompt, which nothing tied to the real builder. Editing a prompt
+left the digest unchanged, so the pipeline would skip a step whose instructions
+had moved — the exact failure the lock exists to prevent, and unobservable.
+
+It now hashes the **rendered** prompt with declared volatile spans replaced by
+placeholders. Worth not re-deriving:
+
+- **The three hashed prompts moved to `pipeline/src/prompts.ts`.** They were
+  closures inside `runWorkflow`, which is why no test could render one — and why
+  the shadow existed at all. `createPrompts({repoRoot, timestamp, persona,
+  maxRounds})` returns them. Remediation, judge and revision prompts stayed in
+  `workflow.ts`; nothing hashes those.
+- **What is stripped, and why each:** the whole `assign()` block (slug, provider,
+  guide directory, persona, operator notes with the catalog note merged in, and
+  `NOW`); the persona file path where the reading list repeats it; the repo root,
+  so digests stay portable; and the reviewer round line, which carries
+  `MAX_ROUNDS` and would otherwise let `--max-rounds` bust every review entry.
+  Everything stripped is already in `params` or `reading_list`, so nothing that
+  used to bust the cache stopped.
+- **`stripVolatile` throws when a span is absent** rather than skipping it. A
+  span that quietly stopped matching would leave `NOW` in the digest and every
+  run would bust every entry while looking healthy — costly and invisible. This
+  is also what forces the `persona` flag in `volatileSpans` to match the
+  `withPersona` its builder passes to `readingList`.
+- **`doctrine/pipeline-lock.md` needed no change** (I8 respected). It already
+  requires exactly these exclusions and says the byte sequence's source is an
+  implementation detail. `FACTORY-V2.md` §9 expected a doctrine rewrite here;
+  that assumed the prompt-file design of Stage 7, not this one.
+- All 16 committed locks go cold on first contact, as the design planned.
 
 ## What Stage 2 built
 
@@ -327,6 +379,12 @@ import `distill` without the CLI running and calling `process.exit`; the house
 idiom would be a `-cli.ts` split, which needs `package.json` and
 `cmd-distill.ts:57` to move with it.
 
+`fec5184` swapped `cmd-distill.ts`'s pre-flight gate to `OPENROUTER_API_KEY` and
+made it trim first, matching `resolve-issue.ts:363`. Without the trim a
+whitespace-only secret clears the gate and dies in the subprocess as
+"resolve-issue produced no resolved.json", which names neither the secret nor
+the problem.
+
 ## Repo state
 
 - Branch `worktree-sandcastle-factory`, worktree at
@@ -337,6 +395,9 @@ idiom would be a `-cli.ts` split, which needs `package.json` and
   Nothing under `retro/runs/` has ever been tracked, and it sits inside the
   tripwire allowlist, so leaving them costs nothing.
 - `pipeline/node_modules` installed (164 packages, includes pinned pi).
+- `pipeline/src/prompts.ts` is new as of `9787bb7` and now owns the research,
+  draft and review prompts. `workflow.ts` lost ~300 lines to it and re-exports
+  `GuideInput` so `cli.ts` is unchanged.
 - `factory-v2-evidence/` holds twelve reports. Start with
   `probe-pi-session.md` (resume flags, exact error shapes),
   `report-runtime-seam.md` (every `agent()` call site and what it expects),
