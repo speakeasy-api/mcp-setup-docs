@@ -1,4 +1,4 @@
-# Handoff — Factory v2, after Stage 1
+# Handoff — Factory v2, after Stage 2
 
 > Supersedes the original handoff (see `git log FACTORY-V2-HANDOFF.md` for it).
 > Paste everything below the line into a fresh session started in the
@@ -8,9 +8,10 @@
 
 ## Where this stands
 
-**Stage 1 is done, committed, and validated on a fresh draft.** `--runtime pi`
-exists, drives all four phases against OpenRouter, and has taken a real guide
-from an empty directory to `status: converged`. Four commits:
+**Stages 1 and 2 are done and committed.** `--runtime pi` drives all four phases
+against OpenRouter and has taken a real guide from an empty directory to
+`status: converged`; `resolve-issue.ts` no longer imports `@cursor/sdk`. Six
+commits:
 
 | Commit | What |
 | --- | --- |
@@ -18,29 +19,50 @@ from an empty directory to `status: converged`. Four commits:
 | `50fb40c` | The pi runtime behind `--runtime`, tests 34 → 85 |
 | `62fefe0` | Per-phase tool-call logging |
 | `3b7c204` | The `PATH_CONTRACT` fix found by the fresh-draft run, tests 87 → 88 |
+| `ce2106b` | Stage 2: `resolve-issue.ts` onto a direct OpenRouter `fetch`, tests 88 → 100 |
+| `816a9dc` | This file, recording what the generation test measured |
 
-At `3b7c204`: tests 88/88, `npm run typecheck` clean, 18/18 guides lint clean.
+At `ce2106b`: tests 100/100, `npm run typecheck` clean.
 
-**The `CURSOR_API_KEY` goal is NOT met yet.** `--runtime cursor` is still the
-default, `resolve-issue.ts` still imports `@cursor/sdk`, and `cmd-distill.ts`
-still gates on the key. That is Stages 4 and 6.
+**The `CURSOR_API_KEY` goal is NOT met yet**, and the tree is now in a
+**deliberate half-migrated state** — read the next section before running
+anything in CI.
 
-## Your task
+## Your task — finish the cutover, in this order
 
-**Stage 2 — port `resolve-issue.ts` off `@cursor/sdk`.** It is the second and
-last `@cursor/sdk` import under `src/`, and it is much smaller than the phrase
-"the other runtime" suggests: a single `Agent.prompt` call at
-`resolve-issue.ts:260–286`, one-shot classification of an issue title/body into
-a guide slug + persona. `buildPrompt()` already embeds the candidate slugs and
-personas inline, so the agent gets no tools and never touches the filesystem
-(`local.cwd` is set but nothing reads it). **A plain `fetch` to OpenRouter is
-enough — no `pi` subprocess, no `runtime-pi.ts` reuse.**
+**⚠️ First, the thing that is currently broken.** `ce2106b` moved
+`resolve-issue.ts` onto `OPENROUTER_API_KEY`, but its two callers still speak
+Cursor. In CI the distill step now passes `cmd-distill.ts`'s gate and *then*
+dies with `OPENROUTER_API_KEY is required`:
 
-Everything downstream of the call already runs on plain text: `extractJson` →
-zod → `writeOutput`. What has to move is the `apiKey` gate (`:233`), the
-`result.status !== 'finished'` check, and the `CursorAgentError` catch.
+- `pipeline/src/factory/cmd-distill.ts:26` still hard-gates on `CURSOR_API_KEY`
+  before spawning `src/resolve-issue.ts`.
+- `.github/workflows/guide-draft.yml:88` passes only
+  `CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}` to that step.
 
-Validate by replaying 10 past labelled issues; slug and persona must match.
+**Do not merge this branch to `main` until both are fixed.** They were left
+alone on purpose: pointing the workflow at `OPENROUTER_API_KEY` before that
+secret exists in GitHub breaks CI immediately, and minting it is a human
+decision (see Hard constraints — use a fresh spend-capped key, not the dev one).
+
+Then, in order:
+
+1. **`cmd-distill.ts:26`** — swap the gate to `OPENROUTER_API_KEY`. Safe and
+   local; do this first so the code is at least self-consistent.
+2. **Lock scheme** (§9 Stage 5) — `prompt_digest` over the rendered prompt with
+   `NOW` stripped. Two regression tests: two runs differing only in `NOW` produce
+   an identical `input_digest`, and editing a prompt builder *does* change it.
+3. **Cutover** — flip the default to `pi`, delete `runtime.ts` and its
+   `@cursor/sdk` import, drop the dependency from `package.json` + lockfile.
+4. **CI** (§9 Stage 6) — mint the spend-capped key, swap the secret on both
+   `guide-draft.yml` steps (`:88` distill, `:119` draft), then delete
+   `CURSOR_API_KEY` from repo secrets and from the docs listed below.
+   **When this merges, the goal is met.**
+
+Stage 2 is still unvalidated against real inputs: replay ~10 past labelled
+issues and confirm slug and persona match what the Cursor path produced. The
+unit tests cover every branch of `distill()`, but nothing has yet checked that
+the OpenRouter light model classifies as well as `composer-2.5` did.
 
 ## What the generation test showed
 
@@ -248,10 +270,8 @@ whole-swap rather than per-phase:
    real regression (the dropped endpoint-probe fields) and one style drift
    (`Click` → `Select`) to settle before cutover. See "What the generation test
    showed".
-2. **`resolve-issue.ts`** — the second `@cursor/sdk` import, and the current
-   task. One-shot classification, no files, no tools; a direct OpenRouter
-   `fetch` (~30 lines). Validate by replaying 10 past labelled issues; slug and
-   persona must match.
+2. ~~**`resolve-issue.ts`**~~ — **done** in `ce2106b`. Still needs the
+   replay validation described under "Your task"; only its unit tests have run.
 3. **Lock scheme** (§9 Stage 5) — `prompt_digest` over the rendered prompt with
    `NOW` stripped. Two regression tests: two runs differing only in `NOW` produce
    an identical `input_digest`, and editing a prompt builder *does* change it.
@@ -261,31 +281,61 @@ whole-swap rather than per-phase:
    (`:88` distill, `:119` draft), mint a spend-capped disposable key per run,
    then delete `CURSOR_API_KEY` everywhere. **When this merges, the goal is met.**
 
-The full blast radius for that last step. The prose is the part that gets missed —
-`README.md` was absent from the earlier version of this list:
+The full blast radius for that last step, **as of `ce2106b`**. The prose is the
+part that gets missed — `README.md` was absent from the earlier version of this
+list:
 
 | Where | Lines |
 | --- | --- |
-| `pipeline/src/resolve-issue.ts` | `9` (import), `233` (gate), `46` (usage text) |
 | `pipeline/src/runtime.ts` | `1` (import) |
-| `pipeline/src/factory/cmd-distill.ts` | `26` (pre-flight gate) |
+| `pipeline/src/factory/cmd-distill.ts` | `26` (pre-flight gate) — **currently broken, see "Your task"** |
 | `pipeline/src/cli.ts` | `250` (key selection), `45`, `55` (usage text) |
 | `pipeline/package.json` | `17` + lockfile |
-| `.github/workflows/guide-draft.yml` | `88`, `119` |
+| `.github/workflows/guide-draft.yml` | `88`, `119` — **`:88` currently broken** |
 | `FACTORY.md` | `18`, `106` |
 | `README.md` | `30` |
 | `mise.toml` | `23` (comment; `18` also says "via the Cursor SDK") |
 
-Plus GitHub repo secrets themselves. Stage 2 clears the `resolve-issue.ts` rows
-on its way past.
+Plus GitHub repo secrets themselves. The `resolve-issue.ts` rows are gone —
+`ce2106b` cleared them.
+
+## What Stage 2 built
+
+`resolve-issue.ts` now calls OpenRouter's `/api/v1/chat/completions` directly.
+Three decisions worth not re-deriving:
+
+- **Infrastructure failure and genuine ambiguity are different exits.** A thrown
+  transport, a non-2xx, a 200 whose body is not JSON, and a 200 with no message
+  content all exit **1**. Only a real model response that fails `extractJson` or
+  the zod schema becomes `needs_clarification` and exits **2**. A 200-with-no-content
+  used to take the clarification path; asking the issue author to clarify when the
+  model returned nothing is both useless and the same shape of lie that let a
+  broken pi run look empty rather than failed.
+- **The HTTP envelope is parsed with `JSON.parse`, not `extractJson`.**
+  `extractJson` scavenges from the first `{` to the last `}`, which would
+  manufacture a plausible object out of an HTML error page. `extractJson` still
+  parses the *model's* text, where scavenging is the point.
+- **`distill()` takes its transport as a parameter**, matching `RunPi` in
+  `runtime-pi.ts`, so all twelve new tests run without a mocking library.
+
+One thing to know when reading it: `cmd-distill.ts` **does not branch on
+`resolve-issue`'s exit code** — it branches on `resolved.status` in the output
+file (`:69`, `:81`) and uses the code only inside a failure message (`:63`). So
+the exit-table change above alters which message reaches the issue, not control
+flow. `resolve-issue.ts` also gained an `isCliEntry()` guard so the test file can
+import `distill` without the CLI running and calling `process.exit`; the house
+idiom would be a `-cli.ts` split, which needs `package.json` and
+`cmd-distill.ts:57` to move with it.
 
 ## Repo state
 
 - Branch `worktree-sandcastle-factory`, worktree at
   `.claude/worktrees/sandcastle-factory`. `guides/google-calendar/` was restored
   after the test, so the committed guide is still the Cursor-generated reference.
-- `retro/runs/2026-07-31T14:58:27Z-*` (failed) and `…T15:07:07Z-*` (converged)
-  are the two run records from the generation test.
+- Tree is clean apart from `retro/runs/2026-07-31T14:58:27Z-*` (failed) and
+  `…T15:07:07Z-*` (converged), the two run records from the generation test.
+  Nothing under `retro/runs/` has ever been tracked, and it sits inside the
+  tripwire allowlist, so leaving them costs nothing.
 - `pipeline/node_modules` installed (164 packages, includes pinned pi).
 - `factory-v2-evidence/` holds twelve reports. Start with
   `probe-pi-session.md` (resume flags, exact error shapes),
@@ -311,17 +361,31 @@ herdr agent start seam-mapper --kind claude --pane <pane_id>
 herdr agent prompt seam-mapper "$(cat brief.md)"
 ```
 
-Three gotchas, all hit in the last session:
+Write the brief to a file in the scratchpad and prompt with **just its path**
+(`"Read <path> and carry it out exactly as written."`). That keeps the worker's
+context near zero and yours unchanged, and sidesteps the paste gotcha below.
+Give each worker a disjoint file set and an explicit "do not commit, do not
+push, do not run `git checkout/reset/stash/clean`" — they share this worktree.
 
-1. **The prompt pastes without submitting** — the pane shows `[Pasted text #1]`.
-   Fix: `herdr agent send-keys <name> enter`.
-2. **Long output is unreadable from the pane** (alternate screen; scrollback
+Five gotchas, all hit for real:
+
+1. **The prompt pastes without submitting** — the pane shows the text in the
+   input box and the agent stays `idle`. Fix: `herdr agent send-keys <name> enter`.
+2. **New agents start in `⏸ manual mode`** and will block on every edit and
+   bash call. Ask the user to flip them to auto *before* prompting; it costs
+   them seconds and costs you a stall otherwise.
+3. **Long output is unreadable from the pane** (alternate screen; scrollback
    cannot recover it). Ask workers to **write a Markdown report to a file and
    reply with only that path**.
-3. **Workers block on permission prompts**, and `herdr agent send-keys` may
-   itself be denied by the permission classifier — auto-approving another
-   agent's prompts looks like a bypass. Ask the user to put workers in auto mode
-   instead of building an approver loop.
+4. **The permission classifier will eventually deny `herdr agent get`/`send-keys`**
+   once it reads the pattern as auto-approving another agent. Do not build an
+   approver loop and do not route around it — surface it to the user. To wait on
+   workers without polling herdr at all, background a shell loop that waits for
+   the report *files* to appear.
+5. **Delegation has fixed friction** (pane, agent start, manual-mode flip). For a
+   focused edit where you already hold the facts, inline is faster than briefing.
 
 Use descriptive role names (`seam-mapper`, `pi-prober`), never "agent A/B/C".
-Close panes you created when done; leave others alone.
+Close panes you created when done; leave others alone. **Review the diff
+yourself** — both Stage 2 workers wrote accurate, self-critical reports, and both
+still had judgement calls worth overriding.
