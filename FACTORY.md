@@ -210,6 +210,31 @@ Hard failures (exit `1`, missing artifacts) take the blocked path with no PR.
 - Distill `needs_clarification` and the post-research scope gate are the
   intentional stops before / mid heavy pipeline.
 
+## Runtime facts that are easy to get wrong
+
+The pipeline spawns the `pi` CLI against OpenRouter. Seven things are not
+obvious from reading the code, and each one has cost a run:
+
+- **`pi` exits 0 on API errors.** Success is decided by `classifyPiRun`
+  (`pi-stream.ts`), never by the exit code. Checking the code reports a guide
+  that never generated as one that generated empty.
+- **Never edit the repo while a run is in flight.** The I7 tripwire captures its
+  baseline *once*, before any agent runs, so a file you touch mid-run is
+  indistinguishable from an agent breach and fails the phase.
+- **There is no container.** The env allowlist in `pi-guard.ts` and the
+  `git status` tripwire in `runtime-pi.ts` are the entire boundary keeping
+  secrets out of the agent and the agent inside `guides/<slug>/`.
+- **The research phase keeps `bash` deliberately.** `pi` ships no web-fetch
+  tool, so `bash` + `curl` is research's only route to provider docs. Removing
+  it does not tighten research, it disables it.
+- **Session continuity is one flag.** The same `--session <path>` creates the
+  session on turn 1 and resumes it on turn 2, which is what lets remediation say
+  "use the research you already gathered". `--no-session` breaks that.
+- **`model` feeds `input_digest`.** Changing the model slug goes cold on every
+  committed lock, so the next run of each guide re-runs every phase.
+- **Secrets come from `mise`** via a gitignored `mise.local.toml`. If
+  `OPENROUTER_API_KEY` reads empty the shell snapshot is stale — use `mise exec --`.
+
 ## Related
 
 - [`README.md`](README.md) — short how-to (issue flow + local CLI)
