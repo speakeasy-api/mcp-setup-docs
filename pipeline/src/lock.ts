@@ -97,64 +97,51 @@ export type PipelineLock = {
 
 const DIGEST_RE = /^sha256:[0-9a-f]{64}$/
 
-/** Prompt templates with volatile assignment fields removed (for prompt_digest). */
-export const PROMPT_TEMPLATES = {
-  research: [
-    'You are the Technical Research Agent in the mcp-setup-docs drafting pipeline.',
-    'Write research.md and meta.yaml in the guide directory. Do not write',
-    'external.md or speakeasy.md and do not touch any path outside the guide',
-    'directory.',
-    'Report via structured output per your role doc: status ("ok" when the',
-    'Dossier is complete enough to draft from, "blocked" per the role doc),',
-    'notes (decisions, uncertainty, validation method), open_questions.',
-  ].join('\n'),
+/**
+ * A prompt exactly as sent to the agent, plus the spans of it that must not
+ * reach `prompt_digest`.
+ *
+ * Hashing the *rendered* prompt is what makes editing a prompt builder bust the
+ * lock. The predecessor of this type was a hand-maintained shadow copy of each
+ * prompt, which nothing forced to stay in step with the real one — a prompt
+ * could change while its digest did not, and the pipeline would skip a step it
+ * should have re-run.
+ *
+ * `volatile` is ordered outer-first: spans are matched literally, so a span
+ * that contains another must be listed first.
+ */
+export type RenderedPrompt = {
+  text: string
+  volatile: readonly string[]
+}
 
-  /**
-   * Writer prompt digest template. `existing` selects the in-place revise
-   * variant when setup files already exist on disk.
-   */
-  draft(existing: boolean): string {
-    const base = [
-      'You are the Writer Agent in the mcp-setup-docs drafting pipeline.',
-      "Read the guide directory's research.md and meta.yaml, then write",
-      'external.md and speakeasy.md in the persona\'s voice before you report.',
-      'status "ok" is invalid unless both files exist on disk. The Dossier is',
-      'your fact ceiling.',
-      'Do not touch any other path.',
-    ]
-    if (existing) {
-      base.push(
-        'Setup files already exist: revise them in place. Change only what the',
-        'Dossier or operator notes require; do not rephrase, reorder, or',
-        're-title steps whose facts are unchanged. Silent restyling is a defect.',
-        'Dossier facts and doctrine outrank preservation of stale prose.'
+/**
+ * Replace each volatile span with a positional placeholder.
+ *
+ * Throws when a span is absent rather than skipping it. A span that silently
+ * failed to match would leave per-run context — above all the run timestamp —
+ * inside `prompt_digest`, so every run would bust every lock entry while the
+ * pipeline still looked healthy. That failure costs money on every run and
+ * shows up nowhere; this one shows up immediately.
+ */
+export function stripVolatile(
+  text: string,
+  volatile: readonly string[]
+): string {
+  let out = text
+  volatile.forEach((span, i) => {
+    if (span === '') {
+      throw new Error(`volatile span ${i} is empty; it would match everywhere`)
+    }
+    if (!out.includes(span)) {
+      throw new Error(
+        `volatile span ${i} is not in the rendered prompt: ` +
+          JSON.stringify(span.length > 80 ? span.slice(0, 80) + '…' : span)
       )
     }
-    base.push(
-      'Report via structured output: status ("ok" or "blocked" per your role',
-      'doc), notes, open_questions (Dossier gaps you could not render around).'
-    )
-    return base.join('\n')
-  },
-
-  review(dimension: ReviewDimension): string {
-    const lines = [
-      'You are the ' +
-        (dimension === 'fidelity' ? 'Fidelity' : 'Editorial') +
-        ' Agent in the mcp-setup-docs drafting pipeline.',
-    ]
-    if (dimension !== 'fidelity') {
-      lines.push(
-        'Your assigned dimension: ' + dimension + '. Judge only this dimension.'
-      )
-    }
-    lines.push(
-      'Review the current files in the guide directory. You never edit files.',
-      'Report via structured output: pass (true only with zero blockers) and',
-      'findings, each with severity, target file, where, problem, suggestion.'
-    )
-    return lines.join('\n')
-  },
+    out = out.split(span).join(`<VOLATILE:${i}>`)
+  })
+  return out
 }
 
 export function digestBytes(data: Buffer | string): string {
@@ -163,8 +150,8 @@ export function digestBytes(data: Buffer | string): string {
   return 'sha256:' + hash.digest('hex')
 }
 
-export function promptDigest(template: string): string {
-  return digestBytes(template)
+export function promptDigest(prompt: RenderedPrompt): string {
+  return digestBytes(stripVolatile(prompt.text, prompt.volatile))
 }
 
 /** Full ISO-8601 instants ending in Z — provenance stamps, not bare dates. */
@@ -534,10 +521,11 @@ export function buildResearchInputs(opts: {
   repoRoot: string
   provider: string
   notes: string
+  prompt: RenderedPrompt
 }): StepInputs {
   return {
     model: opts.model,
-    prompt_digest: promptDigest(PROMPT_TEMPLATES.research),
+    prompt_digest: promptDigest(opts.prompt),
     reading_list: researchReadingList(opts.repoRoot),
     artifacts: [],
     params: {
@@ -554,11 +542,11 @@ export function buildDraftInputs(opts: {
   provider: string
   notes: string
   persona: string
+  prompt: RenderedPrompt
 }): StepInputs {
-  const existing = missingDraftOutputs(opts.guideDir).length === 0
   return {
     model: opts.model,
-    prompt_digest: promptDigest(PROMPT_TEMPLATES.draft(existing)),
+    prompt_digest: promptDigest(opts.prompt),
     reading_list: draftReadingList(opts.repoRoot, opts.persona),
     artifacts: [
       digestGuideFile(opts.guideDir, 'research.md'),
@@ -582,10 +570,11 @@ export function buildReviewInputs(opts: {
   dimension: ReviewDimension
   roleDoc: string
   withPersona: boolean
+  prompt: RenderedPrompt
 }): StepInputs {
   return {
     model: opts.model,
-    prompt_digest: promptDigest(PROMPT_TEMPLATES.review(opts.dimension)),
+    prompt_digest: promptDigest(opts.prompt),
     reading_list: reviewReadingList(
       opts.repoRoot,
       opts.persona,

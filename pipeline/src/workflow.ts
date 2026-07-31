@@ -20,7 +20,6 @@ import {
   snapshotResearchOutputs,
   writeLock,
   type PipelineLock,
-  type RenderedPrompt,
   type ResearchSnapshot,
   type ReviewDimension,
   type StepId,
@@ -44,10 +43,17 @@ import {
   type CatalogLookupResult,
   type SpeakeasyAddServerMode,
 } from './pulse-catalog.ts'
-// Deliberately not importing paths.ts's repo-relative `guideDir`: the local
-// helper inside runWorkflow returns an absolute path under the same name, and
-// the shadowing already produced one doubled-root prompt.
-import { PATHS, abs, personaFile, roleDoc } from './paths.ts'
+import { PATHS, abs, personaFile } from './paths.ts'
+import {
+  DIMENSIONS,
+  createPrompts,
+  type Dimension,
+  type GuideInput,
+} from './prompts.ts'
+
+// The hashed prompts live in prompts.ts so a test can render one; see the
+// header there. Re-exported because cli.ts has always imported it from here.
+export type { GuideInput }
 
 export type GuideAddServerHints = {
   tenanted: boolean
@@ -297,21 +303,6 @@ export const ResearchChangeJudgment = withSchemaHint(
   }
 )
 
-export type GuideInput = {
-  slug: string
-  provider: string
-  /** Operator / distill notes (no catalog lookup). Used by the scope gate. */
-  notes?: string
-  /**
-   * Full catalog presence note for agent prompts only. Lock digests use
-   * {@link lockNotes} instead so per-run timestamps never appear there.
-   */
-  catalogPromptNote?: string
-  /**
-   * Stable catalog token merged into lock input digests (status + match name).
-   */
-  lockNotes?: string
-}
 
 export type WorkflowInput = {
   guides: GuideInput[]
@@ -371,32 +362,6 @@ export type GuideResult = {
   scope?: ScopeGateResult
 }
 
-type Dimension = {
-  role: ReviewDimension
-  doc: string
-  persona: boolean
-  model?: 'sonnet'
-}
-
-/** Review gates only — voice/formatting/concision are Writer self-check. */
-const DIMENSIONS: Dimension[] = [
-  { role: 'fidelity', doc: 'fidelity.md', persona: false },
-  { role: 'achievability', doc: 'review.md', persona: true },
-]
-
-function readingList(
-  root: string,
-  personaPath: string,
-  roleDocs: string[],
-  withPersona: boolean
-): string {
-  const docs = [abs(root, PATHS.glossary), abs(root, PATHS.shared)].concat(
-    roleDocs.map((d) => abs(root, roleDoc(d)))
-  )
-  if (withPersona) docs.push(personaPath)
-  return docs.map((d, i) => i + 1 + '. ' + d).join('\n')
-}
-
 export async function runWorkflow(
   rt: Runtime,
   input: WorkflowInput
@@ -404,11 +369,16 @@ export async function runWorkflow(
   const ROOT = input.repoRoot
   const NOW = input.timestamp
   const PERSONA = input.persona
-  const PERSONA_FILE = abs(ROOT, personaFile(PERSONA))
   const MAX_ROUNDS = input.maxRounds || 3
   const FORCE = input.force === true
   const PAUSE_ON_SCOPE = input.pauseOnScope === true
   const { log, agent, parallel, pipeline, modelId } = rt
+  const P = createPrompts({
+    repoRoot: ROOT,
+    timestamp: NOW,
+    persona: PERSONA,
+    maxRounds: MAX_ROUNDS,
+  })
 
   function guideDir(slug: string): string {
     return join(ROOT, 'guides', slug)
@@ -458,14 +428,6 @@ export async function runWorkflow(
     }
   }
 
-  function promptNotesOf(g: GuideInput): string {
-    // Agent assignment: operator notes + full catalog instructions.
-    if (g.catalogPromptNote) {
-      return mergeCatalogNotes(g.notes, g.catalogPromptNote)
-    }
-    return g.notes || ''
-  }
-
   function operatorNotesOf(g: GuideInput): string {
     // Scope gate: distill/operator decisions only — catalog note must not
     // contribute tokens to notesDisposeOfQuestion.
@@ -487,7 +449,7 @@ export async function runWorkflow(
       provider: g.provider,
       // Prefer the notes actually sent to research (pre-refresh).
       notes: opts?.researchNotes ?? notesOf(g),
-      prompt: researchLockPrompt(g),
+      prompt: P.researchLockPrompt(g),
     })
     steps.research = makeStepRecord(
       researchInputs,
@@ -509,7 +471,7 @@ export async function runWorkflow(
         provider: g.provider,
         notes: notesOf(g),
         persona: PERSONA,
-        prompt: draftLockPrompt(g),
+        prompt: P.draftLockPrompt(g),
       })
       steps.draft = makeStepRecord(
         draftInputs,
@@ -532,7 +494,7 @@ export async function runWorkflow(
           dimension: dim.role,
           roleDoc: dim.doc,
           withPersona: dim.persona,
-          prompt: reviewLockPrompt(g, dim),
+          prompt: P.reviewLockPrompt(g, dim),
         })
         steps[stepId] = makeStepRecord(
           reviewInputs,
@@ -557,121 +519,6 @@ export async function runWorkflow(
     log('[' + g.slug + '] wrote ' + LOCK_FILENAME_REL)
   }
 
-  function assign(g: GuideInput): string {
-    return [
-      'Assignment:',
-      '- slug: ' + g.slug,
-      '- provider: ' + g.provider,
-      '- guide directory: ' + guideDir(g.slug) + '/',
-      '- persona: ' + PERSONA + ' (' + PERSONA_FILE + ')',
-      '- observed_at timestamp for provenance recorded this run: ' + NOW,
-      '- operator notes: ' + (promptNotesOf(g) || '(none)'),
-    ].join('\n')
-  }
-
-  /** Round line, shared so `reviewLockPrompt` cannot drift from the real one. */
-  function roundLine(round: number): string {
-    return 'This is review round ' + round + ' of at most ' + MAX_ROUNDS + '.'
-  }
-
-  /**
-   * The round a review prompt is rendered at when it is being hashed rather
-   * than sent. Any value works — the line is stripped — but it must be fixed.
-   */
-  const LOCK_ROUND = 1
-
-  /**
-   * Spans of a rendered prompt that `prompt_digest` must ignore, per
-   * PATHS.pipelineLockDoc: everything the lock already records in `params` or
-   * `reading_list`, plus per-run context.
-   *
-   * - `assign(g)` carries slug, provider, guide directory, persona, operator
-   *   notes (with the catalog note merged in) and `NOW`. Stripping the block
-   *   whole is why notes containing newlines cost nothing here.
-   * - `PERSONA_FILE` appears a second time in the reading list, but only when
-   *   the prompt was built with `withPersona` — `persona` below must match the
-   *   flag its builder passes to `readingList`, and `stripVolatile` throws if
-   *   it does not.
-   * - `ROOT` normalizes the absolute paths in the reading list; digests have to
-   *   be portable across machines.
-   * - The round line carries `MAX_ROUNDS`, so `--max-rounds` would otherwise
-   *   bust every guide's review entries.
-   *
-   * Outer-first: the assignment block contains `PERSONA_FILE`, which contains
-   * `ROOT`.
-   */
-  function volatileSpans(
-    g: GuideInput,
-    opts: { persona: boolean; round?: number }
-  ): string[] {
-    const spans = [assign(g)]
-    if (opts.round !== undefined) spans.push(roundLine(opts.round))
-    if (opts.persona) spans.push(PERSONA_FILE)
-    spans.push(ROOT)
-    return spans
-  }
-
-  function researchLockPrompt(g: GuideInput): RenderedPrompt {
-    return {
-      text: researchPrompt(g),
-      volatile: volatileSpans(g, { persona: false }),
-    }
-  }
-
-  function draftLockPrompt(g: GuideInput): RenderedPrompt {
-    return {
-      text: draftPrompt(g),
-      volatile: volatileSpans(g, { persona: true }),
-    }
-  }
-
-  function reviewLockPrompt(g: GuideInput, dim: Dimension): RenderedPrompt {
-    // `prior` is per-round runtime context, never a lock input, so the hashed
-    // rendering is always the round-1 one that has none.
-    return {
-      text: reviewerPrompt(g, dim, LOCK_ROUND, null),
-      volatile: volatileSpans(g, { persona: dim.persona, round: LOCK_ROUND }),
-    }
-  }
-
-  function researchPrompt(g: GuideInput): string {
-    const dir = guideDir(g.slug)
-    const hasPrior =
-      existsSync(join(dir, 'research.md')) || existsSync(join(dir, 'meta.yaml'))
-    return [
-      'You are the Technical Research Agent in the mcp-setup-docs drafting pipeline.',
-      'Repo root: ' + ROOT,
-      '',
-      'Read first, in order, then follow your role doc exactly:',
-      readingList(ROOT, PERSONA_FILE, ['technical-research.md'], false),
-      '',
-      assign(g),
-      '',
-      hasPrior
-        ? [
-            'Prior research artifacts already exist in the guide directory.',
-            'Read research.md and meta.yaml first. Revise them in light of the',
-            'operator notes and any newly verified public docs — do not discard',
-            'sound prior work to rewrite from a blank slate. Keep stable anchors',
-            'when facts are unchanged; update or remove only what the notes or',
-            'fresh sources require.',
-            '',
-          ].join('\n')
-        : '',
-      'Write research.md and meta.yaml in the guide directory before you',
-      'report. status "ok" is invalid unless both files exist on disk.',
-      'Do not write external.md or speakeasy.md and do not touch any path',
-      'outside the guide directory.',
-      '',
-      'Report via structured output per your role doc: status ("ok" when the',
-      'Dossier is on disk and complete enough to draft from, "blocked" per',
-      'the role doc), notes (decisions, uncertainty, validation method),',
-      'open_questions.',
-    ]
-      .filter(Boolean)
-      .join('\n')
-  }
-
   function researchWriteRemediationPrompt(
     g: GuideInput,
     missing: string[]
@@ -686,7 +533,7 @@ export async function runWorkflow(
       'already gathered in this conversation; re-read the role docs only if',
       'needed. Do not write external.md or speakeasy.md.',
       '',
-      assign(g),
+      P.assign(g),
       '',
       'Then report status/notes/open_questions again. status "ok" only after',
       'both files exist on disk.',
@@ -705,9 +552,9 @@ export async function runWorkflow(
       'Repo root: ' + ROOT,
       '',
       'Read first, in order:',
-      readingList(ROOT, PERSONA_FILE, ['technical-research.md'], false),
+      P.readingList(['technical-research.md'], false),
       '',
-      assign(g),
+      P.assign(g),
       '',
       'Compare BEFORE (previous on-disk research outputs) to AFTER (just written).',
       'Ignore observed_at timestamp churn and pure wording/reordering that does',
@@ -833,44 +680,6 @@ export async function runWorkflow(
     }
   }
 
-  function draftPrompt(g: GuideInput): string {
-    const dir = guideDir(g.slug)
-    const existing = missingDraftOutputs(dir).length === 0
-    const writeLines = existing
-      ? [
-          "Read the guide directory's research.md and meta.yaml, then revise",
-          "existing external.md and speakeasy.md in place in the persona's",
-          'voice before you report. Change only what the Dossier or operator',
-          'notes require; do not rephrase, reorder, or re-title steps whose',
-          'facts are unchanged. Silent restyling is a defect. Dossier facts',
-          'and doctrine outrank preservation of stale prose. status "ok" is',
-          'invalid unless both files exist on disk. The Dossier is your fact',
-          'ceiling. Do not touch any other path.',
-        ]
-      : [
-          "Read the guide directory's research.md and meta.yaml, then write",
-          'external.md (provider-side) and speakeasy.md (Control Plane) in the',
-          "persona's voice before you report. status \"ok\" is invalid unless",
-          'both files exist on disk. The Dossier is your fact ceiling.',
-          'Do not touch any other path.',
-        ]
-    return [
-      'You are the Writer Agent in the mcp-setup-docs drafting pipeline.',
-      'Repo root: ' + ROOT,
-      '',
-      'Read first, in order, then follow your role doc exactly:',
-      readingList(ROOT, PERSONA_FILE, ['writer.md'], true),
-      '',
-      assign(g),
-      '',
-      ...writeLines,
-      '',
-      'Report via structured output: status ("ok" when both setup files are',
-      'on disk and complete enough to review, "blocked" per your role doc),',
-      'notes, open_questions (Dossier gaps you could not render around).',
-    ].join('\n')
-  }
-
   function draftWriteRemediationPrompt(
     g: GuideInput,
     missing: string[]
@@ -886,7 +695,7 @@ export async function runWorkflow(
       'conversation; re-read role docs only if needed. Do not touch any other',
       'path.',
       '',
-      assign(g),
+      P.assign(g),
       '',
       'Then report status/notes/open_questions again. status "ok" only after',
       'both files exist on disk.',
@@ -906,58 +715,11 @@ export async function runWorkflow(
       'ceiling for external.md / speakeasy.md. Do not touch any path outside',
       'the guide directory. Do not claim a file exists unless it is on disk.',
       '',
-      assign(g),
+      P.assign(g),
       '',
       'Then report notes/disputed/skipped again. notes must name which missing',
       'files you wrote.',
     ].join('\n')
-  }
-
-  function reviewerPrompt(
-    g: GuideInput,
-    dim: Dimension,
-    round: number,
-    prior: unknown
-  ): string {
-    const lines = [
-      'You are the ' +
-        (dim.role === 'fidelity' ? 'Fidelity' : 'Editorial') +
-        ' Agent in the mcp-setup-docs drafting pipeline.',
-      'Repo root: ' + ROOT,
-      '',
-      'Read first, in order, then follow your role doc exactly:',
-      readingList(ROOT, PERSONA_FILE, [dim.doc], dim.persona),
-      '',
-      assign(g),
-      '',
-    ]
-    if (dim.role !== 'fidelity') {
-      lines.push(
-        'Your assigned dimension: ' + dim.role + '. Judge only this dimension.',
-        ''
-      )
-    }
-    lines.push(
-      roundLine(round),
-      'Review the current files in the guide directory. You never edit files.'
-    )
-    if (prior) {
-      lines.push(
-        '',
-        'Prior round context (findings previously reported — the revision',
-        'agent fixes blockers and applies mechanical nits — what it says it',
-        'changed, nits it skipped, and findings it disputed). Re-verify',
-        'claimed fixes against the current files, re-examine each disputed',
-        'finding fresh per shared.md, then sweep for new issues:',
-        JSON.stringify(prior)
-      )
-    }
-    lines.push(
-      '',
-      'Report via structured output: pass (true only with zero blockers) and',
-      'findings, each with severity, target file, where, problem, suggestion.'
-    )
-    return lines.join('\n')
   }
 
   function revisionPrompt(
@@ -972,9 +734,9 @@ export async function runWorkflow(
       'Repo root: ' + ROOT,
       '',
       'Read first, in order:',
-      readingList(ROOT, PERSONA_FILE, ['technical-research.md', 'writer.md'], true),
+      P.readingList(['technical-research.md', 'writer.md'], true),
       '',
-      assign(g),
+      P.assign(g),
       '',
     ]
     if (extraNote) {
@@ -1055,7 +817,7 @@ export async function runWorkflow(
             dimension: dim.role,
             roleDoc: dim.doc,
             withPersona: dim.persona,
-            prompt: reviewLockPrompt(g, dim),
+            prompt: P.reviewLockPrompt(g, dim),
           })
           if (
             canSkipStep(lockOpts.lock, g.slug, stepId, inputs, dir, {
@@ -1068,7 +830,7 @@ export async function runWorkflow(
           }
         }
 
-        const report = await agent(reviewerPrompt(g, dim, round, prior), {
+        const report = await agent(P.reviewerPrompt(g, dim, round, prior), {
           label: g.slug + ' review:' + dim.role + ' r' + round,
           phase: g.slug + ': review',
           schema: Review,
@@ -1183,7 +945,7 @@ export async function runWorkflow(
     const beforeSetup = snapshotSetupFiles(dir)
 
     log('[' + g.slug + '] researching ' + g.provider)
-    const research = await agent(researchPrompt(g), {
+    const research = await agent(P.researchPrompt(g), {
       label: g.slug + ' research',
       phase: g.slug + ': research',
       schema: PhaseResult,
@@ -1398,7 +1160,7 @@ export async function runWorkflow(
       provider: g.provider,
       notes: notesOf(g),
       persona: PERSONA,
-      prompt: draftLockPrompt(g),
+      prompt: P.draftLockPrompt(g),
     })
     const skipDraft = canSkipStep(
       workingLock,
@@ -1418,7 +1180,7 @@ export async function runWorkflow(
       skipped.push('draft')
     } else {
       log('[' + g.slug + '] drafting external.md + speakeasy.md for persona ' + PERSONA)
-      const draft = await agent(draftPrompt(g), {
+      const draft = await agent(P.draftPrompt(g), {
         label: g.slug + ' draft',
         phase: g.slug + ': draft',
         schema: PhaseResult,
