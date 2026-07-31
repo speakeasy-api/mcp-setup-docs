@@ -1,0 +1,11 @@
+{
+  "slug": "google-calendar",
+  "provider": "google-calendar",
+  "persona": "it-admin",
+  "timestamp": "2026-07-31T14:58:27Z",
+  "started_at": "2026-07-31T14:58:27Z",
+  "finished_at": "2026-07-31T15:01:03Z",
+  "runtime": "pi",
+  "status": "failed",
+  "failed_phase": "research"
+}

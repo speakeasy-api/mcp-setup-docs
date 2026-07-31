@@ -23,8 +23,11 @@ type ResolvedClarify = {
 type Resolved = ResolvedOk | ResolvedClarify | { status: string }
 
 export function runDistill(): void {
-  if (!process.env.CURSOR_API_KEY) {
-    writeFailureReason('CURSOR_API_KEY secret is not set')
+  // Trimmed, to match resolve-issue.ts's own check: a whitespace-only secret must
+  // fail here with this message rather than clear the gate and die inside the
+  // subprocess as "resolve-issue produced no resolved.json".
+  if (!process.env.OPENROUTER_API_KEY?.trim()) {
+    writeFailureReason('OPENROUTER_API_KEY secret is not set')
     process.exit(1)
   }
 

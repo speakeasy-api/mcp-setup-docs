@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
  * Light distill step: freeform GitHub issue title+body → structured guide intent.
- * Uses Agent.prompt with the light model; does not run the draft-guide pipeline.
+ * One OpenRouter chat completion with the light model; no tools, no session, and
+ * not the draft-guide pipeline. The prompt embeds the guide slugs and persona ids
+ * inline, so this step never needs to read the filesystem on the model's behalf.
  */
-import { existsSync, readdirSync, writeFileSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+import { existsSync, readdirSync, realpathSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Agent, CursorAgentError } from '@cursor/sdk'
 import { z } from 'zod'
 import { extractJson } from './json.ts'
 import { PATHS, abs } from './paths.ts'
@@ -31,6 +32,52 @@ const ResolvedSchema = z.discriminatedUnion('status', [OkSchema, ClarificationSc
 
 export type ResolvedIssue = z.infer<typeof ResolvedSchema>
 
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
+
+const DEFAULT_LIGHT_MODEL = 'openai/gpt-5.6-sol'
+
+/** One chat completion. Injected in tests; `openRouterChat` is the real one. */
+export type ChatCompletion = (input: {
+  apiKey: string
+  model: string
+  prompt: string
+}) => Promise<{ status: number; body: string }>
+
+/**
+ * Either a verdict to write (exit 0 for ok, 2 for needs_clarification) or a hard
+ * failure (exit 1). Split so a call that never produced an answer cannot be
+ * written out as an empty-but-successful clarification.
+ */
+export type DistillOutcome =
+  | { kind: 'resolved'; resolved: ResolvedIssue }
+  | { kind: 'failure'; message: string }
+
+/** Rejects on network failure; `distill` turns that into a `failure`. */
+const openRouterChat: ChatCompletion = async ({ apiKey, model, prompt }) => {
+  const res = await fetch(OPENROUTER_URL, {
+    method: 'POST',
+    headers: {
+      // The key travels in the header only — never argv, never a log line.
+      authorization: `Bearer ${apiKey}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  })
+  return { status: res.status, body: await res.text() }
+}
+
+/** Assistant text of a chat completion; '' when the body carries none. */
+function messageText(body: string): string {
+  const payload = JSON.parse(body) as {
+    choices?: Array<{ message?: { content?: unknown } }>
+  }
+  const content = payload.choices?.[0]?.message?.content
+  return typeof content === 'string' ? content : ''
+}
+
 function usage(): never {
   console.error(`Usage:
   npm run resolve-issue -- [options]
@@ -40,18 +87,18 @@ Options:
   --body <text>      Issue body (or ISSUE_BODY env)
   --output <path>    Write resolved JSON here (also printed to stdout)
   --repo-root <path> Repo root (default: two levels above this package)
-  --light-model <id> Model id (default: CURSOR_MODEL_LIGHT or composer-2.5)
+  --light-model <id> Model id (default: OPENROUTER_MODEL_LIGHT or ${DEFAULT_LIGHT_MODEL})
 
 Env:
-  CURSOR_API_KEY     Required
-  ISSUE_TITLE        Fallback for --title
-  ISSUE_BODY         Fallback for --body
-  CURSOR_MODEL_LIGHT Fallback for --light-model
+  OPENROUTER_API_KEY     Required
+  ISSUE_TITLE            Fallback for --title
+  ISSUE_BODY             Fallback for --body
+  OPENROUTER_MODEL_LIGHT Fallback for --light-model
 
 Exit codes:
   0  status=ok
   2  status=needs_clarification (or empty/unparseable slug)
-  1  hard failure (missing key, agent error, etc.)
+  1  hard failure (missing key, HTTP error, etc.)
 `)
   process.exit(64)
 }
@@ -93,7 +140,7 @@ function parseArgs(argv: string[]) {
   let body = process.env.ISSUE_BODY || ''
   let output: string | undefined
   let repoRoot: string | undefined
-  let lightModel = process.env.CURSOR_MODEL_LIGHT || 'composer-2.5'
+  let lightModel = process.env.OPENROUTER_MODEL_LIGHT || DEFAULT_LIGHT_MODEL
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!
@@ -228,11 +275,94 @@ function normalizeOk(
   }
 }
 
+/**
+ * Ask the model, then parse what came back. Pure apart from `chat` — no env, no
+ * filesystem, no process.exit — so the whole decision table is testable.
+ */
+export async function distill(input: {
+  prompt: string
+  personas: string[]
+  apiKey: string
+  model: string
+  chat: ChatCompletion
+}): Promise<DistillOutcome> {
+  let res: { status: number; body: string }
+  try {
+    res = await input.chat({
+      apiKey: input.apiKey,
+      model: input.model,
+      prompt: input.prompt,
+    })
+  } catch (err) {
+    // DNS, TLS, socket: the question was never asked, so there is nothing to
+    // clarify. Same for every branch below that returns a `failure`.
+    return {
+      kind: 'failure',
+      message: `OpenRouter request failed: ${(err as Error).message}`,
+    }
+  }
+
+  if (res.status < 200 || res.status >= 300) {
+    return {
+      kind: 'failure',
+      message: `OpenRouter returned HTTP ${res.status}: ${res.body.slice(0, 500)}`,
+    }
+  }
+
+  let text: string
+  try {
+    text = messageText(res.body)
+  } catch {
+    return {
+      kind: 'failure',
+      message: `OpenRouter returned 200 with a non-JSON body: ${res.body.slice(0, 500)}`,
+    }
+  }
+  if (!text.trim()) {
+    // A 200 carrying no content is a failed call wearing a success code. Letting
+    // it fall through would write a hollow clarification and exit 2, which is
+    // how the pi path once hid a broken run.
+    return { kind: 'failure', message: 'OpenRouter returned 200 with no message content' }
+  }
+
+  let parsed: unknown
+  try {
+    parsed = extractJson(text)
+  } catch (err) {
+    return {
+      kind: 'resolved',
+      resolved: {
+        status: 'needs_clarification',
+        reason: `Could not parse distill JSON: ${(err as Error).message}`,
+      },
+    }
+  }
+
+  const checked = ResolvedSchema.safeParse(parsed)
+  if (!checked.success) {
+    return {
+      kind: 'resolved',
+      resolved: {
+        status: 'needs_clarification',
+        reason: `Distill JSON failed schema validation: ${checked.error.message}`,
+      },
+    }
+  }
+
+  return {
+    kind: 'resolved',
+    resolved:
+      checked.data.status === 'ok'
+        ? normalizeOk(checked.data, input.personas)
+        : checked.data,
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2))
-  const apiKey = process.env.CURSOR_API_KEY?.trim()
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim()
   if (!apiKey) {
-    console.error('CURSOR_API_KEY is required')
+    console.error('OPENROUTER_API_KEY is required')
     process.exit(1)
   }
 
@@ -255,68 +385,36 @@ async function main() {
     `resolve-issue: model=${args.lightModel} guides=${guideSlugs.length} personas=${personas.join(',')}`
   )
 
-  let resultText = ''
-  try {
-    const result = await Agent.prompt(prompt, {
-      apiKey,
-      model: { id: args.lightModel },
-      name: 'resolve-issue',
-      local: {
-        cwd: repoRoot,
-        settingSources: [],
-      },
-    })
+  const outcome = await distill({
+    prompt,
+    personas,
+    apiKey,
+    model: args.lightModel,
+    chat: openRouterChat,
+  })
 
-    if (result.status !== 'finished') {
-      console.error(
-        `resolve-issue: run ended status=${result.status}` +
-          (result.error ? ` error=${result.error.message}` : '')
-      )
-      process.exit(1)
-    }
-    resultText = result.result ?? ''
-  } catch (err) {
-    if (err instanceof CursorAgentError) {
-      console.error(
-        `resolve-issue: Agent.prompt failed: ${err.message} retryable=${err.isRetryable}`
-      )
-      process.exit(1)
-    }
-    throw err
+  if (outcome.kind === 'failure') {
+    console.error(`resolve-issue: ${outcome.message}`)
+    process.exit(1)
   }
 
-  let parsed: unknown
-  try {
-    parsed = extractJson(resultText)
-  } catch (err) {
-    const clarification: ResolvedIssue = {
-      status: 'needs_clarification',
-      reason: `Could not parse distill JSON: ${(err as Error).message}`,
-    }
-    writeOutput(args.output, clarification)
-    process.exit(2)
-  }
-
-  const checked = ResolvedSchema.safeParse(parsed)
-  if (!checked.success) {
-    const clarification: ResolvedIssue = {
-      status: 'needs_clarification',
-      reason: `Distill JSON failed schema validation: ${checked.error.message}`,
-    }
-    writeOutput(args.output, clarification)
-    process.exit(2)
-  }
-
-  const resolved =
-    checked.data.status === 'ok'
-      ? normalizeOk(checked.data, personas)
-      : checked.data
-
-  writeOutput(args.output, resolved)
-  process.exit(resolved.status === 'ok' ? 0 : 2)
+  writeOutput(args.output, outcome.resolved)
+  process.exit(outcome.resolved.status === 'ok' ? 0 : 2)
 }
 
-main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+/**
+ * Only the CLI invocation runs main — resolve-issue.test.ts imports this module
+ * for `distill`, and package.json still points the `resolve-issue` script at this
+ * file, so the entrypoint cannot simply move to a `-cli.ts` sibling.
+ */
+function isCliEntry(): boolean {
+  const entry = process.argv[1]
+  return !!entry && realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url))
+}
+
+if (isCliEntry()) {
+  main().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}

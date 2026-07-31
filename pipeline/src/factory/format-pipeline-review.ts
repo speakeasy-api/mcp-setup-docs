@@ -16,8 +16,6 @@ export type ReviewRecord = {
   nits?: Array<Finding | string>
 }
 
-export { isDossierRenderFix, shouldSalvageFinalization } from '../findings.ts'
-
 function plainDimension(dim: string): string {
   switch (dim) {
     case 'fidelity':

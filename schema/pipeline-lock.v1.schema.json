@@ -172,7 +172,7 @@
       "type": "string"
     },
     "runtime": {
-      "description": "Observational runtime label (e.g. cursor-sdk). Not part of skip digests.",
+      "description": "Observational runtime label (e.g. pi). Not part of skip digests.",
       "minLength": 1,
       "type": "string"
     },
