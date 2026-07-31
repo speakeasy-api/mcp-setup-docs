@@ -70,7 +70,9 @@ if [[ ! -d $WT/pipeline/node_modules ]]; then
     || { keep; die "npm install failed; see $LOG"; }
 fi
 
-MARKER=$WT/.ns-exp-start
+# Sibling of the run worktree, never inside it: a file under $WT counts as a
+# pre-run modification outside the guide directory and degrades the I7 tripwire.
+MARKER=${WT}.start
 touch "$MARKER"
 note "running: npm run draft-guide -- $SLUG --overwrite"
 START=$(date +%s)
