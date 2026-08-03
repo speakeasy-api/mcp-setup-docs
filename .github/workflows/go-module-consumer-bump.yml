@@ -1,0 +1,203 @@
+name: Go module consumer bump
+
+# After a go/vX.Y.Z tag lands, open (or refresh) a PR on the consumer repo that
+# pins the new module version in its go.mod. The bump branch on the consumer is
+# machine-owned: every release rebuilds it from the consumer default branch and
+# force-pushes, so a single PR always shows the newest version.
+on:
+  push:
+    tags:
+      - 'go/v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Module version to pin (for example v0.1.4). Empty uses the latest go/v* tag.
+        required: false
+        type: string
+
+concurrency:
+  group: go-module-consumer-bump
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CONSUMER_REPO: speakeasy-api/gram
+  MODULE_PATH: github.com/speakeasy-api/mcp-setup-docs/go
+  BUMP_BRANCH: chore/bump-mcp-setup-docs-go
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a consumer token
+        env:
+          CONSUMER_TOKEN: ${{ secrets.SERVICE_BOT_TOKEN || secrets.AGENT_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CONSUMER_TOKEN}" ]; then
+            echo "No token can write to ${CONSUMER_REPO}."
+            echo "Set SERVICE_BOT_TOKEN on this repo, or grant AGENT_PAT contents + pull-requests write there."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve module version
+        id: ver
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ -n "${INPUT_VERSION:-}" ]; then
+            ver="${INPUT_VERSION}"
+          elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            ver="${GITHUB_REF_NAME}"
+          else
+            ver="$(git tag -l 'go/v*' --sort=-v:refname | head -1)"
+          fi
+          ver="${ver#go/}"
+          ver="v${ver#v}"
+          if ! printf '%s' "$ver" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "not a release version: '$ver'"
+            exit 1
+          fi
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          echo "tag=go/$ver" >> "$GITHUB_OUTPUT"
+          echo "Pinning ${MODULE_PATH}@${ver}"
+
+      - name: Checkout consumer
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CONSUMER_REPO }}
+          token: ${{ secrets.SERVICE_BOT_TOKEN || secrets.AGENT_PAT }}
+          path: consumer
+          fetch-depth: 1
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: consumer/go.mod
+          cache-dependency-path: consumer/go.sum
+
+      - name: Bump the module version
+        id: bump
+        working-directory: consumer
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          current="$(awk -v m="$MODULE_PATH" '$1 == m {print $2; exit}' go.mod)"
+          if [ -z "$current" ]; then
+            echo "${CONSUMER_REPO} go.mod does not require ${MODULE_PATH}; nothing to bump."
+            exit 1
+          fi
+          echo "previous=$current" >> "$GITHUB_OUTPUT"
+          if [ "$current" = "$VERSION" ]; then
+            echo "${CONSUMER_REPO} already pins ${VERSION}."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Proxy indexing lags the tag push; retry until the version resolves.
+          attempts=12
+          for i in $(seq 1 "$attempts"); do
+            if go get "${MODULE_PATH}@${VERSION}"; then
+              break
+            fi
+            if [ "$i" -eq "$attempts" ]; then
+              echo "${MODULE_PATH}@${VERSION} never resolved; re-run this workflow later."
+              exit 1
+            fi
+            echo "attempt ${i}: ${MODULE_PATH}@${VERSION} not on the proxy yet; retry in 20s"
+            sleep 20
+          done
+
+          # The consumer CI runs `go mod tidy` and fails on a dirty tree.
+          go mod tidy
+
+          if [ -z "$(git status --porcelain -- go.mod go.sum)" ]; then
+            echo "go get produced no change; nothing to open."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "$(git status --porcelain | grep -v -E '^ M go\.(mod|sum)$' || true)" ]; then
+            echo "unexpected files changed; refusing to open a PR:"
+            git status --porcelain
+            exit 1
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Collect release notes
+        id: notes
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.ver.outputs.tag }}
+        run: |
+          set -euo pipefail
+          notes_file="${RUNNER_TEMP:-/tmp}/consumer-bump-notes.md"
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body --jq .body \
+            > "$notes_file" 2>/dev/null || : > "$notes_file"
+          echo "file=$notes_file" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the bump PR
+        if: steps.bump.outputs.changed == 'true'
+        working-directory: consumer
+        env:
+          GH_TOKEN: ${{ secrets.SERVICE_BOT_TOKEN || secrets.AGENT_PAT }}
+          VERSION: ${{ steps.ver.outputs.version }}
+          PREVIOUS: ${{ steps.bump.outputs.previous }}
+          TAG: ${{ steps.ver.outputs.tag }}
+          NOTES_FILE: ${{ steps.notes.outputs.file }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          title="chore(deps): bump ${MODULE_PATH} from ${PREVIOUS} to ${VERSION}"
+          git checkout -B "$BUMP_BRANCH"
+          git add -- go.mod go.sum
+          git commit -m "$title"
+          # Machine-owned branch: the lease fails loudly if the remote moved.
+          git fetch --depth=1 origin "+refs/heads/${BUMP_BRANCH}:refs/remotes/origin/${BUMP_BRANCH}" 2>/dev/null || true
+          git push -u origin "HEAD:refs/heads/${BUMP_BRANCH}" --force-with-lease
+
+          release_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
+          body_file="${RUNNER_TEMP:-/tmp}/consumer-bump-pr.md"
+          {
+            echo "## Summary"
+            echo "- Pin \`${MODULE_PATH}\` to \`${VERSION}\` (was \`${PREVIOUS}\`)"
+            echo "- Opened by \`go-module-consumer-bump\` in ${GITHUB_REPOSITORY} after the \`${TAG}\` release"
+            echo "- Branch is machine-owned — the next release force-pushes over it"
+            echo "- If this bump breaks CI, branch off \`${BUMP_BRANCH}\`, fix it there, and close this PR."
+            echo "  Commits pushed onto this branch are lost on the next release."
+            echo
+            echo "## Release notes"
+            echo "[\`${TAG}\`](${release_url})"
+            if [ -s "${NOTES_FILE:-}" ]; then
+              echo
+              cat "$NOTES_FILE"
+            fi
+            echo
+            echo "## Test plan"
+            echo "- [ ] Consumer CI is green (\`go mod tidy\` leaves the tree clean)"
+            echo "- [ ] Setup docs lookups still resolve the guides the release changed"
+          } > "$body_file"
+
+          existing="$(gh pr list --repo "$CONSUMER_REPO" --head "$BUMP_BRANCH" --state open \
+            --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            echo "Updated existing PR #${existing} on ${CONSUMER_REPO}"
+            gh pr edit "$existing" --repo "$CONSUMER_REPO" --title "$title" --body-file "$body_file"
+          else
+            gh pr create --repo "$CONSUMER_REPO" \
+              --head "$BUMP_BRANCH" \
+              --title "$title" \
+              --body-file "$body_file"
+            gh pr edit "$BUMP_BRANCH" --repo "$CONSUMER_REPO" \
+              --add-label dependencies --add-label go --add-label automation || true
+          fi

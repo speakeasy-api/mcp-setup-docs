@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: hubspot
+title: HubSpot
+summary: Connect the hosted HubSpot MCP server to securely access CRM data with each user's HubSpot permissions.
+aliases:
+  - com.pulsemcp.mirror/hubspot
+speakeasy_add_server: catalog
+credential_setup:
+  options:
+    - id: oauth-mcp-auth-app
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#copy-client-credentials
+        - id: client-secret
+          label: Client Secret
+          setup:
+            - external.md#copy-client-credentials
+  requirements:
+    - id: hubspot-account-admin
+      description: HubSpot account administrator access for the first connection, which HubSpot requires before other account users connect
+    - id: developer-platform-access
+      description: Access to HubSpot's latest Developer Platform through a Developer Seat, Developer tools access permission, super admin role, or partner admin role
+    - id: password-manager
+      description: A secure password manager for transferring the MCP auth app's client credentials
+
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: hosted
+    url: https://mcp.hubspot.com
+    transport: streamable-http
+    authentication:
+      - oauth-mcp-auth-app
+    provenance:
+      - source: pulsemcp
+        name: com.pulsemcp.mirror/hubspot
+        classification: mirror
+        status: present
+        scope: Speakeasy MCP Catalog
+        observed_at: "2026-07-31T20:16:37Z"
+      - source: provider-documentation
+        locator: https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server
+        name: Integrate AI tools with the HubSpot MCP server
+        classification: official
+        observed_at: "2026-07-31T20:16:37Z"
+      - source: endpoint-observation
+        locator: https://mcp.hubspot.com/.well-known/oauth-protected-resource
+        name: HubSpot MCP protected resource metadata
+        classification: official
+        observed_at: "2026-07-31T20:16:37Z"
+provenance:
+  - source: pulsemcp
+    name: com.pulsemcp.mirror/hubspot
+    classification: mirror
+    status: present
+    scope: Speakeasy MCP Catalog
+    observed_at: "2026-07-31T20:16:37Z"
+  - source: provider-documentation
+    locator: https://developers.hubspot.com/docs/llms.txt
+    name: HubSpot developer documentation index
+    classification: official
+    observed_at: "2026-07-31T20:16:37Z"
+  - source: provider-documentation
+    locator: https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server
+    name: Integrate AI tools with the HubSpot MCP server
+    classification: official
+    observed_at: "2026-07-31T20:16:37Z"
+  - source: provider-documentation
+    locator: https://developers.hubspot.com/ai-tools/mcp
+    name: HubSpot MCP Server
+    classification: official
+    observed_at: "2026-07-31T20:16:37Z"
+  - source: provider-documentation
+    locator: https://developers.hubspot.com/docs/apps/developer-platform/developer-seats
+    name: Manage developer seats
+    classification: official
+    observed_at: "2026-07-31T20:16:37Z"
+  - source: provider-documentation
+    locator: https://knowledge.hubspot.com/user-management/hubspot-user-permissions-guide
+    name: HubSpot user permissions guide
+    classification: official
+    observed_at: "2026-07-31T20:16:37Z"
+  - source: endpoint-observation
+    locator: https://mcp.hubspot.com/.well-known/oauth-protected-resource
+    name: HubSpot MCP protected resource metadata
+    classification: official
+    observed_at: "2026-07-31T20:16:37Z"
+  - source: endpoint-observation
+    locator: https://mcp.hubspot.com/.well-known/oauth-authorization-server
+    name: HubSpot MCP authorization server metadata
+    classification: official
+    observed_at: "2026-07-31T20:16:37Z"
+  - source: endpoint-observation
+    locator: https://mcp.hubspot.com
+    name: HubSpot MCP endpoint
+    classification: official
+    observed_at: "2026-07-31T20:16:37Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical file
+    classification: official
+    observed_at: "2026-07-31T20:16:37Z"

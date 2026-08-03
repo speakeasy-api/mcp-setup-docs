@@ -1,0 +1,100 @@
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 154 packages in 5s
+
+> draft-guide
+> tsx src/cli.ts github --overwrite
+
+draft-guide (pi): persona=it-admin guides=github model=openai/gpt-5.6-sol
+[2026-07-31T20:49:48.097Z] [github] catalog: present name=io.github.github/github-mcp-server tenanted=false add_server=auto path=catalog tenant=gram-recommended observed=2026-07-31T20:49:47Z
+[2026-07-31T20:49:48.098Z] [github] researching github
+[2026-07-31T20:49:48.098Z] [github research] starting (model=openrouter/openai/gpt-5.6-sol, phase=github: research)
+[2026-07-31T20:49:48.112Z] [tripwire] 1 path(s) already modified outside the guide directory before the run; I7 enforcement is degraded for: doctrine/roles/technical-research.md
+[2026-07-31T20:52:17.786Z] [github research] cost $1.0738 tokens 976484 tools: grep=15 read=12 bash=8 write=2 ls=1 find=1 edit=1
+[2026-07-31T20:52:17.810Z] [github] catalog path refreshed after research: tenanted=false add_server=catalog path=catalog
+[2026-07-31T20:52:17.810Z] [github] research_change method=none unchanged=false — no prior research outputs to compare
+[2026-07-31T20:52:17.815Z] [github] drafting external.md + speakeasy.md for persona it-admin
+[2026-07-31T20:52:17.815Z] [github draft] starting (model=openrouter/openai/gpt-5.6-sol, phase=github: draft)
+[2026-07-31T20:53:07.254Z] [github draft] cost $0.1921 tokens 80321 tools: read=6 write=2 ls=1 edit=1
+[2026-07-31T20:53:07.268Z] [github] review round 1/3
+[2026-07-31T20:53:07.268Z] [github review:fidelity r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=github: review)
+[2026-07-31T20:53:07.272Z] [github review:achievability r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=github: review)
+[2026-07-31T20:53:44.860Z] [github review:fidelity r1] cost $0.2062 tokens 64167 tools: read=11 ls=1
+[2026-07-31T20:53:55.707Z] [github review:achievability r1] cost $0.1487 tokens 57341 tools: read=8 ls=1
+[2026-07-31T20:53:55.756Z] [github] revising 2 blocker(s) and 2 nit(s)
+[2026-07-31T20:53:55.756Z] [github revise r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=github: revise)
+[2026-07-31T20:54:53.109Z] [github revise r1] cost $0.2725 tokens 173285 tools: read=9 edit=5
+[2026-07-31T20:54:53.139Z] [github] review round 2/3
+[2026-07-31T20:54:53.140Z] [github review:fidelity r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=github: review)
+[2026-07-31T20:54:53.145Z] [github review:achievability r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=github: review)
+[2026-07-31T20:55:17.446Z] [github review:achievability r2] cost $0.1229 tokens 38515 tools: read=8 ls=1
+[2026-07-31T20:55:30.025Z] [github review:fidelity r2] cost $0.1726 tokens 50174 tools: read=11
+[2026-07-31T20:55:30.113Z] [github] converged after 2 round(s); 0 checklist item(s) remain
+[2026-07-31T20:55:30.133Z] [github] wrote pipeline.lock.json
+run record: /tmp/ns-exp/github-b-20260731T204942Z/retro/runs/2026-07-31T20:49:47Z-github.json
+{
+  "slug": "github",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#configure-token-access, step 4",
+          "problem": "The guide omits the Dossier’s warning that an organization will not appear under Resource owner when it blocks fine-grained personal access tokens.",
+          "suggestion": "After step 4, state that an organization will not appear if it blocks fine-grained personal access tokens, so the reader knows why the required owner may be unavailable.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#generate-personal-access-token — “wait for an organization administrator to approve it”",
+          "problem": "A reader whose token is pending is not told where the approver must go or which controls complete the approval required before first connection.",
+          "suggestion": "Research GitHub’s documented pending-token approval path, record the exact navigation and controls in the Research Dossier, and render either those steps or a precise handoff to the approver in external.md.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Speakeasy setup, catalog-path rationale",
+          "problem": "The Dossier attributes catalog-only selection solely to Pulse presence even though Metadata records the operator’s forced `speakeasy_add_server: catalog` override.",
+          "suggestion": "Record that `speakeasy_add_server: catalog` forces the catalog-only path, with the matched Pulse entry as corroborating provenance.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "external.md#configure-token-access — “grant the minimum repository, organization, and account permissions for the operations supplied by the application owner”",
+          "problem": "The reader must translate requested operations into GitHub permission names and access levels without being told to obtain those exact selections from the application owner.",
+          "suggestion": "Record and render a hedge directing the reader to obtain the exact GitHub permission names and access levels from the application owner before completing the Permissions section.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Research blocker: added GitHub’s documented organization-owner approval path, exact controls, provenance locator, and observed_at timestamp to research.md and meta.yaml; rendered the approver handoff in external.md. External blocker: added the warning after Resource owner that organizations blocking fine-grained personal access tokens do not appear. Catalog nit: recorded that the speakeasy_add_server: catalog override forces the catalog-only path, with the matched Pulse entry as corroboration. Permissions nit: recorded and rendered a direction to obtain the exact GitHub permission names and access levels from the application owner.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:7ed2661a0add745d9e53c858f72284556197fcad9430624309cf1dd917117329",
+  "setup_churn": {
+    "external_md_lines": 45,
+    "speakeasy_md_lines": 30
+  }
+}

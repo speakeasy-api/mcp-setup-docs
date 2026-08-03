@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: github
+title: GitHub
+summary: Connect GitHub so users can work with repositories and organization resources allowed by a fine-grained personal access token.
+aliases:
+  - io.github.github/github-mcp-server
+speakeasy_add_server: catalog
+credential_setup:
+  options:
+    - id: personal-access-token
+      kind: api_key
+      upstream_setup: provider-steps
+      fields:
+        - id: personal-access-token
+          label: Personal access token
+          setup:
+            - external.md#generate-personal-access-token
+  requirements:
+    - id: github-account
+      description: GitHub account with a verified email address
+    - id: resource-access
+      description: Access to the repositories or organization resources the connection will use
+    - id: organization-token-approval
+      description: Organization approval when its fine-grained personal access token policy requires approval
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: hosted
+    url: https://api.githubcopilot.com/mcp/
+    transport: streamable-http
+    authentication:
+      - personal-access-token
+    provenance:
+      - source: provider-documentation
+        locator: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
+        name: Remote GitHub MCP Server
+        classification: official
+        observed_at: "2026-07-31T20:49:47Z"
+      - source: provider-documentation
+        locator: https://docs.github.com/en/copilot/how-tos/context/model-context-protocol/extending-copilot-chat-with-mcp
+        name: Extending GitHub Copilot Chat with the Model Context Protocol (MCP)
+        classification: official
+        observed_at: "2026-07-31T20:49:47Z"
+      - source: endpoint-observation
+        locator: https://api.githubcopilot.com/mcp/
+        classification: official
+        observed_at: "2026-07-31T20:49:47Z"
+      - source: endpoint-observation
+        locator: https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/
+        classification: official
+        observed_at: "2026-07-31T20:49:47Z"
+provenance:
+  - source: pulsemcp
+    locator: io.github.github/github-mcp-server
+    name: GitHub
+    classification: mirror
+    status: present
+    observed_at: "2026-07-31T20:49:47Z"
+  - source: provider-documentation
+    locator: https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md
+    name: Remote GitHub MCP Server
+    classification: official
+    observed_at: "2026-07-31T20:49:47Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/copilot/how-tos/context/model-context-protocol/extending-copilot-chat-with-mcp
+    name: Extending GitHub Copilot Chat with the Model Context Protocol (MCP)
+    classification: official
+    observed_at: "2026-07-31T20:49:47Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token
+    name: Managing your personal access tokens
+    classification: official
+    observed_at: "2026-07-31T20:49:47Z"
+  - source: provider-documentation
+    locator: https://docs.github.com/en/organizations/managing-programmatic-access-to-your-organization/reviewing-and-revoking-personal-access-tokens-in-your-organization#reviewing-fine-grained-personal-access-token-requests
+    name: Reviewing and revoking personal access tokens in your organization
+    classification: official
+    observed_at: "2026-07-31T20:49:47Z"
+  - source: provider-documentation
+    locator: https://github.com/github/github-mcp-server/blob/main/README.md
+    name: GitHub MCP Server
+    classification: official
+    observed_at: "2026-07-31T20:49:47Z"
+  - source: endpoint-observation
+    locator: https://api.githubcopilot.com/mcp/
+    classification: official
+    observed_at: "2026-07-31T20:49:47Z"
+  - source: endpoint-observation
+    locator: https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/
+    classification: official
+    observed_at: "2026-07-31T20:49:47Z"
+  - source: endpoint-observation
+    locator: https://github.com/.well-known/oauth-authorization-server/login/oauth
+    classification: official
+    observed_at: "2026-07-31T20:49:47Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-07-31T20:49:47Z"

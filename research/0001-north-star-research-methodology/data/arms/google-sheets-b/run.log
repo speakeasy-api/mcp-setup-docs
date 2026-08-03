@@ -1,0 +1,135 @@
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 154 packages in 4s
+
+> draft-guide
+> tsx src/cli.ts google-sheets --overwrite
+
+draft-guide (pi): persona=it-admin guides=google-sheets model=openai/gpt-5.6-sol
+[2026-07-31T20:38:50.656Z] [google-sheets] catalog: absent tenanted=false add_server=auto path=custom-remote tenant=gram-recommended observed=2026-07-31T20:38:49Z
+[2026-07-31T20:38:50.657Z] [google-sheets] researching google-sheets
+[2026-07-31T20:38:50.657Z] [google-sheets research] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: research)
+[2026-07-31T20:38:50.673Z] [tripwire] 1 path(s) already modified outside the guide directory before the run; I7 enforcement is degraded for: doctrine/roles/technical-research.md
+[2026-07-31T20:42:41.723Z] [google-sheets research] cost $0.9971 tokens 882669 tools: bash=18 read=13 grep=11 write=2 ls=1 find=1
+[2026-07-31T20:42:41.745Z] [google-sheets] catalog path refreshed after research: tenanted=false add_server=custom-remote path=custom-remote
+[2026-07-31T20:42:41.746Z] [google-sheets] research_change method=none unchanged=false — no prior research outputs to compare
+[2026-07-31T20:42:41.750Z] [google-sheets] drafting external.md + speakeasy.md for persona it-admin
+[2026-07-31T20:42:41.751Z] [google-sheets draft] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: draft)
+[2026-07-31T20:43:28.797Z] [google-sheets draft] cost $0.2396 tokens 93908 tools: read=9 write=2 ls=1
+[2026-07-31T20:43:28.806Z] [google-sheets] review round 1/3
+[2026-07-31T20:43:28.806Z] [google-sheets review:fidelity r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:43:28.809Z] [google-sheets review:achievability r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:44:00.258Z] [google-sheets review:achievability r1] cost $0.1223 tokens 58141 tools: read=8 ls=1
+[2026-07-31T20:44:18.705Z] [google-sheets review:fidelity r1] cost $0.3261 tokens 66550 tools: read=11 ls=1
+[2026-07-31T20:44:18.739Z] [google-sheets] revising 4 blocker(s) and 0 nit(s)
+[2026-07-31T20:44:18.739Z] [google-sheets revise r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: revise)
+[2026-07-31T20:46:13.639Z] [google-sheets revise r1] cost $0.4339 tokens 300791 tools: read=11 grep=4 edit=4 ls=1
+[2026-07-31T20:46:13.649Z] [google-sheets] review round 2/3
+[2026-07-31T20:46:13.649Z] [google-sheets review:fidelity r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:46:13.652Z] [google-sheets review:achievability r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:47:07.573Z] [google-sheets review:achievability r2] cost $0.1627 tokens 54817 tools: read=8 ls=1
+[2026-07-31T20:47:12.743Z] [google-sheets review:fidelity r2] cost $0.2295 tokens 68036 tools: read=11 ls=1
+[2026-07-31T20:47:12.773Z] [google-sheets] revising 2 blocker(s) and 0 nit(s)
+[2026-07-31T20:47:12.773Z] [google-sheets revise r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: revise)
+[2026-07-31T20:47:58.756Z] [google-sheets revise r2] cost $0.2560 tokens 168890 tools: read=10 edit=3 grep=1
+[2026-07-31T20:47:58.766Z] [google-sheets] review round 3/3
+[2026-07-31T20:47:58.766Z] [google-sheets review:fidelity r3] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:47:58.768Z] [google-sheets review:achievability r3] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:48:40.810Z] [google-sheets review:achievability r3] cost $0.1633 tokens 79860 tools: read=9 ls=1
+[2026-07-31T20:48:41.000Z] [google-sheets review:fidelity r3] cost $0.1898 tokens 65504 tools: read=11 ls=1
+[2026-07-31T20:48:41.040Z] [google-sheets] converged after 3 round(s); 0 checklist item(s) remain
+[2026-07-31T20:48:41.078Z] [google-sheets] wrote pipeline.lock.json
+run record: /tmp/ns-exp/google-sheets-b-20260731T203845Z/retro/runs/2026-07-31T20:38:49Z-google-sheets.json
+{
+  "slug": "google-sheets",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Google's setup docs do not state the exact predefined IAM roles required to configure Google Auth Platform and create an OAuth client; the documented permissions for enabling services are recorded.",
+    "Google provides direct API enable-flow links but does not document the final confirmation button label for those flows."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — \"Operator lookup result: the Speakeasy MCP Catalog is absent\"",
+          "problem": "The Dossier records catalog absence even though the supplied operator note says the Custom remote path is forced because the catalog mapping is unreliable or unsuitable.",
+          "suggestion": "Replace the catalog-absence claim with the override rationale, retain only the Custom remote path, and keep `speakeasy_add_server: custom-remote` in Metadata.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose and #configure-oauth-consent",
+          "problem": "The Setup Guide omits the Dossier's requirement that users of an Internal OAuth audience belong to the Google Workspace organization associated with the project.",
+          "suggestion": "State before audience selection that Internal is suitable only when every intended user belongs to the project's associated Google Workspace organization; otherwise select External and add those users as test users.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#add-server-in-speakeasy screenshot note",
+          "problem": "The Dossier replaces the canonical screenshot placeholder with a custom-server-page placeholder instead of transcluding the current `doctrine/speakeasy-setup.md` placeholder.",
+          "suggestion": "Carry the canonical screenshot placeholder into the Dossier verbatim, using the Add Source menu option appropriate to the resolved Custom remote path.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Developer Preview prerequisite before #open-google-cloud-project",
+          "problem": "The guide requires Google Workspace Developer Preview Program access but provides no path to obtain or verify that access before attempting the first connection.",
+          "suggestion": "Research the provider-documented enrollment and access-verification path, record it in the Dossier, and add the exact link and required controls before the Google Cloud project steps.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Research: replaced the incorrect catalog-absence claim with the operator override rationale, retained `speakeasy_add_server: custom-remote`, and kept only the Custom remote path. Research and Speakeasy setup: restored the canonical Add Source screenshot placeholder verbatim. Research and Metadata: documented and sourced the Google Workspace Developer Preview Program enrollment and acceptance-email verification path using the required observed timestamp. External setup: added that enrollment path before the Google Cloud project steps. External setup and Dossier: stated before audience selection that Internal applies only when every intended user belongs to the project's associated Google Workspace organization; otherwise users must be configured through External and added as test users.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials screenshot note",
+          "problem": "The Research Dossier replaces the canonical manual-OAuth screenshot placeholder with custom wording that does not explicitly require the Redirect URI to appear.",
+          "suggestion": "Transclude the applicable canonical placeholder from doctrine/speakeasy-setup.md—showing the Attach Remote Identity Provider sheet in Manual mode with Redirect URI and values redacted—and render the same placeholder in speakeasy.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Opening prerequisites and #open-google-cloud-project",
+          "problem": "A reader who does not already have a suitable Google Cloud project has no documented way to obtain or create one before the project selector step.",
+          "suggestion": "Document the browser path and required controls for creating a Google Cloud project, or explicitly direct the reader to obtain the name of an existing suitable project from the Google Cloud project owner before continuing.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Finding 1: Replaced the manual-OAuth screenshot note in research.md with the applicable canonical placeholder requiring the Attach Remote Identity Provider sheet in Manual mode, with Redirect URI visible and values redacted; rendered the same placeholder in speakeasy.md. Finding 2: Updated research.md and external.md to direct operators without a suitable Google Cloud project to obtain the name of an existing suitable project from the Google Cloud project owner before using the project selector.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:a0b636960a116e3a0d6732b158869cfcc3ba900dcc452413867104452101f398",
+  "setup_churn": {
+    "external_md_lines": 116,
+    "speakeasy_md_lines": 28
+  }
+}
