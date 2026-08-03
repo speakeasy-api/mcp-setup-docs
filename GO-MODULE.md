@@ -20,7 +20,8 @@ Consumer/dev API: [`go/README.md`](go/README.md).
 | Secret | Required? | What it is |
 | --- | --- | --- |
 | `AGENT_PAT` | **Yes** for regen | PAT with `contents` + `pull-requests` + `issues` write. Regen PRs authored with `GITHUB_TOKEN` do not trigger `pull_request` CI. Same secret as [`FACTORY.md`](FACTORY.md). The release workflow also pushes the `go/vX.Y.Z` tag with it, which is what makes the tag event fire the consumer bump. |
-| `SERVICE_BOT_TOKEN` | **Yes** for consumer bump | Token with `contents` + `pull-requests` write on `speakeasy-api/gram`. Same secret name that repo uses for its own cross-repo PRs. The workflow falls back to `AGENT_PAT`, which works only if that PAT can write to the consumer repo. |
+| `GRAM_BOT_APP_ID` | **Yes** for consumer bump | App id of the `gram-bot` GitHub App. Copy it from `speakeasy-api/gram`, which stores it as a repo variable and a repo secret. |
+| `GRAM_BOT_PRIVATE_KEY` | **Yes** for consumer bump | Private key of the same App. The workflow mints a token scoped to `speakeasy-api/gram`, with `contents` + `pull-requests` write, valid for an hour. Generate a second key in the App settings if the value is lost; existing keys stay valid. |
 
 ### First tag (manual)
 
@@ -90,7 +91,8 @@ Remote ids are append-only after the first tag (`go/published_server_refs.txt`).
 | Regen PR has no CI | Confirm `AGENT_PAT` is set on the repo |
 | Release says no tags yet | Cut `go/v0.1.0` manually (see above) |
 | Release refuses drift on main | Something landed on `main` without a clean embed — run regen and merge before tagging |
-| No consumer bump PR after a release | Confirm `SERVICE_BOT_TOKEN` (or a cross-repo `AGENT_PAT`) is set, then Actions → **Go module consumer bump** → `workflow_dispatch` |
+| No consumer bump PR after a release | Confirm `GRAM_BOT_APP_ID` + `GRAM_BOT_PRIVATE_KEY` are set, then Actions → **Go module consumer bump** → `workflow_dispatch` |
+| Bump PR cannot use `review:bypass` | `gram-bot` authored it, and GitHub blocks self-approval. Ask a human for the review. |
 | Consumer bump says the version never resolved | `proxy.golang.org` was still indexing — re-dispatch the workflow with the version |
 | Consumer bump says `go.mod` does not require the module | The consumer dropped the dependency; add it back there or retire this workflow |
 
