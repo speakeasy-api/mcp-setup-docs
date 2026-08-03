@@ -31,16 +31,17 @@ jobs:
   bump:
     runs-on: ubuntu-latest
     steps:
-      - name: Require a consumer token
-        env:
-          CONSUMER_TOKEN: ${{ secrets.SERVICE_BOT_TOKEN || secrets.AGENT_PAT }}
-        run: |
-          set -euo pipefail
-          if [ -z "${CONSUMER_TOKEN}" ]; then
-            echo "No token can write to ${CONSUMER_REPO}."
-            echo "Set SERVICE_BOT_TOKEN on this repo, or grant AGENT_PAT contents + pull-requests write there."
-            exit 1
-          fi
+      # Scoped to the consumer repo and valid for an hour, unlike a PAT.
+      - name: Mint a gram-bot token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.GRAM_BOT_APP_ID }}
+          private-key: ${{ secrets.GRAM_BOT_PRIVATE_KEY }}
+          owner: speakeasy-api
+          repositories: gram
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -74,7 +75,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ env.CONSUMER_REPO }}
-          token: ${{ secrets.SERVICE_BOT_TOKEN || secrets.AGENT_PAT }}
+          token: ${{ steps.app-token.outputs.token }}
           path: consumer
           fetch-depth: 1
 
@@ -148,15 +149,16 @@ jobs:
         if: steps.bump.outputs.changed == 'true'
         working-directory: consumer
         env:
-          GH_TOKEN: ${{ secrets.SERVICE_BOT_TOKEN || secrets.AGENT_PAT }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.ver.outputs.version }}
           PREVIOUS: ${{ steps.bump.outputs.previous }}
           TAG: ${{ steps.ver.outputs.tag }}
           NOTES_FILE: ${{ steps.notes.outputs.file }}
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Commit as the app, so the consumer CI runs on the pushed branch.
+          git config user.name "gram-bot[bot]"
+          git config user.email "gram-bot[bot]@users.noreply.github.com"
 
           title="chore(deps): bump ${MODULE_PATH} from ${PREVIOUS} to ${VERSION}"
           git checkout -B "$BUMP_BRANCH"
