@@ -11,6 +11,7 @@ Consumer/dev API: [`go/README.md`](go/README.md).
 | [`go-module-ci.yml`](.github/workflows/go-module-ci.yml) | PR/push touches `go/**` (etc.) | Regenerate, fail on drift, vet/test |
 | [`go-module-regen.yml`](.github/workflows/go-module-regen.yml) | Push to `main` on `guides/**` or `schema/**` | Regenerate embed; open/update `chore/go-module-regen` |
 | [`go-module-release.yml`](.github/workflows/go-module-release.yml) | Publishable `go/` lands on `main` | Verify, then tag `go/vX.Y.Z` + GitHub Release |
+| [`go-module-consumer-bump.yml`](.github/workflows/go-module-consumer-bump.yml) | A `go/v*` tag is pushed | Open/update a `go.mod` bump PR on the consumer repo (`speakeasy-api/gram`) |
 
 ## One-time setup
 
@@ -18,7 +19,8 @@ Consumer/dev API: [`go/README.md`](go/README.md).
 
 | Secret | Required? | What it is |
 | --- | --- | --- |
-| `AGENT_PAT` | **Yes** for regen | PAT with `contents` + `pull-requests` + `issues` write. Regen PRs authored with `GITHUB_TOKEN` do not trigger `pull_request` CI. Same secret as [`FACTORY.md`](FACTORY.md). |
+| `AGENT_PAT` | **Yes** for regen | PAT with `contents` + `pull-requests` + `issues` write. Regen PRs authored with `GITHUB_TOKEN` do not trigger `pull_request` CI. Same secret as [`FACTORY.md`](FACTORY.md). The release workflow also pushes the `go/vX.Y.Z` tag with it, which is what makes the tag event fire the consumer bump. |
+| `SERVICE_BOT_TOKEN` | **Yes** for consumer bump | Token with `contents` + `pull-requests` write on `speakeasy-api/gram`. Same secret name that repo uses for its own cross-repo PRs. The workflow falls back to `AGENT_PAT`, which works only if that PAT can write to the consumer repo. |
 
 ### First tag (manual)
 
@@ -48,6 +50,7 @@ Created automatically on regen failure if missing:
 3. **Regen PR** — bot opens or updates [`chore/go-module-regen`](https://github.com/speakeasy-api/mcp-setup-docs/compare/main...chore/go-module-regen). Multiple guide merges while it is open are **aggregated** into that same PR. The PR body lists guide-level added/updated/removed drift (and other `go/` files) vs `main`.
 4. **Human merge** — wait for `Go module CI` green, then merge. Branch is **machine-owned**; don’t push fixes there (they’ll be overwritten on the next regen).
 5. **Release** — `go-module-release` re-verifies the module, patch-bumps to the next `go/vX.Y.Z`, creates a GitHub Release (notes list guide-level added/updated/removed since the previous tag), and best-effort primes `proxy.golang.org`.
+6. **Consumer bump** — the `go/vX.Y.Z` tag fires `go-module-consumer-bump`. It waits for the module proxy, runs `go get` + `go mod tidy` on `speakeasy-api/gram`, and opens or refreshes [`chore/bump-mcp-setup-docs-go`](https://github.com/speakeasy-api/gram/compare/main...chore/bump-mcp-setup-docs-go) there. That branch is **machine-owned** too: the next release rebuilds it from the consumer default branch and force-pushes. A human on that repo reviews and merges.
 
 ```text
 guides PR ──validate──► main ──regen──► chore/go-module-regen PR
@@ -57,6 +60,9 @@ guides PR ──validate──► main ──regen──► chore/go-module-rege
                                               │
                                               ▼ release
                                          go/vX.Y.Z + GitHub Release
+                                              │
+                                              ▼ consumer bump
+                                   speakeasy-api/gram go.mod PR
 ```
 
 ## Local develop
@@ -84,6 +90,9 @@ Remote ids are append-only after the first tag (`go/published_server_refs.txt`).
 | Regen PR has no CI | Confirm `AGENT_PAT` is set on the repo |
 | Release says no tags yet | Cut `go/v0.1.0` manually (see above) |
 | Release refuses drift on main | Something landed on `main` without a clean embed — run regen and merge before tagging |
+| No consumer bump PR after a release | Confirm `SERVICE_BOT_TOKEN` (or a cross-repo `AGENT_PAT`) is set, then Actions → **Go module consumer bump** → `workflow_dispatch` |
+| Consumer bump says the version never resolved | `proxy.golang.org` was still indexing — re-dispatch the workflow with the version |
+| Consumer bump says `go.mod` does not require the module | The consumer dropped the dependency; add it back there or retire this workflow |
 
 ## Out of scope here
 
