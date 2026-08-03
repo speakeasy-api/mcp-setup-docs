@@ -4,6 +4,7 @@
 # in the Google Cloud console.
 schema_version: 1
 slug: google-compute-engine
+speakeasy_add_server: catalog
 title: Google Compute Engine
 summary: Manage Compute Engine VM instances, disks, instance groups, snapshots, and images through Google's hosted Compute Engine MCP server.
 aliases:
@@ -27,7 +28,7 @@ credential_setup:
             - external.md#copy-client-credentials
   requirements:
     - id: gcp-project
-      description: Google Cloud project with billing enabled and the Compute Engine API enabled, an admin who can enable APIs, grant IAM roles, and configure the Google Auth platform (project Owner covers all three), and connecting users granted the MCP Tool User role plus Compute Engine roles for the operations they will perform
+      description: Google Cloud project with billing enabled and the Compute Engine API enabled, an admin with permission to enable APIs, grant IAM roles, and configure the Google Auth platform, and connecting users granted the MCP Tool User role plus Compute Engine roles for the operations they will perform
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -39,123 +40,125 @@ remotes:
       - oauth-client
     provenance:
       - source: pulsemcp
-        name: com.googleapis.compute/mcp
+        locator: com.googleapis.compute/mcp
+        name: Google Compute Engine
         version: 1.0.0
         classification: mirror
-        observed_at: "2026-07-18T04:42:42Z"
+        observed_at: "2026-07-31T19:17:08Z"
       - source: provider-documentation
         locator: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp
         name: Use the Compute Engine MCP server
         classification: official
-        observed_at: "2026-07-23T15:15:19Z"
+        observed_at: "2026-07-31T19:17:08Z"
       - source: provider-documentation
         locator: https://docs.cloud.google.com/compute/docs/reference/mcp
         name: Compute Engine MCP reference
         classification: official
-        observed_at: "2026-07-23T15:15:19Z"
+        observed_at: "2026-07-31T19:17:08Z"
       - source: provider-documentation
         locator: https://docs.cloud.google.com/mcp/supported-products
         name: Supported products
         classification: official
-        observed_at: "2026-07-23T15:15:19Z"
+        observed_at: "2026-07-31T19:17:08Z"
       - source: endpoint-observation
         locator: https://compute.googleapis.com/.well-known/oauth-protected-resource/mcp
         name: Compute Engine MCP protected-resource metadata
         classification: official
-        observed_at: "2026-07-23T15:15:19Z"
+        observed_at: "2026-07-31T19:17:08Z"
 provenance:
   - source: pulsemcp
-    name: com.googleapis.compute/mcp
+    locator: com.googleapis.compute/mcp
+    name: Google Compute Engine
     version: 1.0.0
     classification: mirror
-    observed_at: "2026-07-18T04:42:42Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp
     name: Use the Compute Engine MCP server
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/compute/docs/reference/mcp
     name: Compute Engine MCP reference
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
     name: Set up authentication for Google and Google Cloud MCP servers
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/authenticate-mcp
     name: Authenticate to Google and Google Cloud MCP servers
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/overview
     name: Google Cloud MCP servers overview
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/supported-products
     name: Supported products
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/release-notes
     name: Google Cloud MCP servers release notes
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/quotas
     name: Quotas and system limits
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/service-usage/docs/enable-disable
     name: Enable and disable services
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/compute/docs/access/iam
     name: Compute Engine IAM roles and permissions
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-oauth-consent
     name: Configure the OAuth consent screen and choose scopes
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://developers.google.com/identity/protocols/oauth2
     name: Using OAuth 2.0 to Access Google APIs
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549945
     name: Manage App Audience
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549049
     name: Manage OAuth App Branding
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549135
     name: Manage App Data Access
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: endpoint-observation
     locator: https://compute.googleapis.com/mcp
     name: Compute Engine MCP endpoint (tools/list 200 unauthenticated, tools/call 401)
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: endpoint-observation
     locator: https://compute.googleapis.com/.well-known/oauth-protected-resource/mcp
     name: Compute Engine MCP protected-resource metadata
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
   - source: endpoint-observation
     locator: https://accounts.google.com/.well-known/oauth-authorization-server
     name: Google authorization-server metadata
     classification: official
-    observed_at: "2026-07-23T15:15:19Z"
+    observed_at: "2026-07-31T19:17:08Z"
