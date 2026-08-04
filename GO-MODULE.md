@@ -50,7 +50,7 @@ Created automatically on regen failure if missing:
 2. **Merge to `main`** — `go-module-regen` runs.
 3. **Regen PR** — bot opens or updates [`chore/go-module-regen`](https://github.com/speakeasy-api/mcp-setup-docs/compare/main...chore/go-module-regen). Multiple guide merges while it is open are **aggregated** into that same PR. The PR body lists guide-level added/updated/removed drift (and other `go/` files) vs `main`.
 4. **Human merge** — wait for `Go module CI` green, then merge. Branch is **machine-owned**; don’t push fixes there (they’ll be overwritten on the next regen).
-5. **Release** — `go-module-release` re-verifies the module, patch-bumps to the next `go/vX.Y.Z`, creates a GitHub Release (notes list guide-level added/updated/removed since the previous tag), and best-effort primes `proxy.golang.org`.
+5. **Release** — `go-module-release` re-verifies the module, bumps to the next `go/vX.Y.Z` (patch, unless the merge commit message carries `[minor]` or `[major]`), creates a GitHub Release (notes list guide-level added/updated/removed since the previous tag), and best-effort primes `proxy.golang.org`.
 6. **Consumer bump** — the `go/vX.Y.Z` tag fires `go-module-consumer-bump`. It waits for the module proxy, runs `go get` + `go mod tidy` on `speakeasy-api/gram`, and opens or refreshes [`chore/bump-mcp-setup-docs-go`](https://github.com/speakeasy-api/gram/compare/main...chore/bump-mcp-setup-docs-go) there. That branch is **machine-owned** too: the next release rebuilds it from the consumer default branch and force-pushes. A human on that repo reviews and merges.
 
 ```text
@@ -78,7 +78,17 @@ mise run check-go      # regenerate, fail on drift, go test (+ generator tests)
 | Bump | How |
 | --- | --- |
 | Patch (default) | Automatic on each publishable `go/` merge after `go/v0.1.0` |
-| Minor / major | Actions → **Go module release** → `workflow_dispatch` → choose bump |
+| Minor / major | Put `[minor]` or `[major]` in the **merge commit message**; the automatic run reads it |
+| Minor / major (after the fact) | Actions → **Go module release** → `workflow_dispatch` → choose bump |
+
+Prefer the merge-commit marker for an API change. A `workflow_dispatch` after
+the automatic run leaves a throwaway patch tag behind, because the push-triggered
+run already tagged before you dispatched.
+
+A merge is publishable when it touches `go/` outside tests, `go/internal/`,
+`go/README.md`, and `go/check.sh`. The release workflow states this as
+`go/**` minus those paths, so a new source file releases without anyone
+remembering to add it to a list.
 
 Remote ids are append-only after the first tag (`go/published_server_refs.txt`). Removing a published `slug/remote-id` fails generation until restored or the manifest is intentionally rewritten after review.
 
