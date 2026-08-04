@@ -3,9 +3,17 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
+
+// fieldSet reports whether the generated index sets field to value. It
+// ignores the column alignment gofmt applies, which shifts whenever a new
+// field lengthens the struct literal.
+func fieldSet(s, field, value string) bool {
+	return regexp.MustCompile(regexp.QuoteMeta(field) + `:\s+` + regexp.QuoteMeta(value) + `,`).MatchString(s)
+}
 
 func TestNormalizeURLMatchesRuntimeRules(t *testing.T) {
 	cases := map[string]string{
@@ -125,8 +133,10 @@ remotes:
     transport: streamable-http
 `
 	for name, body := range map[string]string{
-		"meta.yaml":    meta,
-		"external.md":  "# external\n",
+		"meta.yaml": meta,
+		// The canonical callback key here takes run() through the accept
+		// path of the template scan, not only the rejections below.
+		"external.md":  "# external\n\nEnter {{ gram.oauth.callback_url }} in the field.\n",
 		"speakeasy.md": "# speakeasy\n",
 	} {
 		if err := os.WriteFile(filepath.Join(guidesDir, name), []byte(body), 0o644); err != nil {
@@ -215,7 +225,6 @@ remotes:
 	}
 	for _, want := range []string{
 		"Summary:", "SpeakeasyAddServer:", "https://mcp.example.com/demo", "com.example/demo",
-		"SetupRequired:      true,",
 		`{ID: "oauth-app", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},`,
 	} {
 		if !strings.Contains(string(idx), want) {
@@ -223,15 +232,85 @@ remotes:
 		}
 	}
 
+	_, afterDemo, _ := strings.Cut(string(idx), `"demo": {`)
+	demoEntry, _, _ := strings.Cut(afterDemo, "\n\t},")
+	if !fieldSet(demoEntry, "SetupRequired", "true") {
+		t.Errorf("demo should need setup, got:\n%s", demoEntry)
+	}
+
 	_, afterTenant, _ := strings.Cut(string(idx), `"tenant": {`)
 	tenantEntry, _, _ := strings.Cut(afterTenant, "\n\t},")
-	if !strings.Contains(tenantEntry, "SetupRequired:      true,") {
+	if !fieldSet(tenantEntry, "SetupRequired", "true") {
 		t.Errorf("tenanted remote must force SetupRequired=true, got:\n%s", tenantEntry)
 	}
 	// Guards the fixture itself: if its option ever needs setup, the
 	// assertion above would pass for the wrong reason.
 	if !strings.Contains(tenantEntry, `UpstreamSetup: "none", SpeakeasySetup: "none"`) {
 		t.Errorf("tenant fixture no longer isolates the tenanted term:\n%s", tenantEntry)
+	}
+}
+
+// The generator is the only place that enforces the one-key rule, so the
+// rejections matter as much as the happy path: Render substitutes with a
+// literal byte replacement on the strength of this check.
+func TestScanTemplateKeys(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		external  string
+		speakeasy string
+		meta      string
+		errText   string
+	}{
+		{name: "no keys", external: "# external\n", speakeasy: "# speakeasy\n"},
+		{
+			name:     "canonical key in external",
+			external: "Enter " + canonicalCallbackKey + " here.\n",
+		},
+		{
+			name:      "canonical key in speakeasy",
+			speakeasy: "Confirm " + canonicalCallbackKey + " matches.\n",
+		},
+		{
+			name:     "non-canonical spacing",
+			external: "Enter {{gram.oauth.callback_url}} here.\n",
+			errText:  "only supported key",
+		},
+		{
+			name:     "unknown key",
+			external: "Enter {{ gram.server.redirect_uri }} here.\n",
+			errText:  "only supported key",
+		},
+		{
+			name:    "key in meta",
+			meta:    "callback: \"" + canonicalCallbackKey + "\"\n",
+			errText: "meta.yaml carries template key",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			files := map[string]string{
+				"external.md":  "# external\n" + tc.external,
+				"speakeasy.md": "# speakeasy\n" + tc.speakeasy,
+			}
+			for name, body := range files {
+				if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			err := scanTemplateKeys("demo", dir, []byte("slug: demo\n"+tc.meta))
+			if tc.errText != "" {
+				if err == nil {
+					t.Fatalf("expected an error mentioning %q, got nil", tc.errText)
+				}
+				if !strings.Contains(err.Error(), tc.errText) {
+					t.Fatalf("error %v should mention %q", err, tc.errText)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+		})
 	}
 }
 
