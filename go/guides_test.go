@@ -441,29 +441,24 @@ func TestRenderSubstitutesEveryKey(t *testing.T) {
 	key := []byte(canonicalCallbackKey)
 	vars := guides.Vars{OAuthCallbackURL: callback}
 	substituted := 0
-	for _, g := range guides.Guides() {
-		for _, c := range []struct {
-			field string
-			raw   []byte
-			out   []byte
-		}{
-			{"External", g.External, g.RenderExternal(vars)},
-			{"Speakeasy", g.Speakeasy, g.RenderSpeakeasy(vars)},
-		} {
-			if bytes.Contains(c.out, key) {
-				t.Errorf("%s %s: output still carries the key", g.Slug, c.field)
-			}
-			if !bytes.Contains(c.raw, key) {
-				if !bytes.Equal(c.out, c.raw) {
-					t.Errorf("%s %s: content with no key changed", g.Slug, c.field)
-				}
-				continue
-			}
-			substituted++
-			if !bytes.Contains(c.out, []byte(callback)) {
-				t.Errorf("%s %s: substituted nothing", g.Slug, c.field)
-			}
+	check := func(slug guides.GuideSlug, field string, raw, out []byte) {
+		if bytes.Contains(out, key) {
+			t.Errorf("%s %s: output still carries the key", slug, field)
 		}
+		if !bytes.Contains(raw, key) {
+			if !bytes.Equal(out, raw) {
+				t.Errorf("%s %s: content with no key changed", slug, field)
+			}
+			return
+		}
+		substituted++
+		if !bytes.Contains(out, []byte(callback)) {
+			t.Errorf("%s %s: substituted nothing", slug, field)
+		}
+	}
+	for _, g := range guides.Guides() {
+		check(g.Slug, "External", g.External, g.RenderExternal(vars))
+		check(g.Slug, "Speakeasy", g.Speakeasy, g.RenderSpeakeasy(vars))
 	}
 	if substituted == 0 {
 		t.Fatal("no guide carries the key; the matrix would be vacuous")
@@ -483,22 +478,16 @@ func TestRenderLeavesKeyWhenValueEmpty(t *testing.T) {
 }
 
 // The embedded bytes back every future Lookup, so rendering must not reach
-// them. A caller that renders per request depends on this. The renderers
-// always allocate, so a caller may also write into what they return.
+// them. A caller that renders per request depends on this.
 func TestRenderDoesNotDisturbEmbeddedContent(t *testing.T) {
 	g, ok := guides.Lookup("intercom")
 	if !ok {
 		t.Fatal("intercom missing")
 	}
 	before := string(g.External)
-	for _, out := range [][]byte{
-		g.RenderExternal(guides.Vars{OAuthCallbackURL: "https://app.example.com/cb"}),
-		g.RenderExternal(guides.Vars{}),
-	} {
-		out[0] = 'X'
-	}
+	_ = g.RenderExternal(guides.Vars{OAuthCallbackURL: "https://app.example.com/cb"})
 	if string(g.External) != before {
-		t.Error("a renderer returned a slice aliasing the Guide it was called on")
+		t.Error("a renderer changed the Guide it was called on")
 	}
 	again, ok := guides.Lookup("intercom")
 	if !ok {

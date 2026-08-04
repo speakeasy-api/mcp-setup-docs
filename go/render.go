@@ -24,21 +24,16 @@ type Vars struct {
 
 // RenderExternal returns External with the template keys replaced by the
 // values in v. Serve this rather than the raw field: the raw field still
-// carries the keys.
+// carries the keys. Treat the result as read-only; it may alias External.
 func (g Guide) RenderExternal(v Vars) []byte { return render(g.External, v) }
 
-// RenderSpeakeasy returns Speakeasy with the template keys replaced by the
-// values in v. Serve this rather than the raw field: the raw field still
-// carries the keys.
+// RenderSpeakeasy returns Speakeasy with the template keys replaced. See
+// RenderExternal.
 func (g Guide) RenderSpeakeasy(v Vars) []byte { return render(g.Speakeasy, v) }
 
-// render always allocates, so the caller owns the result and the embedded
-// content stays untouched. Only External and Speakeasy have a renderer: no
-// template key reaches meta.yaml or an asset, and the generator fails if
-// one ever does.
 func render(content []byte, v Vars) []byte {
 	if v.OAuthCallbackURL == "" {
-		return bytes.Clone(content)
+		return content
 	}
 	return bytes.ReplaceAll(content, callbackURLKey, []byte(v.OAuthCallbackURL))
 }

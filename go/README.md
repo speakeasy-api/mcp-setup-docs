@@ -47,9 +47,9 @@ g, _ := guides.Lookup("intercom")
 os.Stdout.Write(g.RenderExternal(vars))
 ```
 
-- The renderers return a **new slice** every call. They never change the
-  embedded content, so a server may render per request with a different value
-  each time, and the caller owns what it gets back.
+- The renderers never change the embedded content, so a server may render per
+  request with a different value each time. **Treat the result as read-only:**
+  an empty `Vars` returns a slice aliasing the raw field.
 - The callback URL is a property of your deployment, not of the guide, so
   there is nothing to look up first. Content that never references the key
   comes back unchanged.
