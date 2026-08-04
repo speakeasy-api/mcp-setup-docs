@@ -21,6 +21,18 @@ import (
 
 var kebab = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
 
+// canonicalCallbackKey is the only template key a guide may carry, in the
+// only spelling it may use. doctrine/constitution.md pins the rule; this
+// generator enforces it so package guides can promote RequiresCallbackURL
+// and document what Render substitutes.
+const canonicalCallbackKey = "{{ gram.oauth.callback_url }}"
+
+// templateKeyPattern finds every "{{ … }}" span, including malformed
+// spacing, so a non-canonical key fails generation instead of shipping
+// unrendered. Package guides' callbackURLKey stays whitespace-tolerant on
+// purpose; this check is what keeps that tolerance unused.
+var templateKeyPattern = regexp.MustCompile(`\{\{[^{}]*\}\}`)
+
 type assetMeta struct {
 	Path        string `yaml:"path"`
 	ContentHash string `yaml:"content_hash"`
@@ -77,17 +89,18 @@ type credentialOptionIndex struct {
 }
 
 type guideIndex struct {
-	Slug               string
-	Title              string
-	Summary            string
-	SpeakeasyAddServer string
-	SetupRequired      bool
-	Aliases            []string
-	Remotes            []remoteIndex
-	CredentialOptions  []credentialOptionIndex
-	ProvenanceNames    []string
-	RemoteProvenances  [][]string // parallel to Remotes
-	AssetPaths         []string
+	Slug                string
+	Title               string
+	Summary             string
+	SpeakeasyAddServer  string
+	SetupRequired       bool
+	RequiresCallbackURL bool
+	Aliases             []string
+	Remotes             []remoteIndex
+	CredentialOptions   []credentialOptionIndex
+	ProvenanceNames     []string
+	RemoteProvenances   [][]string // parallel to Remotes
+	AssetPaths          []string
 }
 
 // deriveSpeakeasySetup maps an Authentication Option onto the work the reader
@@ -200,6 +213,11 @@ func run() error {
 			}
 		}
 
+		requiresCallbackURL, err := scanTemplateKeys(slug, srcDir, raw)
+		if err != nil {
+			return err
+		}
+
 		// Rebuild each guide dir from scratch so deleted assets/files cannot linger.
 		dstDir := filepath.Join(outGuides, slug)
 		if err := os.RemoveAll(dstDir); err != nil {
@@ -215,10 +233,11 @@ func run() error {
 		}
 
 		g := guideIndex{
-			Slug:               meta.Slug,
-			Title:              meta.Title,
-			Summary:            meta.Summary,
-			SpeakeasyAddServer: meta.SpeakeasyAddServer,
+			Slug:                meta.Slug,
+			Title:               meta.Title,
+			Summary:             meta.Summary,
+			SpeakeasyAddServer:  meta.SpeakeasyAddServer,
+			RequiresCallbackURL: requiresCallbackURL,
 		}
 		seenRemote := map[string]struct{}{}
 		for _, r := range meta.Remotes {
@@ -399,6 +418,34 @@ func run() error {
 	// Older layouts left a separate assets embed file; remove if present.
 	_ = os.Remove(filepath.Join(moduleRoot, "embed_assets_gen.go"))
 	return nil
+}
+
+// scanTemplateKeys enforces the single-template-key rule and reports whether
+// the guide's prose asks for a callback URL. metaRaw must carry no key at
+// all: Guide.Render substitutes only External and Speakeasy, so a key in
+// meta.yaml would ship to a reader unrendered.
+func scanTemplateKeys(slug, srcDir string, metaRaw []byte) (bool, error) {
+	if key := templateKeyPattern.Find(metaRaw); key != nil {
+		return false, fmt.Errorf(
+			"%s: meta.yaml carries template key %s; keys belong in external.md or speakeasy.md only",
+			slug, key)
+	}
+	var requiresCallbackURL bool
+	for _, name := range []string{"external.md", "speakeasy.md"} {
+		data, err := os.ReadFile(filepath.Join(srcDir, name))
+		if err != nil {
+			return false, fmt.Errorf("%s: read %s: %w", slug, name, err)
+		}
+		for _, key := range templateKeyPattern.FindAllString(string(data), -1) {
+			if key != canonicalCallbackKey {
+				return false, fmt.Errorf(
+					"%s: %s carries template key %s; %s is the only supported key",
+					slug, name, key, canonicalCallbackKey)
+			}
+			requiresCallbackURL = true
+		}
+	}
+	return requiresCallbackURL, nil
 }
 
 func pruneStaleGuideDirs(outGuides string, slugs []string) error {

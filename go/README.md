@@ -34,6 +34,31 @@ func main() {
 }
 ```
 
+## Rendering the callback URL
+
+Guide content ships with the template key `{{ gram.oauth.callback_url }}`
+in place. Pass your own value to substitute it:
+
+```go
+g, _ := guides.Lookup("intercom")
+
+if g.RequiresCallbackURL {
+	g = g.Render(guides.Vars{
+		OAuthCallbackURL: "https://app.example.com/oauth/callback",
+	})
+}
+os.Stdout.Write(g.External)
+```
+
+- `Render` returns a **copy**. It never changes the embedded content, so a
+  server may render per request with a different value each time.
+- An empty `Vars` field leaves its key in place. That is a valid output:
+  the reader pastes the key and the Control Plane resolves it later.
+- `Render` substitutes `External` and `Speakeasy` only. No template key
+  reaches `Meta` or an asset — the generator fails if one ever does.
+- `{{ gram.oauth.callback_url }}` is the only supported key. Add a field to
+  `Vars` to support another; existing callers keep compiling.
+
 ## Identifiers
 
 - **Canonical:** `ServerRef{Guide, Remote}` text form `slug/remote-id`

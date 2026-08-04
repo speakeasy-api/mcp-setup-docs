@@ -42,24 +42,26 @@ type generatedCredentialOption struct {
 }
 
 type generatedGuide struct {
-	Slug               GuideSlug
-	Title              string
-	Summary            string
-	SpeakeasyAddServer string
-	SetupRequired      bool
-	Aliases            []string
-	Remotes            []generatedRemote
-	CredentialOptions  []generatedCredentialOption
+	Slug                GuideSlug
+	Title               string
+	Summary             string
+	SpeakeasyAddServer  string
+	SetupRequired       bool
+	RequiresCallbackURL bool
+	Aliases             []string
+	Remotes             []generatedRemote
+	CredentialOptions   []generatedCredentialOption
 }
 
 var generatedGuides = map[GuideSlug]generatedGuide{
 	"asana": {
-		Slug:               "asana",
-		Title:              "Asana",
-		Summary:            "Connect an Asana workspace so users can access and manage their permitted Asana work through the hosted Asana MCP server.",
-		SpeakeasyAddServer: "",
-		SetupRequired:      true,
-		Aliases:            []string{"com.pulsemcp.mirror/asana-mcp"},
+		Slug:                "asana",
+		Title:               "Asana",
+		Summary:             "Connect an Asana workspace so users can access and manage their permitted Asana work through the hosted Asana MCP server.",
+		SpeakeasyAddServer:  "",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{"com.pulsemcp.mirror/asana-mcp"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://mcp.asana.com/v2/mcp", Transport: "streamable-http", Tenanted: false},
 		},
@@ -68,12 +70,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"box": {
-		Slug:               "box",
-		Title:              "Box",
-		Summary:            "Access, search, and manage Box content and Box AI through the hosted Box MCP server.",
-		SpeakeasyAddServer: "catalog",
-		SetupRequired:      true,
-		Aliases:            []string{"com.pulsemcp.mirror/box"},
+		Slug:                "box",
+		Title:               "Box",
+		Summary:             "Access, search, and manage Box content and Box AI through the hosted Box MCP server.",
+		SpeakeasyAddServer:  "catalog",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{"com.pulsemcp.mirror/box"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://mcp.box.com", Transport: "streamable-http", Tenanted: false},
 		},
@@ -82,12 +85,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"github": {
-		Slug:               "github",
-		Title:              "GitHub",
-		Summary:            "Connect GitHub so users can work with repositories and other resources their GitHub account is permitted to access through GitHub's hosted MCP server.",
-		SpeakeasyAddServer: "",
-		SetupRequired:      true,
-		Aliases:            []string{"io.github.github/github-mcp-server"},
+		Slug:                "github",
+		Title:               "GitHub",
+		Summary:             "Connect GitHub so users can work with repositories and other resources their GitHub account is permitted to access through GitHub's hosted MCP server.",
+		SpeakeasyAddServer:  "",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{"io.github.github/github-mcp-server"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://api.githubcopilot.com/mcp/", Transport: "streamable-http", Tenanted: false},
 		},
@@ -96,12 +100,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"google-big-query": {
-		Slug:               "google-big-query",
-		Title:              "Google BigQuery",
-		Summary:            "Query and manage BigQuery data through Google's hosted BigQuery MCP server.",
-		SpeakeasyAddServer: "",
-		SetupRequired:      true,
-		Aliases:            []string{"com.pulsemcp.mirror/google-bigquery"},
+		Slug:                "google-big-query",
+		Title:               "Google BigQuery",
+		Summary:             "Query and manage BigQuery data through Google's hosted BigQuery MCP server.",
+		SpeakeasyAddServer:  "",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{"com.pulsemcp.mirror/google-bigquery"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://bigquery.googleapis.com/mcp", Transport: "streamable-http", Tenanted: false},
 		},
@@ -110,12 +115,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"google-calendar": {
-		Slug:               "google-calendar",
-		Title:              "Google Calendar",
-		Summary:            "Connect Google Calendar data through Google's hosted Calendar MCP server.",
-		SpeakeasyAddServer: "",
-		SetupRequired:      true,
-		Aliases:            []string{},
+		Slug:                "google-calendar",
+		Title:               "Google Calendar",
+		Summary:             "Connect Google Calendar data through Google's hosted Calendar MCP server.",
+		SpeakeasyAddServer:  "",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://calendarmcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
 		},
@@ -124,12 +130,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"google-compute-engine": {
-		Slug:               "google-compute-engine",
-		Title:              "Google Compute Engine",
-		Summary:            "Manage Compute Engine VM instances, disks, instance groups, snapshots, and images through Google's hosted Compute Engine MCP server.",
-		SpeakeasyAddServer: "catalog",
-		SetupRequired:      true,
-		Aliases:            []string{"com.googleapis.compute/mcp"},
+		Slug:                "google-compute-engine",
+		Title:               "Google Compute Engine",
+		Summary:             "Manage Compute Engine VM instances, disks, instance groups, snapshots, and images through Google's hosted Compute Engine MCP server.",
+		SpeakeasyAddServer:  "catalog",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{"com.googleapis.compute/mcp"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://compute.googleapis.com/mcp", Transport: "streamable-http", Tenanted: false},
 		},
@@ -138,12 +145,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"google-docs": {
-		Slug:               "google-docs",
-		Title:              "Google Docs",
-		Summary:            "Read and update Google Docs through Google's hosted Docs MCP server.",
-		SpeakeasyAddServer: "custom-remote",
-		SetupRequired:      true,
-		Aliases:            []string{},
+		Slug:                "google-docs",
+		Title:               "Google Docs",
+		Summary:             "Read and update Google Docs through Google's hosted Docs MCP server.",
+		SpeakeasyAddServer:  "custom-remote",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://docsmcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
 		},
@@ -152,12 +160,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"google-drive": {
-		Slug:               "google-drive",
-		Title:              "Google Drive",
-		Summary:            "Connect Google's hosted Drive MCP server to read and create files under each user's existing Drive permissions.",
-		SpeakeasyAddServer: "",
-		SetupRequired:      true,
-		Aliases:            []string{},
+		Slug:                "google-drive",
+		Title:               "Google Drive",
+		Summary:             "Connect Google's hosted Drive MCP server to read and create files under each user's existing Drive permissions.",
+		SpeakeasyAddServer:  "",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://drivemcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
 		},
@@ -166,12 +175,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"google-people": {
-		Slug:               "google-people",
-		Title:              "Google People",
-		Summary:            "Connect Google profile, contacts, and directory data through Google's hosted People API MCP server.",
-		SpeakeasyAddServer: "",
-		SetupRequired:      true,
-		Aliases:            []string{},
+		Slug:                "google-people",
+		Title:               "Google People",
+		Summary:             "Connect Google profile, contacts, and directory data through Google's hosted People API MCP server.",
+		SpeakeasyAddServer:  "",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://people.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
 		},
@@ -180,12 +190,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"google-sheets": {
-		Slug:               "google-sheets",
-		Title:              "Google Sheets",
-		Summary:            "Connect Google Sheets data through Google's hosted Sheets MCP server.",
-		SpeakeasyAddServer: "",
-		SetupRequired:      true,
-		Aliases:            []string{},
+		Slug:                "google-sheets",
+		Title:               "Google Sheets",
+		Summary:             "Connect Google Sheets data through Google's hosted Sheets MCP server.",
+		SpeakeasyAddServer:  "",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://sheetsmcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
 		},
@@ -194,12 +205,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"google-slides": {
-		Slug:               "google-slides",
-		Title:              "Google Slides",
-		Summary:            "Connect Google Slides data through Google's hosted Slides MCP server.",
-		SpeakeasyAddServer: "custom-remote",
-		SetupRequired:      true,
-		Aliases:            []string{},
+		Slug:                "google-slides",
+		Title:               "Google Slides",
+		Summary:             "Connect Google Slides data through Google's hosted Slides MCP server.",
+		SpeakeasyAddServer:  "custom-remote",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://slidesmcp.googleapis.com/mcp/v1", Transport: "streamable-http", Tenanted: false},
 		},
@@ -208,12 +220,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"hubspot": {
-		Slug:               "hubspot",
-		Title:              "HubSpot",
-		Summary:            "Connect HubSpot's hosted MCP server using an MCP auth app and OAuth.",
-		SpeakeasyAddServer: "catalog",
-		SetupRequired:      true,
-		Aliases:            []string{"com.pulsemcp.mirror/hubspot"},
+		Slug:                "hubspot",
+		Title:               "HubSpot",
+		Summary:             "Connect HubSpot's hosted MCP server using an MCP auth app and OAuth.",
+		SpeakeasyAddServer:  "catalog",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{"com.pulsemcp.mirror/hubspot"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://mcp.hubspot.com", Transport: "streamable-http", Tenanted: false},
 		},
@@ -222,12 +235,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"intercom": {
-		Slug:               "intercom",
-		Title:              "Intercom",
-		Summary:            "Connect a US- or EU-hosted Intercom workspace through Intercom's hosted MCP server using a manually registered OAuth app.",
-		SpeakeasyAddServer: "",
-		SetupRequired:      true,
-		Aliases:            []string{"com.pulsemcp.mirror/intercom"},
+		Slug:                "intercom",
+		Title:               "Intercom",
+		Summary:             "Connect a US- or EU-hosted Intercom workspace through Intercom's hosted MCP server using a manually registered OAuth app.",
+		SpeakeasyAddServer:  "",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{"com.pulsemcp.mirror/intercom"},
 		Remotes: []generatedRemote{
 			{ID: "us", URL: "https://mcp.intercom.com/mcp", Transport: "streamable-http", Tenanted: true},
 			{ID: "eu", URL: "https://mcp.eu.intercom.com/mcp", Transport: "streamable-http", Tenanted: true},
@@ -237,12 +251,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"salesforce": {
-		Slug:               "salesforce",
-		Title:              "Salesforce",
-		Summary:            "Connect to Salesforce records through hosted SObject MCP servers with selectable read, write, and delete boundaries.",
-		SpeakeasyAddServer: "custom-remote",
-		SetupRequired:      true,
-		Aliases:            []string{"com.pulsemcp.mirror/gram-salesforce"},
+		Slug:                "salesforce",
+		Title:               "Salesforce",
+		Summary:             "Connect to Salesforce records through hosted SObject MCP servers with selectable read, write, and delete boundaries.",
+		SpeakeasyAddServer:  "custom-remote",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{"com.pulsemcp.mirror/gram-salesforce"},
 		Remotes: []generatedRemote{
 			{ID: "sobject-reads-production", URL: "https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads", Transport: "streamable-http", Tenanted: false},
 			{ID: "sobject-reads-sandbox", URL: "https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads", Transport: "streamable-http", Tenanted: false},
@@ -258,12 +273,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"snowflake": {
-		Slug:               "snowflake",
-		Title:              "Snowflake",
-		Summary:            "Connect the Speakeasy AI Control Plane to a Snowflake-managed MCP server that exposes an existing Cortex Agent.",
-		SpeakeasyAddServer: "custom-remote",
-		SetupRequired:      true,
-		Aliases:            []string{"com.pulsemcp.mirror/gram-snowflake"},
+		Slug:                "snowflake",
+		Title:               "Snowflake",
+		Summary:             "Connect the Speakeasy AI Control Plane to a Snowflake-managed MCP server that exposes an existing Cortex Agent.",
+		SpeakeasyAddServer:  "custom-remote",
+		SetupRequired:       true,
+		RequiresCallbackURL: true,
+		Aliases:             []string{"com.pulsemcp.mirror/gram-snowflake"},
 		Remotes: []generatedRemote{
 			{ID: "cortex-agent-mcp", URL: "https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>", Transport: "streamable-http", Tenanted: true},
 		},
@@ -272,12 +288,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"x": {
-		Slug:               "x",
-		Title:              "X",
-		Summary:            "Connect the hosted X MCP server for read-only public-data access using an app-only Bearer Token.",
-		SpeakeasyAddServer: "",
-		SetupRequired:      true,
-		Aliases:            []string{"com.pulsemcp.mirror/xdevplatform-xmcp"},
+		Slug:                "x",
+		Title:               "X",
+		Summary:             "Connect the hosted X MCP server for read-only public-data access using an app-only Bearer Token.",
+		SpeakeasyAddServer:  "",
+		SetupRequired:       true,
+		RequiresCallbackURL: false,
+		Aliases:             []string{"com.pulsemcp.mirror/xdevplatform-xmcp"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://api.x.com/mcp", Transport: "streamable-http", Tenanted: false},
 		},
@@ -286,12 +303,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"x-docs": {
-		Slug:               "x-docs",
-		Title:              "X Docs",
-		Summary:            "Connect X's public documentation MCP server for searching and reading X API documentation.",
-		SpeakeasyAddServer: "catalog",
-		SetupRequired:      false,
-		Aliases:            []string{"com.pulsemcp.mirror/x-docs"},
+		Slug:                "x-docs",
+		Title:               "X Docs",
+		Summary:             "Connect X's public documentation MCP server for searching and reading X API documentation.",
+		SpeakeasyAddServer:  "catalog",
+		SetupRequired:       false,
+		RequiresCallbackURL: false,
+		Aliases:             []string{"com.pulsemcp.mirror/x-docs"},
 		Remotes: []generatedRemote{
 			{ID: "docs", URL: "https://docs.x.com/mcp", Transport: "streamable-http", Tenanted: false},
 		},
@@ -300,12 +318,13 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 	},
 	"zapier": {
-		Slug:               "zapier",
-		Title:              "Zapier",
-		Summary:            "Connect Zapier so agents can discover and run actions in your connected apps.",
-		SpeakeasyAddServer: "catalog",
-		SetupRequired:      true,
-		Aliases:            []string{"com.pulsemcp.mirror/zapier"},
+		Slug:                "zapier",
+		Title:               "Zapier",
+		Summary:             "Connect Zapier so agents can discover and run actions in your connected apps.",
+		SpeakeasyAddServer:  "catalog",
+		SetupRequired:       true,
+		RequiresCallbackURL: false,
+		Aliases:             []string{"com.pulsemcp.mirror/zapier"},
 		Remotes: []generatedRemote{
 			{ID: "hosted", URL: "https://mcp.zapier.com/api/v1/connect", Transport: "streamable-http", Tenanted: false},
 		},

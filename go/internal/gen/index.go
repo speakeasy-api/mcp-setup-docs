@@ -61,6 +61,7 @@ func writeGeneratedTypes(b *strings.Builder) {
 	b.WriteString("\tSummary            string\n")
 	b.WriteString("\tSpeakeasyAddServer string\n")
 	b.WriteString("\tSetupRequired      bool\n")
+	b.WriteString("\tRequiresCallbackURL bool\n")
 	b.WriteString("\tAliases            []string\n")
 	b.WriteString("\tRemotes            []generatedRemote\n")
 	b.WriteString("\tCredentialOptions  []generatedCredentialOption\n")
@@ -76,6 +77,7 @@ func writeGuidesMap(b *strings.Builder, guides []guideIndex) {
 		fmt.Fprintf(b, "\t\tSummary:            %q,\n", g.Summary)
 		fmt.Fprintf(b, "\t\tSpeakeasyAddServer: %q,\n", g.SpeakeasyAddServer)
 		fmt.Fprintf(b, "\t\tSetupRequired: %v,\n", g.SetupRequired)
+		fmt.Fprintf(b, "\t\tRequiresCallbackURL: %v,\n", g.RequiresCallbackURL)
 		writeStringSliceLiteral(b, "\t\tAliases: ", g.Aliases)
 		b.WriteString("\t\tRemotes: []generatedRemote{\n")
 		for _, r := range g.Remotes {

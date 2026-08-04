@@ -1,6 +1,7 @@
 package guides_test
 
 import (
+	"bytes"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -9,6 +10,9 @@ import (
 
 	guides "github.com/speakeasy-api/mcp-setup-docs/go"
 )
+
+// canonicalCallbackKey is the one template key the generator admits.
+const canonicalCallbackKey = "{{ gram.oauth.callback_url }}"
 
 func TestSlugsMatchDisk(t *testing.T) {
 	disk, err := onDiskGuideSlugs()
@@ -427,6 +431,87 @@ func TestQueryMechanisms(t *testing.T) {
 			}
 		}
 	})
+}
+
+// Render is the whole point of the Vars surface, so exercise it over the
+// full corpus rather than one exemplar: every guide that advertises the key
+// must lose it, and every guide that does not must come back byte-identical.
+func TestRenderSubstitutesEveryDeclaredKey(t *testing.T) {
+	const callback = "https://app.example.com/oauth/callback"
+	rendered := 0
+	for _, g := range guides.Guides() {
+		out := g.Render(guides.Vars{OAuthCallbackURL: callback})
+
+		if !g.RequiresCallbackURL {
+			if !bytes.Equal(out.External, g.External) || !bytes.Equal(out.Speakeasy, g.Speakeasy) {
+				t.Errorf("%s: Render changed content of a guide that needs no key", g.Slug)
+			}
+			continue
+		}
+
+		rendered++
+		key := []byte(canonicalCallbackKey)
+		if bytes.Contains(out.External, key) || bytes.Contains(out.Speakeasy, key) {
+			t.Errorf("%s: content still carries the key after Render", g.Slug)
+		}
+		if !bytes.Contains(out.External, []byte(callback)) &&
+			!bytes.Contains(out.Speakeasy, []byte(callback)) {
+			t.Errorf("%s: Render substituted nothing", g.Slug)
+		}
+		if !bytes.Equal(out.Meta, g.Meta) {
+			t.Errorf("%s: Render must not touch Meta", g.Slug)
+		}
+	}
+	if rendered == 0 {
+		t.Fatal("no guide requires a callback URL; the matrix would be vacuous")
+	}
+}
+
+func TestRenderLeavesKeyWhenValueEmpty(t *testing.T) {
+	g, ok := guides.Lookup("intercom")
+	if !ok {
+		t.Fatal("intercom missing")
+	}
+	if !g.RequiresCallbackURL {
+		t.Fatal("intercom should require a callback URL")
+	}
+	out := g.Render(guides.Vars{})
+	if !bytes.Contains(out.External, []byte(canonicalCallbackKey)) {
+		t.Error("empty Vars must leave the template key in place")
+	}
+}
+
+// The embedded bytes back every future Lookup, so rendering one copy must
+// not reach them. A caller that renders per request depends on this.
+func TestRenderDoesNotDisturbEmbeddedContent(t *testing.T) {
+	g, ok := guides.Lookup("intercom")
+	if !ok {
+		t.Fatal("intercom missing")
+	}
+	before := string(g.External)
+	_ = g.Render(guides.Vars{OAuthCallbackURL: "https://app.example.com/cb"})
+	if string(g.External) != before {
+		t.Error("Render mutated the Guide it was called on")
+	}
+	again, ok := guides.Lookup("intercom")
+	if !ok {
+		t.Fatal("intercom missing on second lookup")
+	}
+	if !bytes.Contains(again.External, []byte(canonicalCallbackKey)) {
+		t.Error("a later Lookup returned already-rendered content")
+	}
+}
+
+// RequiresCallbackURL is generated, so recompute it from the content it
+// claims to describe rather than trusting the generated value.
+func TestRequiresCallbackURLMatchesContent(t *testing.T) {
+	for _, g := range guides.Guides() {
+		want := bytes.Contains(g.External, []byte(canonicalCallbackKey)) ||
+			bytes.Contains(g.Speakeasy, []byte(canonicalCallbackKey))
+		if g.RequiresCallbackURL != want {
+			t.Errorf("%s: RequiresCallbackURL=%v, recomputed %v", g.Slug, g.RequiresCallbackURL, want)
+		}
+	}
 }
 
 func hasKind(ms []guides.Match, kind guides.MatchKind) bool {

@@ -48,14 +48,18 @@ type Guide struct {
 	// Speakeasy-side setup, or any remote is tenanted — a tenanted remote
 	// means the reader must be told how to find their own URL even when no
 	// credential work remains.
-	SetupRequired     bool
-	Meta              []byte // raw meta.yaml
-	External          []byte // raw external.md
-	Speakeasy         []byte // raw speakeasy.md
-	Assets            fs.FS  // nil when the guide declares no assets
-	Remotes           []Remote
-	CredentialOptions []CredentialOption
-	Aliases           []string
+	SetupRequired bool
+	// RequiresCallbackURL reports whether External or Speakeasy carries the
+	// {{ gram.oauth.callback_url }} template key. Consumers read it to decide
+	// whether to ask for a callback URL before they call Render.
+	RequiresCallbackURL bool
+	Meta                []byte // raw meta.yaml
+	External            []byte // raw external.md
+	Speakeasy           []byte // raw speakeasy.md
+	Assets              fs.FS  // nil when the guide declares no assets
+	Remotes             []Remote
+	CredentialOptions   []CredentialOption
+	Aliases             []string
 }
 
 // Slugs returns all guide slugs in sorted order.
@@ -151,18 +155,19 @@ func lookup(slug GuideSlug) (Guide, error) {
 	}
 
 	return Guide{
-		Slug:               meta.Slug,
-		Title:              meta.Title,
-		Summary:            meta.Summary,
-		SpeakeasyAddServer: meta.SpeakeasyAddServer,
-		SetupRequired:      meta.SetupRequired,
-		Meta:               metaBytes,
-		External:           external,
-		Speakeasy:          speakeasy,
-		Assets:             assets,
-		Remotes:            remotes,
-		CredentialOptions:  options,
-		Aliases:            aliases,
+		Slug:                meta.Slug,
+		Title:               meta.Title,
+		Summary:             meta.Summary,
+		SpeakeasyAddServer:  meta.SpeakeasyAddServer,
+		SetupRequired:       meta.SetupRequired,
+		RequiresCallbackURL: meta.RequiresCallbackURL,
+		Meta:                metaBytes,
+		External:            external,
+		Speakeasy:           speakeasy,
+		Assets:              assets,
+		Remotes:             remotes,
+		CredentialOptions:   options,
+		Aliases:             aliases,
 	}, nil
 }
 
