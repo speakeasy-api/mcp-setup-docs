@@ -134,8 +134,8 @@ remotes:
 `
 	for name, body := range map[string]string{
 		"meta.yaml": meta,
-		// The callback key here is what drives RequiresCallbackURL below;
-		// the tenant fixture carries none, so it pins the false case.
+		// The canonical callback key here takes run() through the accept
+		// path of the template scan, not only the rejections below.
 		"external.md":  "# external\n\nEnter {{ gram.oauth.callback_url }} in the field.\n",
 		"speakeasy.md": "# speakeasy\n",
 	} {
@@ -237,17 +237,11 @@ remotes:
 	if !fieldSet(demoEntry, "SetupRequired", "true") {
 		t.Errorf("demo should need setup, got:\n%s", demoEntry)
 	}
-	if !fieldSet(demoEntry, "RequiresCallbackURL", "true") {
-		t.Errorf("demo carries the callback key, got:\n%s", demoEntry)
-	}
 
 	_, afterTenant, _ := strings.Cut(string(idx), `"tenant": {`)
 	tenantEntry, _, _ := strings.Cut(afterTenant, "\n\t},")
 	if !fieldSet(tenantEntry, "SetupRequired", "true") {
 		t.Errorf("tenanted remote must force SetupRequired=true, got:\n%s", tenantEntry)
-	}
-	if !fieldSet(tenantEntry, "RequiresCallbackURL", "false") {
-		t.Errorf("tenant carries no callback key, got:\n%s", tenantEntry)
 	}
 	// Guards the fixture itself: if its option ever needs setup, the
 	// assertion above would pass for the wrong reason.
@@ -257,27 +251,24 @@ remotes:
 }
 
 // The generator is the only place that enforces the one-key rule, so the
-// rejections matter as much as the happy path: package guides promotes
-// RequiresCallbackURL and Render substitutes on the strength of it.
+// rejections matter as much as the happy path: Render substitutes with a
+// literal byte replacement on the strength of this check.
 func TestScanTemplateKeys(t *testing.T) {
 	for _, tc := range []struct {
 		name      string
 		external  string
 		speakeasy string
 		meta      string
-		want      bool
 		errText   string
 	}{
 		{name: "no keys", external: "# external\n", speakeasy: "# speakeasy\n"},
 		{
 			name:     "canonical key in external",
 			external: "Enter " + canonicalCallbackKey + " here.\n",
-			want:     true,
 		},
 		{
 			name:      "canonical key in speakeasy",
 			speakeasy: "Confirm " + canonicalCallbackKey + " matches.\n",
-			want:      true,
 		},
 		{
 			name:     "non-canonical spacing",
@@ -306,7 +297,7 @@ func TestScanTemplateKeys(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			got, err := scanTemplateKeys("demo", dir, []byte("slug: demo\n"+tc.meta))
+			err := scanTemplateKeys("demo", dir, []byte("slug: demo\n"+tc.meta))
 			if tc.errText != "" {
 				if err == nil {
 					t.Fatalf("expected an error mentioning %q, got nil", tc.errText)
@@ -318,9 +309,6 @@ func TestScanTemplateKeys(t *testing.T) {
 			}
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
-			}
-			if got != tc.want {
-				t.Errorf("requiresCallbackURL = %v, want %v", got, tc.want)
 			}
 		})
 	}

@@ -8,16 +8,17 @@ import "bytes"
 var callbackURLKey = []byte("{{ gram.oauth.callback_url }}")
 
 // Vars carries the values a consumer substitutes into guide content.
-// A zero field leaves its template key in place, so a caller may call
-// Render before it knows every value.
 type Vars struct {
 	// OAuthCallbackURL replaces {{ gram.oauth.callback_url }} — the
 	// Speakeasy AI Control Plane callback URL that the reader registers
-	// in the provider's redirect field. Guide.RequiresCallbackURL reports
-	// whether a guide asks for this value.
+	// in the provider's redirect field.
 	//
-	// Leave it empty to keep the template key in the content. The key is
-	// a valid thing to show a reader: the Control Plane resolves it later.
+	// Supply it on every Render call. It is a property of the deployment,
+	// not of the guide, so there is nothing to look up first: guides that
+	// never reference it come back unchanged.
+	//
+	// An empty value leaves the key in the content rather than blanking
+	// it, so a missing value degrades to the unrendered guide.
 	OAuthCallbackURL string
 }
 
