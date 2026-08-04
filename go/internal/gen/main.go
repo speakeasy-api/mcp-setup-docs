@@ -29,7 +29,8 @@ const canonicalCallbackKey = "{{ gram.oauth.callback_url }}"
 
 // templateKeyPattern finds every "{{ … }}" span, including malformed
 // spacing, so a non-canonical key fails generation instead of shipping
-// unrendered. This check is what lets Render match one exact byte string.
+// unrendered. This check is what lets the renderers match one exact byte
+// string.
 var templateKeyPattern = regexp.MustCompile(`\{\{[^{}]*\}\}`)
 
 type assetMeta struct {
@@ -417,9 +418,9 @@ func run() error {
 }
 
 // scanTemplateKeys enforces the single-template-key rule. One canonical
-// spelling is what lets Guide.Render substitute with a plain byte replace
-// instead of a regexp. metaRaw must carry no key at all: Render substitutes
-// only External and Speakeasy, so a key in meta.yaml would ship to a reader
+// spelling is what lets package guides substitute with a plain byte replace
+// instead of a regexp. metaRaw must carry no key at all: only External and
+// Speakeasy have a renderer, so a key in meta.yaml would ship to a reader
 // unrendered.
 func scanTemplateKeys(slug, srcDir string, metaRaw []byte) error {
 	if key := templateKeyPattern.Find(metaRaw); key != nil {

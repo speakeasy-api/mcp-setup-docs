@@ -13,27 +13,32 @@ type Vars struct {
 	// Speakeasy AI Control Plane callback URL that the reader registers
 	// in the provider's redirect field.
 	//
-	// Supply it on every Render call. It is a property of the deployment,
-	// not of the guide, so there is nothing to look up first: guides that
-	// never reference it come back unchanged.
+	// Supply it on every call. It is a property of the deployment, not of
+	// the guide, so there is nothing to look up first: content that never
+	// references it comes back unchanged.
 	//
 	// An empty value leaves the key in the content rather than blanking
-	// it, so a missing value degrades to the unrendered guide.
+	// it, so a missing value degrades to the unrendered content.
 	OAuthCallbackURL string
 }
 
-// Render returns a copy of g whose External and Speakeasy content has the
-// template keys replaced by the values in v. Meta, Assets, and every
-// identity field are unchanged — no template key appears in meta.yaml or
-// in an asset, and the generator fails if one ever does.
-//
-// Render never changes the embedded content. Each Lookup starts from the
-// unrendered bytes, and rendering one copy does not affect another.
-func (g Guide) Render(v Vars) Guide {
-	if v.OAuthCallbackURL != "" {
-		value := []byte(v.OAuthCallbackURL)
-		g.External = bytes.ReplaceAll(g.External, callbackURLKey, value)
-		g.Speakeasy = bytes.ReplaceAll(g.Speakeasy, callbackURLKey, value)
+// RenderExternal returns External with the template keys replaced by the
+// values in v. Serve this rather than the raw field: the raw field still
+// carries the keys.
+func (g Guide) RenderExternal(v Vars) []byte { return render(g.External, v) }
+
+// RenderSpeakeasy returns Speakeasy with the template keys replaced by the
+// values in v. Serve this rather than the raw field: the raw field still
+// carries the keys.
+func (g Guide) RenderSpeakeasy(v Vars) []byte { return render(g.Speakeasy, v) }
+
+// render always allocates, so the caller owns the result and the embedded
+// content stays untouched. Only External and Speakeasy have a renderer: no
+// template key reaches meta.yaml or an asset, and the generator fails if
+// one ever does.
+func render(content []byte, v Vars) []byte {
+	if v.OAuthCallbackURL == "" {
+		return bytes.Clone(content)
 	}
-	return g
+	return bytes.ReplaceAll(content, callbackURLKey, []byte(v.OAuthCallbackURL))
 }

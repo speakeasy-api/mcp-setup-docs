@@ -251,8 +251,8 @@ remotes:
 }
 
 // The generator is the only place that enforces the one-key rule, so the
-// rejections matter as much as the happy path: Render substitutes with a
-// literal byte replacement on the strength of this check.
+// rejections matter as much as the happy path: the renderers substitute
+// with a literal byte replacement on the strength of this check.
 func TestScanTemplateKeys(t *testing.T) {
 	for _, tc := range []struct {
 		name      string
