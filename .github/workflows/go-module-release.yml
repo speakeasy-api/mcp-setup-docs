@@ -5,18 +5,17 @@ name: Go module release
 on:
   push:
     branches: [main]
+    # Everything the module publishes, minus what it does not. Stated as
+    # subtraction so a new source file releases by default; an allowlist of
+    # filenames silently stops releasing the day someone adds one. Later
+    # patterns win, so the negations must stay below 'go/**'.
     paths:
-      - 'go/generated/**'
-      - 'go/published_server_refs.txt'
-      - 'go/go.mod'
-      - 'go/LICENSE'
-      - 'go/doc.go'
-      - 'go/embed.go'
-      - 'go/generate.go'
-      - 'go/guides.go'
-      - 'go/index_gen.go'
-      - 'go/ref.go'
-      - 'go/resolve.go'
+      - 'go/**'
+      - '!go/*_test.go'
+      - '!go/**/*_test.go'
+      - '!go/internal/**'
+      - '!go/README.md'
+      - '!go/check.sh'
   workflow_dispatch:
     inputs:
       bump:
@@ -56,9 +55,23 @@ jobs:
       - name: Resolve next version
         id: ver
         env:
-          BUMP: ${{ github.event.inputs.bump || 'patch' }}
+          BUMP_INPUT: ${{ github.event.inputs.bump }}
         run: |
           set -euo pipefail
+          # workflow_dispatch wins. On push, a [minor] or [major] marker in the
+          # merge commit message picks the bump, so an API change ships as one
+          # tag instead of a throwaway patch followed by a dispatched bump.
+          bump="${BUMP_INPUT:-}"
+          if [ -z "$bump" ]; then
+            msg="$(git log -1 --pretty=%B)"
+            case "$msg" in
+              *'[major]'*) bump=major ;;
+              *'[minor]'*) bump=minor ;;
+              *) bump=patch ;;
+            esac
+          fi
+          echo "Bump: $bump"
+
           latest="$(git tag -l 'go/v*' --sort=-v:refname | grep -E '^go/v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)"
           if [ -z "$latest" ]; then
             echo "No go/v* tags yet. Cut go/v0.1.0 manually once, then re-run."
@@ -70,11 +83,11 @@ jobs:
 
           ver="${latest#go/v}"
           IFS=. read -r major minor patch <<<"$ver"
-          case "$BUMP" in
+          case "$bump" in
             major) major=$((major + 1)); minor=0; patch=0 ;;
             minor) minor=$((minor + 1)); patch=0 ;;
             patch) patch=$((patch + 1)) ;;
-            *) echo "unknown bump: $BUMP"; exit 1 ;;
+            *) echo "unknown bump: $bump"; exit 1 ;;
           esac
           next="go/v${major}.${minor}.${patch}"
           module_ver="v${major}.${minor}.${patch}"
