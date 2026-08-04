@@ -433,65 +433,61 @@ func TestQueryMechanisms(t *testing.T) {
 	})
 }
 
-// A caller supplies the callback URL on every Render, so run the whole
-// corpus through one call: no guide may keep the key, and a guide that
-// never carried it must come back byte-identical.
+// A caller supplies the callback URL on every render, so run both
+// renderers over the whole corpus: no output may keep the key, and content
+// that never carried it must come back byte-identical.
 func TestRenderSubstitutesEveryKey(t *testing.T) {
 	const callback = "https://app.example.com/oauth/callback"
 	key := []byte(canonicalCallbackKey)
+	vars := guides.Vars{OAuthCallbackURL: callback}
 	substituted := 0
-	for _, g := range guides.Guides() {
-		hadKey := bytes.Contains(g.External, key) || bytes.Contains(g.Speakeasy, key)
-		out := g.Render(guides.Vars{OAuthCallbackURL: callback})
-
-		if bytes.Contains(out.External, key) || bytes.Contains(out.Speakeasy, key) {
-			t.Errorf("%s: content still carries the key after Render", g.Slug)
+	check := func(slug guides.GuideSlug, field string, raw, out []byte) {
+		if bytes.Contains(out, key) {
+			t.Errorf("%s %s: output still carries the key", slug, field)
 		}
-		if !bytes.Equal(out.Meta, g.Meta) {
-			t.Errorf("%s: Render must not touch Meta", g.Slug)
-		}
-
-		if !hadKey {
-			if !bytes.Equal(out.External, g.External) || !bytes.Equal(out.Speakeasy, g.Speakeasy) {
-				t.Errorf("%s: Render changed a guide that carries no key", g.Slug)
+		if !bytes.Contains(raw, key) {
+			if !bytes.Equal(out, raw) {
+				t.Errorf("%s %s: content with no key changed", slug, field)
 			}
-			continue
+			return
 		}
 		substituted++
-		if !bytes.Contains(out.External, []byte(callback)) &&
-			!bytes.Contains(out.Speakeasy, []byte(callback)) {
-			t.Errorf("%s: Render substituted nothing", g.Slug)
+		if !bytes.Contains(out, []byte(callback)) {
+			t.Errorf("%s %s: substituted nothing", slug, field)
 		}
+	}
+	for _, g := range guides.Guides() {
+		check(g.Slug, "External", g.External, g.RenderExternal(vars))
+		check(g.Slug, "Speakeasy", g.Speakeasy, g.RenderSpeakeasy(vars))
 	}
 	if substituted == 0 {
 		t.Fatal("no guide carries the key; the matrix would be vacuous")
 	}
 }
 
-// A missing value must degrade to the unrendered guide, never to a blank
+// A missing value must degrade to the unrendered content, never to a blank
 // where the URL belongs.
 func TestRenderLeavesKeyWhenValueEmpty(t *testing.T) {
 	g, ok := guides.Lookup("intercom")
 	if !ok {
 		t.Fatal("intercom missing")
 	}
-	out := g.Render(guides.Vars{})
-	if !bytes.Contains(out.External, []byte(canonicalCallbackKey)) {
+	if !bytes.Contains(g.RenderExternal(guides.Vars{}), []byte(canonicalCallbackKey)) {
 		t.Error("empty Vars must leave the template key in place")
 	}
 }
 
-// The embedded bytes back every future Lookup, so rendering one copy must
-// not reach them. A caller that renders per request depends on this.
+// The embedded bytes back every future Lookup, so rendering must not reach
+// them. A caller that renders per request depends on this.
 func TestRenderDoesNotDisturbEmbeddedContent(t *testing.T) {
 	g, ok := guides.Lookup("intercom")
 	if !ok {
 		t.Fatal("intercom missing")
 	}
 	before := string(g.External)
-	_ = g.Render(guides.Vars{OAuthCallbackURL: "https://app.example.com/cb"})
+	_ = g.RenderExternal(guides.Vars{OAuthCallbackURL: "https://app.example.com/cb"})
 	if string(g.External) != before {
-		t.Error("Render mutated the Guide it was called on")
+		t.Error("a renderer changed the Guide it was called on")
 	}
 	again, ok := guides.Lookup("intercom")
 	if !ok {
