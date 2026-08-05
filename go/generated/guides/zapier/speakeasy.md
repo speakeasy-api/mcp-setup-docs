@@ -44,4 +44,4 @@ not need to paste a **Client ID** or **Client Secret**.
 
 <!-- screenshot: the Attach Remote Identity Provider sheet after discovery, showing Dynamic Client Registration (DCR) and the discovered endpoints, with account-specific values redacted -->
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see Zapier's MCP documentation at https://docs.zapier.com/mcp/get-started/connect.
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Zapier's MCP documentation](https://docs.zapier.com/mcp/get-started/connect).

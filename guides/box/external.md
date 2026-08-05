@@ -61,8 +61,11 @@ If **Additional Configuration** appears instead:
 
 ### Set the Redirect URI {#set-redirect-uri}
 
-Replace the existing value or values in **Redirect URIs** with
-`{{ gram.oauth.callback_url }}`.
+Replace the existing value or values in **Redirect URIs** with this value:
+
+```
+{{ gram.oauth.callback_url }}
+```
 
 <!-- screenshot: the credential entry's Redirect URIs field containing the Speakeasy AI Control Plane callback URL -->
 

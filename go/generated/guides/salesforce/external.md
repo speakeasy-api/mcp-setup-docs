@@ -37,7 +37,12 @@ For a lower-edition org:
 
 1. Expand **API (Enable OAuth Settings)**.
 2. Select **Enable OAuth**.
-3. Enter `{{ gram.oauth.callback_url }}` in **Callback URL**.
+3. In **Callback URL**, enter this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
+
 4. In **Available OAuth Scopes**, select **Access MCP servers** (`mcp_api`).
 5. Select the right-arrow control to move it to **Selected OAuth Scopes**.
 6. In **Available OAuth Scopes**, select **Perform requests at any time** (`refresh_token`).

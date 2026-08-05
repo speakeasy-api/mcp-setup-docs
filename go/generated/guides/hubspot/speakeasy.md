@@ -40,4 +40,4 @@ not document which admin role qualifies.
 2. Grant the permissions offered.
 3. Authorize the connection.
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see HubSpot's MCP documentation at https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server.
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [HubSpot's MCP documentation](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server).

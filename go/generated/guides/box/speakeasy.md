@@ -32,4 +32,4 @@ This creates the hosted MCP server and opens its **Overview** page.
 
 <!-- screenshot: the Attach Remote Identity Provider sheet with Client Type set to Manual, the Redirect URI visible, and credential values redacted -->
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see Box's MCP documentation at https://docs.box.com/en/box-mcp/about-box-mcp-server.
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Box's MCP documentation](https://docs.box.com/en/box-mcp/about-box-mcp-server).

@@ -114,9 +114,13 @@ request:
 
 1. Click **Data Access**.
 2. Click **Add or Remove Scopes**.
-3. Add `https://www.googleapis.com/auth/compute` — select it in the
-   list if it appears there; otherwise enter it in the text box under
-   **Manually add scopes**.
+3. Add this scope — select it in the list if it appears there; otherwise
+   enter it in the text box under **Manually add scopes**:
+
+   ```
+   https://www.googleapis.com/auth/compute
+   ```
+
 4. Click **Update**.
 5. Click **Save**.
 
@@ -152,8 +156,12 @@ involve an extra review step.
 3. In the **Application type** list, select **Web application**.
 4. In the **Name** field, enter a name you will recognize later.
 5. In the **Authorized redirect URIs** section, click **+ Add URI**.
-6. Enter `{{ gram.oauth.callback_url }}` — the Speakeasy AI Control
-   Plane's callback URL.
+6. Enter the Speakeasy AI Control Plane's callback URL:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
+
 7. Leave **Authorized JavaScript origins** empty.
 
    The next click opens a dialog that shows the client secret exactly

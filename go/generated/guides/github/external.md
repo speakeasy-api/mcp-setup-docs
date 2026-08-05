@@ -33,7 +33,12 @@ If the page shows **New OAuth App**, click it. If the page instead shows **Regis
 1. In **Application name**, enter a recognizable public name, such as `Speakeasy AI Control Plane – GitHub MCP`.
 2. In **Homepage URL**, enter the full organization-approved public URL.
 3. Optionally, enter a public-safe **Application description**.
-4. In **Authorization callback URL**, enter `{{ gram.oauth.callback_url }}`.
+4. In **Authorization callback URL**, enter this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
+
 5. Leave **Enable Device Flow** off.
 6. Click **Register application**. This opens the app's settings page.
 

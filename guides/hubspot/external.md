@@ -27,7 +27,12 @@ developer feature.
 2. In **App name**, enter a recognizable name, such as
    `Speakeasy AI Control Plane`.
 3. Optionally, enter a **Description**.
-4. In **Redirect URL**, paste `{{ gram.oauth.callback_url }}`.
+4. In **Redirect URL**, paste this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
+
 5. Optionally, add an **Icon**.
 6. Click **Create**.
 
