@@ -51,10 +51,14 @@ Add the required access:
 1. Open **Data Access**.
 2. Click **Add or Remove Scopes**.
 3. Under **Manually add scopes**, paste these four values:
-   - `https://www.googleapis.com/auth/drive.readonly`
-   - `https://www.googleapis.com/auth/drive.file`
-   - `https://www.googleapis.com/auth/documents.readonly`
-   - `https://www.googleapis.com/auth/documents`
+
+   ```
+   https://www.googleapis.com/auth/drive.readonly
+   https://www.googleapis.com/auth/drive.file
+   https://www.googleapis.com/auth/documents.readonly
+   https://www.googleapis.com/auth/documents
+   ```
+
 4. Click **Add to Table**.
 5. Click **Update**.
 6. Click **Save**.
@@ -77,7 +81,11 @@ If **Audience** is **External** and the app is in **Testing**, add every account
 3. Set **Application type** to **Web application**.
 4. In **Name**, enter a recognizable name such as `Speakeasy AI Control Plane`.
 5. Under **Authorized redirect URIs**, click **+ Add URI**.
-6. In **URIs**, enter `{{ gram.oauth.callback_url }}`.
+6. In **URIs**, enter this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
 
 Do not add an **Authorized JavaScript origins** value.
 

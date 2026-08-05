@@ -5,7 +5,11 @@
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
 
 - If GitHub is in the catalog: choose **3rd-party server**. On the **MCP Catalog** page, find GitHub (the search box reads **Search MCP servers...**), open its entry with **View**, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
-- If it is not: choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste `https://api.githubcopilot.com/mcp/` into **Remote MCP server URL** and click **Add server**.
+- If it is not: choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste this URL into **Remote MCP server URL**, then click **Add server**:
+
+  ```
+  https://api.githubcopilot.com/mcp/
+  ```
 
 Either path creates the hosted MCP server and opens its **Overview** page.
 
@@ -47,4 +51,4 @@ If the user's first authorization attempt was blocked before approval, have the 
 
 <!-- screenshot: Attach Remote Identity Provider with the Redirect URI and credential fields visible and all credential values redacted -->
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see GitHub's MCP documentation at https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md.
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [GitHub's MCP documentation](https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md).

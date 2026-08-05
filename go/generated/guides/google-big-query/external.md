@@ -86,10 +86,14 @@ For an External app:
 1. Open **Data Access**.
 2. Click **Add or Remove Scopes**.
 3. In the **API** column, search for `BigQuery API`.
-4. If a row with the scope `https://www.googleapis.com/auth/bigquery` appears, select it.
-5. If that row does not appear, enter `https://www.googleapis.com/auth/bigquery` under **Manually add scopes**.
-6. Click **Update**.
-7. Click **Save**.
+4. Select the row with this scope, or enter the scope under **Manually add scopes** if no such row appears:
+
+   ```
+   https://www.googleapis.com/auth/bigquery
+   ```
+
+5. Click **Update**.
+6. Click **Save**.
 
 Internal apps do not list scopes on the consent screen. For an Internal app, skip the remaining steps in this section and continue at [Create the OAuth client](#create-oauth-client).
 

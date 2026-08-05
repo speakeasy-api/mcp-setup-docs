@@ -58,10 +58,14 @@ If the Google Auth platform was already configured, retain the approved **Brandi
 14. Open **Data Access**.
 15. Click **Add or Remove Scopes**.
 16. Under **Manually add scopes**, paste these four URLs:
-    - `https://www.googleapis.com/auth/drive.readonly`
-    - `https://www.googleapis.com/auth/drive.file`
-    - `https://www.googleapis.com/auth/spreadsheets.readonly`
-    - `https://www.googleapis.com/auth/spreadsheets`
+
+    ```
+    https://www.googleapis.com/auth/drive.readonly
+    https://www.googleapis.com/auth/drive.file
+    https://www.googleapis.com/auth/spreadsheets.readonly
+    https://www.googleapis.com/auth/spreadsheets
+    ```
+
 17. Click **Add to Table**.
 18. Click **Update**.
 19. Click **Save**.
@@ -81,7 +85,11 @@ An **External** audience in **Testing** supports up to 100 test users. Each auth
 3. In **Application type**, select **Web application**.
 4. In **Name**, enter a recognizable name such as `Speakeasy AI Control Plane`.
 5. Under **Authorized redirect URIs**, click **+ Add URI**.
-6. In **URIs**, enter `{{ gram.oauth.callback_url }}`.
+6. In **URIs**, enter this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
 
 Before you click **Create**, prepare an approved secret store. The next dialog displays a client secret that can be copied only once.
 

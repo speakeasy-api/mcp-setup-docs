@@ -6,11 +6,11 @@ setup_version: 1
 
 Use a Google Cloud project where you can enable services, configure the Google Auth platform, create credentials, and grant project roles. You need **Service Usage Admin** or **Owner** to enable the APIs and appropriate IAM administration access to grant **MCP Tool User**. Every connecting user needs a Google Account with access to the intended Drive files.
 
-Sign in at `https://console.cloud.google.com` and select the project that will own the APIs and credentials. If your organization restricts high-risk Drive scopes, arrange access to a **Service Settings administrator** and obtain an approved app-access setting from the application or cloud security owner.
+Sign in at [console.cloud.google.com](https://console.cloud.google.com) and select the project that will own the APIs and credentials. If your organization restricts high-risk Drive scopes, arrange access to a **Service Settings administrator** and obtain an approved app-access setting from the application or cloud security owner.
 
 ### Enable the Google Drive API {#enable-drive-api}
 
-1. Open `https://console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com`.
+1. Open [console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com](https://console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com).
 2. Confirm the intended project if prompted.
 3. Click **Enable**. If the API is already enabled, continue to the next section.
 
@@ -18,7 +18,7 @@ Sign in at `https://console.cloud.google.com` and select the project that will o
 
 ### Enable the Google Drive MCP API {#enable-drive-mcp-api}
 
-1. Open `https://console.cloud.google.com/flows/enableapi?apiid=drivemcp.googleapis.com`.
+1. Open [console.cloud.google.com/flows/enableapi?apiid=drivemcp.googleapis.com](https://console.cloud.google.com/flows/enableapi?apiid=drivemcp.googleapis.com).
 2. Confirm the intended project if prompted.
 3. Click **Enable**. If the API is already enabled, continue to the next section.
 
@@ -26,7 +26,7 @@ Sign in at `https://console.cloud.google.com` and select the project that will o
 
 ### Grant the MCP Tool User role {#grant-mcp-tool-user}
 
-1. Open `https://console.cloud.google.com/iam-admin/iam`.
+1. Open [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam).
 2. Select the same project.
 3. Click **Grant access**.
 4. In **New principals**, enter the Google Account email of a user who will connect from the Speakeasy AI Control Plane.
@@ -44,7 +44,7 @@ Existing Drive sharing and Workspace policy determine which files each user can 
 
 Google does not permit an OAuth consent screen to be removed after it is configured.
 
-Open `https://console.cloud.google.com/auth/branding`.
+Open [console.cloud.google.com/auth/branding](https://console.cloud.google.com/auth/branding).
 
 If **Google Auth platform not configured yet** appears, complete the first-time configuration:
 
@@ -65,11 +65,16 @@ If the Google Auth platform was already configured, use its existing **Branding*
 
 1. Open **Data Access**.
 2. Click **Add or Remove Scopes**.
-3. Under **Manually add scopes**, paste `https://www.googleapis.com/auth/drive.readonly`.
-4. Paste `https://www.googleapis.com/auth/drive.file`.
-5. Click **Add to Table**.
-6. Click **Update**.
-7. Click **Save**.
+3. Under **Manually add scopes**, paste these two scopes:
+
+   ```
+   https://www.googleapis.com/auth/drive.readonly
+   https://www.googleapis.com/auth/drive.file
+   ```
+
+4. Click **Add to Table**.
+5. Click **Update**.
+6. Click **Save**.
 
 If you selected **External** and the publishing status is **Testing**, add every connecting user:
 
@@ -84,11 +89,15 @@ Testing authorizations expire after seven days. For durable External use, hand p
 
 ### Create the OAuth client {#create-oauth-client}
 
-1. Open `https://console.cloud.google.com/auth/clients/create`.
+1. Open [console.cloud.google.com/auth/clients/create](https://console.cloud.google.com/auth/clients/create).
 2. Set **Application type** to **Web application**.
 3. In **Name**, enter a recognizable name such as `Speakeasy AI Control Plane`.
 4. Under **Authorized redirect URIs**, click **+ Add URI**.
-5. Paste `{{ gram.oauth.callback_url }}`.
+5. Paste this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
 
 Do not add **Authorized JavaScript origins**. Before the next action, prepare an approved secret store: the next dialog permits the client secret to be copied only once.
 
@@ -110,7 +119,7 @@ If you lose the client secret before connecting, delete it and create a new one.
 
 Complete this section only if Workspace app-access restrictions require approval of the OAuth client.
 
-1. Sign in at `https://admin.google.com` as a **Service Settings administrator**.
+1. Sign in at [admin.google.com](https://admin.google.com) as a **Service Settings administrator**.
 2. Go to **Security** > **Access and data control** > **API controls**.
 3. Click **Manage App Access**.
 4. Under **Configured apps**, click **Configure new app**.

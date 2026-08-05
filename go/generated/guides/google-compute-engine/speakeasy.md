@@ -39,5 +39,4 @@ publishing status is **Testing** — a listing under **Test users** in
 [Configure the consent screen](external.md#consent-screen).
 
 This guide covers setup only. For anything beyond it — billing, tool
-behavior, limits — see Google's Compute Engine MCP documentation at
-https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp.
+behavior, limits — see [Google's Compute Engine MCP documentation](https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp).

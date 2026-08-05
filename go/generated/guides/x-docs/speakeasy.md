@@ -20,4 +20,4 @@ No credential connection is required because the X Docs MCP Server is public. Do
 
 <!-- screenshot-exception: there is no credential form to complete for this open Authentication Option -->
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see X's MCP documentation at https://docs.x.com/tools/mcp.
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [X's MCP documentation](https://docs.x.com/tools/mcp).

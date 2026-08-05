@@ -5,7 +5,12 @@
 1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
 2. Click **Add Source**.
 3. Choose **Custom remote server**.
-4. On **Add a custom remote MCP server**, paste `https://slidesmcp.googleapis.com/mcp/v1` into **Remote MCP server URL**.
+4. On **Add a custom remote MCP server**, paste this URL into **Remote MCP server URL**:
+
+   ```
+   https://slidesmcp.googleapis.com/mcp/v1
+   ```
+
 5. Click **Add server**.
 
 This creates the hosted MCP server and opens its **Overview** page. **Transport** is read-only.
@@ -20,7 +25,12 @@ This creates the hosted MCP server and opens its **Overview** page. **Transport*
 4. Confirm that **Redirect URI** matches `{{ gram.oauth.callback_url }}` entered in [Create the OAuth client](external.md#create-oauth-client).
 5. Paste the **Client ID** from [Copy the OAuth credentials](external.md#copy-oauth-credentials).
 6. Paste the **Client Secret** from [Copy the OAuth credentials](external.md#copy-oauth-credentials) into **Client Secret (optional)**. Google's web client requires this generated secret.
-7. In **Scope (override)**, enter `https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/drive.file,https://www.googleapis.com/auth/presentations.readonly,https://www.googleapis.com/auth/presentations`.
+7. In **Scope (override)**, enter this value:
+
+   ```
+   https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/drive.file,https://www.googleapis.com/auth/presentations.readonly,https://www.googleapis.com/auth/presentations
+   ```
+
 8. Click **Attach Identity Provider**.
 
 At first connection, complete Google's browser authorization with an account granted **MCP Tool User** in [Grant MCP Tool User access](external.md#grant-mcp-tool-user) and access to the intended presentations. An **External** app in **Testing** also requires that account under **Test users**.

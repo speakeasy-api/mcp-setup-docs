@@ -8,7 +8,7 @@ Use a Google Cloud project where you can enable services, grant project roles, c
 
 Before you begin, have the application or security owner configure prompt and response screening for malicious content or prompt injection.
 
-1. Sign in at `https://console.cloud.google.com`.
+1. Sign in at [console.cloud.google.com](https://console.cloud.google.com).
 2. In the console toolbar, use the resource selector to select the project that will own this configuration.
 
 Keep that project selected throughout the Google Cloud steps.
@@ -29,7 +29,7 @@ Keep that project selected throughout the Google Cloud steps.
 
 ### Grant MCP Tool User access {#grant-mcp-tool-user}
 
-1. Go to `https://console.cloud.google.com/iam-admin/iam`.
+1. Go to [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam).
 2. Confirm that the same project is selected.
 3. Click **Grant access**.
 4. In **New principals**, enter a connecting user's Google Account email.
@@ -60,7 +60,14 @@ Google says an OAuth consent screen cannot be removed after you configure it. Ob
 13. Click **Create**.
 14. Open **Data Access**.
 15. Click **Add or Remove Scopes**.
-16. Under **Manually add scopes**, paste `https://www.googleapis.com/auth/calendar.calendarlist.readonly`, `https://www.googleapis.com/auth/calendar.events.freebusy`, and `https://www.googleapis.com/auth/calendar.events.readonly`.
+16. Under **Manually add scopes**, paste these three scope URLs:
+
+    ```
+    https://www.googleapis.com/auth/calendar.calendarlist.readonly
+    https://www.googleapis.com/auth/calendar.events.freebusy
+    https://www.googleapis.com/auth/calendar.events.readonly
+    ```
+
 17. Click **Add to Table**.
 18. Click **Update**.
 19. Click **Save**.
@@ -83,7 +90,11 @@ If you selected **External** and the app is in **Testing**, add every connecting
 3. In **Application type**, select **Web application**.
 4. In **Name**, enter a recognizable name such as `Speakeasy AI Control Plane`.
 5. Under **Authorized redirect URIs**, click **+ Add URI**.
-6. In **URIs**, enter `{{ gram.oauth.callback_url }}`.
+6. In **URIs**, enter this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
 
 Prepare an approved secret store before the next step. The dialog that opens after you create the client permits the client secret to be copied only once.
 

@@ -162,8 +162,7 @@ The guide's final line — plain prose after the last Speakeasy step in
 `speakeasy.md`:
 
 > This guide covers setup only. For anything beyond it — billing, tool
-> behavior, limits — see <Provider>'s MCP documentation at
-> <further-reading URL>.
+> behavior, limits — see [<Provider>'s MCP documentation](<further-reading URL>).
 
 Rendered as a normal sentence, not a blockquote; the quote above is
 template text.

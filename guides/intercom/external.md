@@ -42,7 +42,12 @@ Intercom creates the app, installs it in the selected workspace, and opens its c
 1. In the created app, open **Authentication**.
 2. Select **Use OAuth**. This reveals **Redirect URLs** and **Permissions**.
 3. Under **Redirect URLs**, select **Add redirect URL**.
-4. Enter `{{ gram.oauth.callback_url }}`.
+4. Enter this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
+
 5. Under **Permissions**, select:
    - **Read and list users and companies**
    - **Read conversations**

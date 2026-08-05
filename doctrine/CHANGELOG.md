@@ -6,6 +6,85 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-08-05 — long values get code blocks, opened URLs get links
+
+Files: `doctrine/personas/it-admin.md`, `doctrine/roles/writer.md`,
+`doctrine/speakeasy-setup.md`, `guides/**/{external,speakeasy}.md` (17
+guides), `go/generated/**`.
+
+The persona's formatting rules said only "values the reader types or
+copies in `code spans`" — no ceiling. The Writer obeyed it correctly and
+still produced unreadable steps: in the Control Plane's setup panel a
+code span holding an unbroken URL wraps mid-token, so the value is hard
+to read and no longer copyable in one gesture. Human report with a
+screenshot of the rendered BigQuery guide, where
+`https://www.googleapis.com/auth/bigquery` (40 characters) broke across
+two lines twice in one step.
+
+Measured across the 18 committed guides before the change: 65 inline code
+spans over 30 characters, the longest a 190-character comma-joined scope
+list (`guides/google-slides/speakeasy.md`). Thirteen guides also ended
+with the closing pointer's further-reading URL as bare prose, while three
+already used a Markdown link — the template at
+`doctrine/speakeasy-setup.md` prescribed the bare form.
+
+- **Code-span ceiling** (`it-admin.md` Formatting, `writer.md` self-check):
+  an unbroken run over ~30 characters moves to a fenced code block under
+  its step, exactly as the field receives it. Values containing spaces
+  wrap cleanly and stay inline, so the ceiling targets the tokens that
+  actually break — URLs, scopes, endpoints. Where the reader enters values
+  one at a time, each gets its own line in one block; where one field
+  takes the whole string, the string stays on one line so the reader still
+  copies a working value.
+- **Measure the rendered value, not the source** (`it-admin.md`,
+  `writer.md`): `{{ gram.oauth.callback_url }}` is 29 characters and
+  contains spaces, so the source token passes the ceiling — but
+  `go/render.go:38` substitutes it byte-for-byte, and the reader sees an
+  unbroken callback URL of about 48 characters. The 13 steps that have the
+  reader enter it now use a block. The block survives both render paths:
+  an empty `Vars.OAuthCallbackURL` leaves the key in place, and a key
+  inside a fenced block is still a key.
+- **Whose value is it** (`it-admin.md`, `writer.md`): the ceiling applies
+  where the reader takes the value **from the guide**. Where the value
+  comes from the screen or the clipboard and the guide only names it —
+  the 12 "Confirm that **Redirect URI** matches …" steps in `speakeasy.md`,
+  and `guides/google-big-query/external.md:171` — it stays inline. A block
+  there would interrupt the sentence and buy no copy.
+- **Opened URLs are links** (`it-admin.md` Formatting, `writer.md`): a URL
+  the reader opens is a link, never a code span and never bare text. In a
+  step the link text is the URL without `https://`;
+  `guides/google-compute-engine/external.md:10` already did this.
+- **Closing pointer** (`speakeasy-setup.md`): the template now reads
+  `see [<Provider>'s MCP documentation](<further-reading URL>)`, matching
+  the three guides that already linked it.
+
+Sharpened two existing rules rather than adding new ones; no bullet was
+added to the persona's Formatting list beyond the URL rule, which had no
+prior home. No fact changed in any guide — every URL, scope, and separator
+is byte-identical to what it replaced. Fenced blocks inside numbered steps
+were already in use (`guides/snowflake/external.md:110`), so no new
+construct reaches the renderer.
+
+Two deliberate exceptions, both left inline: the Salesforce server table
+(`guides/salesforce/external.md:91`), where a table cell cannot hold a
+fenced block and the table scrolls as a unit; and
+`guides/google-compute-engine/external.md:15`, a URL named in explanatory
+prose that the reader never copies.
+
+Also fixed while in the file: `guides/intercom/speakeasy.md:27` hardcoded
+the Control Plane callback URL instead of `{{ gram.oauth.callback_url }}`,
+which constitution I4 names as the only template key. Every other guide
+used the key.
+
+Invariants: strengthens I5 (personas define voice — the persona now
+defines the rendering that made its own steps unreadable). Touches I4 only
+in the closing pointer's template text, not in the setup grammar itself.
+No fact moved, so I1 and I2 are untouched.
+
+Evidence: direct human report, 2026-08-05, with a screenshot of the
+rendered BigQuery setup panel; the 65-span measurement above, taken across
+all 18 committed guides.
+
 ## 2026-07-31 — pipeline-lock examples follow the pi runtime
 
 Files: `doctrine/pipeline-lock.md`.
