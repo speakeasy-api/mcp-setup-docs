@@ -10,7 +10,7 @@ Before you begin, obtain:
 - Authority to create an X developer app.
 - Organization-approved wording for the app name, description, and API use case.
 - Access to your organization's password manager or secure vault.
-- API credits available through the billing and credits area of the [**Developer Console**](https://console.x.com). API requests are blocked when the credit balance is zero or negative.
+- API credits available through the billing and credits area of the [**Developer Console**](https://console.x.com). X API usage is pay-per-usage and is charged through the developer account that owns the app. API requests are blocked when the credit balance is zero or negative.
 
 This setup provides read-only access to public data. It cannot act as a user or perform writes.
 
@@ -43,5 +43,15 @@ X creates the app and displays its credentials, including the **Bearer Token**.
 ### Copy the Bearer Token {#copy-bearer-token}
 
 Copy **Bearer Token** from the generated credential view into your organization's password manager or secure vault before leaving the page.
+
+If you closed the credential view before saving the token:
+
+1. Reopen the app from the **Developer Console** dashboard.
+2. Open **Keys and tokens**.
+
+> **Regenerate** replaces the existing Bearer Token. Have your organization's password manager or secure vault ready before continuing.
+
+3. Select **Regenerate** for the **Bearer Token**.
+4. Save the newly displayed token before leaving the view.
 
 <!-- screenshot-exception: the only useful state contains a live secret; do not capture the credential value -->

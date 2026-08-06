@@ -1,0 +1,58 @@
+{
+  "slug": "x",
+  "provider": "x",
+  "persona": "it-admin",
+  "timestamp": "2026-08-06T23:21:18Z",
+  "started_at": "2026-08-06T23:21:18Z",
+  "finished_at": "2026-08-06T23:25:30Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "X's public Developer Console documentation does not publish the exact field labels or final submission label in the first-time developer enrollment flow.",
+    "X's public documentation names the app name, description, and use-case inputs but does not publish their exact field labels or the final create-button label."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prerequisite list",
+          "problem": "The opening omits the Dossier’s billing fact that X API usage is pay-per-usage and charged through the developer account that owns the app.",
+          "suggestion": "Add a prerequisite warning that the app’s API consumption uses the owning developer account’s pay-per-usage billing, alongside the existing API-credit requirement.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#copy-bearer-token",
+          "problem": "The guide provides no recovery action if the one-time Bearer Token display is closed before the token is saved.",
+          "suggestion": "Research X's documented Bearer Token regeneration or recovery path, add it to the Research Dossier, and render a concise recovery step in external.md.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Research finding: added X’s documented recovery path to research.md under #copy-bearer-token, including reopening the app, opening Keys and tokens, regenerating the Bearer Token, the replacement warning, and saving the newly displayed token; updated provenance fact coverage. External finding: added the owning developer account’s pay-per-usage billing warning beside the API-credit prerequisite. Achievability finding: rendered the concise Bearer Token regeneration path in external.md with the destructive-action warning before Regenerate. Existing anchors were preserved.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "Speakeasy setup materially changed from an unresolved catalog/custom conditional to a forced catalog-only path, backed by the matched catalog record com.pulsemcp.mirror/xdevplatform-xmcp and the new meta.yaml field speakeasy_add_server: catalog. This requires re-rendering speakeasy.md and invalidates review of the prior conditional setup. The further-reading URL also changed from the Mintlify preview to the canonical https://docs.x.com/tools/mcp. Credentials, anchors, remote URL, transport, and prerequisites are otherwise unchanged."
+  },
+  "notes_digest": "sha256:87fcdca3a8e3bb166f519349bafd9b76ecf5b35b62a9ef118c4507f905a9b9d7",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 1
+  }
+}

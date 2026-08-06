@@ -4,12 +4,11 @@
 
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
 
-- If X is in the catalog: choose **3rd-party server**. On the **MCP Catalog** page, find X (the search box reads **Search MCP servers...**), open its entry with **View**, and click **Add**. If the **Add to Project** dialog requests headers during installation, configure its **Upstream headers** section before continuing — follow steps 3–6 under [Connect your credentials](#connect-speakeasy-credentials). In the **Add to Project** dialog, click **Add to Project**.
-- If it is not: choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste `https://api.x.com/mcp` into **Remote MCP server URL** and click **Add server**.
+Choose **3rd-party server**. On the **MCP Catalog** page, enter `X` in **Search MCP servers...**, open the X result with **View**, and click **Add**. If the **Add to Project** dialog requests headers during installation, configure its **Upstream headers** section before continuing — follow steps 3–6 under [Connect your credentials](#connect-speakeasy-credentials). In the **Add to Project** dialog, click **Add to Project**.
 
-Either path creates the hosted MCP server and opens its **Overview** page.
+This creates the hosted MCP Server and opens its **Overview** page.
 
-<!-- screenshot: the Add Source menu or the X catalog entry, without credentials -->
+<!-- screenshot: the X catalog entry with View and Add visible, without credentials -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
@@ -25,4 +24,4 @@ If you configured headers in the **Add to Project** dialog, skip this section. O
 
 <!-- screenshot: the Upstream Headers editor with Authorization, Static value, and Secret visible, with the value redacted -->
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [X's MCP documentation](https://x-preview.mintlify.app/tools/mcp).
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [X's MCP documentation](https://docs.x.com/tools/mcp).

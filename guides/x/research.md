@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: x
-researched_at: 2026-07-27T16:51:41Z
+researched_at: 2026-08-06T23:21:18Z
 ---
 
 # X — Research Dossier
@@ -112,6 +112,11 @@ route and must not be substituted into this Guide.
 - Destination: later enter this token in the Speakeasy AI Control Plane as the
   secret static value `Bearer <Bearer Token>` for an upstream header named
   `Authorization`.
+- Recovery: if the generated credential view was closed before the token was
+  saved, reopen the app from the Developer Console dashboard, open **Keys and
+  tokens**, and select **Regenerate** for the **Bearer Token**. Regeneration
+  replaces the existing token. Save the newly displayed token before leaving
+  the view.
 - Screenshot exception: the only useful state contains a live secret; do not
   capture the credential value.
 
@@ -123,34 +128,30 @@ Per-guide values rendered into the canonical
 - Provider: X.
 - Remote URL: `https://api.x.com/mcp`.
 - Transport: `streamable-http`; the **Transport** field is read-only.
-- Catalog status: not established by provider documentation. Render the
-  canonical conditional: use the X entry if present; otherwise choose
-  **Custom remote server** and supply the remote URL. For the catalog path,
-  enter `X` in the catalog search box.
+- Catalog status: present. The Speakeasy MCP Catalog lookup matched
+  registry name `com.pulsemcp.mirror/xdevplatform-xmcp`, title `X`, for the
+  query `x`. Render only the catalog path; enter `X` in the catalog search
+  box.
 - Authentication Option: app-only Bearer Token (`api_key` in Metadata).
 - Credential origin: **Bearer Token** from {#copy-bearer-token}.
 - Upstream header: name `Authorization`; **Value source** **Static value**;
   value `Bearer <Bearer Token>`; mark **Secret**.
 - Further-reading URL:
-  `https://x-preview.mintlify.app/tools/mcp`.
+  `https://docs.x.com/tools/mcp`.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
-- If X is in the catalog: choose **3rd-party server**. On the **MCP Catalog**
-  page, enter `X` in **Search MCP servers...**, open the result with **View**,
-  click **Add**, then click **Add to Project** in the **Add to Project**
-  dialog.
-- If X is not in the catalog: choose **Custom remote server**. On
-  **Add a custom remote MCP server**, paste `https://api.x.com/mcp` into
-  **Remote MCP server URL**, then click **Add server**.
+Choose **3rd-party server**. On the **MCP Catalog** page, enter `X` in
+**Search MCP servers...**, open the X result with **View**, and click **Add**.
+In the **Add to Project** dialog, click **Add to Project**.
 
-Either path creates the hosted MCP Server and opens its **Overview** page.
+This creates the hosted MCP Server and opens its **Overview** page.
 
-Screenshot note: capture the **Add Source** menu or the X catalog entry. Do
-not include credentials.
+Screenshot note: capture the X catalog entry with **View** and **Add**
+visible. Do not include credentials.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
@@ -167,7 +168,7 @@ Screenshot note: capture the **Upstream Headers** editor with
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
 limits — see X's MCP documentation at
-`https://x-preview.mintlify.app/tools/mcp`.
+`https://docs.x.com/tools/mcp`.
 
 ## Open questions
 
@@ -177,18 +178,14 @@ limits — see X's MCP documentation at
 - X's public documentation says to enter an app name, description, and use
   case after clicking **New App**, but does not publish the exact field labels
   or the final create-button label.
-- Provider documentation cannot establish whether X is currently present in
-  the Speakeasy MCP Catalog; the canonical add-source conditional must remain
-  until the catalog is observed.
 
 ## Provenance
 
 ### Source inventory
 
 - **Developer documentation:** `docs.x.com`, with machine-readable index at
-  `https://docs.x.com/llms.txt`. The canonical docs host returned HTTP 403 to
-  this research fetch; the same official pages were available from X's
-  Mintlify preview property at `https://x-preview.mintlify.app`.
+  `https://docs.x.com/llms.txt`. The canonical docs host and raw Markdown
+  pages were reachable during this run; current facts below use this property.
 - **Developer product/admin documentation:** X's Developer Console at
   `https://console.x.com`, documented by the Developer Console, Getting
   Access, and Apps pages. The live authenticated console was not accessed.
@@ -203,51 +200,54 @@ limits — see X's MCP documentation at
 
 ### Fact sources
 
-- `https://x-preview.mintlify.app/tools/mcp` — observed
-  `2026-07-27T16:51:41Z`. Primary MCP source. Backs the X MCP URL, hosted
+- `https://docs.x.com/tools/mcp.md` — observed
+  `2026-08-06T23:21:18Z`. Primary MCP source. Backs the X MCP URL, hosted
   Streamable HTTP transport, protocol/server information, direct app-only
   Bearer route, read-only limitation, `Authorization` header shape, local
   `xurl mcp` OAuth route, no dynamic registration or native MCP OAuth
   discovery, callback value, and the server's search, users, bookmarks, trends,
   news, and Articles capability areas. Also supplies the further-reading URL.
-- `https://docs.x.com/llms.txt` (retrieved through the official index surfaced
-  by X's preview property) — observed `2026-07-27T16:51:41Z`. Backs the
+- `https://docs.x.com/llms.txt` — observed `2026-08-06T23:21:18Z`. Backs the
   documentation-property sweep and discovery of the MCP, authentication,
   Developer Console, app, access, and pricing pages.
-- `https://x-preview.mintlify.app/x-api/getting-started/getting-access` —
-  observed `2026-07-27T16:51:41Z`. Backs first-time developer enrollment,
+- `https://docs.x.com/x-api/getting-started/getting-access.md` — observed
+  `2026-08-06T23:21:18Z`. Backs first-time developer enrollment,
   app creation inputs, generated credentials, the Bearer Token's read-only
-  purpose, and the one-time display warning.
-- `https://x-preview.mintlify.app/fundamentals/developer-portal` — observed
-  `2026-07-27T16:51:41Z`. Backs the `console.x.com` entry, **New App** label,
-  name and description inputs, generated-credential behavior, secure storage,
-  and pay-per-usage console role.
-- `https://x-preview.mintlify.app/fundamentals/developer-apps` — observed
-  `2026-07-27T16:51:41Z`. Backs app credential types, OAuth 2.0 client types,
+  purpose, the one-time display warning, and Bearer Token regeneration.
+- `https://docs.x.com/fundamentals/developer-portal.md` — observed
+  `2026-08-06T23:21:18Z`. Backs the `console.x.com` entry, **New App** label,
+  name and description inputs, generated-credential behavior, Bearer Token
+  regeneration from **Keys and tokens**, secure storage, and pay-per-usage
+  console role.
+- `https://docs.x.com/fundamentals/developer-apps.md` — observed
+  `2026-08-06T23:21:18Z`. Backs app credential types, OAuth 2.0 client types,
   callback behavior, and generated-credential warning. Its general local
   callback guidance says to use `127.0.0.1`, while the MCP-specific X page and
   official xurl project require `http://localhost:8080/callback`; the
   MCP-specific value governs the excluded xurl route.
-- `https://x-preview.mintlify.app/fundamentals/authentication/overview` and
-  `https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/application-only`
-  — observed `2026-07-27T16:51:41Z`. Back the app-only model, no-user-context
+- `https://docs.x.com/fundamentals/authentication/overview.md` and
+  `https://docs.x.com/fundamentals/authentication/oauth-2-0/application-only.md`
+  — observed `2026-08-06T23:21:18Z`. Back the app-only model, no-user-context
   limitation, token secrecy, and Bearer header presentation.
-- `https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/authorization-code`
-  — observed `2026-07-27T16:51:41Z`. Backs X's Authorization Code with PKCE
+- `https://docs.x.com/fundamentals/authentication/oauth-2-0/authorization-code.md`
+  — observed `2026-08-06T23:21:18Z`. Backs X's Authorization Code with PKCE
   behavior, confidential-client Client ID/Secret, refresh-token scope, and
   exact callback matching; used only to validate the excluded full-access
   route.
-- `https://x-preview.mintlify.app/x-api/getting-started/pricing` — observed
-  `2026-07-27T16:51:41Z`. Backs the API-credit prerequisite, the Developer
+- `https://docs.x.com/x-api/getting-started/pricing.md` — observed
+  `2026-08-06T23:21:18Z`. Backs the API-credit prerequisite, the Developer
   Console as the billing and credits locus, and the zero/negative balance
   blocking caveat. Exact rates and the purchase walkthrough are intentionally
   not carried into the Guide.
 - `https://raw.githubusercontent.com/xdevplatform/xurl/main/README.md` —
-  observed `2026-07-27T16:51:41Z`. Official xdevplatform repository. Backs the
+  observed `2026-08-06T23:21:18Z`. Official xdevplatform repository. Backs the
   stdio-to-Streamable-HTTP bridge architecture, `CLIENT_ID` /
   `CLIENT_SECRET`, token caching and refresh, browser/headless behavior, and
   default `http://localhost:8080/callback`.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-27T16:51:41Z`. Backs the fixed
-  {#add-server-in-speakeasy} and {#connect-speakeasy-credentials} anchors,
-  exact Speakeasy labels, catalog/custom conditional, upstream-header flow,
-  and closing pointer form.
+- `doctrine/speakeasy-setup.md` — observed `2026-08-06T23:21:18Z`. Backs the
+  fixed {#add-server-in-speakeasy} and {#connect-speakeasy-credentials}
+  anchors, exact Speakeasy labels, resolved catalog path, upstream-header
+  flow, and closing pointer form.
+- Speakeasy MCP Catalog record `com.pulsemcp.mirror/xdevplatform-xmcp`
+  (title `X`) — observed `2026-08-06T23:21:18Z`, `source: pulsemcp`. Backs
+  catalog presence and the catalog-only add-server path.
