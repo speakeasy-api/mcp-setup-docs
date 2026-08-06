@@ -2,14 +2,14 @@
   "schema_version": 1,
   "slug": "github",
   "persona": "it-admin",
-  "runtime": "cursor-sdk",
-  "updated_at": "2026-07-27T16:57:17Z",
+  "runtime": "pi",
+  "updated_at": "2026-08-06T23:27:27Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:7f4fcbed9f8392d5e2cf3f8ff98ceb3193978dbdbcd2e8257a3b0d4fd772a0f2",
+      "input_digest": "sha256:f8f63b5a30b63778183afb6ab759c75bb85769b3c97d9c93807bc20ffab58665",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:255c60266361ff6711b0b04829329485020218f5a0460f70aa30f30d9c1711fc",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -21,36 +21,36 @@
           },
           {
             "path": "doctrine/roles/technical-research.md",
-            "digest": "sha256:3960aa5d3ad30f9ed0d9e8bd1cc93b6c0dad5c412ef9ab536ec1a75ea6f1bee1"
+            "digest": "sha256:88f093f873c705128a0a31eb38be298a2ee11f4d50815552739925337f8ac3ad"
           },
           {
             "path": "doctrine/speakeasy-setup.md",
-            "digest": "sha256:3d50512ece3583a0bd9570512e215ea10377ac47f6bb9cfa35931080a7818d57"
+            "digest": "sha256:9f173facc7f63e450eb7e4d693c67c0a88e9ff68f0a381cfcbae413a8d47dd16"
           }
         ],
         "artifacts": [],
         "params": {
           "provider": "github",
-          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server\n\nSpeakeasy MCP Catalog: skipped"
+          "notes": "Refresh the existing GitHub guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: present name=\"io.github.github/github-mcp-server\""
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:dbc5029181e750b4f14aa9bf451f3342cf1e0a31d9232887bf67126523d1b4d0"
+          "digest": "sha256:53497714203e42f66d59a22cb0eb0202d0d1f64addfb81de3d8dcf9899d97059"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:144b6ba8cb0724a1fa363b22ef31a7e3f79cf54806a3fa948c353e86f9dfa766"
+          "digest": "sha256:449849caa37bfa42f1665c4e2b42622e9c36875e9297c20bf3acfc55dd657bf5"
         }
       ],
-      "completed_at": "2026-07-27T16:57:17Z"
+      "completed_at": "2026-08-06T23:27:27Z"
     },
     "draft": {
-      "input_digest": "sha256:4705b5fd41a9c382b89ea3c5280e7abaaf61264d13fdd0f7fc1f13c147e63740",
+      "input_digest": "sha256:436a08f877bd413fa7f4d0e0980a0052432e6aa57154b29ade5f28daf23b1f16",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:a956869fa21cc7f91fff9450fe09c86dc2014cb5f058691e03d07eb0b3acce3f",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:ad649d12e8bf3882a1593555c0c4d31681ac50aa891177b1a8f766a563d85d6c",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -62,46 +62,46 @@
           },
           {
             "path": "doctrine/roles/writer.md",
-            "digest": "sha256:535e7d39f6f4e745321bd1a6bfdab4c9d6ac5ae46eaf079a4c20c377acab0b2a"
+            "digest": "sha256:4214af68feea7dfc68fab1058e1d5d35e6238d5b51fd9b10db421ebafc49a3cc"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:dbc5029181e750b4f14aa9bf451f3342cf1e0a31d9232887bf67126523d1b4d0"
+            "digest": "sha256:53497714203e42f66d59a22cb0eb0202d0d1f64addfb81de3d8dcf9899d97059"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:144b6ba8cb0724a1fa363b22ef31a7e3f79cf54806a3fa948c353e86f9dfa766"
+            "digest": "sha256:449849caa37bfa42f1665c4e2b42622e9c36875e9297c20bf3acfc55dd657bf5"
           }
         ],
         "params": {
           "provider": "github",
-          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server\n\nSpeakeasy MCP Catalog: skipped",
+          "notes": "Refresh the existing GitHub guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"io.github.github/github-mcp-server\"",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:aa0148e0b06c82340dc247135f977dbf040b2ce6a5eac9e81b5dbf24a38e5d1f"
+          "digest": "sha256:5da894c95a685a957e13535102e9cfbeffb1276c015669988d434f4d422c2867"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:e82f60f9bda02d3b2513cdb3c54afb58848d9a48e6e6432b38fba7f22ae3c8a0"
+          "digest": "sha256:8fa030dd59323c869f9f7032567deeda3434163618d78eb44249d62da7480693"
         }
       ],
-      "completed_at": "2026-07-27T16:57:17Z"
+      "completed_at": "2026-08-06T23:27:27Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:4c59cf900c7fe495f79146c5b3a66f266d242ecfc7d8fad6be2d545f90fac5a4",
+      "input_digest": "sha256:9dba0f37f113e8bf27df273c00ea1bb61f65b3e178dd52a9d7c2f895c9be9168",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:2885ba720bba92fbed782f1ac13fdbd065c3f1a294302ee85792fc4f61866e1f",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -113,30 +113,30 @@
           },
           {
             "path": "doctrine/roles/fidelity.md",
-            "digest": "sha256:070f59d37c1dc5d82048883f44fe9382ed6ef29f16c33ab848e3b2d9392574d6"
+            "digest": "sha256:f1c64906d2702d25c5db118f0a1a471b4962333a506c235ffebccf67413aa7f3"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:dbc5029181e750b4f14aa9bf451f3342cf1e0a31d9232887bf67126523d1b4d0"
+            "digest": "sha256:53497714203e42f66d59a22cb0eb0202d0d1f64addfb81de3d8dcf9899d97059"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:144b6ba8cb0724a1fa363b22ef31a7e3f79cf54806a3fa948c353e86f9dfa766"
+            "digest": "sha256:449849caa37bfa42f1665c4e2b42622e9c36875e9297c20bf3acfc55dd657bf5"
           },
           {
             "path": "external.md",
-            "digest": "sha256:aa0148e0b06c82340dc247135f977dbf040b2ce6a5eac9e81b5dbf24a38e5d1f"
+            "digest": "sha256:5da894c95a685a957e13535102e9cfbeffb1276c015669988d434f4d422c2867"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:e82f60f9bda02d3b2513cdb3c54afb58848d9a48e6e6432b38fba7f22ae3c8a0"
+            "digest": "sha256:8fa030dd59323c869f9f7032567deeda3434163618d78eb44249d62da7480693"
           }
         ],
         "params": {
           "provider": "github",
-          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server\n\nSpeakeasy MCP Catalog: skipped",
+          "notes": "Refresh the existing GitHub guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"io.github.github/github-mcp-server\"",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,20 +144,20 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:aa0148e0b06c82340dc247135f977dbf040b2ce6a5eac9e81b5dbf24a38e5d1f"
+          "digest": "sha256:5da894c95a685a957e13535102e9cfbeffb1276c015669988d434f4d422c2867"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:e82f60f9bda02d3b2513cdb3c54afb58848d9a48e6e6432b38fba7f22ae3c8a0"
+          "digest": "sha256:8fa030dd59323c869f9f7032567deeda3434163618d78eb44249d62da7480693"
         }
       ],
-      "completed_at": "2026-07-27T16:57:17Z"
+      "completed_at": "2026-08-06T23:27:27Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:72cdc7accd23fb0de49ff9377fd2e4df0cba58e3997381d3e7f7140bd1c482d8",
+      "input_digest": "sha256:742d7224bc5b2d7fbfdd9d9a6ab7ec2af798a423f6af3f7463e85499119d6ddd",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:0b287f892ece7611416030973e4b1952db4c173e3023930bf238685d39b79cdf",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -169,34 +169,34 @@
           },
           {
             "path": "doctrine/roles/review.md",
-            "digest": "sha256:2b145febb78989edbf7ac617395ffb03e8852fabe13135662534b0b7f53e91cd"
+            "digest": "sha256:7eb1e560946bbc2656afdfbdbd26d85b3d4a5579818fc4bd6629d818ce251f69"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:dbc5029181e750b4f14aa9bf451f3342cf1e0a31d9232887bf67126523d1b4d0"
+            "digest": "sha256:53497714203e42f66d59a22cb0eb0202d0d1f64addfb81de3d8dcf9899d97059"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:144b6ba8cb0724a1fa363b22ef31a7e3f79cf54806a3fa948c353e86f9dfa766"
+            "digest": "sha256:449849caa37bfa42f1665c4e2b42622e9c36875e9297c20bf3acfc55dd657bf5"
           },
           {
             "path": "external.md",
-            "digest": "sha256:aa0148e0b06c82340dc247135f977dbf040b2ce6a5eac9e81b5dbf24a38e5d1f"
+            "digest": "sha256:5da894c95a685a957e13535102e9cfbeffb1276c015669988d434f4d422c2867"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:e82f60f9bda02d3b2513cdb3c54afb58848d9a48e6e6432b38fba7f22ae3c8a0"
+            "digest": "sha256:8fa030dd59323c869f9f7032567deeda3434163618d78eb44249d62da7480693"
           }
         ],
         "params": {
           "provider": "github",
-          "notes": "Official GitHub MCP Server (github/github-mcp-server). Remote hosted server at https://api.githubcopilot.com/mcp/; prefer OAuth for remote hosts, PAT also supported. Local Docker deployment available. Docs: https://github.com/github/github-mcp-server\n\nSpeakeasy MCP Catalog: skipped",
+          "notes": "Refresh the existing GitHub guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: forced-catalog name=\"io.github.github/github-mcp-server\"",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:aa0148e0b06c82340dc247135f977dbf040b2ce6a5eac9e81b5dbf24a38e5d1f"
+          "digest": "sha256:5da894c95a685a957e13535102e9cfbeffb1276c015669988d434f4d422c2867"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:e82f60f9bda02d3b2513cdb3c54afb58848d9a48e6e6432b38fba7f22ae3c8a0"
+          "digest": "sha256:8fa030dd59323c869f9f7032567deeda3434163618d78eb44249d62da7480693"
         }
       ],
-      "completed_at": "2026-07-27T16:57:17Z"
+      "completed_at": "2026-08-06T23:27:27Z"
     }
   }
 }

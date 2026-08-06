@@ -1,0 +1,51 @@
+{
+  "slug": "github",
+  "provider": "github",
+  "persona": "it-admin",
+  "timestamp": "2026-08-06T23:22:50Z",
+  "started_at": "2026-08-06T23:22:50Z",
+  "finished_at": "2026-08-06T23:27:27Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "The exact Speakeasy control that launches GitHub user authorization after Attach Identity Provider remains undocumented in canonical doctrine; it is needed only for the restricted-organization approval branch.",
+    "GitHub protected-resource metadata is live, but its advertised authorization-server metadata URL returns 404; fidelity review should determine whether the Speakeasy AI Control Plane offers Use Discovered or requires Configure Manually.",
+    "GitHub documents on-demand OAuth scope challenges, but public Speakeasy doctrine does not confirm how post-connection challenges are surfaced to users."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The Dossier moves the Redirect URI confirmation before credential entry and attachment, while the canonical Speakeasy skeleton places it after clicking **Attach Identity Provider**.",
+          "suggestion": "Restore the canonical sequence in the Dossier, then rerender the same order in speakeasy.md.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Fixed the #connect-speakeasy-credentials fidelity blocker in research.md by restoring the canonical sequence: enter credentials, click Attach Identity Provider, then confirm Redirect URI. Rerendered the same order in speakeasy.md without changing anchors or unrelated content.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "Speakeasy MCP Catalog presence is now confirmed for io.github.github/github-mcp-server. AFTER adds speakeasy_add_server: catalog and requires a catalog-only add-server flow, removing the prior conditional Custom remote server path and catalog-presence open question. This materially changes speakeasy.md and invalidates review of a setup file that still presents both paths; provider credentials, anchors, remote URL, transport, and prerequisites are otherwise unchanged."
+  },
+  "notes_digest": "sha256:a21196388c5cae55c8035dae21f33d4fe701e4b430aaefbb0decf253edfa50f3",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 1
+  }
+}
