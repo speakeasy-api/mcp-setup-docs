@@ -1,0 +1,78 @@
+{
+  "slug": "google-big-query",
+  "provider": "google-big-query",
+  "persona": "it-admin",
+  "timestamp": "2026-08-06T23:23:41Z",
+  "started_at": "2026-08-06T23:23:41Z",
+  "finished_at": "2026-08-06T23:31:04Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Google's public docs deep-link to IAM and Google Auth platform but do not state every console navigation-menu grouping; IAM & Admin > IAM remains a flagged inference.",
+    "The public scope inventory does not state the BigQuery scope's sensitivity classification; the Google Auth platform Data Access page determines whether sensitive- or restricted-scope verification applies.",
+    "Google's verification docs require up to three feature-documentation links but do not publish the exact Verification Center field labels for those links.",
+    "Google documents project-level BigQuery Data Viewer access for MCP setup; the minimum narrower dataset-level policy that preserves all metadata discovery behavior is unspecified."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "## Speakeasy setup / Connect your credentials and Canonical closing sentence",
+          "problem": "The Dossier’s transcluded Speakeasy skeleton omits the canonical Redirect URI copy-button detail and labels a noncanonical closing sentence as verbatim.",
+          "suggestion": "Replace the affected text with the current manual-OAuth skeleton and linked closing sentence from doctrine/speakeasy-setup.md, then rerender speakeasy.md from that corrected transclusion.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "configure-oauth-consent — persistent External-app authorization",
+          "problem": "After submitting scope verification, the guide does not tell the reader whether to wait for a review result before continuing to create the OAuth client.",
+          "suggestion": "Add a Dossier-backed hedge directing the reader to follow the status shown in Branding and Verification Center and obtain application-owner guidance on whether approval is required before continuing.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Research blocker: corrected research.md’s manual-OAuth transclusion to include the Redirect URI copy-button detail, direct callback-template registration guidance, and the canonical linked closing sentence; updated its doctrine provenance to the run timestamp. Rerendered the affected Speakeasy credential steps in speakeasy.md. External nit: added the Dossier-backed hedge to follow status in Branding and Verification Center and obtain application-owner or cloud-security-owner guidance on whether approval is required before creating the OAuth client.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "provenance records for five sources explicitly dated 2026-07-23T19:36:30Z in research.md",
+          "problem": "meta.yaml records 2026-08-06T23:23:41Z for five sources that the Research Dossier explicitly says were observed on 2026-07-23T19:36:30Z.",
+          "suggestion": "Align the metadata timestamps for the Capacity Planner resource-selector page, Google Health codelab, sensitive-scope verification guide, Manage App Audience page, and app-verification submission page with the Dossier, or re-observe those sources and update the Dossier to the current timestamp.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Updated meta.yaml provenance timestamps for the five cited sources—the Capacity Planner resource-selector page, Google Health codelab, sensitive-scope verification guide, Manage App Audience page, and app-verification submission page—from 2026-08-06T23:23:41Z to the Research Dossier’s recorded observation time, 2026-07-23T19:36:30Z.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER materially changes the rendered setup flow: the operator-confirmed catalog result is absent, so speakeasy.md must remove the catalog branch and render only Custom remote server. It also changes the OAuth callback sequence: external.md now enters `{{ gram.oauth.callback_url }}` directly while creating the Google client, then the Speakeasy sheet only confirms the Redirect URI, replacing the prior Speakeasy-first copy-and-return flow. Anchors, credentials, remote URL, transport, IAM prerequisites, and non-timestamp Metadata facts are otherwise unchanged."
+  },
+  "notes_digest": "sha256:279158315826528e63fd6749dc9441cc08465556a289d234b5b6ee437dab087a",
+  "setup_churn": {
+    "external_md_lines": 4,
+    "speakeasy_md_lines": 2
+  }
+}
