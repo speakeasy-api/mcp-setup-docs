@@ -31,6 +31,34 @@ The workflow creates these if missing. You can also create them by hand:
 | `guide:draft` | **Trigger** — add this to start (or retry) a run |
 | `guide:in-progress` | Run is active (set/cleared by the Action) |
 | `guide:blocked` | Distill unclear, hard failure, refused, or **awaiting scope** (set by the Action) |
+| `guide:stale` | Lockfile drifted; a refresh is queued (set by the stale sweep) |
+
+## Stale sweep
+
+`.github/workflows/guide-stale-sweep.yml` runs 07:00 UTC every Monday, and on
+demand via **Run workflow**. It re-derives every input each `pipeline.lock.json`
+records and reports the guides whose locks went cold — a doctrine edit, a prompt
+change, a new model, an edited guide file, a missing lock.
+
+Detection is offline. No OpenRouter key, no model call, no credits. It does not
+fetch provider documentation, so it catches drift on our side only, not a
+provider that rewrote their docs.
+
+It opens at most five tickets per run (`limit` input), oldest lock first, and
+skips any slug that already has an open `guide:stale` ticket. Tickets carry
+`guide:stale` and nothing else — **the sweep never applies `guide:draft`**, so
+nothing it files starts a run. Add `guide:draft` to a ticket when you want that
+guide refreshed.
+
+Report locally without touching GitHub:
+
+```bash
+mise run stale-sweep
+```
+
+One gap worth knowing: the sweep only recognises its own tickets. If a guide is
+already being refreshed through a hand-written issue, the sweep may still queue
+a ticket for it. Close the duplicate.
 
 ## Draft a guide
 
