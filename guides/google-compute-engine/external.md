@@ -5,17 +5,17 @@ setup_version: 1
 # Google Compute Engine
 
 A Google Cloud project with billing enabled, and a sign-in on that project
-that can enable APIs, grant IAM roles, and configure the Google Auth
-platform — project **Owner** covers all three. Everything in Provider setup
-happens in the Google Cloud console at
-[console.cloud.google.com](https://console.cloud.google.com). Each person
+with permission to enable APIs, grant IAM roles, and configure the Google
+Auth platform. Everything in Provider setup happens in the Google Cloud
+console at [console.cloud.google.com](https://console.cloud.google.com). Each person
 who will connect from the Speakeasy AI Control Plane needs their own Google
 account; you grant their access in [Grant IAM roles](#grant-iam-roles).
 
-Google hosts the MCP server at `https://compute.googleapis.com/mcp`; you
-point the Speakeasy AI Control Plane at that address rather than installing
-anything. The server's tools manage real Compute Engine resources — they
-can create, start, stop, and delete VM instances — and everything they do
+The Google Compute Engine catalog entry connects to Google's hosted MCP
+Server at `https://compute.googleapis.com/mcp`; you do not need to install
+anything or paste the remote URL. The server's tools manage real Compute
+Engine resources — they can create, start, stop, and delete VM instances —
+and everything they do
 is ordinary Compute Engine activity billed to this project; a VM created
 without explicit choices defaults to an `e2-medium` machine running
 Debian 12. Google might process the server's tool calls in any region,
@@ -31,7 +31,10 @@ Speakeasy AI Control Plane needs.
 1. Sign in at
    [console.cloud.google.com](https://console.cloud.google.com).
 2. Pick your project in the project selector on the console toolbar.
-3. In the navigation menu, go to **APIs & Services** > **API Library**.
+3. Open the documented **APIs & Services** > **API Library** page. This is
+   likely available from the navigation menu. If it is not, open the
+   [Compute Engine API overview](https://console.cloud.google.com/apis/api/compute.googleapis.com/overview)
+   directly and skip to step 6.
 4. In the **Search for APIs & Services** box, search for
    `Compute Engine API`.
 5. Open the result named **Compute Engine API**
@@ -50,8 +53,9 @@ Do this for every user who will connect from the Speakeasy AI Control
 Plane. Each user authorizes as themselves, so their own roles cap what
 the server will do for them.
 
-1. In the navigation menu, go to **IAM & Admin** > **IAM**, with the
-   same project selected.
+1. Open the project's documented **IAM** page. The likely navigation-menu
+   route is **IAM & Admin** > **IAM**; if it is not available, open
+   [IAM](https://console.cloud.google.com/iam-admin/iam) directly.
 2. Click **Grant access**.
 3. In the **New principals** field, enter the user's Google Account
    email address.
@@ -63,8 +67,8 @@ the server will do for them.
    (`roles/compute.instanceAdmin.v1`) — full control of Compute Engine
    instances, instance groups, disks, snapshots, and images.
 8. Click **Add another role**.
-9. Add **Service Account User** (`roles/iam.serviceAccountUser`) —
-   required for creating VMs.
+9. Add **Service Account User** (`roles/iam.serviceAccountUser`) when
+   creating VMs that run as a service account.
 
    Google recommends granting **Service Account User** on a specific
    service account rather than project-wide; granting it here on the
@@ -110,22 +114,26 @@ request:
 
 1. Click **Data Access**.
 2. Click **Add or Remove Scopes**.
-3. Add `https://www.googleapis.com/auth/compute` — select it in the
-   list if it appears there; otherwise enter it in the text box under
-   **Manually add scopes**.
+3. Add this scope — select it in the list if it appears there; otherwise
+   enter it in the text box under **Manually add scopes**:
+
+   ```
+   https://www.googleapis.com/auth/compute
+   ```
+
 4. Click **Update**.
 5. Click **Save**.
 
-If the app's user type is **External** (you chose it in the wizard, or
-it was chosen when the platform was first configured), list every
-connecting user as a test user — while the app's publishing status is
-**Testing**, only listed accounts can connect:
+Open **Audience** and check the configured audience and publishing status.
+If either value is not evident, obtain it from the application or cloud
+security owner. If the audience is **External** and the publishing status is
+**Testing**, list every connecting user as a test user — only listed accounts
+can connect:
 
-1. Click **Audience**.
-2. Under **Test users**, click **Add users**.
-3. Enter the Google account email address of every user who will
+1. Under **Test users**, click **Add users**.
+2. Enter the Google account email address of every user who will
    connect from the Speakeasy AI Control Plane.
-4. Click **Save**.
+3. Click **Save**.
 
 **Testing** status is temporary by design: an External app left in
 Testing drops every connection after seven days, and Google caps a
@@ -148,8 +156,12 @@ involve an extra review step.
 3. In the **Application type** list, select **Web application**.
 4. In the **Name** field, enter a name you will recognize later.
 5. In the **Authorized redirect URIs** section, click **+ Add URI**.
-6. Enter `{{ gram.oauth.callback_url }}` — the Speakeasy AI Control
-   Plane's callback URL.
+6. Enter the Speakeasy AI Control Plane's callback URL:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
+
 7. Leave **Authorized JavaScript origins** empty.
 
    The next click opens a dialog that shows the client secret exactly
@@ -175,8 +187,8 @@ AI Control Plane needs.
 Treat the client secret like a password, and note that you can only
 copy it once: after this dialog closes, the **Client ID** stays visible
 on the client's page, but the secret does not. If you lose the secret,
-open the client from the **Clients** list, delete the secret, and
-create a new one.
+delete it and create a new one. The **Clients** page is the likely starting
+point; Google does not document the exact clicks.
 
 Both values go into the Speakeasy AI Control Plane in
 [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).

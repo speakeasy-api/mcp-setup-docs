@@ -8,13 +8,14 @@
   "scripts": {
     "draft-guide": "tsx src/cli.ts",
     "lint-guide": "tsx src/lint-guide-cli.ts",
+    "stale-sweep": "tsx src/stale-sweep-cli.ts",
     "resolve-issue": "tsx src/resolve-issue.ts",
     "factory": "tsx src/factory/cli.ts",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test \"src/**/*.test.ts\""
   },
   "dependencies": {
-    "@cursor/sdk": "^1.0.24",
+    "@earendil-works/pi-coding-agent": "0.83.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "yaml": "^2.9.0",

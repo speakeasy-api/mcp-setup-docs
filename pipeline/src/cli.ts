@@ -2,11 +2,23 @@
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createRuntime } from './runtime.ts'
-import { runWorkflow, type GuideInput } from './workflow.ts'
+import { createPiRuntime } from './runtime-pi.ts'
+import { allowedPrefixesFor } from './pi-guard.ts'
+import { runWorkflow } from './workflow.ts'
+import { type GuideInput } from './prompts.ts'
 import { PATHS, abs, guideDir } from './paths.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+/**
+ * Prefer the version pinned in this package over whatever `pi` a machine
+ * happens to have on PATH — the two published scopes can coexist there, and
+ * their stream formats differ.
+ */
+function resolvePiBin(): string {
+  const pinned = join(__dirname, '..', 'node_modules', '.bin', 'pi')
+  return pinned
+}
 
 function usage(): never {
   console.error(`Usage:
@@ -22,12 +34,8 @@ Options:
   --pause-on-scope   After research, pause before draft when material open
                      questions lack Decision N replies in --notes (factory)
   --repo-root <path> Repo root (default: two levels above this package)
-  --model <id>       Default Cursor model id (default: gpt-5.6-sol)
-  --light-model <id> Model for "sonnet" slots (default: composer-2.5)
-  --effort <level>   Reasoning effort for heavy slots (default: high)
-  --light-effort <level>
-                     Reasoning effort for light slots (default: none /
-                     omit param — Composer has no effort knob)
+  --model <id>       OpenRouter slug (provider/model) for every agent slot
+                     (default: openai/gpt-5.6-sol)
 
 Exit codes:
   0  all guides converged
@@ -36,11 +44,8 @@ Exit codes:
   3  awaiting_scope (--pause-on-scope; research written, no draft)
 
 Env:
-  CURSOR_API_KEY     Required (user or team service-account key)
-  CURSOR_MODEL       Fallback for --model
-  CURSOR_MODEL_LIGHT Fallback for --light-model
-  CURSOR_EFFORT      Fallback for --effort
-  CURSOR_EFFORT_LIGHT Fallback for --light-effort
+  OPENROUTER_API_KEY Required
+  DRAFT_MODEL        Fallback for --model
 
 Examples:
   npm run draft-guide -- box
@@ -69,12 +74,8 @@ function parseArgs(argv: string[]) {
   let force = false
   let pauseOnScope = false
   let repoRoot: string | undefined
-  // Heavy slots (research / draft / fidelity / achievability / revision)
-  // default to GPT-5.6 Sol at high effort; light model kept for optional overrides.
-  let model = process.env.CURSOR_MODEL || 'gpt-5.6-sol'
-  let lightModel = process.env.CURSOR_MODEL_LIGHT || 'composer-2.5'
-  let effort = process.env.CURSOR_EFFORT || 'high'
-  let lightEffort = process.env.CURSOR_EFFORT_LIGHT || ''
+  // Every slot runs the same model; `runtime-pi.ts` prepends `openrouter/`.
+  let model = process.env.DRAFT_MODEL || 'openai/gpt-5.6-sol'
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!
@@ -112,18 +113,6 @@ function parseArgs(argv: string[]) {
       model = argv[++i] || usage()
       continue
     }
-    if (a === '--light-model') {
-      lightModel = argv[++i] || usage()
-      continue
-    }
-    if (a === '--effort') {
-      effort = argv[++i] || usage()
-      continue
-    }
-    if (a === '--light-effort') {
-      lightEffort = argv[++i] || usage()
-      continue
-    }
     if (a.startsWith('-')) {
       console.error('Unknown flag: ' + a)
       usage()
@@ -142,9 +131,6 @@ function parseArgs(argv: string[]) {
     pauseOnScope,
     repoRoot,
     model,
-    lightModel,
-    effort,
-    lightEffort,
   }
 }
 
@@ -193,7 +179,8 @@ function writeRunRecord(
   finishedAt: string,
   provider: string,
   persona: string,
-  result: Record<string, unknown>
+  result: Record<string, unknown>,
+  runtime: string
 ) {
   const slug = String(result.slug)
   const dir = abs(root, PATHS.retroRunsDir)
@@ -206,7 +193,7 @@ function writeRunRecord(
     timestamp: startedAt,
     started_at: startedAt,
     finished_at: finishedAt,
-    runtime: 'cursor-sdk',
+    runtime,
     ...result,
   }
   writeFileSync(path, JSON.stringify(body, null, 2) + '\n')
@@ -215,9 +202,9 @@ function writeRunRecord(
 
 async function main() {
   const args = parseArgs(process.argv.slice(2))
-  const apiKey = process.env.CURSOR_API_KEY?.trim()
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim()
   if (!apiKey) {
-    console.error('CURSOR_API_KEY is required')
+    console.error('OPENROUTER_API_KEY is required')
     process.exit(1)
   }
 
@@ -249,27 +236,20 @@ async function main() {
   }
 
   const startedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
-  const defaultModel = {
-    id: args.model,
-    ...(args.effort ? { params: [{ id: 'effort', value: args.effort }] } : {}),
-  }
-  const lightModel = {
-    id: args.lightModel,
-    ...(args.lightEffort
-      ? { params: [{ id: 'effort', value: args.lightEffort }] }
-      : {}),
-  }
-  const rt = createRuntime({
+  const rt = createPiRuntime({
     apiKey,
     repoRoot,
-    defaultModel,
-    lightModel,
+    model: args.model,
+    piBin: resolvePiBin(),
+    // Every guide in this invocation, so the tripwire does not flag a
+    // sibling guide's legitimate output as a breach.
+    allowedPrefixes: guides.flatMap((g) => allowedPrefixesFor(g.slug)),
   })
 
   console.error(
-    `draft-guide (cursor-sdk): persona=${args.persona} guides=${guides
+    `draft-guide (pi): persona=${args.persona} guides=${guides
       .map((g) => g.slug)
-      .join(',')} model=${args.model} effort=${args.effort || '(default)'} light=${args.lightModel}`
+      .join(',')} model=${args.model}`
   )
 
   const out = await runWorkflow(rt, {
@@ -291,7 +271,8 @@ async function main() {
       finishedAt,
       g?.provider || result.slug,
       out.persona,
-      result as unknown as Record<string, unknown>
+      result as unknown as Record<string, unknown>,
+      'pi'
     )
     console.error(`run record: ${path}`)
     console.log(JSON.stringify(result, null, 2))

@@ -8,7 +8,7 @@ is safe; only an approved tune proposal changes doctrine.
 
 ## `runs/` — Run Records (machine-written)
 
-One JSON file per drafted Guide, written by `draft-guide` (Cursor SDK CLI /
+One JSON file per drafted Guide, written by `draft-guide` (local CLI /
 factory) when a run completes: `runs/<UTC timestamp>-<slug>.json`.
 
 ```json
@@ -19,7 +19,7 @@ factory) when a run completes: `runs/<UTC timestamp>-<slug>.json`.
   "timestamp": "2026-07-22T18:00:00Z",
   "started_at": "2026-07-22T18:00:00Z",
   "finished_at": "2026-07-22T18:34:00Z",
-  "runtime": "cursor-sdk",
+  "runtime": "pi",
   "status": "converged | unconverged | blocked | failed | awaiting_scope",
   "rounds": 2,
   "history": [

@@ -8,5 +8,6 @@ tools/pulse-catalog/pulse-catalog.json
 # Local scratch / probe dirs
 .tmp-*/
 
+
 # Worktrees
 .claude/worktrees

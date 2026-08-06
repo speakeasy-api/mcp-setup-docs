@@ -55,9 +55,13 @@ If Google Auth platform was already configured, retain its approved **Branding**
 14. Open **Data Access**.
 15. Click **Add or Remove Scopes**.
 16. Under **Manually add scopes**, paste these three scope URLs:
-    - `https://www.googleapis.com/auth/directory.readonly`
-    - `https://www.googleapis.com/auth/userinfo.profile`
-    - `https://www.googleapis.com/auth/contacts.readonly`
+
+    ```
+    https://www.googleapis.com/auth/directory.readonly
+    https://www.googleapis.com/auth/userinfo.profile
+    https://www.googleapis.com/auth/contacts.readonly
+    ```
+
 17. Click **Add to Table**.
 18. Click **Update**.
 19. Click **Save**.
@@ -78,7 +82,11 @@ If you selected **External** and the app is in **Testing**, add every connecting
 3. In **Application type**, select **Web application**.
 4. In **Name**, enter a recognizable name such as `Speakeasy AI Control Plane`.
 5. Under **Authorized redirect URIs**, click **+ Add URI**.
-6. In **URIs**, enter `{{ gram.oauth.callback_url }}`.
+6. In **URIs**, enter this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
 
 Prepare an approved secret store before the next step. The next dialog allows the client secret to be copied only once.
 

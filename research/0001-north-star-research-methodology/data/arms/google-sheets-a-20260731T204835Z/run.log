@@ -1,0 +1,152 @@
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 154 packages in 4s
+
+> draft-guide
+> tsx src/cli.ts google-sheets --overwrite
+
+draft-guide (pi): persona=it-admin guides=google-sheets model=openai/gpt-5.6-sol
+[2026-07-31T20:48:41.056Z] [google-sheets] catalog: absent tenanted=false add_server=auto path=custom-remote tenant=gram-recommended observed=2026-07-31T20:48:39Z
+[2026-07-31T20:48:41.056Z] [google-sheets] researching google-sheets
+[2026-07-31T20:48:41.057Z] [google-sheets research] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: research)
+[2026-07-31T20:51:34.144Z] [google-sheets research] cost $0.9128 tokens 583135 tools: bash=22 read=10 ls=2 write=2 find=1 edit=1 grep=1
+[2026-07-31T20:51:34.172Z] [google-sheets] catalog path refreshed after research: tenanted=false add_server=custom-remote path=custom-remote
+[2026-07-31T20:51:34.173Z] [google-sheets] research_change method=none unchanged=false — no prior research outputs to compare
+[2026-07-31T20:51:34.178Z] [google-sheets] drafting external.md + speakeasy.md for persona it-admin
+[2026-07-31T20:51:34.178Z] [google-sheets draft] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: draft)
+[2026-07-31T20:52:14.142Z] [google-sheets draft] cost $0.2229 tokens 102322 tools: read=8 write=2 find=1
+[2026-07-31T20:52:14.213Z] [google-sheets] review round 1/3
+[2026-07-31T20:52:14.214Z] [google-sheets review:fidelity r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:52:14.222Z] [google-sheets review:achievability r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:53:01.410Z] [google-sheets review:fidelity r1] cost $0.2146 tokens 62425 tools: read=11 ls=1
+[2026-07-31T20:53:13.488Z] [google-sheets review:achievability r1] cost $0.2370 tokens 61985 tools: read=9 ls=1
+[2026-07-31T20:53:13.565Z] [google-sheets] revising 4 blocker(s) and 1 nit(s)
+[2026-07-31T20:53:13.565Z] [google-sheets revise r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: revise)
+[2026-07-31T20:53:50.625Z] [google-sheets revise r1] cost $0.2284 tokens 124129 tools: read=10 edit=3
+[2026-07-31T20:53:50.636Z] [google-sheets] review round 2/3
+[2026-07-31T20:53:50.636Z] [google-sheets review:fidelity r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:53:50.641Z] [google-sheets review:achievability r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:54:24.750Z] [google-sheets review:achievability r2] cost $0.1528 tokens 59270 tools: read=9 ls=1
+[2026-07-31T20:54:42.673Z] [google-sheets review:fidelity r2] cost $0.2079 tokens 52932 tools: read=11
+[2026-07-31T20:54:42.715Z] [google-sheets] revising 3 blocker(s) and 0 nit(s)
+[2026-07-31T20:54:42.715Z] [google-sheets revise r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: revise)
+[2026-07-31T20:55:26.880Z] [google-sheets revise r2] cost $0.2034 tokens 95628 tools: read=9 edit=1
+[2026-07-31T20:55:26.890Z] [google-sheets] review round 3/3
+[2026-07-31T20:55:26.891Z] [google-sheets review:fidelity r3] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:55:26.894Z] [google-sheets review:achievability r3] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:55:58.475Z] [google-sheets review:achievability r3] cost $0.1308 tokens 61961 tools: read=8 ls=1
+[2026-07-31T20:56:10.085Z] [google-sheets review:fidelity r3] cost $0.1959 tokens 71732 tools: read=11 ls=1
+[2026-07-31T20:56:10.136Z] [google-sheets] converged after 3 round(s); 0 checklist item(s) remain
+[2026-07-31T20:56:10.160Z] [google-sheets] wrote pipeline.lock.json
+run record: /tmp/ns-exp/google-sheets-a-20260731T204835Z/retro/runs/2026-07-31T20:48:39Z-google-sheets.json
+{
+  "slug": "google-sheets",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Google's setup page specifies drive.file while live protected-resource metadata advertises the broader drive scope; confirm during first connection which Drive scope the server requests.",
+    "Google does not publish the exact final confirmation-control labels inside the two linked API enablement flows.",
+    "The Sheets MCP page does not document whether the client secret is displayed only once or name exact recovery controls."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — “Operator notes say the Speakeasy MCP Catalog lookup was absent”",
+          "problem": "The Dossier records the catalog lookup as absent, but the operator notes specify an overridden Custom remote path because the catalog mapping is unreliable or unsuitable.",
+          "suggestion": "Replace the catalog-absence claim with the supplied override rationale, retain only the Custom remote path, and keep `speakeasy_add_server: custom-remote` in Metadata.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy — “This opens the server's Overview page.”",
+          "problem": "The rendered outcome omits the Dossier and canonical skeleton fact that adding the remote creates the hosted MCP server.",
+          "suggestion": "Use the faithful outcome sentence: “This creates the hosted MCP server and opens its Overview page.”",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prerequisites: “approved and registered for the Google Workspace Developer Preview Program”",
+          "problem": "The guide requires preview approval and project registration but provides no link or action for a reader who has not already completed that mandatory gate.",
+          "suggestion": "Link to the Google Workspace Developer Preview Program page recorded in the Dossier, tell the reader to apply with the Workspace account and Cloud project, and tell them to wait for registration approval before continuing.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#configure-oauth-consent: “If you selected External”",
+          "problem": "A reader using an already-configured Google Auth Platform did not select an audience during this walkthrough and therefore may skip adding required test users for an existing External testing app.",
+          "suggestion": "Change the condition to cover both paths, such as: “If **Audience** is **External**, and the app uses **Test users**, add every account that will connect during the preview.”",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "Opening prerequisites: prompt and response screening requirement",
+          "problem": "The guide states that an approved screening configuration or process must exist but does not tell the IT administrator how to confirm this organization-specific prerequisite.",
+          "suggestion": "Tell the reader to confirm the approved Model Armor configuration or documented alternative with the application or cloud security owner before continuing.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Research: replaced the incorrect catalog-absence claim with the operator-supplied Custom remote override rationale and recorded the run timestamp; retained `speakeasy_add_server: custom-remote`. Speakeasy: changed the add-server outcome to state that it creates the hosted MCP server and opens its Overview page. External prerequisites: linked the Developer Preview Program, instructed unapproved readers to apply with their Workspace account and Cloud project, and to wait for registration approval. OAuth consent: broadened the External audience condition to cover existing apps that use Test users. Screening nit: instructed readers to confirm the approved Model Armor configuration or documented alternative with the application or cloud security owner before continuing. Added all new external facts to the Research Dossier first.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose",
+          "problem": "The setup omits the Dossier’s warning that the MCP server inherits the connecting account’s permissions and can read, modify, and delete data available to that account.",
+          "suggestion": "Add an opening warning to use an appropriate Google account because the server receives that account’s permissions and can read, modify, and delete accessible data.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "#configure-oauth-consent — first-time configuration steps",
+          "problem": "The first-time wizard actions after **Get Started** are rendered as unconditional numbered steps, so readers with an already-configured Google Auth Platform are told to perform controls that are not on their path.",
+          "suggestion": "Place the **App Information** through **Create** sequence inside a clearly conditional first-time configuration branch, then present the existing **Branding**, **Audience**, and **Data Access** path separately.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose and #configure-oauth-consent — preview users",
+          "problem": "The setup omits the Dossier’s Developer Preview restriction that access generally must remain within the program participant’s domain or company.",
+          "suggestion": "State in the opening and when adding **Test users** that accounts authorized during the preview must comply with the program’s domain-or-company access restriction.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Opening prose now warns that the server inherits the connecting Google account’s permissions, can read, modify, and delete accessible data, and that Developer Preview access generally must remain within the participant’s domain or company. The OAuth consent section now places the App Information-through-Create sequence inside an explicit first-time configuration branch and keeps the existing Branding, Audience, and Data Access path separate. The Test users branch now limits authorized accounts to those complying with the preview domain-or-company restriction. The Research Dossier already contained these facts with provenance observed at 2026-07-31T20:48:39Z, so no research or metadata changes were required.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:a0b636960a116e3a0d6732b158869cfcc3ba900dcc452413867104452101f398",
+  "setup_churn": {
+    "external_md_lines": 78,
+    "speakeasy_md_lines": 30
+  }
+}

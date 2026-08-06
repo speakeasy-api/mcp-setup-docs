@@ -28,4 +28,4 @@ Do not enter a scope during this setup.
 
 <!-- screenshot: Attach Remote Identity Provider with the Redirect URI and credential fields visible and all credential values redacted -->
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see Asana's MCP documentation at https://developers.asana.com/docs/using-asanas-mcp-server.
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Asana's MCP documentation](https://developers.asana.com/docs/using-asanas-mcp-server).

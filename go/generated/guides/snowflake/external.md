@@ -124,7 +124,12 @@ When a code block contains multiple statements, select and run each completed st
 13. Select **Connect a tool to Snowflake**.
 14. In the **Account Details** dialog, copy **Account/Server URL**.
 15. For `<account_url>`, use the hostname from the copied value without the leading `https://` or a trailing `/`.
-16. Form the account-specific MCP Server URL as `https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>`.
+16. Form the account-specific MCP Server URL:
+
+   ```
+   https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>
+   ```
+
 17. Retain the URL for the Speakeasy AI Control Plane setup.
 
 <!-- screenshot: the approved CORTEX_AGENT_RUN specification and successful result, with the Cortex Agent's three-part identifier visible and organization-sensitive names redacted where policy requires -->

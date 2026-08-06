@@ -1,0 +1,242 @@
+{
+  "slug": "hubspot",
+  "provider": "hubspot",
+  "persona": "it-admin",
+  "timestamp": "2026-07-31T20:16:37Z",
+  "started_at": "2026-07-31T20:16:37Z",
+  "finished_at": "2026-07-31T20:26:49Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "HubSpot documents the authorization sequence (select account, grant permissions, authorize) but not the exact labels of the controls shown in those browser prompts. The Writer should describe the sequence without inventing button labels."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "#connect-speakeasy-credentials, steps 6–8",
+          "problem": "The guide confirms the Redirect URI and leaves the scope override empty before clicking Attach Identity Provider, while the Research Dossier orders Attach Identity Provider before those actions.",
+          "suggestion": "Reorder these actions to match the sequence recorded in the Research Dossier.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "#copy-client-credentials",
+          "problem": "The guide omits the Dossier's note that Edit info reopens the app information when the callback URL needs correction before the first connection.",
+          "suggestion": "Add a brief note identifying Edit info as the way to correct the callback URL before connecting.",
+          "dimension": "fidelity"
+        }
+      ],
+      "revision_notes": "Blocker: Reordered #connect-speakeasy-credentials steps 6–8 to click Attach Identity Provider before confirming Redirect URI and leaving the scope override empty, matching the Research Dossier. Nit: Added a note under #copy-client-credentials explaining that Edit info reopens the app information to correct the callback URL before the first connection.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "#connect-speakeasy-credentials, steps 6–9",
+          "problem": "The guide submits the identity-provider sheet with **Attach Identity Provider** before telling the reader to verify **Redirect URI** and leave the scope override empty, so a literal reader may no longer have access to those controls when authorization opens.",
+          "suggestion": "Move the **Redirect URI** confirmation and scope-override check before clicking **Attach Identity Provider**, and reconcile the Research Dossier and canonical sequence accordingly.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Reordered #connect-speakeasy-credentials in research.md and speakeasy.md so the reader confirms Redirect URI and leaves the scope override empty before clicking Attach Identity Provider. Anchors, catalog-only path, titles, and unaffected prose remain unchanged.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:d0688e2f0754d050b999ff3eb9f2ce24dcd1c18270a98dedd1df75de8d25e1bd",
+  "setup_churn": {
+    "external_md_lines": 38,
+    "speakeasy_md_lines": 35
+  },
+  "usage": {
+    "reported": true,
+    "total": {
+      "costUsd": 2.420252,
+      "inputTokens": 249,
+      "outputTokens": 21721,
+      "cacheReadTokens": 992005,
+      "cacheWriteTokens": 203420,
+      "totalTokens": 1217395
+    },
+    "by_phase": {
+      "hubspot: research": {
+        "costUsd": 0.829549,
+        "inputTokens": 63,
+        "outputTokens": 7870,
+        "cacheReadTokens": 517068,
+        "cacheWriteTokens": 53536,
+        "totalTokens": 578537
+      },
+      "hubspot: draft": {
+        "costUsd": 0.218792,
+        "inputTokens": 24,
+        "outputTokens": 2254,
+        "cacheReadTokens": 69992,
+        "cacheWriteTokens": 18569,
+        "totalTokens": 90839
+      },
+      "hubspot: review": {
+        "costUsd": 1.030168,
+        "inputTokens": 114,
+        "outputTokens": 9392,
+        "cacheReadTokens": 252438,
+        "cacheWriteTokens": 99459,
+        "totalTokens": 361403
+      },
+      "hubspot: revise": {
+        "costUsd": 0.341744,
+        "inputTokens": 48,
+        "outputTokens": 2205,
+        "cacheReadTokens": 152507,
+        "cacheWriteTokens": 31856,
+        "totalTokens": 186616
+      }
+    },
+    "by_agent": [
+      {
+        "costUsd": 0.829549,
+        "inputTokens": 63,
+        "outputTokens": 7870,
+        "cacheReadTokens": 517068,
+        "cacheWriteTokens": 53536,
+        "totalTokens": 578537,
+        "label": "hubspot research",
+        "phase": "hubspot: research",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.218792,
+        "inputTokens": 24,
+        "outputTokens": 2254,
+        "cacheReadTokens": 69992,
+        "cacheWriteTokens": 18569,
+        "totalTokens": 90839,
+        "label": "hubspot draft",
+        "phase": "hubspot: draft",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.140135,
+        "inputTokens": 21,
+        "outputTokens": 1184,
+        "cacheReadTokens": 45520,
+        "cacheWriteTokens": 13080,
+        "totalTokens": 59805,
+        "label": "hubspot review:achievability r1",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.238624,
+        "inputTokens": 18,
+        "outputTokens": 2703,
+        "cacheReadTokens": 40888,
+        "cacheWriteTokens": 21920,
+        "totalTokens": 65529,
+        "label": "hubspot review:fidelity r1",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.160373,
+        "inputTokens": 24,
+        "outputTokens": 1010,
+        "cacheReadTokens": 75593,
+        "cacheWriteTokens": 14745,
+        "totalTokens": 91372,
+        "label": "hubspot revise r1",
+        "phase": "hubspot: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.171603,
+        "inputTokens": 18,
+        "outputTokens": 1064,
+        "cacheReadTokens": 42835,
+        "cacheWriteTokens": 18908,
+        "totalTokens": 62825,
+        "label": "hubspot review:fidelity r2",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.156723,
+        "inputTokens": 21,
+        "outputTokens": 1634,
+        "cacheReadTokens": 47434,
+        "cacheWriteTokens": 13421,
+        "totalTokens": 62510,
+        "label": "hubspot review:achievability r2",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.181371,
+        "inputTokens": 24,
+        "outputTokens": 1195,
+        "cacheReadTokens": 76914,
+        "cacheWriteTokens": 17111,
+        "totalTokens": 95244,
+        "label": "hubspot revise r2",
+        "phase": "hubspot: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.130035,
+        "inputTokens": 21,
+        "outputTokens": 763,
+        "cacheReadTokens": 47068,
+        "cacheWriteTokens": 13361,
+        "totalTokens": 61213,
+        "label": "hubspot review:achievability r3",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.193048,
+        "inputTokens": 15,
+        "outputTokens": 2044,
+        "cacheReadTokens": 28693,
+        "cacheWriteTokens": 18769,
+        "totalTokens": 49521,
+        "label": "hubspot review:fidelity r3",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      }
+    ]
+  }
+}

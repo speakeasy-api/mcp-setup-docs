@@ -1,0 +1,12 @@
+{
+  "slug": "google-sheets",
+  "arm": "b",
+  "exit_code": 0,
+  "wall_clock_seconds": 563,
+  "git_sha": "faa4d4a301dc625232651b1e7f945bc2841db2a6",
+  "doctrine_file": "doctrine/roles/technical-research.md",
+  "doctrine_sha256": "2851009a5d878336b622dffa153d376fb6efe970a4bd26fde893dc36ccebb834",
+  "started_at": "20260731T204841Z",
+  "worktree": "/tmp/ns-exp/google-sheets-b-20260731T204841Z",
+  "run_record": "2026-07-31T20:48:45Z-google-sheets.json"
+}

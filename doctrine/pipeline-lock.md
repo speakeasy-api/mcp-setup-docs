@@ -5,7 +5,7 @@ Normative semantics for `guides/<slug>/pipeline.lock.json`. The JSON Schema is
 
 This contract records, per guide, the **input fingerprints** that produced the
 current artifacts so a later drafting run can **skip** steps whose inputs did
-not change. The Cursor SDK workflow (`pipeline/`) honors these rules;
+not change. The drafting pipeline (`pipeline/`) honors these rules;
 `--force` bypasses skips. `--overwrite` / `-y` only skips the guide-exists
 prompt and still honors the lock.
 
@@ -106,12 +106,12 @@ in the workflow is an implementation detail.
 | --- | --- | --- | --- | --- |
 | `research` | resolved default model | `doctrine/glossary.md`, `doctrine/shared.md`, `doctrine/roles/technical-research.md`, `doctrine/speakeasy-setup.md` | `[]` (sources are external) | `provider`, `notes` |
 | `draft` | resolved default model | `doctrine/glossary.md`, `doctrine/shared.md`, `doctrine/roles/writer.md`, `doctrine/personas/<id>.md` | stable digests of `research.md`, `meta.yaml` | `provider`, `notes`, `persona` |
-| `review.<dim>` | resolved model for that dimension (default vs light/`sonnet` slot) | `doctrine/glossary.md`, `doctrine/shared.md`, role doc (`fidelity.md` or `review.md`), plus persona file when the dimension uses a persona | stable digests of `research.md`, `meta.yaml`, `external.md`, `speakeasy.md` | `provider`, `notes`, `persona`, `dimension` |
+| `review.<dim>` | resolved model for that dimension | `doctrine/glossary.md`, `doctrine/shared.md`, role doc (`fidelity.md` or `review.md`), plus persona file when the dimension uses a persona | stable digests of `research.md`, `meta.yaml`, `external.md`, `speakeasy.md` | `provider`, `notes`, `persona`, `dimension` |
 
-`model` is always the **resolved** model id (e.g. `claude-fable-5`), never a
-slot alias like `sonnet`.
+`model` is always the **resolved** model id (e.g.
+`openrouter/openai/gpt-5.6-sol`), never a slot alias.
 
-Top-level `runtime` (e.g. `cursor-sdk`) is observational and **must not**
+Top-level `runtime` (e.g. `pi`) is observational and **must not**
 appear inside `inputs` or affect `input_digest`.
 
 ## Research unchanged
@@ -200,13 +200,13 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
   "schema_version": 1,
   "slug": "box",
   "persona": "it-admin",
-  "runtime": "cursor-sdk",
+  "runtime": "pi",
   "updated_at": "2026-07-23T16:00:00Z",
   "steps": {
     "research": {
       "input_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "inputs": {
-        "model": "claude-fable-5",
+        "model": "openrouter/openai/gpt-5.6-sol",
         "prompt_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "reading_list": [
           {
@@ -247,7 +247,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
     "draft": {
       "input_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
       "inputs": {
-        "model": "claude-fable-5",
+        "model": "openrouter/openai/gpt-5.6-sol",
         "prompt_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
         "reading_list": [
           {
@@ -294,7 +294,7 @@ Illustrative `guides/box/pipeline.lock.json` (digests are placeholders):
     "review.fidelity": {
       "input_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
       "inputs": {
-        "model": "claude-fable-5",
+        "model": "openrouter/openai/gpt-5.6-sol",
         "prompt_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
         "reading_list": [
           {

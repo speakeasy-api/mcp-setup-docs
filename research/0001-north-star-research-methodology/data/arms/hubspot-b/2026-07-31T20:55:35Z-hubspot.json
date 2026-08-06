@@ -1,0 +1,187 @@
+{
+  "slug": "hubspot",
+  "provider": "hubspot",
+  "persona": "it-admin",
+  "timestamp": "2026-07-31T20:55:35Z",
+  "started_at": "2026-07-31T20:55:35Z",
+  "finished_at": "2026-07-31T21:00:41Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The Dossier moves the Redirect URI confirmation before entering credentials and attaching the identity provider, while the canonical Speakeasy skeleton places that confirmation after clicking Attach Identity Provider.",
+          "suggestion": "Restore the canonical sequence in research.md, then re-render the credential steps in speakeasy.md to match it.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "connect-speakeasy-credentials, step 7",
+          "problem": "The phrase \"scope override\" does not identify the exact field label shown in the credential sheet.",
+          "suggestion": "Change the step to \"Leave **Scope (override)** empty.\"",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker: restored the canonical credential sequence in research.md and speakeasy.md so credentials are entered, the identity provider is attached, and then the Redirect URI is confirmed. Nit: changed the field wording to the exact label **Scope (override)**.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:d0688e2f0754d050b999ff3eb9f2ce24dcd1c18270a98dedd1df75de8d25e1bd",
+  "setup_churn": {
+    "external_md_lines": 32,
+    "speakeasy_md_lines": 35
+  },
+  "usage": {
+    "reported": true,
+    "total": {
+      "costUsd": 1.905948,
+      "inputTokens": 192,
+      "outputTokens": 18163,
+      "cacheReadTokens": 866259,
+      "cacheWriteTokens": 148315,
+      "totalTokens": 1032929
+    },
+    "by_phase": {
+      "hubspot: research": {
+        "costUsd": 0.767455,
+        "inputTokens": 57,
+        "outputTokens": 7330,
+        "cacheReadTokens": 495278,
+        "cacheWriteTokens": 47941,
+        "totalTokens": 550606
+      },
+      "hubspot: draft": {
+        "costUsd": 0.236824,
+        "inputTokens": 27,
+        "outputTokens": 2649,
+        "cacheReadTokens": 86438,
+        "cacheWriteTokens": 18240,
+        "totalTokens": 107354
+      },
+      "hubspot: review": {
+        "costUsd": 0.710621,
+        "inputTokens": 81,
+        "outputTokens": 6740,
+        "cacheReadTokens": 187970,
+        "cacheWriteTokens": 66245,
+        "totalTokens": 261036
+      },
+      "hubspot: revise": {
+        "costUsd": 0.191048,
+        "inputTokens": 27,
+        "outputTokens": 1444,
+        "cacheReadTokens": 96573,
+        "cacheWriteTokens": 15889,
+        "totalTokens": 113933
+      }
+    },
+    "by_agent": [
+      {
+        "costUsd": 0.767455,
+        "inputTokens": 57,
+        "outputTokens": 7330,
+        "cacheReadTokens": 495278,
+        "cacheWriteTokens": 47941,
+        "totalTokens": 550606,
+        "label": "hubspot research",
+        "phase": "hubspot: research",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.236824,
+        "inputTokens": 27,
+        "outputTokens": 2649,
+        "cacheReadTokens": 86438,
+        "cacheWriteTokens": 18240,
+        "totalTokens": 107354,
+        "label": "hubspot draft",
+        "phase": "hubspot: draft",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.204115,
+        "inputTokens": 18,
+        "outputTokens": 2252,
+        "cacheReadTokens": 41617,
+        "cacheWriteTokens": 18505,
+        "totalTokens": 62392,
+        "label": "hubspot review:fidelity r1",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.193429,
+        "inputTokens": 24,
+        "outputTokens": 2178,
+        "cacheReadTokens": 55938,
+        "cacheWriteTokens": 16000,
+        "totalTokens": 74140,
+        "label": "hubspot review:achievability r1",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.191048,
+        "inputTokens": 27,
+        "outputTokens": 1444,
+        "cacheReadTokens": 96573,
+        "cacheWriteTokens": 15889,
+        "totalTokens": 113933,
+        "label": "hubspot revise r1",
+        "phase": "hubspot: revise",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.133902,
+        "inputTokens": 21,
+        "outputTokens": 976,
+        "cacheReadTokens": 47308,
+        "cacheWriteTokens": 12938,
+        "totalTokens": 61243,
+        "label": "hubspot review:achievability r2",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      },
+      {
+        "costUsd": 0.179176,
+        "inputTokens": 18,
+        "outputTokens": 1334,
+        "cacheReadTokens": 43107,
+        "cacheWriteTokens": 18802,
+        "totalTokens": 63261,
+        "label": "hubspot review:fidelity r2",
+        "phase": "hubspot: review",
+        "calls": 1,
+        "usage_reported": true
+      }
+    ]
+  }
+}

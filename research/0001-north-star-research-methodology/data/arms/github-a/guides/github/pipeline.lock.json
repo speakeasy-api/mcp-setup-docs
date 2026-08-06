@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "slug": "github",
+  "persona": "it-admin",
+  "runtime": "pi",
+  "updated_at": "2026-07-31T20:49:42Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:10c13fff26168059fe3887d4786f7f8ef50667527d71d6992e0d8a621ee0f72f",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:255c60266361ff6711b0b04829329485020218f5a0460f70aa30f30d9c1711fc",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:88f093f873c705128a0a31eb38be298a2ee11f4d50815552739925337f8ac3ad"
+          },
+          {
+            "path": "doctrine/speakeasy-setup.md",
+            "digest": "sha256:8715948a90f95187a2e093e3dfbaccb2870423ee7c90aed4eeba5c418c0bb85e"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "github",
+          "notes": "Speakeasy MCP Catalog: present name=\"io.github.github/github-mcp-server\""
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:632f18a28a15889a647ebc038ffc97db97daf30ac8afe8a4cd1d11d49ae0af95"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:cc441beba30f0afae7140ae47d42009accd772b9df6739743bd0a4d5e997026d"
+        }
+      ],
+      "completed_at": "2026-07-31T20:49:42Z"
+    },
+    "draft": {
+      "input_digest": "sha256:72e3863779b01b659c96d662a31d283865d2d26156c89a60c65d0129763e445e",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:ad649d12e8bf3882a1593555c0c4d31681ac50aa891177b1a8f766a563d85d6c",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:d41f77accebf79a55b259d6483fafe4f8997c8e946e6ffa719e68bb16bde59f7"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:632f18a28a15889a647ebc038ffc97db97daf30ac8afe8a4cd1d11d49ae0af95"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:cc441beba30f0afae7140ae47d42009accd772b9df6739743bd0a4d5e997026d"
+          }
+        ],
+        "params": {
+          "provider": "github",
+          "notes": "Speakeasy MCP Catalog: forced-catalog name=\"io.github.github/github-mcp-server\"",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:eb365f9d10865b5b61b6bb0c4e343fdcb5e4517dd144fc727284afb8dcc01665"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:d7987f49fa7f71aabdcbebcc7e3e7deb4dad8be44ebf1ebfe604578da0c08e1a"
+        }
+      ],
+      "completed_at": "2026-07-31T20:49:42Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:628ccee1070ae8bf8d462df1ad3b294202fd0cdc642a5dea8013e0431bb5c6ae",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:2885ba720bba92fbed782f1ac13fdbd065c3f1a294302ee85792fc4f61866e1f",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:f1c64906d2702d25c5db118f0a1a471b4962333a506c235ffebccf67413aa7f3"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:632f18a28a15889a647ebc038ffc97db97daf30ac8afe8a4cd1d11d49ae0af95"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:cc441beba30f0afae7140ae47d42009accd772b9df6739743bd0a4d5e997026d"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:eb365f9d10865b5b61b6bb0c4e343fdcb5e4517dd144fc727284afb8dcc01665"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:d7987f49fa7f71aabdcbebcc7e3e7deb4dad8be44ebf1ebfe604578da0c08e1a"
+          }
+        ],
+        "params": {
+          "provider": "github",
+          "notes": "Speakeasy MCP Catalog: forced-catalog name=\"io.github.github/github-mcp-server\"",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:eb365f9d10865b5b61b6bb0c4e343fdcb5e4517dd144fc727284afb8dcc01665"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:d7987f49fa7f71aabdcbebcc7e3e7deb4dad8be44ebf1ebfe604578da0c08e1a"
+        }
+      ],
+      "completed_at": "2026-07-31T20:49:42Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:e2f71344277375137e54ccbba21ceec758e51cd3f60bb5964536f7788942a55d",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:0b287f892ece7611416030973e4b1952db4c173e3023930bf238685d39b79cdf",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:7eb1e560946bbc2656afdfbdbd26d85b3d4a5579818fc4bd6629d818ce251f69"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:632f18a28a15889a647ebc038ffc97db97daf30ac8afe8a4cd1d11d49ae0af95"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:cc441beba30f0afae7140ae47d42009accd772b9df6739743bd0a4d5e997026d"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:eb365f9d10865b5b61b6bb0c4e343fdcb5e4517dd144fc727284afb8dcc01665"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:d7987f49fa7f71aabdcbebcc7e3e7deb4dad8be44ebf1ebfe604578da0c08e1a"
+          }
+        ],
+        "params": {
+          "provider": "github",
+          "notes": "Speakeasy MCP Catalog: forced-catalog name=\"io.github.github/github-mcp-server\"",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:eb365f9d10865b5b61b6bb0c4e343fdcb5e4517dd144fc727284afb8dcc01665"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:d7987f49fa7f71aabdcbebcc7e3e7deb4dad8be44ebf1ebfe604578da0c08e1a"
+        }
+      ],
+      "completed_at": "2026-07-31T20:49:42Z"
+    }
+  }
+}

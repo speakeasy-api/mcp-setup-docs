@@ -1,0 +1,161 @@
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 154 packages in 4s
+
+> draft-guide
+> tsx src/cli.ts google-sheets --overwrite
+
+draft-guide (pi): persona=it-admin guides=google-sheets model=openai/gpt-5.6-sol
+[2026-07-31T20:48:46.171Z] [google-sheets] catalog: absent tenanted=false add_server=auto path=custom-remote tenant=gram-recommended observed=2026-07-31T20:48:45Z
+[2026-07-31T20:48:46.172Z] [google-sheets] researching google-sheets
+[2026-07-31T20:48:46.172Z] [google-sheets research] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: research)
+[2026-07-31T20:48:46.194Z] [tripwire] 1 path(s) already modified outside the guide directory before the run; I7 enforcement is degraded for: doctrine/roles/technical-research.md
+[2026-07-31T20:52:34.903Z] [google-sheets research] cost $1.4304 tokens 1415044 tools: read=19 bash=15 edit=3 write=2 ls=1 find=1 grep=1
+[2026-07-31T20:52:34.935Z] [google-sheets] catalog path refreshed after research: tenanted=false add_server=custom-remote path=custom-remote
+[2026-07-31T20:52:34.936Z] [google-sheets] research_change method=none unchanged=false — no prior research outputs to compare
+[2026-07-31T20:52:34.943Z] [google-sheets] drafting external.md + speakeasy.md for persona it-admin
+[2026-07-31T20:52:34.944Z] [google-sheets draft] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: draft)
+[2026-07-31T20:53:33.109Z] [google-sheets draft] cost $0.2503 tokens 91214 tools: read=6 write=2 ls=1
+[2026-07-31T20:53:33.132Z] [google-sheets] review round 1/3
+[2026-07-31T20:53:33.134Z] [google-sheets review:fidelity r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:53:33.143Z] [google-sheets review:achievability r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:54:30.619Z] [google-sheets review:fidelity r1] cost $0.2361 tokens 66110 tools: read=11 ls=1
+[2026-07-31T20:54:37.874Z] [google-sheets review:achievability r1] cost $0.2617 tokens 81274 tools: read=9 ls=1
+[2026-07-31T20:54:37.939Z] [google-sheets] revising 5 blocker(s) and 0 nit(s)
+[2026-07-31T20:54:37.939Z] [google-sheets revise r1] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: revise)
+[2026-07-31T20:55:41.758Z] [google-sheets revise r1] cost $0.3487 tokens 213849 tools: read=10 edit=6 ls=1
+[2026-07-31T20:55:41.765Z] [google-sheets] review round 2/3
+[2026-07-31T20:55:41.766Z] [google-sheets review:fidelity r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:55:41.768Z] [google-sheets review:achievability r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:56:41.656Z] [google-sheets review:fidelity r2] cost $0.2490 tokens 71004 tools: read=11 ls=1
+[2026-07-31T20:56:44.957Z] [google-sheets review:achievability r2] cost $0.2479 tokens 87888 tools: read=9 ls=1
+[2026-07-31T20:56:45.006Z] [google-sheets] revising 2 blocker(s) and 0 nit(s)
+[2026-07-31T20:56:45.006Z] [google-sheets revise r2] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: revise)
+[2026-07-31T20:57:20.627Z] [google-sheets revise r2] cost $0.2424 tokens 153737 tools: read=10 edit=3
+[2026-07-31T20:57:20.642Z] [google-sheets] review round 3/3
+[2026-07-31T20:57:20.642Z] [google-sheets review:fidelity r3] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:57:20.645Z] [google-sheets review:achievability r3] starting (model=openrouter/openai/gpt-5.6-sol, phase=google-sheets: review)
+[2026-07-31T20:58:05.322Z] [google-sheets review:achievability r3] cost $0.1866 tokens 66471 tools: read=9 ls=1
+[2026-07-31T20:58:08.158Z] [google-sheets review:fidelity r3] cost $0.2195 tokens 63648 tools: read=11
+[2026-07-31T20:58:08.210Z] [google-sheets] converged after 3 round(s); 1 checklist item(s) remain
+[2026-07-31T20:58:08.239Z] [google-sheets] wrote pipeline.lock.json
+run record: /tmp/ns-exp/google-sheets-b-20260731T204841Z/retro/runs/2026-07-31T20:48:45Z-google-sheets.json
+{
+  "slug": "google-sheets",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "research",
+      "where": "permit-workspace-app — after “Configure new app”",
+      "problem": "The Workspace app-access sequence jumps directly from selecting “Configure new app” to entering the Client ID without naming the intervening app-type control, so a cold reader may have to guess which option to choose.",
+      "suggestion": "Research and record the exact app-type option for configuring an OAuth client, then add that selection before the Client ID search in research.md and external.md.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Google's purpose-built setup page requires drive.file, while live protected-resource metadata advertises the broader drive scope and omits drive.file. Public documentation does not explain this discovery mismatch; the documented four-scope manual override is used.",
+    "The Sheets MCP page does not say whether every already-admitted Developer Preview project automatically receives Sheets MCP access or whether Google must separately enable this feature after project registration. API enablement in a registered project is the documented path."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Server facts and Speakeasy setup — “both catalog queries were absent”",
+          "problem": "The Research Dossier records the catalog queries as absent even though the operator notes specify a forced Custom remote override because catalog mapping is unreliable or unsuitable.",
+          "suggestion": "Replace the catalog-absence claims with the supplied override rationale, retain `speakeasy_add_server: custom-remote`, and continue rendering only the Custom remote path.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — after “Further-reading URL”",
+          "problem": "The transcluded Speakeasy skeleton omits the canonical closing-pointer sentence required by `doctrine/speakeasy-setup.md`.",
+          "suggestion": "Add the canonical closing pointer to the Dossier using Google as the provider and the recorded Sheets MCP documentation URL.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "Final line — “For provider details, see Set up the Sheets MCP server.”",
+          "problem": "The final line replaces the canonical setup-only closing pointer with wording not rendered from the Research Dossier or current Speakeasy skeleton.",
+          "suggestion": "Replace it with: “This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see Google's MCP documentation at https://developers.google.com/workspace/sheets/api/guides/configure-mcp-server.”",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "enroll-developer-preview — “Google Cloud Project number”",
+          "problem": "The reader is required to enter the project’s numeric project number but is never told where to find or copy it.",
+          "suggestion": "Research and record the exact Google Cloud console path and field label for the project number, then add those retrieval steps before the enrollment form asks for it.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "enroll-developer-preview and connect-speakeasy-credentials — “admitted to Developer Preview”",
+          "problem": "The guide enrolls one Workspace account but later requires the connecting account to be admitted without explaining whether every connecting user needs separate acceptance.",
+          "suggestion": "Confirm whether Developer Preview admission is per connecting account and, if it is, instruct the reader to repeat the documented enrollment process for every account that will authorize a connection.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Updated research.md to replace catalog-absence claims with the operator-supplied Custom remote override rationale while retaining speakeasy_add_server: custom-remote; added the canonical setup-only closing pointer; documented the Google Cloud console path Navigation menu > Cloud overview > Dashboard > Project info and Project number field with official provenance; clarified that Developer Preview enrollment applies to the single submitted account and must be repeated for every connecting account. Updated meta.yaml with the project-identification provenance and per-account preview requirement. Updated external.md with project-number retrieval steps, per-account enrollment instructions, and the clarified prerequisite. Updated speakeasy.md with the exact canonical closing pointer. Existing anchors, titles, ordering, and the Custom remote-only path were preserved.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — “Connect your credentials”",
+          "problem": "The transcluded Manual OAuth skeleton omits the canonical fact that the Attach Remote Identity Provider sheet shows the Redirect URI with a copy button.",
+          "suggestion": "Restore the canonical Redirect URI sentence from doctrine/speakeasy-setup.md while retaining the direct-paste and later-confirmation flow.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "permit-workspace-app — “choose Trusted or Specific Google data”",
+          "problem": "The conditional Workspace-policy flow allows the reader to choose Specific Google data but does not document the subsequent controls for selecting the Google services or data the app may access.",
+          "suggestion": "Research and record the exact continuation after Specific Google data, then render the required service/data selections before Continue; alternatively, instruct the reader to choose Trusted when organizational policy permits and omit the incomplete Specific Google data branch.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Speakeasy setup: restored the canonical fact in research.md and speakeasy.md that the Attach Remote Identity Provider sheet shows Redirect URI with a copy button, while retaining direct template-key registration and later confirmation. Workspace policy: removed the incomplete Specific Google data branch from the walkthrough; research.md and external.md now instruct the security owner to choose Trusted when organizational policy permits before continuing.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "permit-workspace-app — after “Configure new app”",
+          "problem": "The Workspace app-access sequence jumps directly from selecting “Configure new app” to entering the Client ID without naming the intervening app-type control, so a cold reader may have to guess which option to choose.",
+          "suggestion": "Research and record the exact app-type option for configuring an OAuth client, then add that selection before the Client ID search in research.md and external.md.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:a0b636960a116e3a0d6732b158869cfcc3ba900dcc452413867104452101f398",
+  "setup_churn": {
+    "external_md_lines": 147,
+    "speakeasy_md_lines": 28
+  }
+}

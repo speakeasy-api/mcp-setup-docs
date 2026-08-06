@@ -108,8 +108,12 @@ rules, and the formatting preferences. Apply all of it:
     organization-specific values get at most one obtain-from-owner hedge
     per section.
   - **Formatting:** grammar above; UI labels bolded; typed/copied values
-    in code spans; numbered single-action steps (mutually exclusive
-    alternatives in one step are fine).
+    in code spans, or in fenced blocks when the rendered value is an
+    unbroken run over ~30 characters (the callback key included), exactly
+    as the field receives it — but inline where the value comes from the
+    screen, not the guide; opened URLs as links, never code spans or bare
+    text; numbered single-action steps
+    (mutually exclusive alternatives in one step are fine).
   - **Cut:** drop anything the reader does not need to finish setup —
     duplicated facts, process the guide does not own, statements they
     cannot act on (render a documentation gap as a hedged instruction

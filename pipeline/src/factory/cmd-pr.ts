@@ -34,7 +34,7 @@ function buildPrBody(opts: {
     lines.push('')
   } else {
     lines.push(
-      `Factory draft of \`guides/${opts.slug}/\` via \`draft-guide\` (Cursor SDK).`,
+      `Factory draft of \`guides/${opts.slug}/\` via \`draft-guide\` (pipeline agents).`,
     )
     lines.push('')
   }

@@ -17,9 +17,17 @@ import {
   snapshotStableDigests,
   stableDigestFile,
   stableDigestResearchMd,
+  stripVolatile,
   type PipelineLock,
+  type RenderedPrompt,
   type StepRecord,
 } from './lock.ts'
+
+/** Stands in for a workflow-rendered prompt where the digest is not the point. */
+const STUB_PROMPT: RenderedPrompt = {
+  text: 'You are the Writer Agent.\nAssignment: <slug>\n',
+  volatile: ['Assignment: <slug>'],
+}
 
 function tempGuide(): { root: string; guideDir: string; cleanup: () => void } {
   const root = mkdtempSync(join(tmpdir(), 'lock-research-'))
@@ -258,6 +266,7 @@ describe('rebaselineLockResearchArtifacts', () => {
         provider: 'snowflake',
         notes: 'same-notes',
         persona: 'it-admin',
+        prompt: STUB_PROMPT,
       })
       const researchOut = [
         digestGuideFile(guideDir, 'research.md'),
@@ -306,6 +315,7 @@ describe('rebaselineLockResearchArtifacts', () => {
         provider: 'snowflake',
         notes: 'same-notes',
         persona: 'it-admin',
+        prompt: STUB_PROMPT,
       })
       assert.notEqual(inputDigest(softInputs), lock.steps.draft!.input_digest)
       assert.equal(

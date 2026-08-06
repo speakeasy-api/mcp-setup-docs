@@ -15,12 +15,12 @@ hide = true
 run = "npm install"
 
 [tasks.draft-guide]
-description = "Draft a Guide via the Cursor SDK pipeline (pipeline/)"
+description = "Draft a Guide via the drafting pipeline (pipeline/)"
 dir = "pipeline"
 depends = ["_pipeline-install"]
 # Usage (from repo root): mise run draft-guide -- box [--overwrite] [--force] [--pause-on-scope] [...]
 # Exit: 0 converged, 2 unconverged/blocked/failed, 3 awaiting_scope (--pause-on-scope)
-# Requires CURSOR_API_KEY in the environment (user or team service-account key).
+# Requires OPENROUTER_API_KEY in the environment.
 run = "npm run draft-guide --"
 
 [tasks.lint-guide]
@@ -30,6 +30,15 @@ depends = ["_pipeline-install"]
 # Usage: mise run lint-guide -- box x
 #        mise run lint-guide -- --json guides/box
 run = "npm run lint-guide --"
+
+[tasks.stale-sweep]
+description = "Report guides whose lockfile drifted; optionally queue refresh tickets"
+dir = "pipeline"
+depends = ["_pipeline-install"]
+# Usage: mise run stale-sweep            (report only, no network)
+#        mise run stale-sweep -- --create --limit 5
+# --create needs gh auth. It never applies guide:draft, so it starts no run.
+run = "npm run stale-sweep --"
 
 [tasks."_mcp-oauth-probe-install"]
 description = "Install tools/mcp-oauth-probe dependencies (hidden prerequisite)"

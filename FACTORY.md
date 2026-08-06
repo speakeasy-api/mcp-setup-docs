@@ -1,6 +1,6 @@
 # Guide draft factory
 
-Turn a GitHub issue into a draft MCP Setup Guide PR. Same Cursor SDK pipeline
+Turn a GitHub issue into a draft MCP Setup Guide PR. Same drafting pipeline
 as `mise run draft-guide` / `npm run draft-guide`, driven by a label instead of
 a local CLI.
 
@@ -15,7 +15,7 @@ Repo → **Settings → Secrets and variables → Actions**:
 
 | Secret | Required? | What it is |
 | --- | --- | --- |
-| `CURSOR_API_KEY` | **Yes** | Cursor API key (Dashboard → Integrations / API Keys) |
+| `OPENROUTER_API_KEY` | **Yes** | OpenRouter API key (openrouter.ai → Keys) |
 | `AGENT_PAT` | Recommended | PAT with contents + issues + pull requests write on this repo. Falls back to `GITHUB_TOKEN` (PRs still work; label chaining is less reliable). |
 | `PULSE_REGISTRY_KEY` | Recommended | PulseMCP Sub-Registry API key — resolves Speakeasy MCP Catalog presence before research. Without it, `speakeasy_add_server: auto` guides keep both catalog/custom paths unless remotes are tenanted or the guide forces `custom-remote` / `catalog`. |
 | `PULSE_REGISTRY_TENANT` | Recommended with key | PulseMCP tenant slug (e.g. `gram-recommended`). Required together with the key for catalog lookup. |
@@ -31,6 +31,34 @@ The workflow creates these if missing. You can also create them by hand:
 | `guide:draft` | **Trigger** — add this to start (or retry) a run |
 | `guide:in-progress` | Run is active (set/cleared by the Action) |
 | `guide:blocked` | Distill unclear, hard failure, refused, or **awaiting scope** (set by the Action) |
+| `guide:stale` | Lockfile drifted; a refresh is queued (set by the stale sweep) |
+
+## Stale sweep
+
+`.github/workflows/guide-stale-sweep.yml` runs 07:00 UTC every Monday, and on
+demand via **Run workflow**. It re-derives every input each `pipeline.lock.json`
+records and reports the guides whose locks went cold — a doctrine edit, a prompt
+change, a new model, an edited guide file, a missing lock.
+
+Detection is offline. No OpenRouter key, no model call, no credits. It does not
+fetch provider documentation, so it catches drift on our side only, not a
+provider that rewrote their docs.
+
+It opens at most five tickets per run (`limit` input), oldest lock first, and
+skips any slug that already has an open `guide:stale` ticket. Tickets carry
+`guide:stale` and nothing else — **the sweep never applies `guide:draft`**, so
+nothing it files starts a run. Add `guide:draft` to a ticket when you want that
+guide refreshed.
+
+Report locally without touching GitHub:
+
+```bash
+mise run stale-sweep
+```
+
+One gap worth knowing: the sweep only recognises its own tickets. If a guide is
+already being refreshed through a hand-written issue, the sweep may still queue
+a ticket for it. Close the duplicate.
 
 ## Draft a guide
 
@@ -40,7 +68,7 @@ The workflow creates these if missing. You can also create them by hand:
 2. Add the label **`guide:draft`**.
 3. Watch the issue comments and the **Actions** tab (`Guide draft` workflow).
 
-Runs can take a long time (often 20–40+ minutes). Usage burns Cursor plan tokens.
+Runs can take a long time (often 20–40+ minutes). Usage burns OpenRouter credits.
 
 ### What you get
 
@@ -103,7 +131,7 @@ A non-factory open PR that already `Closes #<issue>` (collaborator-authored) blo
 ## Local equivalent
 
 ```bash
-export CURSOR_API_KEY=cursor_...
+export OPENROUTER_API_KEY=sk-or-...
 mise run draft-guide -- asana --overwrite --notes "drop secret-reset recovery branch"
 # Match factory: pause before draft when material OQs lack Decision N replies
 mise run draft-guide -- x --overwrite --pause-on-scope
@@ -169,7 +197,7 @@ be unavailable).
    branch. Refuse only for non-factory collaborator PRs that target the
    same issue.
 2. **Labels** — remove `guide:draft` + `guide:blocked`, add `guide:in-progress`.
-3. **Distill** — light Cursor agent reads title + body + issue comments (+
+3. **Distill** — light distill agent reads title + body + issue comments (+
    existing `guides/*` slugs) → structured JSON or `needs_clarification`.
 4. **Comment** — “Resolved as `slug` …” (or resume notice) summary.
 5. **Draft** — `npm run draft-guide -- <slug> --overwrite --pause-on-scope
@@ -209,6 +237,31 @@ Hard failures (exit `1`, missing artifacts) take the blocked path with no PR.
 - No LLM judge for the scope gate (keyword heuristic only — material vs soft).
 - Distill `needs_clarification` and the post-research scope gate are the
   intentional stops before / mid heavy pipeline.
+
+## Runtime facts that are easy to get wrong
+
+The pipeline spawns the `pi` CLI against OpenRouter. Seven things are not
+obvious from reading the code, and each one has cost a run:
+
+- **`pi` exits 0 on API errors.** Success is decided by `classifyPiRun`
+  (`pi-stream.ts`), never by the exit code. Checking the code reports a guide
+  that never generated as one that generated empty.
+- **Never edit the repo while a run is in flight.** The I7 tripwire captures its
+  baseline *once*, before any agent runs, so a file you touch mid-run is
+  indistinguishable from an agent breach and fails the phase.
+- **There is no container.** The env allowlist in `pi-guard.ts` and the
+  `git status` tripwire in `runtime-pi.ts` are the entire boundary keeping
+  secrets out of the agent and the agent inside `guides/<slug>/`.
+- **The research phase keeps `bash` deliberately.** `pi` ships no web-fetch
+  tool, so `bash` + `curl` is research's only route to provider docs. Removing
+  it does not tighten research, it disables it.
+- **Session continuity is one flag.** The same `--session <path>` creates the
+  session on turn 1 and resumes it on turn 2, which is what lets remediation say
+  "use the research you already gathered". `--no-session` breaks that.
+- **`model` feeds `input_digest`.** Changing the model slug goes cold on every
+  committed lock, so the next run of each guide re-runs every phase.
+- **Secrets come from `mise`** via a gitignored `mise.local.toml`. If
+  `OPENROUTER_API_KEY` reads empty the shell snapshot is stale — use `mise exec --`.
 
 ## Related
 

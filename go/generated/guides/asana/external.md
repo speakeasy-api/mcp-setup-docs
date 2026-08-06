@@ -18,7 +18,7 @@ Sign in to Asana. Before you begin, make sure you have:
 3. Select **Apps**.
 4. Select **View developer console**.
 
-This opens the developer console, where you create the app. You can also open it directly at `https://app.asana.com/0/my-apps`.
+This opens the developer console, where you create the app. You can also open it directly at [app.asana.com/0/my-apps](https://app.asana.com/0/my-apps).
 
 <!-- screenshot: the Asana Apps settings page with View developer console visible, followed by the developer console with Create new app visible -->
 
@@ -37,7 +37,12 @@ This opens the developer console, where you create the app. You can also open it
 
 1. Select **OAuth** in the left sidebar.
 2. Under **Redirect URLs**, select **+ Add redirect URL**.
-3. In **Add redirect URL**, enter `{{ gram.oauth.callback_url }}` in **Redirect URL**.
+3. In **Add redirect URL**, enter this value in **Redirect URL**:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
+
 4. Select **Add**.
 
 <!-- screenshot: the app's OAuth page with the Redirect URL setting visible and credential values excluded or redacted -->

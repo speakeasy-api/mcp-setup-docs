@@ -34,6 +34,32 @@ func main() {
 }
 ```
 
+## Rendering the callback URL
+
+`Guide.External` and `Guide.Speakeasy` ship with the template key
+`{{ gram.oauth.callback_url }}` in place. **Serve the renderers, not the raw
+fields.** Pass your own value on every call:
+
+```go
+vars := guides.Vars{OAuthCallbackURL: "https://app.example.com/oauth/callback"}
+
+g, _ := guides.Lookup("intercom")
+os.Stdout.Write(g.RenderExternal(vars))
+```
+
+- The renderers never change the embedded content, so a server may render per
+  request with a different value each time. **Treat the result as read-only:**
+  an empty `Vars` returns a slice aliasing the raw field.
+- The callback URL is a property of your deployment, not of the guide, so
+  there is nothing to look up first. Content that never references the key
+  comes back unchanged.
+- An empty `Vars` field leaves its key in place, so a missing value degrades
+  to the unrendered content instead of a blank.
+- Only `External` and `Speakeasy` have a renderer. No template key reaches
+  `Meta` or an asset — the generator fails if one ever does.
+- `{{ gram.oauth.callback_url }}` is the only supported key. Add a field to
+  `Vars` to support another; existing callers keep compiling.
+
 ## Identifiers
 
 - **Canonical:** `ServerRef{Guide, Remote}` text form `slug/remote-id`
