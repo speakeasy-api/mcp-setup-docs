@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: asana
-researched_at: "2026-07-27T18:17:01Z"
+researched_at: "2026-08-06T23:24:28Z"
 ---
 
 # Asana — Research Dossier
@@ -177,7 +177,7 @@ The documented path is Asana main app > profile photo > **Settings** >
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-07-27T18:17:01Z`.
+`2026-08-06T23:24:28Z`.
 
 Per-guide values:
 
@@ -262,7 +262,7 @@ Sources drawn from:
 
 - `https://developers.asana.com/docs/integrating-with-asanas-mcp-server`
   ("Integrating with Asana's MCP Server") — observed
-  `2026-07-27T18:17:01Z`. Backs V2 GA status, endpoint, OAuth/manual
+  `2026-08-06T23:24:28Z`. Backs V2 GA status, endpoint, OAuth/manual
   registration, **Create new app** flow, **MCP app** type, generated
   credentials, **OAuth** and **Redirect URL**, **Manage distribution**,
   **Distribution method**, **Specific workspaces**, **Any workspace**,
@@ -270,63 +270,63 @@ Sources drawn from:
   using **Specific workspaces**, no MCP scopes, user-permission model, token
   separation, and the documented discovery URLs.
 - `https://developers.asana.com/docs/using-asanas-mcp-server` ("Using
-  Asana's MCP Server") — observed `2026-07-27T18:17:01Z`. Backs endpoint,
+  Asana's MCP Server") — observed `2026-08-06T23:24:28Z`. Backs endpoint,
   Streamable HTTP, user authorization, the requirement that the client app
   not be blocked, and Enterprise+/Legacy Enterprise app-management
   availability.
 - `https://developers.asana.com/docs/manage-and-share-your-app` ("Manage
-  your app") — observed `2026-07-27T18:17:01Z`. Backs direct developer
+  your app") — observed `2026-08-06T23:24:28Z`. Backs direct developer
   console URL and main-app navigation: profile photo > **Settings** >
   **Apps** > **View developer console**.
 - `https://developers.asana.com/docs/share-your-app` ("Share your app")
-  — observed `2026-07-27T18:17:01Z`. Backs private-by-default app
+  — observed `2026-08-06T23:24:28Z`. Backs private-by-default app
   behavior, membership requirement for **Specific workspaces**, **+ Add
   workspace**, workspace dropdown and **Add**, and **Any workspace**
   semantics.
 - `https://developers.asana.com/docs/oauth` ("OAuth") — observed
-  `2026-07-27T18:17:01Z`. Backs visibility of **Client ID** and **Client
+  `2026-08-06T23:24:28Z`. Backs visibility of **Client ID** and **Client
   secret** on the **OAuth** tab, the official console screenshot showing
   **Redirect URLs** and **+ Add redirect URL**, exact-match redirect
   requirement, app-name visibility to authorizing users, and OAuth
   endpoint semantics.
 - `https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server`
   ("Connecting Coding Clients to Asana's V2 server") — observed
-  `2026-07-27T18:17:01Z`. Corroborates V2 endpoint, OAuth pre-registration,
+  `2026-08-06T23:24:28Z`. Corroborates V2 endpoint, OAuth pre-registration,
   required client ID/secret, Streamable HTTP, and exact redirect matching.
 - `https://help.asana.com/s/article/app-management-and-integrations?language=en_US`
   ("App management and integrations") — observed
-  `2026-07-27T18:17:01Z`. Backs Enterprise+/Legacy Enterprise gate,
+  `2026-08-06T23:24:28Z`. Backs Enterprise+/Legacy Enterprise gate,
   super-admin-only App management, **Apps** > **Manage apps** >
   **Connected apps**, app selection and **Unblock**, allow/block/approval
   modes, and division-admin/non-super-admin exclusion.
 - `https://help.asana.com/s/article/what-is-the-admin-console?language=en_US`
-  ("What is the admin console?") — observed `2026-07-27T18:17:01Z`.
+  ("What is the admin console?") — observed `2026-08-06T23:24:28Z`.
   Backs profile photo > **Admin console** and the **Apps** tab.
 - `https://help.asana.com/s/article/api?language=en_US` ("API") —
-  observed `2026-07-27T18:17:01Z`. Corroborates the profile/settings/apps
+  observed `2026-08-06T23:24:28Z`. Corroborates the profile/settings/apps
   route into developer app management.
 - `https://forum.asana.com/t/new-v2-mcp-server-now-generally-available/1122647`
   ("V2 MCP server now generally available") — observed
-  `2026-07-27T18:17:01Z`. Backs V2 GA status, self-service
+  `2026-08-06T23:24:28Z`. Backs V2 GA status, self-service
   pre-registration, Streamable HTTP, and one-workspace-per-session
   authorization.
 - `https://mcp.asana.com/v2/mcp` — direct unauthenticated JSON-RPC
-  observation at `2026-07-27T18:17:01Z`. Returned HTTP 401 with a Bearer
+  observation at `2026-08-06T23:24:28Z`. Returned HTTP 401 with a Bearer
   challenge naming resource metadata at
   `https://mcp.asana.com/.well-known/oauth-protected-resource/v2`.
 - `https://mcp.asana.com/.well-known/oauth-protected-resource/v2` —
-  observed `2026-07-27T18:17:01Z`. Backs resource
+  observed `2026-08-06T23:24:28Z`. Backs resource
   `https://mcp.asana.com/v2/mcp`, authorization server
   `https://app.asana.com`, `default` scope, header bearer method, and
   official resource documentation.
 - `https://app.asana.com/.well-known/oauth-authorization-server` —
-  observed `2026-07-27T18:17:01Z`. Backs OAuth endpoints, supported
+  observed `2026-08-06T23:24:28Z`. Backs OAuth endpoints, supported
   grants, client-secret authentication methods, and PKCE `S256`; no
   dynamic registration endpoint is advertised.
 - Speakeasy MCP Catalog record
   `com.pulsemcp.mirror/asana-mcp` (title **Asana**) — observed
-  `2026-07-27T18:17:01Z`, `source: pulsemcp`. Backs catalog presence and
+  `2026-08-06T23:24:28Z`, `source: pulsemcp`. Backs catalog presence and
   the catalog-only add-server path.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-27T18:17:01Z`. Backs the
+- `doctrine/speakeasy-setup.md` — observed `2026-08-06T23:24:28Z`. Backs the
   transcluded Speakeasy-side flow, fixed anchors, exact product labels,
   callback-template behavior, and closing-pointer form.
