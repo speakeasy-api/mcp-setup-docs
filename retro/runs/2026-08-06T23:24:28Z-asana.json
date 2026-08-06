@@ -1,0 +1,34 @@
+{
+  "slug": "asana",
+  "provider": "asana",
+  "persona": "it-admin",
+  "timestamp": "2026-08-06T23:24:28Z",
+  "started_at": "2026-08-06T23:24:28Z",
+  "finished_at": "2026-08-06T23:27:10Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "Public docs do not state which Asana account permission, if any, gates app creation in the developer console. They establish only that the app creator must belong to a workspace to add it under Specific workspaces.",
+    "Asana's integration page documents protected-resource metadata at https://mcp.asana.com/v2/.well-known/oauth-protected-resource, which still returns 404; the live MCP challenge instead points to https://mcp.asana.com/.well-known/oauth-protected-resource/v2, which returns valid metadata for the exact MCP resource."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "digest",
+    "unchanged": false,
+    "notes": "operator notes changed since lock; treating as changed for skip. stable digests match pre-research snapshot",
+    "rebaseline": false
+  },
+  "notes_digest": "sha256:de3174436f4cd87251dc31e11dc2a796c52886b86673025173f63067155da406",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 0
+  }
+}
