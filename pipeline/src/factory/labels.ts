@@ -5,6 +5,8 @@ const LABELS = [
   { name: 'guide:draft', color: '1D76DB', desc: 'Trigger guide draft factory' },
   { name: 'guide:in-progress', color: 'FBCA04', desc: 'Guide draft factory running' },
   { name: 'guide:blocked', color: 'D73A4A', desc: 'Guide draft factory blocked' },
+  // Queued by the stale sweep. Carries no trigger: a human adds guide:draft.
+  { name: 'guide:stale', color: 'C5DEF5', desc: 'Guide lockfile drifted; refresh queued' },
 ] as const
 
 export function ensureLabels(): void {

@@ -8,6 +8,7 @@
   "scripts": {
     "draft-guide": "tsx src/cli.ts",
     "lint-guide": "tsx src/lint-guide-cli.ts",
+    "stale-sweep": "tsx src/stale-sweep-cli.ts",
     "resolve-issue": "tsx src/resolve-issue.ts",
     "factory": "tsx src/factory/cli.ts",
     "typecheck": "tsc --noEmit",
