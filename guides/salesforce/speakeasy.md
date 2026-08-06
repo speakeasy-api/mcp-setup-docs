@@ -8,7 +8,7 @@
 4. On the **Add a custom remote MCP server** page, paste the URL recorded in [Enable the selected SObject server](external.md#enable-sobject-server) into **Remote MCP server URL**.
 5. Select **Add server**.
 
-This creates the hosted MCP Server and opens its **Overview** page.
+This creates the hosted MCP server and opens its **Overview** page.
 
 <!-- screenshot: the Add Source menu open on the Sources page with Custom remote server visible -->
 
@@ -16,14 +16,18 @@ This creates the hosted MCP Server and opens its **Overview** page.
 
 1. From the server's **Overview**, open **Settings**.
 2. Under **Authentication**, select **Configure Manually**.
-3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-4. Confirm that **Redirect URI** matches the `{{ gram.oauth.callback_url }}` registered in [Configure OAuth settings](external.md#configure-oauth-settings).
+3. In the **Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**.
 
-The Consumer Key-only mapping below is an unverified candidate configuration. Salesforce documents it for compatible public clients but not for the Speakeasy AI Control Plane. Validate it end to end before treating it as confirmed.
+The sheet shows the **Redirect URI** with a copy button. It is the callback URL registered in Salesforce as `{{ gram.oauth.callback_url }}`.
 
-5. Paste the [**Consumer Key**](external.md#copy-consumer-key) into **Client ID**.
-6. Leave **Client Secret (optional)** empty.
-7. Select **Attach Identity Provider**.
+The Consumer Key-only mapping below is unverified. Salesforce documents it for compatible public clients but not for the Speakeasy AI Control Plane.
+
+4. Paste the [**Consumer Key**](external.md#copy-consumer-key) into **Client ID**.
+5. Leave **Client Secret (optional)** empty.
+6. Select **Attach Identity Provider**.
+7. Confirm that the sheet's **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value registered in [**Callback URL**](external.md#configure-oauth-settings).
+
+If attaching still fails after Salesforce's documented 30-minute app propagation window, stop and escalate instead of changing the candidate configuration.
 
 <!-- screenshot: Attach Remote Identity Provider with Client Type, Redirect URI, and the credential labels visible; redact the Client ID -->
 

@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: salesforce
-researched_at: 2026-07-27T17:43:04Z
+researched_at: 2026-08-06T23:23:14Z
 ---
 
 # Salesforce — Research Dossier
@@ -256,10 +256,10 @@ In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
 Choose **Custom remote server**. On the **Add a custom remote MCP server**
-page, paste the selected SObject URL into **Remote MCP server URL**, then click
+page, paste the selected SObject URL into **Remote MCP server URL** and click
 **Add server**.
 
-This creates the hosted MCP Server and opens its **Overview** page.
+This creates the hosted MCP server and opens its **Overview** page.
 
 Screenshot note: capture the **Add Source** menu open on the **Sources** page
 with **Custom remote server** visible.
@@ -267,23 +267,26 @@ with **Custom remote server** visible.
 ### Connect your credentials {#connect-speakeasy-credentials}
 
 From the server's **Overview**, open **Settings**. Under **Authentication**,
-click **Configure Manually**. In **Attach Remote Identity Provider**, set
-**Client Type** to **Manual**. Confirm that the displayed **Redirect URI**
-matches the `{{ gram.oauth.callback_url }}` registered in Salesforce. For the
-unverified candidate configuration, paste the **Consumer Key** from
-{#copy-consumer-key} into **Client ID**, leave **Client Secret (optional)**
-empty, and click **Attach Identity Provider**. Salesforce documents this
-Consumer Key-only PKCE pattern for compatible public clients but does not
-document the Speakeasy AI Control Plane. This candidate requires end-to-end
-validation.
+click **Configure Manually**. In the **Attach Remote Identity Provider** sheet,
+set **Client Type** to **Manual**. The sheet shows the **Redirect URI** with a
+copy button — the callback URL registered in Salesforce as
+`{{ gram.oauth.callback_url }}`. For the unverified candidate configuration,
+paste the **Consumer Key** from {#copy-consumer-key} into **Client ID**, leave
+**Client Secret (optional)** empty, and click **Attach Identity Provider**.
+Confirm the sheet's **Redirect URI** matches the
+`{{ gram.oauth.callback_url }}` value registered under Salesforce's **Callback
+URL** field at {#configure-oauth-settings}. Salesforce documents this Consumer
+Key-only PKCE pattern for compatible public clients but does not document the
+Speakeasy AI Control Plane, so the mapping is unverified. If attaching still
+fails after Salesforce's documented 30-minute app propagation window, stop and
+escalate instead of changing the candidate configuration.
 
-Screenshot note: capture **Attach Remote Identity Provider** with **Client
-Type**, **Redirect URI**, and the credential labels visible; redact the Client
-ID.
+Screenshot note: capture the **Attach Remote Identity Provider** sheet with
+**Client Type**, **Redirect URI**, and the credential labels visible; redact
+the Client ID.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
-limits — see Salesforce's MCP documentation at
-`https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html`.
+limits — see [Salesforce's MCP documentation](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html).
 
 ## Open questions
 
@@ -293,11 +296,10 @@ limits — see Salesforce's MCP documentation at
 - Salesforce documents standards-compatible clients using OAuth 2.0
   Authorization Code with PKCE, but does not name the Speakeasy AI Control
   Plane as a tested client. Compatibility is inferred from the canonical
-  Speakeasy OAuth flow. Validate it end to end by registering
-  `{{ gram.oauth.callback_url }}`, attaching the Consumer Key as **Client ID**
-  with **Client Secret (optional)** empty, completing Salesforce
-  authorization, and confirming that the selected server advertises and can
-  invoke a permitted tool through the Speakeasy AI Control Plane.
+  Speakeasy OAuth flow. The Consumer Key-to-**Client ID** mapping with **Client
+  Secret (optional)** empty is unverified; if attaching still fails after
+  Salesforce's documented 30-minute app propagation window, stop and escalate
+  instead of changing the candidate configuration.
 - Salesforce's April 2026 GA announcement promises Hosted MCP Servers for
   Enterprise Edition and above. Current connection troubleshooting names
   Developer and Professional-with-API-access orgs only as examples of orgs
@@ -325,13 +327,15 @@ limits — see Salesforce's MCP documentation at
   available fetcher and did not add facts beyond the developer documentation.
 - **Support KB:** Salesforce Help is the support property; no separate public
   Hosted MCP support KB was found.
-- **Machine-readable indexes:** `https://developer.salesforce.com/docs/llms.txt`
-  and the linked Hosted MCP index at
-  `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt` were
-  reachable and enumerated the current guide and reference pages.
-  `https://help.salesforce.com/llms.txt` timed out.
+- **Machine-readable indexes:** prior research successfully reached
+  `https://developer.salesforce.com/docs/llms.txt` and its linked Hosted MCP
+  index at `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt`;
+  they enumerated the guide and reference pages used below. During this
+  refresh, the developer documentation and index requests returned HTTP 403,
+  so sound prior findings were retained rather than re-inferred from snippets.
+  `https://help.salesforce.com/llms.txt` had previously timed out.
 
-All observations below use `2026-07-27T17:43:04Z`.
+Provenance records below use `2026-08-06T23:23:14Z` for this refresh.
 
 - `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt`
   — machine-readable Hosted MCP source inventory; backs documentation-property
@@ -394,13 +398,14 @@ All observations below use `2026-07-27T17:43:04Z`.
 - `https://api.salesforce.com/.well-known/oauth-protected-resource/platform/mcp/v1/platform/sobject-reads`
   — live endpoint observation; backs protected resource URL and advertised
   `mcp_api` / `refresh_token` scopes.
-- `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads` — live
-  unauthenticated endpoint observation returned HTTP 401, backing the remote
-  endpoint's OAuth protection.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-27T17:43:04Z`; backs the fixed
-  Speakeasy-side anchors, labels, OAuth attach flow, callback template
+- All eight URLs in **Server facts** — live unauthenticated endpoint
+  observations returned HTTP 401 on this refresh, backing the URLs' existence
+  and OAuth protection. The protected-resource metadata request for production
+  SObject Reads returned HTTP 200 and advertised `mcp_api` and `refresh_token`.
+- `doctrine/speakeasy-setup.md` — observed `2026-08-06T23:23:14Z`; backs the
+  fixed Speakeasy-side anchors, labels, OAuth attach flow, callback template
   semantics, forced Custom remote path behavior, and closing pointer.
 - Operator note `Speakeasy MCP Catalog: overridden-custom-remote` with query
-  `salesforce` — observed `2026-07-27T17:43:04Z`; backs the decision not to
+  `salesforce` — observed `2026-08-06T23:23:14Z`; backs the decision not to
   render or investigate a catalog path because the Guide-level
   `speakeasy_add_server: custom-remote` override controls path selection.

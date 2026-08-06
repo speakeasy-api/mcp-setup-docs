@@ -1,0 +1,79 @@
+{
+  "slug": "salesforce",
+  "provider": "salesforce",
+  "persona": "it-admin",
+  "timestamp": "2026-08-06T23:23:14Z",
+  "started_at": "2026-08-06T23:23:14Z",
+  "finished_at": "2026-08-06T23:27:15Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "speakeasy",
+      "where": "#connect-speakeasy-credentials — after **Attach Identity Provider**",
+      "problem": "The guide stops after attaching the identity provider and does not name the control that starts Salesforce user authorization, so the administrator cannot complete the first connection.",
+      "suggestion": "After the canonical Speakeasy setup doctrine gains a verified authorization transition, add the named launch control and expected Salesforce sign-in outcome, then rerender this section.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Salesforce does not publish the exact MCP server row labels or enabled-toggle label/state; only the stable server IDs and activation path are confirmed.",
+    "The Consumer Key-only OAuth 2.0 Authorization Code with PKCE configuration is standards-compatible but has not been validated end to end in the Speakeasy AI Control Plane.",
+    "Hosted MCP availability below Enterprise Edition remains conditional because Salesforce's GA announcement and API-eligibility troubleshooting do not make the same edition promise.",
+    "The canonical Speakeasy setup does not document the control that begins Salesforce user authorization after attaching the identity provider, so that transition must not be invented."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "## Speakeasy setup — ### Connect your credentials and closing pointer",
+          "problem": "The transcluded Speakeasy setup differs from the current canonical skeleton by omitting the Redirect URI copy-button fact, moving Redirect URI confirmation before credential attachment, and rendering noncanonical closing-pointer text.",
+          "suggestion": "Replace this section with the current Custom remote and manual OAuth variants from doctrine/speakeasy-setup.md, preserving the canonical action order and closing pointer, then rerender speakeasy.md from it.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "#connect-speakeasy-credentials — “Validate it end to end before treating it as confirmed.”",
+          "problem": "The guide asks the administrator to validate the candidate configuration without naming an available validation control or success criterion.",
+          "suggestion": "Replace the validation directive with a concrete hedge: state that the mapping is unverified and tell the administrator to stop and escalate if attaching still fails after the documented 30-minute Salesforce propagation window.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker (research): Updated the Research Dossier’s Custom remote and manual OAuth transclusion to match the canonical skeleton: added the Redirect URI copy-button fact, moved Redirect URI confirmation after credential attachment, normalized the hosted MCP server wording, and restored the canonical linked closing pointer. Rerendered the corresponding section in speakeasy.md while preserving fixed anchors and the Custom-remote-only path. Nit (speakeasy): Replaced the vague end-to-end validation directive with an explicit unverified-mapping hedge and instructions to stop and escalate if attachment still fails after Salesforce’s documented 30-minute propagation window; recorded the same fact in research.md first.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "#connect-speakeasy-credentials — after **Attach Identity Provider**",
+          "problem": "The guide stops after attaching the identity provider and does not name the control that starts Salesforce user authorization, so the administrator cannot complete the first connection.",
+          "suggestion": "After the canonical Speakeasy setup doctrine gains a verified authorization transition, add the named launch control and expected Salesforce sign-in outcome, then rerender this section.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "operator notes changed since lock; keeping AFTER and treating as changed for skip. judge: AFTER is draft-equivalent to BEFORE. Anchors, credential flow, OAuth scopes, prerequisites, remote URLs, transports, Custom remote add-server path, Speakeasy steps, and Metadata structure are unchanged. Differences are provenance timestamp refreshes, documentation-fetch status (HTTP 403 with prior findings retained), and broader live 401 confirmation of the same eight already documented URLs; none requires re-drafting or invalidates prior review."
+  },
+  "notes_digest": "sha256:5e38a8d6e7fbbe003924000ce67acdf03be75598afa4fbcdd5cc903a5f778832",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 0
+  }
+}
