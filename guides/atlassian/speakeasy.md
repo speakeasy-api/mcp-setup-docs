@@ -13,7 +13,7 @@ If an **Atlassian Rovo** result in the catalog clearly identifies the current re
 4. Click **Add**.
 5. In **Add to Project**, click **Add to Project**.
 
-If no clearly current **Atlassian Rovo** entry appears in the catalog, use the favored custom remote path:
+If no clearly current **Atlassian Rovo** result appears in the catalog, use the custom remote path:
 
 1. Choose **Custom remote server**.
 2. On **Add a custom remote MCP server**, paste this value into **Remote MCP server URL**:
@@ -31,16 +31,16 @@ Either path opens the server's **Overview** page.
 ### Connect your credentials {#connect-speakeasy-credentials}
 
 1. From the server's **Overview**, open **Settings**.
-2. Under **Authentication**, select **Use Discovered** when offered; otherwise, select **Configure Manually**.
-3. In **Attach Remote Identity Provider**, if **Issuer URL** is empty, paste:
+2. Under **Authentication**, select **Use Discovered**.
+3. In **Attach Remote Identity Provider**, confirm that the issuer/base auth URL is:
 
    ```
-   https://auth.atlassian.com/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3
+   https://auth.atlassian.com
    ```
 
 4. Keep the automatically derived **Slug**.
 5. Keep the automatically derived **Display name (optional)**.
-6. Under **Endpoints**, click **Discover** so the authorization, token, and registration endpoints fill from Atlassian's authorization-server metadata.
+6. Under **Endpoints**, click **Discover** so the authorization, token, and registration endpoints fill from Atlassian's discovery chain.
 7. Under **Session Client**, keep **Client Type** set to **Dynamic Client Registration (DCR)**.
 8. Keep the discovered **Token Endpoint Auth Method**.
 9. Leave **Scope (override)** and **Audience (optional)** empty.
