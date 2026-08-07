@@ -1,0 +1,195 @@
+{
+  "slug": "netsuite",
+  "provider": "netsuite",
+  "persona": "it-admin",
+  "timestamp": "2026-08-07T22:06:11Z",
+  "started_at": "2026-08-07T22:06:11Z",
+  "finished_at": "2026-08-07T22:16:29Z",
+  "runtime": "pi",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "#connect-speakeasy-credentials",
+      "problem": "The transcluded manual OAuth flow omits the canonical fact that the Attach Remote Identity Provider sheet shows the Redirect URI with a copy button, and speakeasy.md consequently omits it too.",
+      "suggestion": "Add the canonical Redirect URI display and copy-button fact to research.md before the credential-entry actions, then rerender speakeasy.md to state it while preserving the corrected Client ID, optional-secret, attach, and confirmation order.",
+      "dimension": "fidelity"
+    }
+  ],
+  "nits": [],
+  "open_questions": [
+    "Oracle's public Marketplace installation page names MCP Standard Tools but does not expose operator-provided Bundle ID 522506; confirm it in the authenticated SuiteApp Marketplace during screenshot capture.",
+    "Oracle documents the account-ID endpoint template and Company URLs page but does not name a dedicated MCP URL field or exact account-ID label there; the walkthrough uses the documented account ID and hostname normalization.",
+    "Oracle's reviewed MCP pages do not publish a literal OAuth scope string or confirm protected-resource metadata usable by Speakeasy discovery; the documented NetSuite AI Connector Service checkbox is used and the Speakeasy path leaves scope override empty."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — “The Speakeasy MCP Catalog lookup was absent”",
+          "problem": "The Dossier records the catalog lookup as absent even though the supplied catalog status is overridden-tenanted and the Custom remote path is selected because the remote is tenanted.",
+          "suggestion": "Replace the absent claim with the supplied overridden-tenanted status and state that `tenanted: true` independently requires the Custom remote server path.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "provenance entry `source: operator-validation`",
+          "problem": "The provenance status claims the Speakeasy MCP Catalog was absent, which is not supported by the supplied overridden-tenanted catalog result.",
+          "suggestion": "Replace the catalog-absent text with the actual overridden-tenanted result while retaining the query and the tenanted Custom remote decision.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "`#add-server-in-speakeasy` screenshot note",
+          "problem": "The Dossier replaces the canonical Speakeasy skeleton’s Add Source menu screenshot note with a custom-server form screenshot note.",
+          "suggestion": "Restore the canonical screenshot note from `doctrine/speakeasy-setup.md` and rerender the corresponding placeholder in `speakeasy.md`.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#configure-scoped-role and speakeasy.md#connect-speakeasy-credentials",
+          "problem": "The guide can create a custom role but never ensures that the person completing first authorization is assigned that role.",
+          "suggestion": "Research the provider-documented user-to-role assignment path, then add a step to assign the scoped role to each authorizing user before Speakeasy setup.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "external.md#configure-scoped-role, step 8",
+          "problem": "The guide requires checking access to the MCP Standard Tools SuiteApp folder without naming where or how to check that restriction.",
+          "suggestion": "Research and document the exact role or File Cabinet path and controls; if Oracle does not publish them, record that silence in the Dossier and add an obtain-from-NetSuite-owner hedge.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Updated research.md and meta.yaml to record the supplied `overridden-tenanted` catalog result for query `netsuite` and clarify that `tenanted: true` independently requires the Custom remote server path. Restored the canonical Add Source screenshot note in research.md and speakeasy.md. Added Oracle-documented employee-to-role assignment steps, provenance, and corresponding external.md and speakeasy.md guidance so each authorizing user has the scoped role. Applied the File Cabinet nit by recording Oracle’s silence on the exact folder path/control and adding an obtain-from-NetSuite-owner hedge.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials — “leave any scope override empty”",
+          "problem": "The Dossier adds a scope-override action to the manual OAuth flow even though the canonical Speakeasy skeleton documents **Scope (override)** only for the DCR variant.",
+          "suggestion": "Remove the scope-override action from the Dossier and rerender `speakeasy.md` without it unless canonical Speakeasy doctrine confirms that control for manual OAuth.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "credential_setup.requirements[compliance-approval]",
+          "problem": "Metadata makes organizational data-sharing approval unconditional, while the Dossier requires application or cloud security-owner approval only when regulated data may be involved.",
+          "suggestion": "Make this requirement conditional on regulated-data involvement and match the Dossier’s named approval owner and ePHI limitation.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose — “Obtain approval to install”",
+          "problem": "The Setup Guide requires approval to install MCP Standard Tools although the Dossier establishes that installation is required but does not establish an installation-approval prerequisite.",
+          "suggestion": "Remove the unsupported approval wording and state only that MCP Standard Tools must be installed, or first add supported provenance for an actual approval requirement.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "credential_setup.requirements[mcp-standard-tools]",
+          "problem": "Metadata requires approval to install MCP Standard Tools although the Dossier and cited provider facts establish only that the SuiteApp must be installed.",
+          "suggestion": "Change the requirement to availability or installation of the free managed MCP Standard Tools SuiteApp without asserting an approval prerequisite.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#create-oauth-integration — missed Client ID recovery",
+          "problem": "The immediate recovery branch for a missed one-time Client ID does not name the navigation, reset control, confirmation, or how to capture the replacement ID.",
+          "suggestion": "Research NetSuite’s documented credential-reset path and exact controls, then add steps that warn before resetting and direct the reader to copy the replacement Client ID before leaving the new credential screen.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "#record-account-mcp-url screenshot placeholder",
+          "problem": "The rendered screenshot note omits the Dossier’s clarification that the final MCP path is assembled from the documented suffix rather than copied from a named MCP row.",
+          "suggestion": "Restore that clarification in the screenshot placeholder so capture does not imply that NetSuite displays a dedicated MCP URL row.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "external.md#configure-scoped-role, step 2",
+          "problem": "The branch for creating a separate custom role does not name the control used to start role creation from Manage Roles.",
+          "suggestion": "Research and document the exact new-role control and resulting screen, or require an existing approved role and remove the unsupported creation branch.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "external.md#record-account-mcp-url, step 2",
+          "problem": "The guide tells the reader to record the account ID even though the Dossier says Oracle does not publish its exact label on that page, and the guide provides no obtain-from-owner hedge.",
+          "suggestion": "Add one hedge directing the reader to obtain the current account ID or SuiteTalk domain from the NetSuite owner if it cannot be identified on Company Information.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Removed the unsupported manual-OAuth scope-override action from research.md and speakeasy.md. Made the compliance approval requirement conditional on regulated-data involvement, named the application or cloud security owner, and preserved Oracle’s ePHI limitation. Removed unsupported SuiteApp installation-approval wording from external.md and meta.yaml while retaining the installation requirement. Added the documented Client ID recovery path through Manage Integrations, including Edit, the destructive-reset warning, Reset Credentials, OK confirmation, and copying the replacement Client ID before leaving; updated provenance with the supplied observed_at timestamp. Restored the screenshot clarification that the MCP path is assembled from Oracle’s documented suffix rather than copied from a named MCP row. Removed the unsupported custom-role creation branch and now requires editing an existing approved role. Added a hedge to obtain the current account ID or SuiteTalk domain from the NetSuite owner when it cannot be identified on Company Information.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The Dossier places Redirect URI confirmation before Client ID entry and attachment, while the canonical manual OAuth skeleton places that confirmation after clicking Attach Identity Provider.",
+          "suggestion": "Restore the canonical manual OAuth action order in research.md, then rerender speakeasy.md to paste the Client ID, leave the optional secret empty, click Attach Identity Provider, and confirm the Redirect URI afterward.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Fixed the blocker in guides/netsuite/research.md by restoring the canonical manual OAuth order: paste Client ID, leave the optional secret empty, click Attach Identity Provider, then confirm Redirect URI. Rerendered the same order in guides/netsuite/speakeasy.md without changing anchors or unrelated prose.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "#connect-speakeasy-credentials",
+          "problem": "The transcluded manual OAuth flow omits the canonical fact that the Attach Remote Identity Provider sheet shows the Redirect URI with a copy button, and speakeasy.md consequently omits it too.",
+          "suggestion": "Add the canonical Redirect URI display and copy-button fact to research.md before the credential-entry actions, then rerender speakeasy.md to state it while preserving the corrected Client ID, optional-secret, attach, and confirmation order.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:d05f876c5b2eb27c50b06a7392215ad33f709fb8914a01f0241a2891919516cb",
+  "setup_churn": {
+    "external_md_lines": 84,
+    "speakeasy_md_lines": 29
+  }
+}
