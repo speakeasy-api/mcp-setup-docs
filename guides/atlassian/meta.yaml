@@ -16,7 +16,7 @@ credential_setup:
     - id: product-access
       description: Atlassian account with access to the intended Cloud site and products
     - id: organization-policy-approval
-      description: Organization-admin approval when OAuth domains, IP allowlists, or User Installed Apps policy restrict the connection
+      description: Administrative action when OAuth domains, IP allowlists, or User Installed Apps policy restrict the connection
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -31,91 +31,97 @@ remotes:
         locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/
         name: Getting started with the Atlassian Rovo MCP Server
         classification: official
-        observed_at: "2026-08-07T18:48:21Z"
+        observed_at: "2026-08-07T19:24:55Z"
       - source: endpoint-observation
         locator: https://mcp.atlassian.com/v1/mcp/authv2
         classification: official
-        observed_at: "2026-08-07T18:48:21Z"
+        observed_at: "2026-08-07T19:24:55Z"
       - source: endpoint-observation
         locator: https://mcp.atlassian.com/.well-known/oauth-protected-resource/v1/mcp/authv2
         classification: official
-        observed_at: "2026-08-07T18:48:21Z"
+        observed_at: "2026-08-07T19:24:55Z"
 provenance:
   - source: pulsemcp
     locator: query:atlassian
-    name: No exact Atlassian title/name match
+    name: No exact current Atlassian Rovo title/name match
     classification: mirror
-    status: ambiguous
-    observed_at: "2026-08-07T18:48:21Z"
+    status: ambiguous; deprecated old external-protocol entry excluded
+    observed_at: "2026-08-07T19:24:55Z"
+  - source: workflow-operator-notes
+    locator: assignment:atlassian
+    name: Speakeasy callback and catalog-path observations
+    classification: official
+    status: hosted callback confirmed; hosted outbound IP ranges unknown
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/
     name: Getting started with the Atlassian Rovo MCP Server
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/setting-up-clients/
     name: Setting up clients
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/authentication-and-authorization/
     name: Authentication and authorization
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/configuring-oauth-2-1/
     name: Configuring OAuth 2.1
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/configuring-authentication-via-api-token/
     name: Configuring authentication via API token
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/using-with-other-supported-mcp-clients/
     name: Using with other supported MCP clients
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/security-and-access-policies/docs/control-atlassian-rovo-mcp-server-settings/
     name: Control Atlassian Rovo MCP server settings
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/security-and-access-policies/docs/specify-ip-addresses-for-product-access/
     name: Specify IP addresses for product access
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/security-and-access-policies/docs/available-atlassian-rovo-mcp-server-domains/
     name: Available Atlassian Rovo MCP server domains
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/troubleshooting-and-verifying-your-setup/
     name: Troubleshooting and verifying your setup
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: provider-marketing
     locator: https://www.atlassian.com/platform/remote-mcp-server
     name: Atlassian Rovo MCP server
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: endpoint-observation
     locator: https://mcp.atlassian.com/v1/mcp/authv2
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: endpoint-observation
     locator: https://mcp.atlassian.com/.well-known/oauth-protected-resource/v1/mcp/authv2
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: endpoint-observation
     locator: https://auth.atlassian.com/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3/.well-known/oauth-authorization-server
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-08-07T18:48:21Z"
+    observed_at: "2026-08-07T19:24:55Z"

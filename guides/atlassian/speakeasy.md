@@ -5,15 +5,15 @@
 1. In the Speakeasy AI Control Plane sidebar, find **Connect** and select **Sources**.
 2. Click **Add Source**.
 
-If **Atlassian** appears in the catalog:
+If a current **Atlassian Rovo** remote MCP Server appears in the catalog:
 
 1. Choose **3rd-party server**.
 2. On the **MCP Catalog** page, enter `Atlassian` in **Search MCP servers...**.
-3. Open the Atlassian entry with **View**.
+3. Open the current Rovo entry with **View**. Do not choose the deprecated entry that uses Atlassian's old external MCP protocol.
 4. Click **Add**.
 5. In **Add to Project**, click **Add to Project**.
 
-If **Atlassian** does not appear in the catalog:
+If no clearly current **Atlassian Rovo** entry appears in the catalog, use the favored custom remote path:
 
 1. Choose **Custom remote server**.
 2. On **Add a custom remote MCP server**, paste this value into **Remote MCP server URL**:

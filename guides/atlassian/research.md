@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: atlassian
-researched_at: "2026-08-07T18:48:21Z"
+researched_at: "2026-08-07T19:24:55Z"
 ---
 
 # Atlassian — Research Dossier
@@ -45,9 +45,11 @@ Registration (DCR) is available. The marketing site is corroborative only.
 - **Organization controls that can block first connection:** OAuth client
   domains must be allowed in Atlassian Rovo MCP Server settings; applicable
   organization IP allowlists also apply to MCP requests. If the organization
-  blocks **User Installed Apps**, a site admin might first need to install the
-  Atlassian MCP app. Strict network egress controls must permit
-  `*.atlassian.net` for interactive widgets.
+  blocks **User Installed Apps**, a site admin might first need to approve or
+  install the Atlassian MCP app. Atlassian also requires the user's network to
+  reach `*.atlassian.net` for interactive widgets; this egress change belongs
+  with the organization's network/security owner, not in Atlassian
+  Administration.
 - **Alternative authentication not rendered by this Guide:** Atlassian also
   supports personal API tokens via Basic authentication and, where available,
   service-account API keys via Bearer authentication, but only when an
@@ -55,9 +57,12 @@ Registration (DCR) is available. The marketing site is corroborative only.
   or machine-to-machine use and can expose fewer tools. It is excluded because
   the assigned interactive Speakeasy setup is directly supported by OAuth 2.1
   DCR and Atlassian recommends OAuth for that scenario.
-- **Speakeasy MCP Catalog:** unresolved. The operator's query `atlassian`
-  produced one non-exact hit and no exact title/name match, so both add-server
-  branches remain conditional.
+- **Speakeasy MCP Catalog:** unresolved for the current Rovo remote MCP
+  Server. An older catalog entry is deprecated because it uses Atlassian's old
+  external MCP protocol. The operator's query `atlassian` produced one
+  non-exact hit and no exact title/name match for the current server, so both
+  add-server branches remain conditional; favor the Custom remote server path
+  unless the catalog clearly identifies the current Rovo remote endpoint.
 
 ## Credential flow
 
@@ -66,20 +71,23 @@ or pre-created credentials. The Speakeasy AI Control Plane discovers the OAuth
 metadata and dynamically registers its session client. If the manual sheet does
 not retain the discovered issuer, enter the Atlassian issuer
 `https://auth.atlassian.com/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3` and run endpoint
-discovery. Do not paste `{{ gram.oauth.callback_url }}` into Atlassian: DCR
-registers the redirect URI as part of client registration.
+discovery. DCR registers the hosted callback URL
+`https://app.getgram.ai/mcp/remote_login_callback`; the reader does not create
+an OAuth app or paste `{{ gram.oauth.callback_url }}` into an Atlassian app
+registration.
 
 At first use, the intended user completes Atlassian's browser authorization
 flow, grants access to the relevant Atlassian Cloud site, and enables the
 intended Atlassian apps. The user must already have product access and the
 necessary permissions; OAuth does not expand them.
 
-Before connecting, an organization admin must ensure that the Speakeasy OAuth
-client's redirect domain is allowed if it is not already covered by the
-organization's Atlassian-supported or custom domain rules. Atlassian's current
-published supported-domain list does not name Speakeasy. Public sources do not
-expose the concrete Speakeasy redirect URI/domain used by this DCR flow, so the
-exact domain value is an open question rather than a guessed field value.
+Before connecting, an organization admin must ensure that the hosted OAuth
+callback is allowed if it is not already covered by the organization's
+Atlassian-supported or custom domain rules. Atlassian's current published
+supported-domain list does not name the Speakeasy AI Control Plane. Add the
+exact hosted callback `https://app.getgram.ai/mcp/remote_login_callback` as a
+custom domain pattern when required; it includes the protocol, valid host, and
+callback path Atlassian's documented pattern rules accept.
 
 ## Console walkthrough
 
@@ -96,30 +104,33 @@ server**.
 - Open `https://admin.atlassian.com/` and select the organization if more than
   one is shown.
 - Select **Rovo**, then **Rovo MCP server**.
-- Obtain the exact Speakeasy OAuth redirect domain from the Speakeasy deployment
-  owner, then check whether the allowed domain rules already cover it. If they
-  do not, select **Add domain** and add the trusted redirect domain. Atlassian
-  requires a protocol and a valid host; HTTPS is appropriate for a hosted
-  client. The public provider docs do not name the input field or final
-  save-button label; after entering the domain, use the submission control
+- Check whether the allowed domain rules already cover the hosted callback. If
+  they do not, select **Add domain** and add this exact custom domain pattern:
+  `https://app.getgram.ai/mcp/remote_login_callback`. Atlassian requires a
+  protocol and a valid host; this value also limits the rule to the callback
+  path. The public provider docs do not name the input field or final
+  save-button label; after entering the pattern, use the submission control
   shown in the console.
 - Do not disable **Allow Atlassian supported domains** merely to add a custom
   domain. Atlassian documents that deselecting it blocks its supported-domain
   set.
 - If the organization uses IP allowlists, return to the organization in
-  Atlassian Administration and select **Security** > **IP allowlists**. Open the
-  applicable allowlist, or select **Create IP allowlist**. Enter a name and the
-  source IP addresses or CIDR blocks supplied by the Speakeasy deployment
-  owner, select the Atlassian sites and apps to which the allowlist applies,
-  then use the console's submission control. Atlassian's public documentation
-  does not publish stable field or final submission-control labels for every
-  current console variant.
-- If strict egress filtering is enabled, allow `*.atlassian.net` so interactive
-  Jira and Confluence widgets can render.
-- Values entered: the Speakeasy OAuth redirect domain, and only when required,
-  applicable source IP ranges in the separate organization IP-allowlist
-  settings. The exact Speakeasy values must come from the Speakeasy deployment
-  owner because public docs do not publish them.
+  Atlassian Administration and select **Security** > **IP allowlists**. First
+  ask the network/security owner whether hosted Speakeasy traffic has stable
+  outbound IP ranges that the organization can allow; exact hosted ranges are
+  not publicly documented. If ranges are supplied, open the applicable
+  allowlist, or select **Create IP allowlist**. Enter a name and those source IP
+  addresses or CIDR blocks, select the Atlassian sites and apps to which the
+  allowlist applies, then use the console's submission control. Do not guess a
+  range. Atlassian's public documentation does not publish stable field or
+  final submission-control labels for every current console variant.
+- If strict egress filtering is enabled, ask the network/security owner to
+  allow `*.atlassian.net` so interactive Jira and Confluence widgets can
+  render. This change is made in the organization's network controls, not in
+  Atlassian Administration.
+- Values entered: the exact hosted OAuth callback above, and only when required
+  and available, source IP ranges supplied by the network/security owner in the
+  separate organization IP-allowlist settings.
 - Screenshot note: **Rovo** > **Rovo MCP server** showing the domain list and
   **Add domain**, with organization-specific domains redacted. A separate image
   could show the relevant organization IP-allowlist policy without exposing
@@ -139,7 +150,7 @@ flow, so this remains an open question rather than an invented walkthrough.
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-08-07T18:48:21Z`.
+`2026-08-07T19:24:55Z`.
 
 Per-guide values:
 
@@ -163,13 +174,15 @@ Per-guide values:
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
-- If **Atlassian** is in the catalog: choose **3rd-party server**. On the
-  **MCP Catalog** page, find Atlassian using **Search MCP servers...**, open its
-  entry with **View**, and click **Add**. In **Add to Project**, click **Add to
-  Project**.
-- If it is not: choose **Custom remote server**. On **Add a custom remote MCP
-  server**, paste `https://mcp.atlassian.com/v1/mcp/authv2` into **Remote MCP
-  server URL** and click **Add server**.
+- If a current **Atlassian Rovo** remote MCP Server is in the catalog: choose
+  **3rd-party server**. On the **MCP Catalog** page, find Atlassian using
+  **Search MCP servers...**, open the current Rovo entry with **View**, and
+  click **Add**. Do not choose the deprecated entry that uses Atlassian's old
+  external MCP protocol. In **Add to Project**, click **Add to Project**.
+- If no clearly current Rovo entry appears: choose **Custom remote server**
+  (the favored path). On **Add a custom remote MCP server**, paste
+  `https://mcp.atlassian.com/v1/mcp/authv2` into **Remote MCP server URL** and
+  click **Add server**.
 
 Either branch creates the hosted MCP server and opens its **Overview** page.
 
@@ -204,18 +217,18 @@ https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-wit
 
 ## Open questions
 
-- Does the Speakeasy MCP Catalog contain an exact Atlassian Rovo MCP Server
-  entry? The supplied catalog lookup was ambiguous, so both add-server paths
-  must remain conditional.
+- Does the Speakeasy MCP Catalog contain an exact, current Atlassian Rovo
+  remote MCP Server entry in addition to the deprecated entry that uses the
+  old external MCP protocol? The supplied lookup was ambiguous, so both
+  add-server paths remain conditional and the current Custom remote path is
+  favored.
 - After selecting **Configure Manually**, does the discovered Atlassian issuer
   remain populated in **Issuer URL**? The canonical Speakeasy source does not
   establish this state, so the walkthrough supplies the exact issuer when the
   field is empty.
-- What exact Speakeasy OAuth redirect domain must an Atlassian organization
-  admin allow for this DCR connection, and what hosted outbound IP ranges must
-  be added when the organization enforces Atlassian IP allowlists? These values
-  are not present in Atlassian's public docs or the canonical Speakeasy setup
-  source.
+- What stable hosted outbound IP ranges, if any, can a network/security owner
+  add when the organization enforces Atlassian IP allowlists? No exact ranges
+  are publicly documented; the guide must not invent them.
 - If **User Installed Apps** is blocked, what exact current Atlassian
   Administration clicks install or approve the Atlassian MCP app? The MCP
   client page states that a site admin might need to install it but delegates
@@ -238,64 +251,73 @@ Source inventory from the sweep:
   but does not add setup details.
 - **Live service metadata — `mcp.atlassian.com` and `auth.atlassian.com`:** used
   to validate the endpoint, OAuth resource discovery, and DCR support.
+- **Workflow operator observations:** used for Speakeasy-specific facts that
+  Atlassian cannot publish: the hosted callback URL, the deprecated old-protocol
+  catalog entry, and the ambiguous current catalog lookup.
 
 Sources drawn from:
 
+- Workflow operator notes for assignment `atlassian` — observed
+  `2026-08-07T19:24:55Z`. Back the hosted callback URL
+  `https://app.getgram.ai/mcp/remote_login_callback`, the old external-protocol
+  catalog entry's deprecated status, the unresolved current catalog presence,
+  and the absence of published exact hosted outbound IP ranges.
+
 - `https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/`
   ("Getting started with the Atlassian Rovo MCP Server") — observed
-  `2026-08-07T18:48:21Z`. Backs current remote URL, broad MCP-client support,
+  `2026-08-07T19:24:55Z`. Backs current remote URL, broad MCP-client support,
   OAuth 2.1 primary authentication, API-token availability, sign-in flow, and
   permissions warning.
 - `https://support.atlassian.com/atlassian-rovo-mcp-server/docs/setting-up-clients/`
-  ("Setting up clients") — observed `2026-08-07T18:48:21Z`. Backs standing
+  ("Setting up clients") — observed `2026-08-07T19:24:55Z`. Backs standing
   Cloud-site, product-access, browser, and OAuth requirements; API-token admin
   gate; and the legacy SSE retirement date.
 - `https://support.atlassian.com/atlassian-rovo-mcp-server/docs/authentication-and-authorization/`
-  ("Authentication and authorization") — observed `2026-08-07T18:48:21Z`.
+  ("Authentication and authorization") — observed `2026-08-07T19:24:55Z`.
   Backs OAuth recommendation, interactive consent, API-token alternatives,
   header methods, and organization-admin enablement.
 - `https://support.atlassian.com/atlassian-rovo-mcp-server/docs/configuring-oauth-2-1/`
-  ("Configuring OAuth 2.1") — observed `2026-08-07T18:48:21Z`. Backs OAuth
+  ("Configuring OAuth 2.1") — observed `2026-08-07T19:24:55Z`. Backs OAuth
   bearer presentation, app/scope consent, site binding, permission enforcement,
   and first-connect OAuth recovery.
 - `https://support.atlassian.com/atlassian-rovo-mcp-server/docs/configuring-authentication-via-api-token/`
   ("Configuring authentication via API token") — observed
-  `2026-08-07T18:48:21Z`. Backs excluded Basic/Bearer alternatives, their
+  `2026-08-07T19:24:55Z`. Backs excluded Basic/Bearer alternatives, their
   non-interactive purpose, admin gate, and reduced tool availability.
 - `https://support.atlassian.com/atlassian-rovo-mcp-server/docs/using-with-other-supported-mcp-clients/`
   ("Using with other supported MCP clients") — observed
-  `2026-08-07T18:48:21Z`. Backs custom-client requirements, OAuth login, site
+  `2026-08-07T19:24:55Z`. Backs custom-client requirements, OAuth login, site
   authorization, app enablement, and the conditional User Installed Apps gate.
 - `https://support.atlassian.com/security-and-access-policies/docs/control-atlassian-rovo-mcp-server-settings/`
   ("Control Atlassian Rovo MCP server settings") — observed
-  `2026-08-07T18:48:21Z`. Backs **Rovo** > **Rovo MCP server**, **Add domain**,
+  `2026-08-07T19:24:55Z`. Backs **Rovo** > **Rovo MCP server**, **Add domain**,
   **Allow Atlassian supported domains**, IP-allowlist behavior, `*.atlassian.net`
   egress, and the **API token** toggle.
 - `https://support.atlassian.com/security-and-access-policies/docs/specify-ip-addresses-for-product-access/`
   ("Specify IP addresses for product access") — observed
-  `2026-08-07T18:48:21Z`. Backs the Atlassian Administration URL, **Security** >
+  `2026-08-07T19:24:55Z`. Backs the Atlassian Administration URL, **Security** >
   **IP allowlists** route, **Create IP allowlist**, source-address/CIDR entry,
   and selection of the sites and apps to which an allowlist applies.
 - `https://support.atlassian.com/security-and-access-policies/docs/available-atlassian-rovo-mcp-server-domains/`
   ("Available Atlassian Rovo MCP server domains") — observed
-  `2026-08-07T18:48:21Z`. Backs the published default-domain list, domain-rule
+  `2026-08-07T19:24:55Z`. Backs the published default-domain list, domain-rule
   purpose, and protocol/host/pattern requirements; Speakeasy is not named.
 - `https://support.atlassian.com/atlassian-rovo-mcp-server/docs/troubleshooting-and-verifying-your-setup/`
   ("Troubleshooting and verifying your setup") — observed
-  `2026-08-07T18:48:21Z`. Backs first-connect symptoms and recovery for access,
+  `2026-08-07T19:24:55Z`. Backs first-connect symptoms and recovery for access,
   scopes, redirects, browser pop-ups, and network filters.
 - `https://www.atlassian.com/platform/remote-mcp-server` — observed
-  `2026-08-07T18:48:21Z`. Corroborates that Atlassian operates the Rovo MCP
+  `2026-08-07T19:24:55Z`. Corroborates that Atlassian operates the Rovo MCP
   Server for external AI clients.
 - `https://mcp.atlassian.com/v1/mcp/authv2` — direct unauthenticated endpoint
-  observation at `2026-08-07T18:48:21Z`. Returned HTTP 401 with a Bearer
+  observation at `2026-08-07T19:24:55Z`. Returned HTTP 401 with a Bearer
   challenge naming the protected-resource metadata URL.
 - `https://mcp.atlassian.com/.well-known/oauth-protected-resource/v1/mcp/authv2`
-  — observed `2026-08-07T18:48:21Z`. Backs exact resource URL, authorization
+  — observed `2026-08-07T19:24:55Z`. Backs exact resource URL, authorization
   issuer, scopes, bearer header method, and provider documentation URL.
 - `https://auth.atlassian.com/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3/.well-known/oauth-authorization-server`
-  — observed `2026-08-07T18:48:21Z`. Backs authorization, token, and dynamic
+  — observed `2026-08-07T19:24:55Z`. Backs authorization, token, and dynamic
   registration endpoints, grants, PKCE, and token endpoint methods.
-- `doctrine/speakeasy-setup.md` — observed `2026-08-07T18:48:21Z`. Backs the
+- `doctrine/speakeasy-setup.md` — observed `2026-08-07T19:24:55Z`. Backs the
   transcluded Speakeasy flow, fixed anchors, exact product labels, DCR behavior,
   dual conditional under ambiguous catalog presence, and closing-pointer form.

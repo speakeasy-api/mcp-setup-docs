@@ -6,7 +6,7 @@ setup_version: 1
 
 You need an Atlassian Cloud site with Jira, Confluence, and/or Compass, and the connecting Atlassian account must have access to the intended site and apps. Use a modern browser. Atlassian documents no paid-plan requirement for the MCP Server.
 
-You need no Atlassian-side configuration unless your organization restricts OAuth client domains, IP addresses, third-party apps, or network egress. If it does, sign in to Atlassian Administration with an organization-admin account and complete the applicable checks below.
+You need no Atlassian-side configuration unless your organization restricts OAuth client domains, IP addresses, third-party apps, or network egress. For OAuth-domain or IP-allowlist restrictions, sign in to Atlassian Administration with an organization-admin account and complete the applicable checks below. If **User Installed Apps** is blocked, ask a site admin for help. For strict egress filtering, ask your network/security owner to allow the required Atlassian domain.
 
 ### Allow the Speakeasy OAuth domain {#allow-speakeasy-domain}
 
@@ -14,18 +14,27 @@ You need no Atlassian-side configuration unless your organization restricts OAut
 2. If more than one organization is shown, select the organization you want to connect.
 3. Select **Rovo**.
 4. Select **Rovo MCP server**.
-5. Obtain the exact OAuth redirect domain from your Speakeasy deployment owner.
-6. Check whether that domain is already covered by the allowed domains.
-7. If it is not covered, select **Add domain**.
-8. If it is not covered, add the trusted redirect domain with its protocol and valid host. Use HTTPS for the hosted client.
-9. If it is not covered, use the submission control shown in the console.
+5. Check whether the allowed domains cover this hosted OAuth callback:
+
+   ```
+   https://app.getgram.ai/mcp/remote_login_callback
+   ```
+
+6. If it is not covered, select **Add domain**.
+7. Enter this exact custom domain pattern:
+
+   ```
+   https://app.getgram.ai/mcp/remote_login_callback
+   ```
+
+8. Use the submission control shown in the console.
 
 Keep **Allow Atlassian supported domains** selected. Deselecting it blocks Atlassian's supported-domain set.
 
 If your organization uses IP allowlists:
 
-1. Ask your Speakeasy deployment owner for the connection's source IP addresses or CIDR blocks.
-2. Return to your organization in [admin.atlassian.com](https://admin.atlassian.com/).
+1. Ask your network/security owner whether hosted Speakeasy traffic has stable outbound IP addresses or CIDR blocks that your organization can allow. Do not guess these ranges.
+2. If your network/security owner supplies ranges, return to your organization in [admin.atlassian.com](https://admin.atlassian.com/).
 3. Select **Security**.
 4. Select **IP allowlists**.
 5. Open the applicable allowlist, or select **Create IP allowlist**.
@@ -33,7 +42,7 @@ If your organization uses IP allowlists:
 7. Select the Atlassian sites and apps to which the allowlist applies.
 8. Use the submission control shown in the console.
 
-If your organization uses strict egress filtering, allow the following domain so interactive Jira and Confluence widgets can render:
+If your organization uses strict egress filtering, ask your network/security owner to allow the following domain in your organization's network controls so interactive Jira and Confluence widgets can render:
 
 ```
 *.atlassian.net

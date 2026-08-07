@@ -1,0 +1,60 @@
+{
+  "slug": "atlassian",
+  "provider": "atlassian",
+  "persona": "it-admin",
+  "timestamp": "2026-08-07T19:24:55Z",
+  "started_at": "2026-08-07T19:24:55Z",
+  "finished_at": "2026-08-07T19:30:47Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "Does the Speakeasy MCP Catalog contain an exact, current Atlassian Rovo remote MCP Server entry in addition to the deprecated old external-protocol entry?",
+    "After selecting Configure Manually, does the discovered Atlassian issuer remain populated in Issuer URL?",
+    "What stable hosted outbound IP ranges, if any, are available when an organization enforces Atlassian IP allowlists?",
+    "When User Installed Apps is blocked, what exact current Atlassian Administration path approves or installs the Atlassian MCP app?"
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose: “If it does, sign in to Atlassian Administration with an organization-admin account and complete the applicable checks below.”",
+          "problem": "The opening incorrectly routes third-party-app and network-egress restrictions to an organization administrator in Atlassian Administration, while the Research Dossier assigns them to a site administrator and the network/security owner respectively.",
+          "suggestion": "Limit the organization-admin direction to OAuth-domain and IP-allowlist checks, then separately direct User Installed Apps failures to a site admin and strict egress filtering to the network/security owner.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "credential_setup.requirements[id=organization-policy-approval]",
+          "problem": "The requirement attributes every User Installed Apps restriction to organization-admin approval, but the Research Dossier says a site admin may need to install the Atlassian MCP app and leaves the exact approval path unresolved.",
+          "suggestion": "Use a role-neutral description such as “Administrative action when OAuth domains, IP allowlists, or User Installed Apps policy restrict the connection,” or split the organization-admin and site-admin requirements.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "External finding: revised the opening of external.md to limit Atlassian Administration organization-admin direction to OAuth-domain and IP-allowlist checks, while directing User Installed Apps failures to a site admin and strict egress filtering to the network/security owner. Meta finding: changed credential_setup.requirements[id=organization-policy-approval] to the role-neutral “Administrative action” wording for OAuth domains, IP allowlists, and User Installed Apps policy restrictions.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER adds draft-relevant setup facts: the exact hosted OAuth callback URL (`https://app.getgram.ai/mcp/remote_login_callback`) replaces the prior unknown-domain placeholder and changes the Atlassian custom-domain step; it identifies the existing catalog entry as deprecated for the old external protocol and favors the Custom remote server path unless a current Rovo entry is clearly present. It also clarifies that `*.atlassian.net` egress belongs to network/security controls and that hosted outbound IP ranges remain unknown. These deltas justify re-drafting both external.md and speakeasy.md."
+  },
+  "notes_digest": "sha256:23ab5f9269649c2ec02184bf07ff3d6cedb878254172af74ef4adbd01563ddcd",
+  "setup_churn": {
+    "external_md_lines": 9,
+    "speakeasy_md_lines": 0
+  }
+}
