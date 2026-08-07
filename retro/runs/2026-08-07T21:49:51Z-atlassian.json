@@ -1,0 +1,85 @@
+{
+  "slug": "atlassian",
+  "provider": "atlassian",
+  "persona": "it-admin",
+  "timestamp": "2026-08-07T21:49:51Z",
+  "started_at": "2026-08-07T21:49:51Z",
+  "finished_at": "2026-08-07T21:56:26Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "speakeasy",
+      "where": "Connect your credentials {#connect-speakeasy-credentials}, step 3",
+      "problem": "The step refers to an \"issuer/base auth URL\" instead of naming the sheet's **Issuer URL** field, leaving a cold reader to infer which field to inspect.",
+      "suggestion": "Change the step to say: \"Confirm that **Issuer URL** is:\" followed by the existing URL.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Does the Speakeasy MCP Catalog contain an exact result for the current Atlassian Rovo remote MCP Server? The supplied lookup was ambiguous, so both add-server paths remain conditional.",
+    "If Use Discovered is unavailable, can the current manual sheet retain the protected-resource-discovered registration endpoint while showing https://auth.atlassian.com as the issuer/base auth URL? The base issuer metadata does not advertise registration, so no unverified manual fallback is claimed."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup > Connect your credentials",
+          "problem": "The transcluded DCR flow omits the canonical **Endpoints** > **Discover** action required by `doctrine/speakeasy-setup.md`, replacing it with confirmation that endpoints are already populated.",
+          "suggestion": "Restore the canonical **Endpoints** > **Discover** step in the Research Dossier, then render it in `speakeasy.md`; retain **Use Discovered** as the documented entry path.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Fixed the blocker in “Connect your credentials”: restored the canonical **Endpoints** > **Discover** action in `research.md` and rendered the same action in `speakeasy.md`, while retaining **Use Discovered** as the entry path.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Connect your credentials {#connect-speakeasy-credentials}",
+          "problem": "The transcluded DCR flow moves **Endpoints** > **Discover** before retaining the auto-derived **Slug** and **Display name (optional)**, changing the step order fixed by `doctrine/speakeasy-setup.md`.",
+          "suggestion": "Move the **Slug** and **Display name (optional)** actions before **Endpoints** > **Discover** in `research.md`, then render that canonical order in `speakeasy.md`.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Fixed the blocker by moving the auto-derived Slug and Display name (optional) actions before Endpoints > Discover in guides/atlassian/research.md, then rendering the same canonical order in guides/atlassian/speakeasy.md. Anchors and all unrelated content remain unchanged.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "Connect your credentials {#connect-speakeasy-credentials}, step 3",
+          "problem": "The step refers to an \"issuer/base auth URL\" instead of naming the sheet's **Issuer URL** field, leaving a cold reader to infer which field to inspect.",
+          "suggestion": "Change the step to say: \"Confirm that **Issuer URL** is:\" followed by the existing URL.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER materially changes the OAuth/DCR setup: it replaces the opaque issuer value with the stable base auth URL https://auth.atlassian.com, removes the prior manual issuer/discovery fallback, and requires Use Discovered because DCR is established through the protected-resource discovery chain rather than base-issuer metadata. It also adds provenance-backed verification of the authorization, token, and registration endpoints and hedges the app-policy path instead of prescribing installation. These changes require re-drafting speakeasy.md and may affect external.md; the remote URL, transport, anchors, callback, and catalog conditionals remain unchanged."
+  },
+  "notes_digest": "sha256:8cd61e91d905d5a78eed89ff3d25da03e628499e7599146f3f13ed81ec50f3b1",
+  "setup_churn": {
+    "external_md_lines": 1,
+    "speakeasy_md_lines": 0
+  }
+}

@@ -6,7 +6,7 @@ setup_version: 1
 
 You need an Atlassian Cloud site with Jira, Confluence, and/or Compass, and the connecting Atlassian account must have access to the intended site and apps. Use a modern browser. Atlassian documents no paid-plan requirement for the MCP Server.
 
-You need no Atlassian-side configuration unless your organization restricts OAuth client domains, IP addresses, third-party apps, or network egress. For OAuth-domain or IP-allowlist restrictions, sign in to Atlassian Administration with an organization-admin account and complete the applicable checks below. If **User Installed Apps** is blocked, ask a site admin for help. For strict egress filtering, ask your network/security owner to allow the required Atlassian domain.
+You need no Atlassian-side configuration unless your organization restricts OAuth client domains, IP addresses, third-party apps, or network egress. For OAuth-domain or IP-allowlist restrictions, sign in to Atlassian Administration with an organization-admin account and complete the applicable checks below. If app-management policy blocks authorization, ask the site admin who owns Marketplace and third-party app policy for help. For strict egress filtering, ask your network/security owner to allow the required Atlassian domain.
 
 ### Allow the Speakeasy OAuth domain {#allow-speakeasy-domain}
 
@@ -43,4 +43,3 @@ If your organization uses strict egress filtering, ask your network/security own
 
 If Atlassian denies the OAuth redirect during connection, return to **Rovo** > **Rovo MCP server** and verify that the client origin matches an allowed domain or pattern. If the authorization screen appears but a tool call returns an IP permission error, update the relevant organization IP allowlist.
 
-If authorization reports that the app must be installed because **User Installed Apps** is blocked, ask a site admin to install the Atlassian MCP app under the organization's Marketplace and third-party app policy.
