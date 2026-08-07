@@ -3,10 +3,10 @@
   "slug": "atlassian",
   "persona": "it-admin",
   "runtime": "pi",
-  "updated_at": "2026-08-07T19:30:47Z",
+  "updated_at": "2026-08-07T20:31:31Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:e82b2d6d5b1af2405b9a5ee28e6883d8bbc12731e2c473a208d43f84ac86d621",
+      "input_digest": "sha256:7823c7d05ed9355164cd1682cc3317bae3b16a6bb3da2ca9d29f700bc1eb315a",
       "inputs": {
         "model": "openrouter/openai/gpt-5.6-sol",
         "prompt_digest": "sha256:255c60266361ff6711b0b04829329485020218f5a0460f70aa30f30d9c1711fc",
@@ -31,23 +31,23 @@
         "artifacts": [],
         "params": {
           "provider": "atlassian",
-          "notes": "Draft for the Atlassian Rovo remote MCP server. Docs: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/ The catalog entry exists but is deprecated because it uses the old external MCP protocol; favor the remote MCP path and keep catalog instructions conditional. Speakeasy OAuth redirect URL: https://app.getgram.ai/mcp/remote_login_callback. Exact hosted outbound IP ranges are unknown; omit or hedge. Exact admin approval/install clicks when User Installed Apps is blocked are unknown; omit or hedge. For strict egress filtering, direct readers to their network/security owner to allow *.atlassian.net; reserve Atlassian Administration guidance for OAuth-domain, IP-allowlist, and app-policy checks.\n\nSpeakeasy MCP Catalog: ambiguous"
+          "notes": "Draft/revise the Atlassian Rovo remote MCP server guide. Getting started: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/ Redirect allowlisting: https://support.atlassian.com/security-and-access-policies/docs/control-atlassian-rovo-mcp-server-settings/ Speakeasy redirect URL: https://app.getgram.ai/mcp/remote_login_callback. Do not mention the deprecated Atlassian catalog entry; use the remote MCP path. Verify whether the DCR authorization endpoint is https://auth.atlassian.com/authorize rather than assuming it. Omit or hedge unknown outbound IP ranges and blocked-app approval clicks; direct strict-egress users to allow *.atlassian.net through their network/security owner.\n\nSpeakeasy MCP Catalog: ambiguous"
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:c64a887a94d4e76c2683cb51cdb40867f67ed5325d3826484e43cf3caf750fc3"
+          "digest": "sha256:9cdb13797b625345408ec283d04329a04c5828c3baef46689a5961404dd05074"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:277bfd1ea60d53b79d2c1fe55f1843e2e2a8c0f083c51a0daa749c20561caf4f"
+          "digest": "sha256:b19c78adaacf007e53d9d79b3a97a0502659afb1c730eae62715796251a4036d"
         }
       ],
-      "completed_at": "2026-08-07T19:30:47Z"
+      "completed_at": "2026-08-07T20:31:31Z"
     },
     "draft": {
-      "input_digest": "sha256:16cf7392aeb75e34ba2a66cb9b732b0d25f3defd71fe04c0cfc9bcd9f9990611",
+      "input_digest": "sha256:40876a3e042b31a9febb8a86b5ae5c90da7ddbec691316d526be653aba1d9a91",
       "inputs": {
         "model": "openrouter/openai/gpt-5.6-sol",
         "prompt_digest": "sha256:ad649d12e8bf3882a1593555c0c4d31681ac50aa891177b1a8f766a563d85d6c",
@@ -72,33 +72,33 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:c64a887a94d4e76c2683cb51cdb40867f67ed5325d3826484e43cf3caf750fc3"
+            "digest": "sha256:9cdb13797b625345408ec283d04329a04c5828c3baef46689a5961404dd05074"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:277bfd1ea60d53b79d2c1fe55f1843e2e2a8c0f083c51a0daa749c20561caf4f"
+            "digest": "sha256:b19c78adaacf007e53d9d79b3a97a0502659afb1c730eae62715796251a4036d"
           }
         ],
         "params": {
           "provider": "atlassian",
-          "notes": "Draft for the Atlassian Rovo remote MCP server. Docs: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/ The catalog entry exists but is deprecated because it uses the old external MCP protocol; favor the remote MCP path and keep catalog instructions conditional. Speakeasy OAuth redirect URL: https://app.getgram.ai/mcp/remote_login_callback. Exact hosted outbound IP ranges are unknown; omit or hedge. Exact admin approval/install clicks when User Installed Apps is blocked are unknown; omit or hedge. For strict egress filtering, direct readers to their network/security owner to allow *.atlassian.net; reserve Atlassian Administration guidance for OAuth-domain, IP-allowlist, and app-policy checks.\n\nSpeakeasy MCP Catalog: ambiguous",
+          "notes": "Draft/revise the Atlassian Rovo remote MCP server guide. Getting started: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/ Redirect allowlisting: https://support.atlassian.com/security-and-access-policies/docs/control-atlassian-rovo-mcp-server-settings/ Speakeasy redirect URL: https://app.getgram.ai/mcp/remote_login_callback. Do not mention the deprecated Atlassian catalog entry; use the remote MCP path. Verify whether the DCR authorization endpoint is https://auth.atlassian.com/authorize rather than assuming it. Omit or hedge unknown outbound IP ranges and blocked-app approval clicks; direct strict-egress users to allow *.atlassian.net through their network/security owner.\n\nSpeakeasy MCP Catalog: ambiguous",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:7c25645ff2a9bf9b76604da4936da40eedd8657eaa11765c7e206b816e93d84e"
+          "digest": "sha256:9f85898702a67effb30e38655722cc18cec7dff2fe28b5a1154f0e88496c1102"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:a7b0d645b4b830e21fed5fce2b6d66e4facc796db161d30431e94e887baa3045"
+          "digest": "sha256:b66da529f9e3903ac1b2e6da0af34c885587b88bd8ec7475c644fc8b4c20cc21"
         }
       ],
-      "completed_at": "2026-08-07T19:30:47Z"
+      "completed_at": "2026-08-07T20:31:31Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:5e063bd075f370d31ebabc6c46e555710d9daa951f3d22bac5772eddc8358b18",
+      "input_digest": "sha256:3e5134e32519bc3bf49e40b91452e3a99ac7883bfc70fca0d843d24da6920411",
       "inputs": {
         "model": "openrouter/openai/gpt-5.6-sol",
         "prompt_digest": "sha256:2885ba720bba92fbed782f1ac13fdbd065c3f1a294302ee85792fc4f61866e1f",
@@ -119,24 +119,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:c64a887a94d4e76c2683cb51cdb40867f67ed5325d3826484e43cf3caf750fc3"
+            "digest": "sha256:9cdb13797b625345408ec283d04329a04c5828c3baef46689a5961404dd05074"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:277bfd1ea60d53b79d2c1fe55f1843e2e2a8c0f083c51a0daa749c20561caf4f"
+            "digest": "sha256:b19c78adaacf007e53d9d79b3a97a0502659afb1c730eae62715796251a4036d"
           },
           {
             "path": "external.md",
-            "digest": "sha256:7c25645ff2a9bf9b76604da4936da40eedd8657eaa11765c7e206b816e93d84e"
+            "digest": "sha256:9f85898702a67effb30e38655722cc18cec7dff2fe28b5a1154f0e88496c1102"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:a7b0d645b4b830e21fed5fce2b6d66e4facc796db161d30431e94e887baa3045"
+            "digest": "sha256:b66da529f9e3903ac1b2e6da0af34c885587b88bd8ec7475c644fc8b4c20cc21"
           }
         ],
         "params": {
           "provider": "atlassian",
-          "notes": "Draft for the Atlassian Rovo remote MCP server. Docs: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/ The catalog entry exists but is deprecated because it uses the old external MCP protocol; favor the remote MCP path and keep catalog instructions conditional. Speakeasy OAuth redirect URL: https://app.getgram.ai/mcp/remote_login_callback. Exact hosted outbound IP ranges are unknown; omit or hedge. Exact admin approval/install clicks when User Installed Apps is blocked are unknown; omit or hedge. For strict egress filtering, direct readers to their network/security owner to allow *.atlassian.net; reserve Atlassian Administration guidance for OAuth-domain, IP-allowlist, and app-policy checks.\n\nSpeakeasy MCP Catalog: ambiguous",
+          "notes": "Draft/revise the Atlassian Rovo remote MCP server guide. Getting started: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/ Redirect allowlisting: https://support.atlassian.com/security-and-access-policies/docs/control-atlassian-rovo-mcp-server-settings/ Speakeasy redirect URL: https://app.getgram.ai/mcp/remote_login_callback. Do not mention the deprecated Atlassian catalog entry; use the remote MCP path. Verify whether the DCR authorization endpoint is https://auth.atlassian.com/authorize rather than assuming it. Omit or hedge unknown outbound IP ranges and blocked-app approval clicks; direct strict-egress users to allow *.atlassian.net through their network/security owner.\n\nSpeakeasy MCP Catalog: ambiguous",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,17 +144,17 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:7c25645ff2a9bf9b76604da4936da40eedd8657eaa11765c7e206b816e93d84e"
+          "digest": "sha256:9f85898702a67effb30e38655722cc18cec7dff2fe28b5a1154f0e88496c1102"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:a7b0d645b4b830e21fed5fce2b6d66e4facc796db161d30431e94e887baa3045"
+          "digest": "sha256:b66da529f9e3903ac1b2e6da0af34c885587b88bd8ec7475c644fc8b4c20cc21"
         }
       ],
-      "completed_at": "2026-08-07T19:30:47Z"
+      "completed_at": "2026-08-07T20:31:31Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:730dc1f083a46f028cd0cb3f86519356586398e2cd3d034ed9820f1b6945f369",
+      "input_digest": "sha256:65222c57b09b48e764c4f357599e9be9d60b3bb0aa2362a423235bd3bf658b16",
       "inputs": {
         "model": "openrouter/openai/gpt-5.6-sol",
         "prompt_digest": "sha256:0b287f892ece7611416030973e4b1952db4c173e3023930bf238685d39b79cdf",
@@ -179,24 +179,24 @@
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:c64a887a94d4e76c2683cb51cdb40867f67ed5325d3826484e43cf3caf750fc3"
+            "digest": "sha256:9cdb13797b625345408ec283d04329a04c5828c3baef46689a5961404dd05074"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:277bfd1ea60d53b79d2c1fe55f1843e2e2a8c0f083c51a0daa749c20561caf4f"
+            "digest": "sha256:b19c78adaacf007e53d9d79b3a97a0502659afb1c730eae62715796251a4036d"
           },
           {
             "path": "external.md",
-            "digest": "sha256:7c25645ff2a9bf9b76604da4936da40eedd8657eaa11765c7e206b816e93d84e"
+            "digest": "sha256:9f85898702a67effb30e38655722cc18cec7dff2fe28b5a1154f0e88496c1102"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:a7b0d645b4b830e21fed5fce2b6d66e4facc796db161d30431e94e887baa3045"
+            "digest": "sha256:b66da529f9e3903ac1b2e6da0af34c885587b88bd8ec7475c644fc8b4c20cc21"
           }
         ],
         "params": {
           "provider": "atlassian",
-          "notes": "Draft for the Atlassian Rovo remote MCP server. Docs: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/ The catalog entry exists but is deprecated because it uses the old external MCP protocol; favor the remote MCP path and keep catalog instructions conditional. Speakeasy OAuth redirect URL: https://app.getgram.ai/mcp/remote_login_callback. Exact hosted outbound IP ranges are unknown; omit or hedge. Exact admin approval/install clicks when User Installed Apps is blocked are unknown; omit or hedge. For strict egress filtering, direct readers to their network/security owner to allow *.atlassian.net; reserve Atlassian Administration guidance for OAuth-domain, IP-allowlist, and app-policy checks.\n\nSpeakeasy MCP Catalog: ambiguous",
+          "notes": "Draft/revise the Atlassian Rovo remote MCP server guide. Getting started: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/ Redirect allowlisting: https://support.atlassian.com/security-and-access-policies/docs/control-atlassian-rovo-mcp-server-settings/ Speakeasy redirect URL: https://app.getgram.ai/mcp/remote_login_callback. Do not mention the deprecated Atlassian catalog entry; use the remote MCP path. Verify whether the DCR authorization endpoint is https://auth.atlassian.com/authorize rather than assuming it. Omit or hedge unknown outbound IP ranges and blocked-app approval clicks; direct strict-egress users to allow *.atlassian.net through their network/security owner.\n\nSpeakeasy MCP Catalog: ambiguous",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:7c25645ff2a9bf9b76604da4936da40eedd8657eaa11765c7e206b816e93d84e"
+          "digest": "sha256:9f85898702a67effb30e38655722cc18cec7dff2fe28b5a1154f0e88496c1102"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:a7b0d645b4b830e21fed5fce2b6d66e4facc796db161d30431e94e887baa3045"
+          "digest": "sha256:b66da529f9e3903ac1b2e6da0af34c885587b88bd8ec7475c644fc8b4c20cc21"
         }
       ],
-      "completed_at": "2026-08-07T19:30:47Z"
+      "completed_at": "2026-08-07T20:31:31Z"
     }
   }
 }
