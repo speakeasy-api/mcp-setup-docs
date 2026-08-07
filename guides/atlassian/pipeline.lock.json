@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "slug": "atlassian",
+  "persona": "it-admin",
+  "runtime": "pi",
+  "updated_at": "2026-08-07T18:58:58Z",
+  "steps": {
+    "research": {
+      "input_digest": "sha256:08658f8d2b0f63526ddc0d807836baa180e593475219b3ac4533a21ff593054d",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:255c60266361ff6711b0b04829329485020218f5a0460f70aa30f30d9c1711fc",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/technical-research.md",
+            "digest": "sha256:88f093f873c705128a0a31eb38be298a2ee11f4d50815552739925337f8ac3ad"
+          },
+          {
+            "path": "doctrine/speakeasy-setup.md",
+            "digest": "sha256:9f173facc7f63e450eb7e4d693c67c0a88e9ff68f0a381cfcbae413a8d47dd16"
+          }
+        ],
+        "artifacts": [],
+        "params": {
+          "provider": "atlassian",
+          "notes": "Draft a guide for the Atlassian Rovo remote MCP server. Docs: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/\n\nSpeakeasy MCP Catalog: ambiguous"
+        }
+      },
+      "outputs": [
+        {
+          "path": "research.md",
+          "digest": "sha256:66b2713796823850ac1321df860782cdb182e1d319eaa4a0cd648121967ec4e9"
+        },
+        {
+          "path": "meta.yaml",
+          "digest": "sha256:55caec364280313f038de9b7375f4a9fb175869692c47c30fee2215cf5cab2d5"
+        }
+      ],
+      "completed_at": "2026-08-07T18:58:58Z"
+    },
+    "draft": {
+      "input_digest": "sha256:4c3e50a1af76329e144e87652d81207030e9cfd45048c81b45634eeac7dd5f23",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:ad649d12e8bf3882a1593555c0c4d31681ac50aa891177b1a8f766a563d85d6c",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/writer.md",
+            "digest": "sha256:4214af68feea7dfc68fab1058e1d5d35e6238d5b51fd9b10db421ebafc49a3cc"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:66b2713796823850ac1321df860782cdb182e1d319eaa4a0cd648121967ec4e9"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:55caec364280313f038de9b7375f4a9fb175869692c47c30fee2215cf5cab2d5"
+          }
+        ],
+        "params": {
+          "provider": "atlassian",
+          "notes": "Draft a guide for the Atlassian Rovo remote MCP server. Docs: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/\n\nSpeakeasy MCP Catalog: ambiguous",
+          "persona": "it-admin"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:bc2bd8d8bb9025363a60e59ff1f64e0b6712d3cacb55afb9dd5aed4acdc6faae"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:b93dad426ffa8b496a84feb720fad2a56c9243287953fe49d250967bce6a4036"
+        }
+      ],
+      "completed_at": "2026-08-07T18:58:58Z"
+    },
+    "review.fidelity": {
+      "input_digest": "sha256:08d72dd4dd052d9967478a466c1e8aa69d43df50cc11356e0a2cbb61fa7f401d",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:2885ba720bba92fbed782f1ac13fdbd065c3f1a294302ee85792fc4f61866e1f",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/fidelity.md",
+            "digest": "sha256:f1c64906d2702d25c5db118f0a1a471b4962333a506c235ffebccf67413aa7f3"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:66b2713796823850ac1321df860782cdb182e1d319eaa4a0cd648121967ec4e9"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:55caec364280313f038de9b7375f4a9fb175869692c47c30fee2215cf5cab2d5"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:bc2bd8d8bb9025363a60e59ff1f64e0b6712d3cacb55afb9dd5aed4acdc6faae"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:b93dad426ffa8b496a84feb720fad2a56c9243287953fe49d250967bce6a4036"
+          }
+        ],
+        "params": {
+          "provider": "atlassian",
+          "notes": "Draft a guide for the Atlassian Rovo remote MCP server. Docs: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/\n\nSpeakeasy MCP Catalog: ambiguous",
+          "persona": "it-admin",
+          "dimension": "fidelity"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:bc2bd8d8bb9025363a60e59ff1f64e0b6712d3cacb55afb9dd5aed4acdc6faae"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:b93dad426ffa8b496a84feb720fad2a56c9243287953fe49d250967bce6a4036"
+        }
+      ],
+      "completed_at": "2026-08-07T18:58:58Z"
+    },
+    "review.achievability": {
+      "input_digest": "sha256:9d548665fbc4b813447fa9edc08f66019af2c1af17d55c520be8b1e745b3c428",
+      "inputs": {
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:0b287f892ece7611416030973e4b1952db4c173e3023930bf238685d39b79cdf",
+        "reading_list": [
+          {
+            "path": "doctrine/glossary.md",
+            "digest": "sha256:8d14a903b777a43a7e73f2612be0846195143f9a37ebf5b60815a49d28acbd8f"
+          },
+          {
+            "path": "doctrine/shared.md",
+            "digest": "sha256:7da98efa7ef9b5772be6346d54d6bd4fd230d0a2d62786016f7ee8265ff1b8db"
+          },
+          {
+            "path": "doctrine/roles/review.md",
+            "digest": "sha256:7eb1e560946bbc2656afdfbdbd26d85b3d4a5579818fc4bd6629d818ce251f69"
+          },
+          {
+            "path": "doctrine/personas/it-admin.md",
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
+          }
+        ],
+        "artifacts": [
+          {
+            "path": "research.md",
+            "digest": "sha256:66b2713796823850ac1321df860782cdb182e1d319eaa4a0cd648121967ec4e9"
+          },
+          {
+            "path": "meta.yaml",
+            "digest": "sha256:55caec364280313f038de9b7375f4a9fb175869692c47c30fee2215cf5cab2d5"
+          },
+          {
+            "path": "external.md",
+            "digest": "sha256:bc2bd8d8bb9025363a60e59ff1f64e0b6712d3cacb55afb9dd5aed4acdc6faae"
+          },
+          {
+            "path": "speakeasy.md",
+            "digest": "sha256:b93dad426ffa8b496a84feb720fad2a56c9243287953fe49d250967bce6a4036"
+          }
+        ],
+        "params": {
+          "provider": "atlassian",
+          "notes": "Draft a guide for the Atlassian Rovo remote MCP server. Docs: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/\n\nSpeakeasy MCP Catalog: ambiguous",
+          "persona": "it-admin",
+          "dimension": "achievability"
+        }
+      },
+      "outputs": [
+        {
+          "path": "external.md",
+          "digest": "sha256:bc2bd8d8bb9025363a60e59ff1f64e0b6712d3cacb55afb9dd5aed4acdc6faae"
+        },
+        {
+          "path": "speakeasy.md",
+          "digest": "sha256:b93dad426ffa8b496a84feb720fad2a56c9243287953fe49d250967bce6a4036"
+        }
+      ],
+      "completed_at": "2026-08-07T18:58:58Z"
+    }
+  }
+}
