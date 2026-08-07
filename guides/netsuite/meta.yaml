@@ -39,64 +39,64 @@ remotes:
         locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714082142.html
         name: Connect to the NetSuite AI Connector Service
         classification: official
-        observed_at: "2026-08-07T22:06:11Z"
+        observed_at: "2026-08-07T22:23:30Z"
       - source: provider-documentation
         locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_0902023450.html
         name: Installing the MCP Standard Tools SuiteApp
         classification: official
-        observed_at: "2026-08-07T22:06:11Z"
+        observed_at: "2026-08-07T22:23:30Z"
 provenance:
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_4160616848.html
     name: NetSuite AI Connector Service FAQ
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_3200541651.html
     name: Get Started with the NetSuite AI Connector Service
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714080625.html
     name: Required Features and Permissions
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_143403258.html
     name: MCP Standard Tools SuiteApp
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_0902023450.html
     name: Installing the MCP Standard Tools SuiteApp
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714082142.html
     name: Connect to the NetSuite AI Connector Service
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_157771733782.html
     name: Create Integration Records for Applications to Use OAuth 2.0
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_N895277.html
     name: Giving an Employee Access to NetSuite
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_1498251763.html
     name: URLs for Account-Specific Domains
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: speakeasy-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical file
     classification: official
-    observed_at: "2026-08-07T22:06:11Z"
+    observed_at: "2026-08-07T22:23:30Z"
   - source: operator-validation
     locator: draft-guide operator notes for netsuite
-    status: Bundle ID 522506; public-client PKCE path; Speakeasy MCP Catalog result overridden-tenanted for query netsuite; tenanted remote requires Custom remote path
-    observed_at: "2026-08-07T22:06:11Z"
+    status: Bundle ID 522506; public-client PKCE path; scoped non-admin role; Attach Remote Identity Provider shows Redirect URI with a copy button before credential entry; Speakeasy MCP Catalog result overridden-tenanted for query netsuite; tenanted remote requires Custom remote path
+    observed_at: "2026-08-07T22:23:30Z"

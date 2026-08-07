@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: netsuite
-researched_at: 2026-08-07T22:06:11Z
+researched_at: 2026-08-07T22:23:30Z
 ---
 
 # NetSuite — Research Dossier
@@ -23,7 +23,7 @@ researched_at: 2026-08-07T22:06:11Z
 
 ## Credential flow
 
-An administrator enables the required SuiteCloud features, installs MCP Standard Tools, prepares a least-privilege non-Administrator role, finds the account ID, and manually creates an OAuth 2.0 integration record. The integration record is a public client: NetSuite issues a **Client ID**, while the Speakeasy AI Control Plane does not need the displayed client secret. Enter `{{ gram.oauth.callback_url }}` directly in NetSuite's **Redirect URI** field. Later, the Speakeasy **Attach Remote Identity Provider** sheet displays the resolved **Redirect URI** for confirmation.
+An administrator enables the required SuiteCloud features, installs MCP Standard Tools, prepares a least-privilege non-Administrator role, finds the account ID, and manually creates an OAuth 2.0 integration record. The integration record is a public client: NetSuite issues a **Client ID**, while the Speakeasy AI Control Plane does not need the displayed client secret. Enter `{{ gram.oauth.callback_url }}` directly in NetSuite's **Redirect URI** field. Later, the Speakeasy **Attach Remote Identity Provider** sheet displays the resolved **Redirect URI** with a copy button before the credential-entry fields. Confirm that it matches the callback registered in NetSuite before entering the client ID.
 
 The MCP endpoint embeds the account ID. Oracle's MCP connection page says an Administrator can provide this account-specific URL. Oracle's account-domain page places account-specific URLs at **Setup > Company > Company Information > Company URLs**, but does not identify an MCP-specific row there. For this documented endpoint, copy the account ID shown in NetSuite and substitute it exactly as the MCP page directs; note that sandbox and Release Preview account IDs are normalized in hostnames (underscores become hyphens and letters become lowercase).
 
@@ -108,13 +108,13 @@ In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Authentication**, click **Configure Manually**. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**. Paste the **Client ID** produced by [Create the OAuth integration](#create-oauth-integration). Leave **Client Secret (optional)** empty because the NetSuite integration is a public client, then click **Attach Identity Provider**. Confirm the sheet's **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value registered in that step.
+From the server's **Overview**, open **Settings**. Under **Authentication**, click **Configure Manually**. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**. Before entering credentials, use the displayed **Redirect URI** and its copy button to confirm that the value matches the `{{ gram.oauth.callback_url }}` value registered in [Create the OAuth integration](#create-oauth-integration). Paste the **Client ID** produced by that step. Leave **Client Secret (optional)** empty because the NetSuite integration is a public client, then click **Attach Identity Provider**.
 
 The selected Authentication Option is `oauth-public-client`: OAuth 2.0 Authorization Code Grant with PKCE, manual client registration, Client ID only. The provider documentation reviewed does not state whether protected-resource metadata enables **Use Discovered**, so use **Configure Manually**.
 
 When a client first requests access, complete NetSuite's browser sign-in with the intended scoped non-Administrator role, review the allow/deny prompt, and allow access only after reviewing the organization's data-sharing controls.
 
-- Screenshot note: capture **Attach Remote Identity Provider** with **Client Type: Manual**, **Client ID**, empty optional secret, and **Redirect URI** visible; redact the ID and URI.
+- Screenshot note: capture **Attach Remote Identity Provider** before credential entry, with **Client Type: Manual**, the **Redirect URI** and its copy button, **Client ID**, and the empty optional secret visible; redact the URI and any entered ID.
 - Further reading: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_4160616848.html
 
 The Writer should close with: This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [NetSuite's MCP documentation](https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_4160616848.html).
@@ -136,14 +136,14 @@ The Writer should close with: This guide covers setup only. For anything beyond 
 
 ### Sources used
 
-- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_4160616848.html — observed 2026-08-07T22:06:11Z; official NetSuite AI Connector FAQ. Backs protocol version, streamable HTTP, OAuth authorization-code PKCE, endpoint forms and `/all` warning, required features and role permissions, non-Administrator restriction, no-cost statement, integration-record properties, and troubleshooting facts.
-- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_3200541651.html — observed 2026-08-07T22:06:11Z; official getting-started hub. Backs service identity, MCP Standard Tools availability, and compliance warning.
-- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714080625.html — observed 2026-08-07T22:06:11Z; official required features and permissions page. Backs exact feature path and labels, role path/subtab, exact permission labels, Administrator prohibition, and REST Web Services requirements.
-- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_143403258.html — observed 2026-08-07T22:06:11Z; official MCP Standard Tools overview. Backs role-based data/action boundaries, create/update implications, and separate least-privilege role recommendation.
-- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_0902023450.html — observed 2026-08-07T22:06:11Z; official SuiteApp installation page. Backs exact Marketplace navigation, controls, managed-update behavior, endpoint suffix, and File Cabinet access caveat.
-- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714082142.html — observed 2026-08-07T22:06:11Z; official connection and namespacing page. Backs account-specific server URL, Standard Tools application ID, `/all` distinction, integration-record requirements, first-connection consent behavior, and role selection.
-- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_157771733782.html — observed 2026-08-07T22:06:11Z; official OAuth integration-record task. Backs navigation, field labels, public-client behavior, redirect rules, NetSuite AI Connector Service scope exclusivity, consent-policy choices, create permission, save action, one-time credential display, and the **Edit** > **Reset Credentials** > **OK** recovery path.
-- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_N895277.html — observed 2026-08-07T22:06:11Z; official employee-access task. Backs the employee record's **Access > Roles** path and assigning a role with **Role**, **Add**, and **Save**.
-- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_1498251763.html — observed 2026-08-07T22:06:11Z; official account-specific domains page. Backs **Company Information > Company URLs**, account-specific URL behavior, and sandbox/Release Preview hostname normalization.
-- `doctrine/speakeasy-setup.md` — observed 2026-08-07T22:06:11Z; canonical Speakeasy AI Control Plane add-server and manual OAuth labels, transitions, fixed anchors, and closing pointer.
-- Draft-guide operator notes for `netsuite` — observed 2026-08-07T22:06:11Z; backs Bundle ID 522506, public-client PKCE path, scoped non-admin role decision, matching Speakeasy callback requirement, and Speakeasy MCP Catalog result `overridden-tenanted` for query `netsuite`.
+- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_4160616848.html — observed 2026-08-07T22:23:30Z; official NetSuite AI Connector FAQ. Backs protocol version, streamable HTTP, OAuth authorization-code PKCE, endpoint forms and `/all` warning, required features and role permissions, non-Administrator restriction, no-cost statement, integration-record properties, and troubleshooting facts.
+- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_3200541651.html — observed 2026-08-07T22:23:30Z; official getting-started hub. Backs service identity, MCP Standard Tools availability, and compliance warning.
+- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714080625.html — observed 2026-08-07T22:23:30Z; official required features and permissions page. Backs exact feature path and labels, role path/subtab, exact permission labels, Administrator prohibition, and REST Web Services requirements.
+- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_143403258.html — observed 2026-08-07T22:23:30Z; official MCP Standard Tools overview. Backs role-based data/action boundaries, create/update implications, and separate least-privilege role recommendation.
+- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_0902023450.html — observed 2026-08-07T22:23:30Z; official SuiteApp installation page. Backs exact Marketplace navigation, controls, managed-update behavior, endpoint suffix, and File Cabinet access caveat.
+- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714082142.html — observed 2026-08-07T22:23:30Z; official connection and namespacing page. Backs account-specific server URL, Standard Tools application ID, `/all` distinction, integration-record requirements, first-connection consent behavior, and role selection.
+- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_157771733782.html — observed 2026-08-07T22:23:30Z; official OAuth integration-record task. Backs navigation, field labels, public-client behavior, redirect rules, NetSuite AI Connector Service scope exclusivity, consent-policy choices, create permission, save action, one-time credential display, and the **Edit** > **Reset Credentials** > **OK** recovery path.
+- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_N895277.html — observed 2026-08-07T22:23:30Z; official employee-access task. Backs the employee record's **Access > Roles** path and assigning a role with **Role**, **Add**, and **Save**.
+- https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_1498251763.html — observed 2026-08-07T22:23:30Z; official account-specific domains page. Backs **Company Information > Company URLs**, account-specific URL behavior, and sandbox/Release Preview hostname normalization.
+- `doctrine/speakeasy-setup.md` — observed 2026-08-07T22:23:30Z; canonical Speakeasy AI Control Plane add-server and manual OAuth labels, transitions, fixed anchors, and closing pointer.
+- Draft-guide operator notes for `netsuite` — observed 2026-08-07T22:23:30Z; backs Bundle ID 522506, public-client PKCE path, scoped non-admin role decision, the verified **Attach Remote Identity Provider** layout (**Redirect URI** with a copy button before credential entry), matching Speakeasy callback requirement, and Speakeasy MCP Catalog result `overridden-tenanted` for query `netsuite`.

@@ -15,13 +15,13 @@
 1. From the server's **Overview**, open **Settings**.
 2. Under **Authentication**, click **Configure Manually**.
 3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-4. Paste the **Client ID** copied in [Create the OAuth integration](external.md#create-oauth-integration).
-5. Leave **Client Secret (optional)** empty.
-6. Click **Attach Identity Provider**.
-7. Confirm that **Redirect URI** matches the value registered in that step.
+4. Before entering credentials, use the displayed **Redirect URI** and its copy button to confirm that the value matches the callback registered in [Create the OAuth integration](external.md#create-oauth-integration).
+5. Paste the **Client ID** copied in that step.
+6. Leave **Client Secret (optional)** empty.
+7. Click **Attach Identity Provider**.
 
 When a client first requests access, sign in to NetSuite with the scoped non-Administrator role assigned in [Configure a scoped non-admin role](external.md#configure-scoped-role). Review the allow/deny prompt, then allow access only after reviewing your organization's data-sharing controls.
 
-<!-- screenshot: Attach Remote Identity Provider with Client Type: Manual, Client ID, empty optional secret, and Redirect URI visible; redact the ID and URI -->
+<!-- screenshot: Attach Remote Identity Provider before credential entry, with Client Type: Manual, the Redirect URI and its copy button, Client ID, and the empty optional secret visible; redact the URI and any entered ID -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [NetSuite's MCP documentation](https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_4160616848.html).
