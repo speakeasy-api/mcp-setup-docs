@@ -7,6 +7,7 @@ const SchemaVersion = 1
 
 var generatedSlugs = []GuideSlug{
 	"asana",
+	"atlassian",
 	"box",
 	"github",
 	"google-big-query",
@@ -19,6 +20,7 @@ var generatedSlugs = []GuideSlug{
 	"google-slides",
 	"hubspot",
 	"intercom",
+	"netsuite",
 	"salesforce",
 	"snowflake",
 	"x",
@@ -65,6 +67,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 		CredentialOptions: []generatedCredentialOption{
 			{ID: "oauth-mcp-app", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
+	"atlassian": {
+		Slug:               "atlassian",
+		Title:              "Atlassian Rovo",
+		Summary:            "Connect Atlassian Rovo so users can access their permitted Jira, Confluence, and Compass work through the hosted MCP server.",
+		SpeakeasyAddServer: "auto",
+		SetupRequired:      true,
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "rovo", URL: "https://mcp.atlassian.com/v1/mcp/authv2", Transport: "streamable-http", Tenanted: false},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "oauth-dcr", Kind: "oauth", ClientRegistration: "dynamic", UpstreamSetup: "provider-steps", SpeakeasySetup: "dcr"},
 		},
 	},
 	"box": {
@@ -236,6 +252,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 			{ID: "oauth-manual", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
 		},
 	},
+	"netsuite": {
+		Slug:               "netsuite",
+		Title:              "NetSuite",
+		Summary:            "Connect the account-specific NetSuite AI Connector Service with MCP Standard Tools and a scoped public OAuth client.",
+		SpeakeasyAddServer: "custom-remote",
+		SetupRequired:      true,
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "mcp-standard-tools", URL: "https://<accountid>.suitetalk.api.netsuite.com/services/mcp/v1/suiteapp/com.netsuite.mcpstandardtools", Transport: "streamable-http", Tenanted: true},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "oauth-public-client", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
 	"salesforce": {
 		Slug:               "salesforce",
 		Title:              "Salesforce",
@@ -382,6 +412,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	"https://mcp.asana.com/v2/mcp": {
 		{Guide: "asana", Remote: "hosted"},
 	},
+	"https://mcp.atlassian.com/v1/mcp/authv2": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"https://mcp.box.com": {
 		{Guide: "box", Remote: "hosted"},
 	},
@@ -449,6 +482,15 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Asana": {
 		{Guide: "asana", Remote: "hosted"},
 	},
+	"Atlassian Rovo MCP server": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
+	"Atlassian authorization-server metadata with DCR registration endpoint": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
+	"Atlassian base authorization-server metadata": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Authenticate to Google and Google Cloud MCP servers": {
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
@@ -461,8 +503,14 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "intercom", Remote: "us"},
 		{Guide: "x", Remote: "hosted"},
 	},
+	"Authentication and authorization": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Authorizing OAuth apps": {
 		{Guide: "github", Remote: "hosted"},
+	},
+	"Available Atlassian Rovo MCP server domains": {
+		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"Available Tools": {
 		{Guide: "box", Remote: "hosted"},
@@ -603,6 +651,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Configuring Box AI": {
 		{Guide: "box", Remote: "hosted"},
 	},
+	"Configuring OAuth 2.1": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
+	"Configuring authentication via API token": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Configuring the GitHub MCP Server for GitHub Enterprise": {
 		{Guide: "github", Remote: "hosted"},
 	},
@@ -615,6 +669,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "sobject-mutations-sandbox"},
 		{Guide: "salesforce", Remote: "sobject-reads-production"},
 		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
+	},
+	"Connect to the NetSuite AI Connector Service": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
 	"Connecting Coding Clients to Asana's V2 server": {
 		{Guide: "asana", Remote: "hosted"},
@@ -629,6 +686,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "sobject-reads-production"},
 		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
 	},
+	"Control Atlassian Rovo MCP server settings": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Control which apps access Google Workspace data": {
 		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-docs", Remote: "hosted"},
@@ -639,6 +699,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Cortex Agents access control and authentication": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
+	},
+	"Create Integration Records for Applications to Use OAuth 2.0": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
 	"Create access credentials": {
 		{Guide: "google-docs", Remote: "hosted"},
@@ -702,6 +765,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"GRANT privileges to role": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
 	},
+	"Get Started with the NetSuite AI Connector Service": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
 	"Get started with the Google Auth Platform": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
@@ -710,6 +776,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Getting Started with Managed Snowflake MCP Server": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
+	},
+	"Getting started with the Atlassian Rovo MCP Server": {
+		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"GitHub MCP Registry": {
 		{Guide: "box", Remote: "hosted"},
@@ -722,6 +791,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"GitHub Remote MCP Integration Guide for MCP Host Authors": {
 		{Guide: "github", Remote: "hosted"},
+	},
+	"Giving an Employee Access to NetSuite": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
 	"Google Calendar MCP endpoint": {
 		{Guide: "google-calendar", Remote: "hosted"},
@@ -811,6 +883,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"HubSpot user permissions guide": {
 		{Guide: "hubspot", Remote: "hosted"},
 	},
+	"Installing the MCP Standard Tools SuiteApp": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
 	"Integrate AI tools with the HubSpot MCP server": {
 		{Guide: "hubspot", Remote: "hosted"},
 	},
@@ -840,6 +915,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"MCP Server Activity Report": {
 		{Guide: "box", Remote: "hosted"},
+	},
+	"MCP Standard Tools SuiteApp": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
 	"MCP servers for the X API and X developer docs": {
 		{Guide: "x-docs", Remote: "docs"},
@@ -890,6 +968,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Model Context Protocol (MCP)": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
+	},
+	"NetSuite AI Connector Service FAQ": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
+	"No exact current Atlassian Rovo title/name match": {
+		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"OAuth": {
 		{Guide: "asana", Remote: "hosted"},
@@ -954,6 +1038,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Requesting organization approval for OAuth apps": {
 		{Guide: "github", Remote: "hosted"},
+	},
+	"Required Features and Permissions": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
 	"Revoke access to a Google Cloud project": {
 		{Guide: "google-big-query", Remote: "hosted"},
@@ -1077,6 +1164,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
 	},
+	"Setting up clients": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Setting up the GitHub MCP Server": {
 		{Guide: "github", Remote: "hosted"},
 	},
@@ -1095,14 +1185,21 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Snowflake-managed MCP server": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
 	},
+	"Speakeasy callback and catalog-path observations": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Speakeasy identity-provider attachment sheet": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
 	"Speakeasy identity-provider form fields": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
+	"Speakeasy setup canonical file": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
 	"Speakeasy setup canonical section": {
 		{Guide: "asana", Remote: "hosted"},
+		{Guide: "atlassian", Remote: "rovo"},
 		{Guide: "github", Remote: "hosted"},
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-calendar", Remote: "hosted"},
@@ -1125,6 +1222,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
 		{Guide: "x-docs", Remote: "docs"},
 		{Guide: "x", Remote: "hosted"},
+	},
+	"Specify IP addresses for product access": {
+		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"Spring 2026 Spotlight": {
 		{Guide: "hubspot", Remote: "hosted"},
@@ -1150,8 +1250,14 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-compute-engine", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
 	},
+	"Troubleshooting and verifying your setup": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Try BigQuery using the sandbox": {
 		{Guide: "google-big-query", Remote: "hosted"},
+	},
+	"URLs for Account-Specific Domains": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
 	"Understanding AI Units In Box": {
 		{Guide: "box", Remote: "hosted"},
@@ -1182,6 +1288,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
+	},
+	"Using with other supported MCP clients": {
+		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"V2 MCP server now generally available": {
 		{Guide: "asana", Remote: "hosted"},
