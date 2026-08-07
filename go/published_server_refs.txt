@@ -2,6 +2,7 @@
 # Generator adds new refs automatically; removing a line without
 # restoring the remote will fail go generate / CI.
 asana/hosted
+atlassian/rovo
 box/hosted
 github/hosted
 google-big-query/hosted
@@ -15,6 +16,7 @@ google-slides/hosted
 hubspot/hosted
 intercom/eu
 intercom/us
+netsuite/mcp-standard-tools
 salesforce/sobject-all-production
 salesforce/sobject-all-sandbox
 salesforce/sobject-deletes-production
