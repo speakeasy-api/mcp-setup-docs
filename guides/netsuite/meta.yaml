@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: netsuite
+title: NetSuite
+summary: Connect the account-specific NetSuite AI Connector Service with MCP Standard Tools and a scoped public OAuth client.
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: oauth-public-client
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#create-oauth-integration
+  requirements:
+    - id: netsuite-admin-access
+      description: NetSuite Administrator access or delegated access sufficient to enable SuiteCloud features, install SuiteApps, manage roles, and create OAuth integration records
+    - id: approved-scoped-role
+      description: An approved non-Administrator role scoped to the NetSuite records and operations that MCP users may access
+    - id: mcp-standard-tools
+      description: The free managed MCP Standard Tools SuiteApp installed (operator-validated Bundle ID 522506)
+    - id: compliance-approval
+      description: If regulated data may be involved, approval from the application or cloud security owner; Oracle states the service has not been assessed for HIPAA and must not store, process, or transmit ePHI without an independent determination that the use meets the organization's obligations
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: mcp-standard-tools
+    url: "https://<accountid>.suitetalk.api.netsuite.com/services/mcp/v1/suiteapp/com.netsuite.mcpstandardtools"
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-public-client
+    provenance:
+      - source: provider-documentation
+        locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714082142.html
+        name: Connect to the NetSuite AI Connector Service
+        classification: official
+        observed_at: "2026-08-07T22:06:11Z"
+      - source: provider-documentation
+        locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_0902023450.html
+        name: Installing the MCP Standard Tools SuiteApp
+        classification: official
+        observed_at: "2026-08-07T22:06:11Z"
+provenance:
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_4160616848.html
+    name: NetSuite AI Connector Service FAQ
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_3200541651.html
+    name: Get Started with the NetSuite AI Connector Service
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714080625.html
+    name: Required Features and Permissions
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_143403258.html
+    name: MCP Standard Tools SuiteApp
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_0902023450.html
+    name: Installing the MCP Standard Tools SuiteApp
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714082142.html
+    name: Connect to the NetSuite AI Connector Service
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_157771733782.html
+    name: Create Integration Records for Applications to Use OAuth 2.0
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_N895277.html
+    name: Giving an Employee Access to NetSuite
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_1498251763.html
+    name: URLs for Account-Specific Domains
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: speakeasy-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical file
+    classification: official
+    observed_at: "2026-08-07T22:06:11Z"
+  - source: operator-validation
+    locator: draft-guide operator notes for netsuite
+    status: Bundle ID 522506; public-client PKCE path; Speakeasy MCP Catalog result overridden-tenanted for query netsuite; tenanted remote requires Custom remote path
+    observed_at: "2026-08-07T22:06:11Z"
