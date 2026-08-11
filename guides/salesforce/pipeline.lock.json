@@ -2,14 +2,14 @@
   "schema_version": 1,
   "slug": "salesforce",
   "persona": "it-admin",
-  "runtime": "cursor-sdk",
-  "updated_at": "2026-07-27T17:53:40Z",
+  "runtime": "pi",
+  "updated_at": "2026-08-06T23:27:15Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:a10f7f4fcdffe62c8bee89fc90c67080ad227d14343faa0ababecc74a645b04f",
+      "input_digest": "sha256:8146f6f785e36f4ef62c5fdf46d72faea58f7ff62d7a55f2fe78083602c6096e",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:255c60266361ff6711b0b04829329485020218f5a0460f70aa30f30d9c1711fc",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -21,36 +21,36 @@
           },
           {
             "path": "doctrine/roles/technical-research.md",
-            "digest": "sha256:66065c6978e8389ff59b1a5f1ba0bfe4b7d16c93189416d97119b5cbdd6f091f"
+            "digest": "sha256:88f093f873c705128a0a31eb38be298a2ee11f4d50815552739925337f8ac3ad"
           },
           {
             "path": "doctrine/speakeasy-setup.md",
-            "digest": "sha256:7e42bb3b4ce410d0ace023cf409da503f4ebad028a91548f029af72a28e7809c"
+            "digest": "sha256:9f173facc7f63e450eb7e4d693c67c0a88e9ff68f0a381cfcbae413a8d47dd16"
           }
         ],
         "artifacts": [],
         "params": {
           "provider": "salesforce",
-          "notes": "Speakeasy MCP Catalog: overridden-custom-remote"
+          "notes": "Refresh the existing guide due to lockfile drift; use the pi runtime and current prompt templates/model configuration.\n\nSpeakeasy MCP Catalog: overridden-custom-remote"
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:f055adddf5ef15df181794cd773e8dfb9ab372b1159d133a8d893c7a7c488992"
+          "digest": "sha256:6e77ecdf3b14037cba07fcaddbea07b6d41a53e5ef7316c2f1417df1ce7685c1"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:990a15b15bd3a338270fb94870b7a141786b4d747e04ad0fc449f2a6cdf99b1e"
+          "digest": "sha256:d4fb31ea099c5802de0bbf4df39f5a916c4a8d8b56b56174e652c6bfe1ce6c52"
         }
       ],
-      "completed_at": "2026-07-27T17:53:40Z"
+      "completed_at": "2026-08-06T23:27:15Z"
     },
     "draft": {
-      "input_digest": "sha256:750d7e1941e747fc526add04a2fefef96c175ab975b278e2be430c43b42ceefb",
+      "input_digest": "sha256:9aeddc59aa1bc20c1bdaf035b204c497bcfaf17895ce5a50ed4290ff42158f58",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:a956869fa21cc7f91fff9450fe09c86dc2014cb5f058691e03d07eb0b3acce3f",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:ad649d12e8bf3882a1593555c0c4d31681ac50aa891177b1a8f766a563d85d6c",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -62,46 +62,46 @@
           },
           {
             "path": "doctrine/roles/writer.md",
-            "digest": "sha256:1e2f0afa73e8c28502f7fea0d21722a22c980326f3bd878418df27c23fa5b6b3"
+            "digest": "sha256:4214af68feea7dfc68fab1058e1d5d35e6238d5b51fd9b10db421ebafc49a3cc"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:f055adddf5ef15df181794cd773e8dfb9ab372b1159d133a8d893c7a7c488992"
+            "digest": "sha256:6e77ecdf3b14037cba07fcaddbea07b6d41a53e5ef7316c2f1417df1ce7685c1"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:990a15b15bd3a338270fb94870b7a141786b4d747e04ad0fc449f2a6cdf99b1e"
+            "digest": "sha256:d4fb31ea099c5802de0bbf4df39f5a916c4a8d8b56b56174e652c6bfe1ce6c52"
           }
         ],
         "params": {
           "provider": "salesforce",
-          "notes": "Speakeasy MCP Catalog: overridden-custom-remote",
+          "notes": "Refresh the existing guide due to lockfile drift; use the pi runtime and current prompt templates/model configuration.\n\nSpeakeasy MCP Catalog: overridden-custom-remote",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
+          "digest": "sha256:f82f4c1a2c3400861b9cfe9f41ef15d93d72046422795132bd26b43a38108770"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
+          "digest": "sha256:9dd9bfbe9f1e2f3df30e14e5f56aee46c3b4155df95a18b6f48a3aaf13c9b97a"
         }
       ],
-      "completed_at": "2026-07-27T17:53:40Z"
+      "completed_at": "2026-08-06T23:27:15Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:e6e19bbe9a970497cefd027814f7531dbabcae9622e7b1c1ae829719eb364cf7",
+      "input_digest": "sha256:4ada98a10bb075108ea1d7be119f1aaa93c6601af4b21b24dc8d439aac989bef",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:2885ba720bba92fbed782f1ac13fdbd065c3f1a294302ee85792fc4f61866e1f",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -113,30 +113,30 @@
           },
           {
             "path": "doctrine/roles/fidelity.md",
-            "digest": "sha256:472ec8a2db648c822d126dea857d3f79e9c97a8e9b5fe6a997170bef3c8d2c22"
+            "digest": "sha256:f1c64906d2702d25c5db118f0a1a471b4962333a506c235ffebccf67413aa7f3"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:f055adddf5ef15df181794cd773e8dfb9ab372b1159d133a8d893c7a7c488992"
+            "digest": "sha256:6e77ecdf3b14037cba07fcaddbea07b6d41a53e5ef7316c2f1417df1ce7685c1"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:990a15b15bd3a338270fb94870b7a141786b4d747e04ad0fc449f2a6cdf99b1e"
+            "digest": "sha256:d4fb31ea099c5802de0bbf4df39f5a916c4a8d8b56b56174e652c6bfe1ce6c52"
           },
           {
             "path": "external.md",
-            "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
+            "digest": "sha256:f82f4c1a2c3400861b9cfe9f41ef15d93d72046422795132bd26b43a38108770"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
+            "digest": "sha256:9dd9bfbe9f1e2f3df30e14e5f56aee46c3b4155df95a18b6f48a3aaf13c9b97a"
           }
         ],
         "params": {
           "provider": "salesforce",
-          "notes": "Speakeasy MCP Catalog: overridden-custom-remote",
+          "notes": "Refresh the existing guide due to lockfile drift; use the pi runtime and current prompt templates/model configuration.\n\nSpeakeasy MCP Catalog: overridden-custom-remote",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,20 +144,20 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
+          "digest": "sha256:f82f4c1a2c3400861b9cfe9f41ef15d93d72046422795132bd26b43a38108770"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
+          "digest": "sha256:9dd9bfbe9f1e2f3df30e14e5f56aee46c3b4155df95a18b6f48a3aaf13c9b97a"
         }
       ],
-      "completed_at": "2026-07-27T17:53:40Z"
+      "completed_at": "2026-08-06T23:27:15Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:adc509444a91af8d2d0a1cd78ac66a5ddde8f6318c5884912644cfcc957bb4a0",
+      "input_digest": "sha256:c19ccd3ce3c0b86b0b47bd23dde3d08d69cf797f4309b731d90ad969dc7515f6",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:0b287f892ece7611416030973e4b1952db4c173e3023930bf238685d39b79cdf",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -173,30 +173,30 @@
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:f055adddf5ef15df181794cd773e8dfb9ab372b1159d133a8d893c7a7c488992"
+            "digest": "sha256:6e77ecdf3b14037cba07fcaddbea07b6d41a53e5ef7316c2f1417df1ce7685c1"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:990a15b15bd3a338270fb94870b7a141786b4d747e04ad0fc449f2a6cdf99b1e"
+            "digest": "sha256:d4fb31ea099c5802de0bbf4df39f5a916c4a8d8b56b56174e652c6bfe1ce6c52"
           },
           {
             "path": "external.md",
-            "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
+            "digest": "sha256:f82f4c1a2c3400861b9cfe9f41ef15d93d72046422795132bd26b43a38108770"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
+            "digest": "sha256:9dd9bfbe9f1e2f3df30e14e5f56aee46c3b4155df95a18b6f48a3aaf13c9b97a"
           }
         ],
         "params": {
           "provider": "salesforce",
-          "notes": "Speakeasy MCP Catalog: overridden-custom-remote",
+          "notes": "Refresh the existing guide due to lockfile drift; use the pi runtime and current prompt templates/model configuration.\n\nSpeakeasy MCP Catalog: overridden-custom-remote",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:b3fe566d4e4cfef395ba0dade27fa8276814565c801ad38b7f6e9edb5ee5fd88"
+          "digest": "sha256:f82f4c1a2c3400861b9cfe9f41ef15d93d72046422795132bd26b43a38108770"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:be4ff8eff80a27584f5567c281d2c99be9ad25467155aab35c316220127d8e19"
+          "digest": "sha256:9dd9bfbe9f1e2f3df30e14e5f56aee46c3b4155df95a18b6f48a3aaf13c9b97a"
         }
       ],
-      "completed_at": "2026-07-27T17:53:40Z"
+      "completed_at": "2026-08-06T23:27:15Z"
     }
   }
 }
