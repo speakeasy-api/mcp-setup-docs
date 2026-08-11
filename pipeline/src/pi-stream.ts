@@ -102,6 +102,55 @@ export function formatToolCalls(counts: Record<string, number>): string {
     .join(' ')
 }
 
+/**
+ * Prompt-token accounting for one run.
+ *
+ * `cacheRead` is the reason this exists. Every review round re-sends the same
+ * doctrine, persona and draft context, so round 2 and round 3 should read most
+ * of their prompt from cache. `cost` alone cannot tell a cached round from an
+ * uncached one — it only reports the total, which is exactly the number that
+ * looks reasonable in both cases.
+ */
+export type TokenUsage = {
+  input: number
+  output: number
+  cacheRead: number
+  cacheWrite: number
+}
+
+const ZERO_USAGE: TokenUsage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }
+
+/** Whole-run token usage, summed across turns, mirroring `totalCostUsd`. */
+export function totalTokenUsage(events: PiEvent[]): TokenUsage {
+  const total: TokenUsage = { ...ZERO_USAGE }
+  for (const event of events) {
+    if (event.type !== 'turn_end') continue
+    const usage = asRecord(asRecord(event.message)?.usage)
+    if (!usage) continue
+    for (const key of Object.keys(ZERO_USAGE) as (keyof TokenUsage)[]) {
+      const value = usage[key]
+      if (typeof value === 'number') total[key] += value
+    }
+  }
+  return total
+}
+
+/**
+ * `in=812 out=340 cache-r=48210 cache-w=12100 hit=79%`.
+ *
+ * `hit` is `cacheRead` over every prompt token (`input + cacheRead +
+ * cacheWrite`). A hit near 0 on the later review rounds means the route serves
+ * no cache, and each round re-pays full input price for identical context.
+ */
+export function formatTokenUsage(usage: TokenUsage): string {
+  const prompt = usage.input + usage.cacheRead + usage.cacheWrite
+  const hit = prompt > 0 ? Math.round((usage.cacheRead / prompt) * 100) : 0
+  return (
+    `in=${usage.input} out=${usage.output} ` +
+    `cache-r=${usage.cacheRead} cache-w=${usage.cacheWrite} hit=${hit}%`
+  )
+}
+
 /** Whole-run spend, summed across turns. A multi-turn run has several `turn_end`s. */
 export function totalCostUsd(events: PiEvent[]): number {
   let total = 0
@@ -146,7 +195,7 @@ function errorCarriers(event: PiEvent): Record<string, unknown>[] {
 }
 
 export type PiOutcome =
-  | { ok: true; text: string; costUsd: number }
+  | { ok: true; text: string; costUsd: number; tokens: TokenUsage }
   | { ok: false; kind: 'spawn' | 'auth' | 'api' | 'truncated'; message: string }
 
 export type PiRun = {
@@ -193,7 +242,12 @@ export function classifyPiRun(run: PiRun): PiOutcome {
     }
   }
 
-  return { ok: true, text, costUsd: totalCostUsd(events) }
+  return {
+    ok: true,
+    text,
+    costUsd: totalCostUsd(events),
+    tokens: totalTokenUsage(events),
+  }
 }
 
 function firstLine(text: string): string {

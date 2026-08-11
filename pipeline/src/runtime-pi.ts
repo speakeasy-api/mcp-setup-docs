@@ -25,6 +25,7 @@ import { buildAgentEnv, writesOutsideAllowed } from './pi-guard.ts'
 import {
   classifyPiRun,
   formatToolCalls,
+  formatTokenUsage,
   parsePiStream,
   toolCallCounts,
   type PiRun,
@@ -221,7 +222,8 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
     }
     const tools = formatToolCalls(toolCallCounts(parsePiStream(run.stdout)))
     log(
-      `[${opts.label}] cost $${outcome.costUsd.toFixed(4)} tools: ${tools || '(none)'}`
+      `[${opts.label}] cost $${outcome.costUsd.toFixed(4)} ` +
+        `tokens: ${formatTokenUsage(outcome.tokens)} tools: ${tools || '(none)'}`
     )
 
     const strayWrites = writesOutsideAllowed(
