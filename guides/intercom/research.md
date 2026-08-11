@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: intercom
-researched_at: 2026-07-29T15:06:51Z
+researched_at: 2026-08-11T18:35:57Z
 ---
 
 # Intercom — Research Dossier
@@ -10,11 +10,12 @@ Source ruling for this revision: Intercom's public MCP guide remains
 authoritative for regional server URLs, transport, and server availability.
 Intercom's current Developer Hub guides are authoritative for creating an app,
 enabling OAuth, exact permission labels, callback requirements, and the
-authorization and token endpoints. The operator's current connection
-validation overrides the prior DCR recommendation: DCR fails when Intercom has
-not allowlisted the Speakeasy callback, so this Guide documents a manually
-registered Intercom OAuth app as the recommended, deterministic path. The
-operator's Speakeasy MCP Catalog result is `overridden-tenanted`; because the
+authorization and token endpoints. Prior operator connection validation overrides the earlier DCR recommendation:
+DCR fails when Intercom has not allowlisted the Speakeasy callback, so this
+Guide documents a manually registered Intercom OAuth app as the recommended,
+deterministic path. Fresh public-documentation and endpoint checks during this
+run found no change to that ruling. The operator's Speakeasy MCP Catalog result
+is `overridden-tenanted`; because the
 reader chooses a region-specific remote URL, only the Custom remote server path
 is rendered.
 
@@ -33,12 +34,17 @@ is rendered.
 - **Authentication Option documented by this Guide:** OAuth with a
   pre-registered Intercom Developer Hub app. The Speakeasy AI Control Plane
   receives the app's **Client ID** and **Client secret** and uses:
-  - Issuer URL: `https://mcp.intercom.com`
-  - Authorization endpoint: `https://app.intercom.com/oauth`
+  - Issuer URL: the origin of the selected remote,
+    `https://mcp.intercom.com` (US) or `https://mcp.eu.intercom.com` (EU)
+  - Authorization endpoint: `https://app.intercom.com/oauth` (US) or
+    `https://app.eu.intercom.com/oauth` (EU)
   - Token endpoint: `https://api.intercom.io/auth/eagle/token`
-  The issuer and endpoint combination was validated by the operator for the
-  manual attachment flow. Intercom's OAuth guide independently documents the
-  US authorization endpoint and Eagle token endpoint.
+  The manual attachment flow was validated previously by the operator. Fresh
+  checks confirm that each regional MCP origin publishes authorization-server
+  metadata with that origin as its issuer, while Intercom's OAuth guide says to
+  match the authorization host to the workspace region and documents the
+  shared Eagle token endpoint. Using the wrong authorization region can fail
+  for Google sign-in; otherwise Intercom may ask the user to select a region.
 - **Why manual registration is recommended:** Intercom's live MCP
   authorization-server metadata advertises a DCR endpoint, but the operator
   observed that registration fails unless Intercom has allowlisted the
@@ -90,8 +96,8 @@ Information** page.
 | Client ID | Intercom Developer Hub app, **Basic Information** ({#copy-client-credentials}) |
 | Client Secret (optional) | Intercom Developer Hub app, **Basic Information** ({#copy-client-credentials}) |
 | Redirect URI registered with Intercom | `{{ gram.oauth.callback_url }}` in the app's **Redirect URLs** ({#configure-oauth}) |
-| Issuer URL | Operator-validated constant `https://mcp.intercom.com` |
-| Authorization endpoint | Intercom-documented `https://app.intercom.com/oauth` |
+| Issuer URL | Selected MCP remote origin: `https://mcp.intercom.com` (US) or `https://mcp.eu.intercom.com` (EU) |
+| Authorization endpoint | Region-matched Intercom endpoint: `https://app.intercom.com/oauth` (US) or `https://app.eu.intercom.com/oauth` (EU) |
 | Token endpoint | Intercom-documented `https://api.intercom.io/auth/eagle/token` |
 
 Intercom's OAuth guide calls the generated values `client_id` and
@@ -128,8 +134,10 @@ which MCP Server URL the reader adds later.
 - Click **New App**. Intercom's prose uses **New App**; its current
   documentation screenshot describes the highlighted control as **Create new
   app**.
-- In the modal, enter an organization-approved app name and select the
-  workspace the connection will access.
+- Obtain the organization-approved app name from the application or cloud
+  security owner.
+- In the modal, enter that app name and select the workspace the connection
+  will access.
 - Click **Create app**. Intercom creates the app, pre-installs it in the
   selected workspace, and opens the app configuration.
 - Screenshot note: capture **Your Apps** with the new-app control and the
@@ -150,8 +158,10 @@ which MCP Server URL the reader adds later.
   - **Read conversations**
   - **Read one admin**
   - **Read and List articles**
-- If article creation or update through the MCP server is explicitly required,
-  select **Read and Write Articles** instead of **Read and List articles**.
+- Obtain the article-access choice from the application or cloud security owner.
+  Unless they require article creation or updates through the MCP server, keep
+  **Read and List articles**. If they require those operations, select **Read
+  and Write Articles** instead.
 - Complete the page's save or confirmation control. Intercom's public guide
   names and shows the fields but does not name that control.
 - Screenshot note: capture **Authentication** with **Use OAuth** enabled,
@@ -171,7 +181,7 @@ which MCP Server URL the reader adds later.
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-07-29T15:06:51Z`.
+`2026-08-11T18:35:57Z`.
 
 Per-guide values:
 
@@ -184,9 +194,6 @@ Per-guide values:
 - Client ID and Client Secret: produced in
   {#copy-client-credentials}
 - Redirect URI: registered in {#configure-oauth}
-- Issuer URL: `https://mcp.intercom.com`
-- Authorization endpoint: `https://app.intercom.com/oauth`
-- Token endpoint: `https://api.intercom.io/auth/eagle/token`
 - Scopes: chosen in Intercom; no Speakeasy scope override
 - Further reading:
   `https://developers.intercom.com/docs/guides/mcp`
@@ -207,26 +214,18 @@ MCP server** page with the matching Intercom remote URL.
 ### Connect your credentials {#connect-speakeasy-credentials}
 
 From the server's **Overview**, open **Settings**. Under **Authentication**,
-click **Configure Manually**. In **Attach Remote Identity Provider**:
+click **Configure Manually**. In the **Attach Remote Identity Provider** sheet:
 
 1. Set **Client Type** to **Manual**.
-2. Enter `https://mcp.intercom.com` as **Issuer URL**.
-3. Under **Endpoints**, set the authorization endpoint to
-   `https://app.intercom.com/oauth` and the token endpoint to
-   `https://api.intercom.io/auth/eagle/token`. Do not use the MCP issuer's
-   discovered `/authorize` and `/token` endpoints for this manual app.
-4. Paste the **Client ID** and **Client Secret (optional)** from
+2. Paste the **Client ID** and **Client Secret (optional)** from
    {#copy-client-credentials}.
-5. Leave **Scope (override)** and **Audience (optional)** empty because
-   permissions were selected in Intercom.
-6. Confirm that the sheet's **Redirect URI** is
-   `https://app.getgram.ai/mcp/remote_login_callback`, matching the value
-   registered through `{{ gram.oauth.callback_url }}` in {#configure-oauth}.
-7. Click **Attach Identity Provider**.
+3. Click **Attach Identity Provider**.
+4. Confirm that the sheet's **Redirect URI** matches the
+   `{{ gram.oauth.callback_url }}` value registered in {#configure-oauth}.
 
 Screenshot note: capture **Attach Remote Identity Provider** with **Client
-Type** set to **Manual** and the issuer, authorization, and token endpoint
-fields visible. Fully redact the Client ID and Client Secret.
+Type** set to **Manual** and **Redirect URI** visible. Fully redact the Client
+ID and Client Secret.
 
 When a client first needs Intercom access, complete Intercom's browser
 authorization prompts with the intended workspace account. Intercom says the
@@ -270,43 +269,51 @@ Source inventory from the sweep:
   not used because its README was stale relative to the live MCP guide.
 - **Speakeasy setup doctrine — `doctrine/speakeasy-setup.md`:** canonical
   Speakeasy-side flow and fixed anchors.
+- **Persona doctrine — `doctrine/personas/it-admin.md`:** canonical source for
+  the obtain-from-owner hedge on organization-specific values.
 
 Sources drawn from:
 
 - `https://developers.intercom.com/docs/guides/mcp` ("Model Context Protocol
-  (MCP)") — observed `2026-07-29T15:06:51Z`. Backs US/EU URLs and availability,
+  (MCP)") — observed `2026-08-11T18:35:57Z`. Backs US/EU URLs and availability,
   Australian exclusion, Streamable HTTP, OAuth and Bearer alternatives, the
   browser authorization behavior, and the public MCP page's broader
   **Read and write articles** recommendation.
 - `https://developers.intercom.com/docs/build-an-integration/getting-started`
-  and its `.md` representation — observed `2026-07-29T15:06:51Z`. Back the
+  and its `.md` representation — observed `2026-08-11T18:35:57Z`. Back the
   Developer Hub URL and **Your Apps**, **New App**, **Create app**, app-name,
   workspace-selection, and pre-install behavior.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth`
-  and its `.md` representation — observed `2026-07-29T15:06:51Z`. Back **Use
+  and its `.md` representation — observed `2026-08-11T18:35:57Z`. Back **Use
   OAuth**, **Authentication**, **Redirect URLs**, HTTPS, **Add redirect URL**,
-  permissions, **Basic Information**, Client ID/secret, the US authorization
-  endpoint, callback behavior, and the Eagle token endpoint.
+  permissions, **Basic Information**, Client ID/secret, the regional
+  authorization endpoints, callback behavior, wrong-region behavior, and the
+  Eagle token endpoint.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/oauth-scopes`
-  — observed `2026-07-29T15:06:51Z`. Backs exact permission labels and their
+  — observed `2026-08-11T18:35:57Z`. Backs exact permission labels and their
   access meanings.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication`
-  — observed `2026-07-29T15:06:51Z`. Backs the private Access Token warning and
+  — observed `2026-08-11T18:35:57Z`. Backs the private Access Token warning and
   OAuth-versus-token distinction.
 - `https://developers.intercom.com/llms.txt` — observed
-  `2026-07-29T15:06:51Z`. Backs developer-property sweep coverage.
+  `2026-08-11T18:35:57Z`. Backs developer-property sweep coverage.
 - `https://www.intercom.com/help/en/articles/6124430-regional-data-hosting`
-  ("Regional Data Hosting") — observed `2026-07-29T15:06:51Z`. Backs the
+  ("Regional Data Hosting") — observed `2026-08-11T18:35:57Z`. Backs the
   workspace-host mapping and wrong-region sign-in recovery.
 - `https://app.intercom.com/admins/sign_in` — observed
-  `2026-07-29T15:06:51Z`. Backs the current region-selector labels.
-- `https://mcp.intercom.com/.well-known/oauth-authorization-server` —
-  observed `2026-07-29T15:06:51Z`. Confirms that the MCP issuer advertises DCR
-  and separate `/authorize` and `/token` endpoints.
-- Operator validation recorded for this run — observed
-  `2026-07-29T15:06:51Z`. Backs DCR callback-allowlist failure, the recommended
-  manual OAuth path, callback URL, validated issuer/authorization/token values,
-  and the least-privilege permission set.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-29T15:06:51Z`. Backs the
+  `2026-08-11T18:35:57Z`. Backs the current region-selector labels.
+- `https://mcp.intercom.com/.well-known/oauth-authorization-server` and
+  `https://mcp.eu.intercom.com/.well-known/oauth-authorization-server` —
+  observed `2026-08-11T18:35:57Z`. Confirm each regional MCP issuer, DCR
+  registration endpoint, and separate `/authorize` and `/token` endpoints.
+- Prior operator validation retained from the existing Guide — originally
+  observed `2026-07-29T15:06:51Z`. Backs DCR callback-allowlist failure, the
+  recommended manual OAuth path, callback URL, validated manual attachment,
+  and the least-privilege permission set. This run did not repeat a credentialed
+  connection.
+- `doctrine/speakeasy-setup.md` — observed `2026-08-11T18:35:57Z`. Backs the
   canonical Speakeasy skeleton, fixed anchors, exact common labels, and
   tenanted Custom-remote path selection.
+- `doctrine/personas/it-admin.md` — observed `2026-08-11T18:35:57Z`. Backs
+  directing the reader to obtain an organization-specific app name from the
+  application or cloud security owner.

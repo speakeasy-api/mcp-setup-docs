@@ -2,14 +2,14 @@
   "schema_version": 1,
   "slug": "intercom",
   "persona": "it-admin",
-  "runtime": "cursor-sdk",
-  "updated_at": "2026-07-29T15:15:59Z",
+  "runtime": "pi",
+  "updated_at": "2026-08-11T18:44:19Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:6e304ac36ef5fa89975820896e4504a53a2f7f0f33a7467084c29cfe7c2ec33d",
+      "input_digest": "sha256:487b2071c2ca0c4aa5a85bfbf6704583b4c4c4c0af39550d5d6f4921ee792042",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:255c60266361ff6711b0b04829329485020218f5a0460f70aa30f30d9c1711fc",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -21,36 +21,36 @@
           },
           {
             "path": "doctrine/roles/technical-research.md",
-            "digest": "sha256:f82583e4ba9e92f061b09e6685b3a2640a1826f6fbc27ddac52e0db68387acaf"
+            "digest": "sha256:88f093f873c705128a0a31eb38be298a2ee11f4d50815552739925337f8ac3ad"
           },
           {
             "path": "doctrine/speakeasy-setup.md",
-            "digest": "sha256:8715948a90f95187a2e093e3dfbaccb2870423ee7c90aed4eeba5c418c0bb85e"
+            "digest": "sha256:9f173facc7f63e450eb7e4d693c67c0a88e9ff68f0a381cfcbae413a8d47dd16"
           }
         ],
         "artifacts": [],
         "params": {
           "provider": "intercom",
-          "notes": "Manual Intercom Developer Hub OAuth app (recommended); DCR fails without redirect allowlist. Callback: https://app.getgram.ai/mcp/remote_login_callback. Attach provider in Speakeasy: issuer https://mcp.intercom.com, auth https://app.intercom.com/oauth, token https://api.intercom.io/auth/eagle/token. Min scopes: users/companies read+list, conversations read, one admin read, articles read+list. Option B: ask Intercom to allowlist callback for DCR. Docs: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth\n\nSpeakeasy MCP Catalog: overridden-tenanted"
+          "notes": "Refresh the existing guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: overridden-tenanted"
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:c3bfaadb51be5575c5821a2f08e04b9eeb67394a1c35227485a45191ea3bfd91"
+          "digest": "sha256:970009f3cafa137334aed43d66cea12e84c08bf96c0b01de25b6f26d96e0c921"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:071b0fee3b30edcf251da79d7d4b104c51141ed9967170e4e26ec73952b953f2"
+          "digest": "sha256:49c7ae2575461ab2d9e89c996be39c55b2118a413867b4de114cd0daa928d710"
         }
       ],
-      "completed_at": "2026-07-29T15:15:59Z"
+      "completed_at": "2026-08-11T18:44:19Z"
     },
     "draft": {
-      "input_digest": "sha256:04c63eed17b390d2d47b469dee79b55092b6be3a19f5e5fa93a42fa7e597cd23",
+      "input_digest": "sha256:669dfbeead749fc4d85688adc2dbd954a10f0972181ddcff705ca434ee159578",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:bd455424d5c087fd914297fad0cf7749459452dbd94d00bd4e20e977e9fbb92b",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:ad649d12e8bf3882a1593555c0c4d31681ac50aa891177b1a8f766a563d85d6c",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -62,46 +62,46 @@
           },
           {
             "path": "doctrine/roles/writer.md",
-            "digest": "sha256:7b88b10bd5ce607985054abbdce5e6b742acc7074c1461f08d34321523e17799"
+            "digest": "sha256:4214af68feea7dfc68fab1058e1d5d35e6238d5b51fd9b10db421ebafc49a3cc"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:c3bfaadb51be5575c5821a2f08e04b9eeb67394a1c35227485a45191ea3bfd91"
+            "digest": "sha256:970009f3cafa137334aed43d66cea12e84c08bf96c0b01de25b6f26d96e0c921"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:071b0fee3b30edcf251da79d7d4b104c51141ed9967170e4e26ec73952b953f2"
+            "digest": "sha256:49c7ae2575461ab2d9e89c996be39c55b2118a413867b4de114cd0daa928d710"
           }
         ],
         "params": {
           "provider": "intercom",
-          "notes": "Manual Intercom Developer Hub OAuth app (recommended); DCR fails without redirect allowlist. Callback: https://app.getgram.ai/mcp/remote_login_callback. Attach provider in Speakeasy: issuer https://mcp.intercom.com, auth https://app.intercom.com/oauth, token https://api.intercom.io/auth/eagle/token. Min scopes: users/companies read+list, conversations read, one admin read, articles read+list. Option B: ask Intercom to allowlist callback for DCR. Docs: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth\n\nSpeakeasy MCP Catalog: overridden-tenanted",
+          "notes": "Refresh the existing guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:2b8ea05a45dbf45d45573755807ab19d9d23de0a4447798d84bc18673a80ae0f"
+          "digest": "sha256:605697dd0cff35582a05723308f56347fbe5276f83ef7cf84e096e41d9a7074d"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:062bfa48925435cff15b96a7e1a2c9c207b215e0d74675696e7f1d8cdc679889"
+          "digest": "sha256:28c22052fb3b45e978b47c0c5d2414841034c8dfb635b25d6aadef638d150919"
         }
       ],
-      "completed_at": "2026-07-29T15:15:59Z"
+      "completed_at": "2026-08-11T18:44:19Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:3c91cc5b556b2b46bdb54294e6d305e843ec4820595f2ba92970e362fc202f06",
+      "input_digest": "sha256:5153024ad2d2af45119277f9805a3d5c7a807972d41fd6e445bdcb7a88695511",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:2885ba720bba92fbed782f1ac13fdbd065c3f1a294302ee85792fc4f61866e1f",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -113,30 +113,30 @@
           },
           {
             "path": "doctrine/roles/fidelity.md",
-            "digest": "sha256:472ec8a2db648c822d126dea857d3f79e9c97a8e9b5fe6a997170bef3c8d2c22"
+            "digest": "sha256:f1c64906d2702d25c5db118f0a1a471b4962333a506c235ffebccf67413aa7f3"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:c3bfaadb51be5575c5821a2f08e04b9eeb67394a1c35227485a45191ea3bfd91"
+            "digest": "sha256:970009f3cafa137334aed43d66cea12e84c08bf96c0b01de25b6f26d96e0c921"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:071b0fee3b30edcf251da79d7d4b104c51141ed9967170e4e26ec73952b953f2"
+            "digest": "sha256:49c7ae2575461ab2d9e89c996be39c55b2118a413867b4de114cd0daa928d710"
           },
           {
             "path": "external.md",
-            "digest": "sha256:2b8ea05a45dbf45d45573755807ab19d9d23de0a4447798d84bc18673a80ae0f"
+            "digest": "sha256:605697dd0cff35582a05723308f56347fbe5276f83ef7cf84e096e41d9a7074d"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:062bfa48925435cff15b96a7e1a2c9c207b215e0d74675696e7f1d8cdc679889"
+            "digest": "sha256:28c22052fb3b45e978b47c0c5d2414841034c8dfb635b25d6aadef638d150919"
           }
         ],
         "params": {
           "provider": "intercom",
-          "notes": "Manual Intercom Developer Hub OAuth app (recommended); DCR fails without redirect allowlist. Callback: https://app.getgram.ai/mcp/remote_login_callback. Attach provider in Speakeasy: issuer https://mcp.intercom.com, auth https://app.intercom.com/oauth, token https://api.intercom.io/auth/eagle/token. Min scopes: users/companies read+list, conversations read, one admin read, articles read+list. Option B: ask Intercom to allowlist callback for DCR. Docs: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth\n\nSpeakeasy MCP Catalog: overridden-tenanted",
+          "notes": "Refresh the existing guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,20 +144,20 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:2b8ea05a45dbf45d45573755807ab19d9d23de0a4447798d84bc18673a80ae0f"
+          "digest": "sha256:605697dd0cff35582a05723308f56347fbe5276f83ef7cf84e096e41d9a7074d"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:062bfa48925435cff15b96a7e1a2c9c207b215e0d74675696e7f1d8cdc679889"
+          "digest": "sha256:28c22052fb3b45e978b47c0c5d2414841034c8dfb635b25d6aadef638d150919"
         }
       ],
-      "completed_at": "2026-07-29T15:15:59Z"
+      "completed_at": "2026-08-11T18:44:19Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:85247bea46b2cccffcd67c772613725fc8fe103e478be89341a990d1c08f4335",
+      "input_digest": "sha256:e10fb9984ea4c2c20a62154cee2e63387d36bf6484a3e8fc557d37e8d9bb1884",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:0b287f892ece7611416030973e4b1952db4c173e3023930bf238685d39b79cdf",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -173,30 +173,30 @@
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:c3bfaadb51be5575c5821a2f08e04b9eeb67394a1c35227485a45191ea3bfd91"
+            "digest": "sha256:970009f3cafa137334aed43d66cea12e84c08bf96c0b01de25b6f26d96e0c921"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:071b0fee3b30edcf251da79d7d4b104c51141ed9967170e4e26ec73952b953f2"
+            "digest": "sha256:49c7ae2575461ab2d9e89c996be39c55b2118a413867b4de114cd0daa928d710"
           },
           {
             "path": "external.md",
-            "digest": "sha256:2b8ea05a45dbf45d45573755807ab19d9d23de0a4447798d84bc18673a80ae0f"
+            "digest": "sha256:605697dd0cff35582a05723308f56347fbe5276f83ef7cf84e096e41d9a7074d"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:062bfa48925435cff15b96a7e1a2c9c207b215e0d74675696e7f1d8cdc679889"
+            "digest": "sha256:28c22052fb3b45e978b47c0c5d2414841034c8dfb635b25d6aadef638d150919"
           }
         ],
         "params": {
           "provider": "intercom",
-          "notes": "Manual Intercom Developer Hub OAuth app (recommended); DCR fails without redirect allowlist. Callback: https://app.getgram.ai/mcp/remote_login_callback. Attach provider in Speakeasy: issuer https://mcp.intercom.com, auth https://app.intercom.com/oauth, token https://api.intercom.io/auth/eagle/token. Min scopes: users/companies read+list, conversations read, one admin read, articles read+list. Option B: ask Intercom to allowlist callback for DCR. Docs: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth\n\nSpeakeasy MCP Catalog: overridden-tenanted",
+          "notes": "Refresh the existing guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:2b8ea05a45dbf45d45573755807ab19d9d23de0a4447798d84bc18673a80ae0f"
+          "digest": "sha256:605697dd0cff35582a05723308f56347fbe5276f83ef7cf84e096e41d9a7074d"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:062bfa48925435cff15b96a7e1a2c9c207b215e0d74675696e7f1d8cdc679889"
+          "digest": "sha256:28c22052fb3b45e978b47c0c5d2414841034c8dfb635b25d6aadef638d150919"
         }
       ],
-      "completed_at": "2026-07-29T15:15:59Z"
+      "completed_at": "2026-08-11T18:44:19Z"
     }
   }
 }

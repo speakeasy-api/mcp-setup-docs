@@ -16,23 +16,13 @@ This creates the hosted MCP server and opens its **Overview** page.
 
 1. From the server's **Overview**, open **Settings**.
 2. Under **Authentication**, click **Configure Manually**.
-3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-4. Enter `https://mcp.intercom.com` as **Issuer URL**.
-5. Under **Endpoints**, set the authorization endpoint to `https://app.intercom.com/oauth`.
-6. Set the token endpoint to this URL:
+3. In the **Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**.
+4. Paste the **Client ID** from [Copy the client credentials](external.md#copy-client-credentials).
+5. Paste the **Client Secret (optional)** from [Copy the client credentials](external.md#copy-client-credentials).
+6. Click **Attach Identity Provider**.
+7. Confirm that the sheet's **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value registered in [Configure OAuth](external.md#configure-oauth).
 
-   ```
-   https://api.intercom.io/auth/eagle/token
-   ```
-
-7. Paste the **Client ID** from [Copy the client credentials](external.md#copy-client-credentials).
-8. Paste the **Client Secret (optional)** from [Copy the client credentials](external.md#copy-client-credentials).
-9. Leave **Scope (override)** empty.
-10. Leave **Audience (optional)** empty.
-11. Confirm that **Redirect URI** is `{{ gram.oauth.callback_url }}`, matching the value registered in [Configure OAuth](external.md#configure-oauth).
-12. Click **Attach Identity Provider**.
-
-<!-- screenshot: Attach Remote Identity Provider with Client Type set to Manual and the issuer, authorization, and token endpoint fields visible; fully redact the Client ID and Client Secret -->
+<!-- screenshot: the Attach Remote Identity Provider sheet with Client Type set to Manual and Redirect URI visible; fully redact the Client ID and Client Secret -->
 
 When a client initiates Intercom access, complete the on-screen browser prompts with the intended workspace account.
 

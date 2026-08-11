@@ -29,9 +29,10 @@ If Intercom cannot find the workspace:
 
 1. Open the [Intercom Developer Hub](https://app.intercom.com/a/apps/_/developer-hub). This opens **Your Apps**.
 2. Select **New App**.
-3. In the modal, enter an organization-approved app name.
-4. Select the workspace this connection will access.
-5. Select **Create app**.
+3. Obtain the organization-approved app name from the application or cloud security owner.
+4. In the modal, enter that app name.
+5. Select the workspace this connection will access.
+6. Select **Create app**.
 
 Intercom creates the app, installs it in the selected workspace, and opens its configuration.
 
@@ -53,7 +54,7 @@ Intercom creates the app, installs it in the selected workspace, and opens its c
    - **Read conversations**
    - **Read one admin**
    - **Read and List articles**
-6. If the organization requires article creation or updates through the MCP server, select **Read and Write Articles** instead of **Read and List articles**.
+6. Obtain the article-access choice from the application or cloud security owner. Unless they require article creation or updates through the MCP server, keep **Read and List articles**. If they require those operations, select **Read and Write Articles** instead.
 7. Complete the page's save or confirmation control.
 
 <!-- screenshot: Authentication with Use OAuth enabled, Redirect URLs showing the callback, and the four minimum permission checkboxes selected; do not include a token or secret -->

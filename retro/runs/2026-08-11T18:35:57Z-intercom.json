@@ -1,0 +1,87 @@
+{
+  "slug": "intercom",
+  "provider": "intercom",
+  "persona": "it-admin",
+  "timestamp": "2026-08-11T18:35:57Z",
+  "started_at": "2026-08-11T18:35:57Z",
+  "finished_at": "2026-08-11T18:44:20Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [
+    "Intercom’s public app-creation documentation does not publish the exact labels for the app-name and workspace fields.",
+    "Intercom documents authorization behavior but not the current prompt sequence or approval-button labels.",
+    "Intercom’s public OAuth guide does not name the control that persists Authentication-page changes.",
+    "Intercom does not publish the DCR callback-allowlisting request path, eligibility rules, or turnaround time."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Connect your credentials {#connect-speakeasy-credentials}",
+          "problem": "The pre-registered OAuth transclusion adds manual Issuer URL and authorization/token endpoint steps that are absent from the current canonical Speakeasy skeleton.",
+          "suggestion": "Restore the canonical pre-registered OAuth skeleton without the added issuer and endpoint inputs; if Intercom cannot connect without those inputs, escalate the conflict for a human doctrine update rather than presenting the section as a canonical transclusion.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "#configure-oauth, step 6",
+          "problem": "The guide leaves the reader to determine whether the organization requires article creation or updates without naming whom to ask.",
+          "suggestion": "Tell the reader to obtain the article-access choice from the application or cloud security owner and otherwise keep the read-only article permission.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker (research/Speakeasy fidelity): restored the canonical pre-registered OAuth credential flow in research.md and speakeasy.md by removing manual Issuer URL, authorization endpoint, token endpoint, scope, and audience inputs; retained the fixed anchors and Custom remote-only add-server path. Nit (external/achievability): updated Configure OAuth step 6 in research.md and external.md to direct the reader to obtain the article-access choice from the application or cloud security owner and otherwise keep the read-only article permission.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Connect your credentials {#connect-speakeasy-credentials}",
+          "problem": "The pre-registered OAuth transclusion moves Redirect URI confirmation before credential entry and attachment, while the current canonical Speakeasy skeleton places confirmation after clicking Attach Identity Provider.",
+          "suggestion": "Restore the canonical action order in research.md, then render the same order in speakeasy.md: enter the credentials, click Attach Identity Provider, and confirm the Redirect URI as specified by doctrine/speakeasy-setup.md.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "#create-oauth-app, step 3",
+          "problem": "The reader is told to enter an organization-approved app name but is not told whom to ask for that required organization-specific value.",
+          "suggestion": "Direct the reader to obtain the app name from the application or cloud security owner.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker: restored the canonical pre-registered OAuth order in research.md and speakeasy.md: enter Client ID and Client Secret, click Attach Identity Provider, then confirm Redirect URI. Nit: updated research.md and external.md so the reader obtains the organization-approved app name from the application or cloud security owner; recorded persona-doctrine provenance with the supplied observed_at timestamp.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER adds draft-relevant EU OAuth configuration: EU workspaces must use issuer https://mcp.eu.intercom.com and authorization endpoint https://app.eu.intercom.com/oauth instead of the prior US-only values. It also documents wrong-region authorization behavior and adds provenance from the EU authorization-server metadata. This requires re-rendering the Speakeasy credential steps and invalidates prior review of the EU setup path."
+  },
+  "notes_digest": "sha256:ffc943311a21d826614a53709fcfdd912146ca217296218253c307dfc3eeca17",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 0
+  }
+}
