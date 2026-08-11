@@ -6,6 +6,8 @@
  * fallback (dual add-server conditional). When lookup resolves
  * present/absent, research should not emit those OQs at all.
  */
+import { isDuplicateQuestion, normalizeQuestion } from './text-similarity.ts'
+
 export type ScopeDecision = {
   index: number // 1-based
   question: string
@@ -56,35 +58,97 @@ export function whyMaterial(q: string): string {
   return 'Scope choice that changes what the Writer should document.'
 }
 
-/** Parse "## Open questions" bullet list from a Research Dossier. */
+/**
+ * Parse the "## Open questions" bullet list from a Research Dossier.
+ *
+ * A bullet can wrap over many lines. A line that is indented more than its
+ * bullet marker is a continuation of that bullet. A blank line, a new bullet
+ * marker, a line at or below the marker indent, the next "## " heading and
+ * the end of the file all end the bullet in progress.
+ */
 export function extractOpenQuestionsFromResearch(md: string): string[] {
   const lines = md.split(/\r?\n/)
   let inSection = false
   const out: string[] = []
+  /** Text of the bullet in progress, or null when no bullet is open. */
+  let current: string | null = null
+  /** Leading-whitespace count of the marker of the bullet in progress. */
+  let markerIndent = 0
+
+  const flush = (): void => {
+    if (current === null) return
+    const text = current.replace(/\s+/g, ' ').trim()
+    if (text) out.push(text)
+    current = null
+  }
+
   for (const line of lines) {
     if (/^##\s+Open questions\s*$/i.test(line)) {
       inSection = true
       continue
     }
-    if (inSection && /^##\s+/.test(line)) break
+    if (inSection && /^##\s+/.test(line)) {
+      flush()
+      break
+    }
     if (!inSection) continue
-    const m = /^\s*[-*]\s+(.+?)\s*$/.exec(line)
-    if (m) out.push(m[1]!.trim())
+
+    const marker = /^(\s*)[-*]\s+(.+?)\s*$/.exec(line)
+    if (marker) {
+      flush()
+      markerIndent = marker[1]!.length
+      current = marker[2]!
+      continue
+    }
+
+    // Lines outside a bullet carry no question text.
+    if (current === null) continue
+    if (!line.trim()) {
+      flush()
+      continue
+    }
+    const indent = line.length - line.trimStart().length
+    if (indent > markerIndent) {
+      current += ' ' + line.trim()
+    } else {
+      flush()
+    }
   }
+  flush()
   return out
 }
 
+/**
+ * Join the report open questions and the dossier open questions into one list.
+ *
+ * The report text always wins. A dossier entry that says the same thing as a
+ * report entry is discarded, and the report entry keeps its exact text and its
+ * position. The comparison is cross-list only: the function compares a dossier
+ * entry against the report entries, and never against another dossier entry.
+ * Two dossier bullets can score high against each other and still be different
+ * questions, so `kept` holds a snapshot of the report entries.
+ */
 export function mergeOpenQuestions(
   fromReport: string[] | undefined,
   fromDossier: string[]
 ): string[] {
-  const seen = new Set<string>()
   const out: string[] = []
-  for (const q of [...(fromReport || []), ...fromDossier]) {
-    const key = q.toLowerCase().replace(/\s+/g, ' ').trim()
+  const seen = new Set<string>()
+  for (const q of fromReport || []) {
+    const text = q.trim()
+    const key = normalizeQuestion(text)
     if (!key || seen.has(key)) continue
     seen.add(key)
-    out.push(q.trim())
+    out.push(text)
+  }
+  const kept = [...out]
+  for (const q of fromDossier) {
+    const text = q.trim()
+    const key = normalizeQuestion(text)
+    if (!key || seen.has(key)) continue
+    if (kept.some((r) => isDuplicateQuestion(text, r))) continue
+    seen.add(key)
+    out.push(text)
   }
   return out
 }
@@ -117,7 +181,7 @@ export function notesDisposeOfQuestion(notes: string, question: string): boolean
       notes
     )
   if (!dispose) return false
-  // Require at least one distinctive token overlap (≥4 chars) from the question.
+  // Require at least two distinctive token overlaps (≥5 chars) from the question.
   const tokens = q
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length >= 5)

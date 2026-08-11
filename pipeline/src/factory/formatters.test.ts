@@ -1,7 +1,13 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { formatScopeCheck } from './format-scope-check.ts'
-import { formatPipelineReview, partitionFindings } from './format-pipeline-review.ts'
+import {
+  formatPipelineReview,
+  partitionFindings,
+  type ReviewRecord,
+} from './format-pipeline-review.ts'
 
 describe('formatScopeCheck', () => {
   it('renders structured unanswered decisions', () => {
@@ -159,5 +165,127 @@ describe('formatPipelineReview', () => {
     assert.match(md, /Open questions \(1\)/)
     assert.match(md, /Optional nits/)
     assert.match(md, /How to retry/)
+  })
+
+  it('does not ask about a finding the same run refuted', () => {
+    const record = JSON.parse(
+      readFileSync(
+        join(import.meta.dirname, '__fixtures__', 'review-snowflake.json'),
+        'utf8',
+      ),
+    ) as ReviewRecord
+    const md = formatPipelineReview(record, '', '', 'run.json')
+    assert.match(md, /Render fixes \(1\)/)
+    assert.match(md, /Decisions needed \(1\)/)
+    assert.doesNotMatch(md, /is missing\./)
+    assert.match(md, /Open questions \(3\)/)
+  })
+
+  /** Read a committed run record that the fixtures directory copies verbatim. */
+  function loadFixture(name: string): ReviewRecord {
+    return JSON.parse(
+      readFileSync(join(import.meta.dirname, '__fixtures__', name), 'utf8'),
+    ) as ReviewRecord
+  }
+
+  /** Collect the bullet lines between the nit `<details>` and its `</details>`. */
+  function nitBullets(md: string): string[] {
+    const start = md.indexOf('<details><summary>Optional nits')
+    if (start === -1) return []
+    const end = md.indexOf('</details>', start)
+    assert.notEqual(end, -1, 'the nit <details> element must be closed')
+    return md
+      .slice(start, end)
+      .split('\n')
+      .filter((line) => line.startsWith('- '))
+  }
+
+  it('collapses the largest real nit list into one details element', () => {
+    const record = loadFixture('review-box-nits.json')
+    assert.equal(record.nits!.length, 9)
+    const md = formatPipelineReview(record, '', '', 'run.json')
+    assert.match(md, /<details><summary>Optional nits \(9\)<\/summary>/)
+    // `guideDir` is empty, so the guide-text block never renders. One element only.
+    assert.equal(md.split('<details>').length - 1, 1)
+    assert.equal(md.split('</details>').length - 1, 1)
+    assert.equal(nitBullets(md).length, 9)
+  })
+
+  it('collapses a small real nit list', () => {
+    const record = loadFixture('review-snowflake.json')
+    assert.equal(record.nits!.length, 2)
+    const md = formatPipelineReview(record, '', '', 'run.json')
+    assert.match(md, /<details><summary>Optional nits \(2\)<\/summary>/)
+  })
+
+  it('keeps legacy blocker text readable inside the collapsed list', () => {
+    const record = loadFixture('review-gbq-legacy.json')
+    assert.equal(record.nits?.length ?? 0, 0)
+    assert.equal(record.unresolved!.length, 2)
+    for (const f of record.unresolved!) {
+      // `FindingLike` does not declare `severity`, but the record carries it.
+      assert.equal((f as Record<string, unknown>).severity, 'blocker')
+      assert.equal(f.dimension, undefined)
+    }
+    const md = formatPipelineReview(record, '', '', 'run.json')
+    assert.match(md, /<details><summary>Optional nits \(2\)<\/summary>/)
+    // The finding text survives the collapse; nothing is dropped.
+    assert.match(md, /configure-oauth-consent/)
+    // Records today's wrong behaviour. `isGate` misses a blocker that has no
+    // `dimension`, so these blockers never reach the decision list. A later fix
+    // to `isGate` shows up here as a test change.
+    assert.doesNotMatch(md, /Decisions needed/)
+  })
+
+  it('renders no nit block when there are no nits', () => {
+    const md = formatPipelineReview(
+      { slug: 'box', status: 'converged', rounds: 1, unresolved: [], nits: [] },
+      '',
+      '',
+      'run.json',
+    )
+    assert.doesNotMatch(md, /Optional nits/)
+    assert.doesNotMatch(md, /<details>/)
+  })
+
+  it('falls back to a count only above the cap', () => {
+    const nits = Array.from({ length: 13 }, (_, i) => `nit ${i + 1}`)
+    const md = formatPipelineReview(
+      { slug: 'box', status: 'converged', rounds: 1, unresolved: [], nits },
+      '',
+      '',
+      'run.json',
+    )
+    assert.match(
+      md,
+      /_13 optional nits — see the run record in the PR if you care\._/,
+    )
+    assert.doesNotMatch(md, /<details><summary>Optional nits/)
+    assert.equal(
+      md.split('\n').filter((line) => line.startsWith('- ')).length,
+      0,
+    )
+  })
+
+  it('puts 12 nits in the details form and 13 in the count-only form', () => {
+    const render = (count: number) =>
+      formatPipelineReview(
+        {
+          slug: 'box',
+          status: 'converged',
+          rounds: 1,
+          unresolved: [],
+          nits: Array.from({ length: count }, (_, i) => `nit ${i + 1}`),
+        },
+        '',
+        '',
+        'run.json',
+      )
+    const twelve = render(12)
+    assert.match(twelve, /<details><summary>Optional nits \(12\)<\/summary>/)
+    assert.equal(nitBullets(twelve).length, 12)
+    const thirteen = render(13)
+    assert.doesNotMatch(thirteen, /<details><summary>Optional nits/)
+    assert.match(thirteen, /_13 optional nits/)
   })
 })

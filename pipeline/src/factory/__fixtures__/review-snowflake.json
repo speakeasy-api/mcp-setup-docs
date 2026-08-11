@@ -1,0 +1,311 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-07-28T19:30:59Z",
+  "started_at": "2026-07-28T19:30:59Z",
+  "finished_at": "2026-07-28T19:49:28Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "speakeasy",
+      "where": "add-server-in-speakeasy",
+      "problem": "The catalog walkthrough installs a fixed remote that cannot bind the account- and object-specific Snowflake MCP server URL documented by the Guide.",
+      "suggestion": "Correct the forced catalog record to accept the complete Snowflake MCP server URL, then update the Dossier and walkthrough with the verified URL control.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "research",
+      "where": "Catalog binding",
+      "problem": "The Dossier identifies `Mcp-Account-Identifier` as a required catalog field but does not record the value or its origin, and the walkthrough submits the dialog without it.",
+      "suggestion": "Verify and record the required field value and origin, then add the corresponding catalog-dialog step to speakeasy.md.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "blocker",
+      "target": "speakeasy",
+      "where": "add-server-in-speakeasy",
+      "problem": "The forced catalog flow installs a fixed remote and cannot bind the account- and object-specific Snowflake MCP server URL created by this Guide.",
+      "suggestion": "Correct the Snowflake catalog record to accept the complete Snowflake MCP server URL, then render the verified URL control in this section.",
+      "dimension": "achievability"
+    },
+    {
+      "severity": "blocker",
+      "target": "external",
+      "where": "external.md",
+      "problem": "external.md is missing.",
+      "suggestion": "Write external.md (provider-side setup) before review.",
+      "dimension": "lint"
+    },
+    {
+      "severity": "blocker",
+      "target": "speakeasy",
+      "where": "speakeasy.md",
+      "problem": "speakeasy.md is missing.",
+      "suggestion": "Write speakeasy.md from doctrine/speakeasy-setup.md via the Dossier.",
+      "dimension": "lint"
+    }
+  ],
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "speakeasy",
+      "where": "connect-speakeasy-credentials",
+      "problem": "The setup ends after attaching the identity provider without identifying how an end user begins Snowflake browser authorization.",
+      "suggestion": "After the canonical Speakeasy setup gains a verified authorization transition, record it in the Dossier and render it here without inventing provider labels.",
+      "dimension": "fidelity"
+    },
+    {
+      "severity": "nit",
+      "target": "speakeasy",
+      "where": "connect-speakeasy-credentials",
+      "problem": "The setup ends after attaching the identity provider without identifying how an end user starts Snowflake authorization.",
+      "suggestion": "Have a human add the verified authorization-start control to the canonical Speakeasy setup, then render that transition here.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Validate that the catalog entry binds the account-specific MCP URL.",
+    "Speakeasy outbound IP addresses are needed for restrictive network policies.",
+    "The post-attachment control that begins Snowflake authorization is undocumented."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Open questions / add-server-in-speakeasy",
+          "problem": "The Dossier does not establish how the forced catalog entry receives the account- and object-specific Snowflake MCP URL, yet the rendered flow claims the server is created without collecting that URL.",
+          "suggestion": "Verify the catalog entry's URL-binding behavior and record its exact fields or automatic mapping before rendering the catalog flow as complete.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup / Open questions",
+          "problem": "The catalog flow never explains how the account-specific Snowflake MCP server URL is bound to the added catalog server.",
+          "suggestion": "Validate the catalog entry's account-URL prompt or binding behavior, record the exact controls, and render them in the catalog-only flow.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "create-cortex-agent-mcp-server",
+          "problem": "The reader is told to set the database and schema as the current namespace without an exact control or SQL statement.",
+          "suggestion": "Research and record the exact Snowsight action or USE DATABASE and USE SCHEMA statements, then add those executable steps before CREATE MCP SERVER.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "external.md",
+          "problem": "external.md is missing.",
+          "suggestion": "Write external.md (provider-side setup) before review.",
+          "dimension": "lint"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "speakeasy.md",
+          "problem": "speakeasy.md is missing.",
+          "suggestion": "Write speakeasy.md from doctrine/speakeasy-setup.md via the Dossier.",
+          "dimension": "lint"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "record-mcp-server-url",
+          "problem": "The URL assembly step does not explicitly distinguish the copied full Account URL from the hostname required after https:// in the template.",
+          "suggestion": "State exactly which portion of Account URL to retain and include one non-tenant example of the completed URL shape.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Catalog findings: recorded the exact catalog controls and verified the entry has a fixed, incompatible remote URL with no URL-binding field. Namespace blocker: added USE DATABASE and USE SCHEMA commands to research.md and external.md with provenance. Missing-file blockers: external.md and speakeasy.md are present and lint-clean. URL nit: clarified hostname extraction and added a completed example URL. Updated meta.yaml provenance; schema validation and guide lint passed.",
+      "disputed": [
+        "Catalog URL-binding fidelity finding: the verified catalog entry exposes no account/object URL-binding control and installs a different fixed remote; correcting this requires a catalog or operator change outside the guide.",
+        "Catalog URL-binding achievability finding: a catalog-only flow cannot connect the Snowflake-managed MCP server created by this guide; adding nonexistent controls would violate fidelity."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy",
+          "problem": "The catalog path installs a fixed remote that cannot bind the account- and object-specific Snowflake MCP server URL created by this Guide.",
+          "suggestion": "Correct the forced catalog record to accept and use the complete Snowflake MCP server URL, then update the Dossier and rendered catalog controls from the verified entry.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Open questions / add-server-in-speakeasy",
+          "problem": "The forced catalog path installs a fixed remote and never uses the account-specific Snowflake MCP server URL, so the reader cannot connect the server created by this guide.",
+          "suggestion": "Have a human either update the catalog record to accept the complete Snowflake MCP server URL or authorize the custom-remote path; the operator constraint does not make the current flow achievable.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "external.md",
+          "problem": "external.md is missing.",
+          "suggestion": "Write external.md (provider-side setup) before review.",
+          "dimension": "lint"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "speakeasy.md",
+          "problem": "speakeasy.md is missing.",
+          "suggestion": "Write speakeasy.md from doctrine/speakeasy-setup.md via the Dossier.",
+          "dimension": "lint"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "No guide files changed. Verified external.md and speakeasy.md exist and meta.yaml validates against the schema.",
+      "disputed": [
+        "Speakeasy catalog binding: the verified fixed catalog record cannot accept the account-specific URL; changing the external record is outside scope, and custom remote is explicitly prohibited.",
+        "Research achievability: the Dossier already records the forced-catalog conflict; documenting an unverified control or prohibited custom-remote path would violate doctrine.",
+        "external.md missing: external.md exists and contains the provider-side setup.",
+        "speakeasy.md missing: speakeasy.md exists and renders the forced catalog-only flow from the Dossier."
+      ],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy",
+          "problem": "The walkthrough claims success although the Dossier verifies that this catalog entry installs a fixed remote that cannot bind the Guide's account- and object-specific Snowflake MCP server URL.",
+          "suggestion": "Correct the catalog record to accept the complete Snowflake MCP server URL, then update the Dossier and catalog setup steps with the verified control.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy",
+          "problem": "The catalog flow installs a fixed remote that cannot use the account- and object-specific Snowflake MCP server URL created by this Guide.",
+          "suggestion": "Correct the forced catalog record to accept the complete Snowflake MCP server URL, then render its verified URL control in this section.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "external.md",
+          "problem": "external.md is missing.",
+          "suggestion": "Write external.md (provider-side setup) before review.",
+          "dimension": "lint"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "speakeasy.md",
+          "problem": "speakeasy.md is missing.",
+          "suggestion": "Write speakeasy.md from doctrine/speakeasy-setup.md via the Dossier.",
+          "dimension": "lint"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "connect-speakeasy-credentials",
+          "problem": "The setup ends after attaching the identity provider without naming how an end user starts Snowflake authorization.",
+          "suggestion": "After the canonical Speakeasy setup is updated with a verified authorization control, render that transition here.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "No files changed. research.md already records the catalog URL incompatibility with provenance at 2026-07-28T19:30:59Z; external.md and speakeasy.md already exist in the assigned guide directory.",
+      "disputed": [
+        "Fidelity catalog blocker: correcting the forced catalog record requires an external change outside the assigned guide directory; the Dossier already documents that the current record cannot bind the Snowflake URL.",
+        "Achievability catalog blocker: the forced catalog-only mandate conflicts with the verified fixed remote; no achievable catalog flow can be documented without inventing a URL control.",
+        "external.md missing blocker: external.md exists and contains the provider-side setup with Dossier anchors.",
+        "speakeasy.md missing blocker: speakeasy.md exists and renders the forced catalog path with canonical anchors."
+      ],
+      "skipped": [
+        "Authorization-transition nit: the canonical Speakeasy setup does not provide a verified control for starting end-user OAuth authorization; applying this requires new facts or a doctrine update."
+      ]
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy",
+          "problem": "The catalog walkthrough installs a fixed remote that cannot bind the account- and object-specific Snowflake MCP server URL documented by the Guide.",
+          "suggestion": "Correct the forced catalog record to accept the complete Snowflake MCP server URL, then update the Dossier and walkthrough with the verified URL control.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Catalog binding",
+          "problem": "The Dossier identifies `Mcp-Account-Identifier` as a required catalog field but does not record the value or its origin, and the walkthrough submits the dialog without it.",
+          "suggestion": "Verify and record the required field value and origin, then add the corresponding catalog-dialog step to speakeasy.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "add-server-in-speakeasy",
+          "problem": "The forced catalog flow installs a fixed remote and cannot bind the account- and object-specific Snowflake MCP server URL created by this Guide.",
+          "suggestion": "Correct the Snowflake catalog record to accept the complete Snowflake MCP server URL, then render the verified URL control in this section.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "external.md",
+          "problem": "external.md is missing.",
+          "suggestion": "Write external.md (provider-side setup) before review.",
+          "dimension": "lint"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "speakeasy.md",
+          "problem": "speakeasy.md is missing.",
+          "suggestion": "Write speakeasy.md from doctrine/speakeasy-setup.md via the Dossier.",
+          "dimension": "lint"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "connect-speakeasy-credentials",
+          "problem": "The setup ends after attaching the identity provider without identifying how an end user begins Snowflake browser authorization.",
+          "suggestion": "After the canonical Speakeasy setup gains a verified authorization transition, record it in the Dossier and render it here without inventing provider labels.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "speakeasy",
+          "where": "connect-speakeasy-credentials",
+          "problem": "The setup ends after attaching the identity provider without identifying how an end user starts Snowflake authorization.",
+          "suggestion": "Have a human add the verified authorization-start control to the canonical Speakeasy setup, then render that transition here.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  }
+}

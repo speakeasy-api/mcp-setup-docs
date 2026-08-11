@@ -9,6 +9,7 @@ import {
   formatPipelineReview,
   type ReviewRecord,
 } from './format-pipeline-review.ts'
+import { formatReviewSummary, formatScopeSummary } from './format-summary.ts'
 import { newestRunRecord } from './run-record.ts'
 
 export function runCommentResolved(): void {
@@ -63,7 +64,12 @@ export function runCommentReview(): void {
     let body: string
     if (existsSync(recordPath)) {
       const record = JSON.parse(readFileSync(recordPath, 'utf8')) as ScopeRecord
-      body = formatScopeCheck(record, prUrl, recordPath)
+      // The draft PR body already holds the full scope check. Post a summary
+      // and link to it. Without a pull request URL there is nothing to link
+      // to, so keep the full text on this comment.
+      body = prUrl
+        ? formatScopeSummary(record, prUrl, recordPath)
+        : formatScopeCheck(record, prUrl, recordPath)
     } else {
       body = [
         '## Scope check',
@@ -82,12 +88,17 @@ export function runCommentReview(): void {
   let body: string
   if (existsSync(recordPath)) {
     const record = JSON.parse(readFileSync(recordPath, 'utf8')) as ReviewRecord
-    body = formatPipelineReview(
-      record,
-      prUrl,
-      join(workspace, 'guides', slug),
-      recordPath,
-    )
+    // The draft PR body already holds the full Pipeline review. Post a summary
+    // and link to it. Without a pull request URL there is nothing to link to,
+    // so keep the full text on this comment.
+    body = prUrl
+      ? formatReviewSummary(record, prUrl, recordPath)
+      : formatPipelineReview(
+          record,
+          prUrl,
+          join(workspace, 'guides', slug),
+          recordPath,
+        )
   } else {
     const lines = ['## Pipeline review', '']
     if (outcome === 'unconverged') {
@@ -138,6 +149,10 @@ export function runMarkBlocked(): void {
     lines.push('')
     try {
       const record = JSON.parse(readFileSync(recordPath, 'utf8')) as ReviewRecord
+      // Keep the full formatter here. A hard failure opens no pull request,
+      // so this path has nothing to link to. A summary would send the reader
+      // to a page that does not exist. Do not replace this with
+      // `formatReviewSummary`.
       lines.push(
         formatPipelineReview(record, '', join(workspace, 'guides', slug), recordPath),
       )
@@ -150,6 +165,9 @@ export function runMarkBlocked(): void {
       lines.push('')
       try {
         const parsed = JSON.parse(readFileSync(record, 'utf8')) as ReviewRecord
+        // Keep the full formatter here too, for the same reason. A hard
+        // failure opens no pull request, so this path has nothing to link to.
+        // Do not replace this with `formatReviewSummary`.
         lines.push(
           formatPipelineReview(parsed, '', join(workspace, 'guides', slug), record),
         )

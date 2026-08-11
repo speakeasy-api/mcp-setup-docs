@@ -1,4 +1,5 @@
 import { basename } from 'node:path'
+import { isDuplicateQuestion } from '../text-similarity.ts'
 
 export type ScopeUnanswered = {
   index?: number
@@ -13,6 +14,61 @@ export type ScopeRecord = {
     unanswered?: ScopeUnanswered[] | string[]
     soft?: string[]
   }
+}
+
+function hasStructuredUnanswered(
+  unanswered: ScopeUnanswered[] | string[] | undefined,
+): boolean {
+  return (
+    Array.isArray(unanswered) &&
+    unanswered.length > 0 &&
+    typeof unanswered[0] === 'object' &&
+    unanswered[0] !== null
+  )
+}
+
+/**
+ * The decision questions that `formatScopeCheck` prints in
+ * `### Decisions needed`. The record holds them in one of three shapes.
+ * This function is the only place that selects between the three shapes,
+ * so the formatter and the short summary always agree.
+ */
+export function decisionQuestions(record: ScopeRecord): string[] {
+  const unanswered = record.scope?.unanswered
+  if (hasStructuredUnanswered(unanswered)) {
+    return (unanswered as ScopeUnanswered[]).map(
+      (row) => row.question ?? (typeof row === 'string' ? row : ''),
+    )
+  }
+  if (Array.isArray(unanswered) && unanswered.length > 0) {
+    return unanswered as string[]
+  }
+  return record.open_questions ?? []
+}
+
+/**
+ * The soft questions to print, with the duplicates removed.
+ *
+ * Drop each soft question that repeats a decision, or that repeats a soft
+ * question already kept. The scope path carries bare strings with no target
+ * and no location, so the finding-level dedupe cannot apply here. The shared
+ * similarity module is the only test available.
+ *
+ * Limitation: this repair works on the record only. It cannot repair a
+ * record whose soft entries were truncated before they arrived. In the
+ * salesforce record the truncated entries share too few tokens, and the
+ * highest score between any two of them is 0.4286. The extractor fix
+ * repairs that record, and it repairs it for later runs only.
+ */
+export function dedupeSoftQuestions(record: ScopeRecord): string[] {
+  const decisionTexts = decisionQuestions(record)
+  const soft: string[] = []
+  for (const q of record.scope?.soft ?? []) {
+    if (decisionTexts.some((d) => isDuplicateQuestion(q, d))) continue
+    if (soft.some((k) => isDuplicateQuestion(q, k))) continue
+    soft.push(q)
+  }
+  return soft
 }
 
 /** Format a Scope check comment from a run record (awaiting_scope). */
@@ -33,11 +89,7 @@ export function formatScopeCheck(record: ScopeRecord, prUrl = '', recordPath = '
     lines.push('')
   }
 
-  const hasStructured =
-    Array.isArray(unanswered) &&
-    unanswered.length > 0 &&
-    typeof unanswered[0] === 'object' &&
-    unanswered[0] !== null
+  const hasStructured = hasStructuredUnanswered(unanswered)
 
   const count = hasStructured
     ? (unanswered as ScopeUnanswered[]).length
@@ -110,7 +162,10 @@ export function formatScopeCheck(record: ScopeRecord, prUrl = '', recordPath = '
     }
   }
 
-  const soft = record.scope?.soft ?? []
+  // The duplicate suppression lives in `dedupeSoftQuestions` above. The short
+  // summary in `format-summary.ts` calls the same helper, so the two comments
+  // always print the same count.
+  const soft = dedupeSoftQuestions(record)
   if (soft.length > 0) {
     lines.push(`### Soft open questions (${soft.length}) — no pause`)
     lines.push('')
