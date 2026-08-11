@@ -1,3 +1,4 @@
-Spike scratch file, version 1.
-This file exists only to test review-thread Outdated behaviour.
-Delete it with the branch.
+Spike scratch file, version 2. Every line is different now.
+The second commit rewrote this file completely.
+Line three is also new text.
+And this fourth line did not exist before.
