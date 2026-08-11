@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import {
+  dropRefutedFindings,
   isDossierRenderFix,
   type FindingLike,
 } from '../findings.ts'
@@ -14,6 +15,7 @@ export type ReviewRecord = {
   unresolved?: Finding[]
   open_questions?: string[]
   nits?: Array<Finding | string>
+  history?: Array<{ disputed?: string[] }>
 }
 
 function plainDimension(dim: string): string {
@@ -255,8 +257,9 @@ export function formatPipelineReview(
   }
   lines.push('')
 
+  const disputed = (record.history ?? []).flatMap((h) => h.disputed ?? [])
   const { renderFixes, decisions, legacy } = partitionFindings(
-    record.unresolved ?? [],
+    dropRefutedFindings(record.unresolved ?? [], disputed),
   )
 
   let decisionIndex = 0
@@ -316,8 +319,19 @@ export function formatPipelineReview(
 
   const nits = record.nits ?? []
   const extraNits = nits.length + legacy.length
+  // Always collapse the list. GitHub renders <details> closed, so the nits stay
+  // one click away instead of pushing the retry steps off the screen.
+  // Keep the blank lines after <summary> and before </details>. GitHub does not
+  // render markdown inside a <details> element without them.
+  //
+  // Caution: `legacy` can hold real blockers. A finding with `severity:
+  // "blocker"` but no `dimension` field fails `isGate`, so it lands here and
+  // reads as an optional nit. Two committed run records show this:
+  // `retro/runs/2026-07-23T18:50:25Z-google-big-query.json` (2 of 2 findings)
+  // and `retro/runs/2026-07-23T19:12:45Z-google-big-query.json` (1 of 1).
+  // The misclassification is in `isGate`, not here. Do not fix it in this block.
   if (extraNits > 0 && extraNits <= 12) {
-    lines.push(`### Optional nits (${extraNits})`)
+    lines.push(`<details><summary>Optional nits (${extraNits})</summary>`)
     lines.push('')
     for (const f of legacy) {
       lines.push(
@@ -333,6 +347,8 @@ export function formatPipelineReview(
         lines.push(`- ${n}`)
       }
     }
+    lines.push('')
+    lines.push('</details>')
     lines.push('')
   } else if (extraNits > 12) {
     lines.push('### Optional nits')

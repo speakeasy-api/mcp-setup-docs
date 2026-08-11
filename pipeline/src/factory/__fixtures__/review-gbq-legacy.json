@@ -1,0 +1,327 @@
+{
+  "slug": "google-big-query",
+  "provider": "google big query",
+  "persona": "it-admin",
+  "timestamp": "2026-07-23T18:50:25Z",
+  "started_at": "2026-07-23T18:50:25Z",
+  "finished_at": "2026-07-23T19:09:46Z",
+  "runtime": "cursor-sdk",
+  "status": "unconverged",
+  "rounds": 3,
+  "unresolved": [
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "#configure-oauth-consent — “Complete branding verification”",
+      "problem": "The Setup Guide makes branding verification unconditional, while the Research Dossier places it in the applicable production-verification path.",
+      "suggestion": "Add an explicit gate such as “If Google requires production verification, complete branding verification.”"
+    },
+    {
+      "severity": "blocker",
+      "target": "setup",
+      "where": "#configure-oauth-consent — “Complete sensitive- or restricted-scope verification”",
+      "problem": "The Setup Guide makes scope verification unconditional, while the Research Dossier requires it only when sensitive- or restricted-scope review applies.",
+      "suggestion": "Precede this branch with “If the app needs sensitive- or restricted-scope review:”."
+    }
+  ],
+  "nits": [],
+  "open_questions": [
+    "Whether Google BigQuery is currently in the Speakeasy MCP Catalog.",
+    "Exact Google Cloud console menu grouping for IAM navigation.",
+    "BigQuery scope classification and resulting production-verification requirements.",
+    "Whether narrower dataset-level grants preserve all MCP metadata-discovery behavior."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "configure-oauth-consent",
+          "problem": "The Setup Guide omits the Dossier's production and conditional verification path for persistent External-app authorization.",
+          "suggestion": "Render the Dossier's External-app publishing steps and the conditional branding and scope-verification flow after the Testing path.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "grant-bigquery-mcp-roles",
+          "problem": "The Setup Guide presents **IAM & Admin** > **IAM** as confirmed navigation although the Dossier marks that menu grouping as an inference.",
+          "suggestion": "Use the documented wording \"open the project's IAM page\" or explicitly preserve the Dossier's uncertainty.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#copy-client-credentials, steps 1–3",
+          "problem": "Copying the client secret overwrites the copied Client ID before the guide tells the reader to store or paste it.",
+          "suggestion": "Tell the reader to store the Client ID securely before copying the Client secret, then keep both values for the Speakeasy fields.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "“The user remains under **Test users** and completes Google authorization again when they next connect.”",
+          "problem": "This sentence narrates the user's recovery instead of directing the administrator in the required imperative voice.",
+          "suggestion": "Replace it with: “The user remains under **Test users**; after seven days, have them connect again and repeat Google authorization.”",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#add-server-in-speakeasy",
+          "problem": "The catalog and custom-server branches use separate numbered sub-lists instead of the opening sentence plus conditional bullet structure recorded in the Dossier and canonical skeleton.",
+          "suggestion": "Render one opening sentence (select **Sources**, then click **Add Source**), then the catalog versus custom-server paths as conditional bullet items, matching `docs/speakeasy-setup.md` and `guides/google-compute-engine/setup.md`.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent, already-configured branch step 2",
+          "problem": "Step 2 (“check whether the current setting is **Internal** or **External**”) is orientation-only routing prose inside a numbered action list.",
+          "suggestion": "End the numbered list after step 1 and render the User Type check as plain prose between step groups before the External and Testing branches.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-oauth-client step 3 and #connect-speakeasy-credentials step 2",
+          "problem": "Each numbered step combines two mutually exclusive click targets (**Configure Manually** and **Use Discovered**) with “or click”.",
+          "suggestion": "Keep **Configure Manually** as the primary numbered step and handle **Use Discovered** in prose between steps or as a separate conditional step, matching the branch pattern used for Internal versus External audience selection.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent, prose before first-time setup step 1 (line 64)",
+          "problem": "The pre-wizard paragraph repeats the obtain-contact and obtain-policy-approval gates that steps 8 and 10–11 already state at the point of need.",
+          "suggestion": "Remove line 64 or shorten it to one cross-reference (for example, \"Obtain approved contact and policy sign-off before steps 8 and 11\") and keep the full obtain-and-enter instructions only in those steps.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#enable-bigquery-api, \"New projects normally have the BigQuery API enabled already.\" (line 31)",
+          "problem": "This note repeats the conditional already covered by step 6 (\"If the API is not active, click **Enable**\").",
+          "suggestion": "Delete line 31; step 6 already tells the reader when no further action is required.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent, \"Use the current **User Type** for the audience-specific steps below.\" (line 85)",
+          "problem": "This transition restates what the \"For an External app:\" branch header and the Internal-apps note on line 98 already signal.",
+          "suggestion": "Delete line 85, or fold it into step 2 (for example, \"Note whether **User Type** is **Internal** or **External**, then follow the matching branch below\").",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Fixed all three blockers and all seven nits. Added persistent External-app publishing plus conditional branding and scope verification; removed inferred IAM navigation; secured Client ID before copying the secret; corrected imperative voice, branching formats, and duplicated prose. Updated the Research Dossier credential sequence and preserved all anchors. Lint checks pass.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-consent, persistent External-app authorization step 4",
+          "problem": "The Setup Guide makes the **Confirm** action conditional, although the Research Dossier records the confirmation dialog and **Confirm** as required after **Publish app**.",
+          "suggestion": "Replace “If the confirmation dialog opens, click **Confirm**” with “In the confirmation dialog, click **Confirm**.”",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "grant-bigquery-mcp-roles, step 1",
+          "problem": "The guide gives a console-new reader no navigation path or URL for opening the project's IAM page, forcing them to search or guess before required role grants.",
+          "suggestion": "Verify and record an exact console navigation path or documented direct IAM URL, then render it before the **Grant access** step.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent, \"If the Google Auth platform was already configured:\" (line 78)",
+          "problem": "The already-configured branch uses a one-item numbered list for a single action, which the it-admin persona forbids in favor of one imperative sentence.",
+          "suggestion": "Replace \"1. Open **Audience**.\" with \"Open **Audience**.\" and keep the **User Type** check as the following prose between step groups.",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent, \"After seven days, each user's authorization expires. The user remains under **Test users**; after seven days, have them connect again and repeat Google authorization.\" (line 102)",
+          "problem": "The Testing expiry recovery sentence states the seven-day window twice in adjacent clauses.",
+          "suggestion": "Merge into one timing reference, for example: \"**Testing** supports at most 100 test users, and each user's authorization expires after seven days. The user remains under **Test users**; have them connect again and repeat Google authorization when it expires.\"",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Research blocker: documented the direct IAM URL with provenance observed at 2026-07-23T18:50:25Z and added it to the role-grant step. Setup blocker: made Confirm unconditional after Publish app. Applied both nits: removed the one-item list and deduplicated the seven-day expiry wording.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-consent, persistent External-app authorization steps 3–4",
+          "problem": "The numbered sequence makes **Confirm** unconditional even when the publishing status is already **In production**, where no confirmation dialog exists.",
+          "suggestion": "Place both **Publish app** and **Confirm** under the **Testing** condition, and tell already-production readers to skip both controls before the sequence.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “Enter the application owner's approved, monitored contact address under developer contact information.”",
+          "problem": "The production-verification steps repeat owner-approval glosses for adjacent fields after the preceding paragraph already tells the reader to obtain all approved organization-specific values from an owner.",
+          "suggestion": "Keep the single owner hedge before the steps and remove repeated “approved” and “application owner's” qualifiers from steps 119–123.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent, \"For persistent External-app authorization\" step 1 (line 106)",
+          "problem": "When the reader completes the Testing block on **Audience** (steps 97–100), the publish block repeats \"Open **Audience**\" even though they are already on that page.",
+          "suggestion": "Start the publish sequence with \"Check the publishing status\" or \"On **Audience**, check the publishing status\" instead of opening **Audience** again.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent, sensitive-scope verification steps 8–9 (lines 141–142)",
+          "problem": "Two consecutive numbered steps repeat the same \"In **Scope Justification**, provide…\" opener for related inputs.",
+          "suggestion": "Merge into one step: \"In **Scope Justification**, provide the approved justification for each sensitive or restricted scope and the approved explanation of why a narrower scope is insufficient.\"",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Fixed the publishing flow so Publish app and Confirm apply only in Testing, with In production readers told to skip both. Removed repeated owner/approval qualifiers from branding fields. Avoided reopening Audience. Merged the two Scope Justification steps and renumbered the sequence.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-consent, sensitive-scope verification step 8 (line 143)",
+          "problem": "One numbered step bundles two separate form actions—providing a scope justification and explaining why a narrower scope is insufficient—violating numbered single-action steps.",
+          "suggestion": "Split into two steps: one to provide the approved justification for each sensitive or restricted scope in **Scope Justification**, and a second to provide the approved explanation of why a narrower scope is insufficient (vary the opener so both steps do not repeat \"In **Scope Justification**, provide…\").",
+          "dimension": "formatting"
+        },
+        {
+          "severity": "blocker",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “If an External app remains in Testing”",
+          "problem": "A newly configured External-app reader is asked to decide whether the app remains in Testing before the guide tells them where to check its publishing status, so they may skip the required test-user setup and fail authorization.",
+          "suggestion": "Tell every External-app reader to open Audience and check the publishing status first, then add connecting users under Test users only when the status is Testing.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “Provide the approved feature-documentation links.” and “In Scope Justification, provide the approved justification … and the approved explanation …”",
+          "problem": "These steps repeat approval qualifiers after the preceding paragraph already directs the reader to obtain all production-verification materials from an owner.",
+          "suggestion": "Remove the three repeated “approved” qualifiers and rely on the preceding owner hedge.",
+          "dimension": "voice"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#create-oauth-client steps 2–4 and #connect-speakeasy-credentials “If **Attach Remote Identity Provider** is no longer open” block",
+          "problem": "The **Settings** → **Configure Manually** → **Use Discovered** → **Client Type: Manual** sequence appears twice verbatim for the same Speakeasy panel.",
+          "suggestion": "Keep the full sequence in #create-oauth-client and replace the repeated block in #connect-speakeasy-credentials with one line: repeat steps 2–4 from [Create the OAuth client](#create-oauth-client) if the panel is closed.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent, branding verification timing prose after step 8 (lines 128–132)",
+          "problem": "Three consecutive sentences restate the same branding-review deadline and **Need to re-verify** outcome.",
+          "suggestion": "Merge into one sentence: after review sets branding to **Ready to publish**, click **Publish branding** within seven days or the status becomes **Need to re-verify**.",
+          "dimension": "concision"
+        }
+      ],
+      "revision_notes": "Updated setup.md: split scope justification into two actions; required External apps to check publishing status before adding test users; removed repeated “approved” qualifiers; replaced duplicated Speakeasy panel steps with a cross-reference; consolidated branding timing prose. Lint and whitespace checks passed.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization_recheck": true,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — publishing status steps 95–98",
+          "problem": "The section heading already directs the reader to check publishing status, and numbered step 2 repeats that same action verbatim.",
+          "suggestion": "Remove step 2 and fold the outcome into step 1: open **Audience** and note whether publishing status is **Testing** or **In production**.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — “If the status is **Testing**” at lines 100 and 112",
+          "problem": "External readers in **Testing** hit the same status gate twice in consecutive subsections before new actions appear.",
+          "suggestion": "After the test-user block, continue under **For persistent External-app authorization** with an imperative to publish the app (steps 114–115) instead of restating **If the status is **Testing****.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — lines 119–121 and 134",
+          "problem": "Three back-to-back conditional intros restate the same production-verification and sensitive-scope gates before the reader reaches new steps.",
+          "suggestion": "Replace the separate paragraphs at 119 and 121 with one owner-materials hedge, then branch once to branding verification and once to sensitive-scope verification without repeating the gate wording.",
+          "dimension": "concision"
+        },
+        {
+          "severity": "nit",
+          "target": "setup",
+          "where": "#configure-oauth-consent — line 132",
+          "problem": "The opening sentence states a review-duration estimate the reader cannot act on to finish setup.",
+          "suggestion": "Delete “The automated review normally completes in a few minutes.” and keep only the **Publish branding** / **Need to re-verify** deadline sentence.",
+          "dimension": "concision"
+        }
+      ],
+      "polish_notes": "Finding 1 (#configure-oauth-consent publishing status): Merged the duplicate status check into step 1 — \"Open **Audience** and note whether publishing status is **Testing** or **In production**.\" — and removed redundant step 2. Finding 2 (Testing gate repetition): Removed the second \"If the status is **Testing**:\" under **For persistent External-app authorization**; publish steps now follow directly after the **In production** skip line. Finding 3 (conditional intros): Replaced \"Before production verification...\" and \"If Google requires production verification...\" / \"If the app needs sensitive- or restricted-scope review:\" with one owner-materials hedge (\"Before completing verification...\") and imperative branch headings **Complete branding verification:** and **Complete sensitive- or restricted-scope verification:**. Finding 4 (line 132): Deleted \"The automated review normally completes in a few minutes.\" and kept only the **Publish branding** / **Need to re-verify** deadline sentence.",
+      "polish_skipped": [],
+      "polish_disputed": [],
+      "recheck": {
+        "pass": false,
+        "findings": [
+          {
+            "severity": "blocker",
+            "target": "setup",
+            "where": "#configure-oauth-consent — “Complete branding verification”",
+            "problem": "The Setup Guide makes branding verification unconditional, while the Research Dossier places it in the applicable production-verification path.",
+            "suggestion": "Add an explicit gate such as “If Google requires production verification, complete branding verification.”"
+          },
+          {
+            "severity": "blocker",
+            "target": "setup",
+            "where": "#configure-oauth-consent — “Complete sensitive- or restricted-scope verification”",
+            "problem": "The Setup Guide makes scope verification unconditional, while the Research Dossier requires it only when sensitive- or restricted-scope review applies.",
+            "suggestion": "Precede this branch with “If the app needs sensitive- or restricted-scope review:”."
+          }
+        ]
+      }
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "force: treating research as changed for skip purposes"
+  }
+}
