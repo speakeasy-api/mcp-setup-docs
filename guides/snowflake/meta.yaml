@@ -43,104 +43,104 @@ provenance:
     locator: https://docs.snowflake.com/llms.txt
     name: Snowflake Documentation index
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/snowflake-cortex/llms.txt
     name: Snowflake Cortex documentation index
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp
     name: Snowflake-managed MCP server
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/sql-reference/sql/create-mcp-server
     name: CREATE MCP SERVER
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-setup
     name: Cortex Agents access control and authentication
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-manage
     name: Create and manage Cortex Agents
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/oauth-custom
     name: Configure Snowflake OAuth for custom clients
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/oauth-snowflake-overview
     name: Snowflake OAuth overview
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-oauth-snowflake
     name: CREATE SECURITY INTEGRATION (Snowflake OAuth)
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/sql-reference/functions/system_show_oauth_client_secrets
     name: SYSTEM$SHOW_OAUTH_CLIENT_SECRETS
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/querying-semistructured
     name: Querying semi-structured data
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/sql-reference/sql/create-role
     name: CREATE ROLE
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/sql-reference/sql/grant-role
     name: GRANT ROLE
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/sql-reference/sql/grant-database-role
     name: GRANT DATABASE ROLE
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/sql-reference/sql/grant-privilege
     name: GRANT privileges to role
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/ui-snowsight/workspaces
     name: Workspaces
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/ui-snowsight/workspaces-working
     name: Working with workspaces
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/admin-account-identifier
     name: Account identifiers
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/gen-conn-config
     name: Configure a third-party application to connect to Snowflake
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: provider-quickstart
     locator: https://quickstarts.snowflake.com/guide/getting-started-with-snowflake-mcp-server/index.html
     name: Getting Started with Managed Snowflake MCP Server
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-28T23:57:42Z"
+    observed_at: "2026-08-11T18:36:01Z"

@@ -10,17 +10,18 @@
 
 This creates the hosted MCP server and opens its **Overview** page.
 
-<!-- screenshot: the Add Source menu open on the Sources page, or the provider's catalog entry -->
+<!-- screenshot: the Add Source menu open on the Sources page with Custom remote server visible -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
 1. From the server's **Overview**, open **Settings**.
 2. Under **Authentication**, click **Configure Manually**.
 3. In the **Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**.
-4. Confirm that the displayed **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value registered in [Create the OAuth integration](external.md#create-oauth-integration).
-5. Paste the [**Client ID**](external.md#copy-oauth-credentials) into **Client ID**.
-6. Paste the [**Client Secret**](external.md#copy-oauth-credentials) into **Client Secret (optional)**.
-7. Click **Attach Identity Provider**.
+4. Locate the displayed **Redirect URI** and its copy button.
+5. Confirm that the displayed **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value registered in [Create the OAuth integration](external.md#create-oauth-integration).
+6. Paste the [**Client ID**](external.md#copy-oauth-credentials) into **Client ID**.
+7. Paste the [**Client Secret**](external.md#copy-oauth-credentials) into **Client Secret (optional)**.
+8. Click **Attach Identity Provider**.
 
 <!-- screenshot: the Attach Remote Identity Provider sheet with labels visible and values redacted -->
 
