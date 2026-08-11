@@ -1,0 +1,53 @@
+{
+  "slug": "netsuite",
+  "provider": "netsuite",
+  "persona": "it-admin",
+  "timestamp": "2026-08-07T22:23:30Z",
+  "started_at": "2026-08-07T22:23:30Z",
+  "finished_at": "2026-08-07T22:26:23Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "external",
+      "where": "create-oauth-integration, step 12",
+      "problem": "The required OAuth 2.0 Consent Policy choice is organization-specific, but the guide neither names who supplies it nor gives a default action when no policy has been supplied.",
+      "suggestion": "Tell the reader to obtain the policy choice from the application or cloud security owner, and state that they may retain the documented default of Always Ask when no different policy is required.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Oracle's current public Marketplace installation page names MCP Standard Tools but does not expose Bundle ID 522506 in its text. The ID comes from operator validation; confirm it against the authenticated SuiteApp Marketplace listing during screenshot capture.",
+    "Oracle documents the account-ID endpoint template and the Company URLs page, but does not name a dedicated MCP URL field or give an exact text label for the account ID on that page. The Guide therefore uses the documented account ID and hostname normalization rather than claiming a copyable MCP row.",
+    "Oracle does not publish, on the reviewed MCP setup and SuiteApp installation pages, the exact MCP Standard Tools folder path in the File Cabinet or the role-form control used to grant folder access. If File Cabinet restrictions are in use, obtain those account-specific details from the NetSuite owner.",
+    "Oracle does not publish, on the reviewed MCP setup pages, whether this MCP endpoint exposes protected-resource metadata usable by Speakeasy discovery. The Speakeasy path therefore uses manual configuration."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "create-oauth-integration, step 12",
+          "problem": "The required OAuth 2.0 Consent Policy choice is organization-specific, but the guide neither names who supplies it nor gives a default action when no policy has been supplied.",
+          "suggestion": "Tell the reader to obtain the policy choice from the application or cloud security owner, and state that they may retain the documented default of Always Ask when no different policy is required.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER adds an operator-verified Speakeasy setup fact: the Attach Remote Identity Provider sheet shows the Redirect URI with a copy button before credential entry. This changes the documented sequence and screenshot requirements in speakeasy.md, so re-drafting or re-review is warranted. All other differences are observed_at churn or equivalent wording; Metadata structure, credentials, remote, transport, prerequisites, and anchors are unchanged."
+  },
+  "notes_digest": "sha256:5734a03b8da90f22e491508237ee83ea0936533c32debbe5523f8347704486c0",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 0
+  }
+}

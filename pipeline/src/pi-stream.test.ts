@@ -6,8 +6,10 @@ import {
   parsePiStream,
   streamError,
   formatToolCalls,
+  formatTokenUsage,
   toolCallCounts,
   totalCostUsd,
+  totalTokenUsage,
 } from './pi-stream.ts'
 
 const SESSION = JSON.stringify({
@@ -85,6 +87,85 @@ describe('totalCostUsd', () => {
       Math.round(totalCostUsd(parsePiStream(stdout)) * 1000) / 1000,
       0.03
     )
+  })
+})
+
+describe('totalTokenUsage', () => {
+  function usageTurn(usage: Record<string, number>): string {
+    return JSON.stringify({
+      type: 'turn_end',
+      message: { usage: { ...usage, cost: { total: 0.01 } } },
+    })
+  }
+
+  it('sums every turn_end, not just the last', () => {
+    const stdout = [
+      SESSION,
+      usageTurn({ input: 10, output: 2, cacheRead: 100, cacheWrite: 40 }),
+      usageTurn({ input: 5, output: 3, cacheRead: 200, cacheWrite: 0 }),
+      agentEnd('x'),
+    ].join('\n')
+    assert.deepEqual(totalTokenUsage(parsePiStream(stdout)), {
+      input: 15,
+      output: 5,
+      cacheRead: 300,
+      cacheWrite: 40,
+    })
+  })
+
+  it('treats a turn with no usage as zero rather than throwing', () => {
+    const stdout = [SESSION, '{"type":"turn_end","message":{}}', agentEnd('x')].join('\n')
+    assert.deepEqual(totalTokenUsage(parsePiStream(stdout)), {
+      input: 0,
+      output: 0,
+      cacheRead: 0,
+      cacheWrite: 0,
+    })
+  })
+
+  it('ignores non-numeric usage fields', () => {
+    const stdout = [
+      SESSION,
+      '{"type":"turn_end","message":{"usage":{"input":"lots","cacheRead":7}}}',
+      agentEnd('x'),
+    ].join('\n')
+    const usage = totalTokenUsage(parsePiStream(stdout))
+    assert.equal(usage.input, 0)
+    assert.equal(usage.cacheRead, 7)
+  })
+
+  it('carries usage onto a successful outcome', () => {
+    const stdout = [
+      SESSION,
+      usageTurn({ input: 1, output: 2, cacheRead: 3, cacheWrite: 4 }),
+      agentEnd('done'),
+    ].join('\n')
+    const out = classifyPiRun({ exitCode: 0, stdout, stderr: '' })
+    assert.ok(out.ok)
+    assert.deepEqual(out.tokens, { input: 1, output: 2, cacheRead: 3, cacheWrite: 4 })
+  })
+})
+
+describe('formatTokenUsage', () => {
+  it('reports the cache hit share of all prompt tokens', () => {
+    // 300 read of 400 prompt tokens (50 in + 300 read + 50 write).
+    const line = formatTokenUsage({
+      input: 50,
+      output: 9,
+      cacheRead: 300,
+      cacheWrite: 50,
+    })
+    assert.equal(line, 'in=50 out=9 cache-r=300 cache-w=50 hit=75%')
+  })
+
+  it('reports hit=0% when the route serves no cache', () => {
+    const line = formatTokenUsage({ input: 400, output: 9, cacheRead: 0, cacheWrite: 0 })
+    assert.match(line, /hit=0%$/)
+  })
+
+  it('does not divide by zero on an empty run', () => {
+    const line = formatTokenUsage({ input: 0, output: 0, cacheRead: 0, cacheWrite: 0 })
+    assert.equal(line, 'in=0 out=0 cache-r=0 cache-w=0 hit=0%')
   })
 })
 

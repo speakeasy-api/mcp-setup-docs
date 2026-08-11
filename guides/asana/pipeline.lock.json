@@ -2,14 +2,14 @@
   "schema_version": 1,
   "slug": "asana",
   "persona": "it-admin",
-  "runtime": "cursor-sdk",
-  "updated_at": "2026-07-27T18:24:37Z",
+  "runtime": "pi",
+  "updated_at": "2026-08-06T23:27:10Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:4ace6f73cd97682009ab1480ed6cd5f2fcbcced2fb4f5ec5110643d5a20d29bf",
+      "input_digest": "sha256:69925b98bcfe45e8835f96e3936ab7ae720eadc2f3ef2cc807f736f3dc5ad6ff",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:255c60266361ff6711b0b04829329485020218f5a0460f70aa30f30d9c1711fc",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -21,36 +21,36 @@
           },
           {
             "path": "doctrine/roles/technical-research.md",
-            "digest": "sha256:66065c6978e8389ff59b1a5f1ba0bfe4b7d16c93189416d97119b5cbdd6f091f"
+            "digest": "sha256:88f093f873c705128a0a31eb38be298a2ee11f4d50815552739925337f8ac3ad"
           },
           {
             "path": "doctrine/speakeasy-setup.md",
-            "digest": "sha256:8715948a90f95187a2e093e3dfbaccb2870423ee7c90aed4eeba5c418c0bb85e"
+            "digest": "sha256:9f173facc7f63e450eb7e4d693c67c0a88e9ff68f0a381cfcbae413a8d47dd16"
           }
         ],
         "artifacts": [],
         "params": {
           "provider": "asana",
-          "notes": "Update existing guide under guides/asana; issue body empty—refresh for current MCP/auth steps unless repo diff specifies scope.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\""
+          "notes": "Refresh the existing Asana guide due to lockfile drift; use the pi runtime and current prompt templates/model configuration.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\""
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:878899d95001a1d865c3131b7702a9ab904723ba952eaaa250017b70f8206824"
+          "digest": "sha256:a706c5d4e53f3444526fba61175c2cbed055df4f0d79657fc5909d37828b8d87"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:9d4ec4f70713f70b990c7c245fc93e6fdca44dca941a1fda8d8704d0007d1b17"
+          "digest": "sha256:082d0739c4aa20330dfe204a3287591c231a0254ad7e197aab1823efd11cdefb"
         }
       ],
-      "completed_at": "2026-07-27T18:24:37Z"
+      "completed_at": "2026-08-06T23:27:10Z"
     },
     "draft": {
-      "input_digest": "sha256:4a34f543c5e3fc5dd96b96695aa3578fdbbcefc4b5727ca199e7854c41ef8102",
+      "input_digest": "sha256:ae3e529d4f72f8b4a54f9b8fe6769cec7c9c75b10678912db748841ad966f7ce",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:a956869fa21cc7f91fff9450fe09c86dc2014cb5f058691e03d07eb0b3acce3f",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:ad649d12e8bf3882a1593555c0c4d31681ac50aa891177b1a8f766a563d85d6c",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -62,46 +62,46 @@
           },
           {
             "path": "doctrine/roles/writer.md",
-            "digest": "sha256:1e2f0afa73e8c28502f7fea0d21722a22c980326f3bd878418df27c23fa5b6b3"
+            "digest": "sha256:4214af68feea7dfc68fab1058e1d5d35e6238d5b51fd9b10db421ebafc49a3cc"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:878899d95001a1d865c3131b7702a9ab904723ba952eaaa250017b70f8206824"
+            "digest": "sha256:a706c5d4e53f3444526fba61175c2cbed055df4f0d79657fc5909d37828b8d87"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:9d4ec4f70713f70b990c7c245fc93e6fdca44dca941a1fda8d8704d0007d1b17"
+            "digest": "sha256:082d0739c4aa20330dfe204a3287591c231a0254ad7e197aab1823efd11cdefb"
           }
         ],
         "params": {
           "provider": "asana",
-          "notes": "Update existing guide under guides/asana; issue body empty—refresh for current MCP/auth steps unless repo diff specifies scope.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\"",
+          "notes": "Refresh the existing Asana guide due to lockfile drift; use the pi runtime and current prompt templates/model configuration.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\"",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
+          "digest": "sha256:60e50a07a3982d2e1a424ce5cc6fe627bf720e1642c067847b928436a0893afb"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
+          "digest": "sha256:f69535609f5d508c99073737ac1e39634fb3c1c01801481265b03c14ffed1470"
         }
       ],
-      "completed_at": "2026-07-27T18:24:37Z"
+      "completed_at": "2026-08-06T23:27:10Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:4c48d5857fc801ff38e46136b9e51704919442d46d0885f456b0d9c4eefcc676",
+      "input_digest": "sha256:69a9321c9da112f8ca1f89300dc9e1f985a697c6afa8fa23b451c2a70e065730",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:2885ba720bba92fbed782f1ac13fdbd065c3f1a294302ee85792fc4f61866e1f",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -113,30 +113,30 @@
           },
           {
             "path": "doctrine/roles/fidelity.md",
-            "digest": "sha256:472ec8a2db648c822d126dea857d3f79e9c97a8e9b5fe6a997170bef3c8d2c22"
+            "digest": "sha256:f1c64906d2702d25c5db118f0a1a471b4962333a506c235ffebccf67413aa7f3"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:878899d95001a1d865c3131b7702a9ab904723ba952eaaa250017b70f8206824"
+            "digest": "sha256:a706c5d4e53f3444526fba61175c2cbed055df4f0d79657fc5909d37828b8d87"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:9d4ec4f70713f70b990c7c245fc93e6fdca44dca941a1fda8d8704d0007d1b17"
+            "digest": "sha256:082d0739c4aa20330dfe204a3287591c231a0254ad7e197aab1823efd11cdefb"
           },
           {
             "path": "external.md",
-            "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
+            "digest": "sha256:60e50a07a3982d2e1a424ce5cc6fe627bf720e1642c067847b928436a0893afb"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
+            "digest": "sha256:f69535609f5d508c99073737ac1e39634fb3c1c01801481265b03c14ffed1470"
           }
         ],
         "params": {
           "provider": "asana",
-          "notes": "Update existing guide under guides/asana; issue body empty—refresh for current MCP/auth steps unless repo diff specifies scope.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\"",
+          "notes": "Refresh the existing Asana guide due to lockfile drift; use the pi runtime and current prompt templates/model configuration.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\"",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,20 +144,20 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
+          "digest": "sha256:60e50a07a3982d2e1a424ce5cc6fe627bf720e1642c067847b928436a0893afb"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
+          "digest": "sha256:f69535609f5d508c99073737ac1e39634fb3c1c01801481265b03c14ffed1470"
         }
       ],
-      "completed_at": "2026-07-27T18:24:37Z"
+      "completed_at": "2026-08-06T23:27:10Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:8b3de00837891f32e8bd4b536c15c643935c1936b3c7bb04bfb98502fad16234",
+      "input_digest": "sha256:3e988444dc0af3399c72503d4d49c5cd98d8f42c3926ccdc83146b69f444cb34",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:0b287f892ece7611416030973e4b1952db4c173e3023930bf238685d39b79cdf",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -173,30 +173,30 @@
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:878899d95001a1d865c3131b7702a9ab904723ba952eaaa250017b70f8206824"
+            "digest": "sha256:a706c5d4e53f3444526fba61175c2cbed055df4f0d79657fc5909d37828b8d87"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:9d4ec4f70713f70b990c7c245fc93e6fdca44dca941a1fda8d8704d0007d1b17"
+            "digest": "sha256:082d0739c4aa20330dfe204a3287591c231a0254ad7e197aab1823efd11cdefb"
           },
           {
             "path": "external.md",
-            "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
+            "digest": "sha256:60e50a07a3982d2e1a424ce5cc6fe627bf720e1642c067847b928436a0893afb"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
+            "digest": "sha256:f69535609f5d508c99073737ac1e39634fb3c1c01801481265b03c14ffed1470"
           }
         ],
         "params": {
           "provider": "asana",
-          "notes": "Update existing guide under guides/asana; issue body empty—refresh for current MCP/auth steps unless repo diff specifies scope.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\"",
+          "notes": "Refresh the existing Asana guide due to lockfile drift; use the pi runtime and current prompt templates/model configuration.\n\nSpeakeasy MCP Catalog: present name=\"com.pulsemcp.mirror/asana-mcp\"",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:31858e60f74b872fc9cf9efdffbce15f93a68825e7dd6dad278c850c73ac3475"
+          "digest": "sha256:60e50a07a3982d2e1a424ce5cc6fe627bf720e1642c067847b928436a0893afb"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:7c84b4e800739971fa9d4d43235a246b69c906cebbcaad267c90d5a6786882fc"
+          "digest": "sha256:f69535609f5d508c99073737ac1e39634fb3c1c01801481265b03c14ffed1470"
         }
       ],
-      "completed_at": "2026-07-27T18:24:37Z"
+      "completed_at": "2026-08-06T23:27:10Z"
     }
   }
 }

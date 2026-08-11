@@ -1,0 +1,162 @@
+{
+  "slug": "atlassian",
+  "provider": "atlassian",
+  "persona": "it-admin",
+  "timestamp": "2026-08-07T18:48:21Z",
+  "started_at": "2026-08-07T18:48:21Z",
+  "finished_at": "2026-08-07T18:58:58Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [
+    {
+      "severity": "nit",
+      "target": "external",
+      "where": "Opening prerequisites and “If your organization uses strict egress filtering”",
+      "problem": "The opening conditional directs readers to Atlassian Administration even when the only applicable restriction is network egress, but the egress control is not identified as an Atlassian Administration setting.",
+      "suggestion": "Limit the Atlassian Administration direction to OAuth-domain, IP-allowlist, and app-policy checks, and tell readers to ask their network or security owner to allow `*.atlassian.net` when egress filtering applies.",
+      "dimension": "achievability"
+    }
+  ],
+  "open_questions": [
+    "Does the Speakeasy MCP Catalog contain an exact Atlassian Rovo MCP Server entry? The supplied catalog lookup was ambiguous, so both add-server paths must remain conditional.",
+    "What exact Speakeasy OAuth redirect domain must an Atlassian organization admin allow for this DCR connection, and what hosted outbound IP ranges must be added when the organization enforces Atlassian IP allowlists? These values are not present in Atlassian's public docs or the canonical Speakeasy setup source.",
+    "If User Installed Apps is blocked, what exact current Atlassian Administration clicks install or approve the Atlassian MCP app? The MCP client page states that a site admin might need to install it but delegates the procedure to a separate app-policy guide rather than documenting the complete path."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose: \"Most organizations need no Atlassian-side configuration.\"",
+          "problem": "The Research Dossier establishes when Atlassian-side configuration is unnecessary but does not support the prevalence claim that this applies to most organizations.",
+          "suggestion": "Replace the prevalence claim with a conditional statement, such as: \"You need no Atlassian-side configuration unless your organization restricts OAuth client domains, IP addresses, third-party apps, or network egress.\"",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#allow-speakeasy-domain, step 1",
+          "problem": "The guide tells a cold reader to open Atlassian Administration without providing a verified link, so the reader must search for the console before completing a potentially required first-connection control.",
+          "suggestion": "Verify and record the Atlassian Administration URL in the Research Dossier, then link directly to it from step 1.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "external.md#allow-speakeasy-domain, \"separate organization IP-allowlist settings\"",
+          "problem": "An organization using Atlassian IP allowlists cannot complete the required first-connection exception because the guide provides no console route, control names, or fields for adding the source ranges.",
+          "suggestion": "Research and record the documented Atlassian Administration path and required controls for updating applicable app IP allowlists, then render that conditional path in external.md; if public documentation is silent, record that silence and add an obtain-from-owner hedge.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "speakeasy.md#connect-speakeasy-credentials, step 2",
+          "problem": "The reader is told to select Use Discovered only when it is offered but is not told which named control to select when it is absent.",
+          "suggestion": "Add the canonical fallback: select Configure Manually when Use Discovered is not offered, while retaining the documented discovery behavior and DCR settings.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Speakeasy setup > Add the server in Speakeasy > Screenshot note",
+          "problem": "The transcluded screenshot note omits the canonical requirement that the Add Source menu be open on the Sources page.",
+          "suggestion": "Change the note to specify capturing the **Add Source** menu open on the **Sources** page, while retaining the catalog-entry alternative.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "external.md#allow-speakeasy-domain, steps 6–7",
+          "problem": "The domain flow stops after entering the trusted domain without telling the reader how to submit the change when Atlassian's public documentation does not publish the final control label.",
+          "suggestion": "Add a Dossier-backed hedge directing the reader to use the submission control shown in the console after entering the domain.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Updated research.md first with the verified Atlassian Administration URL, the documented Security > IP allowlists route and controls, public-documentation hedges for unnamed submission controls, canonical Speakeasy fallback behavior, corrected screenshot note, provenance, and the supplied observed_at timestamp. Updated meta.yaml with the IP-allowlist documentation provenance. Updated external.md to replace the unsupported prevalence claim with a conditional, link Atlassian Administration directly, add the conditional IP-allowlist workflow, and direct readers to the console's submission control. Updated speakeasy.md to use Configure Manually when Use Discovered is absent and corrected the screenshot placeholder to require the Add Source menu open on Sources.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup > Connect your credentials, \"otherwise, select Configure Manually\" and \"no ... pasted Issuer URL\"",
+          "problem": "The Dossier includes the manual DCR fallback while unconditionally saying no Issuer URL is needed, although the canonical DCR skeleton requires an Issuer URL whenever the manual sheet does not already know it.",
+          "suggestion": "Record whether the issuer remains populated after selecting Configure Manually; if it does not, record the exact Atlassian issuer and add the canonical Issuer URL entry step to research.md and speakeasy.md.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "external.md#allow-speakeasy-domain, \"If authorization succeeds but a tool call returns an IP permission error\"",
+          "problem": "The guide strengthens the Dossier's statement that authorization can appear before an IP-blocked tool call into the unsupported claim that authorization succeeds.",
+          "suggestion": "Match the Dossier by replacing \"authorization succeeds\" with wording such as \"the authorization screen appears\".",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "external.md#allow-speakeasy-domain, step 5",
+          "problem": "The reader must decide whether the Speakeasy OAuth redirect domain is already allowed before obtaining the exact domain needed for that comparison.",
+          "suggestion": "Tell the reader to obtain the exact redirect domain from the Speakeasy deployment owner first, then check whether it is already covered before selecting **Add domain**.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Research blocker: updated research.md to record the unresolved manual-sheet issuer state and the exact Atlassian issuer fallback, with existing endpoint-observation provenance at the required timestamp; updated speakeasy.md to enter that issuer only when Issuer URL is empty and removed the unconditional no-Issuer claim. External blocker: changed “authorization succeeds” to “the authorization screen appears.” Nit: reordered the domain procedure so the reader obtains the exact redirect domain first, checks existing coverage, and selects Add domain only when needed; mirrored this sequence in research.md.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup > Connect your credentials, “click Discover if the endpoints are not already populated”",
+          "problem": "The Research Dossier conditionally omits the canonical DCR skeleton’s required **Discover** action, which says to click **Discover** so the authorization, token, and registration endpoints fill from provider metadata.",
+          "suggestion": "Remove the conditional wording in research.md and speakeasy.md so the reader always clicks **Discover** under **Endpoints**, matching doctrine/speakeasy-setup.md.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Fixed the blocker in research.md and speakeasy.md: the DCR flow now always instructs the reader to click Discover and states that authorization, token, and registration endpoints fill from Atlassian's authorization-server metadata.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "finalization": true,
+      "blockers": [],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "external",
+          "where": "Opening prerequisites and “If your organization uses strict egress filtering”",
+          "problem": "The opening conditional directs readers to Atlassian Administration even when the only applicable restriction is network egress, but the egress control is not identified as an Atlassian Administration setting.",
+          "suggestion": "Limit the Atlassian Administration direction to OAuth-domain, IP-allowlist, and app-policy checks, and tell readers to ask their network or security owner to allow `*.atlassian.net` when egress filtering applies.",
+          "dimension": "achievability"
+        }
+      ]
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:048f3532fc47a1e23ad245b06b2be466e5407a72624f3a0fce6cc0489a2ac1e7",
+  "setup_churn": {
+    "external_md_lines": 36,
+    "speakeasy_md_lines": 56
+  }
+}

@@ -28,43 +28,46 @@ provenance:
   - source: pulsemcp
     name: com.pulsemcp.mirror/zapier
     classification: mirror
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
     locator: https://docs.zapier.com/llms.txt
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
     locator: https://docs.zapier.com/mcp/get-started/connect
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
     locator: https://docs.zapier.com/mcp/get-started/authentication
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
-    locator: https://docs.zapier.com/mcp/quickstart
-    observed_at: "2026-07-28T18:22:42Z"
+    locator: https://docs.zapier.com/mcp/get-started/quickstart
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
     locator: https://docs.zapier.com/mcp/overview/how-tools-work
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
-    locator: https://docs.zapier.com/mcp/usage
-    observed_at: "2026-07-28T18:22:42Z"
+    locator: https://docs.zapier.com/mcp/features/usage
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
-    locator: https://docs.zapier.com/mcp/security
-    observed_at: "2026-07-28T18:22:42Z"
+    locator: https://docs.zapier.com/mcp/manage/security
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
     locator: https://help.zapier.com/hc/en-us/articles/36265392843917-Use-Zapier-MCP-with-your-client
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
     locator: https://mcp.zapier.com/api/v1/connect
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
     locator: https://mcp.zapier.com/.well-known/oauth-protected-resource/api/v1/connect
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
     locator: https://mcp.zapier.com/.well-known/oauth-authorization-server
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
+  - source: provider-documentation
+    locator: https://zapier.com/llms.txt
+    observed_at: "2026-08-11T18:36:07Z"
   - source: provider-documentation
     locator: https://zapier.com/mcp
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"
   - source: doctrine
     locator: doctrine/speakeasy-setup.md
-    observed_at: "2026-07-28T18:22:42Z"
+    observed_at: "2026-08-11T18:36:07Z"

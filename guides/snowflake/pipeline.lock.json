@@ -2,14 +2,14 @@
   "schema_version": 1,
   "slug": "snowflake",
   "persona": "it-admin",
-  "runtime": "cursor-sdk",
-  "updated_at": "2026-07-29T00:01:51Z",
+  "runtime": "pi",
+  "updated_at": "2026-08-11T18:44:34Z",
   "steps": {
     "research": {
-      "input_digest": "sha256:716081a8071ba7fe66f05a033e13b3365e27070ebd2632f3d6237ec4be81e074",
+      "input_digest": "sha256:614d4e11f34097e887de369cec17ed3908a8cc0f82f88947ef50063dd0bbbb78",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:3b79ac335ee0b509b454301f3d8eb1d9665aea3729404aa00d65e08433e6b4e5",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:255c60266361ff6711b0b04829329485020218f5a0460f70aa30f30d9c1711fc",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -21,36 +21,36 @@
           },
           {
             "path": "doctrine/roles/technical-research.md",
-            "digest": "sha256:f82583e4ba9e92f061b09e6685b3a2640a1826f6fbc27ddac52e0db68387acaf"
+            "digest": "sha256:88f093f873c705128a0a31eb38be298a2ee11f4d50815552739925337f8ac3ad"
           },
           {
             "path": "doctrine/speakeasy-setup.md",
-            "digest": "sha256:8715948a90f95187a2e093e3dfbaccb2870423ee7c90aed4eeba5c418c0bb85e"
+            "digest": "sha256:9f173facc7f63e450eb7e4d693c67c0a88e9ff68f0a381cfcbae413a8d47dd16"
           }
         ],
         "artifacts": [],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted"
+          "notes": "Refresh the existing guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: overridden-tenanted"
         }
       },
       "outputs": [
         {
           "path": "research.md",
-          "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
+          "digest": "sha256:edd4575a672cbb42e2fc138f6e4f7cc8953c75c360be5a1aa1afba012d82d903"
         },
         {
           "path": "meta.yaml",
-          "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
+          "digest": "sha256:910ba19996924d9041a213bcd99ce530c62bc0b96ab12233daa804b06a66a32d"
         }
       ],
-      "completed_at": "2026-07-29T00:01:51Z"
+      "completed_at": "2026-08-11T18:44:34Z"
     },
     "draft": {
-      "input_digest": "sha256:5dc6e0e2999383319fe07404230c605e30b3d1be72bfa7f7c34561b797e1d329",
+      "input_digest": "sha256:4a22791b04d0013fd066819f48b766373169405f3ce90c3945ee66cf7c7d53cf",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:bd455424d5c087fd914297fad0cf7749459452dbd94d00bd4e20e977e9fbb92b",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:ad649d12e8bf3882a1593555c0c4d31681ac50aa891177b1a8f766a563d85d6c",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -62,46 +62,46 @@
           },
           {
             "path": "doctrine/roles/writer.md",
-            "digest": "sha256:7b88b10bd5ce607985054abbdce5e6b742acc7074c1461f08d34321523e17799"
+            "digest": "sha256:4214af68feea7dfc68fab1058e1d5d35e6238d5b51fd9b10db421ebafc49a3cc"
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
+            "digest": "sha256:edd4575a672cbb42e2fc138f6e4f7cc8953c75c360be5a1aa1afba012d82d903"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
+            "digest": "sha256:910ba19996924d9041a213bcd99ce530c62bc0b96ab12233daa804b06a66a32d"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
+          "notes": "Refresh the existing guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin"
         }
       },
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
+          "digest": "sha256:05acdfe85b8d73e9c8b0762bed43f0b03e11e544e0940b3056ed710b6806184e"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
+          "digest": "sha256:eedeee79459220cdf53676503297b1aa20e63759ec884f3e80d80af6d98ea494"
         }
       ],
-      "completed_at": "2026-07-29T00:01:51Z"
+      "completed_at": "2026-08-11T18:44:34Z"
     },
     "review.fidelity": {
-      "input_digest": "sha256:9141cb5e7bf62967749df56e4991d8fa47bb45cdcddb6325b5a72e361b7c7936",
+      "input_digest": "sha256:d994310d3544276bbc67e96a632b17274d755b3211079b8934405f80dda20647",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:cb91cacc0c50621e5c913643f99937071ea75c9a7c0856ff8c6cc70fc568d861",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:2885ba720bba92fbed782f1ac13fdbd065c3f1a294302ee85792fc4f61866e1f",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -113,30 +113,30 @@
           },
           {
             "path": "doctrine/roles/fidelity.md",
-            "digest": "sha256:472ec8a2db648c822d126dea857d3f79e9c97a8e9b5fe6a997170bef3c8d2c22"
+            "digest": "sha256:f1c64906d2702d25c5db118f0a1a471b4962333a506c235ffebccf67413aa7f3"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
+            "digest": "sha256:edd4575a672cbb42e2fc138f6e4f7cc8953c75c360be5a1aa1afba012d82d903"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
+            "digest": "sha256:910ba19996924d9041a213bcd99ce530c62bc0b96ab12233daa804b06a66a32d"
           },
           {
             "path": "external.md",
-            "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
+            "digest": "sha256:05acdfe85b8d73e9c8b0762bed43f0b03e11e544e0940b3056ed710b6806184e"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
+            "digest": "sha256:eedeee79459220cdf53676503297b1aa20e63759ec884f3e80d80af6d98ea494"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
+          "notes": "Refresh the existing guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "fidelity"
         }
@@ -144,20 +144,20 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
+          "digest": "sha256:05acdfe85b8d73e9c8b0762bed43f0b03e11e544e0940b3056ed710b6806184e"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
+          "digest": "sha256:eedeee79459220cdf53676503297b1aa20e63759ec884f3e80d80af6d98ea494"
         }
       ],
-      "completed_at": "2026-07-29T00:01:51Z"
+      "completed_at": "2026-08-11T18:44:34Z"
     },
     "review.achievability": {
-      "input_digest": "sha256:827b40987fe36d2caea235ed8e115192b96f8f7252366a8f76ca3ab3a38a44c8",
+      "input_digest": "sha256:9b83534c57e62988ae99e4442f7c5927bc5c382205474203f2b619b46fcaf98e",
       "inputs": {
-        "model": "gpt-5.6-sol",
-        "prompt_digest": "sha256:5da0cf6dfcf7d6cc8a083825cd048f87c4d0ce7442683b67981efb98b8a97ca3",
+        "model": "openrouter/openai/gpt-5.6-sol",
+        "prompt_digest": "sha256:0b287f892ece7611416030973e4b1952db4c173e3023930bf238685d39b79cdf",
         "reading_list": [
           {
             "path": "doctrine/glossary.md",
@@ -173,30 +173,30 @@
           },
           {
             "path": "doctrine/personas/it-admin.md",
-            "digest": "sha256:b76dc61236fa5c56390354a0d51d5b5ee666395bb65a2e993b79bd9aa9c1fd0d"
+            "digest": "sha256:38c1356b43c9e5f92527f9b73e8561a62cb2eb636b675796af49d0b6015dd9be"
           }
         ],
         "artifacts": [
           {
             "path": "research.md",
-            "digest": "sha256:bffc3018db32b3cb8f6c1d36d297353bb5299f65318bbca9323ee761e8f9cd0b"
+            "digest": "sha256:edd4575a672cbb42e2fc138f6e4f7cc8953c75c360be5a1aa1afba012d82d903"
           },
           {
             "path": "meta.yaml",
-            "digest": "sha256:9868ed58fc2b07ba320eb0be3a5ee13fa108f7bfceb7b0f81c8073cfedf7ab12"
+            "digest": "sha256:910ba19996924d9041a213bcd99ce530c62bc0b96ab12233daa804b06a66a32d"
           },
           {
             "path": "external.md",
-            "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
+            "digest": "sha256:05acdfe85b8d73e9c8b0762bed43f0b03e11e544e0940b3056ed710b6806184e"
           },
           {
             "path": "speakeasy.md",
-            "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
+            "digest": "sha256:eedeee79459220cdf53676503297b1aa20e63759ec884f3e80d80af6d98ea494"
           }
         ],
         "params": {
           "provider": "snowflake",
-          "notes": "Snowflake Cortex Agents MCP only; OAuth per https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp#set-up-oauth-authentication. Speakeasy MCP Catalog out of scope—no Pulse com.pulsemcp.mirror/gram-snowflake, no Mcp-Account-Identifier or forced catalog URL. Custom remote only (remotes[].tenanted: true): paste account-specific URL https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name> from External setup. Before CREATE MCP SERVER, form <cortex_agent_fqn> as <agent_database>.<agent_schema>.<agent_name>. Decision 1 hedge: before namespace grants/SQL, reader must have an existing approved MCP database and schema or create them—soft wording if exact Snowflake UI unverified. Omit Speakeasy outbound IP allowlist unless verified.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
+          "notes": "Refresh the existing guide due to lockfile drift; rerun research, draft, fidelity review, and achievability review under the pi runtime.\n\nSpeakeasy MCP Catalog: overridden-tenanted",
           "persona": "it-admin",
           "dimension": "achievability"
         }
@@ -204,14 +204,14 @@
       "outputs": [
         {
           "path": "external.md",
-          "digest": "sha256:a2a37655c927c5307c9cbee84b3e8a4dae6e33bc6f4b0d7b9cdc813e965ef9da"
+          "digest": "sha256:05acdfe85b8d73e9c8b0762bed43f0b03e11e544e0940b3056ed710b6806184e"
         },
         {
           "path": "speakeasy.md",
-          "digest": "sha256:9651c37085d01c1dd98e2c4f96e7a7b16a848265b03bbf7ad4d52d2bafa65268"
+          "digest": "sha256:eedeee79459220cdf53676503297b1aa20e63759ec884f3e80d80af6d98ea494"
         }
       ],
-      "completed_at": "2026-07-29T00:01:51Z"
+      "completed_at": "2026-08-11T18:44:34Z"
     }
   }
 }

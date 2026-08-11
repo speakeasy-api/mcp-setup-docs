@@ -31,6 +31,15 @@ depends = ["_pipeline-install"]
 #        mise run lint-guide -- --json guides/box
 run = "npm run lint-guide --"
 
+[tasks.stale-sweep]
+description = "Report guides whose lockfile drifted; optionally queue refresh tickets"
+dir = "pipeline"
+depends = ["_pipeline-install"]
+# Usage: mise run stale-sweep            (report only, no network)
+#        mise run stale-sweep -- --create --limit 5
+# --create needs gh auth. It never applies guide:draft, so it starts no run.
+run = "npm run stale-sweep --"
+
 [tasks."_mcp-oauth-probe-install"]
 description = "Install tools/mcp-oauth-probe dependencies (hidden prerequisite)"
 dir = "tools/mcp-oauth-probe"

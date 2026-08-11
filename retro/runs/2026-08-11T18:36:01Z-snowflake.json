@@ -1,0 +1,89 @@
+{
+  "slug": "snowflake",
+  "provider": "snowflake",
+  "persona": "it-admin",
+  "timestamp": "2026-08-11T18:36:01Z",
+  "started_at": "2026-08-11T18:36:01Z",
+  "finished_at": "2026-08-11T18:44:34Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "create-cortex-agent-mcp-server",
+          "problem": "The Dossier specifies that SaaS clients must use the public MCP URL, but the External setup does not distinguish the required public account hostname from a PrivateLink hostname when forming the URL.",
+          "suggestion": "In the URL-forming steps, explicitly direct PrivateLink-account readers to use the public Account/Server hostname for the MCP Server URL and clarify that the PrivateLink integration property affects browser authorization rather than the MCP URL.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup > Connect your credentials",
+          "problem": "The transcluded manual OAuth skeleton omits the canonical fact that the Attach Remote Identity Provider sheet displays the Redirect URI with a copy button.",
+          "suggestion": "Update the Dossier's Speakeasy credential section to carry the current manual OAuth skeleton from doctrine/speakeasy-setup.md, including the Redirect URI copy-button fact, while retaining Snowflake-specific field origins.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [
+        {
+          "severity": "nit",
+          "target": "research",
+          "where": "Open questions / external.md#open-snowflake-workspace",
+          "problem": "The guide repeatedly tells the reader to select or switch Snowflake roles without recording the exact role-selector control or documenting that Snowflake's public documentation does not publish a stable label for it.",
+          "suggestion": "Record the documented role-switching control label and path in the Research Dossier, or add an open question noting public-docs silence and render a concise conceptual hedge in the workspace section.",
+          "dimension": "achievability"
+        }
+      ],
+      "revision_notes": "Blocker (external/create-cortex-agent-mcp-server): clarified in research.md and external.md that PrivateLink accounts must use the public Account/Server hostname for the MCP Server URL, and that USE_PRIVATELINK_FOR_AUTHORIZATION_ENDPOINT affects browser authorization rather than the MCP URL. Blocker (research/Speakeasy credentials): updated the Research Dossier’s manual OAuth flow to record that the Attach Remote Identity Provider sheet displays Redirect URI with a copy button, then rendered that fact in speakeasy.md. Nit (research/open-snowflake-workspace): recorded public-documentation silence about a stable role-selector label/path as an open question and added a concise conceptual workspace-context hedge in research.md and external.md. Existing anchors, titles, ordering, Custom-remote-only path, and provenance timestamp were preserved.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "Opening prose beneath “# Snowflake setup”",
+          "problem": "The opening prose omits the required existing MCP database and schema—or an owner who can create them—and a server-creator role with delegated MCP creation privileges recorded in the Dossier and Metadata.",
+          "suggestion": "Add these prerequisites to the opening prose, including the need for `CREATE MCP SERVER` on the target schema and namespace and Cortex Agent access for the creator role.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "external",
+          "where": "create-cortex-agent-mcp-server, steps 14–17",
+          "problem": "The reader must choose a public hostname before the guide tells them to ask whether the account uses PrivateLink, so an administrator who does not already know the network configuration can form the wrong MCP Server URL.",
+          "suggestion": "Before forming the URL, instruct the reader to ask the account or network security owner whether PrivateLink is enabled and, when it is, have that owner confirm that the copied Account/Server hostname is the public hostname rather than the PrivateLink hostname.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Opening prose: added the existing approved MCP database/schema prerequisite (or an owner who can create them) and the server-creator role’s required CREATE MCP SERVER, namespace, and Cortex Agent access. PrivateLink ordering: updated the Dossier and external walkthrough to ask the account/network security owner about PrivateLink before copying or forming the URL, and to require owner confirmation that a copied hostname is public rather than PrivateLink.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "operator notes changed since lock; keeping AFTER and treating as changed for skip. judge: AFTER is draft-equivalent to BEFORE. Anchors, credential flow, remote URL and transport, tenanted Custom remote server path, prerequisites, Speakeasy setup facts, and provenance-backed claims are unchanged. Differences are limited to researched_at/observed_at timestamp refreshes and a provenance note confirming the sources remained reachable and setup facts unchanged."
+  },
+  "notes_digest": "sha256:ffc943311a21d826614a53709fcfdd912146ca217296218253c307dfc3eeca17",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 0
+  }
+}

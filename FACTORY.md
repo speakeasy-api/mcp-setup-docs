@@ -19,6 +19,7 @@ Repo → **Settings → Secrets and variables → Actions**:
 | `AGENT_PAT` | Recommended | PAT with contents + issues + pull requests write on this repo. Falls back to `GITHUB_TOKEN` (PRs still work; label chaining is less reliable). |
 | `PULSE_REGISTRY_KEY` | Recommended | PulseMCP Sub-Registry API key — resolves Speakeasy MCP Catalog presence before research. Without it, `speakeasy_add_server: auto` guides keep both catalog/custom paths unless remotes are tenanted or the guide forces `custom-remote` / `catalog`. |
 | `PULSE_REGISTRY_TENANT` | Recommended with key | PulseMCP tenant slug (e.g. `gram-recommended`). Required together with the key for catalog lookup. |
+| `VERCEL_DEPLOY_HOOK_URL` | Optional | Vercel Deploy Hook for the marketing site (Project → Settings → Git → Deploy Hooks), branch `main`. `site-deploy-hook.yml` POSTs to it after a guide lands on `main`, so the published guides refresh. Unset just skips the rebuild. |
 
 Local `mise run draft-guide` uses the same env names (`PULSE_REGISTRY_KEY`, `PULSE_REGISTRY_TENANT`, optional `PULSE_REGISTRY_URL`) — typically from gitignored `mise.local.toml`, same as `mise run pull-catalog`.
 
@@ -31,6 +32,34 @@ The workflow creates these if missing. You can also create them by hand:
 | `guide:draft` | **Trigger** — add this to start (or retry) a run |
 | `guide:in-progress` | Run is active (set/cleared by the Action) |
 | `guide:blocked` | Distill unclear, hard failure, refused, or **awaiting scope** (set by the Action) |
+| `guide:stale` | Lockfile drifted; a refresh is queued (set by the stale sweep) |
+
+## Stale sweep
+
+`.github/workflows/guide-stale-sweep.yml` runs 07:00 UTC every Monday, and on
+demand via **Run workflow**. It re-derives every input each `pipeline.lock.json`
+records and reports the guides whose locks went cold — a doctrine edit, a prompt
+change, a new model, an edited guide file, a missing lock.
+
+Detection is offline. No OpenRouter key, no model call, no credits. It does not
+fetch provider documentation, so it catches drift on our side only, not a
+provider that rewrote their docs.
+
+It opens at most five tickets per run (`limit` input), oldest lock first, and
+skips any slug that already has an open `guide:stale` ticket. Tickets carry
+`guide:stale` and nothing else — **the sweep never applies `guide:draft`**, so
+nothing it files starts a run. Add `guide:draft` to a ticket when you want that
+guide refreshed.
+
+Report locally without touching GitHub:
+
+```bash
+mise run stale-sweep
+```
+
+One gap worth knowing: the sweep only recognises its own tickets. If a guide is
+already being refreshed through a hand-written issue, the sweep may still queue
+a ticket for it. Close the duplicate.
 
 ## Draft a guide
 

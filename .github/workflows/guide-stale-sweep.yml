@@ -1,0 +1,79 @@
+name: Guide stale sweep
+
+# Reports guides whose pipeline.lock.json drifted from the repo, and opens one
+# refresh ticket per guide (capped, oldest lock first).
+#
+# The sweep applies `guide:stale` only. It never applies `guide:draft`, so no
+# ticket it files starts a draft run. A human adds that label when they want
+# one. Detection is offline — no OpenRouter key, no model call, no credits.
+
+on:
+  schedule:
+    # 07:00 UTC every Monday, so the queue is waiting at the start of the week.
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Maximum tickets to open this run'
+        required: false
+        default: '5'
+      dry_run:
+        description: 'Report only; open no tickets'
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: guide-stale-sweep
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      issues: write
+
+    defaults:
+      run:
+        working-directory: pipeline
+
+    env:
+      GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: pipeline/package-lock.json
+
+      - run: npm ci
+
+      # One invocation: --create prints the same report before it files anything,
+      # so a separate reporting pass would only duplicate the work. pipefail
+      # keeps tee from swallowing a non-zero exit.
+      - name: Sweep
+        shell: bash
+        env:
+          LIMIT: ${{ inputs.limit || '5' }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          set -euo pipefail
+          args=(--limit "$LIMIT")
+          if [ "$DRY_RUN" != "true" ]; then args+=(--create); fi
+          npm run stale-sweep -- "${args[@]}" | tee "$RUNNER_TEMP/sweep.txt"
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo '## Guide stale sweep'
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/sweep.txt" 2>/dev/null || echo '(no report; the sweep failed before it ran)'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
