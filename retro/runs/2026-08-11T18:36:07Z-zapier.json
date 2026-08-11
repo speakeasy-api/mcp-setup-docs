@@ -1,0 +1,33 @@
+{
+  "slug": "zapier",
+  "provider": "zapier",
+  "persona": "it-admin",
+  "timestamp": "2026-08-11T18:36:07Z",
+  "started_at": "2026-08-11T18:36:07Z",
+  "finished_at": "2026-08-11T18:39:00Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "Zapier’s public documentation does not publish the exact labels or content of the browser sign-in and authorization prompts presented after DCR; the Setup Guide should direct the reader to complete the on-screen prompts without inventing labels.",
+    "Zapier has not reconciled its direct-connect page with documentation that still requires creating a client-specific server. The direct DCR route is supported by live discovery metadata, but it was not completed end to end because that requires client registration and authorization with a Zapier account."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "operator notes changed since lock; keeping AFTER and treating as changed for skip. judge: AFTER is drafting-equivalent to BEFORE. Remote URL, transport, OAuth DCR flow, prerequisites, catalog-only add-server path, anchors, credential fields, scopes, and Speakeasy steps are unchanged. Differences are timestamp churn, minor wording, updated Zapier documentation locators, and the added zapier.com/llms.txt provenance record; these do not require re-rendering external.md or speakeasy.md or invalidate prior setup review."
+  },
+  "notes_digest": "sha256:4787d82bc896ef66b946798ffdc65a36d2a6f5d755fcaf9d7714616b61d27fd3",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 0
+  }
+}

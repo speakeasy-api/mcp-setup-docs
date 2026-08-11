@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: zapier
-researched_at: 2026-07-28T18:22:42Z
+researched_at: 2026-08-11T18:36:07Z
 ---
 
 # Zapier — Research Dossier
@@ -36,12 +36,13 @@ researched_at: 2026-07-28T18:22:42Z
 Zapier's current public documentation is internally inconsistent about whether
 a user must first create a named server at `mcp.zapier.com`. The current
 **Connect your AI client** page says OAuth clients connect directly to the
-shared URL with “no server setup required,” while the quickstart, first-workflow
-page, authentication page, and support article still describe creating a
+shared URL with “no server setup required,” while the documentation index,
+quickstart, authentication page, and support article still describe creating a
 client-specific server first. This Guide uses the direct OAuth path because the
 shared remote currently returns an RFC 9728 challenge and publishes a DCR
-registration endpoint, and because the Speakeasy MCP Catalog entry maps to that
-shared remote. The older connection-token path is therefore not rendered.
+registration endpoint, and because the forced Speakeasy MCP Catalog entry maps
+to that shared remote. The older connection-token path is therefore not
+rendered.
 
 ## Credential flow
 
@@ -156,12 +157,16 @@ https://docs.zapier.com/mcp/get-started/connect.
 ### Source inventory
 
 - Developer documentation: `https://docs.zapier.com`; its MCP index is
-  available at `https://docs.zapier.com/llms.txt`. Used.
+  available at `https://docs.zapier.com/llms.txt`. Used. The index itself
+  still recommends creating a server, while its current client-connection
+  page says no server setup is required.
 - Product and admin surface: `https://mcp.zapier.com`; authentication is
   required for dashboard UI, while the remote endpoint and OAuth metadata are
   public. Public metadata used; authenticated UI not probed.
-- Product site: `https://zapier.com/mcp`. Used for plan availability and
-  enterprise positioning.
+- Product site: `https://zapier.com`; its machine-readable root index is
+  `https://zapier.com/llms.txt`. The MCP product page is
+  `https://zapier.com/mcp`. Used for plan availability and enterprise
+  positioning.
 - Support knowledge base: `https://help.zapier.com/hc/en-us`. Used to compare
   the older server/token setup path and confirm plan availability.
 - Speakeasy setup doctrine: `doctrine/speakeasy-setup.md`. Used for the fixed
@@ -170,42 +175,44 @@ https://docs.zapier.com/mcp/get-started/connect.
 ### Source records
 
 - `https://docs.zapier.com/llms.txt` — observed
-  `2026-07-28T18:22:42Z`; documentation-property sweep and current MCP page
+  `2026-08-11T18:36:07Z`; documentation-property sweep and current MCP page
   inventory.
 - `https://docs.zapier.com/mcp/get-started/connect` — observed
-  `2026-07-28T18:22:42Z`; shared remote URL, Streamable HTTP, no SSE,
+  `2026-08-11T18:36:07Z`; shared remote URL, Streamable HTTP, no SSE,
   direct OAuth connection, and no-server-setup statement.
 - `https://docs.zapier.com/mcp/get-started/authentication` — observed
-  `2026-07-28T18:22:42Z`; documented authentication alternatives and the
+  `2026-08-11T18:36:07Z`; documented authentication alternatives and the
   older connection-token path.
-- `https://docs.zapier.com/mcp/quickstart` — observed
-  `2026-07-28T18:22:42Z`; conflicting named-server setup flow and OAuth as
+- `https://docs.zapier.com/mcp/get-started/quickstart` — observed
+  `2026-08-11T18:36:07Z`; conflicting named-server setup flow and OAuth as
   the normal flow for listed clients.
 - `https://docs.zapier.com/mcp/overview/how-tools-work` — observed
-  `2026-07-28T18:22:42Z`; dynamic discovery, OAuth auto-provisioning,
+  `2026-08-11T18:36:07Z`; dynamic discovery, OAuth auto-provisioning,
   ownership limitation for app connections, and manual-mode distinction.
-- `https://docs.zapier.com/mcp/usage` — observed
-  `2026-07-28T18:22:42Z`; task billing, non-billable setup/authentication,
+- `https://docs.zapier.com/mcp/features/usage` — observed
+  `2026-08-11T18:36:07Z`; task billing, non-billable setup/authentication,
   and task-limit behavior.
-- `https://docs.zapier.com/mcp/security` — observed
-  `2026-07-28T18:22:42Z`; default account enablement, workspace controls,
+- `https://docs.zapier.com/mcp/manage/security` — observed
+  `2026-08-11T18:36:07Z`; default account enablement, workspace controls,
   user permissions, and account-level restrictions.
-- `https://zapier.com/mcp` — observed `2026-07-28T18:22:42Z`; availability
+- `https://zapier.com/llms.txt` — observed `2026-08-11T18:36:07Z`;
+  product-property sweep and pointer to the developer documentation index.
+- `https://zapier.com/mcp` — observed `2026-08-11T18:36:07Z`; availability
   on all plans and use of the existing plan quota.
 - `https://help.zapier.com/hc/en-us/articles/36265392843917-Use-Zapier-MCP-with-your-client`
-  — observed `2026-07-28T18:22:42Z`; support-site requirements, all-plan
+  — observed `2026-08-11T18:36:07Z`; support-site requirements, all-plan
   availability, and the older unlisted-client token flow.
 - `https://mcp.zapier.com/api/v1/connect` — observed
-  `2026-07-28T18:22:42Z`; live `401` response and RFC 9728
+  `2026-08-11T18:36:07Z`; live `401` response and RFC 9728
   `WWW-Authenticate` challenge.
 - `https://mcp.zapier.com/.well-known/oauth-protected-resource/api/v1/connect`
-  — observed `2026-07-28T18:22:42Z`; resource identifier, authorization
+  — observed `2026-08-11T18:36:07Z`; resource identifier, authorization
   server, and supported scopes.
 - `https://mcp.zapier.com/.well-known/oauth-authorization-server` — observed
-  `2026-07-28T18:22:42Z`; issuer, OAuth endpoints, DCR endpoint, grants,
+  `2026-08-11T18:36:07Z`; issuer, OAuth endpoints, DCR endpoint, grants,
   token authentication methods, PKCE methods, and scopes.
 - Pulse MCP Catalog record `com.pulsemcp.mirror/zapier`, title `Zapier` —
-  observed `2026-07-28T18:22:42Z`; catalog presence and catalog add-server
+  observed `2026-08-11T18:36:07Z`; catalog presence and catalog add-server
   path. Source: `pulsemcp`.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-28T18:22:42Z`; fixed
+- `doctrine/speakeasy-setup.md` — observed `2026-08-11T18:36:07Z`; fixed
   Speakeasy-side flow, labels, screenshot notes, and anchors.
