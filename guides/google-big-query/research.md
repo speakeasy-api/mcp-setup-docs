@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: google-big-query
-researched_at: 2026-07-23T19:36:30Z
+researched_at: 2026-08-06T23:23:41Z
 ---
 
 # Google BigQuery — Research Dossier
@@ -11,8 +11,8 @@ Google Cloud documentation at `docs.cloud.google.com`; Google Auth platform
 details come from `developers.google.com` and the Google Cloud Console Help
 property at `support.google.com/cloud`. `cloud.google.com` is a redirecting
 front door for the same Google Cloud documentation. The documentation sweep
-and direct endpoint observations were performed at
-`2026-07-23T19:36:30Z`.
+and live endpoint and OAuth metadata checks were refreshed at
+`2026-08-06T23:23:41Z`.
 
 ## Server facts
 
@@ -117,11 +117,12 @@ Values needed by the Speakeasy AI Control Plane:
 | Client Secret | **Client secrets** section of the same dialog in {#copy-client-credentials}; copyable once |
 | OAuth scope | `https://www.googleapis.com/auth/bigquery` |
 
-Paste `{{ gram.oauth.callback_url }}` into **Authorized redirect URIs** while
-creating the OAuth client in {#create-oauth-client}. It is the **Redirect URI**
-shown by the Speakeasy AI Control Plane's **Attach Remote Identity Provider**
-sheet. Google requires web applications to allowlist the application's redirect
-URI and does not accept custom URI schemes for this flow.
+Paste `{{ gram.oauth.callback_url }}` directly into **Authorized redirect URIs**
+while creating the OAuth client in {#create-oauth-client}. The template resolves
+to the **Redirect URI** later shown by the Speakeasy AI Control Plane's
+**Attach Remote Identity Provider** sheet. Google requires web applications to
+allowlist the application's redirect URI and does not accept custom URI schemes
+for this flow.
 
 After setup, each connecting user signs in to Google and authorizes access.
 That user's account must hold the required IAM roles. If an External-audience
@@ -134,9 +135,9 @@ Overall transition: sign in at `https://console.cloud.google.com`. On the
 Google Cloud console toolbar, click the resource selector. In the **Select a
 resource** dialog, select the project that owns the OAuth client and will
 enable the BigQuery API. Then enable the API → grant users' roles → configure
-the consent screen and scope → add the server in the Speakeasy AI Control
-Plane and copy its redirect URI → create the web client → copy its
-credentials. All provider steps occur in the selected project.
+the consent screen and scope → create the web client → copy its credentials →
+add the server in the Speakeasy AI Control Plane. All provider steps occur in
+the selected project.
 
 ### Enable the BigQuery API {#enable-bigquery-api}
 
@@ -271,7 +272,10 @@ credentials. All provider steps occur in the selected project.
   5. Click **Submit for Verification**. Google reviews the submission and can
      request more information through the support and developer-contact email
      addresses. **Branding** and **Verification Center** show the current
-     review status, including whether review is paused for a response.
+     review status, including whether review is paused for a response. Follow
+     the status shown on those pages, and obtain guidance from the application
+     owner or cloud security owner on whether approval is required before
+     continuing to create the OAuth client.
 - Recovery after the seven-day Testing expiry: the user remains in **Test
   users** and does not need to be added again. The expired authorization and
   refresh token can no longer sustain the connection. The next time the user
@@ -279,8 +283,8 @@ credentials. All provider steps occur in the selected project.
   grants another seven-day Testing authorization. The durable alternative is
   the production and verification path above.
 - Result and transition: the project can issue user authorizations for the
-  BigQuery scope. Next, add the server in the Speakeasy AI Control Plane and
-  copy its **Redirect URI** before opening **Clients**.
+  BigQuery scope. Next, open **Google Auth platform** > **Clients** to create
+  the web client.
 - Values entered: app name, support email, audience choice, contact email,
   BigQuery OAuth scope, and (when applicable) test-user emails.
 - Screenshot note: the **Data Access** page with the BigQuery scope in the
@@ -288,16 +292,13 @@ credentials. All provider steps occur in the selected project.
 
 ### Create the OAuth client {#create-oauth-client}
 
-- Follow {#add-server-in-speakeasy} to add the server. From the server's
-  **Overview**, open **Settings**. Under **Authentication**, click **Configure
-  Manually** or **Use Discovered** if offered. In **Attach Remote Identity
-  Provider**, set **Client Type** to **Manual**, copy the **Redirect URI**, and
-  return to the Google Cloud console.
 - Open **Google Auth platform** > **Clients**, then click **Create client**.
 - Set **Application type** to **Web application**. In **Name**, enter a
   recognizable name such as `Speakeasy AI Control Plane`.
-- Under **Authorized redirect URIs**, click **+ Add URI** and paste
-  the copied **Redirect URI**, shown in this guide as
+- Under **Authorized redirect URIs**, click **+ Add URI** and paste the
+  following template directly; the Speakeasy AI Control Plane resolves it to
+  the callback URL:
+
   `{{ gram.oauth.callback_url }}`.
   **Authorized JavaScript origins** applies only to applications making Google
   API requests from client-side JavaScript and is not needed for this hosted
@@ -318,8 +319,7 @@ credentials. All provider steps occur in the selected project.
   alongside the Client ID. Google states that the secret can be copied only
   once.
 - Keep both values ready for the Speakeasy AI Control Plane. The provider-side
-  setup is complete; return to the Speakeasy AI Control Plane, open the
-  server's **Overview**, and then open **Settings**.
+  setup is complete; continue to {#add-server-in-speakeasy}.
 - Values copied: Client ID and Client secret → the matching Speakeasy
   credential fields.
 - Screenshot exception: do not capture credential values; the dialog contains
@@ -342,30 +342,24 @@ Transcluded from `doctrine/speakeasy-setup.md`; its anchors
 `{#add-server-in-speakeasy}` and `{#connect-speakeasy-credentials}` are fixed
 and carried verbatim. Provenance: `doctrine/speakeasy-setup.md` (product source
 `speakeasy-api/gram`, `client/dashboard`, branch `main`, commit `96f7f73`),
-observed at `2026-07-23T19:36:30Z`.
+observed at `2026-08-06T23:23:41Z`. Operator-provided Speakeasy MCP Catalog
+lookup result: absent for queries `google-big-query` and `google big query`;
+therefore only the Custom remote server path is rendered.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
-- If Google BigQuery is in the catalog: choose **3rd-party server**. On the
-  **MCP Catalog** page, find Google BigQuery (the search box reads
-  **Search MCP servers...**), open its entry with **View**, and click
-  **Add**. In the **Add to Project** dialog, click **Add to Project**.
-- If it is not: choose **Custom remote server**. On the
-  **Add a custom remote MCP server** page, paste
-  `https://bigquery.googleapis.com/mcp` into **Remote MCP server URL** and
-  click **Add server**.
+Choose **Custom remote server**. On the **Add a custom remote MCP server**
+page, paste `https://bigquery.googleapis.com/mcp` into **Remote MCP server
+URL** and click **Add server**.
 
-Either path creates the hosted MCP server and opens its **Overview**
-page.
-<!-- screenshot: the Add Source menu open on the Sources page, or the provider's catalog entry -->
+This creates the hosted MCP server and opens its **Overview** page.
+<!-- screenshot: the Add Source menu with Custom remote server, or the Add a custom remote MCP server page -->
 
-Sequence condition: the reader follows this section from
-{#create-oauth-client}. After either branch opens the server's **Overview**,
-return to {#create-oauth-client} to copy the **Redirect URI** before opening
-Google Auth platform **Clients**.
+Sequence condition: the reader follows this section after completing
+{#copy-client-credentials}.
 
 Per-guide values:
 
@@ -376,22 +370,21 @@ Per-guide values:
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From **Overview**, open **Settings**. Under **Authentication**, click
-**Configure Manually** (or **Use Discovered** if offered). In **Attach Remote
-Identity Provider**, set **Client Type** to **Manual**.
+From the server's **Overview**, open **Settings**. Under **Authentication**,
+click **Configure Manually** (or **Use Discovered** when offered). In the
+**Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**.
+The sheet shows the **Redirect URI** with a copy button — the callback URL
+registered in {#create-oauth-client} with `{{ gram.oauth.callback_url }}`.
 
-The sheet's **Redirect URI** supplies `{{ gram.oauth.callback_url }}` for
-{#create-oauth-client}. Paste the **Client ID** and **Client Secret (optional)**
-from {#copy-client-credentials}; Google's web client requires its generated
-secret even though the Control Plane label says optional. In **Scope
-(override)**, enter `https://www.googleapis.com/auth/bigquery`. The field
-accepts comma-separated scopes; this guide requires this single value. Click
-**Attach Identity Provider**.
-
-Sequence seam: the reader needs the sheet's **Redirect URI** before completing
-{#create-oauth-client}. The Writer must direct the reader to copy that URI
-before the provider-side client creation and return here with the resulting
-credentials.
+Paste the **Client ID** and **Client Secret (optional)** from
+{#copy-client-credentials}; Google's web client requires its generated secret
+even though the Control Plane label says optional. In **Scope (override)**,
+enter `https://www.googleapis.com/auth/bigquery`. The field accepts
+comma-separated scopes; this guide requires this single value. Click **Attach
+Identity Provider**. Confirm the sheet's **Redirect URI** matches the
+`{{ gram.oauth.callback_url }}` value registered under **Authorized redirect
+URIs** in {#create-oauth-client} — readers paste that template key directly
+there; they do not visit this sheet mid–External-setup only to copy the URI.
 
 Screenshot note: **Attach Remote Identity Provider** showing **Client Type:
 Manual**, **Redirect URI**, credential labels, and scope configuration, with
@@ -403,14 +396,10 @@ Further-reading URL for the closing pointer:
 Canonical closing sentence to render verbatim:
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
-limits — see Google's BigQuery MCP documentation at
-https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp.
+limits — see [Google's BigQuery MCP documentation](https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp).
 
 ## Open questions
 
-- **Speakeasy MCP Catalog presence**: whether Google BigQuery currently has a
-  catalog entry determines which add-server branch is used. Verify in-product
-  during screenshot capture; until then, retain both canonical branches.
 - **Exact console menu grouping**: provider docs deep-link to **IAM** and
   **Google Auth platform** but do not spell out every navigation-menu group.
   **IAM & Admin** > **IAM** is inferred from the console URL and Google's
@@ -454,8 +443,8 @@ Source inventory from the documentation-property sweep:
 - **Speakeasy product documentation — `speakeasy.com/docs`** (drawn from):
   dashboard entry and project-selection controls.
 
-Unless another timestamp is stated, sources below were observed at
-`2026-07-23T19:36:30Z`:
+Unless another timestamp is stated, sources below were observed or re-observed
+at `2026-08-06T23:23:41Z`:
 
 - `https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp` — endpoint,
   HTTP transport label, API enablement, required IAM roles and permissions,
@@ -543,7 +532,7 @@ Unless another timestamp is stated, sources below were observed at
 - `doctrine/speakeasy-setup.md` — every Speakeasy-side label and fixed anchor
   transcluded above; canonical product-source snapshot at
   `speakeasy-api/gram`, `client/dashboard`, `main` @ `96f7f73`; observed at
-  `2026-07-23T19:36:30Z`.
+  `2026-08-06T23:23:41Z`.
 - `speakeasy-api/gram`, commit `96f7f73`,
   `client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/IssuerFormFields.tsx`
   — **Scope (override)** label, comma-separated interaction, and fallback

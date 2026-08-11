@@ -1,0 +1,33 @@
+{
+  "slug": "atlassian",
+  "provider": "atlassian",
+  "persona": "it-admin",
+  "timestamp": "2026-08-07T20:27:40Z",
+  "started_at": "2026-08-07T20:27:40Z",
+  "finished_at": "2026-08-07T20:31:31Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 1,
+  "nits": [],
+  "open_questions": [
+    "Does the Speakeasy MCP Catalog contain an exact result for the current Atlassian Rovo remote MCP Server? The supplied lookup found one non-exact result and no exact title/name match.",
+    "After selecting Configure Manually, does the discovered Atlassian issuer remain populated in Issuer URL? The walkthrough conditionally supplies the verified issuer if the field is empty."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER changes draft-relevant guidance: it explicitly verifies the DCR authorization endpoint as https://auth.atlassian.com/authorize; removes all mention of the deprecated catalog entry while retaining the ambiguous dual-path conditional; and replaces the detailed Atlassian IP-allowlist walkthrough with a hedge directing admins to their network/security owner because Speakeasy outbound ranges are unknown. The current speakeasy.md still mentions the deprecated entry, and external.md still contains the superseded IP-allowlist clicks, so both setup files warrant re-rendering."
+  },
+  "notes_digest": "sha256:c554944fc0328d549dd450d3146c70739d621106ba2ca97be6d28d3899de3f24",
+  "setup_churn": {
+    "external_md_lines": 9,
+    "speakeasy_md_lines": 0
+  }
+}
