@@ -148,27 +148,23 @@ If **Data Access** classifies the BigQuery scope as sensitive or restricted, com
 10. In **YouTube link**, paste the URL of an unlisted YouTube demonstration showing the English OAuth grant flow and how the app uses each requested scope.
 11. Click **Submit for Verification**.
 
-Google can request more information through the support and developer-contact email addresses. Check **Branding** and **Verification Center** for the current review status, including whether review is paused for a response.
+Google can request more information through the support and developer-contact email addresses. Follow the status shown in **Branding** and **Verification Center**, including whether review is paused for a response. Obtain guidance from the application owner or cloud security owner on whether approval is required before you continue to create the OAuth client.
 
 <!-- screenshot: the Data Access page with the BigQuery scope in the selected-scopes table -->
 
 ### Create the OAuth client {#create-oauth-client}
-
-1. Follow [Add the server in Speakeasy](speakeasy.md#add-server-in-speakeasy).
-2. On the server's **Overview**, open **Settings**.
-3. Under **Authentication**, click **Configure Manually**.
-4. If **Use Discovered** is offered instead, click **Use Discovered**.
-5. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-6. Copy the **Redirect URI**.
-
-Return to the Google Cloud console.
 
 1. Open **Google Auth platform** > **Clients**.
 2. Click **Create client**.
 3. Set **Application type** to **Web application**.
 4. In **Name**, enter a recognizable name, such as `Speakeasy AI Control Plane`.
 5. Under **Authorized redirect URIs**, click **+ Add URI**.
-6. Paste the copied **Redirect URI**, shown here as `{{ gram.oauth.callback_url }}`.
+6. Paste this value:
+
+   ```
+   {{ gram.oauth.callback_url }}
+   ```
+
 7. Prepare a secure location for the client secret, which the next dialog shows for one-time copying.
 8. Click **Create**.
 

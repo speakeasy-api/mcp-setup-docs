@@ -4,34 +4,39 @@
 
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
 
-- If Google BigQuery is in the catalog: choose **3rd-party server**. On the **MCP Catalog** page, find Google BigQuery (the search box reads **Search MCP servers...**), open its entry with **View**, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
-- If it is not: choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste this URL into **Remote MCP server URL**, then click **Add server**:
+1. Choose **Custom remote server**.
+2. On the **Add a custom remote MCP server** page, paste this URL into **Remote MCP server URL**:
 
-  ```
-  https://bigquery.googleapis.com/mcp
-  ```
+   ```
+   https://bigquery.googleapis.com/mcp
+   ```
 
-Either path creates the hosted MCP server and opens its **Overview** page.
+3. Click **Add server**.
 
-If you came here from [Create the OAuth client](external.md#create-oauth-client), return there and continue with the next step.
+This creates the hosted MCP server and opens its **Overview** page.
 
-<!-- screenshot: the Add Source menu open on the Sources page, or the provider's catalog entry -->
+<!-- screenshot: the Add Source menu with Custom remote server, or the Add a custom remote MCP server page -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
 Google's web client requires its generated secret even though the Speakeasy AI Control Plane field is labeled **Client Secret (optional)**.
 
-If **Attach Remote Identity Provider** is not already open, repeat steps 2–5 from [Create the OAuth client](external.md#create-oauth-client).
+1. From **Overview**, open **Settings**.
+2. Under **Authentication**, click **Configure Manually** or, if offered, **Use Discovered**.
+3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
 
-1. Paste the **Client ID** from [Copy the client credentials](external.md#copy-client-credentials) into **Client ID**.
-2. Paste the **Client secret** into **Client Secret (optional)**.
-3. In **Scope (override)**, enter this value:
+The sheet shows **Redirect URI** with a copy button. It is the callback URL registered in [Create the OAuth client](external.md#create-oauth-client) with `{{ gram.oauth.callback_url }}`.
+
+4. Paste the **Client ID** from [Copy the client credentials](external.md#copy-client-credentials) into **Client ID**.
+5. Paste the **Client secret** from [Copy the client credentials](external.md#copy-client-credentials) into **Client Secret (optional)**.
+6. In **Scope (override)**, enter this value:
 
    ```
    https://www.googleapis.com/auth/bigquery
    ```
 
-4. Click **Attach Identity Provider**.
+7. Click **Attach Identity Provider**.
+8. Confirm that the sheet's **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value registered under **Authorized redirect URIs** in [Create the OAuth client](external.md#create-oauth-client). You entered that template directly during provider setup; do not visit this sheet midway through provider setup only to copy the URI.
 
 <!-- screenshot: Attach Remote Identity Provider showing Client Type: Manual, Redirect URI, credential labels, and scope configuration, with credential values redacted -->
 
