@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: hubspot
-researched_at: 2026-07-28T18:22:41Z
+researched_at: 2026-08-11T15:40:29Z
 ---
 
 # HubSpot — Research Dossier
@@ -20,11 +20,11 @@ only for two facts no other source states: the admin-connects-first
 behavior and the Sensitive Data Properties restriction, both flagged
 where used. The developer changelog is used for product status and for
 capability changes newer than the setup page. The primary setup page, its
-newly published documentation index, the permissions guide, and the live
-OAuth metadata were reverified at `2026-07-28T18:22:41Z`. The operator also
-confirmed that the Speakeasy MCP Catalog contains
-`com.pulsemcp.mirror/hubspot`, titled **HubSpot**, so this Guide uses only the
-catalog add-server path.
+documentation index, the permissions guide, and the live OAuth metadata were
+reverified at `2026-08-11T15:40:29Z`.
+The operator forced the Speakeasy MCP Catalog path and supplied the matched
+record `com.pulsemcp.mirror/hubspot`, titled **HubSpot**, so this Guide renders
+only the catalog add-server path.
 
 ## Server facts
 
@@ -103,10 +103,13 @@ catalog add-server path.
     users, carts, invoices, orders, line items, products, quotes,
     subscriptions, and segments (lists)"; "Activities: calls, emails,
     meetings, notes, and tasks"; "Content and marketing: blog posts,
-    landing pages, site pages, campaigns, and marketing events."
+    landing pages, site pages, campaigns, and marketing events";
+    conversations in supported inbox/help-desk channels, subject to inbox
+    access restrictions; and marketing-email drafts, previews, analytics,
+    account health diagnostics, and per-contact delivery/engagement details.
   - Write access — "CRM records: contacts, companies, deals, tickets,
     line items, and products"; "Activities: calls, emails, meetings,
-    notes, and tasks."
+    notes, and tasks"; and marketing-email draft creation and updates.
   - **Recorded conflict / newer capability**: the June 2026 developer
     rollup (2026-06-29) adds landing-page write: "Starting from an
     existing template or a clone of a page you already have, AI
@@ -120,13 +123,15 @@ catalog add-server path.
   scenes, the HubSpot MCP server is based on the CRM search API, which
   currently doesn't include vector search capabilities." See
   {#keyword-search-only}.
-- **Sensitive data** (setup page warning, verbatim): "If your HubSpot
+- **Sensitive data** (setup page warning, verbatim): "if your HubSpot
   account has Sensitive Data turned on, activity objects (such as calls,
-  emails, meetings, notes, and tasks) will be blocked from access
-  through the MCP server." The overview page adds: "The HubSpot MCP
-  server doesn't allow access to custom Sensitive Data Properties,
-  including Personal Health Information and other forms of Highly
-  Sensitive Data." See {#sensitive-data-blocks-activities}.
+  emails, meetings, notes, and tasks) and conversation data will be blocked
+  from access through the MCP server." The page states this restriction is
+  MCP-specific and does not apply to the standard CRM APIs. The overview
+  page adds: "The HubSpot MCP server doesn't allow access to custom
+  Sensitive Data Properties, including Personal Health Information and
+  other forms of Highly Sensitive Data." See
+  {#sensitive-data-blocks-activities}.
 - **Adjacent products, not this server** (recorded to prevent
   mis-navigation): the **developer MCP server** is a separate local tool
   — setup page note, verbatim: "The HubSpot MCP server documented on
@@ -237,9 +242,8 @@ is documented except where flagged.
 - Multiple redirect URLs (setup page, verbatim): "If you're including
   multiple redirect URLs, the first redirect URL will be used as the
   default redirect." The dialog steps document a single **Redirect URL**
-  field; how additional URLs are added is not documented (see open
-  questions). Keep the Speakeasy AI Control Plane callback as the first
-  (or only) entry.
+  field. Keep the Speakeasy AI Control Plane callback as the first (or
+  only) entry; this setup does not require adding another URL.
 - Values entered: **App name**, `{{ gram.oauth.callback_url }}` into
   **Redirect URL**, optional **Description**/**Icon**. Values copied:
   none yet.
@@ -271,7 +275,7 @@ is documented except where flagged.
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-07-28T18:22:41Z`.
+`2026-08-11T15:40:29Z`.
 
 Per-guide values:
 
@@ -356,16 +360,15 @@ tools (June 2026 rollup), existing connected users had to "reconnect or
 re-authorize to grant the new permission scope. New connections prompt
 for it automatically."
 
-### Sensitive Data blocks activity objects {#sensitive-data-blocks-activities}
+### Sensitive Data blocks activities and conversations {#sensitive-data-blocks-activities}
 
-Setup page warning, verbatim: "If your HubSpot account has Sensitive
+Setup page warning, verbatim: "if your HubSpot account has Sensitive
 Data turned on, activity objects (such as calls, emails, meetings,
-notes, and tasks) will be blocked from access through the MCP server."
-The overview page adds that "The HubSpot MCP server doesn't allow access
-to custom Sensitive Data Properties, including Personal Health
-Information and other forms of Highly Sensitive Data." An account using
-HubSpot's Sensitive Data features loses MCP access to all activity
-records.
+notes, and tasks) and conversation data will be blocked from access
+through the MCP server." This MCP-specific restriction does not apply to
+the standard CRM APIs. The overview page adds that "The HubSpot MCP server
+doesn't allow access to custom Sensitive Data Properties, including
+Personal Health Information and other forms of Highly Sensitive Data."
 
 ### Most content and marketing objects are read-only {#content-write-limits}
 
@@ -437,7 +440,7 @@ admin has connected — are undocumented (see open questions).
 ## Provenance
 
 Source inventory from the sweep. HubSpot publishes three documentation
-properties, all checked this run:
+properties, all checked on `2026-08-11T15:40:29Z`:
 
 - **Developer docs — developers.hubspot.com** (source of truth for this
   guide): the setup page, the `ai-tools/mcp` overview, and the developer
@@ -459,7 +462,7 @@ One entry per source drawn from:
 
 - `https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server`
   ("Integrate AI tools with the HubSpot MCP server") — reobserved at
-  `2026-07-28T18:22:41Z`. The former alternate path
+  `2026-08-11T15:40:29Z`. The former alternate path
   `.../build-apps/integrate-with-hubspot-mcp-server` now 308-redirects
   here (redirect observed this run; the prior run saw it serve the page
   verbatim). Backs: endpoint `https://mcp.hubspot.com`, PKCE
@@ -470,14 +473,15 @@ One entry per source drawn from:
   "**Create**"), multiple-redirect default behavior, details-page
   redirect and **Edit info**, general client connection values (Client
   ID / Client secret / Redirect URL) and the three-step end-user OAuth
-  flow, supported-data read/write lists, permissions model, automatic
-  scopes and re-install behavior, Sensitive Data warning, CRM-search/no
-  vector search callout, developer-MCP-server distinction note,
+  flow, supported-data read/write lists (including conversations and
+  marketing emails), permissions model, automatic scopes and re-install
+  behavior, Sensitive Data warning (including conversation-data blocking),
+  CRM-search/no vector search callout, developer-MCP-server distinction note,
   Streamable HTTP transport (MCP Inspector section), token
   refresh/expiry behavior. Explicitly checked this run: no beta badge
   anywhere on the page.
 - `https://developers.hubspot.com/docs/llms.txt` — observed
-  `2026-07-28T18:22:41Z`. Backs the developer-documentation sweep and
+  `2026-08-11T15:40:29Z`. Backs the developer-documentation sweep and
   confirms the current remote-server setup page as the indexed MCP guide.
 - `https://developers.hubspot.com/ai-tools/mcp` ("HubSpot MCP Server"
   overview; canonical target of `https://developers.hubspot.com/mcp`,
@@ -515,8 +519,8 @@ One entry per source drawn from:
   module creation, A/B test setup, or first-time site/account setup"),
   and existing users needing to "reconnect or re-authorize to grant the
   new permission scope. New connections prompt for it automatically."
-  Confirmed this run (targeted changelog search) to still be the newest
-  MCP-related changelog entry as of 2026-07-23.
+  Reobserved this run; the current setup page now also documents newer
+  conversation and marketing-email access directly.
 - `https://knowledge.hubspot.com/user-management/hubspot-user-permissions-guide`
   — observed this run. Backs (flagged inference only): the **Developer
   tools access** permission (Account tab > Settings access) covering
@@ -528,15 +532,15 @@ One entry per source drawn from:
   account administration"), reached via the settings icon > **Users &
   Teams** > selecting a user.
 - Pulse catalog record `com.pulsemcp.mirror/hubspot`, title **HubSpot** —
-  observed `2026-07-28T18:22:41Z` from the operator's Speakeasy MCP Catalog
-  lookup. Backs catalog presence and the catalog-only add-server path. Prior
-  research on this record also corroborated the remote URL,
-  `streamable-http`, and absence of dynamic client registration.
+  observed `2026-08-11T15:40:29Z` from the operator's forced-catalog match.
+  Backs the catalog-only add-server path and catalog identity. Prior research
+  on this record also corroborated the remote URL, `streamable-http`, and
+  absence of dynamic client registration.
 - `https://mcp.hubspot.com` +
   `https://mcp.hubspot.com/.well-known/oauth-protected-resource` +
   `https://mcp.hubspot.com/.well-known/oauth-authorization-server` —
   direct endpoint observation reverified at
-  `2026-07-28T18:22:41Z`. Backs:
+  `2026-08-11T15:40:29Z`. Backs:
   401/Bearer behavior with `resource_metadata` pointer, protected-
   resource metadata (resource `https://mcp.hubspot.com`, authorization
   server `https://mcp.hubspot.com`, `scopes_supported: []`,
@@ -544,5 +548,5 @@ One entry per source drawn from:
   authorization-server metadata (endpoints, grant types, S256,
   `client_secret_post`, no `registration_endpoint`).
 - `doctrine/speakeasy-setup.md` — observed
-  `2026-07-28T18:22:41Z`. Backs the catalog add-server and manual OAuth
+  `2026-08-11T15:40:29Z`. Backs the catalog add-server and manual OAuth
   attachment labels, fixed Speakeasy anchors, and closing pointer.
