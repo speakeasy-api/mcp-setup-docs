@@ -19,6 +19,7 @@ Repo → **Settings → Secrets and variables → Actions**:
 | `AGENT_PAT` | Recommended | PAT with contents + issues + pull requests write on this repo. Falls back to `GITHUB_TOKEN` (PRs still work; label chaining is less reliable). |
 | `PULSE_REGISTRY_KEY` | Recommended | PulseMCP Sub-Registry API key — resolves Speakeasy MCP Catalog presence before research. Without it, `speakeasy_add_server: auto` guides keep both catalog/custom paths unless remotes are tenanted or the guide forces `custom-remote` / `catalog`. |
 | `PULSE_REGISTRY_TENANT` | Recommended with key | PulseMCP tenant slug (e.g. `gram-recommended`). Required together with the key for catalog lookup. |
+| `VERCEL_DEPLOY_HOOK_URL` | Optional | Vercel Deploy Hook for the marketing site (Project → Settings → Git → Deploy Hooks), branch `main`. `site-deploy-hook.yml` POSTs to it after a guide lands on `main`, so the published guides refresh. Unset just skips the rebuild. |
 
 Local `mise run draft-guide` uses the same env names (`PULSE_REGISTRY_KEY`, `PULSE_REGISTRY_TENANT`, optional `PULSE_REGISTRY_URL`) — typically from gitignored `mise.local.toml`, same as `mise run pull-catalog`.
 

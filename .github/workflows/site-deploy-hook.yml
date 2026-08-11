@@ -1,0 +1,57 @@
+name: Site deploy hook
+
+# After a guide lands on main, ask Vercel to rebuild the marketing site.
+#
+# The site does not consume the Go module. Its Astro loader
+# (src/lib/astro/loaders/mcp-setup-docs.ts) reads guides/ from this repo's main
+# at build time, so a plain rebuild picks up the new guides — there is no
+# version to pin and no PR to open.
+#
+# Deliberately NOT triggered by the go/v* release. The release waits on a human
+# merging the machine-owned chore/go-module-regen PR, which is a Go module
+# chore with no editorial meaning — using it as the publish gate has held five
+# merged guides off the site for six days. The debounce below buys the same
+# burst-batching without borrowing that gate.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'guides/**'
+  workflow_dispatch:
+
+# cancel-in-progress is the whole debounce: a merge arriving during the sleep
+# kills the sleeping run and starts its own. Only the last merge of a burst
+# survives to POST, so approving five guide PRs in a minute costs one build.
+concurrency:
+  group: site-deploy-hook
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debounce the burst
+        # Longer than the gap between two quick approvals, short enough that a
+        # lone guide publishes while you still remember merging it. Idle runner
+        # minutes are free on a public repo.
+        run: sleep 180
+
+      - name: Trigger the Vercel build
+        env:
+          # The URL *is* the credential — Vercel wants no auth header, so anyone
+          # holding it can deploy. Actions masks it in logs; keep it out of any
+          # echo anyway.
+          HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${HOOK_URL:-}" ]; then
+            echo "VERCEL_DEPLOY_HOOK_URL is not set; skipping the site rebuild."
+            exit 0
+          fi
+          # Response is {"job":{"id":…,"state":"PENDING"}} — no secret in it.
+          curl -fsS --retry 3 --retry-delay 5 -X POST "$HOOK_URL"
+          echo
+          echo "Vercel build queued from ${GITHUB_SHA}."
