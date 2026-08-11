@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: snowflake
-researched_at: 2026-07-28T23:57:42Z
+researched_at: 2026-08-11T18:36:01Z
 ---
 
 # Snowflake — Research Dossier
@@ -110,9 +110,11 @@ Registration, so the manually registered client ID and secret are required.
 - Select **Projects** > **Workspaces**.
 - Select **+** beside a folder (or **+ Add New** on first use), then select
   **SQL File**. This opens a blank SQL file as an editor tab.
-- Select an available warehouse and the organization-approved role for each
-  statement group below. Do not leave `ACCOUNTADMIN` selected after creating
-  the OAuth integration.
+- Use the workspace context controls to select an available warehouse and the
+  organization-approved role for each statement group below. Snowflake's
+  public Workspaces documentation does not publish a stable label or path for
+  the role selector. Do not leave `ACCOUNTADMIN` selected after creating the
+  OAuth integration.
 - For every SQL statement below, replace each complete angle-bracket
   placeholder, including the `<` and `>` characters, with the corresponding
   owner-supplied value. Paste the completed statement into the SQL file,
@@ -237,11 +239,17 @@ Registration, so the manually registered client ID and secret are required.
 - Retain the exact MCP database, schema, and server name. Snowflake's endpoint
   shape is
   `https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>`.
+- Before obtaining the account URL, ask the account or network security owner
+  whether the Snowflake account uses PrivateLink. If it does, have that owner
+  confirm that the **Account/Server URL** you will copy is the public hostname,
+  not the PrivateLink hostname.
 - To obtain the account URL in Snowsight, select your user name, select
   **Connect a tool to Snowflake**, and locate the **Account Details** dialog.
-  Copy **Account/Server URL**. For `<account_url>`, use the hostname from that
-  copied value without the leading `https://` or a trailing `/`; the MCP
-  endpoint template already supplies the scheme.
+  Copy **Account/Server URL**. For `<account_url>`, use the confirmed public
+  Account/Server hostname without the leading `https://` or a trailing `/`;
+  the MCP endpoint template already supplies the scheme.
+  `USE_PRIVATELINK_FOR_AUTHORIZATION_ENDPOINT = TRUE` affects the browser
+  authorization endpoint, not the public MCP Server URL.
 - Form the account-specific MCP Server URL from that hostname and the retained
   MCP database, schema, and server name, then retain it for
   {#add-server-in-speakeasy}.
@@ -370,8 +378,9 @@ provider's catalog entry.
 
 From the server's **Overview**, open **Settings**. Under **Authentication**,
 click **Configure Manually**. In the **Attach Remote Identity Provider**
-sheet, set **Client Type** to **Manual**. Confirm the displayed
-**Redirect URI** matches the callback registered in Snowflake. Paste the
+sheet, set **Client Type** to **Manual**. The sheet displays the
+**Redirect URI** with a copy button. Confirm that URI matches the callback
+registered in Snowflake. Paste the
 values from {#copy-oauth-credentials} into **Client ID** and
 **Client Secret (optional)**, then click **Attach Identity Provider**.
 
@@ -388,7 +397,10 @@ limits — see Snowflake's MCP documentation at
 
 ## Open questions
 
-None.
+- Snowflake's public Workspaces documentation shows role and warehouse context
+  controls but does not publish a stable label or navigation path for the role
+  selector. The walkthrough therefore refers conceptually to the workspace
+  role context control rather than inventing a UI label.
 
 ## Provenance
 
@@ -405,7 +417,8 @@ None.
 - **Indexes:** `https://docs.snowflake.com/llms.txt` and
   `https://docs.snowflake.com/en/user-guide/snowflake-cortex/llms.txt`.
 
-All sources were observed at `2026-07-28T23:57:42Z`.
+All sources were re-observed at `2026-08-11T18:36:01Z`. The official
+pages and indexes remained reachable, and the setup facts above were unchanged.
 
 - `https://docs.snowflake.com/llms.txt` — documentation-property inventory and
   account URL guidance.
