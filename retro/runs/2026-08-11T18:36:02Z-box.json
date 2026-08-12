@@ -1,0 +1,95 @@
+{
+  "slug": "box",
+  "provider": "box",
+  "persona": "it-admin",
+  "timestamp": "2026-08-11T18:36:02Z",
+  "started_at": "2026-08-11T18:36:02Z",
+  "finished_at": "2026-08-11T18:38:37Z",
+  "runtime": "pi",
+  "status": "awaiting_scope",
+  "failed_phase": "scope",
+  "notes": "Refreshed guides/box/research.md and guides/box/meta.yaml while preserving stable anchors. Re-fetched Box product/admin docs through docs.box.com markdown endpoints and llms.txt, checked current developer and support documentation, and directly probed the remote and protected-resource metadata. The verified endpoint, streamable-http transport, manual OAuth registration, credential flow, console-label conflict, and plan gates remain unchanged. Forced the catalog-only add-server path for com.pulsemcp.mirror/box and updated provenance to 2026-08-11T18:36:02Z. Validated meta.yaml against schema/guide.v1.schema.json using Python jsonschema Draft7Validator with format checking; validation passed.",
+  "open_questions": [
+    "Box documents two conflicting configuration surfaces and save orders: Configuration > Add Integration Credentials versus Additional Configuration > + Add Integration Credentials followed by an earlier credential-name Save."
+  ],
+  "scope": {
+    "pause": true,
+    "material": [
+      {
+        "index": 1,
+        "question": "Box documents two conflicting configuration surfaces and save orders: Configuration > Add Integration Credentials versus Additional Configuration > + Add Integration Credentials followed by an earlier credential-name Save.",
+        "why_material": "Conflicting or mutually exclusive setup paths — pick one before drafting."
+      }
+    ],
+    "soft": [
+      "Box does not publish the exact Access scopes checkbox labels or their mapping to root_readwrite, ai.readwrite, and docgen.readwrite.",
+      "Box does not state whether Access scopes remain editable after reopening a saved credential entry.",
+      "Box does not identify the pre-filled Redirect URI value that its setup flow tells administrators to change.",
+      "Box does not state whether the Client Secret remains viewable after credential creation.",
+      "Box does not state whether Custom Box MCP Server requires a separate availability-state change; its documented custom-credential flow contains none.",
+      "Except for four sharing tools documented as off by default, Box does not publish each tool category's default enablement state.",
+      "Box does not state whether changing the row-level Enablement control requires a separate Save.",
+      "Box does not document how the Box AI APIs setting appears on Business, Business Plus, or Enterprise plans when Box AI Units have not been purchased.",
+      "**Configuration surface labels and save order.** docs.box.com's",
+      "**Exact Access-scopes checkbox labels.** docs.box.com names the",
+      "**Whether a saved entry's Access scopes are editable on re-open.**",
+      "**Pre-filled Redirect URI value.** Step 4 says to \"change the Box",
+      "**Client Secret revisibility.** No documentation states whether the",
+      "**Whether the Custom Box MCP Server integration needs its own",
+      "**Default tool-enablement state per category.** Beyond the four",
+      "**Whether an Enablement-control change needs its own Save.**",
+      "**Box AI APIs setting appearance without purchased Units.** On"
+    ],
+    "unanswered": [
+      {
+        "index": 1,
+        "question": "Box documents two conflicting configuration surfaces and save orders: Configuration > Add Integration Credentials versus Additional Configuration > + Add Integration Credentials followed by an earlier credential-name Save.",
+        "why_material": "Conflicting or mutually exclusive setup paths — pick one before drafting."
+      }
+    ]
+  },
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "operator notes changed since lock; keeping AFTER and treating as changed for skip. judge: AFTER is drafting-equivalent to BEFORE. Remote URL, transport, manual OAuth flow, credentials, callback field, prerequisites, anchors, console paths, scopes, licensing gates, catalog-only Speakeasy path, and Metadata structure are unchanged. Differences are provenance timestamp refreshes, confirmation of previously known endpoint behavior, and wording that clarifies how the Writer should hedge existing open questions; none justifies re-drafting or invalidates prior setup-file reviews."
+  },
+  "notes_digest": "sha256:cb0ee961e2b30e625857efb7f328871948edf5415d86fffe5d584a47a69a2db4",
+  "history": [
+    {
+      "phase": "scope_gate",
+      "material": [
+        {
+          "index": 1,
+          "question": "Box documents two conflicting configuration surfaces and save orders: Configuration > Add Integration Credentials versus Additional Configuration > + Add Integration Credentials followed by an earlier credential-name Save.",
+          "why_material": "Conflicting or mutually exclusive setup paths — pick one before drafting."
+        }
+      ],
+      "soft": [
+        "Box does not publish the exact Access scopes checkbox labels or their mapping to root_readwrite, ai.readwrite, and docgen.readwrite.",
+        "Box does not state whether Access scopes remain editable after reopening a saved credential entry.",
+        "Box does not identify the pre-filled Redirect URI value that its setup flow tells administrators to change.",
+        "Box does not state whether the Client Secret remains viewable after credential creation.",
+        "Box does not state whether Custom Box MCP Server requires a separate availability-state change; its documented custom-credential flow contains none.",
+        "Except for four sharing tools documented as off by default, Box does not publish each tool category's default enablement state.",
+        "Box does not state whether changing the row-level Enablement control requires a separate Save.",
+        "Box does not document how the Box AI APIs setting appears on Business, Business Plus, or Enterprise plans when Box AI Units have not been purchased.",
+        "**Configuration surface labels and save order.** docs.box.com's",
+        "**Exact Access-scopes checkbox labels.** docs.box.com names the",
+        "**Whether a saved entry's Access scopes are editable on re-open.**",
+        "**Pre-filled Redirect URI value.** Step 4 says to \"change the Box",
+        "**Client Secret revisibility.** No documentation states whether the",
+        "**Whether the Custom Box MCP Server integration needs its own",
+        "**Default tool-enablement state per category.** Beyond the four",
+        "**Whether an Enablement-control change needs its own Save.**",
+        "**Box AI APIs setting appearance without purchased Units.** On"
+      ],
+      "unanswered": [
+        {
+          "index": 1,
+          "question": "Box documents two conflicting configuration surfaces and save orders: Configuration > Add Integration Credentials versus Additional Configuration > + Add Integration Credentials followed by an earlier credential-name Save.",
+          "why_material": "Conflicting or mutually exclusive setup paths — pick one before drafting."
+        }
+      ]
+    }
+  ]
+}
