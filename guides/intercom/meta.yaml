@@ -40,11 +40,11 @@ remotes:
         locator: https://developers.intercom.com/docs/guides/mcp
         name: Model Context Protocol (MCP)
         classification: official
-        observed_at: "2026-07-29T15:06:51Z"
+        observed_at: "2026-08-18T20:24:38Z"
       - source: operator-validation
         locator: draft-guide operator notes for intercom
         status: manual OAuth validated
-        observed_at: "2026-07-29T15:06:51Z"
+        observed_at: "2026-08-18T20:24:38Z"
   - id: eu
     url: https://mcp.eu.intercom.com/mcp
     transport: streamable-http
@@ -56,62 +56,58 @@ remotes:
         locator: https://developers.intercom.com/docs/guides/mcp
         name: Model Context Protocol (MCP)
         classification: official
-        observed_at: "2026-07-29T15:06:51Z"
-      - source: operator-validation
-        locator: draft-guide operator notes for intercom
-        status: manual OAuth validated
-        observed_at: "2026-07-29T15:06:51Z"
+        observed_at: "2026-08-18T20:24:38Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/guides/mcp
     name: Model Context Protocol (MCP)
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/build-an-integration/getting-started
     name: Set up a Workspace
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth
     name: Setting up OAuth
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/oauth-scopes
     name: OAuth Scopes
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication
     name: Authentication
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/llms.txt
     name: Intercom developer documentation index
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: provider-documentation
     locator: https://www.intercom.com/help/en/articles/6124430-regional-data-hosting
     name: Regional Data Hosting
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: endpoint-observation
     locator: https://app.intercom.com/admins/sign_in
     name: Intercom sign-in page
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: endpoint-observation
     locator: https://mcp.intercom.com/.well-known/oauth-authorization-server
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: operator-validation
     locator: draft-guide operator notes for intercom
     status: manual OAuth recommended; DCR requires callback allowlisting
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-08-18T20:24:38Z"
