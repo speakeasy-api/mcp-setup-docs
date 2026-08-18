@@ -24,7 +24,7 @@ How it works (labels, scope checks, Decisions, resume): **[`FACTORY.md`](FACTORY
 
 ## Run locally
 
-Requires Node ≥ 22.13 and an OpenRouter API key.
+Requires Node ≥ 22.19 and an OpenRouter API key.
 
 ```bash
 export OPENROUTER_API_KEY=sk-or-...   # openrouter.ai → Keys
