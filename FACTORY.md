@@ -253,9 +253,13 @@ obvious from reading the code, and each one has cost a run:
 - **There is no container.** The env allowlist in `pi-guard.ts` and the
   `git status` tripwire in `runtime-pi.ts` are the entire boundary keeping
   secrets out of the agent and the agent inside `guides/<slug>/`.
-- **The research phase keeps `bash` deliberately.** `pi` ships no web-fetch
-  tool, so `bash` + `curl` is research's only route to provider docs. Removing
-  it does not tighten research, it disables it.
+- **Research has two explicit network routes.** It keeps `bash` for direct
+  `curl` access and explicitly loads the factory-owned `pi-exa-mcp.mjs` adapter
+  for Exa's hosted MCP server. The adapter uses an isolated in-memory config
+  (never user/project MCP config), exposes only Exa search/code-context tools,
+  and is not loaded for draft, revise, review, or judge phases. Pi extension
+  discovery is disabled on every phase, so ambient Pi packages cannot widen the
+  tool surface.
 - **Session continuity is one flag.** The same `--session <path>` creates the
   session on turn 1 and resumes it on turn 2, which is what lets remediation say
   "use the research you already gathered". `--no-session` breaks that.

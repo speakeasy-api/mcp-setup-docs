@@ -50,6 +50,28 @@ function config(over: Partial<PiRuntimeConfig> & Pick<PiRuntimeConfig, 'runPi'>)
   }
 }
 
+describe('factory Exa MCP config', () => {
+  it('uses only the hosted Exa research tools and disables MCP scripting', async () => {
+    const extensionUrl = new URL('./pi-exa-mcp.mjs', import.meta.url).href
+    const { exaMcpConfig } = (await import(extensionUrl)) as {
+      exaMcpConfig: {
+        settings: { scriptMode: boolean }
+        mcpServers: Record<
+          string,
+          { url: string; lifecycle: string; includeTools: readonly string[] }
+        >
+      }
+    }
+    assert.equal(exaMcpConfig.settings.scriptMode, false)
+    assert.deepEqual(Object.keys(exaMcpConfig.mcpServers), ['exa'])
+    assert.deepEqual(exaMcpConfig.mcpServers.exa, {
+      url: 'https://mcp.exa.ai/mcp',
+      lifecycle: 'lazy',
+      includeTools: ['web_search_exa', 'get_code_context_exa'],
+    })
+  })
+})
+
 describe('toolsForPhase', () => {
   it('gives reviewers and the judge a read-only set', () => {
     assert.deepEqual(toolsForPhase('asana: review'), ['read', 'grep', 'find', 'ls'])
@@ -60,7 +82,9 @@ describe('toolsForPhase', () => {
     // pi ships no web-fetch tool, and research builds the dossier from fetched
     // provider docs. Removing bash here disables research rather than tightening it.
     assert.ok(toolsForPhase('asana: research').includes('bash'))
+    assert.ok(toolsForPhase('asana: research').includes('mcp'))
     assert.ok(!toolsForPhase('asana: draft').includes('bash'))
+    assert.ok(!toolsForPhase('asana: draft').includes('mcp'))
     assert.ok(!toolsForPhase('asana: revise').includes('bash'))
   })
 
@@ -90,12 +114,31 @@ describe('piModelSlug and buildPiArgs', () => {
       '-p',
       '--mode',
       'json',
+      '--no-extensions',
+      '--no-skills',
+      '--no-prompt-templates',
+      '--no-themes',
+      '--no-context-files',
       '--model',
       'openrouter/openai/gpt-5.6-sol',
       '--tools',
       'read,write',
       '--session',
       '/tmp/s/session.jsonl',
+    ])
+  })
+
+  it('disables ambient extensions and loads the explicit factory extension when requested', () => {
+    const args = buildPiArgs({
+      model: 'm',
+      tools: ['read', 'mcp'],
+      sessionPath: '/tmp/s',
+      extensionPath: '/repo/pipeline/src/pi-exa-mcp.mjs',
+    })
+    assert.ok(args.includes('--no-extensions'))
+    assert.deepEqual(args.slice(args.indexOf('--extension'), args.indexOf('--extension') + 2), [
+      '--extension',
+      '/repo/pipeline/src/pi-exa-mcp.mjs',
     ])
   })
 
@@ -108,6 +151,47 @@ describe('piModelSlug and buildPiArgs', () => {
 })
 
 describe('createPiRuntime.agent', () => {
+  it('loads Exa only for research turns', async () => {
+    const { runPi, calls } = stubPi([
+      agentEndWith('{"status":"ok","notes":"research"}'),
+      agentEndWith('{"status":"ok","notes":"draft"}'),
+    ])
+    const rt = createPiRuntime(config({ runPi }))
+
+    await rt.agent('research', {
+      label: 'asana research',
+      phase: 'asana: research',
+      schema: Report,
+    })
+    await rt.agent('draft', { label: 'asana draft', phase: 'asana: draft', schema: Report })
+
+    const extensionOf = (args: string[]) => {
+      const index = args.indexOf('--extension')
+      return index === -1 ? undefined : args[index + 1]
+    }
+    assert.equal(extensionOf(calls[0]!.args), '/repo/pipeline/src/pi-exa-mcp.mjs')
+    assert.equal(extensionOf(calls[1]!.args), undefined)
+    assert.match(calls[0]!.args[calls[0]!.args.indexOf('--tools') + 1]!, /(?:^|,)mcp(?:,|$)/)
+    assert.doesNotMatch(
+      calls[1]!.args[calls[1]!.args.indexOf('--tools') + 1]!,
+      /(?:^|,)mcp(?:,|$)/
+    )
+    for (const call of calls) {
+      for (const flag of [
+        '--no-extensions',
+        '--no-skills',
+        '--no-prompt-templates',
+        '--no-themes',
+        '--no-context-files',
+      ]) {
+        assert.ok(call.args.includes(flag), `missing ${flag}`)
+      }
+      assert.ok(call.env.PI_CODING_AGENT_DIR!.includes('/pi-session-'))
+      assert.ok(call.env.PI_CODING_AGENT_DIR!.endsWith('/agent'))
+      assert.notEqual(call.env.PI_CODING_AGENT_DIR, process.env.HOME)
+    }
+  })
+
   it('parses a clean structured report', async () => {
     const { runPi } = stubPi([agentEndWith('{"status":"ok","notes":"done"}')])
     const rt = createPiRuntime(config({ runPi }))
@@ -191,6 +275,7 @@ describe('createPiRuntime.agent', () => {
     assert.equal(calls.length, 2)
     const sessionOf = (args: string[]) => args[args.indexOf('--session') + 1]
     assert.equal(sessionOf(calls[0]!.args), sessionOf(calls[1]!.args))
+    assert.equal(calls[0]!.env.PI_CODING_AGENT_DIR, calls[1]!.env.PI_CODING_AGENT_DIR)
     assert.deepEqual(out, { status: 'ok', notes: 'after remediation' })
   })
 

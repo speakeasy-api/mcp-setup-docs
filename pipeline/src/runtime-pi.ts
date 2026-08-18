@@ -80,7 +80,7 @@ export function toolsForPhase(phase: string): string[] {
     return ['read', 'grep', 'find', 'ls']
   }
   if (kind === 'research') {
-    return ['read', 'edit', 'write', 'grep', 'find', 'ls', 'bash']
+    return ['read', 'edit', 'write', 'grep', 'find', 'ls', 'bash', 'mcp']
   }
   // draft, revise — write guide files from a dossier already on disk.
   return ['read', 'edit', 'write', 'grep', 'find', 'ls']
@@ -118,15 +118,25 @@ export function buildPiArgs(input: {
   model: string
   tools: string[]
   sessionPath: string
+  extensionPath?: string
 }): string[] {
   return [
     '-p',
     '--mode',
     'json',
+    // Ignore packages/extensions from ~/.pi and the checkout. Research loads the
+    // one factory-owned extension below; Pi documents that explicit -e paths
+    // still load with --no-extensions.
+    '--no-extensions',
+    '--no-skills',
+    '--no-prompt-templates',
+    '--no-themes',
+    '--no-context-files',
     '--model',
     piModelSlug(input.model),
     '--tools',
     input.tools.join(','),
+    ...(input.extensionPath ? ['--extension', input.extensionPath] : []),
     // Same flag on both turns: creates the session, then resumes it.
     '--session',
     input.sessionPath,
@@ -203,17 +213,30 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
   /** One pi turn. `sessionPath` is shared across turns to keep the conversation. */
   async function turn(
     prompt: string,
-    opts: { label: string; phase: string; sessionPath: string }
+    opts: { label: string; phase: string; sessionPath: string; agentDir: string }
   ): Promise<string | null> {
+    const allowedTools = toolsForPhase(opts.phase)
     const args = buildPiArgs({
       model: cfg.model,
-      tools: toolsForPhase(opts.phase),
+      tools: allowedTools,
       sessionPath: opts.sessionPath,
+      // Only research can reach Exa. Supplying the extension explicitly makes
+      // the factory independent of a runner's ambient Pi configuration.
+      extensionPath: allowedTools.includes('mcp')
+        ? join(cfg.repoRoot, 'pipeline/src/pi-exa-mcp.mjs')
+        : undefined,
     })
     const before = baselineOffenders()
 
     // In `turn` rather than `agent` so the remediation turn carries it too.
-    const run = await runPi({ args, prompt: prompt + PATH_CONTRACT, env, cwd: cfg.repoRoot })
+    const run = await runPi({
+      args,
+      prompt: prompt + PATH_CONTRACT,
+      // Keep Pi settings, extension state, and the MCP metadata cache out of the
+      // runner's HOME. The directory is shared by remediation, then removed.
+      env: { ...env, PI_CODING_AGENT_DIR: opts.agentDir },
+      cwd: cfg.repoRoot,
+    })
     const outcome = classifyPiRun(run)
 
     if (!outcome.ok) {
@@ -271,11 +294,13 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
 
     const sessionDir = mkdtempSync(join(tmpdir(), 'pi-session-'))
     const sessionPath = join(sessionDir, 'session.jsonl')
+    const agentDir = join(sessionDir, 'agent')
     try {
       const text = await turn(prompt + schemaInstruction(opts.schema), {
         label: opts.label,
         phase: opts.phase,
         sessionPath,
+        agentDir,
       })
       if (text === null) return null
 
@@ -293,6 +318,7 @@ export function createPiRuntime(cfg: PiRuntimeConfig) {
             label: opts.label + ' remediation',
             phase: opts.phase,
             sessionPath,
+            agentDir,
           })
           if (remText !== null) {
             const remediated = parse(remText, {
