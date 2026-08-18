@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: intercom
-researched_at: 2026-07-29T15:06:51Z
+researched_at: 2026-08-18T20:24:38Z
 ---
 
 # Intercom — Research Dossier
@@ -32,13 +32,8 @@ is rendered.
   recommended over its deprecated SSE URLs.
 - **Authentication Option documented by this Guide:** OAuth with a
   pre-registered Intercom Developer Hub app. The Speakeasy AI Control Plane
-  receives the app's **Client ID** and **Client secret** and uses:
-  - Issuer URL: `https://mcp.intercom.com`
-  - Authorization endpoint: `https://app.intercom.com/oauth`
-  - Token endpoint: `https://api.intercom.io/auth/eagle/token`
-  The issuer and endpoint combination was validated by the operator for the
-  manual attachment flow. Intercom's OAuth guide independently documents the
-  US authorization endpoint and Eagle token endpoint.
+  receives the app's **Client ID** and **Client secret**. The US manual
+  attachment flow was validated by the operator.
 - **Why manual registration is recommended:** Intercom's live MCP
   authorization-server metadata advertises a DCR endpoint, but the operator
   observed that registration fails unless Intercom has allowlisted the
@@ -90,9 +85,6 @@ Information** page.
 | Client ID | Intercom Developer Hub app, **Basic Information** ({#copy-client-credentials}) |
 | Client Secret (optional) | Intercom Developer Hub app, **Basic Information** ({#copy-client-credentials}) |
 | Redirect URI registered with Intercom | `{{ gram.oauth.callback_url }}` in the app's **Redirect URLs** ({#configure-oauth}) |
-| Issuer URL | Operator-validated constant `https://mcp.intercom.com` |
-| Authorization endpoint | Intercom-documented `https://app.intercom.com/oauth` |
-| Token endpoint | Intercom-documented `https://api.intercom.io/auth/eagle/token` |
 
 Intercom's OAuth guide calls the generated values `client_id` and
 `client_secret`. It does not say the secret is shown only once, so no one-time
@@ -171,7 +163,7 @@ which MCP Server URL the reader adds later.
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-07-29T15:06:51Z`.
+`2026-08-18T20:24:38Z`.
 
 Per-guide values:
 
@@ -184,10 +176,6 @@ Per-guide values:
 - Client ID and Client Secret: produced in
   {#copy-client-credentials}
 - Redirect URI: registered in {#configure-oauth}
-- Issuer URL: `https://mcp.intercom.com`
-- Authorization endpoint: `https://app.intercom.com/oauth`
-- Token endpoint: `https://api.intercom.io/auth/eagle/token`
-- Scopes: chosen in Intercom; no Speakeasy scope override
 - Further reading:
   `https://developers.intercom.com/docs/guides/mcp`
 
@@ -210,23 +198,15 @@ From the server's **Overview**, open **Settings**. Under **Authentication**,
 click **Configure Manually**. In **Attach Remote Identity Provider**:
 
 1. Set **Client Type** to **Manual**.
-2. Enter `https://mcp.intercom.com` as **Issuer URL**.
-3. Under **Endpoints**, set the authorization endpoint to
-   `https://app.intercom.com/oauth` and the token endpoint to
-   `https://api.intercom.io/auth/eagle/token`. Do not use the MCP issuer's
-   discovered `/authorize` and `/token` endpoints for this manual app.
-4. Paste the **Client ID** and **Client Secret (optional)** from
+2. Paste the **Client ID** and **Client Secret (optional)** from
    {#copy-client-credentials}.
-5. Leave **Scope (override)** and **Audience (optional)** empty because
-   permissions were selected in Intercom.
-6. Confirm that the sheet's **Redirect URI** is
-   `https://app.getgram.ai/mcp/remote_login_callback`, matching the value
-   registered through `{{ gram.oauth.callback_url }}` in {#configure-oauth}.
-7. Click **Attach Identity Provider**.
+3. Confirm that the sheet's **Redirect URI** matches the
+   `{{ gram.oauth.callback_url }}` value registered in {#configure-oauth}.
+4. Click **Attach Identity Provider**.
 
 Screenshot note: capture **Attach Remote Identity Provider** with **Client
-Type** set to **Manual** and the issuer, authorization, and token endpoint
-fields visible. Fully redact the Client ID and Client Secret.
+Type** set to **Manual** and the **Redirect URI** visible. Fully redact the
+Client ID and Client Secret.
 
 When a client first needs Intercom access, complete Intercom's browser
 authorization prompts with the intended workspace account. Intercom says the
@@ -250,9 +230,10 @@ https://developers.intercom.com/docs/guides/mcp."
 - **OAuth page save control:** Intercom's public OAuth guide names and shows
   **Use OAuth**, **Redirect URLs**, **Add redirect URL**, and the permission
   checkboxes, but does not name the control that persists changes.
-- **DCR allowlisting process:** operator validation established that DCR needs
-  callback allowlisting, but Intercom publishes no request path, eligibility
-  rule, or turnaround time. Manual OAuth remains the recommended path.
+- **DCR allowlisting process:** prior operator validation established that DCR
+  needs callback allowlisting, but Intercom publishes no request path,
+  eligibility rule, or turnaround time. Manual OAuth remains the recommended
+  path.
 
 ## Provenance
 
@@ -274,39 +255,44 @@ Source inventory from the sweep:
 Sources drawn from:
 
 - `https://developers.intercom.com/docs/guides/mcp` ("Model Context Protocol
-  (MCP)") — observed `2026-07-29T15:06:51Z`. Backs US/EU URLs and availability,
+  (MCP)") — observed `2026-08-18T20:24:38Z`. Backs US/EU URLs and availability,
   Australian exclusion, Streamable HTTP, OAuth and Bearer alternatives, the
   browser authorization behavior, and the public MCP page's broader
   **Read and write articles** recommendation.
 - `https://developers.intercom.com/docs/build-an-integration/getting-started`
-  and its `.md` representation — observed `2026-07-29T15:06:51Z`. Back the
+  and its `.md` representation — observed `2026-08-18T20:24:38Z`. Back the
   Developer Hub URL and **Your Apps**, **New App**, **Create app**, app-name,
   workspace-selection, and pre-install behavior.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth`
-  and its `.md` representation — observed `2026-07-29T15:06:51Z`. Back **Use
+  and its `.md` representation — observed `2026-08-18T20:24:38Z`. Back **Use
   OAuth**, **Authentication**, **Redirect URLs**, HTTPS, **Add redirect URL**,
-  permissions, **Basic Information**, Client ID/secret, the US authorization
-  endpoint, callback behavior, and the Eagle token endpoint.
+  permissions, **Basic Information**, Client ID/secret, the regional US/EU
+  authorization endpoints, callback behavior, and the Eagle token endpoint.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/oauth-scopes`
-  — observed `2026-07-29T15:06:51Z`. Backs exact permission labels and their
+  — observed `2026-08-18T20:24:38Z`. Backs exact permission labels and their
   access meanings.
 - `https://developers.intercom.com/docs/build-an-integration/learn-more/authentication`
-  — observed `2026-07-29T15:06:51Z`. Backs the private Access Token warning and
+  — observed `2026-08-18T20:24:38Z`. Backs the private Access Token warning and
   OAuth-versus-token distinction.
 - `https://developers.intercom.com/llms.txt` — observed
-  `2026-07-29T15:06:51Z`. Backs developer-property sweep coverage.
+  `2026-08-18T20:24:38Z`. Backs developer-property sweep coverage.
 - `https://www.intercom.com/help/en/articles/6124430-regional-data-hosting`
-  ("Regional Data Hosting") — observed `2026-07-29T15:06:51Z`. Backs the
+  ("Regional Data Hosting") — observed `2026-08-18T20:24:38Z`. Backs the
   workspace-host mapping and wrong-region sign-in recovery.
 - `https://app.intercom.com/admins/sign_in` — observed
-  `2026-07-29T15:06:51Z`. Backs the current region-selector labels.
+  `2026-08-18T20:24:38Z`. Backs the current region-selector labels.
 - `https://mcp.intercom.com/.well-known/oauth-authorization-server` —
-  observed `2026-07-29T15:06:51Z`. Confirms that the MCP issuer advertises DCR
-  and separate `/authorize` and `/token` endpoints.
-- Operator validation recorded for this run — observed
-  `2026-07-29T15:06:51Z`. Backs DCR callback-allowlist failure, the recommended
-  manual OAuth path, callback URL, validated issuer/authorization/token values,
-  and the least-privilege permission set.
-- `doctrine/speakeasy-setup.md` — observed `2026-07-29T15:06:51Z`. Backs the
+  observed `2026-08-18T20:24:38Z`. Prior observation established that the MCP
+  issuer advertises DCR and separate `/authorize` and `/token` endpoints; an
+  unauthenticated automated refresh this run returned HTTP 403, so that prior
+  result is retained rather than replaced.
+- Prior operator validation retained in the Guide and reviewed this run —
+  observed `2026-08-18T20:24:38Z`. Backs DCR callback-allowlist failure, the
+  recommended manual OAuth path, callback URL, the validated US
+  issuer/authorization/token values, and the least-privilege permission set.
+  The current OAuth guide's regional endpoint table was rechecked this run; it
+  explicitly confirms the EU authorization endpoint as
+  `https://app.eu.intercom.com/oauth`.
+- `doctrine/speakeasy-setup.md` — observed `2026-08-18T20:24:38Z`. Backs the
   canonical Speakeasy skeleton, fixed anchors, exact common labels, and
   tenanted Custom-remote path selection.

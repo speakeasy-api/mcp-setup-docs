@@ -1,0 +1,61 @@
+{
+  "slug": "intercom",
+  "provider": "intercom",
+  "persona": "it-admin",
+  "timestamp": "2026-08-18T20:24:38Z",
+  "started_at": "2026-08-18T20:24:38Z",
+  "finished_at": "2026-08-18T20:29:22Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 2,
+  "nits": [],
+  "open_questions": [
+    "Intercom's public app-creation documentation does not publish the exact app-name and workspace field labels.",
+    "Intercom does not publish the current authorization-screen sequence or approval-button labels.",
+    "Intercom's public OAuth guide does not name the control that persists Authentication-page changes.",
+    "Intercom does not document the issuer value for an EU manually attached client; the matching EU MCP origin is a flagged inference.",
+    "Intercom does not publish a DCR callback-allowlisting request path, eligibility rule, or turnaround time."
+  ],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup > Connect your credentials",
+          "problem": "The manual OAuth flow adds Issuer URL, endpoint override, Scope override, and Audience steps that are absent from the canonical pre-registered-client variant in doctrine/speakeasy-setup.md.",
+          "suggestion": "Align the Dossier and speakeasy.md with the canonical manual OAuth variant, or have a human update the canonical doctrine to support the operator-validated manual endpoint override before rendering these additional steps.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "remotes[id=eu].provenance[source=operator-validation]",
+          "problem": "The EU remote claims manual OAuth was validated, while the Research Dossier says operator validation covered only the US flow and treats the EU issuer as an inference.",
+          "suggestion": "Remove the EU manual-validation claim or change its status to accurately distinguish the provider-documented EU endpoint from the inferred, unvalidated EU issuer.",
+          "dimension": "fidelity"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Research fidelity: aligned the Research Dossier and speakeasy.md with the canonical pre-registered OAuth variant by removing Issuer URL, endpoint override, Scope override, and Audience steps while retaining Client ID, Client Secret, Redirect URI confirmation, and attachment. Metadata fidelity: removed the EU remote's operator-validation claim; the US remote retains its validated status, matching the Dossier.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "judge",
+    "unchanged": false,
+    "notes": "AFTER adds region-specific OAuth attachment values for EU workspaces: the documented authorization endpoint is now https://app.eu.intercom.com/oauth instead of the previously universal US endpoint, and the Guide now uses https://mcp.eu.intercom.com as the EU issuer (explicitly flagged as an inference, with only the US manual flow operator-validated). These changes require re-rendering speakeasy.md and invalidate prior review of the EU setup path. Remotes, transport, credentials, prerequisites, anchors, permissions, and the Custom-remote-only path are otherwise unchanged."
+  },
+  "notes_digest": "sha256:c7cf376207c389683202db431abf3f8ccace4607ffe4357ab0d94ed389db1652",
+  "setup_churn": {
+    "external_md_lines": 0,
+    "speakeasy_md_lines": 17
+  }
+}
