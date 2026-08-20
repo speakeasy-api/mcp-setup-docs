@@ -12,7 +12,7 @@ Before you begin, obtain:
 - If the target organization restricts OAuth apps, access to an organization owner who can grant access — see [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).
 - A valid organization SSO session if the target organization protects resources with SSO enforcement.
 
-Sign in at `https://github.com`.
+Sign in at [github.com](https://github.com).
 
 ### Open organization developer settings {#open-organization-developer-settings}
 

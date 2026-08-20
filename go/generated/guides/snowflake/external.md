@@ -4,7 +4,7 @@ setup_version: 1
 
 # Snowflake setup
 
-Use a Snowflake role/security administrator account to create and assign a non-privileged runtime role. You also need `ACCOUNTADMIN`, or an organization-approved delegated role with global `CREATE INTEGRATION`, for the OAuth integration only. Obtain the connecting usernames, default warehouse, approved MCP server object names, and an existing Cortex Agent's database, schema, name, and complete agent-tool grants from the security, application, and agent owners. Sign in at `https://app.snowflake.com`.
+Use a Snowflake role/security administrator account to create and assign a non-privileged runtime role. You also need `ACCOUNTADMIN`, or an organization-approved delegated role with global `CREATE INTEGRATION`, for the OAuth integration only. Obtain the connecting usernames, default warehouse, approved MCP server object names, and an existing Cortex Agent's database, schema, name, and complete agent-tool grants from the security, application, and agent owners. You need an existing, approved MCP database and schema, or a Snowflake object or security owner who can create them. Obtain a server-creator role with `CREATE MCP SERVER` on the target schema, `USAGE` on the target database and schema, and `USAGE` on the existing Cortex Agent and its database and schema. Sign in at [app.snowflake.com](https://app.snowflake.com).
 
 Snowflake-managed MCP servers and Cortex Agents are unavailable in the People's Republic of China. Snowflake-managed MCP servers are also unsupported in government regions.
 
@@ -13,7 +13,7 @@ Snowflake-managed MCP servers and Cortex Agents are unavailable in the People's 
 1. Select **Projects** > **Workspaces**.
 2. Select **+** beside a folder, or select **+ Add New** on first use.
 3. Select **SQL File**.
-4. Select the organization-approved role for the statement group you are running.
+4. In the workspace context controls, select the organization-approved role for the statement group you are running.
 5. Select an available warehouse.
 6. Before pasting any SQL from this guide, replace every complete angle-bracket placeholder, including the `<` and `>` characters, with the corresponding value supplied by the named owner.
 7. Paste each completed statement into the blank SQL file.
@@ -120,17 +120,19 @@ When a code block contains multiple statements, select and run each completed st
    ```
 
 11. Retain the exact MCP database, schema, and server name.
-12. Select your user name.
-13. Select **Connect a tool to Snowflake**.
-14. In the **Account Details** dialog, copy **Account/Server URL**.
-15. For `<account_url>`, use the hostname from the copied value without the leading `https://` or a trailing `/`.
-16. Form the account-specific MCP Server URL:
+12. Ask the account or network security owner whether the Snowflake account uses PrivateLink.
+13. Select your user name.
+14. Select **Connect a tool to Snowflake**.
+15. In the **Account Details** dialog, copy **Account/Server URL**.
+16. If the account uses PrivateLink, have the account or network security owner confirm that the copied Account/Server hostname is the public hostname, not the PrivateLink hostname.
+17. For `<account_url>`, use the confirmed public Account/Server hostname from the copied value without the leading `https://` or a trailing `/`. `USE_PRIVATELINK_FOR_AUTHORIZATION_ENDPOINT = TRUE` affects browser authorization, not the public MCP Server URL.
+18. Form the account-specific MCP Server URL:
 
    ```
    https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>
    ```
 
-17. Retain the URL for the Speakeasy AI Control Plane setup.
+19. Retain the URL for the Speakeasy AI Control Plane setup.
 
 <!-- screenshot: the approved CORTEX_AGENT_RUN specification and successful result, with the Cortex Agent's three-part identifier visible and organization-sensitive names redacted where policy requires -->
 

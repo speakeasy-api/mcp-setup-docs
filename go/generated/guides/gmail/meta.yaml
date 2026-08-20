@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: gmail
+title: Gmail
+summary: Connect the Gmail remote MCP server with a Google Cloud OAuth client.
+speakeasy_add_server: custom-remote
+credential_setup:
+  requirements:
+    - id: developer-preview
+      description: Membership in the Google Workspace Developer Preview Program with the Google Cloud project registered for preview access.
+    - id: google-cloud-project
+      description: A Google Cloud project with permission to enable services, such as the Service Usage Admin role.
+  options:
+    - id: gmail-oauth
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#create-oauth-client
+        - id: client-secret
+          label: Client Secret
+          setup:
+            - external.md#create-oauth-client
+remotes:
+  - id: gmail
+    url: https://gmailmcp.googleapis.com/mcp/v1
+    transport: streamable-http
+    authentication:
+      - gmail-oauth
+    provenance:
+      - source: google-developers
+        locator: https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server
+        classification: official
+        observed_at: "2026-08-20T19:49:41Z"
+      - source: google-developers
+        locator: https://developers.google.com/workspace/gmail/api/reference/mcp
+        classification: official
+        observed_at: "2026-08-20T19:49:41Z"
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+provenance:
+  - source: google-developers
+    locator: https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server
+    classification: official
+    observed_at: "2026-08-20T19:49:41Z"
+  - source: google-developers
+    locator: https://developers.google.com/workspace/gmail/api/reference/mcp
+    classification: official
+    observed_at: "2026-08-20T19:49:41Z"
+  - source: google-developers
+    locator: https://developers.google.com/workspace/preview
+    classification: official
+    observed_at: "2026-08-20T19:49:41Z"
+  - source: google-cloud-console
+    locator: https://console.cloud.google.com/
+    classification: official
+    observed_at: "2026-08-20T19:49:41Z"
+  - source: google-cloud-docs
+    locator: https://docs.cloud.google.com/mcp/authenticate-mcp
+    classification: official
+    observed_at: "2026-08-20T19:49:41Z"
+  - source: google-cloud-docs
+    locator: https://docs.cloud.google.com/service-usage/docs/enable-disable
+    classification: official
+    observed_at: "2026-08-20T19:49:41Z"
+  - source: google-cloud-support
+    locator: https://support.google.com/cloud/answer/15549257?hl=en
+    classification: official
+    observed_at: "2026-08-20T19:49:41Z"
+  - source: speakeasy-doctrine
+    locator: doctrine/speakeasy-setup.md
+    classification: official
+    observed_at: "2026-08-20T19:49:41Z"
