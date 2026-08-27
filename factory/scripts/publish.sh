@@ -7,11 +7,15 @@ source "$ROOT/factory/scripts/lib.sh"
 
 TEMP_FILES=()
 cleanup_on_exit() {
-  local status=$? cleanup_status=0
+  local original_status=$? temp_status=0 cleanup_status=0
   trap - EXIT HUP INT TERM
-  ((${#TEMP_FILES[@]} == 0)) || rm -f "${TEMP_FILES[@]}"
-  cleanup || cleanup_status=$?
-  ((status != 0)) && exit "$status"
+  set +e
+  if ((${#TEMP_FILES[@]} != 0)); then
+    rm -f "${TEMP_FILES[@]}" || temp_status=$?
+  fi
+  (cleanup) || cleanup_status=$?
+  ((original_status != 0)) && exit "$original_status"
+  ((temp_status != 0)) && exit "$temp_status"
   exit "$cleanup_status"
 }
 
@@ -31,20 +35,26 @@ require_common() {
 
 issue_labels() {
   local response
-  response="$(retry_gh issue view "$ISSUE_NUMBER" --repo "$GH_REPO" --json labels)" \
-    || die "failed to inspect issue labels"
+  response="$(retry_gh issue view "$ISSUE_NUMBER" --repo "$GH_REPO" --json labels)" || {
+    printf 'factory: failed to inspect issue labels\n' >&2
+    return 1
+  }
   jq -e 'type == "object" and (.labels | type == "array") and
-    all(.labels[]; type == "object" and (.name | type == "string"))' <<<"$response" >/dev/null \
-    || die "malformed issue label response"
+    all(.labels[]; type == "object" and (.name | type == "string"))' <<<"$response" >/dev/null || {
+    printf 'factory: malformed issue label response\n' >&2
+    return 1
+  }
   jq -r '.labels[].name' <<<"$response"
 }
 
 remove_label() {
   local label=$1 labels
-  labels="$(issue_labels)"
+  labels="$(issue_labels)" || return $?
   grep -Fqx "$label" <<<"$labels" || return 0
-  retry_gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --remove-label "$label" >/dev/null \
-    || die "failed to remove label: $label"
+  retry_gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --remove-label "$label" >/dev/null || {
+    printf 'factory: failed to remove label: %s\n' "$label" >&2
+    return 1
+  }
 }
 
 add_label() {
@@ -92,7 +102,6 @@ refuse() {
     "Refused to run: the conflicting pull request $url already targets this issue and is not a factory branch (\`guide/issue-$ISSUE_NUMBER-*\`)." \
     '' "Close or finish that pull request, then re-add \`guide:draft\`." >"$body"
   post_comment "$body"
-  rm -f "$body"
 }
 
 render_report_comment() {

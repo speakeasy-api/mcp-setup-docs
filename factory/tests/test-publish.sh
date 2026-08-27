@@ -10,8 +10,10 @@ trap 'rm -rf "$TMP"' EXIT
 
 export GH_REPO=acme/docs ISSUE_NUMBER=42 GITHUB_RUN_ID=9001
 export FACTORY_RETRY_DELAY=0
-export GH_LOG="$TMP/gh.log" GIT_LOG="$TMP/git.log" COMMENT_LOG="$TMP/comments.log"
+export GH_LOG="$TMP/gh.log" GIT_LOG="$TMP/git.log" COMMENT_LOG="$TMP/comments.log" RM_LOG="$TMP/rm.log"
 export PATH="$TMP/bin:$PATH"
+REAL_RM="$(command -v rm)"
+export REAL_RM
 
 # shellcheck disable=SC2016
 make_fake gh 'printf "%s\n" "$*" >>"$GH_LOG"
@@ -43,16 +45,25 @@ esac'
 make_fake git 'printf "%s\n" "$*" >>"$GIT_LOG"
 case "$1" in
   diff) [[ "${GIT_HAS_DIFF:-1}" == 0 ]] ; exit ;;
-  commit) [[ "${GIT_COMMIT_FAIL:-0}" == 0 ]] ; exit ;;
+  commit)
+    if [[ -n "${GIT_SIGNAL:-}" ]]; then kill -s "$GIT_SIGNAL" "$PPID"; exit 0; fi
+    [[ "${GIT_COMMIT_FAIL:-0}" == 0 ]] || exit "${GIT_COMMIT_STATUS:-1}" ;;
 esac'
+
+# shellcheck disable=SC2016
+make_fake rm 'printf "%s\n" "$*" >>"$RM_LOG"
+if [[ -n "${RM_FAIL_MATCH:-}" && "$*" == *"$RM_FAIL_MATCH"* ]]; then exit "${RM_FAIL_STATUS:-91}"; fi
+exec "$REAL_RM" "$@"'
 
 make_fake sleep 'exit 0'
 
 reset_logs() {
+  unset GH_FAIL_MUTATIONS GH_FAIL_COUNT_FILE GH_FAIL_MATCH GH_PR_LIST GH_CREATE_LOST GH_CREATE_OUTPUT
+  unset GIT_COMMIT_FAIL GIT_COMMIT_STATUS GIT_SIGNAL RM_FAIL_MATCH RM_FAIL_STATUS
   : >"$GH_LOG"; : >"$GIT_LOG"; : >"$COMMENT_LOG"
   export GH_PR_STATE_FILE="$TMP/pr-state.json"
   rm -f "$GH_PR_STATE_FILE"
-  unset GH_FAIL_MUTATIONS GH_FAIL_COUNT_FILE GH_FAIL_MATCH GH_PR_LIST GH_CREATE_LOST GH_CREATE_OUTPUT GIT_COMMIT_FAIL
+  : >"$RM_LOG"
   export GH_CREATE_PR_JSON='[{"number":77,"url":"https://github.com/acme/docs/pull/77"}]'
   export GH_LABELS_JSON='{"labels":[{"name":"guide:draft"},{"name":"guide:blocked"},{"name":"guide:in-progress"}]}'
   export GIT_HAS_DIFF=1 RESUME=false RESUME_BRANCH='' RESUME_PR_NUMBER=''
@@ -258,6 +269,45 @@ test_github_retries_but_commit_does_not() {
   assert_contains "--remove-label guide:in-progress" "$(cat "$GH_LOG")"
 }
 
+test_cleanup_preserves_failure_and_signal_status() {
+  report="$TMP/cleanup-status.json"
+  make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
+
+  reset_logs
+  export GIT_COMMIT_FAIL=1 GIT_COMMIT_STATUS=73 GH_FAIL_MATCH='issue view' RM_FAIL_MATCH=tmp. RM_FAIL_STATUS=91
+  set +e
+  bash "$SCRIPT" publish "$report" >/dev/null 2>&1
+  status=$?
+  set -e
+  assert_eq 73 "$status"
+  assert_contains "issue view" "$(cat "$GH_LOG")"
+  [[ -s "$RM_LOG" ]] || fail "cleanup did not attempt temporary-file removal"
+
+  for signal_status in 'INT 130' 'TERM 143'; do
+    signal=${signal_status% *}
+    expected=${signal_status#* }
+    reset_logs
+    export GIT_SIGNAL="$signal" GH_FAIL_MATCH='issue view' RM_FAIL_MATCH=tmp. RM_FAIL_STATUS=91
+    set +e
+    bash "$SCRIPT" publish "$report" >/dev/null 2>&1
+    status=$?
+    set -e
+    assert_eq "$expected" "$status"
+    assert_contains "issue view" "$(cat "$GH_LOG")"
+    [[ -s "$RM_LOG" ]] || fail "$signal cleanup did not attempt temporary-file removal"
+  done
+
+  reset_logs
+  reason="$TMP/cleanup-reason.txt"
+  printf 'reason\n' >"$reason"
+  export GH_FAIL_MATCH='issue view'
+  set +e
+  bash "$SCRIPT" fail "$reason" >/dev/null 2>&1
+  status=$?
+  set -e
+  assert_eq 1 "$status"
+}
+
 test_comments_and_title_are_bounded() {
   reset_logs
   report="$TMP/bounded.json"
@@ -286,5 +336,6 @@ test_failed_and_hard_failure_never_commit
 test_no_change_orphan_creates_pr_and_converges_resume
 test_pr_numbers_and_create_recovery_are_safe
 test_github_retries_but_commit_does_not
+test_cleanup_preserves_failure_and_signal_status
 test_comments_and_title_are_bounded
 printf 'PASS: deterministic publication and comments\n'
