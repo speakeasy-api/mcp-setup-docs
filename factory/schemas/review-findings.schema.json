@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://speakeasy.com/schemas/factory/review-findings.schema.json",
+  "title": "Kit guide factory review findings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["severity", "target", "where", "problem", "suggestion"],
+    "properties": {
+      "severity": {"enum": ["blocker", "nit"]},
+      "target": {
+        "enum": ["research.md", "meta.yaml", "external.md", "speakeasy.md"]
+      },
+      "where": {"type": "string", "pattern": "\\S"},
+      "problem": {"type": "string", "pattern": "\\S"},
+      "suggestion": {"type": "string", "pattern": "\\S"}
+    }
+  }
+}

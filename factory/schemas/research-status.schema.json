@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://speakeasy.com/schemas/factory/research-status.schema.json",
+  "title": "Kit guide factory research status",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "notes", "open_questions", "sources_used", "metadata_validation"],
+  "properties": {
+    "status": {
+      "enum": ["complete", "awaiting_scope", "blocked", "failed"]
+    },
+    "notes": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "sources_used": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "format": "uri"}
+    },
+    "metadata_validation": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}
