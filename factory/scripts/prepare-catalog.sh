@@ -15,15 +15,22 @@ observed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 mkdir -p "$(dirname "$output")"
 tmp="$(mktemp "${output}.tmp.XXXXXX")"
 pages="$(mktemp "${output}.pages.XXXXXX")"
-cleanup() { rm -f "$tmp" "$pages"; }
+response="$(mktemp "${output}.response.XXXXXX")"
+seen_cursors="$(mktemp "${output}.cursors.XXXXXX")"
+seen_next="$(mktemp "${output}.cursors-next.XXXXXX")"
+cleanup() { rm -f "$tmp" "$pages" "$response" "$seen_cursors" "$seen_next"; }
 trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+printf '[]\n' >"$seen_cursors"
 
 if [[ -z "$tenant" || -z "$api_key" ]]; then
   jq -n --arg tenant "$tenant" --arg observed_at "$observed_at" \
     '{status:"skipped", tenant:$tenant, observed_at:$observed_at, servers:[]}' >"$tmp"
   mv "$tmp" "$output"
-  rm -f "$pages"
-  trap - EXIT
+  cleanup
+  trap - EXIT HUP INT TERM
   exit 0
 fi
 
@@ -34,9 +41,8 @@ for ((page = 1; page <= 20; page++)); do
     encoded_cursor="$(jq -rn --arg value "$cursor" '$value | @uri')"
     url="$url&cursor=$encoded_cursor"
   fi
-  response="$(mktemp "${output}.page.XXXXXX")"
+  : >"$response"
   if ! curl -fsS -H "X-Tenant-ID: $tenant" -H "X-API-Key: $api_key" "$url" >"$response"; then
-    rm -f "$response"
     die "Pulse registry request failed on page $page"
   fi
   if ! jq -e '
@@ -51,13 +57,17 @@ for ((page = 1; page <= 20; page++)); do
         and (.remotes | type) == "array"
         and all(.remotes[]; (.transport | type) == "string" and (.url | type) == "string"))
     ' "$response" >/dev/null; then
-    rm -f "$response"
     die "malformed Pulse registry response on page $page"
   fi
   jq -c '.servers[] | {name:.server.name, title:(.server.title // null), description:(.server.description // null), remotes:[.remotes[] | {transport,url}]}' "$response" >>"$pages"
-  cursor="$(jq -r '.metadata.nextCursor // empty' "$response")"
-  rm -f "$response"
-  [[ -n "$cursor" ]] || break
+  next_cursor="$(jq -r '.metadata.nextCursor // empty' "$response")"
+  [[ -n "$next_cursor" ]] || break
+  jq -e --arg cursor "$next_cursor" 'index($cursor) == null' "$seen_cursors" >/dev/null \
+    || die "Pulse registry cursor cycle on page $page"
+  (( page < 20 )) || die "Pulse registry pagination exceeded 20 pages"
+  jq --arg cursor "$next_cursor" '. + [$cursor]' "$seen_cursors" >"$seen_next"
+  mv "$seen_next" "$seen_cursors"
+  cursor=$next_cursor
 done
 
 jq -s --arg tenant "$tenant" --arg observed_at "$observed_at" '
@@ -67,5 +77,5 @@ jq -s --arg tenant "$tenant" --arg observed_at "$observed_at" '
 ' "$pages" >"$tmp"
 jq -e . "$tmp" >/dev/null
 mv "$tmp" "$output"
-rm -f "$pages"
-trap - EXIT
+cleanup
+trap - EXIT HUP INT TERM

@@ -21,9 +21,9 @@ retry_gh issue view "$issue" --json number,title,body,author,comments,url \
         or (.title | type) != "string"
         or (.body | type) != "string"
         or (.url | type) != "string"
-        or (.author.login | type) != "string"
+        or ((.author | type) != "null" and ((.author | type) != "object" or ((.author.login | type) != "string" and (.author.login | type) != "null")))
         or (.comments | type) != "array"
-        or any(.comments[]; (.createdAt | type) != "string" or (.body | type) != "string" or ((.author.login | type) != "string" and (.author.login | type) != "null"))
+        or any(.comments[]; (.createdAt | type) != "string" or (.body | type) != "string" or ((.author | type) != "null" and ((.author | type) != "object" or ((.author.login | type) != "string" and (.author.login | type) != "null"))))
       then error("malformed issue response")
       else {
         schema_version: 1,
