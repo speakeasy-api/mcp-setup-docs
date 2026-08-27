@@ -1,7 +1,7 @@
 name: Guide stale sweep
 
-# Reports guides whose pipeline.lock.json drifted from the repo, and opens one
-# refresh ticket per guide (capped, oldest lock first).
+# Reports guides older than the factory inputs, and opens one refresh ticket
+# per guide (capped, oldest guide first).
 #
 # The sweep applies `guide:stale` only. It never applies `guide:draft`, so no
 # ticket it files starts a draft run. A human adds that label when they want
@@ -34,24 +34,12 @@ jobs:
       contents: read
       issues: write
 
-    defaults:
-      run:
-        working-directory: pipeline
-
     env:
       GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
 
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: pipeline/package-lock.json
-
-      - run: npm ci
 
       # One invocation: --create prints the same report before it files anything,
       # so a separate reporting pass would only duplicate the work. pipefail
@@ -65,7 +53,7 @@ jobs:
           set -euo pipefail
           args=(--limit "$LIMIT")
           if [ "$DRY_RUN" != "true" ]; then args+=(--create); fi
-          npm run stale-sweep -- "${args[@]}" | tee "$RUNNER_TEMP/sweep.txt"
+          bash factory/scripts/stale-sweep.sh "${args[@]}" | tee "$RUNNER_TEMP/sweep.txt"
 
       - name: Job summary
         if: always()
