@@ -28,11 +28,14 @@ func main() {
 
 func run(args []string, repoRoot string, stdout, stderr io.Writer) int {
 	jsonMode := false
+	metaOnly := false
 	var guideDirs []string
 	for _, arg := range args {
 		switch {
 		case arg == "--json":
 			jsonMode = true
+		case arg == "--meta-only":
+			metaOnly = true
 		case strings.HasPrefix(arg, "-"):
 			fmt.Fprintf(stderr, "unknown option %s\n", arg)
 			printUsage(stderr)
@@ -63,7 +66,11 @@ func run(args []string, repoRoot string, stdout, stderr io.Writer) int {
 
 	var all []guidecheck.Finding
 	for _, target := range targets {
-		findings, err := guidecheck.Check(repoRoot, target.path)
+		check := guidecheck.Check
+		if metaOnly {
+			check = guidecheck.CheckMeta
+		}
+		findings, err := check(repoRoot, target.path)
 		if err != nil {
 			fmt.Fprintf(stderr, "%s: %v\n", target.key, err)
 			return 1
@@ -113,5 +120,5 @@ func findRepoRoot(start string) (string, error) {
 }
 
 func printUsage(w io.Writer) {
-	fmt.Fprintln(w, "usage: lint-guide [--json] <guide-dir> [<guide-dir> ...]")
+	fmt.Fprintln(w, "usage: lint-guide [--json] [--meta-only] <guide-dir> [<guide-dir> ...]")
 }

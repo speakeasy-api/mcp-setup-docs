@@ -32,6 +32,30 @@ func TestRunCleanExit(t *testing.T) {
 	}
 }
 
+func TestRunMetaOnlyValidatesPartialGuide(t *testing.T) {
+	root := repoRootForTest(t)
+	dir := t.TempDir()
+	raw, err := os.ReadFile(filepath.Join(root, "guides", "github", "meta.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "meta.yaml"), raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var stdout, stderr bytes.Buffer
+	if code := run([]string{"--meta-only", dir}, root, &stdout, &stderr); code != 0 {
+		t.Fatalf("valid partial metadata exit = %d, want 0; stdout=%q stderr=%q", code, stdout.String(), stderr.String())
+	}
+	if err := os.WriteFile(filepath.Join(dir, "meta.yaml"), []byte("schema_version: [\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	stdout.Reset()
+	stderr.Reset()
+	if code := run([]string{"--meta-only", dir}, root, &stdout, &stderr); code != 2 {
+		t.Fatalf("invalid partial metadata exit = %d, want 2; stdout=%q stderr=%q", code, stdout.String(), stderr.String())
+	}
+}
+
 func TestRunMultipleGuidesDeterministicIndependentOfArgumentOrder(t *testing.T) {
 	root := repoRootForTest(t)
 	base := t.TempDir()

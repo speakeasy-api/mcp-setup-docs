@@ -161,3 +161,154 @@ jq -e '
      (["research.md","meta.yaml","external.md","speakeasy.md"] - .artifacts | length) == 0
    else true end)
 ' "$TMP/converged.json" >/dev/null
+
+VALIDATOR="$ROOT/factory/scripts/validate.sh"
+VALIDATE_TMP="$TMP/validate"
+EXPORT="$VALIDATE_TMP/export"
+REPO="$VALIDATE_TMP/repo"
+
+reset_validation_fixture() {
+  rm -rf "$VALIDATE_TMP"
+  mkdir -p "$EXPORT/guide" "$REPO/guides" "$REPO/schema"
+  cp "$ROOT/schema/guide.v1.schema.json" "$REPO/schema/"
+  git -C "$REPO" init -q
+  git -C "$REPO" config user.email test@example.com
+  git -C "$REPO" config user.name Test
+  git -C "$REPO" add .
+  git -C "$REPO" commit -qm baseline
+}
+
+make_export_report() {
+  local outcome=$1 slug=${2-github} artifacts=${3-'["research.md","meta.yaml","external.md","speakeasy.md"]'}
+  jq -n --arg outcome "$outcome" --arg slug "$slug" --argjson artifacts "$artifacts" '{schema_version:1,outcome:$outcome,provider:"GitHub",slug:(if $slug == "NULL" then null else $slug end),persona:"developer",summary:"test",open_questions:[],blockers:(if $outcome == "blocked" then ["blocked"] else [] end),nits:[],review_rounds:0,artifacts:$artifacts}' >"$EXPORT/run-report.json"
+}
+
+copy_valid_guide() {
+  local name
+  for name in research.md meta.yaml external.md speakeasy.md; do
+    cp "$ROOT/guides/github/$name" "$EXPORT/guide/"
+  done
+}
+
+expect_validation_failure() {
+  if GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO" >/dev/null 2>&1; then
+    fail "validator accepted invalid export: $1"
+  fi
+}
+
+test_validation_rejects_malformed_and_traversal_reports() {
+  reset_validation_fixture
+  printf '{' >"$EXPORT/run-report.json"
+  expect_validation_failure "malformed JSON"
+  make_export_report converged ../doctrine
+  copy_valid_guide
+  expect_validation_failure "traversal slug"
+  [[ ! -e "$REPO/doctrine" ]] || fail "traversal wrote outside guides"
+}
+
+test_validation_requires_outcome_files_and_exact_artifacts() {
+  reset_validation_fixture
+  make_export_report converged
+  copy_valid_guide
+  rm "$EXPORT/guide/speakeasy.md"
+  expect_validation_failure "converged missing file"
+
+  reset_validation_fixture
+  make_export_report awaiting_scope github '["research.md","meta.yaml"]'
+  cp "$ROOT/guides/github/research.md" "$EXPORT/guide/"
+  expect_validation_failure "awaiting scope missing meta"
+
+  reset_validation_fixture
+  make_export_report blocked github '["research.md"]'
+  cp "$ROOT/guides/github/research.md" "$EXPORT/guide/"
+  printf 'extra
+' >"$EXPORT/guide/external.md"
+  expect_validation_failure "report artifact mismatch"
+
+  reset_validation_fixture
+  make_export_report blocked github '["research.md"]'
+  expect_validation_failure "named artifact missing"
+}
+
+test_validation_rejects_symlinks_and_unexpected_files() {
+  reset_validation_fixture
+  make_export_report converged
+  copy_valid_guide
+  ln -s research.md "$EXPORT/guide/link"
+  expect_validation_failure "symlink"
+  rm "$EXPORT/guide/link"
+  printf 'extra
+' >"$EXPORT/guide/extra.txt"
+  expect_validation_failure "unexpected file"
+}
+
+test_validation_preserves_stale_target_until_success() {
+  reset_validation_fixture
+  mkdir -p "$REPO/guides/github"
+  printf 'keep
+' >"$REPO/guides/github/stale.txt"
+  git -C "$REPO" add . && git -C "$REPO" commit -qm stale
+  make_export_report converged
+  copy_valid_guide
+  printf 'broken: [
+' >"$EXPORT/guide/meta.yaml"
+  expect_validation_failure "invalid metadata"
+  assert_eq keep "$(cat "$REPO/guides/github/stale.txt")"
+
+  cp "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/meta.yaml"
+  GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
+  [[ ! -e "$REPO/guides/github/stale.txt" ]] || fail "successful install retained stale target"
+  cmp "$EXPORT/guide/meta.yaml" "$REPO/guides/github/meta.yaml"
+  grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "missing safe GitHub output"
+}
+
+test_validation_validates_awaiting_scope_metadata() {
+  reset_validation_fixture
+  make_export_report awaiting_scope github '["research.md","meta.yaml"]'
+  cp "$ROOT/guides/github/research.md" "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/"
+  GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
+  [[ -f "$REPO/guides/github/meta.yaml" ]] || fail "awaiting-scope metadata was not installed"
+
+  reset_validation_fixture
+  make_export_report awaiting_scope github '["research.md","meta.yaml"]'
+  cp "$ROOT/guides/github/research.md" "$EXPORT/guide/"
+  printf 'schema_version: [
+' >"$EXPORT/guide/meta.yaml"
+  expect_validation_failure "awaiting-scope invalid metadata"
+}
+
+test_validation_installs_safe_blocked_partial_only() {
+  reset_validation_fixture
+  make_export_report blocked github '["research.md"]'
+  cp "$ROOT/guides/github/research.md" "$EXPORT/guide/"
+  GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
+  [[ -f "$REPO/guides/github/research.md" ]] || fail "safe blocked artifact was not installed"
+
+  reset_validation_fixture
+  make_export_report blocked NULL '[]'
+  GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
+  [[ -z "$(find "$REPO/guides" -mindepth 1 -print -quit)" ]] || fail "slugless blocked report installed files"
+
+  reset_validation_fixture
+  make_export_report failed NULL '[]'
+  GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
+  [[ -z "$(find "$REPO/guides" -mindepth 1 -print -quit)" ]] || fail "failed report installed files"
+}
+
+test_validation_rejects_preexisting_out_of_scope_diff() {
+  reset_validation_fixture
+  printf 'changed
+' >>"$REPO/schema/guide.v1.schema.json"
+  make_export_report converged
+  copy_valid_guide
+  expect_validation_failure "changed path outside target"
+  [[ ! -e "$REPO/guides/github" ]] || fail "diff guard left an installed guide"
+}
+
+test_validation_rejects_malformed_and_traversal_reports
+test_validation_requires_outcome_files_and_exact_artifacts
+test_validation_rejects_symlinks_and_unexpected_files
+test_validation_preserves_stale_target_until_success
+test_validation_validates_awaiting_scope_metadata
+test_validation_installs_safe_blocked_partial_only
+test_validation_rejects_preexisting_out_of_scope_diff

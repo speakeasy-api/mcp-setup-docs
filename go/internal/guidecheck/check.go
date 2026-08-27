@@ -116,38 +116,22 @@ func Check(repoRoot, guideDir string) ([]Finding, error) {
 	locateMarkdownFindings(speakeasyFindings, speakeasyPath, string(speakeasy))
 	findings = append(findings, speakeasyFindings...)
 
+	metaFindings, err := CheckMeta(repoRoot, guideDir)
+	if err != nil {
+		return nil, err
+	}
+	findings = append(findings, metaFindings...)
 	var metaRaw string
 	metaExists, err := pathExists(metaPath)
 	if err != nil {
 		return nil, fmt.Errorf("stat meta.yaml: %w", err)
 	}
-	schemaPath := filepath.Join(repoRoot, filepath.FromSlash(guideSchemaPath))
-	if !metaExists {
-		f := finding("blocker", "meta", "meta.yaml", "meta.yaml is missing.", "Write meta.yaml validating against schema/guide.v1.schema.json.")
-		f.sourcePath = metaPath
-		findings = append(findings, f)
-	} else {
-		schemaExists, statErr := pathExists(schemaPath)
-		if statErr != nil {
-			return nil, fmt.Errorf("stat %s: %w", guideSchemaPath, statErr)
+	if metaExists {
+		meta, readErr := os.ReadFile(metaPath)
+		if readErr != nil {
+			return nil, fmt.Errorf("read meta.yaml: %w", readErr)
 		}
-		if !schemaExists {
-			f := finding("blocker", "meta", guideSchemaPath, "Guide schema file is missing; cannot validate meta.yaml.", "Restore schema/guide.v1.schema.json at the repo root.")
-			f.sourcePath = schemaPath
-			findings = append(findings, f)
-		} else {
-			meta, readErr := os.ReadFile(metaPath)
-			if readErr != nil {
-				return nil, fmt.Errorf("read meta.yaml: %w", readErr)
-			}
-			metaRaw = string(meta)
-			metaFindings, lintErr := lintMeta(metaRaw, schemaPath)
-			if lintErr != nil {
-				return nil, lintErr
-			}
-			locateMetaFindings(metaFindings, metaPath, metaRaw)
-			findings = append(findings, metaFindings...)
-		}
+		metaRaw = string(meta)
 	}
 
 	var researchRaw string
@@ -171,6 +155,49 @@ func Check(repoRoot, guideDir string) ([]Finding, error) {
 		}
 	}
 	findings = append(findings, agreement...)
+	sortFindings(findings)
+	return findings, nil
+}
+
+// CheckMeta validates only meta.yaml, allowing host validation of partial exports.
+func CheckMeta(repoRoot, guideDir string) ([]Finding, error) {
+	repoRoot, err := filepath.Abs(repoRoot)
+	if err != nil {
+		return nil, fmt.Errorf("resolve repo root: %w", err)
+	}
+	guideDir, err = filepath.Abs(guideDir)
+	if err != nil {
+		return nil, fmt.Errorf("resolve guide directory: %w", err)
+	}
+	metaPath := filepath.Join(guideDir, "meta.yaml")
+	schemaPath := filepath.Join(repoRoot, filepath.FromSlash(guideSchemaPath))
+	metaExists, err := pathExists(metaPath)
+	if err != nil {
+		return nil, fmt.Errorf("stat meta.yaml: %w", err)
+	}
+	if !metaExists {
+		f := finding("blocker", "meta", "meta.yaml", "meta.yaml is missing.", "Write meta.yaml validating against schema/guide.v1.schema.json.")
+		f.sourcePath = metaPath
+		return []Finding{f}, nil
+	}
+	schemaExists, err := pathExists(schemaPath)
+	if err != nil {
+		return nil, fmt.Errorf("stat %s: %w", guideSchemaPath, err)
+	}
+	if !schemaExists {
+		f := finding("blocker", "meta", guideSchemaPath, "Guide schema file is missing; cannot validate meta.yaml.", "Restore schema/guide.v1.schema.json at the repo root.")
+		f.sourcePath = schemaPath
+		return []Finding{f}, nil
+	}
+	meta, err := os.ReadFile(metaPath)
+	if err != nil {
+		return nil, fmt.Errorf("read meta.yaml: %w", err)
+	}
+	findings, err := lintMeta(string(meta), schemaPath)
+	if err != nil {
+		return nil, err
+	}
+	locateMetaFindings(findings, metaPath, string(meta))
 	sortFindings(findings)
 	return findings, nil
 }
