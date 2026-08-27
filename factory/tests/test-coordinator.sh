@@ -242,6 +242,7 @@ fi
 test -s "$COMMENT_STATE" || fail 'bootstrap fallback did not comment after a mutation failure'
 
 for phrase in \
+  '.dockerignore' \
   'bash factory/tests/run.sh' \
   'shellcheck factory/scripts/*.sh factory/tests/*.sh' \
   'go test ./internal/guidecheck ./cmd/lint-guide' \
@@ -250,6 +251,10 @@ for phrase in \
   '-f factory/Dockerfile .'; do
   grep -Fq -- "$phrase" "$FACTORY_CI" || fail "missing Factory CI contract: $phrase"
 done
+factory_checkout="$(sed -n '/uses: actions\/checkout@v4/,/uses: actions\/setup-go@v5/p' "$FACTORY_CI")"
+assert_contains 'persist-credentials: false' "$factory_checkout"
+assert_contains '-f factory/Dockerfile .' "$(cat "$FACTORY_CI")"
+
 for forbidden in OPENROUTER_API_KEY run-kit.sh 'kit run' 'npm ' 'actions/setup-node'; do
   if grep -Fiq "$forbidden" "$FACTORY_CI"; then fail "Factory CI performs model/legacy work: $forbidden"; fi
 done

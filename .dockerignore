@@ -1,0 +1,4 @@
+.git
+.worktrees
+.env
+.env.*

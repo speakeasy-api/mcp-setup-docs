@@ -3,6 +3,7 @@ name: Factory CI
 on:
   pull_request:
     paths:
+      - '.dockerignore'
       - 'factory/**'
       - '.github/workflows/guide-draft.yml'
       - '.github/workflows/factory-ci.yml'
@@ -13,6 +14,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '.dockerignore'
       - 'factory/**'
       - '.github/workflows/guide-draft.yml'
       - '.github/workflows/factory-ci.yml'
@@ -29,6 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-go@v5
         with:

@@ -31,6 +31,33 @@ test_dockerfile_builds_static_linter_without_go_in_final_image() {
   [[ "$(grep -c '^FROM ' "$ROOT/factory/Dockerfile")" -eq 2 ]] || fail "expected a two-stage image"
 }
 
+test_docker_context_excludes_credentials_and_keeps_build_inputs() {
+  local ignore context archive listing required
+  ignore="$ROOT/.dockerignore"
+  context="$TMP/docker-context"
+  archive="$TMP/docker-context.tar"
+  test -f "$ignore" || fail "root .dockerignore does not exist"
+  grep -Fqx '.git' "$ignore" || fail ".dockerignore does not exclude .git"
+  mkdir -p "$context/.git" "$context/go" "$context/factory/scripts"
+  printf '%s\n' credential-bearing-metadata >"$context/.git/config"
+  cp "$ROOT/go/go.mod" "$ROOT/go/go.sum" "$context/go/"
+  cp -R "$ROOT/go/cmd" "$ROOT/go/internal" "$context/go/"
+  cp "$ROOT/factory/Dockerfile" "$context/factory/"
+  cp "$ROOT/factory/scripts/validate-report.sh" \
+    "$ROOT/factory/scripts/container-entrypoint.sh" "$context/factory/scripts/"
+  tar -cf "$archive" --exclude-from="$ignore" -C "$context" .
+  listing="$(tar -tf "$archive")"
+  if grep -Eq '(^|/)[.]git(/|$)' <<<"$listing"; then fail "Docker context contains .git"; fi
+  for required in go/go.mod go/go.sum go/cmd/ go/internal/ factory/Dockerfile \
+    factory/scripts/validate-report.sh factory/scripts/container-entrypoint.sh; do
+    grep -Fq "$required" <<<"$listing" || fail "Docker context excludes required input: $required"
+  done
+  # Literal shell source is the build-interface contract under test.
+  # shellcheck disable=SC2016
+  grep -Fq '"$FACTORY_DOCKER" build' "$ROOT/factory/scripts/run-kit.sh" \
+    || fail "run-kit no longer builds the factory image"
+}
+
 test_release_archive_layout_and_checksum() {
   # shellcheck disable=SC1091
   source "$ROOT/factory/config.env"
@@ -173,6 +200,7 @@ test_opt_in_final_image() {
 
 test_config_is_pinned
 test_dockerfile_builds_static_linter_without_go_in_final_image
+test_docker_context_excludes_credentials_and_keeps_build_inputs
 test_release_archive_layout_and_checksum
 test_run_kit_does_not_forward_github_credentials
 test_run_kit_uses_only_allowed_mounts
