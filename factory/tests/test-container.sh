@@ -22,10 +22,12 @@ test_dockerfile_builds_static_linter_without_go_in_final_image() {
   dockerfile="$(cat "$ROOT/factory/Dockerfile")"
   assert_contains "FROM golang:1.22.12-bookworm@sha256:3d699e4d15d0f8f13c9195c0632a16702b8cbdece2955af1c23b37ae5d55a253 AS lint-builder" "$dockerfile"
   assert_contains "AS lint-builder" "$dockerfile"
+  assert_contains "FROM debian:trixie-slim@sha256:d7e12182ce18b85b93007c1dedf31f2d29e01ccf3182cc4017c709b6259bc132" "$dockerfile"
   assert_contains "CGO_ENABLED=0" "$dockerfile"
   assert_contains "go build" "$dockerfile"
   assert_contains "./cmd/lint-guide" "$dockerfile"
   assert_contains "COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide" "$dockerfile"
+  assert_contains "COPY factory/scripts/validate-report.sh /usr/local/bin/validate-report" "$dockerfile"
   [[ "$(grep -c '^FROM ' "$ROOT/factory/Dockerfile")" -eq 2 ]] || fail "expected a two-stage image"
 }
 
@@ -112,15 +114,61 @@ MOCK
     FACTORY_EXPORT_ROOT="$export_root" \
     FACTORY_KIT_HOME="$TMP/kit-home" \
     KIT_BIN="$fake_kit" \
+    FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
     KIT_MODEL=openai/gpt-5.6-sol \
     KIT_REASONING_EFFORT=high \
     "$ROOT/factory/scripts/container-entrypoint.sh"
 
+  "$ROOT/factory/scripts/validate-report.sh" "$workspace/.factory/run-report.json"
   test -f "$export_root/guide/research.md"
   test -f "$export_root/guide/meta.yaml"
   test -f "$export_root/run-report.json"
   test ! -e "$export_root/not-exported.txt"
   assert_eq "3" "$(find "$export_root" -type f | wc -l | tr -d ' ')"
+}
+
+test_entrypoint_rejects_invalid_report() {
+  local repo input workspace export_root fake_kit
+  repo="$TMP/invalid-repo"; input="$TMP/invalid-input"
+  workspace="$TMP/invalid-workspace"; export_root="$TMP/invalid-export"
+  fake_kit="$TMP/bin/invalid-kit"
+  mkdir -p "$repo/factory" "$input" "$TMP/bin"
+  printf 'assignment\n' >"$repo/factory/coordinator.md"
+  printf '{}\n' >"$input/issue.json"; printf '{}\n' >"$input/catalog.json"
+  cat >"$fake_kit" <<'MOCK'
+#!/usr/bin/env bash
+mkdir -p "$FACTORY_WORKSPACE_ROOT/.factory"
+case "$MOCK_REPORT_KIND" in
+  missing) printf '%s\n' '{"outcome":"converged","slug":"acme"}' ;;
+  cross-field) printf '%s\n' '{"schema_version":1,"outcome":"converged","provider":"Acme","slug":"acme","persona":"it-admin","summary":"invalid","open_questions":[],"blockers":["still blocked"],"nits":[],"review_rounds":1,"artifacts":["research.md","meta.yaml","external.md","speakeasy.md"]}' ;;
+esac >"$FACTORY_WORKSPACE_ROOT/.factory/run-report.json"
+MOCK
+  chmod +x "$fake_kit"
+  local kind
+  for kind in missing cross-field; do
+    if MOCK_REPORT_KIND="$kind" FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
+      FACTORY_WORKSPACE_ROOT="$workspace-$kind" FACTORY_EXPORT_ROOT="$export_root-$kind" \
+      FACTORY_KIT_HOME="$TMP/invalid-home-$kind" KIT_BIN="$fake_kit" \
+      FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
+      KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+      "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>&1; then
+      fail "entrypoint accepted invalid report: $kind"
+    fi
+    test ! -e "$export_root-$kind/run-report.json"
+  done
+}
+
+test_opt_in_final_image() {
+  [[ "${FACTORY_TEST_IMAGE:-0}" == 1 ]] || return 0
+  # shellcheck disable=SC1091
+  source "$ROOT/factory/config.env"
+  local image="mcp-setup-docs-kit:test"
+  docker build --platform linux/amd64 -f "$ROOT/factory/Dockerfile" \
+    --build-arg "KIT_VERSION=$KIT_VERSION" --build-arg "KIT_SHA256=$KIT_SHA256" \
+    -t "$image" "$ROOT" >/dev/null
+  docker run --rm --platform linux/amd64 --entrypoint /bin/sh \
+    -v "$ROOT:/fixture:ro" -w /fixture "$image" -c \
+    '! command -v go && test -x /usr/local/bin/lint-guide && ldd /usr/local/bin/lint-guide 2>&1 | grep -q "not a dynamic executable" && /usr/local/bin/lint-guide guides/asana'
 }
 
 test_config_is_pinned
@@ -129,4 +177,6 @@ test_release_archive_layout_and_checksum
 test_run_kit_does_not_forward_github_credentials
 test_run_kit_uses_only_allowed_mounts
 test_entrypoint_exports_only_selected_guide_with_mocked_kit
+test_entrypoint_rejects_invalid_report
+test_opt_in_final_image
 rm -rf "$TMP"

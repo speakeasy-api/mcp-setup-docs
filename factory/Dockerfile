@@ -7,7 +7,7 @@ COPY go/internal ./internal
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath -ldflags='-s -w' -o /out/lint-guide ./cmd/lint-guide
 
-FROM debian:bookworm-slim@sha256:5ae3c39ebd15e229dcedd5cee596b2497182493d41ff162e824ba13fc1b2b867
+FROM debian:trixie-slim@sha256:d7e12182ce18b85b93007c1dedf31f2d29e01ccf3182cc4017c709b6259bc132
 ARG KIT_VERSION=0.1.98
 ARG KIT_SHA256
 RUN apt-get update \
@@ -20,5 +20,6 @@ RUN file=kit-v${KIT_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
  && kit --version \
  && rm /tmp/kit.tgz
 COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide
+COPY factory/scripts/validate-report.sh /usr/local/bin/validate-report
 COPY factory/scripts/container-entrypoint.sh /usr/local/bin/factory-entrypoint
 ENTRYPOINT ["/usr/local/bin/factory-entrypoint"]

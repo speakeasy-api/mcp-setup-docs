@@ -41,6 +41,12 @@ prepare_entrypoint_fixture() {
   printf '{}\n' >"$TMP/entry/repo/factory/mcp/exa.json"
   printf 'alpha\n' >"$TMP/entry/repo/guides/alpha/content.txt"
   printf 'beta\n' >"$TMP/entry/repo/guides/beta/content.txt"
+  local guide artifact
+  for guide in alpha beta; do
+    for artifact in research.md meta.yaml external.md speakeasy.md; do
+      printf 'fixture\n' >"$TMP/entry/repo/guides/$guide/$artifact"
+    done
+  done
   printf '{}\n' >"$TMP/entry/input/issue.json"
   printf '{}\n' >"$TMP/entry/input/catalog.json"
   # shellcheck disable=SC2016
@@ -51,6 +57,7 @@ prepare_entrypoint_fixture() {
   export FACTORY_WORKSPACE_ROOT="$TMP/entry/workspace"
   export FACTORY_EXPORT_ROOT="$TMP/entry/export"
   export FACTORY_KIT_HOME="$TMP/entry/home"
+  export FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh"
 }
 
 run_entrypoint() {
@@ -64,7 +71,7 @@ test_entrypoint_rejects_invalid_outcome() {
   mkdir -p "$FACTORY_EXPORT_ROOT/guide"
   printf 'stale\n' >"$FACTORY_EXPORT_ROOT/guide/stale.txt"
   printf 'stale\n' >"$FACTORY_EXPORT_ROOT/run-report.json"
-  if run_entrypoint '{"outcome":"unknown","slug":"alpha"}' >/dev/null 2>&1; then
+  if run_entrypoint '{"schema_version":1,"outcome":"unknown","provider":"Alpha","slug":"alpha","persona":"it-admin","summary":"bad","open_questions":[],"blockers":[],"nits":[],"review_rounds":0,"artifacts":[]}' >/dev/null 2>&1; then
     fail "invalid outcome was accepted"
   fi
   [[ ! -e "$FACTORY_EXPORT_ROOT/run-report.json" ]] || fail "invalid report was exported"
@@ -73,7 +80,7 @@ test_entrypoint_rejects_invalid_outcome() {
 
 test_entrypoint_rejects_invalid_slug() {
   prepare_entrypoint_fixture
-  if run_entrypoint '{"outcome":"converged","slug":"../alpha"}' >/dev/null 2>&1; then
+  if run_entrypoint '{"schema_version":1,"outcome":"converged","provider":"Alpha","slug":"../alpha","persona":"it-admin","summary":"bad","open_questions":[],"blockers":[],"nits":[],"review_rounds":1,"artifacts":["research.md","meta.yaml","external.md","speakeasy.md"]}' >/dev/null 2>&1; then
     fail "invalid slug was accepted"
   fi
   [[ ! -e "$FACTORY_EXPORT_ROOT/run-report.json" ]] || fail "invalid report was exported"
@@ -85,27 +92,27 @@ test_failed_outcome_clears_prior_guide() {
   mkdir -p "$FACTORY_EXPORT_ROOT/guide"
   printf 'stale\n' >"$FACTORY_EXPORT_ROOT/guide/stale.txt"
   printf 'stale\n' >"$FACTORY_EXPORT_ROOT/run-report.json"
-  run_entrypoint '{"outcome":"failed","slug":"alpha"}'
+  run_entrypoint '{"schema_version":1,"outcome":"failed","provider":"Alpha","slug":"alpha","persona":"it-admin","summary":"failed","open_questions":[],"blockers":["failure"],"nits":[],"review_rounds":0,"artifacts":[]}'
   [[ ! -e "$FACTORY_EXPORT_ROOT/guide" ]] || fail "failed outcome retained prior guide"
   assert_eq "failed" "$(jq -r .outcome "$FACTORY_EXPORT_ROOT/run-report.json")"
 }
 
-test_non_guide_outcome_clears_prior_guide() {
+test_null_identity_outcome_clears_prior_guide() {
   prepare_entrypoint_fixture
   mkdir -p "$FACTORY_EXPORT_ROOT/guide"
   printf 'stale\n' >"$FACTORY_EXPORT_ROOT/guide/stale.txt"
-  run_entrypoint '{"outcome":"awaiting_scope"}'
-  [[ ! -e "$FACTORY_EXPORT_ROOT/guide" ]] || fail "non-guide outcome retained prior guide"
-  assert_eq "awaiting_scope" "$(jq -r .outcome "$FACTORY_EXPORT_ROOT/run-report.json")"
+  run_entrypoint '{"schema_version":1,"outcome":"blocked","provider":null,"slug":null,"persona":null,"summary":"identity blocked","open_questions":[],"blockers":["missing identity"],"nits":[],"review_rounds":0,"artifacts":[]}'
+  [[ ! -e "$FACTORY_EXPORT_ROOT/guide" ]] || fail "null-identity outcome retained prior guide"
+  assert_eq "blocked" "$(jq -r .outcome "$FACTORY_EXPORT_ROOT/run-report.json")"
 }
 
 test_selected_guide_replaces_export_without_nesting() {
   prepare_entrypoint_fixture
-  run_entrypoint '{"outcome":"converged","slug":"alpha"}'
+  run_entrypoint '{"schema_version":1,"outcome":"converged","provider":"Alpha","slug":"alpha","persona":"it-admin","summary":"complete","open_questions":[],"blockers":[],"nits":[],"review_rounds":1,"artifacts":["research.md","meta.yaml","external.md","speakeasy.md"]}'
   assert_eq "alpha" "$(cat "$FACTORY_EXPORT_ROOT/guide/content.txt")"
   [[ ! -e "$FACTORY_EXPORT_ROOT/guide/alpha" ]] || fail "selected guide was nested"
   printf 'stale\n' >"$FACTORY_EXPORT_ROOT/guide/stale.txt"
-  run_entrypoint '{"outcome":"converged","slug":"beta"}'
+  run_entrypoint '{"schema_version":1,"outcome":"converged","provider":"Beta","slug":"beta","persona":"it-admin","summary":"complete","open_questions":[],"blockers":[],"nits":[],"review_rounds":1,"artifacts":["research.md","meta.yaml","external.md","speakeasy.md"]}'
   assert_eq "beta" "$(cat "$FACTORY_EXPORT_ROOT/guide/content.txt")"
   assert_eq "beta" "$(jq -r .slug "$FACTORY_EXPORT_ROOT/run-report.json")"
   [[ ! -e "$FACTORY_EXPORT_ROOT/guide/stale.txt" ]] || fail "repeated export retained stale guide content"
@@ -116,6 +123,6 @@ test_launcher_canonicalizes_paths_and_mounts_gitless_snapshot
 test_entrypoint_rejects_invalid_outcome
 test_entrypoint_rejects_invalid_slug
 test_failed_outcome_clears_prior_guide
-test_non_guide_outcome_clears_prior_guide
+test_null_identity_outcome_clears_prior_guide
 test_selected_guide_replaces_export_without_nesting
 rm -rf "$TMP"

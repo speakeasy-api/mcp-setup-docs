@@ -6,6 +6,7 @@ INPUT_ROOT=${FACTORY_INPUT_ROOT:-/input}
 WORKSPACE_ROOT=${FACTORY_WORKSPACE_ROOT:-/workspace}
 EXPORT_ROOT=${FACTORY_EXPORT_ROOT:-/export}
 KIT_HOME=${FACTORY_KIT_HOME:-/tmp/kit-home}
+REPORT_VALIDATOR=${FACTORY_REPORT_VALIDATOR:-/usr/local/bin/validate-report}
 
 test -r "$INPUT_ROOT/issue.json"
 test -r "$INPUT_ROOT/catalog.json"
@@ -25,8 +26,7 @@ KIT_BIN=${KIT_BIN:-kit}
   --mcp-config "$WORKSPACE_ROOT/factory/mcp/exa.json" \
   "$(cat "$WORKSPACE_ROOT/factory/coordinator.md")"
 test -s "$WORKSPACE_ROOT/.factory/run-report.json"
-jq -e '.outcome | IN("converged", "awaiting_scope", "blocked", "failed")' \
-  "$WORKSPACE_ROOT/.factory/run-report.json" >/dev/null
+"$REPORT_VALIDATOR" "$WORKSPACE_ROOT/.factory/run-report.json"
 outcome="$(jq -r '.outcome' "$WORKSPACE_ROOT/.factory/run-report.json")"
 slug="$(jq -r '.slug // empty' "$WORKSPACE_ROOT/.factory/run-report.json")"
 if [[ -n "$slug" && "$outcome" != failed ]]; then

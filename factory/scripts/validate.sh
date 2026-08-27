@@ -148,32 +148,7 @@ check_git_paths() {
   [[ "$invalid" == false ]] || fatal "repository has changed paths outside ${allowed_prefix:-the allowed guide path}"
 }
 
-[[ -f "$report" && ! -L "$report" ]] || fatal "run-report.json must be a regular file"
-jq -e '
-  def nonempty_strings: all(.[]; type == "string" and length > 0);
-  (keys | sort) == (["schema_version","outcome","provider","slug","persona","summary","open_questions","blockers","nits","review_rounds","artifacts"] | sort) and
-  .schema_version == 1 and
-  (.outcome | IN("converged","awaiting_scope","blocked","failed")) and
-  ((.provider == null) or (.provider | type == "string" and length > 0)) and
-  ((.slug == null) or (.slug | type == "string" and test("^[a-z0-9]+(-[a-z0-9]+)*$"))) and
-  ((.persona == null) or (.persona | type == "string" and length > 0)) and
-  (.summary | type == "string" and length > 0) and
-  (.open_questions | type == "array" and nonempty_strings) and
-  (.blockers | type == "array" and nonempty_strings) and
-  (.nits | type == "array" and nonempty_strings) and
-  (.review_rounds | type == "number" and floor == . and . >= 0 and . <= 3) and
-  (.artifacts | type == "array" and length == (unique | length) and all(.[]; IN("research.md","meta.yaml","external.md","speakeasy.md"))) and
-  (if (.provider == null or .slug == null or .persona == null) then
-     (.outcome | IN("blocked","failed")) and (.artifacts | length == 0)
-   else true end) and
-  (if .outcome == "converged" then
-     (.blockers | length == 0) and (["research.md","meta.yaml","external.md","speakeasy.md"] - .artifacts | length == 0)
-   elif .outcome == "awaiting_scope" then
-     (["research.md","meta.yaml"] - .artifacts | length == 0)
-   elif .outcome == "failed" then
-     (.artifacts | length == 0)
-   else true end)
-' "$report" >/dev/null || fatal "run-report.json failed validation"
+"$script_root/factory/scripts/validate-report.sh" "$report" || fatal "run-report.json failed validation"
 
 outcome=$(jq -r '.outcome' "$report")
 slug=$(jq -r '.slug // empty' "$report")
