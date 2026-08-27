@@ -2,16 +2,71 @@
 set -euo pipefail
 
 [[ $# -eq 2 ]] || { printf 'usage: validate.sh <export-dir> <repo-root>\n' >&2; exit 2; }
-export_dir=$1
-repo_root=$2
+script_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+export_dir="$(cd "$1" && pwd -P)"
+repo_root="$(cd "$2" && pwd -P)"
 report="$export_dir/run-report.json"
 guide_dir="$export_dir/guide"
-script_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+guides_dir="$repo_root/guides"
+guides_physical=
 
-die() {
+stage_dir=
+backup_dir=
+diff_file=
+untracked_file=
+tree_file=
+target_displaced=false
+new_installed=false
+transaction_complete=false
+slug=
+
+fatal() {
   printf 'validate: %s\n' "$*" >&2
   exit 1
 }
+
+verify_guides_dir() {
+  local current
+  [[ -d "$guides_dir" && ! -L "$guides_dir" ]] || return 1
+  current="$(cd "$guides_dir" && pwd -P)" || return 1
+  [[ "$current" == "$guides_physical" ]]
+}
+
+cleanup_transaction() {
+  local status=$?
+  trap - EXIT HUP INT TERM
+  if [[ "$transaction_complete" != true && -n "$guides_physical" ]]; then
+    cd "$guides_physical" 2>/dev/null || true
+    if [[ "$new_installed" == true && -n "$slug" ]]; then
+      rm -rf -- "$slug" || true
+      new_installed=false
+    fi
+    if [[ "$target_displaced" == true && -n "$backup_dir" ]]; then
+      if [[ -e "$backup_dir/target" || -L "$backup_dir/target" ]]; then
+        if ! mv -- "$backup_dir/target" "$slug"; then
+          printf 'validate: CRITICAL: could not restore previous guide from %s/target\n' "$backup_dir" >&2
+          status=1
+        else
+          target_displaced=false
+        fi
+      elif [[ -e "$slug" || -L "$slug" ]]; then
+        target_displaced=false
+      fi
+    fi
+  fi
+  [[ -z "$stage_dir" ]] || rm -rf -- "$stage_dir" || true
+  if [[ "$target_displaced" != true && -n "$backup_dir" ]]; then
+    rm -rf -- "$backup_dir" || true
+  fi
+  [[ -z "$diff_file" ]] || rm -f -- "$diff_file" || true
+  [[ -z "$untracked_file" ]] || rm -f -- "$untracked_file" || true
+  [[ -z "$tree_file" ]] || rm -f -- "$tree_file" || true
+  exit "$status"
+}
+trap cleanup_transaction EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 write_output() {
   local name=$1 value=$2 delimiter
@@ -23,11 +78,77 @@ write_output() {
   printf '%s<<%s\n%s\n%s\n' "$name" "$delimiter" "$value" "$delimiter" >>"$GITHUB_OUTPUT"
 }
 
-[[ -d "$export_dir" ]] || die "export directory does not exist"
-[[ -d "$repo_root" ]] || die "repository root does not exist"
-[[ -f "$report" && ! -L "$report" ]] || die "run-report.json must be a regular file"
+validate_tree() {
+  local root=$1 path name parent
+  [[ ! -L "$root" ]] || fatal "guide export must not be a symlink"
+  if [[ ! -e "$root" ]]; then
+    return 0
+  fi
+  [[ -d "$root" ]] || fatal "guide export must be a directory"
+  tree_file=$(mktemp) || fatal "could not create guide tree capture"
+  if ! find "$root" -mindepth 1 -print0 >"$tree_file"; then
+    rm -f "$tree_file"
+    tree_file=
+    fatal "could not scan guide tree"
+  fi
+  while IFS= read -r -d '' path; do
+    name=${path##*/}
+    parent=${path%/*}
+    [[ "$parent" == "$root" && -f "$path" && ! -L "$path" ]] || fatal "unexpected guide entry: $path"
+    case "$name" in
+      research.md|meta.yaml|external.md|speakeasy.md) ;;
+      *) fatal "unexpected guide artifact: $name" ;;
+    esac
+  done <"$tree_file"
+  rm -f "$tree_file"
+  tree_file=
+}
 
-# Keep this strict shape check aligned with factory/schemas/run-report.schema.json.
+validate_artifacts() {
+  local root=$1 name listed present
+  for name in research.md meta.yaml external.md speakeasy.md; do
+    if jq -e --arg name "$name" '.artifacts | index($name) != null' "$report" >/dev/null; then
+      listed=yes
+    else
+      listed=no
+    fi
+    if [[ -f "$root/$name" && ! -L "$root/$name" ]]; then
+      present=yes
+    else
+      present=no
+    fi
+    [[ "$listed" == "$present" ]] || fatal "report/artifact mismatch for $name"
+  done
+}
+
+check_git_paths() {
+  local allowed_prefix=$1 backup_prefix='' path='' invalid=false
+  diff_file=$(mktemp) || fatal "could not create Git diff capture"
+  untracked_file=$(mktemp) || fatal "could not create Git untracked capture"
+  if ! git -C "$repo_root" diff --name-only -z HEAD -- >"$diff_file"; then
+    fatal "git diff failed"
+  fi
+  if ! git -C "$repo_root" ls-files --others --exclude-standard -z >"$untracked_file"; then
+    fatal "git untracked scan failed"
+  fi
+  if [[ -n "$backup_dir" ]]; then
+    backup_prefix="guides/${backup_dir#./}/"
+  fi
+  for capture in "$diff_file" "$untracked_file"; do
+    while IFS= read -r -d '' path; do
+      if [[ -n "$backup_prefix" && "$path" == "$backup_prefix"* ]]; then
+        continue
+      fi
+      if [[ -n "$allowed_prefix" && "$path" == "$allowed_prefix"* ]]; then
+        continue
+      fi
+      invalid=true
+    done <"$capture"
+  done
+  [[ "$invalid" == false ]] || fatal "repository has changed paths outside ${allowed_prefix:-the allowed guide path}"
+}
+
+[[ -f "$report" && ! -L "$report" ]] || fatal "run-report.json must be a regular file"
 jq -e '
   def nonempty_strings: all(.[]; type == "string" and length > 0);
   (keys | sort) == (["schema_version","outcome","provider","slug","persona","summary","open_questions","blockers","nits","review_rounds","artifacts"] | sort) and
@@ -52,91 +173,85 @@ jq -e '
    elif .outcome == "failed" then
      (.artifacts | length == 0)
    else true end)
-' "$report" >/dev/null || die "run-report.json failed validation"
+' "$report" >/dev/null || fatal "run-report.json failed validation"
 
 outcome=$(jq -r '.outcome' "$report")
 slug=$(jq -r '.slug // empty' "$report")
 provider=$(jq -r '.provider // empty' "$report")
 persona=$(jq -r '.persona // empty' "$report")
+
+# Validate the export tree even for outcomes that install nothing.
+validate_tree "$guide_dir"
+validate_artifacts "$guide_dir"
+
+[[ -d "$repo_root/.git" || -f "$repo_root/.git" ]] || fatal "repository root is not a Git worktree"
+[[ -d "$guides_dir" && ! -L "$guides_dir" ]] || fatal "repository guides path must be a physical directory"
+guides_physical="$(cd "$guides_dir" && pwd -P)" || fatal "could not resolve guides directory"
+[[ "$guides_physical" == "$repo_root/guides" ]] || fatal "repository guides path resolved outside the repository"
+verify_guides_dir || fatal "repository guides directory changed"
+cd "$guides_physical"
+
+if [[ "$outcome" == failed || ("$outcome" == blocked && -z "$slug") ]]; then
+  check_git_paths ""
+  transaction_complete=true
+  write_output outcome "$outcome"
+  write_output slug "$slug"
+  write_output provider "$provider"
+  write_output persona "$persona"
+  exit 0
+fi
+
+[[ -n "$slug" ]] || fatal "installing outcome requires a slug"
+if [[ "$outcome" == converged ]]; then
+  for name in research.md meta.yaml external.md speakeasy.md; do
+    [[ -f "$guide_dir/$name" ]] || fatal "converged export is missing $name"
+  done
+elif [[ "$outcome" == awaiting_scope ]]; then
+  for name in research.md meta.yaml; do
+    [[ -f "$guide_dir/$name" ]] || fatal "awaiting_scope export is missing $name"
+  done
+elif [[ "$outcome" != blocked ]]; then
+  fatal "unsupported outcome: $outcome"
+fi
+
+verify_guides_dir || fatal "repository guides directory changed before staging"
+stage_dir=$(mktemp -d "./.factory-stage.XXXXXX") || fatal "could not create same-filesystem stage"
+backup_dir=$(mktemp -d "./.factory-backup.XXXXXX") || fatal "could not create same-filesystem backup"
+cp -a "$guide_dir/." "$stage_dir/" || fatal "could not copy export to stage"
+
+# The export may have changed during copying; trust only this staged snapshot.
+validate_tree "$guides_physical/${stage_dir#./}"
+validate_artifacts "$guides_physical/${stage_dir#./}"
+
+if [[ -f "$stage_dir/meta.yaml" ]]; then
+  if [[ -f "$stage_dir/research.md" && -f "$stage_dir/external.md" && -f "$stage_dir/speakeasy.md" ]]; then
+    (cd "$script_root/go" && go run ./cmd/lint-guide "$guides_physical/${stage_dir#./}") || fatal "guide lint failed"
+  else
+    (cd "$script_root/go" && go run ./cmd/lint-guide --meta-only "$guides_physical/${stage_dir#./}") || fatal "guide metadata lint failed"
+  fi
+fi
+
+verify_guides_dir || fatal "repository guides directory changed before install"
+if [[ -e "$slug" || -L "$slug" ]]; then
+  target_displaced=true
+  mv -- "$slug" "$backup_dir/target" || fatal "could not displace existing guide"
+fi
+verify_guides_dir || fatal "repository guides directory changed during install"
+new_installed=true
+mv -- "$stage_dir" "$slug" || fatal "could not install staged guide"
+stage_dir=
+verify_guides_dir || fatal "repository guides directory changed after install"
+check_git_paths "guides/$slug/"
+verify_guides_dir || fatal "repository guides directory changed after Git checks"
+
+transaction_complete=true
+if [[ "$target_displaced" == true ]]; then
+  rm -rf -- "$backup_dir/target" || fatal "could not remove guide backup"
+  target_displaced=false
+fi
+rm -rf -- "$backup_dir" || fatal "could not remove transaction backup"
+backup_dir=
 write_output outcome "$outcome"
 write_output slug "$slug"
 write_output provider "$provider"
 write_output persona "$persona"
-
-if [[ "$outcome" == failed || ("$outcome" == blocked && -z "$slug") ]]; then
-  if [[ -d "$guide_dir" ]] && find "$guide_dir" -mindepth 1 -print -quit | grep -q .; then
-    die "non-installing outcome exported guide files"
-  fi
-  exit 0
-fi
-
-[[ -n "$slug" ]] || die "installing outcome requires a slug"
-[[ -d "$guide_dir" && ! -L "$guide_dir" ]] || die "guide export must be a directory"
-if find "$guide_dir" -type l -print -quit | grep -q .; then
-  die "symlinks are not allowed in guide exports"
-fi
-while IFS= read -r -d '' path; do
-  name=${path##*/}
-  [[ "${path%/*}" == "$guide_dir" && -f "$path" ]] || die "unexpected guide entry: $path"
-  case "$name" in
-    research.md|meta.yaml|external.md|speakeasy.md) ;;
-    *) die "unexpected guide artifact: $name" ;;
-  esac
-done < <(find "$guide_dir" -mindepth 1 -print0)
-
-for name in research.md meta.yaml external.md speakeasy.md; do
-  listed=$(jq -e --arg name "$name" '.artifacts | index($name) != null' "$report" >/dev/null && printf yes || printf no)
-  present=no
-  [[ -f "$guide_dir/$name" && ! -L "$guide_dir/$name" ]] && present=yes
-  [[ "$listed" == "$present" ]] || die "report/artifact mismatch for $name"
-done
-
-case "$outcome" in
-  converged) required=(research.md meta.yaml external.md speakeasy.md) ;;
-  awaiting_scope) required=(research.md meta.yaml) ;;
-  blocked) required=() ;;
-  *) die "unsupported outcome: $outcome" ;;
-esac
-for name in "${required[@]}"; do
-  [[ -f "$guide_dir/$name" ]] || die "$outcome export is missing $name"
-done
-
-staged=$(mktemp -d)
-backup=$(mktemp -d)
-cleanup() { rm -rf "$staged" "$backup"; }
-trap cleanup EXIT
-cp -a "$guide_dir/." "$staged/"
-
-if [[ -f "$staged/meta.yaml" ]]; then
-  lint_args=(--meta-only "$staged")
-  if [[ -f "$staged/external.md" && -f "$staged/speakeasy.md" ]]; then
-    lint_args=("$staged")
-  fi
-  (cd "$script_root/go" && go run ./cmd/lint-guide "${lint_args[@]}") || die "guide lint failed"
-fi
-
-[[ -d "$repo_root/.git" || -f "$repo_root/.git" ]] || die "repository root is not a Git worktree"
-target="$repo_root/guides/$slug"
-mkdir -p "$repo_root/guides"
-had_target=false
-if [[ -e "$target" || -L "$target" ]]; then
-  mv "$target" "$backup/target"
-  had_target=true
-fi
-mv "$staged" "$target"
-staged=$(mktemp -d)
-
-invalid_diff=false
-while IFS= read -r -d '' path; do
-  case "$path" in
-    "guides/$slug/"*) ;;
-    *) invalid_diff=true ;;
-  esac
-done < <({ git -C "$repo_root" diff --name-only -z HEAD --; git -C "$repo_root" ls-files --others --exclude-standard -z; })
-if [[ "$invalid_diff" == true ]]; then
-  rm -rf "$target"
-  if [[ "$had_target" == true ]]; then
-    mv "$backup/target" "$target"
-  fi
-  die "repository has changed paths outside guides/$slug/"
-fi

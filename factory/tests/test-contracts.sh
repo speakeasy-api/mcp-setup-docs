@@ -166,6 +166,9 @@ VALIDATOR="$ROOT/factory/scripts/validate.sh"
 VALIDATE_TMP="$TMP/validate"
 EXPORT="$VALIDATE_TMP/export"
 REPO="$VALIDATE_TMP/repo"
+REAL_GIT=$(command -v git)
+REAL_CP=$(command -v cp)
+REAL_MV=$(command -v mv)
 
 reset_validation_fixture() {
   rm -rf "$VALIDATE_TMP"
@@ -176,6 +179,22 @@ reset_validation_fixture() {
   git -C "$REPO" config user.name Test
   git -C "$REPO" add .
   git -C "$REPO" commit -qm baseline
+  mkdir -p "$VALIDATE_TMP/bin"
+}
+
+make_validation_fake() {
+  local name=$1 body=$2
+  {
+    printf '%s\n' '#!/usr/bin/env bash' 'set -euo pipefail'
+    printf '%s\n' "$body"
+  } >"$VALIDATE_TMP/bin/$name"
+  chmod +x "$VALIDATE_TMP/bin/$name"
+}
+
+run_validator() {
+  export REAL_GIT REAL_CP REAL_MV REPO
+  PATH="$VALIDATE_TMP/bin:$PATH" GITHUB_OUTPUT="$VALIDATE_TMP/outputs" \
+    "$VALIDATOR" "$EXPORT" "$REPO"
 }
 
 make_export_report() {
@@ -191,9 +210,11 @@ copy_valid_guide() {
 }
 
 expect_validation_failure() {
-  if GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO" >/dev/null 2>&1; then
+  rm -f "$VALIDATE_TMP/outputs"
+  if run_validator >/dev/null 2>&1; then
     fail "validator accepted invalid export: $1"
   fi
+  [[ ! -s "$VALIDATE_TMP/outputs" ]] || fail "failed validation wrote GitHub outputs: $1"
 }
 
 test_validation_rejects_malformed_and_traversal_reports() {
@@ -295,6 +316,81 @@ test_validation_installs_safe_blocked_partial_only() {
   [[ -z "$(find "$REPO/guides" -mindepth 1 -print -quit)" ]] || fail "failed report installed files"
 }
 
+test_validation_rejects_git_failure_and_restores_target() {
+  reset_validation_fixture
+  mkdir -p "$REPO/guides/github"
+  printf 'keep\n' >"$REPO/guides/github/stale.txt"
+  git -C "$REPO" add . && git -C "$REPO" commit -qm stale
+  make_export_report converged
+  copy_valid_guide
+  # shellcheck disable=SC2016
+  make_validation_fake git 'if [[ "$*" == *"diff --name-only"* ]]; then exit 71; fi; exec "$REAL_GIT" "$@"'
+  expect_validation_failure "Git diff command failure"
+  assert_eq keep "$(cat "$REPO/guides/github/stale.txt")"
+}
+
+test_validation_restores_after_install_move_failure() {
+  reset_validation_fixture
+  mkdir -p "$REPO/guides/github"
+  printf 'keep\n' >"$REPO/guides/github/stale.txt"
+  git -C "$REPO" add . && git -C "$REPO" commit -qm stale
+  make_export_report converged
+  copy_valid_guide
+  # shellcheck disable=SC2016
+  make_validation_fake mv 'dest=${!#}; if [[ "$*" == *".factory-stage."* && "$dest" == "github" ]]; then exit 72; fi; exec "$REAL_MV" "$@"'
+  expect_validation_failure "install move after target displacement"
+  assert_eq keep "$(cat "$REPO/guides/github/stale.txt")"
+}
+
+test_validation_rejects_tracked_guides_symlink_escape() {
+  reset_validation_fixture
+  escape="$VALIDATE_TMP/escape"
+  rmdir "$REPO/guides"
+  mkdir "$escape"
+  ln -s "$escape" "$REPO/guides"
+  git -C "$REPO" add guides && git -C "$REPO" commit -qm symlink
+  make_export_report converged
+  copy_valid_guide
+  expect_validation_failure "tracked guides symlink escape"
+  [[ ! -e "$escape/github" ]] || fail "guides symlink redirected installation"
+}
+
+test_validation_revalidates_staged_snapshot() {
+  reset_validation_fixture
+  make_export_report converged
+  copy_valid_guide
+  # shellcheck disable=SC2016
+  make_validation_fake cp '"$REAL_CP" "$@"; dest=${!#}; case "$dest" in *factory-stage*) ln -s research.md "$dest/late-link" ;; esac'
+  expect_validation_failure "staged snapshot mutation"
+  [[ ! -e "$REPO/guides/github" ]] || fail "mutated stage was installed"
+}
+
+test_validation_rejects_no_install_guide_symlink() {
+  reset_validation_fixture
+  make_export_report failed NULL '[]'
+  rmdir "$EXPORT/guide"
+  mkdir "$VALIDATE_TMP/empty-external"
+  ln -s "$VALIDATE_TMP/empty-external" "$EXPORT/guide"
+  expect_validation_failure "failed export guide symlink"
+}
+
+test_validation_blocked_full_lint_requires_research() {
+  reset_validation_fixture
+  make_export_report blocked github '["meta.yaml","external.md","speakeasy.md"]'
+  cp "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/"
+  printf 'invalid setup\n' >"$EXPORT/guide/external.md"
+  printf 'invalid setup\n' >"$EXPORT/guide/speakeasy.md"
+  run_validator
+  [[ -f "$REPO/guides/github/meta.yaml" ]] || fail "blocked metadata-only validation did not install"
+
+  reset_validation_fixture
+  make_export_report blocked github '["research.md","meta.yaml","external.md","speakeasy.md"]'
+  cp "$ROOT/guides/github/research.md" "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/"
+  printf 'invalid setup\n' >"$EXPORT/guide/external.md"
+  printf 'invalid setup\n' >"$EXPORT/guide/speakeasy.md"
+  expect_validation_failure "blocked complete guide skipped full lint"
+}
+
 test_validation_rejects_preexisting_out_of_scope_diff() {
   reset_validation_fixture
   printf 'changed
@@ -311,4 +407,10 @@ test_validation_rejects_symlinks_and_unexpected_files
 test_validation_preserves_stale_target_until_success
 test_validation_validates_awaiting_scope_metadata
 test_validation_installs_safe_blocked_partial_only
+test_validation_rejects_git_failure_and_restores_target
+test_validation_restores_after_install_move_failure
+test_validation_rejects_tracked_guides_symlink_escape
+test_validation_revalidates_staged_snapshot
+test_validation_rejects_no_install_guide_symlink
+test_validation_blocked_full_lint_requires_research
 test_validation_rejects_preexisting_out_of_scope_diff
