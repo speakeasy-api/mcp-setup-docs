@@ -58,10 +58,13 @@ test_run_kit_uses_only_allowed_mounts() {
   "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$TMP/export"
   local args
   args="$(cat "$TMP/docker.args")"
-  assert_contains "$ROOT:/repo:ro" "$args"
+  assert_contains "/repo:ro" "$args"
   assert_contains "$TMP/issue.json:/input/issue.json:ro" "$args"
   assert_contains "$TMP/catalog.json:/input/catalog.json:ro" "$args"
   assert_contains "$TMP/export:/export" "$args"
+  if grep -Fq "$ROOT:/repo:ro" "$TMP/docker.args"; then
+    fail "repository root was mounted directly"
+  fi
   ! grep -qE '/var/run/docker.sock|/[.]git|/[.]ssh|:/root|:/home' "$TMP/docker.args"
 }
 
