@@ -18,184 +18,146 @@ jobs:
       pull-requests: write
 
     env:
-      ISSUE_NUMBER: ${{ github.event.issue.number }}
-      ISSUE_TITLE: ${{ github.event.issue.title }}
-      ISSUE_BODY: ${{ github.event.issue.body }}
-      GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
-      GH_REPO: ${{ github.repository }}
+      TMPDIR: ${{ runner.temp }}
 
     steps:
-      # Factory CLI lives in pipeline/; checkout main first so preflight can run
-      # in TypeScript. Resume checkouts switch branch after preflight.
       - name: Checkout
-        id: bootstrap_checkout
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        id: bootstrap_node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: pipeline/package-lock.json
-
-      - name: Install dependencies
-        id: bootstrap_install
-        working-directory: pipeline
-        run: npm ci
-
-      - name: Ensure factory labels
-        working-directory: pipeline
-        run: npm run factory -- ensure-labels
-
-      - name: Preflight existing factory PR
-        id: preflight
-        working-directory: pipeline
-        run: npm run factory -- preflight
-
-      - name: Refuse non-factory PR
-        if: steps.preflight.outputs.refused == 'true'
-        working-directory: pipeline
+      - name: Set up publisher
+        id: publisher_setup
         env:
-          REFUSED_PR_URL: ${{ steps.preflight.outputs.refused_pr_url }}
-        run: npm run factory -- refuse
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          printf '%s\n' 'Publisher setup failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          bash factory/scripts/publish.sh ensure-labels
+
+      - name: Preflight existing factory work
+        id: preflight
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          printf '%s\n' 'Preflight failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          bash factory/scripts/preflight.sh
+
+      - name: Refuse non-factory pull request
+        if: steps.preflight.outputs.refused == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: bash factory/scripts/publish.sh refuse '${{ steps.preflight.outputs.refused_pr_url }}'
+
+      - name: Checkout resume branch and sync main
+        if: steps.preflight.outputs.refused != 'true' && steps.preflight.outputs.resume == 'true'
+        env:
+          RESUME_BRANCH: ${{ steps.preflight.outputs.resume_branch }}
+        run: |
+          printf '%s\n' 'Resume branch synchronization failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          git fetch origin main "$RESUME_BRANCH"
+          git checkout -B "$RESUME_BRANCH" "origin/$RESUME_BRANCH"
+          git merge --no-edit origin/main
 
       - name: Transition labels
         if: steps.preflight.outputs.refused != 'true'
-        working-directory: pipeline
-        run: npm run factory -- transition-labels
-
-      # issues:labeled always runs the workflow from the default branch, so a
-      # stale resume branch (pre-rename layout, old tooling) will hard-fail at
-      # npm ci / factory. Checkout resume + merge main (node_modules from main
-      # install above stays on disk).
-      - name: Checkout resume branch and sync main
-        if: steps.preflight.outputs.refused != 'true' && steps.preflight.outputs.resume == 'true'
-        working-directory: pipeline
         env:
-          RESUME_BRANCH: ${{ steps.preflight.outputs.resume_branch }}
-        run: npm run factory -- checkout-resume
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          printf '%s\n' 'Label transition failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          bash factory/scripts/publish.sh transition
 
-      - name: Distill issue intent
-        id: distill
+      - name: Prepare issue input
         if: steps.preflight.outputs.refused != 'true'
-        working-directory: pipeline
         env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: npm run factory -- distill
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          printf '%s\n' 'Issue input preparation failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          bash factory/scripts/prepare-input.sh '${{ github.event.issue.number }}' "$RUNNER_TEMP/issue.json"
 
-      - name: Comment resolved intent
-        if: steps.preflight.outputs.refused != 'true' && success()
-        working-directory: pipeline
+      - name: Prepare catalog snapshot
+        if: steps.preflight.outputs.refused != 'true'
         env:
-          SLUG: ${{ steps.distill.outputs.slug }}
-          PROVIDER: ${{ steps.distill.outputs.provider }}
-          PERSONA: ${{ steps.distill.outputs.persona }}
-          NOTES: ${{ steps.distill.outputs.notes }}
-          RESUME: ${{ steps.preflight.outputs.resume }}
-          RESUME_PR_URL: ${{ steps.preflight.outputs.resume_pr_url }}
-          RESUME_BRANCH: ${{ steps.preflight.outputs.resume_branch }}
-        run: npm run factory -- comment-resolved
-
-      - name: Create branch
-        id: branch
-        if: steps.preflight.outputs.refused != 'true' && success()
-        working-directory: pipeline
-        env:
-          SLUG: ${{ steps.distill.outputs.slug }}
-          RESUME: ${{ steps.preflight.outputs.resume }}
-          RESUME_BRANCH: ${{ steps.preflight.outputs.resume_branch }}
-        run: npm run factory -- create-branch
-
-      - name: Draft guide
-        id: draft
-        if: steps.preflight.outputs.refused != 'true' && success()
-        working-directory: pipeline
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PULSE_REGISTRY_KEY: ${{ secrets.PULSE_REGISTRY_KEY }}
           PULSE_REGISTRY_TENANT: ${{ secrets.PULSE_REGISTRY_TENANT }}
-          SLUG: ${{ steps.distill.outputs.slug }}
-          PERSONA: ${{ steps.distill.outputs.persona }}
-          NOTES: ${{ steps.distill.outputs.notes }}
-        run: npm run factory -- draft
-
-      - name: Commit and push
-        id: push
-        if: steps.preflight.outputs.refused != 'true' && success()
-        working-directory: pipeline
-        env:
-          BRANCH: ${{ steps.branch.outputs.name }}
-          SLUG: ${{ steps.distill.outputs.slug }}
-          OUTCOME: ${{ steps.draft.outputs.outcome }}
-        run: npm run factory -- commit-push
-
-      - name: Open or update PR
-        id: open_pr
-        if: steps.preflight.outputs.refused != 'true' && success()
-        working-directory: pipeline
-        env:
-          BRANCH: ${{ steps.branch.outputs.name }}
-          SLUG: ${{ steps.distill.outputs.slug }}
-          PROVIDER: ${{ steps.distill.outputs.provider }}
-          OUTCOME: ${{ steps.draft.outputs.outcome }}
-          RESUME: ${{ steps.preflight.outputs.resume }}
-          RESUME_PR_NUMBER: ${{ steps.preflight.outputs.resume_pr_number }}
-          RESUME_PR_URL: ${{ steps.preflight.outputs.resume_pr_url }}
-        run: npm run factory -- open-pr
-
-      - name: Comment pipeline review or scope check on issue
-        if: steps.preflight.outputs.refused != 'true' && success()
-        working-directory: pipeline
-        env:
-          PR_URL: ${{ steps.open_pr.outputs.pr_url }}
-          OUTCOME: ${{ steps.draft.outputs.outcome }}
-          SLUG: ${{ steps.distill.outputs.slug }}
-        run: npm run factory -- comment-review
-
-      - name: Mark blocked on failure
-        if: >-
-          steps.preflight.outcome == 'success' &&
-          steps.preflight.outputs.refused != 'true' &&
-          failure()
-        working-directory: pipeline
-        env:
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          SLUG: ${{ steps.distill.outputs.slug }}
-          PUSHED: ${{ steps.push.outputs.pushed }}
-          BRANCH: ${{ steps.branch.outputs.name }}
-        run: npm run factory -- mark-blocked
-
-      - name: Always remove in-progress
-        if: >-
-          always() &&
-          steps.preflight.outcome == 'success' &&
-          steps.preflight.outputs.refused != 'true'
-        working-directory: pipeline
-        run: npm run factory -- cleanup
-
-      # Pure gh — no Node. Covers checkout / setup-node / npm ci / early factory
-      # failures before preflight succeeds (when mark-blocked cannot run).
-      - name: Bootstrap failure fallback
-        if: failure() && steps.preflight.outcome != 'success'
-        env:
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PULSE_REGISTRY_URL: ${{ secrets.PULSE_REGISTRY_URL }}
         run: |
-          set -euo pipefail
-          gh label create "guide:blocked" --color "D73A4A" --description "Guide draft factory blocked" 2>/dev/null || true
-          gh issue edit "$ISSUE_NUMBER" --remove-label "guide:draft" || true
-          gh issue edit "$ISSUE_NUMBER" --remove-label "guide:in-progress" || true
-          gh issue edit "$ISSUE_NUMBER" --add-label "guide:blocked" || true
-          body_file="${RUNNER_TEMP:-/tmp}/bootstrap-fail.md"
+          printf '%s\n' 'Catalog snapshot preparation failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          bash factory/scripts/prepare-catalog.sh "$RUNNER_TEMP/catalog.json"
+
+      - name: Run Kit
+        if: steps.preflight.outputs.refused != 'true'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          printf '%s\n' 'Kit execution failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          bash factory/scripts/run-kit.sh \
+            "$RUNNER_TEMP/issue.json" \
+            "$RUNNER_TEMP/catalog.json" \
+            "$RUNNER_TEMP/export"
+          cp "$RUNNER_TEMP/export/run-report.json" "$RUNNER_TEMP/run-report.json"
+
+      - name: Validate export
+        if: steps.preflight.outputs.refused != 'true'
+        run: |
+          printf '%s\n' 'Factory export validation failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          bash factory/scripts/validate.sh "$RUNNER_TEMP/export" "$GITHUB_WORKSPACE"
+
+      - name: Publish guide
+        if: steps.preflight.outputs.refused != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          RESUME: ${{ steps.preflight.outputs.resume }}
+          RESUME_BRANCH: ${{ steps.preflight.outputs.resume_branch }}
+          RESUME_PR_NUMBER: ${{ steps.preflight.outputs.resume_pr_number }}
+        run: |
+          printf '%s\n' 'Guide publication failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          bash factory/scripts/publish.sh publish "$RUNNER_TEMP/run-report.json"
+
+      - name: Report failure
+        if: failure() && steps.publisher_setup.outcome == 'success' && steps.preflight.outputs.refused != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: bash factory/scripts/publish.sh fail "$RUNNER_TEMP/failure-reason.txt"
+
+      - name: Cleanup labels
+        if: always() && steps.publisher_setup.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: bash factory/scripts/publish.sh cleanup
+
+      - name: Bootstrap failure fallback
+        if: always() && steps.publisher_setup.outcome != 'success'
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set +e
+          gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --remove-label guide:draft
+          gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --remove-label guide:in-progress
+          gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --add-label guide:blocked
           printf '%s\n' \
-            '`guide:draft` bootstrap failed before the factory CLI could run (checkout / Node / npm ci / early factory step).' \
-            '' \
-            "**Workflow run:** ${RUN_URL}" \
-            '' \
-            'Fix the failure, then re-add `guide:draft`.' \
-            > "$body_file"
-          gh issue comment "$ISSUE_NUMBER" --body-file "$body_file"
+            '## Guide factory failed during publisher setup' '' \
+            "**Workflow run:** https://github.com/${GH_REPO}/actions/runs/${GITHUB_RUN_ID}" \
+            >"$RUNNER_TEMP/bootstrap-comment.md"
+          gh issue comment "$ISSUE_NUMBER" --repo "$GH_REPO" \
+            --body-file "$RUNNER_TEMP/bootstrap-comment.md"

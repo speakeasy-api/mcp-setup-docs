@@ -1,0 +1,51 @@
+name: Factory CI
+
+on:
+  pull_request:
+    paths:
+      - 'factory/**'
+      - '.github/workflows/guide-draft.yml'
+      - '.github/workflows/factory-ci.yml'
+      - 'go/internal/guidecheck/**'
+      - 'go/cmd/lint-guide/**'
+      - 'FACTORY.md'
+      - 'mise.toml'
+  push:
+    branches: [main]
+    paths:
+      - 'factory/**'
+      - '.github/workflows/guide-draft.yml'
+      - '.github/workflows/factory-ci.yml'
+      - 'go/internal/guidecheck/**'
+      - 'go/cmd/lint-guide/**'
+      - 'FACTORY.md'
+      - 'mise.toml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go/go.mod
+
+      - name: Factory tests
+        run: bash factory/tests/run.sh
+
+      - name: Shellcheck
+        run: shellcheck factory/scripts/*.sh factory/tests/*.sh
+
+      - name: Guidecheck tests
+        working-directory: go
+        run: go test ./internal/guidecheck ./cmd/lint-guide
+
+      - name: Build factory image
+        run: |
+          docker build --build-arg KIT_VERSION=0.1.98 \
+            --build-arg KIT_SHA256=7d14561469ced8af21df1075a9071d04a7bad1b1c5ff90d685142d3231abae85 \
+            -f factory/Dockerfile .
