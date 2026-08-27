@@ -452,7 +452,7 @@ test_validation_rejects_staged_artifact_mismatch() {
   expect_validation_failure "staged artifact mismatch"
 }
 
-test_validation_backup_cleanup_failure_rolls_back() {
+test_validation_backup_cleanup_failure_warns_after_commit() {
   reset_validation_fixture
   mkdir -p "$REPO/guides/github"
   printf 'keep\n' >"$REPO/guides/github/stale.txt"
@@ -461,8 +461,30 @@ test_validation_backup_cleanup_failure_rolls_back() {
   copy_valid_guide
   # shellcheck disable=SC2016
   make_validation_fake rm 'if [[ "$*" == *".factory-backup."* ]]; then exit 74; fi; exec "$REAL_RM" "$@"'
-  expect_validation_failure "backup cleanup failure"
-  assert_eq keep "$(cat "$REPO/guides/github/stale.txt")"
+  output=$(run_validator 2>&1) || fail "pre-deletion backup cleanup failure rejected a committed guide"
+  assert_contains "warning: committed guide; leftover backup: ./.factory-backup." "$output"
+  [[ -f "$REPO/guides/github/meta.yaml" && ! -e "$REPO/guides/github/stale.txt" ]] || fail "valid new guide was rolled back after backup cleanup failure"
+  grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "cleanup warning suppressed GitHub outputs"
+  find "$REPO/guides" -maxdepth 1 -type d -name '.factory-backup.*' -print -quit | grep -q . || fail "warning did not name a leftover backup"
+}
+
+test_validation_partial_backup_cleanup_failure_keeps_commit() {
+  reset_validation_fixture
+  mkdir -p "$REPO/guides/github"
+  printf 'remove me\n' >"$REPO/guides/github/stale.txt"
+  printf 'old backup content\n' >"$REPO/guides/github/preserve.txt"
+  git -C "$REPO" add . && git -C "$REPO" commit -qm stale
+  make_export_report converged
+  copy_valid_guide
+  # shellcheck disable=SC2016
+  make_validation_fake rm 'if [[ "$*" == *".factory-backup."* ]]; then backup=${!#}; "$REAL_RM" -f "$backup/target/stale.txt"; exit 75; fi; exec "$REAL_RM" "$@"'
+  output=$(run_validator 2>&1) || fail "partial backup cleanup failure rejected a committed guide"
+  assert_contains "warning: committed guide; leftover backup: ./.factory-backup." "$output"
+  for name in research.md meta.yaml external.md speakeasy.md; do
+    cmp "$EXPORT/guide/$name" "$REPO/guides/github/$name" || fail "partial cleanup damaged installed $name"
+  done
+  [[ ! -e "$REPO/guides/github/stale.txt" && ! -e "$REPO/guides/github/preserve.txt" ]] || fail "old guide was spuriously restored"
+  grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "partial cleanup warning suppressed GitHub outputs"
 }
 
 test_validation_rejects_preexisting_out_of_scope_diff() {
@@ -491,5 +513,6 @@ test_validation_rejects_ls_files_failure_and_restores_target
 test_validation_rolls_back_in_anchored_guides_after_path_swap
 test_validation_rejects_staged_nested_and_nonregular_entries
 test_validation_rejects_staged_artifact_mismatch
-test_validation_backup_cleanup_failure_rolls_back
+test_validation_backup_cleanup_failure_warns_after_commit
+test_validation_partial_backup_cleanup_failure_keeps_commit
 test_validation_rejects_preexisting_out_of_scope_diff

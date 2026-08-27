@@ -250,14 +250,25 @@ verify_guides_dir || fatal "repository guides directory changed after install"
 check_git_paths "guides/$slug/"
 verify_guides_dir || fatal "repository guides directory changed after Git checks"
 
-if [[ "$target_displaced" == true ]]; then
-  rm -rf -- "$backup_dir" || fatal "could not remove guide backup"
-  target_displaced=false
-else
-  rmdir -- "$backup_dir" || fatal "could not remove transaction backup"
-fi
-backup_dir=
+# The new guide is committed once validation, install, and Git checks pass.
+# Destructive old-backup collection cannot be rollback-safe if it partially fails.
 transaction_complete=true
+target_displaced=false
+if [[ -e "$backup_dir/target" || -L "$backup_dir/target" ]]; then
+  if rm -rf -- "$backup_dir" 2>/dev/null; then
+    backup_dir=
+  else
+    printf 'validate: warning: committed guide; leftover backup: %s\n' "$backup_dir" >&2
+    backup_dir=
+  fi
+else
+  if rmdir -- "$backup_dir" 2>/dev/null; then
+    backup_dir=
+  else
+    printf 'validate: warning: committed guide; leftover backup: %s\n' "$backup_dir" >&2
+    backup_dir=
+  fi
+fi
 write_output outcome "$outcome"
 write_output slug "$slug"
 write_output provider "$provider"
