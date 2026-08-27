@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/speakeasy-api/mcp-setup-docs/go/internal/guidecheck"
@@ -45,11 +46,26 @@ func run(args []string, repoRoot string, stdout, stderr io.Writer) int {
 		return 1
 	}
 
-	var all []guidecheck.Finding
+	type target struct {
+		key  string
+		path string
+	}
+	targets := make([]target, 0, len(guideDirs))
 	for _, guideDir := range guideDirs {
-		findings, err := guidecheck.Check(repoRoot, guideDir)
+		key, err := filepath.Abs(guideDir)
 		if err != nil {
 			fmt.Fprintf(stderr, "%s: %v\n", guideDir, err)
+			return 1
+		}
+		targets = append(targets, target{key: filepath.Clean(key), path: guideDir})
+	}
+	sort.SliceStable(targets, func(i, j int) bool { return targets[i].key < targets[j].key })
+
+	var all []guidecheck.Finding
+	for _, target := range targets {
+		findings, err := guidecheck.Check(repoRoot, target.path)
+		if err != nil {
+			fmt.Fprintf(stderr, "%s: %v\n", target.key, err)
 			return 1
 		}
 		all = append(all, findings...)
@@ -65,7 +81,10 @@ func run(args []string, repoRoot string, stdout, stderr io.Writer) int {
 		}
 	} else {
 		for _, finding := range all {
-			fmt.Fprintf(stdout, "%s %s %s: %s\n", finding.Severity, finding.Target, finding.Where, finding.Problem)
+			if _, err := fmt.Fprintf(stdout, "%s %s %s: %s\n", finding.Severity, finding.Target, finding.Where, finding.Problem); err != nil {
+				fmt.Fprintln(stderr, err)
+				return 1
+			}
 		}
 	}
 	for _, finding := range all {

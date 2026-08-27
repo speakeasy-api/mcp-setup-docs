@@ -23,10 +23,9 @@ const (
 var (
 	anchorRE   = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
 	headingRE  = regexp.MustCompile(`^(#{1,6})[ \t]+(.+?)[ \t]*$`)
-	headingID  = regexp.MustCompile(`^(.*?)[ \t]*\{#([^}]+)\}[ \t]*$`)
+	headingID  = regexp.MustCompile(`^(.*?)[ \t]*\{#([a-z0-9-]+)\}[ \t]*$`)
 	templateRE = regexp.MustCompile(`\{\{[ \t]*([^}]+?)[ \t]*\}\}`)
 	setupRefRE = regexp.MustCompile(`(external|speakeasy)\.md#([a-z0-9-]+)`)
-	orderedRE  = regexp.MustCompile(`(?m)^[ \t]*[0-9]+\.[ \t]+`)
 	shotRE     = regexp.MustCompile(`(?i)<!--[ \t]*screenshot(?:-exception)?:`)
 	shotLineRE = regexp.MustCompile(`(?im)^screenshot:`)
 )
@@ -39,6 +38,9 @@ type Finding struct {
 	Problem    string `json:"problem"`
 	Suggestion string `json:"suggestion"`
 	Dimension  string `json:"dimension"`
+
+	sourcePath string
+	sourceLine int
 }
 
 type heading struct {
@@ -51,22 +53,50 @@ type heading struct {
 
 // Check validates the authored files in guideDir using the committed schema under repoRoot.
 func Check(repoRoot, guideDir string) ([]Finding, error) {
+	repoRoot, err := filepath.Abs(repoRoot)
+	if err != nil {
+		return nil, fmt.Errorf("resolve repo root: %w", err)
+	}
+	guideDir, err = filepath.Abs(guideDir)
+	if err != nil {
+		return nil, fmt.Errorf("resolve guide directory: %w", err)
+	}
+
 	var findings []Finding
 	externalPath := filepath.Join(guideDir, "external.md")
 	speakeasyPath := filepath.Join(guideDir, "speakeasy.md")
 	metaPath := filepath.Join(guideDir, "meta.yaml")
 	researchPath := filepath.Join(guideDir, "research.md")
+	legacyPath := filepath.Join(guideDir, "setup.md")
 
-	if exists(filepath.Join(guideDir, "setup.md")) {
-		findings = append(findings, finding("blocker", "external", "setup.md", "setup.md is legacy — split into external.md (provider) and speakeasy.md (Control Plane).", "Move provider steps to external.md and Speakeasy steps to speakeasy.md, then delete setup.md."))
+	legacyExists, err := pathExists(legacyPath)
+	if err != nil {
+		return nil, fmt.Errorf("stat setup.md: %w", err)
 	}
-	if !exists(externalPath) {
-		findings = append(findings, finding("blocker", "external", "external.md", "external.md is missing.", "Write external.md (provider-side setup) before review."))
+	if legacyExists {
+		f := finding("blocker", "external", "setup.md", "setup.md is legacy — split into external.md (provider) and speakeasy.md (Control Plane).", "Move provider steps to external.md and Speakeasy steps to speakeasy.md, then delete setup.md.")
+		f.sourcePath, f.sourceLine = legacyPath, 1
+		findings = append(findings, f)
 	}
-	if !exists(speakeasyPath) {
-		findings = append(findings, finding("blocker", "speakeasy", "speakeasy.md", "speakeasy.md is missing.", "Write speakeasy.md from doctrine/speakeasy-setup.md via the Dossier."))
+	externalExists, err := pathExists(externalPath)
+	if err != nil {
+		return nil, fmt.Errorf("stat external.md: %w", err)
 	}
-	if !exists(externalPath) || !exists(speakeasyPath) {
+	if !externalExists {
+		f := finding("blocker", "external", "external.md", "external.md is missing.", "Write external.md (provider-side setup) before review.")
+		f.sourcePath = externalPath
+		findings = append(findings, f)
+	}
+	speakeasyExists, err := pathExists(speakeasyPath)
+	if err != nil {
+		return nil, fmt.Errorf("stat speakeasy.md: %w", err)
+	}
+	if !speakeasyExists {
+		f := finding("blocker", "speakeasy", "speakeasy.md", "speakeasy.md is missing.", "Write speakeasy.md from doctrine/speakeasy-setup.md via the Dossier.")
+		f.sourcePath = speakeasyPath
+		findings = append(findings, f)
+	}
+	if !externalExists || !speakeasyExists {
 		sortFindings(findings)
 		return findings, nil
 	}
@@ -79,36 +109,68 @@ func Check(repoRoot, guideDir string) ([]Finding, error) {
 	if err != nil {
 		return nil, fmt.Errorf("read speakeasy.md: %w", err)
 	}
-	findings = append(findings, lintExternal(string(external))...)
-	findings = append(findings, lintSpeakeasy(string(speakeasy))...)
+	externalFindings := lintExternal(string(external))
+	locateMarkdownFindings(externalFindings, externalPath, string(external))
+	findings = append(findings, externalFindings...)
+	speakeasyFindings := lintSpeakeasy(string(speakeasy))
+	locateMarkdownFindings(speakeasyFindings, speakeasyPath, string(speakeasy))
+	findings = append(findings, speakeasyFindings...)
 
 	var metaRaw string
-	if !exists(metaPath) {
-		findings = append(findings, finding("blocker", "meta", "meta.yaml", "meta.yaml is missing.", "Write meta.yaml validating against schema/guide.v1.schema.json."))
-	} else if !exists(filepath.Join(repoRoot, filepath.FromSlash(guideSchemaPath))) {
-		findings = append(findings, finding("blocker", "meta", guideSchemaPath, "Guide schema file is missing; cannot validate meta.yaml.", "Restore schema/guide.v1.schema.json at the repo root."))
+	metaExists, err := pathExists(metaPath)
+	if err != nil {
+		return nil, fmt.Errorf("stat meta.yaml: %w", err)
+	}
+	schemaPath := filepath.Join(repoRoot, filepath.FromSlash(guideSchemaPath))
+	if !metaExists {
+		f := finding("blocker", "meta", "meta.yaml", "meta.yaml is missing.", "Write meta.yaml validating against schema/guide.v1.schema.json.")
+		f.sourcePath = metaPath
+		findings = append(findings, f)
 	} else {
-		meta, readErr := os.ReadFile(metaPath)
-		if readErr != nil {
-			return nil, fmt.Errorf("read meta.yaml: %w", readErr)
+		schemaExists, statErr := pathExists(schemaPath)
+		if statErr != nil {
+			return nil, fmt.Errorf("stat %s: %w", guideSchemaPath, statErr)
 		}
-		metaRaw = string(meta)
-		metaFindings, lintErr := lintMeta(metaRaw, filepath.Join(repoRoot, filepath.FromSlash(guideSchemaPath)))
-		if lintErr != nil {
-			return nil, lintErr
+		if !schemaExists {
+			f := finding("blocker", "meta", guideSchemaPath, "Guide schema file is missing; cannot validate meta.yaml.", "Restore schema/guide.v1.schema.json at the repo root.")
+			f.sourcePath = schemaPath
+			findings = append(findings, f)
+		} else {
+			meta, readErr := os.ReadFile(metaPath)
+			if readErr != nil {
+				return nil, fmt.Errorf("read meta.yaml: %w", readErr)
+			}
+			metaRaw = string(meta)
+			metaFindings, lintErr := lintMeta(metaRaw, schemaPath)
+			if lintErr != nil {
+				return nil, lintErr
+			}
+			locateMetaFindings(metaFindings, metaPath, metaRaw)
+			findings = append(findings, metaFindings...)
 		}
-		findings = append(findings, metaFindings...)
 	}
 
 	var researchRaw string
-	if exists(researchPath) {
+	researchExists, err := pathExists(researchPath)
+	if err != nil {
+		return nil, fmt.Errorf("stat research.md: %w", err)
+	}
+	if researchExists {
 		research, readErr := os.ReadFile(researchPath)
 		if readErr != nil {
 			return nil, fmt.Errorf("read research.md: %w", readErr)
 		}
 		researchRaw = string(research)
 	}
-	findings = append(findings, lintAnchorAgreement(string(external), string(speakeasy), researchRaw, metaRaw)...)
+	agreement := lintAnchorAgreement(string(external), string(speakeasy), researchRaw, metaRaw)
+	for i := range agreement {
+		if agreement[i].Target == "meta" {
+			locateMetaFindings(agreement[i:i+1], metaPath, metaRaw)
+		} else {
+			locateMarkdownFindings(agreement[i:i+1], externalPath, string(external))
+		}
+	}
+	findings = append(findings, agreement...)
 	sortFindings(findings)
 	return findings, nil
 }
@@ -122,7 +184,7 @@ func lintExternal(raw string) []Finding {
 		var fm map[string]any
 		if err := yaml.Unmarshal([]byte(*frontmatter), &fm); err != nil {
 			out = append(out, finding("blocker", "external", "frontmatter", "external.md frontmatter is not valid YAML.", "Fix the YAML between the opening and closing --- lines."))
-		} else if value, ok := fm["setup_version"].(int); !ok || value != 1 {
+		} else if !numericOne(fm["setup_version"]) {
 			out = append(out, finding("blocker", "external", "frontmatter", "external.md frontmatter must set setup_version: 1.", "Use exactly: setup_version: 1"))
 		}
 	}
@@ -163,9 +225,6 @@ func lintExternal(raw string) []Finding {
 			}
 		}
 		section := sectionBody(body, headings, i)
-		if !orderedRE.MatchString(section) {
-			out = append(out, finding("blocker", "external", where, "External setup step must include a numbered action list.", "Add one or more numbered actions using Markdown ordered-list syntax."))
-		}
 		if !shotRE.MatchString(section) && !shotLineRE.MatchString(section) {
 			out = append(out, finding("blocker", "external", where, "External setup step lacks a screenshot placeholder or screenshot-exception comment.", "Add <!-- screenshot: … --> or <!-- screenshot-exception: … --> on its own line in the step."))
 		}
@@ -393,21 +452,98 @@ func jsonCompatible(value any) any {
 	return value
 }
 
-func finding(severity, target, where, problem, suggestion string) Finding {
-	return Finding{severity, target, where, problem, suggestion, "lint"}
+func numericOne(value any) bool {
+	switch value := value.(type) {
+	case int:
+		return value == 1
+	case int64:
+		return value == 1
+	case uint64:
+		return value == 1
+	case float64:
+		return value == 1
+	default:
+		return false
+	}
 }
 
-func exists(path string) bool { _, err := os.Stat(path); return err == nil }
+func locateMarkdownFindings(findings []Finding, path, raw string) {
+	_, body := stripFrontmatter(raw)
+	bodyStart := 1
+	if len(body) < len(raw) {
+		bodyStart = strings.Count(raw[:len(raw)-len(body)], "\n") + 1
+	}
+	headings := parseHeadings(body)
+	for i := range findings {
+		findings[i].sourcePath = path
+		switch {
+		case findings[i].Where == "frontmatter":
+			findings[i].sourceLine = 1
+		case strings.HasPrefix(findings[i].Where, "line "):
+			findings[i].sourceLine = bodyStart + findingLine(findings[i].Where) - 1
+		case strings.HasPrefix(findings[i].Where, "#"):
+			id := strings.TrimPrefix(findings[i].Where, "#")
+			for _, heading := range headings {
+				if heading.anchor == id {
+					findings[i].sourceLine = bodyStart + heading.line - 1
+					break
+				}
+			}
+		case findings[i].Where == "title":
+			for _, heading := range headings {
+				if heading.level == 1 {
+					findings[i].sourceLine = bodyStart + heading.line - 1
+					break
+				}
+			}
+		}
+	}
+}
+
+func locateMetaFindings(findings []Finding, path, raw string) {
+	for i := range findings {
+		findings[i].sourcePath = path
+		if findings[i].Where == "meta.yaml" {
+			findings[i].sourceLine = 1
+			continue
+		}
+		needle := findings[i].Where
+		if strings.HasPrefix(needle, "/") {
+			parts := strings.Split(needle, "/")
+			needle = parts[len(parts)-1]
+		}
+		if offset := strings.Index(raw, needle); offset >= 0 {
+			findings[i].sourceLine = strings.Count(raw[:offset], "\n") + 1
+		}
+	}
+}
+
+func finding(severity, target, where, problem, suggestion string) Finding {
+	return Finding{
+		Severity: severity, Target: target, Where: where, Problem: problem,
+		Suggestion: suggestion, Dimension: "lint",
+	}
+}
+
+func pathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
 
 func sortFindings(findings []Finding) {
 	sort.SliceStable(findings, func(i, j int) bool {
 		a, b := findings[i], findings[j]
-		if a.Target != b.Target {
-			return a.Target < b.Target
+		if a.sourcePath != b.sourcePath {
+			return a.sourcePath < b.sourcePath
 		}
-		la, lb := findingLine(a.Where), findingLine(b.Where)
-		if la != lb {
-			return la < lb
+		if a.sourceLine != b.sourceLine {
+			return a.sourceLine < b.sourceLine
 		}
 		if a.Problem != b.Problem {
 			return a.Problem < b.Problem
