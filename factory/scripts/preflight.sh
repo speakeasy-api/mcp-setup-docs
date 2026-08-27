@@ -35,7 +35,7 @@ jq -e 'type == "array" and all(.[];
   || die "malformed pull request response"
 
 jq -c --arg issue "$ISSUE_NUMBER" '
-  [.[] | select((.body // "") | test("(closes|fixes|resolves)[[:space:]]+#" + $issue + "\\b"; "i"))]
+  [.[] | select((.body // "") | test("\\b(closes|fixes|resolves)[[:space:]]+#" + $issue + "\\b"; "i"))]
   | sort_by(.number)[]
 ' "$prs" >"$matching"
 

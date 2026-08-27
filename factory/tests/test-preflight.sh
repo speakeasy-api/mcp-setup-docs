@@ -106,7 +106,7 @@ assert_eq false "$(output_value resume "$TMP/output")"
 cat >"$TMP/prs.json" <<'JSON'
 [
  {"number":9,"url":"https://example/pr/9","headRefName":"feature/nope","author":{"login":"mallory"},"body":"Resolves #42","isDraft":false},
- {"number":10,"url":"https://example/pr/10","headRefName":"feature/wrong","author":{"login":"alice"},"body":"Closes #420 and fixes owner/repo#42 and closes #42x","isDraft":false}
+ {"number":10,"url":"https://example/pr/10","headRefName":"feature/wrong","author":{"login":"alice"},"body":"discloses #42 and unfixes #42 and irresolves #42; closed #42, fixed #42, resolved #42; Closes #420 and fixes owner/repo#42 and closes #42x","isDraft":false}
 ]
 JSON
 run_preflight
