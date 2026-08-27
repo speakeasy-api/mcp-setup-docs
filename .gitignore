@@ -11,3 +11,4 @@ tools/pulse-catalog/pulse-catalog.json
 
 # Worktrees
 .claude/worktrees
+.worktrees/
