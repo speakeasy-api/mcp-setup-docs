@@ -39,13 +39,12 @@ The repository no longer requires Node or npm for the factory. The existing `pip
 The Actions host launches the pinned Debian-slim Kit distribution. The container receives:
 
 - a read-only mount of the repository;
-- a nested read/write mount for only `guides/<slug>/`;
-- a separate temporary writeable output directory for the final report;
-- a read-only coordinator prompt, schemas, and MCP configuration from the repository mount;
-- `OPENROUTER_API_KEY` and the Exa credential; and
-- no `GH_TOKEN`, SSH material, or unrelated Actions secrets.
+- read-only mounts of the normalized issue and credential-free catalog JSON;
+- a separate read/write export directory for the final report and selected guide;
+- `OPENROUTER_API_KEY` as its only model credential; and
+- no `GH_TOKEN`, SSH material, Docker socket, user home, or unrelated Actions secrets.
 
-Kit uses the mounted repository as its workspace root. Docker enforces the durable write boundary. The host also checks the final Git diff before publishing. Kit session data, MCP state, and temporary files use ephemeral container storage and are not committed.
+The container copies the read-only repository into ephemeral container storage, removes the copied `.git` directory, and uses that copy as Kit's workspace root. Kit can therefore resolve a freeform issue's slug before selecting a guide without requiring the slug before launch. After Kit finishes, the entrypoint validates the report-selected slug and exports only `run-report.json` and, for a non-failed outcome with a slug, that single `guides/<slug>/` directory. This narrows durable output to `/export`; Kit session data, MCP state, other workspace changes, and temporary files remain ephemeral. The host repository remains read-only to Kit, and the host still checks the final Git diff before publishing.
 
 ### Model and MCP configuration
 

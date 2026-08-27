@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "exa": {
+      "url": "https://mcp.exa.ai/mcp",
+      "description": "Exa public web and code research for the guide research phase only"
+    }
+  }
+}
