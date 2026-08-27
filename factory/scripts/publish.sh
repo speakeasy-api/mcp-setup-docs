@@ -7,8 +7,20 @@ source "$ROOT/factory/scripts/lib.sh"
 
 TEMP_FILES=()
 cleanup_on_exit() {
+  local status=$? cleanup_status=0
+  trap - EXIT HUP INT TERM
   ((${#TEMP_FILES[@]} == 0)) || rm -f "${TEMP_FILES[@]}"
-  cleanup
+  cleanup || cleanup_status=$?
+  ((status != 0)) && exit "$status"
+  exit "$cleanup_status"
+}
+
+register_temp() {
+  TEMP_FILES[${#TEMP_FILES[@]}]=$1
+  trap cleanup_on_exit EXIT
+  trap 'exit 129' HUP
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
 }
 
 require_common() {
@@ -17,8 +29,22 @@ require_common() {
   [[ "$ISSUE_NUMBER" =~ ^[1-9][0-9]*$ ]] || die "invalid issue number: $ISSUE_NUMBER"
 }
 
+issue_labels() {
+  local response
+  response="$(retry_gh issue view "$ISSUE_NUMBER" --repo "$GH_REPO" --json labels)" \
+    || die "failed to inspect issue labels"
+  jq -e 'type == "object" and (.labels | type == "array") and
+    all(.labels[]; type == "object" and (.name | type == "string"))' <<<"$response" >/dev/null \
+    || die "malformed issue label response"
+  jq -r '.labels[].name' <<<"$response"
+}
+
 remove_label() {
-  retry_gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --remove-label "$1" >/dev/null 2>&1 || true
+  local label=$1 labels
+  labels="$(issue_labels)"
+  grep -Fqx "$label" <<<"$labels" || return 0
+  retry_gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --remove-label "$label" >/dev/null \
+    || die "failed to remove label: $label"
 }
 
 add_label() {
@@ -59,6 +85,7 @@ refuse() {
   local url=${1:-${REFUSED_PR_URL:-}} body
   [[ -n "$url" ]] || die "refuse requires a conflicting pull request URL"
   body="$(mktemp)"
+  register_temp "$body"
   remove_label guide:draft
   add_label guide:blocked
   printf '%s\n' \
@@ -98,6 +125,32 @@ render_report_comment() {
   ' "$report" >"$output"
 }
 
+validate_pr_number() {
+  [[ "$1" =~ ^[1-9][0-9]*$ ]] || die "invalid pull request number"
+}
+
+FOUND_PR_NUMBER=''
+FOUND_PR_URL=''
+find_pr_for_head() {
+  local branch=$1 response count
+  FOUND_PR_NUMBER=''
+  FOUND_PR_URL=''
+  response="$(retry_gh pr list --repo "$GH_REPO" --state open --head "$branch" --json number,url)" \
+    || die "failed to inspect pull requests for branch"
+  jq -e --arg repo "$GH_REPO" '
+    type == "array" and length <= 1 and all(.[];
+      type == "object" and
+      (.number | type) == "number" and (.number | floor) == .number and .number >= 1 and
+      (.url | type) == "string" and
+      .url == ("https://github.com/" + $repo + "/pull/" + (.number | tostring)))
+  ' <<<"$response" >/dev/null || die "malformed pull request response"
+  count="$(jq 'length' <<<"$response")"
+  ((count == 1)) || return 1
+  FOUND_PR_NUMBER="$(jq -r '.[0].number' <<<"$response")"
+  FOUND_PR_URL="$(jq -r '.[0].url' <<<"$response")"
+  validate_pr_number "$FOUND_PR_NUMBER"
+}
+
 publish_report() {
   local report=$1 outcome provider slug artifacts resumed branch title pr_body comment pr_number pr_url changed
   [[ -f "$report" && ! -L "$report" ]] || die "publish requires a regular report file"
@@ -108,8 +161,8 @@ publish_report() {
   resumed=${RESUME:-false}
   pr_body="$(mktemp)"
   comment="$(mktemp)"
-  TEMP_FILES=("$pr_body" "$comment")
-  trap cleanup_on_exit EXIT
+  register_temp "$pr_body"
+  register_temp "$comment"
 
   if [[ "$outcome" == failed || -z "$slug" || "$artifacts" -eq 0 ]]; then
     render_report_comment "$report" '' "$resumed" "$comment"
@@ -139,22 +192,24 @@ publish_report() {
   pr_number=${RESUME_PR_NUMBER:-}
   pr_url=''
   if [[ -n "$pr_number" ]]; then
+    validate_pr_number "$pr_number"
+    pr_url="https://github.com/$GH_REPO/pull/$pr_number"
+    retry_gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null
+  elif find_pr_for_head "$branch"; then
+    pr_number=$FOUND_PR_NUMBER
+    pr_url=$FOUND_PR_URL
     retry_gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null
   else
-    pr_number="$(retry_gh pr list --repo "$GH_REPO" --state open --head "$branch" --json number --jq '.[0].number // empty')"
-    if [[ -n "$pr_number" ]]; then
-      retry_gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null
+    if [[ "$outcome" == converged ]]; then
+      retry_gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" >/dev/null || true
     else
-      if [[ "$outcome" == converged ]]; then
-        pr_url="$(retry_gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body")"
-      else
-        pr_url="$(retry_gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" --draft)"
-      fi
-      pr_number=${pr_url##*/}
-      [[ "$pr_number" =~ ^[1-9][0-9]*$ ]] || die "could not determine created pull request number"
+      retry_gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" --draft >/dev/null || true
     fi
+    find_pr_for_head "$branch" || die "pull request creation did not produce a discoverable pull request"
+    pr_number=$FOUND_PR_NUMBER
+    pr_url=$FOUND_PR_URL
   fi
-  [[ -n "$pr_url" ]] || pr_url="https://github.com/$GH_REPO/pull/$pr_number"
+  validate_pr_number "$pr_number"
 
   if [[ "$outcome" == converged ]]; then
     retry_gh pr ready "$pr_number" --repo "$GH_REPO" >/dev/null
@@ -171,8 +226,7 @@ fail_run() {
   local reason_file=$1 body reason run_url
   [[ -f "$reason_file" && ! -L "$reason_file" ]] || die "fail requires a regular reason file"
   body="$(mktemp)"
-  TEMP_FILES=("$body")
-  trap cleanup_on_exit EXIT
+  register_temp "$body"
   reason="$(jq -Rs -r '.[0:1000]' "$reason_file")"
   run_url="https://github.com/$GH_REPO/actions/runs/${GITHUB_RUN_ID:-}"
   printf '%s\n' '## Guide factory failed' '' "$reason" '' "**Workflow run:** $run_url" '' \
