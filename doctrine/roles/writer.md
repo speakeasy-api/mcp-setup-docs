@@ -108,11 +108,10 @@ rules, and the formatting preferences. Apply all of it:
     organization-specific values get at most one obtain-from-owner hedge
     per section.
   - **Formatting:** grammar above; UI labels bolded; typed/copied values
-    in code spans, or in fenced blocks when the rendered value is an
-    unbroken run over ~30 characters (the callback key included), exactly
-    as the field receives it — but inline where the value comes from the
-    screen, not the guide; opened URLs as links, never code spans or bare
-    text; numbered single-action steps
+    from the guide in fenced blocks, exactly as the field receives them,
+    with each separately entered value in its own block; every URL either
+    a Markdown link when opened or in its own fenced block when copied,
+    never bare prose or inline code; numbered single-action steps
     (mutually exclusive alternatives in one step are fine).
   - **Cut:** drop anything the reader does not need to finish setup —
     duplicated facts, process the guide does not own, statements they

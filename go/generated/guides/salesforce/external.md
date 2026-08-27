@@ -93,10 +93,10 @@ If the ticket does not specify the team's approved read, write, or delete requir
 
 | Server | Production URL | Sandbox URL |
 | --- | --- | --- |
-| `sobject-reads` | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads` |
-| `sobject-mutations` | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-mutations` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations` |
-| `sobject-deletes` | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes` |
-| `sobject-all` | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-all` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all` |
+| `sobject-reads` | [api.salesforce.com/platform/mcp/v1/platform/sobject-reads](https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads) | [api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads](https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads) |
+| `sobject-mutations` | [api.salesforce.com/platform/mcp/v1/platform/sobject-mutations](https://api.salesforce.com/platform/mcp/v1/platform/sobject-mutations) | [api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations](https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations) |
+| `sobject-deletes` | [api.salesforce.com/platform/mcp/v1/platform/sobject-deletes](https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes) | [api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes](https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes) |
+| `sobject-all` | [api.salesforce.com/platform/mcp/v1/platform/sobject-all](https://api.salesforce.com/platform/mcp/v1/platform/sobject-all) | [api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all](https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all) |
 
 If the connection fails with valid credentials, confirm that the selected server is enabled, the URL matches the server and org type, and the org has API access.
 

@@ -13,8 +13,17 @@ Sign in to the intended workspace. The app setup starts in the [Intercom Develop
 1. Open the intended Intercom workspace.
 2. Inspect its hostname in the browser address bar.
 3. Record the matching remote URL:
-   - For `app.intercom.com`, record `https://mcp.intercom.com/mcp`.
-   - For `app.eu.intercom.com`, record `https://mcp.eu.intercom.com/mcp`.
+   - For `app.intercom.com`, record:
+
+     ```text
+     https://mcp.intercom.com/mcp
+     ```
+
+   - For `app.eu.intercom.com`, record:
+
+     ```text
+     https://mcp.eu.intercom.com/mcp
+     ```
 4. If the hostname is `app.au.intercom.com`, stop. Intercom does not support its MCP server for Australian-hosted workspaces.
 
 If Intercom cannot find the workspace:

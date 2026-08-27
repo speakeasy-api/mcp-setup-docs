@@ -17,8 +17,17 @@ This creates the hosted MCP server and opens its **Overview** page.
 1. From the server's **Overview**, open **Settings**.
 2. Under **Authentication**, click **Configure Manually**.
 3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-4. Enter `https://mcp.intercom.com` as **Issuer URL**.
-5. Under **Endpoints**, set the authorization endpoint to `https://app.intercom.com/oauth`.
+4. Enter this value as **Issuer URL**:
+
+   ```text
+   https://mcp.intercom.com
+   ```
+
+5. Under **Endpoints**, set the authorization endpoint to this value:
+
+   ```text
+   https://app.intercom.com/oauth
+   ```
 6. Set the token endpoint to this URL:
 
    ```
