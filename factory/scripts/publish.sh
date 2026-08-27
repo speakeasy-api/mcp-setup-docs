@@ -162,6 +162,7 @@ find_pr_for_head() {
 
 publish_report() {
   local report=$1 outcome provider slug artifacts resumed branch title pr_body comment pr_number pr_url changed
+  local local_head remote_head push_needed=false
   [[ -f "$report" && ! -L "$report" ]] || die "publish requires a regular report file"
   outcome="$(jq -r '.outcome' "$report")"
   provider="$(jq -r '.provider // empty' "$report")"
@@ -193,6 +194,17 @@ publish_report() {
   if git diff --cached --quiet -- "guides/$slug"; then changed=false; fi
   if [[ "$changed" == true ]]; then
     git commit -m "guide: $provider"
+  fi
+
+  if [[ "$resumed" == true ]]; then
+    remote_head="$(git rev-parse --verify "refs/remotes/origin/$branch^{commit}")" \
+      || die "could not resolve remote resume branch: $branch"
+    local_head="$(git rev-parse --verify HEAD)" || die "could not resolve local resume HEAD"
+    [[ "$local_head" == "$remote_head" ]] || push_needed=true
+  elif [[ "$changed" == true ]]; then
+    push_needed=true
+  fi
+  if [[ "$push_needed" == true ]]; then
     git push --set-upstream origin "$branch"
   fi
 
@@ -232,7 +244,7 @@ publish_report() {
 }
 
 fail_run() {
-  local reason_file=$1 body reason run_url
+  local reason_file=$1 body reason run_url status=0
   [[ -f "$reason_file" && ! -L "$reason_file" ]] || die "fail requires a regular reason file"
   body="$(mktemp)"
   register_temp "$body"
@@ -240,8 +252,11 @@ fail_run() {
   run_url="https://github.com/$GH_REPO/actions/runs/${GITHUB_RUN_ID:-}"
   printf '%s\n' '## Guide factory failed' '' "$reason" '' "**Workflow run:** $run_url" '' \
     "Re-add \`guide:draft\` to retry after correcting the failure." >"$body"
-  add_label guide:blocked
-  post_comment "$body"
+  remove_label guide:draft || status=$?
+  remove_label guide:in-progress || status=$?
+  add_label guide:blocked || status=$?
+  post_comment "$body" || status=$?
+  return "$status"
 }
 
 require_common

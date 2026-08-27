@@ -17,9 +17,6 @@ jobs:
       issues: write
       pull-requests: write
 
-    env:
-      TMPDIR: ${{ runner.temp }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +24,9 @@ jobs:
           ref: main
           fetch-depth: 0
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Configure runner temp
+        run: printf 'TMPDIR=%s\n' "$RUNNER_TEMP" >>"$GITHUB_ENV"
 
       - name: Set up publisher
         id: publisher_setup
@@ -49,15 +49,19 @@ jobs:
           bash factory/scripts/preflight.sh
 
       - name: Refuse non-factory pull request
-        if: steps.preflight.outputs.refused == 'true'
+        id: refusal
+        if: success() && steps.preflight.outputs.refused == 'true'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: bash factory/scripts/publish.sh refuse '${{ steps.preflight.outputs.refused_pr_url }}'
+        run: |
+          printf '%s\n' 'Refusal reporting failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          bash factory/scripts/publish.sh refuse '${{ steps.preflight.outputs.refused_pr_url }}'
 
       - name: Checkout resume branch and sync main
-        if: steps.preflight.outputs.refused != 'true' && steps.preflight.outputs.resume == 'true'
+        id: resume_sync
+        if: success() && steps.refusal.outcome != 'success' && steps.preflight.outputs.resume == 'true'
         env:
           RESUME_BRANCH: ${{ steps.preflight.outputs.resume_branch }}
         run: |
@@ -67,7 +71,8 @@ jobs:
           git merge --no-edit origin/main
 
       - name: Transition labels
-        if: steps.preflight.outputs.refused != 'true'
+        id: transition
+        if: success() && steps.refusal.outcome != 'success'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -77,7 +82,8 @@ jobs:
           bash factory/scripts/publish.sh transition
 
       - name: Prepare issue input
-        if: steps.preflight.outputs.refused != 'true'
+        id: prepare_input
+        if: success() && steps.refusal.outcome != 'success'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -86,7 +92,8 @@ jobs:
           bash factory/scripts/prepare-input.sh '${{ github.event.issue.number }}' "$RUNNER_TEMP/issue.json"
 
       - name: Prepare catalog snapshot
-        if: steps.preflight.outputs.refused != 'true'
+        id: prepare_catalog
+        if: success() && steps.refusal.outcome != 'success'
         env:
           PULSE_REGISTRY_KEY: ${{ secrets.PULSE_REGISTRY_KEY }}
           PULSE_REGISTRY_TENANT: ${{ secrets.PULSE_REGISTRY_TENANT }}
@@ -96,7 +103,8 @@ jobs:
           bash factory/scripts/prepare-catalog.sh "$RUNNER_TEMP/catalog.json"
 
       - name: Run Kit
-        if: steps.preflight.outputs.refused != 'true'
+        id: kit
+        if: success() && steps.refusal.outcome != 'success'
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
@@ -108,13 +116,15 @@ jobs:
           cp "$RUNNER_TEMP/export/run-report.json" "$RUNNER_TEMP/run-report.json"
 
       - name: Validate export
-        if: steps.preflight.outputs.refused != 'true'
+        id: validate
+        if: success() && steps.refusal.outcome != 'success'
         run: |
           printf '%s\n' 'Factory export validation failed.' >"$RUNNER_TEMP/failure-reason.txt"
           bash factory/scripts/validate.sh "$RUNNER_TEMP/export" "$GITHUB_WORKSPACE"
 
       - name: Publish guide
-        if: steps.preflight.outputs.refused != 'true'
+        id: publish
+        if: success() && steps.refusal.outcome != 'success'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -129,7 +139,8 @@ jobs:
           bash factory/scripts/publish.sh publish "$RUNNER_TEMP/run-report.json"
 
       - name: Report failure
-        if: failure() && steps.publisher_setup.outcome == 'success' && steps.preflight.outputs.refused != 'true'
+        id: failure_report
+        if: failure() && steps.publisher_setup.outcome == 'success' && steps.refusal.outcome != 'success'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -137,6 +148,7 @@ jobs:
         run: bash factory/scripts/publish.sh fail "$RUNNER_TEMP/failure-reason.txt"
 
       - name: Cleanup labels
+        id: cleanup
         if: always() && steps.publisher_setup.outcome == 'success'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
@@ -145,19 +157,35 @@ jobs:
         run: bash factory/scripts/publish.sh cleanup
 
       - name: Bootstrap failure fallback
+        id: bootstrap_failure
         if: always() && steps.publisher_setup.outcome != 'success'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          set +e
-          gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --remove-label guide:draft
-          gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --remove-label guide:in-progress
-          gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" --add-label guide:blocked
+          status=0
+          gh label view guide:blocked --repo "$GH_REPO" >/dev/null 2>&1 ||
+            gh label create guide:blocked --repo "$GH_REPO" --color D73A4A \
+              --description 'Guide draft factory blocked' >/dev/null || status=$?
+          gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" \
+            --remove-label guide:draft >/dev/null || status=$?
+          gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" \
+            --remove-label guide:in-progress >/dev/null || status=$?
+          gh issue edit "$ISSUE_NUMBER" --repo "$GH_REPO" \
+            --add-label guide:blocked >/dev/null || status=$?
+          labels="$(gh issue view "$ISSUE_NUMBER" --repo "$GH_REPO" \
+            --json labels --jq '.labels[].name')" || status=$?
+          if grep -Fqx guide:draft <<<"$labels" ||
+             grep -Fqx guide:in-progress <<<"$labels" ||
+             ! grep -Fqx guide:blocked <<<"$labels"; then
+            status=1
+          fi
           printf '%s\n' \
             '## Guide factory failed during publisher setup' '' \
-            "**Workflow run:** https://github.com/${GH_REPO}/actions/runs/${GITHUB_RUN_ID}" \
+            "**Workflow run:** $RUN_URL" \
             >"$RUNNER_TEMP/bootstrap-comment.md"
           gh issue comment "$ISSUE_NUMBER" --repo "$GH_REPO" \
-            --body-file "$RUNNER_TEMP/bootstrap-comment.md"
+            --body-file "$RUNNER_TEMP/bootstrap-comment.md" || status=$?
+          exit "$status"

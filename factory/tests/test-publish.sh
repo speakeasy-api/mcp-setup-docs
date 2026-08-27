@@ -31,7 +31,23 @@ if [[ "${GH_FAIL_MUTATIONS:-0}" -gt 0 ]]; then
   if (( count < GH_FAIL_MUTATIONS )); then printf "%s" $((count + 1)) >"$count_file"; exit 1; fi
 fi
 case "$*" in
-  "issue view"*) printf "%s\n" "$GH_LABELS_JSON" ;;
+  "issue view"*)
+    if [[ -n "${GH_LABEL_STATE_FILE:-}" ]]; then
+      jq -Rn "[inputs | {name:.}] | {labels:.}" <"$GH_LABEL_STATE_FILE"
+    else printf "%s\n" "$GH_LABELS_JSON"; fi ;;
+  "issue edit"*)
+    if [[ -n "${GH_LABEL_STATE_FILE:-}" ]]; then
+      previous=
+      for argument in "$@"; do
+        if [[ "$previous" == --remove-label ]]; then
+          grep -Fvx "$argument" "$GH_LABEL_STATE_FILE" >"$GH_LABEL_STATE_FILE.next" || true
+          mv "$GH_LABEL_STATE_FILE.next" "$GH_LABEL_STATE_FILE"
+        elif [[ "$previous" == --add-label ]] && ! grep -Fqx "$argument" "$GH_LABEL_STATE_FILE"; then
+          printf "%s\n" "$argument" >>"$GH_LABEL_STATE_FILE"
+        fi
+        previous=$argument
+      done
+    fi ;;
   "pr list"*)
     if [[ -f "${GH_PR_STATE_FILE:-/nonexistent}" ]]; then cat "$GH_PR_STATE_FILE"
     else printf "%s\n" "${GH_PR_LIST:-[]}"; fi ;;
@@ -48,6 +64,9 @@ case "$1" in
   commit)
     if [[ -n "${GIT_SIGNAL:-}" ]]; then kill -s "$GIT_SIGNAL" "$PPID"; exit 0; fi
     [[ "${GIT_COMMIT_FAIL:-0}" == 0 ]] || exit "${GIT_COMMIT_STATUS:-1}" ;;
+  rev-parse)
+    if [[ "${3:-}" == HEAD ]]; then printf "%s\n" "${GIT_LOCAL_HEAD:-same}"
+    else printf "%s\n" "${GIT_REMOTE_HEAD:-same}"; fi ;;
 esac'
 
 # shellcheck disable=SC2016
@@ -58,8 +77,8 @@ exec "$REAL_RM" "$@"'
 make_fake sleep 'exit 0'
 
 reset_logs() {
-  unset GH_FAIL_MUTATIONS GH_FAIL_COUNT_FILE GH_FAIL_MATCH GH_PR_LIST GH_CREATE_LOST GH_CREATE_OUTPUT
-  unset GIT_COMMIT_FAIL GIT_COMMIT_STATUS GIT_SIGNAL RM_FAIL_MATCH RM_FAIL_STATUS
+  unset GH_FAIL_MUTATIONS GH_FAIL_COUNT_FILE GH_FAIL_MATCH GH_PR_LIST GH_CREATE_LOST GH_CREATE_OUTPUT GH_LABEL_STATE_FILE
+  unset GIT_COMMIT_FAIL GIT_COMMIT_STATUS GIT_SIGNAL GIT_LOCAL_HEAD GIT_REMOTE_HEAD RM_FAIL_MATCH RM_FAIL_STATUS
   : >"$GH_LOG"; : >"$GIT_LOG"; : >"$COMMENT_LOG"
   export GH_PR_STATE_FILE="$TMP/pr-state.json"
   rm -f "$GH_PR_STATE_FILE"
@@ -191,13 +210,19 @@ test_failed_and_hard_failure_never_commit() {
 
   reset_logs
   printf '%s\n' "runner exploded \`uname\`" >"$TMP/reason.txt"
+  export GH_LABEL_STATE_FILE="$TMP/failure-labels"
+  printf '%s\n' guide:draft guide:in-progress >"$GH_LABEL_STATE_FILE"
   bash "$SCRIPT" fail "$TMP/reason.txt"
   [[ ! -s "$GIT_LOG" ]] || fail "hard failure invoked git"
   assert_contains "runner exploded \`uname\`" "$(cat "$COMMENT_LOG")"
   assert_contains "https://github.com/acme/docs/actions/runs/9001" "$(cat "$COMMENT_LOG")"
   assert_contains "Re-add" "$(cat "$COMMENT_LOG")"
-  assert_contains "--add-label guide:blocked" "$(cat "$GH_LOG")"
-  assert_contains "--remove-label guide:in-progress" "$(cat "$GH_LOG")"
+  draft_line="$(grep -nF -- '--remove-label guide:draft' "$GH_LOG" | head -1 | cut -d: -f1)"
+  progress_line="$(grep -nF -- '--remove-label guide:in-progress' "$GH_LOG" | head -1 | cut -d: -f1)"
+  blocked_line="$(grep -nF -- '--add-label guide:blocked' "$GH_LOG" | head -1 | cut -d: -f1)"
+  [[ -n "$draft_line" && "$draft_line" -lt "$progress_line" && "$progress_line" -lt "$blocked_line" ]] \
+    || fail 'failure labels must finish without draft/in-progress and with blocked'
+  assert_eq guide:blocked "$(cat "$GH_LABEL_STATE_FILE")"
 }
 
 test_no_change_orphan_creates_pr_and_converges_resume() {
@@ -218,6 +243,17 @@ test_no_change_orphan_creates_pr_and_converges_resume() {
   assert_not_contains "pr create" "$(cat "$GH_LOG")"
   assert_contains "pr edit 55 --repo acme/docs" "$(cat "$GH_LOG")"
   assert_contains "pr ready 55 --repo acme/docs" "$(cat "$GH_LOG")"
+}
+
+test_resumed_merge_is_pushed_without_guide_changes() {
+  reset_logs
+  export GIT_HAS_DIFF=0 RESUME=true RESUME_BRANCH=guide/issue-42-safe-slug RESUME_PR_NUMBER=55
+  export GIT_REMOTE_HEAD=before-merge GIT_LOCAL_HEAD=after-merge
+  report="$TMP/resumed-merge.json"
+  make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
+  bash "$SCRIPT" publish "$report"
+  assert_count 0 "commit -m" "$GIT_LOG"
+  assert_contains "push --set-upstream origin guide/issue-42-safe-slug" "$(cat "$GIT_LOG")"
 }
 
 test_pr_numbers_and_create_recovery_are_safe() {
@@ -334,6 +370,7 @@ test_awaiting_scope_and_resumed_ready_conversion
 test_blocked_artifacts_publish_draft
 test_failed_and_hard_failure_never_commit
 test_no_change_orphan_creates_pr_and_converges_resume
+test_resumed_merge_is_pushed_without_guide_changes
 test_pr_numbers_and_create_recovery_are_safe
 test_github_retries_but_commit_does_not
 test_cleanup_preserves_failure_and_signal_status
