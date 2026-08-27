@@ -15,6 +15,8 @@ backup_dir=
 diff_file=
 untracked_file=
 tree_file=
+lint_bin=
+anchor_active=false
 target_displaced=false
 new_installed=false
 transaction_complete=false
@@ -26,17 +28,14 @@ fatal() {
 }
 
 verify_guides_dir() {
-  local current
-  [[ -d "$guides_dir" && ! -L "$guides_dir" ]] || return 1
-  current="$(cd "$guides_dir" && pwd -P)" || return 1
-  [[ "$current" == "$guides_physical" ]]
+  [[ "$anchor_active" == true ]] || return 1
+  [[ -d "$guides_dir" && ! -L "$guides_dir" && . -ef "$guides_dir" ]]
 }
 
 cleanup_transaction() {
   local status=$?
   trap - EXIT HUP INT TERM
-  if [[ "$transaction_complete" != true && -n "$guides_physical" ]]; then
-    cd "$guides_physical" 2>/dev/null || true
+  if [[ "$transaction_complete" != true && "$anchor_active" == true ]]; then
     if [[ "$new_installed" == true && -n "$slug" ]]; then
       rm -rf -- "$slug" || true
       new_installed=false
@@ -56,11 +55,12 @@ cleanup_transaction() {
   fi
   [[ -z "$stage_dir" ]] || rm -rf -- "$stage_dir" || true
   if [[ "$target_displaced" != true && -n "$backup_dir" ]]; then
-    rm -rf -- "$backup_dir" || true
+    rmdir -- "$backup_dir" 2>/dev/null || true
   fi
   [[ -z "$diff_file" ]] || rm -f -- "$diff_file" || true
   [[ -z "$untracked_file" ]] || rm -f -- "$untracked_file" || true
   [[ -z "$tree_file" ]] || rm -f -- "$tree_file" || true
+  [[ -z "$lint_bin" ]] || rm -f -- "$lint_bin" || true
   exit "$status"
 }
 trap cleanup_transaction EXIT
@@ -185,11 +185,17 @@ validate_tree "$guide_dir"
 validate_artifacts "$guide_dir"
 
 [[ -d "$repo_root/.git" || -f "$repo_root/.git" ]] || fatal "repository root is not a Git worktree"
+if [[ -f "$guide_dir/meta.yaml" ]]; then
+  lint_bin=$(mktemp) || fatal "could not create guide lint executable"
+  (cd "$script_root/go" && go build -o "$lint_bin" ./cmd/lint-guide) || fatal "could not build guide linter"
+fi
+
 [[ -d "$guides_dir" && ! -L "$guides_dir" ]] || fatal "repository guides path must be a physical directory"
-guides_physical="$(cd "$guides_dir" && pwd -P)" || fatal "could not resolve guides directory"
+cd -P "$guides_dir" || fatal "could not enter guides directory"
+guides_physical=$PWD
+anchor_active=true
 [[ "$guides_physical" == "$repo_root/guides" ]] || fatal "repository guides path resolved outside the repository"
 verify_guides_dir || fatal "repository guides directory changed"
-cd "$guides_physical"
 
 if [[ "$outcome" == failed || ("$outcome" == blocked && -z "$slug") ]]; then
   check_git_paths ""
@@ -220,14 +226,14 @@ backup_dir=$(mktemp -d "./.factory-backup.XXXXXX") || fatal "could not create sa
 cp -a "$guide_dir/." "$stage_dir/" || fatal "could not copy export to stage"
 
 # The export may have changed during copying; trust only this staged snapshot.
-validate_tree "$guides_physical/${stage_dir#./}"
-validate_artifacts "$guides_physical/${stage_dir#./}"
+validate_tree "$stage_dir"
+validate_artifacts "$stage_dir"
 
 if [[ -f "$stage_dir/meta.yaml" ]]; then
   if [[ -f "$stage_dir/research.md" && -f "$stage_dir/external.md" && -f "$stage_dir/speakeasy.md" ]]; then
-    (cd "$script_root/go" && go run ./cmd/lint-guide "$guides_physical/${stage_dir#./}") || fatal "guide lint failed"
+    "$lint_bin" "$stage_dir" || fatal "guide lint failed"
   else
-    (cd "$script_root/go" && go run ./cmd/lint-guide --meta-only "$guides_physical/${stage_dir#./}") || fatal "guide metadata lint failed"
+    "$lint_bin" --meta-only "$stage_dir" || fatal "guide metadata lint failed"
   fi
 fi
 
@@ -244,13 +250,14 @@ verify_guides_dir || fatal "repository guides directory changed after install"
 check_git_paths "guides/$slug/"
 verify_guides_dir || fatal "repository guides directory changed after Git checks"
 
-transaction_complete=true
 if [[ "$target_displaced" == true ]]; then
-  rm -rf -- "$backup_dir/target" || fatal "could not remove guide backup"
+  rm -rf -- "$backup_dir" || fatal "could not remove guide backup"
   target_displaced=false
+else
+  rmdir -- "$backup_dir" || fatal "could not remove transaction backup"
 fi
-rm -rf -- "$backup_dir" || fatal "could not remove transaction backup"
 backup_dir=
+transaction_complete=true
 write_output outcome "$outcome"
 write_output slug "$slug"
 write_output provider "$provider"

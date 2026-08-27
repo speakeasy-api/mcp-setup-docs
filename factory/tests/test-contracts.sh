@@ -169,6 +169,8 @@ REPO="$VALIDATE_TMP/repo"
 REAL_GIT=$(command -v git)
 REAL_CP=$(command -v cp)
 REAL_MV=$(command -v mv)
+REAL_RM=$(command -v rm)
+SWAPPED_GUIDES=
 
 reset_validation_fixture() {
   rm -rf "$VALIDATE_TMP"
@@ -192,7 +194,7 @@ make_validation_fake() {
 }
 
 run_validator() {
-  export REAL_GIT REAL_CP REAL_MV REPO
+  export REAL_GIT REAL_CP REAL_MV REAL_RM REPO SWAPPED_GUIDES
   PATH="$VALIDATE_TMP/bin:$PATH" GITHUB_OUTPUT="$VALIDATE_TMP/outputs" \
     "$VALIDATOR" "$EXPORT" "$REPO"
 }
@@ -391,6 +393,78 @@ test_validation_blocked_full_lint_requires_research() {
   expect_validation_failure "blocked complete guide skipped full lint"
 }
 
+test_validation_rejects_ls_files_failure_and_restores_target() {
+  reset_validation_fixture
+  mkdir -p "$REPO/guides/github"
+  printf 'keep\n' >"$REPO/guides/github/stale.txt"
+  git -C "$REPO" add . && git -C "$REPO" commit -qm stale
+  make_export_report converged
+  copy_valid_guide
+  # shellcheck disable=SC2016
+  make_validation_fake git 'if [[ "$*" == *"ls-files --others"* ]]; then exit 73; fi; exec "$REAL_GIT" "$@"'
+  expect_validation_failure "Git ls-files command failure"
+  assert_eq keep "$(cat "$REPO/guides/github/stale.txt")"
+}
+
+test_validation_rolls_back_in_anchored_guides_after_path_swap() {
+  reset_validation_fixture
+  mkdir -p "$REPO/guides/github"
+  printf 'keep\n' >"$REPO/guides/github/stale.txt"
+  git -C "$REPO" add . && git -C "$REPO" commit -qm stale
+  make_export_report converged
+  copy_valid_guide
+  SWAPPED_GUIDES="$VALIDATE_TMP/original-guides"
+  # shellcheck disable=SC2016
+  make_validation_fake git 'if [[ "$*" == *"ls-files --others"* && ! -e "$SWAPPED_GUIDES" ]]; then "$REAL_GIT" "$@"; status=$?; "$REAL_MV" "$REPO/guides" "$SWAPPED_GUIDES"; mkdir "$REPO/guides"; printf replacement >"$REPO/guides/sentinel"; exit "$status"; fi; exec "$REAL_GIT" "$@"'
+  rm -f "$VALIDATE_TMP/outputs"
+  if output=$(run_validator 2>&1); then
+    fail "validator accepted a replaced guides path"
+  fi
+  assert_contains "repository guides directory changed after Git checks" "$output"
+  [[ ! -s "$VALIDATE_TMP/outputs" ]] || fail "guides replacement failure wrote GitHub outputs"
+  assert_eq keep "$(cat "$SWAPPED_GUIDES/github/stale.txt")"
+  assert_eq replacement "$(cat "$REPO/guides/sentinel")"
+  [[ ! -e "$REPO/guides/github" ]] || fail "rollback wrote into replacement guides directory"
+}
+
+test_validation_rejects_staged_nested_and_nonregular_entries() {
+  reset_validation_fixture
+  make_export_report converged
+  copy_valid_guide
+  # shellcheck disable=SC2016
+  make_validation_fake cp '"$REAL_CP" "$@"; dest=${!#}; case "$dest" in *factory-stage*) mkdir "$dest/nested" ;; esac'
+  expect_validation_failure "staged nested directory"
+
+  reset_validation_fixture
+  make_export_report converged
+  copy_valid_guide
+  # shellcheck disable=SC2016
+  make_validation_fake cp '"$REAL_CP" "$@"; dest=${!#}; case "$dest" in *factory-stage*) mkfifo "$dest/nonregular" ;; esac'
+  expect_validation_failure "staged non-regular entry"
+}
+
+test_validation_rejects_staged_artifact_mismatch() {
+  reset_validation_fixture
+  make_export_report converged
+  copy_valid_guide
+  # shellcheck disable=SC2016
+  make_validation_fake cp '"$REAL_CP" "$@"; dest=${!#}; case "$dest" in *factory-stage*) "$REAL_RM" "$dest/speakeasy.md" ;; esac'
+  expect_validation_failure "staged artifact mismatch"
+}
+
+test_validation_backup_cleanup_failure_rolls_back() {
+  reset_validation_fixture
+  mkdir -p "$REPO/guides/github"
+  printf 'keep\n' >"$REPO/guides/github/stale.txt"
+  git -C "$REPO" add . && git -C "$REPO" commit -qm stale
+  make_export_report converged
+  copy_valid_guide
+  # shellcheck disable=SC2016
+  make_validation_fake rm 'if [[ "$*" == *".factory-backup."* ]]; then exit 74; fi; exec "$REAL_RM" "$@"'
+  expect_validation_failure "backup cleanup failure"
+  assert_eq keep "$(cat "$REPO/guides/github/stale.txt")"
+}
+
 test_validation_rejects_preexisting_out_of_scope_diff() {
   reset_validation_fixture
   printf 'changed
@@ -413,4 +487,9 @@ test_validation_rejects_tracked_guides_symlink_escape
 test_validation_revalidates_staged_snapshot
 test_validation_rejects_no_install_guide_symlink
 test_validation_blocked_full_lint_requires_research
+test_validation_rejects_ls_files_failure_and_restores_target
+test_validation_rolls_back_in_anchored_guides_after_path_swap
+test_validation_rejects_staged_nested_and_nonregular_entries
+test_validation_rejects_staged_artifact_mismatch
+test_validation_backup_cleanup_failure_rolls_back
 test_validation_rejects_preexisting_out_of_scope_diff
