@@ -1,4 +1,10 @@
 .git
+**/.git
 .worktrees
+.claude/worktrees
 .env
 .env.*
+mise.local.toml
+pulse-catalog.json
+tools/pulse-catalog/pulse-catalog.json
+.tmp-*

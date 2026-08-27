@@ -32,24 +32,40 @@ test_dockerfile_builds_static_linter_without_go_in_final_image() {
 }
 
 test_docker_context_excludes_credentials_and_keeps_build_inputs() {
-  local ignore context archive listing required
+  local ignore context archive listing excluded required
   ignore="$ROOT/.dockerignore"
   context="$TMP/docker-context"
   archive="$TMP/docker-context.tar"
   test -f "$ignore" || fail "root .dockerignore does not exist"
-  grep -Fqx '.git' "$ignore" || fail ".dockerignore does not exclude .git"
-  mkdir -p "$context/.git" "$context/go" "$context/factory/scripts"
-  printf '%s\n' credential-bearing-metadata >"$context/.git/config"
+  grep -Fqx '.git' "$ignore" || fail ".dockerignore does not exclude root .git"
+  mkdir -p "$context/nested/.git" "$context/.worktrees/private" \
+    "$context/.claude/worktrees/private" "$context/tools/pulse-catalog" \
+    "$context/.tmp-run" "$context/go" "$context/factory/scripts"
+  printf '%s\n' 'gitdir: /credential-bearing/worktree' >"$context/.git"
+  printf '%s\n' credential-bearing-metadata >"$context/nested/.git/config"
+  printf '%s\n' secret >"$context/.worktrees/private/token"
+  printf '%s\n' secret >"$context/.claude/worktrees/private/token"
+  printf '%s\n' secret >"$context/mise.local.toml"
+  printf '%s\n' secret >"$context/.env"
+  printf '%s\n' secret >"$context/.env.local"
+  printf '%s\n' secret >"$context/pulse-catalog.json"
+  printf '%s\n' secret >"$context/tools/pulse-catalog/pulse-catalog.json"
+  printf '%s\n' secret >"$context/.tmp-run/token"
   cp "$ROOT/go/go.mod" "$ROOT/go/go.sum" "$context/go/"
   cp -R "$ROOT/go/cmd" "$ROOT/go/internal" "$context/go/"
-  cp "$ROOT/factory/Dockerfile" "$context/factory/"
+  cp "$ROOT/factory/Dockerfile" "$ROOT/factory/config.env" "$context/factory/"
   cp "$ROOT/factory/scripts/validate-report.sh" \
     "$ROOT/factory/scripts/container-entrypoint.sh" "$context/factory/scripts/"
   tar -cf "$archive" --exclude-from="$ignore" -C "$context" .
   listing="$(tar -tf "$archive")"
-  if grep -Eq '(^|/)[.]git(/|$)' <<<"$listing"; then fail "Docker context contains .git"; fi
+  for excluded in .git nested/.git .worktrees .claude/worktrees mise.local.toml \
+    .env .env.local pulse-catalog.json tools/pulse-catalog/pulse-catalog.json .tmp-run; do
+    if grep -Eq "(^|/)${excluded//./[.]}(/|$)" <<<"$listing"; then
+      fail "Docker context contains local-only path: $excluded"
+    fi
+  done
   for required in go/go.mod go/go.sum go/cmd/ go/internal/ factory/Dockerfile \
-    factory/scripts/validate-report.sh factory/scripts/container-entrypoint.sh; do
+    factory/config.env factory/scripts/validate-report.sh factory/scripts/container-entrypoint.sh; do
     grep -Fq "$required" <<<"$listing" || fail "Docker context excludes required input: $required"
   done
   # Literal shell source is the build-interface contract under test.
