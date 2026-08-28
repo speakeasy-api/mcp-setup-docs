@@ -13,7 +13,10 @@ for phrase in \
   '/input/catalog.json' \
   'bash factory/scripts/inspect-inputs.sh /input/issue.json /input/catalog.json' \
   'do not construct another initial-inspection tool program' \
-  "catalog presence only from the \`.catalog\` object returned by that command" \
+  'bash factory/scripts/inspect-guide-context.sh <slug>' \
+  'never inspect repository files directly or run another Phase 1 file-discovery tool' \
+  'permit only bounded reads of the helper-generated spill artifact' \
+  "catalog presence only from the \`.catalog\` object returned by the initial command" \
   "never inspect \`/input/catalog.json\` directly" \
   'openai/gpt-5.6-sol' \
   'research.md' 'meta.yaml' 'external.md' 'speakeasy.md' \
