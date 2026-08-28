@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://speakeasy.com/schemas/factory/run-report.schema.json",
+  "title": "Kit guide factory run report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "outcome",
+    "provider",
+    "slug",
+    "persona",
+    "summary",
+    "open_questions",
+    "blockers",
+    "nits",
+    "review_rounds",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "outcome": {
+      "enum": ["converged", "awaiting_scope", "blocked", "failed"]
+    },
+    "provider": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "slug": {
+      "type": ["string", "null"],
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "persona": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "summary": {"type": "string", "minLength": 1},
+    "open_questions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "blockers": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "nits": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "review_rounds": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "artifacts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": ["research.md", "meta.yaml", "external.md", "speakeasy.md"]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"provider": {"type": "null"}},
+        "required": ["provider"]
+      },
+      "then": {"$ref": "#/$defs/preArtifactFailure"}
+    },
+    {
+      "if": {
+        "properties": {"slug": {"type": "null"}},
+        "required": ["slug"]
+      },
+      "then": {"$ref": "#/$defs/preArtifactFailure"}
+    },
+    {
+      "if": {
+        "properties": {"persona": {"type": "null"}},
+        "required": ["persona"]
+      },
+      "then": {"$ref": "#/$defs/preArtifactFailure"}
+    },
+    {
+      "if": {
+        "properties": {"outcome": {"const": "converged"}},
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "blockers": {"maxItems": 0},
+          "artifacts": {
+            "allOf": [
+              {"contains": {"const": "research.md"}},
+              {"contains": {"const": "meta.yaml"}},
+              {"contains": {"const": "external.md"}},
+              {"contains": {"const": "speakeasy.md"}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"outcome": {"const": "awaiting_scope"}},
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "artifacts": {
+            "allOf": [
+              {"contains": {"const": "research.md"}},
+              {"contains": {"const": "meta.yaml"}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"outcome": {"const": "failed"}},
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {"artifacts": {"maxItems": 0}}
+      }
+    }
+  ],
+  "$defs": {
+    "preArtifactFailure": {
+      "properties": {
+        "outcome": {"enum": ["blocked", "failed"]},
+        "artifacts": {"maxItems": 0}
+      }
+    }
+  }
+}

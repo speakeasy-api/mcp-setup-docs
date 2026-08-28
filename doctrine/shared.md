@@ -1,10 +1,11 @@
-# Shared rules for drafting-pipeline agents
+# Shared rules for guide-factory agents
 
-Every agent in the drafting pipeline reads this file plus `doctrine/glossary.md` (the
-vocabulary) before its own role doc. The pipeline is orchestrated by
-`pipeline/` (`mise run draft-guide` / factory Action).
+Every agent in the Kit guide factory reads this file plus `doctrine/glossary.md`
+(the vocabulary) before its own role doc. The coordinator is defined in
+`factory/coordinator.md` and runs through the factory Action or
+`mise run draft-guide`.
 
-## The pipeline
+## The factory
 
 One Guide (`guides/<slug>/`) moves through four roles:
 
@@ -24,10 +25,9 @@ Revision agents (spawned between review rounds) may touch all four guide
 files, following the Technical Research and Writer role docs for whichever
 file they edit.
 
-Skip-if-unchanged for draft and per-dimension review is defined by the
-pipeline lockfile contract (`guides/<slug>/pipeline.lock.json`); see
-[`pipeline-lock.md`](pipeline-lock.md). Research always runs. Lock semantics
-are for orchestrators — agents do not read or write the lockfile.
+Every trigger reruns the whole guide: identity resolution, research, drafting,
+review, and any revisions. There is no phase-level skip or resume state. A run
+may reuse the existing guide as input, but it must revalidate every artifact.
 
 ## The anchor contract
 

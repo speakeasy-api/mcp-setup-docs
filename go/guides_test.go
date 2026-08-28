@@ -172,7 +172,7 @@ func TestEmbedSetExcludesAuthoringFiles(t *testing.T) {
 		}
 		base := filepath.Base(p)
 		switch base {
-		case "research.md", "pipeline.lock.json", "README.md":
+		case "research.md", "README.md":
 			t.Errorf("authoring file embedded: %s", p)
 		}
 		return nil
