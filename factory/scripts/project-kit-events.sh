@@ -83,7 +83,7 @@ while IFS= read -r line || [[ -n $line ]]; do
          and (.call | type == "string") and (.tool | type == "string")
          and (.summary | type == "string") and (.at | uint)
       then (.tool | source_tool) as $tool
-        | {kind: "child", call, event: "started", tool: $tool,
+        | {kind: "child", call, source_tool: .tool, event: "started", tool: $tool,
            operation: (if $tool == "shell" then (.summary | shell_operation)
                        elif $tool == "unknown" then "unknown" else $tool end),
            success: null, duration_ms: null}
@@ -94,9 +94,7 @@ while IFS= read -r line || [[ -n $line ]]; do
          and (.ok | type == "boolean") and (.summary | type == "string")
          and (.millis | uint) and .millis <= 10800000
       then (.tool | source_tool) as $tool
-        | {kind: "child", call, event: "finished", tool: $tool,
-           operation: (if $tool == "shell" then "unrecognized"
-                       elif $tool == "unknown" then "unknown" else $tool end),
+        | {kind: "child", call, source_tool: .tool, event: "finished", tool: $tool,
            success: .ok, duration_ms: .millis}
       else error("invalid") end
     else error("invalid")
@@ -121,27 +119,41 @@ while IFS= read -r line || [[ -n $line ]]; do
     ($work[0]) as $work
     | ($state[0]) as $old
     | ($old.calls[$work.call] // null) as $known
-    | (if $known == null then
-         {call_ref: $old.next_ref, tool: $work.tool, operation: $work.operation}
-       else $known end) as $call
-    | if $known != null and $known.tool != $work.tool then error("invalid")
-      else {
-        state: (if $known == null then
-                  $old
-                  | .calls[$work.call] = $call
-                  | .next_ref += 1
-                else $old end),
+    | if $work.event == "started" then
+        if $known != null then error("invalid")
+        else
+          {call_ref: $old.next_ref, source_tool: $work.source_tool,
+           tool: $work.tool, operation: $work.operation, lifecycle: "started"} as $call
+          | {
+              state: ($old
+                | .calls[$work.call] = $call
+                | .next_ref += 1),
+              call: $call
+            }
+        end
+      elif $known == null
+        or $known.lifecycle != "started"
+        or $known.source_tool != $work.source_tool
+        or $known.tool != $work.tool then
+        error("invalid")
+      else
+        {
+          state: ($old | .calls[$work.call].lifecycle = "finished"),
+          call: $known
+        }
+      end
+    | {
+        state: .state,
         event: {
           sequence: $sequence,
-          call_ref: $call.call_ref,
+          call_ref: .call.call_ref,
           event: $work.event,
-          tool: $call.tool,
-          operation: $call.operation,
+          tool: .call.tool,
+          operation: .call.operation,
           success: $work.success,
           duration_ms: $work.duration_ms
         }
       }
-      end
   ' >"$PACKAGE" 2>/dev/null; then
     invalid=true
     rm -f -- "$PACKAGE"

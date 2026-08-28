@@ -178,5 +178,17 @@ expect_bad_runtime unknown-event "${marker}{\"event\":\"future_event\",\"summary
 expect_bad_runtime extra-source-key "${marker}{\"event\":\"session_started\",\"session_id\":\"SECRET_EXTRA_KEY_SESSION_CANARY\",\"prompt\":\"SECRET_EXTRA_KEY_PROMPT_CANARY\"}"
 expect_bad_runtime invalid-source-type "${marker}{\"event\":\"child_started\",\"call\":\"SECRET_BAD_TYPE_CALL_CANARY\",\"tool\":\"shell\",\"summary\":\"SECRET_BAD_TYPE_SUMMARY_CANARY\",\"at\":\"7\"}"
 expect_bad_runtime duration-over-cap "${marker}{\"event\":\"child_finished\",\"call\":\"SECRET_LONG_CALL_CANARY\",\"tool\":\"edit\",\"ok\":true,\"summary\":\"SECRET_LONG_RESULT_CANARY\",\"millis\":10800001}"
+expect_bad_runtime duplicate-start-changed-command \
+  "${marker}{\"event\":\"child_started\",\"call\":\"SECRET_DUPLICATE_START_CALL_CANARY\",\"tool\":\"shell\",\"summary\":\"bash factory/scripts/inspect-inputs.sh /input/issue.json /input/catalog.json\",\"at\":20}"$'\n'\
+"${marker}{\"event\":\"child_started\",\"call\":\"SECRET_DUPLICATE_START_CALL_CANARY\",\"tool\":\"shell\",\"summary\":\"printf SECRET_CHANGED_COMMAND_CANARY\",\"at\":21}"
+expect_bad_runtime finish-before-start \
+  "${marker}{\"event\":\"child_finished\",\"call\":\"SECRET_ORPHAN_FINISH_CALL_CANARY\",\"tool\":\"edit\",\"ok\":false,\"summary\":\"SECRET_ORPHAN_RESULT_CANARY\",\"millis\":22}"
+expect_bad_runtime duplicate-finish \
+  "${marker}{\"event\":\"child_started\",\"call\":\"SECRET_DUPLICATE_FINISH_CALL_CANARY\",\"tool\":\"edit\",\"summary\":\"SECRET_DUPLICATE_FINISH_INPUT_CANARY\",\"at\":23}"$'\n'\
+"${marker}{\"event\":\"child_finished\",\"call\":\"SECRET_DUPLICATE_FINISH_CALL_CANARY\",\"tool\":\"edit\",\"ok\":true,\"summary\":\"SECRET_DUPLICATE_FINISH_RESULT_1_CANARY\",\"millis\":24}"$'\n'\
+"${marker}{\"event\":\"child_finished\",\"call\":\"SECRET_DUPLICATE_FINISH_CALL_CANARY\",\"tool\":\"edit\",\"ok\":true,\"summary\":\"SECRET_DUPLICATE_FINISH_RESULT_2_CANARY\",\"millis\":25}"
+expect_bad_runtime inconsistent-tool \
+  "${marker}{\"event\":\"child_started\",\"call\":\"SECRET_INCONSISTENT_TOOL_CALL_CANARY\",\"tool\":\"edit\",\"summary\":\"SECRET_EDIT_INPUT_CANARY\",\"at\":26}"$'\n'\
+"${marker}{\"event\":\"child_finished\",\"call\":\"SECRET_INCONSISTENT_TOOL_CALL_CANARY\",\"tool\":\"shell\",\"ok\":true,\"summary\":\"SECRET_SHELL_RESULT_CANARY\",\"millis\":27}"
 
 printf 'PASS: strict diagnostics validation and runtime projection\n'
