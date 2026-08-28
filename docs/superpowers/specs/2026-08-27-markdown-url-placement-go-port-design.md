@@ -6,6 +6,28 @@ Rewrite PR #171 so its authoritative guide validator is implemented in Go rather
 
 This port removes the TypeScript guide-linter implementation and linter-only npm dependencies. It does not claim to remove Node or TypeScript from the whole repository: drafting, orchestration, stale sweep, and other pipeline commands remain separate future migrations.
 
+## Reconciliation After the Factory Prerequisite
+
+The prerequisite factory work merged before this branch was finalized and removed the
+remaining TypeScript drafting pipeline. Reconciliation with current `main` therefore
+replaces the temporary TypeScript adapter described below with direct factory consumers;
+the adapter sections remain the approved pre-reconciliation rationale, not the final tree.
+Node 24 remains pinned for repository JavaScript tooling, while the prerequisite removed
+the TypeScript 7 pipeline rather than this port reintroducing obsolete code.
+
+`tools/lint-guide` remains the sole semantic implementation. Factory CI tests and builds
+that nested module. The production guide-draft workflow installs Go 1.22, builds the
+command once to `${{ runner.temp }}/lint-guide`, and exports `LINT_GUIDE_BIN` at job scope.
+`factory/scripts/validate.sh` consumes that binary and falls back to building the same
+nested command for local use. The factory image also builds the nested command and copies
+only the static executable into the runtime image. The public `go` module contains only
+published API and generation code; duplicate checker and CLI packages are removed.
+
+The factory's partial-export contract adds `--meta-only` without changing the original
+human/JSON target, ordering, or `0`/`1`/`2` contracts. The factory coordinator accepts
+exit `0` or `1`, validates exactly one grouped JSON guide result, and flattens only its
+`findings`; exit `2` or malformed output is operational failure.
+
 ## Module Boundary
 
 Create a nested Go module at `tools/lint-guide`:

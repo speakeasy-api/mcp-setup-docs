@@ -487,6 +487,19 @@ test_validation_partial_backup_cleanup_failure_keeps_commit() {
   grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "partial cleanup warning suppressed GitHub outputs"
 }
 
+test_validation_uses_supplied_linter_binary() {
+  reset_validation_fixture
+  make_export_report converged
+  copy_valid_guide
+  local supplied="$VALIDATE_TMP/supplied-lint-guide"
+  (cd "$ROOT/tools/lint-guide" && CGO_ENABLED=0 go build -o "$supplied" ./cmd/lint-guide)
+  export REAL_GIT REAL_CP REAL_MV REAL_RM REPO SWAPPED_GUIDES
+  (cd "$VALIDATE_TMP" && \
+    PATH="$VALIDATE_TMP/bin:$PATH" GITHUB_OUTPUT="$VALIDATE_TMP/outputs" \
+    LINT_GUIDE_BIN=supplied-lint-guide "$VALIDATOR" "$EXPORT" "$REPO")
+  [[ -x "$supplied" ]] || fail "validator removed the supplied linter binary"
+}
+
 test_validation_rejects_preexisting_out_of_scope_diff() {
   reset_validation_fixture
   printf 'changed
@@ -515,4 +528,5 @@ test_validation_rejects_staged_nested_and_nonregular_entries
 test_validation_rejects_staged_artifact_mismatch
 test_validation_backup_cleanup_failure_warns_after_commit
 test_validation_partial_backup_cleanup_failure_keeps_commit
+test_validation_uses_supplied_linter_binary
 test_validation_rejects_preexisting_out_of_scope_diff

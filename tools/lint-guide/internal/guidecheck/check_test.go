@@ -39,6 +39,37 @@ func TestCheckGuideFixtures(t *testing.T) {
 	}
 }
 
+func TestCheckMetaValidatesPartialGuide(t *testing.T) {
+	root := filepath.Join("testdata", "valid")
+	guideDir := filepath.Join(root, "guides", "sample")
+
+	got, err := CheckMeta(guideDir, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 0 {
+		t.Fatalf("CheckMeta returned findings: %#v", got)
+	}
+}
+
+func TestCheckMetaReportsInvalidMetadataWithoutMarkdown(t *testing.T) {
+	root := filepath.Join("testdata", "bad-meta-schema")
+	guideDir := filepath.Join(root, "guides", "sample")
+
+	got, err := CheckMeta(guideDir, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) == 0 {
+		t.Fatal("CheckMeta returned no findings for invalid metadata")
+	}
+	for _, finding := range got {
+		if finding.Target != "meta" {
+			t.Fatalf("CheckMeta returned non-meta finding: %#v", finding)
+		}
+	}
+}
+
 func TestJavaScriptWhitespace(t *testing.T) {
 	jsWhitespace := []rune{
 		'\t', '\n', '\v', '\f', '\r', ' ', '\u00a0', '\u1680',

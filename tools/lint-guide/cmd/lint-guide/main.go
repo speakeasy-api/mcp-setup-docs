@@ -10,7 +10,7 @@ import (
 	"github.com/speakeasy-api/mcp-setup-docs/tools/lint-guide/internal/guidecheck"
 )
 
-const usageText = "Usage: npm run lint-guide -- [--json] <slug|guides/<slug>|path>…"
+const usageText = "Usage: npm run lint-guide -- [--json] [--meta-only] <slug|guides/<slug>|path>…"
 
 type guideResult struct {
 	Guide    string               `json:"guide"`
@@ -19,6 +19,7 @@ type guideResult struct {
 
 type options struct {
 	jsonOutput bool
+	metaOnly   bool
 	targets    []string
 }
 
@@ -60,6 +61,8 @@ func parseArgs(args []string) (options, bool) {
 		switch arg {
 		case "--json":
 			opts.jsonOutput = true
+		case "--meta-only":
+			opts.metaOnly = true
 		case "--help", "-h":
 			return options{}, true
 		default:
@@ -86,7 +89,13 @@ func runOptions(opts options, cwd, repoRoot string, stdout, stderr io.Writer) in
 	results := make([]guideResult, 0, len(dirs))
 	total := 0
 	for _, dir := range dirs {
-		findings, err := guidecheck.CheckGuide(dir, repoRoot)
+		var findings []guidecheck.Finding
+		var err error
+		if opts.metaOnly {
+			findings, err = guidecheck.CheckMeta(dir, repoRoot)
+		} else {
+			findings, err = guidecheck.CheckGuide(dir, repoRoot)
+		}
 		if err != nil {
 			fmt.Fprintln(stderr, err)
 			return 2

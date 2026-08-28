@@ -15,7 +15,8 @@ backup_dir=
 diff_file=
 untracked_file=
 tree_file=
-lint_bin=
+lint_bin=${LINT_GUIDE_BIN:-}
+lint_owned=false
 anchor_active=false
 target_displaced=false
 new_installed=false
@@ -60,7 +61,7 @@ cleanup_transaction() {
   [[ -z "$diff_file" ]] || rm -f -- "$diff_file" || true
   [[ -z "$untracked_file" ]] || rm -f -- "$untracked_file" || true
   [[ -z "$tree_file" ]] || rm -f -- "$tree_file" || true
-  [[ -z "$lint_bin" ]] || rm -f -- "$lint_bin" || true
+  [[ "$lint_owned" != true || -z "$lint_bin" ]] || rm -f -- "$lint_bin" || true
   exit "$status"
 }
 trap cleanup_transaction EXIT
@@ -161,8 +162,14 @@ validate_artifacts "$guide_dir"
 
 [[ -d "$repo_root/.git" || -f "$repo_root/.git" ]] || fatal "repository root is not a Git worktree"
 if [[ -f "$guide_dir/meta.yaml" ]]; then
-  lint_bin=$(mktemp) || fatal "could not create guide lint executable"
-  (cd "$script_root/go" && go build -o "$lint_bin" ./cmd/lint-guide) || fatal "could not build guide linter"
+  if [[ -n "$lint_bin" ]]; then
+    [[ -x "$lint_bin" ]] || fatal "LINT_GUIDE_BIN is not executable: $lint_bin"
+    lint_bin="$(cd "$(dirname "$lint_bin")" && pwd -P)/$(basename "$lint_bin")"
+  else
+    lint_bin=$(mktemp) || fatal "could not create guide lint executable"
+    lint_owned=true
+    (cd "$script_root/tools/lint-guide" && go build -o "$lint_bin" ./cmd/lint-guide) || fatal "could not build guide linter"
+  fi
 fi
 
 [[ -d "$guides_dir" && ! -L "$guides_dir" ]] || fatal "repository guides path must be a physical directory"

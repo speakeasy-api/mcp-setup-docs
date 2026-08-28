@@ -42,10 +42,26 @@ func TestUsageAndHelp(t *testing.T) {
 			if got.stdout != "" {
 				t.Fatalf("stdout = %q, want empty", got.stdout)
 			}
-			if got.stderr != "Usage: npm run lint-guide -- [--json] <slug|guides/<slug>|path>…\n" {
+			if got.stderr != "Usage: npm run lint-guide -- [--json] [--meta-only] <slug|guides/<slug>|path>…\n" {
 				t.Fatalf("stderr = %q", got.stderr)
 			}
 		})
+	}
+}
+
+func TestMetaOnlyValidatesMetadataWithoutPublishedMarkdown(t *testing.T) {
+	repo, cwd := newTempRepo(t)
+	guideDir := filepath.Join(repo, "guides", "sample")
+	if err := os.Remove(filepath.Join(guideDir, "external.md")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(filepath.Join(guideDir, "speakeasy.md")); err != nil {
+		t.Fatal(err)
+	}
+
+	got := runCLI([]string{"--meta-only", "sample"}, cwd, repo)
+	if got.code != 0 || got.stdout != "sample: ok\n" || got.stderr != "" {
+		t.Fatalf("exit = %d, stdout = %q, stderr = %q", got.code, got.stdout, got.stderr)
 	}
 }
 

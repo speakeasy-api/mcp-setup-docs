@@ -25,6 +25,9 @@ test_dockerfile_builds_static_linter_without_go_in_final_image() {
   assert_contains "FROM debian:trixie-slim@sha256:d7e12182ce18b85b93007c1dedf31f2d29e01ccf3182cc4017c709b6259bc132" "$dockerfile"
   assert_contains "CGO_ENABLED=0" "$dockerfile"
   assert_contains "go build" "$dockerfile"
+  assert_contains "COPY tools/lint-guide/go.mod tools/lint-guide/go.sum ./" "$dockerfile"
+  assert_contains "COPY tools/lint-guide/cmd ./cmd" "$dockerfile"
+  assert_contains "COPY tools/lint-guide/internal ./internal" "$dockerfile"
   assert_contains "./cmd/lint-guide" "$dockerfile"
   assert_contains "COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide" "$dockerfile"
   assert_contains "COPY factory/scripts/validate-report.sh /usr/local/bin/validate-report" "$dockerfile"
@@ -40,7 +43,7 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs() {
   grep -Fqx '.git' "$ignore" || fail ".dockerignore does not exclude root .git"
   mkdir -p "$context/nested/.git" "$context/.worktrees/private" \
     "$context/.claude/worktrees/private" "$context/tools/pulse-catalog" \
-    "$context/.tmp-run" "$context/go" "$context/factory/scripts"
+    "$context/.tmp-run" "$context/tools/lint-guide" "$context/factory/scripts"
   printf '%s\n' 'gitdir: /credential-bearing/worktree' >"$context/.git"
   printf '%s\n' credential-bearing-metadata >"$context/nested/.git/config"
   printf '%s\n' secret >"$context/.worktrees/private/token"
@@ -51,8 +54,8 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs() {
   printf '%s\n' secret >"$context/pulse-catalog.json"
   printf '%s\n' secret >"$context/tools/pulse-catalog/pulse-catalog.json"
   printf '%s\n' secret >"$context/.tmp-run/token"
-  cp "$ROOT/go/go.mod" "$ROOT/go/go.sum" "$context/go/"
-  cp -R "$ROOT/go/cmd" "$ROOT/go/internal" "$context/go/"
+  cp "$ROOT/tools/lint-guide/go.mod" "$ROOT/tools/lint-guide/go.sum" "$context/tools/lint-guide/"
+  cp -R "$ROOT/tools/lint-guide/cmd" "$ROOT/tools/lint-guide/internal" "$context/tools/lint-guide/"
   cp "$ROOT/factory/Dockerfile" "$ROOT/factory/config.env" "$context/factory/"
   cp "$ROOT/factory/scripts/validate-report.sh" \
     "$ROOT/factory/scripts/container-entrypoint.sh" "$context/factory/scripts/"
@@ -64,7 +67,7 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs() {
       fail "Docker context contains local-only path: $excluded"
     fi
   done
-  for required in go/go.mod go/go.sum go/cmd/ go/internal/ factory/Dockerfile \
+  for required in tools/lint-guide/go.mod tools/lint-guide/go.sum tools/lint-guide/cmd/ tools/lint-guide/internal/ factory/Dockerfile \
     factory/config.env factory/scripts/validate-report.sh factory/scripts/container-entrypoint.sh; do
     grep -Fq "$required" <<<"$listing" || fail "Docker context excludes required input: $required"
   done
