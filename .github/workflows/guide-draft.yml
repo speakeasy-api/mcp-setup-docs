@@ -122,6 +122,15 @@ jobs:
             "$RUNNER_TEMP/export"
           cp "$RUNNER_TEMP/export/run-report.json" "$RUNNER_TEMP/run-report.json"
 
+      - name: Upload safe factory diagnostics
+        if: failure() && steps.kit.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: guide-factory-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/export/factory-diagnostics.json
+          retention-days: 7
+          if-no-files-found: ignore
+
       - name: Validate export
         id: validate
         if: success() && steps.refusal.outcome != 'success'

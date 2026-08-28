@@ -76,10 +76,10 @@ screenshots.
 
 **Public-docs silence is not an omission.** When provider docs do not
 publish exact field or control labels, and the Dossier (or a setup file)
-already records an open question plus a hedge ("the submission control
-shown in the console", conceptual field names without invented chrome),
-that is correct rendering under I1 — not a research-target blocker
+already records a Research limitation plus a hedge ("the submission
+control shown in the console", conceptual field names without invented
+chrome), that is correct rendering under I1 — not a research-target blocker
 demanding a human-verified console capture. Score a nit at most if the
-hedge is missing; ensure the open question exists. Demand console capture
+hedge is missing; ensure the Research limitation exists. Demand console capture
 only when live probing contradicts documented URL/behavior, or when the
 operator supplies verified labels in notes.
