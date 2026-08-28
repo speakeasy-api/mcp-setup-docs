@@ -113,8 +113,8 @@ for phrase in \
   'factory/scripts/prepare-catalog.sh' \
   'factory/scripts/run-kit.sh' \
   'factory/scripts/validate.sh' \
-  'factory/scripts/publish.sh publish' \
-  'factory/scripts/publish.sh cleanup' \
+  'bash "$PUBLISHER_PATH" publish' \
+  'bash "$PUBLISHER_PATH" cleanup' \
   'if: always()' \
   'OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}' \
   'PULSE_REGISTRY_KEY: ${{ secrets.PULSE_REGISTRY_KEY }}' \
@@ -139,16 +139,20 @@ done
 if grep -Eq '(^|[[:space:]])gh[[:space:]]' <<<"$kit_step"; then fail 'Kit step runs gh directly'; fi
 
 previous=0
-for script in preflight.sh prepare-input.sh prepare-catalog.sh run-kit.sh validate.sh 'publish.sh publish' 'publish.sh cleanup'; do
+for script in preflight.sh prepare-input.sh prepare-catalog.sh run-kit.sh validate.sh 'PUBLISHER_PATH" publish' 'PUBLISHER_PATH" cleanup'; do
   line="$(grep -nF "$script" "$WORKFLOW" | head -1 | cut -d: -f1)"
   [[ -n "$line" && "$line" -gt "$previous" ]] || fail "workflow order violation at $script"
   previous=$line
 done
 resume_line="$(grep -nF 'Checkout resume branch and sync main' "$WORKFLOW" | cut -d: -f1)"
-transition_line="$(grep -nF 'publish.sh transition' "$WORKFLOW" | head -1 | cut -d: -f1)"
+transition_line="$(grep -nF 'PUBLISHER_PATH" transition' "$WORKFLOW" | head -1 | cut -d: -f1)"
 [[ -n "$resume_line" && "$resume_line" -lt "$transition_line" ]] || fail 'resume sync must precede transition'
 
 assert_step_contains 'Set up publisher' 'id: publisher_setup'
+assert_step_contains 'Set up publisher' "mkdir -p \"\$RUNNER_TEMP/guide-factory-publisher/factory/scripts\""
+assert_step_contains 'Set up publisher' 'cp factory/scripts/publish.sh factory/scripts/lib.sh'
+assert_step_contains 'Set up publisher' "PUBLISHER_PATH=\"\$RUNNER_TEMP/guide-factory-publisher/factory/scripts/publish.sh\""
+assert_step_contains 'Set up publisher' ">>\"\$GITHUB_ENV\""
 assert_step_contains 'Preflight existing factory work' 'id: preflight'
 assert_step_contains 'Preflight existing factory work' 'Preflight failed.'
 assert_step_contains 'Refuse non-factory pull request' 'id: refusal'
@@ -157,12 +161,42 @@ assert_step_contains 'Refuse non-factory pull request' 'Refusal reporting failed
 assert_step_contains 'Checkout resume branch and sync main' 'id: resume_sync'
 assert_step_contains 'Checkout resume branch and sync main' "success() && steps.refusal.outcome != 'success'"
 assert_step_contains 'Checkout resume branch and sync main' 'Resume branch synchronization failed.'
+resume_block="$(step_block 'Checkout resume branch and sync main')"
+name_line="$(grep -nF 'git config --local user.name github-actions[bot]' <<<"$resume_block" | cut -d: -f1)"
+email_line="$(grep -nF 'git config --local user.email 41898282+github-actions[bot]@users.noreply.github.com' <<<"$resume_block" | cut -d: -f1)"
+merge_line="$(grep -nF 'git merge --no-edit origin/main' <<<"$resume_block" | cut -d: -f1)"
+[[ -n "$name_line" && -n "$email_line" && "$name_line" -lt "$merge_line" && "$email_line" -lt "$merge_line" ]] ||
+  fail 'repo-local bot identity must be configured before resume merge'
 for step in 'Transition labels' 'Prepare issue input' 'Prepare catalog snapshot' 'Run Kit' 'Validate export' 'Publish guide'; do
   assert_step_contains "$step" "if: success() && steps.refusal.outcome != 'success'"
 done
 for spec in 'Transition labels:id: transition' 'Prepare issue input:id: prepare_input' 'Prepare catalog snapshot:id: prepare_catalog' 'Run Kit:id: kit' 'Validate export:id: validate' 'Publish guide:id: publish'; do
   assert_step_contains "${spec%%:*}" "${spec#*:}"
 done
+for spec in \
+  'Set up publisher:ensure-labels' \
+  'Refuse non-factory pull request:refuse' \
+  'Transition labels:transition' \
+  'Publish guide:publish' \
+  'Report failure:fail' \
+  'Cleanup labels:cleanup'; do
+  assert_step_contains "${spec%%:*}" "bash \"\$PUBLISHER_PATH\" ${spec#*:}"
+done
+assert_eq '6' "$(grep -Fc "bash \"\$PUBLISHER_PATH\"" "$WORKFLOW")"
+
+publisher_tmp="$(mktemp -d)"
+mkdir -p "$publisher_tmp/stable/factory/scripts" "$publisher_tmp/pre-cutover-checkout"
+cp "$ROOT/factory/scripts/publish.sh" "$ROOT/factory/scripts/lib.sh" \
+  "$publisher_tmp/stable/factory/scripts/"
+if publisher_error="$(cd "$publisher_tmp/pre-cutover-checkout" && \
+  GH_REPO=owner/repo ISSUE_NUMBER=1 \
+  bash "$publisher_tmp/stable/factory/scripts/publish.sh" unsupported 2>&1)"; then
+  rm -rf "$publisher_tmp"
+  fail 'stable publisher accepted an unsupported command'
+fi
+rm -rf "$publisher_tmp"
+assert_contains 'usage: publish.sh' "$publisher_error"
+
 assert_step_contains 'Report failure' 'id: failure_report'
 assert_step_contains 'Report failure' "failure() && steps.publisher_setup.outcome == 'success' && steps.refusal.outcome != 'success'"
 assert_step_contains 'Cleanup labels' "if: always() && steps.publisher_setup.outcome == 'success'"
