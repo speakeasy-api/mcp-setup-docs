@@ -1,0 +1,66 @@
+[
+  {
+    "severity": "blocker",
+    "target": "meta",
+    "where": "meta.yaml",
+    "problem": "meta.yaml failed schema: must have required property 'credential_setup'",
+    "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "meta",
+    "where": "meta.yaml",
+    "problem": "meta.yaml failed schema: must have required property 'documentation'",
+    "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "meta",
+    "where": "meta.yaml",
+    "problem": "meta.yaml failed schema: must have required property 'provenance'",
+    "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "meta",
+    "where": "meta.yaml",
+    "problem": "meta.yaml failed schema: must have required property 'remotes'",
+    "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "meta",
+    "where": "meta.yaml",
+    "problem": "meta.yaml failed schema: must have required property 'schema_version'",
+    "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "meta",
+    "where": "meta.yaml",
+    "problem": "meta.yaml failed schema: must have required property 'slug'",
+    "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "meta",
+    "where": "meta.yaml",
+    "problem": "meta.yaml failed schema: must have required property 'summary'",
+    "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "meta",
+    "where": "meta.yaml",
+    "problem": "meta.yaml failed schema: must have required property 'title'",
+    "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+    "dimension": "lint"
+  }
+]

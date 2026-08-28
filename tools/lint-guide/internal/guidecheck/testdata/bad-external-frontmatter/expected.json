@@ -1,0 +1,10 @@
+[
+  {
+    "severity": "blocker",
+    "target": "external",
+    "where": "frontmatter",
+    "problem": "external.md frontmatter must set setup_version: 1.",
+    "suggestion": "Use exactly: setup_version: 1",
+    "dimension": "lint"
+  }
+]

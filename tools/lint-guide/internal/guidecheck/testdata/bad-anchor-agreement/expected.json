@@ -1,0 +1,10 @@
+[
+  {
+    "severity": "blocker",
+    "target": "external",
+    "where": "#create-key",
+    "problem": "external.md uses an anchor that does not appear in research.md (anchor contract).",
+    "suggestion": "Mint the anchor in the Dossier first, or reuse a Dossier id verbatim.",
+    "dimension": "lint"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "severity": "blocker",
+    "target": "external",
+    "where": "setup.md",
+    "problem": "setup.md is legacy — split into external.md (provider) and speakeasy.md (Control Plane).",
+    "suggestion": "Move provider steps to external.md and Speakeasy steps to speakeasy.md, then delete setup.md.",
+    "dimension": "lint"
+  }
+]

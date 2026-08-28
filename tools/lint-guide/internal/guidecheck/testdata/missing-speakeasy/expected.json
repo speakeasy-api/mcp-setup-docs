@@ -1,0 +1,10 @@
+[
+  {
+    "severity": "blocker",
+    "target": "speakeasy",
+    "where": "speakeasy.md",
+    "problem": "speakeasy.md is missing.",
+    "suggestion": "Write speakeasy.md from doctrine/speakeasy-setup.md via the Dossier.",
+    "dimension": "lint"
+  }
+]

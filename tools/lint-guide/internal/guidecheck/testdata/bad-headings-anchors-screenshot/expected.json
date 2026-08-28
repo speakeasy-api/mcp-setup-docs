@@ -1,0 +1,34 @@
+[
+  {
+    "severity": "blocker",
+    "target": "external",
+    "where": "title",
+    "problem": "external.md must have exactly one H1; found 2.",
+    "suggestion": "Keep a single \"# …\" title after the frontmatter.",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "external",
+    "where": "line 4: ## Prerequisites",
+    "problem": "external.md must not use \"## Prerequisites\" — prerequisites fold into opening prose; Speakeasy steps live in speakeasy.md.",
+    "suggestion": "Drop the H2 and keep the content as opening prose (Prerequisites) or H3 steps (Provider setup).",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "external",
+    "where": "line 6: Configure provider",
+    "problem": "External setup H3 is missing a {#kebab-case} anchor.",
+    "suggestion": "Add a Dossier-minted anchor, e.g. ### Create credentials {#create-credentials}",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "external",
+    "where": "line 6",
+    "problem": "External setup step lacks a screenshot placeholder or screenshot-exception comment.",
+    "suggestion": "Add <!-- screenshot: … --> or <!-- screenshot-exception: … --> on its own line in the step.",
+    "dimension": "lint"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "severity": "blocker",
+    "target": "meta",
+    "where": "external.md#missing-anchor",
+    "problem": "meta.yaml references external.md#… but that anchor is missing from the setup files.",
+    "suggestion": "Fix the reference or restore the matching H3 {#anchor}.",
+    "dimension": "lint"
+  }
+]
