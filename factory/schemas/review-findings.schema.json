@@ -3,6 +3,7 @@
   "$id": "https://speakeasy.com/schemas/factory/review-findings.schema.json",
   "title": "Kit guide factory review findings",
   "type": "array",
+  "maxItems": 8,
   "items": {
     "type": "object",
     "additionalProperties": false,
@@ -12,9 +13,9 @@
       "target": {
         "enum": ["research.md", "meta.yaml", "external.md", "speakeasy.md"]
       },
-      "where": {"type": "string", "pattern": "\\S"},
-      "problem": {"type": "string", "pattern": "\\S"},
-      "suggestion": {"type": "string", "pattern": "\\S"}
+      "where": {"type": "string", "pattern": "\\S", "maxLength": 300},
+      "problem": {"type": "string", "pattern": "\\S", "maxLength": 600},
+      "suggestion": {"type": "string", "pattern": "\\S", "maxLength": 600}
     }
   }
 }
