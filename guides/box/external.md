@@ -4,18 +4,13 @@ setup_version: 1
 
 # Box
 
-Use a Box Admin or Co-Admin account for the enterprise you are connecting.
-Sign in to the **Box Admin Console** at
-[app.box.com/master](https://app.box.com/master).
+You need a Box Admin or Co-Admin account for the enterprise you are
+connecting.
 
 The Box MCP Server is available on all Box plans, but its tools depend on
-your plan. Box AI tools require a Box AI-enabled plan. The Doc Gen scope
-requires an Enterprise Advanced license. Box meters and bills API calls made
-with the Integration Credentials created below.
-
-Before creating credentials, [enable Box AI](#enable-box-ai-api) or
-[enable Box Doc Gen](#enable-doc-gen) if users need those tools. Then create
-credentials for the **Custom Box MCP Server** integration.
+your plan. Box AI tools require an eligible Box AI plan or purchased Box AI
+Units. The Doc Gen scope requires an Enterprise Advanced license. Box meters
+and bills API calls made with the Integration Credentials created below.
 
 ### Sign in to the Box Admin Console {#open-admin-console}
 
@@ -23,7 +18,11 @@ Sign in to the **Box Admin Console** at
 [app.box.com/master](https://app.box.com/master) with your Box Admin or
 Co-Admin account.
 
-<!-- screenshot-exception: a sign-in page with no MCP-specific state; the Admin Console landing view is captured in the next step -->
+<!-- screenshot-exception: a sign-in page with no MCP-specific state; the Integrations view is captured in the next step -->
+
+Before creating credentials, [enable Box AI](#enable-box-ai-api) or
+[enable Box Doc Gen](#enable-doc-gen) if users need those tools. Then create
+credentials for the **Custom Box MCP Server** integration.
 
 ### Find Custom Box MCP Server under Integrations {#find-custom-box-mcp-server}
 
@@ -37,8 +36,6 @@ Do not select the **Box MCP Server** tab or a named partner tile.
 <!-- screenshot: the Integrations page with the MCP Category filter applied, or Custom Box MCP Server in the search bar, and the Custom Box MCP Server tile visible -->
 
 ### Add Integration Credentials {#add-integration-credentials}
-
-Complete the credential entry through **Save** in one sitting.
 
 If **Configuration** appears:
 
@@ -55,7 +52,7 @@ If **Additional Configuration** appears instead:
 6. Click **Save**.
 7. Open the created credential entry.
 
-<!-- screenshot: the Custom Box MCP Server configuration surface with either Configuration > Add Integration Credentials or Additional Configuration > + Add Integration Credentials visible, and the new credential entry it creates -->
+<!-- screenshot: the visible credential-add control on whichever documented configuration surface the enterprise presents -->
 
 ### Set the Redirect URI {#set-redirect-uri}
 
@@ -65,7 +62,7 @@ Replace the existing value or values in **Redirect URIs** with this value:
 {{ gram.oauth.callback_url }}
 ```
 
-<!-- screenshot: the credential entry's Redirect URIs field containing the Speakeasy AI Control Plane callback URL -->
+<!-- screenshot: the credential entry's Redirect URIs field containing the Speakeasy AI Control Plane callback URL, with surrounding tenant and credential details redacted -->
 
 ### Copy the Client ID and Client Secret {#copy-client-credentials}
 
@@ -78,7 +75,7 @@ Copy both values while Box shows them.
 4. Store the **Client Secret** like a password for
    [Speakeasy setup](speakeasy.md#connect-speakeasy-credentials).
 
-<!-- screenshot-exception: the unique content is secret-bearing text; omit the screenshot rather than expose credentials -->
+<!-- screenshot-exception: the unique content is secret-bearing text; omit the screenshot unless every credential value is redacted -->
 
 ### Check the Access scopes {#check-access-scopes}
 
@@ -90,13 +87,11 @@ licensed those features. The Doc Gen scope requires an Enterprise Advanced
 license. Scopes cap what the connection can do; each user's existing Box
 permissions still limit the content they can access.
 
-<!-- screenshot: the credential entry's Access scopes section with its checkboxes visible; capture the exact labels because the documentation does not name them -->
+<!-- screenshot: the credential entry's Access scopes section with the intended non-secret selections visible and all credential values redacted; capture the exact labels because the documentation does not name them -->
 
 ### Save the credential entry {#save-credentials}
 
-If you used **Configuration**, click **Save**. If you used **Additional
-Configuration**, use the submission control shown for the edited credential
-entry.
+Save the integration credentials.
 
 <!-- screenshot-exception: a standard button click with no unique state beyond the views captured in the prior steps -->
 
@@ -110,7 +105,9 @@ resolve the enterprise's Box AI entitlement before continuing.
 2. Select **Settings**.
 3. Enable **Enable AI API**.
 
-<!-- screenshot: Box AI > Settings with Enable AI API visible -->
+Then return to [Find Custom Box MCP Server under Integrations](#find-custom-box-mcp-server).
+
+<!-- screenshot: Box AI > Settings with Enable AI API visible; do not show user or tenant identifiers -->
 
 ### Enable Box Doc Gen (Doc Gen tools only) {#enable-doc-gen}
 
@@ -120,13 +117,15 @@ an Enterprise Advanced license.
 1. Open **Enterprise Settings**.
 2. Select **Content and Sharing**.
 3. Scroll to **Box Doc Gen**.
-4. Under **Box Doc Gen Permissions**, select **Enable for all managed users**,
-   **Enable for select users and groups**, or **Enable for everyone except
-   select users and groups**.
+4. Under **Box Doc Gen Permissions**, choose to enable Doc Gen for all managed
+   users, selected users and groups, or everyone except selected users and
+   groups.
 
-The default is **Disable for all managed users (default)**.
+By default, Doc Gen is disabled for all managed users.
 
-<!-- screenshot: Enterprise Settings > Content and Sharing scrolled to the Box Doc Gen section with its permissions options visible -->
+Then return to [Find Custom Box MCP Server under Integrations](#find-custom-box-mcp-server).
+
+<!-- screenshot: Enterprise Settings > Content and Sharing scrolled to Box Doc Gen with the permissions control visible and identities redacted -->
 
 ### Manage tool access before rollout (optional) {#manage-tool-access}
 
@@ -147,9 +146,9 @@ To control individual tools:
 2. Set the toggles under **Read only MCP tools** and **Write MCP tools**.
 3. Click **Save**.
 
-File preview requires a client with MCP Apps support. Upload and download URL
-tools require an agentic client that can make network requests and may require
-domain allowlisting.
+File preview requires a compatible application. Upload and download URL
+tools require an application that can make network requests; a cloud security
+owner may also need to allowlist domains.
 
 If a client still shows the old tool list, refresh its tool list, start a new
 chat, or disconnect and reconnect it.

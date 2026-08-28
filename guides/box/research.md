@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: box
-researched_at: 2026-08-28T15:35:57Z
+researched_at: 2026-08-28T21:28:00Z
 ---
 
 # Box — Research Dossier
@@ -16,7 +16,7 @@ eligibility, no-DCR statement, and an alternate credential-creation surface.
 Where those properties disagree on UI, this dossier uses the product-doc flow
 and records the support flow as a documented alternative rather than merging
 the labels. All public sources below were observed on
-`2026-08-28T15:35:57Z` through Exa MCP.
+`2026-08-28T21:28:00Z` through Exa MCP.
 
 ## Server facts
 
@@ -168,10 +168,8 @@ Integration Credentials]
 
 ### Save the credential entry {#save-credentials}
 
-- Click **Save** after setting redirect URIs and access scopes on the
-  product-doc path. On the support alternative, the preliminary name save is
-  already part of `add-integration-credentials`; use the submission control
-  shown for the edited credential entry.
+- After setting redirect URIs and access scopes on either documented path:
+  Save the integration credentials.
 - The product docs do not publish a confirmation-message label or a required
   reopen transition for this credential flow. Do not invent either.
 - Values entered or copied: none.
@@ -220,9 +218,10 @@ Integration Credentials]
   under **Read only MCP tools** and **Write MCP tools**; click **Save** in that
   dialog.
 - The four external-sharing tools listed by Box are off by default. File
-  preview additionally requires a client with MCP Apps support, and upload or
-  download URL tools require an agentic client able to make network requests.
-  These are setup-affecting restrictions, not a tool inventory.
+  preview additionally requires a compatible application, and upload or
+  download URL tools require an application that can make network requests. A
+  cloud security owner may also need to allowlist domains. These are
+  setup-affecting restrictions, not a tool inventory.
 - If a client caches an old tool list during first connection, Box recommends
   refreshing it, starting a new chat, or disconnecting and reconnecting.
 - Values entered: policy selections. Values copied: none.
@@ -232,7 +231,7 @@ Integration Credentials]
 
 ## Setup-affecting constraints
 
-### Custom Integration Credentials are metered {#metered-api-calls}
+### Custom Integration Credentials are metered
 
 Box says API calls are free only for a published Box Integrations Center app
 when a user logs in with their own OAuth account. Additional Integration
@@ -242,31 +241,32 @@ charged under the applicable plan. Do not carry forward stale model names or
 runtime-cost assumptions: the current Pricing page is the fact ceiling.
 [Pricing]
 
-### Plan and feature gates change available tools {#plan-gated-tools}
+### Plan and feature gates change available tools
 
 The MCP Server itself is on all Box plans, but only tools included in the
 current plan can be used. Box AI tools require Box AI availability and the AI
 API setting; Doc Gen needs Enterprise Advanced and enablement. [Pricing; MCP
 FAQ]
 
-### Scopes do not replace Box permissions {#scopes-vs-permissions}
+### Scopes do not replace Box permissions
 
 The chosen OAuth scopes are only a ceiling. Every action still follows the
 authorizing user's existing Box permissions. [Set up the MCP server; About Box
 MCP Server]
 
-### Tool-policy and client restrictions can block first use {#tool-policy-restrictions}
+### Tool-policy and application restrictions can block first use
 
-An enterprise-wide tool policy can disable tools, four external-sharing tools
-start off, preview requires MCP Apps support, and direct upload/download URL
-tools need an agentic client and sometimes domain allowlisting. Record only
+An enterprise-wide tool policy can disable tools, and four external-sharing
+tools start off. Preview requires a compatible application. Direct
+upload/download URL tools require an application that can make network
+requests, and a cloud security owner may need to allowlist domains. Record only
 these setup consequences; the server's advertised runtime list remains the
 tool inventory. [Manage tool access; Available tools; MCP FAQ]
 
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-08-28T15:35:57Z`. Per-guide values are remote
+`2026-08-28T21:28:00Z`. Per-guide values are remote
 `https://mcp.box.com`, transport `streamable-http`, Authentication Option
 `oauth-integration`, credential sources `copy-client-credentials`, and further
 reading `https://docs.box.com/en/box-mcp/about-box-mcp-server`.
@@ -296,13 +296,16 @@ button; confirm it matches the value substituted for
 `copy-client-credentials`, then click **Attach Identity Provider**.
 
 <!-- verify(operator): the template key substitutes this same Redirect URI value -->
-<!-- screenshot: the Attach Remote Identity Provider sheet with Client Type Manual and all credentials redacted -->
+<!-- screenshot: the Attach Remote Identity Provider sheet with Client Type Manual and Redirect URI visible, and all credential values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
 limits — see Box's MCP documentation at
 `https://docs.box.com/en/box-mcp/about-box-mcp-server`.
 
-## Open questions
+## Research limitations
+
+These public-source gaps are presentation-only or safely hedgeable; none is a
+material operator decision for first connection.
 
 - Box's current product pages use **Configuration** > **Add Integration
   Credentials**; current Support pages use **Additional Configuration** >
@@ -324,6 +327,10 @@ limits — see Box's MCP documentation at
   not say whether changing a row-level **Enablement** selection has a separate
   save action.
 
+## Operator decisions
+
+None
+
 ## Provenance
 
 ### Source inventory
@@ -340,7 +347,7 @@ limits — see Box's MCP documentation at
 
 ### Source records
 
-All records below were observed `2026-08-28T15:35:57Z`.
+All records below were observed `2026-08-28T21:28:00Z`.
 
 - `https://docs.box.com/llms.txt` — Box public documentation index; backs the
   documentation-property sweep and discovery of current Box MCP pages.
@@ -381,10 +388,10 @@ All records below were observed `2026-08-28T15:35:57Z`.
   and contributes no rendered setup step.
 - `https://developer.box.com/guides/box-mcp/` — backs the hosted Box MCP server
   and manual OAuth client-credential model.
-- `https://developer.box.com/guides/box-mcp/remote/` — backs endpoint, OAuth
+- `https://developer.box.com/guides/box-mcp/setup` — backs endpoint, OAuth
   authorization/token URLs, scope strings, scope semantics, and Enterprise
-  Advanced requirement for `docgen.readwrite`; its older console sequence does
-  not override product docs.
+  Advanced requirement for `docgen.readwrite`; its alternate console sequence
+  does not override the current product-doc flow.
 - `https://support.box.com/hc/en-us/articles/43847256139923` — backs hover
   **Custom Box MCP Server** > **Configure**, **Additional Configuration**,
   **+ Add Integration Credentials**, endpoint, OAuth client credentials, and

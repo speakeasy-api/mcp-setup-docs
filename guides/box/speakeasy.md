@@ -22,7 +22,7 @@ This creates the hosted MCP server and opens its **Overview** page.
    **Use Discovered** when offered.
 3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
 4. Confirm that the sheet's **Redirect URI**, shown with a copy button,
-   matches the value registered in Box under
+   matches the `{{ gram.oauth.callback_url }}` value registered in Box under
    [Redirect URIs](external.md#set-redirect-uri).
 5. Paste the [Box Client ID](external.md#copy-client-credentials) into
    **Client ID**.
