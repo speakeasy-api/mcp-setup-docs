@@ -30,15 +30,22 @@ Begin Phase 1 with one caught boundary executing exactly `bash factory/scripts/i
 For a resolved slug, execute the complete caught-boundary program below, replacing `<slug>` only with the resolved lowercase kebab-case literal and changing nothing else:
 
 ```runlet
-context_result = boundary {
-  return shell({ command: "bash factory/scripts/inspect-guide-context.sh <slug>" })
+context_attempt = boundary {
+  result = shell({ command: "bash factory/scripts/inspect-guide-context.sh <slug>" })
+  return { caught: false, result }
 } catch err {
-  return fail("GUIDE_CONTEXT_INSPECTION_FAILED", "guide context inspection failed")
+  return { caught: true }
 }
-return context_result
+return if context_attempt.caught {
+  return { factory_status: "guide_context_inspection_failed" }
+} else if not context_attempt.result.success {
+  return { factory_status: "guide_context_inspection_failed" }
+} else {
+  return context_attempt.result
+}
 ```
 
-The program must return the successful shell result object unchanged; do not parse, project, or reshape it inside compose. Read authority, role, schema, persona, representative-guide, and target-artifact contents only from its `.files` object. If Kit spills this large result, consume it only through the repository spill reader. First execute exactly `bash factory/scripts/read-guide-context-spill.sh <artifact> index` in a caught boundary, where `<artifact>` is the exact path returned by Kit. Then consume every listed file in index order with caught commands shaped exactly `bash factory/scripts/read-guide-context-spill.sh <artifact> read <index> <offset>`: start each file at offset 0, use only the returned next_offset, and repeat until done=true before moving to the next index. Never construct jq, sed, Python, or other free-form spill commands; never read a spill with shell redirection or a generic file command. A rejected spill, missing index/chunk, changed path/index/offset, or incomplete file consumption selects failed; never inspect repository files directly or run another Phase 1 file-discovery tool. Resolve the persona only after reading every available definition under `doctrine/personas/`: default to `it-admin`; override it only when the issue confidently names an available repository persona. Pass the selected `doctrine/personas/<persona>.md` file to every downstream agent and reviewer. Resolve catalog presence only from the `.catalog` object returned by the initial command; never inspect `/input/catalog.json` directly. Preserve tenanted remote and `speakeasy_add_server` catalog/custom-remote doctrine. Skipped, malformed, stale, or ambiguous lookup means unknown, never absence; preserve both safe setup paths and record a research limitation rather than asking the operator to repeat the lookup.
+If the program returns `factory_status`, set terminal state to `failed`, record the fixed blocker `Phase 1 guide-context inspection failed.`, set `stop_model_phases = true`, skip every remaining model phase, and continue to atomic report creation. Otherwise the program must return the successful shell result object unchanged; do not parse, project, or reshape it inside compose. Read authority, role, schema, persona, representative-guide, and target-artifact contents only from its `.files` object. If Kit spills this large result, consume it only through the repository spill reader. First execute exactly `bash factory/scripts/read-guide-context-spill.sh <artifact> index` in a caught boundary, where `<artifact>` is the exact path returned by Kit. Then consume every listed file in index order with caught commands shaped exactly `bash factory/scripts/read-guide-context-spill.sh <artifact> read <index> <offset>`: start each file at offset 0, use only the returned next_offset, and repeat until done=true before moving to the next index. Never construct jq, sed, Python, or other free-form spill commands; never read a spill with shell redirection or a generic file command. A rejected spill, missing index/chunk, changed path/index/offset, or incomplete file consumption selects failed; never inspect repository files directly or run another Phase 1 file-discovery tool. Resolve the persona only after reading every available definition under `doctrine/personas/`: default to `it-admin`; override it only when the issue confidently names an available repository persona. Pass the selected `doctrine/personas/<persona>.md` file to every downstream agent and reviewer. Resolve catalog presence only from the `.catalog` object returned by the initial command; never inspect `/input/catalog.json` directly. Preserve tenanted remote and `speakeasy_add_server` catalog/custom-remote doctrine. Skipped, malformed, stale, or ambiguous lookup means unknown, never absence; preserve both safe setup paths and record a research limitation rather than asking the operator to repeat the lookup.
 
 ## Phase 2 — research and scope gate
 

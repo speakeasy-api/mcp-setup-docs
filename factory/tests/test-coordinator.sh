@@ -64,15 +64,26 @@ for phrase in \
 done
 
 context_boundary=$(cat <<'RUNLET'
-context_result = boundary {
-  return shell({ command: "bash factory/scripts/inspect-guide-context.sh <slug>" })
+context_attempt = boundary {
+  result = shell({ command: "bash factory/scripts/inspect-guide-context.sh <slug>" })
+  return { caught: false, result }
 } catch err {
-  return fail("GUIDE_CONTEXT_INSPECTION_FAILED", "guide context inspection failed")
+  return { caught: true }
 }
-return context_result
+return if context_attempt.caught {
+  return { factory_status: "guide_context_inspection_failed" }
+} else if not context_attempt.result.success {
+  return { factory_status: "guide_context_inspection_failed" }
+} else {
+  return context_attempt.result
+}
 RUNLET
 )
 [[ "$(cat "$CONTRACT")" == *"$context_boundary"* ]] || fail 'missing exact guide-context caught-boundary program'
+# Literal Markdown contract.
+# shellcheck disable=SC2016
+grep -Fq 'If the program returns `factory_status`, set terminal state to `failed`' "$CONTRACT" \
+  || fail 'guide-context failure sentinel does not route to failed reporting'
 
 child_start_contract="$(sed -n '/^## Phase 2/,/^## Phase 5/p' "$CONTRACT")"
 phase2_contract="$(sed -n '/^## Phase 2/,/^## Phase 3/p' "$CONTRACT")"
