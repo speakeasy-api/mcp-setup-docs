@@ -28,7 +28,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: tools/lint-guide/go.mod
 
       - name: Build guide linter
         working-directory: tools/lint-guide

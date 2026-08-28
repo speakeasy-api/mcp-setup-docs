@@ -185,11 +185,23 @@ Exit codes remain:
 - `1`: one or more findings;
 - `2`: usage, help, or unresolved target.
 
-Unknown options continue to be interpreted according to the current argument behavior rather than silently adopting Go's standard `flag` semantics. Factory-specific flat JSON, `--meta-only`, or alternate exit conventions are outside this PR and must be introduced later as explicit modes or separate thin commands.
+Unknown options continue to be interpreted according to the current argument behavior rather than silently adopting Go's standard `flag` semantics. `--meta-only` is now a required compatibility surface for partial Kit-factory exports: it validates `meta.yaml` against the repository schema without requiring published Markdown files, retains grouped human/JSON output, and uses the same `0`/`1`/`2` exit contract. Focused checker, CLI, and host-validator tests cover this mode.
 
-## TypeScript Workflow Adapter
+The supported human entry point and usage text are exactly:
 
-The existing TypeScript drafting workflow currently imports the checker in-process. During this broader repository migration, it calls the Go command through a thin process/JSON adapter with no lint semantics.
+```text
+Usage: mise run lint-guide -- [--json] [--meta-only] <slug|guides/<slug>|path>…
+```
+
+For example, `mise run lint-guide -- asana` checks one guide and `mise run lint-guide -- --json guides/asana` requests grouped JSON.
+
+## TypeScript Workflow Adapter (Historical, Superseded)
+
+> This section records the approved pre-prerequisite cutover. The merged Kit
+> factory removed the TypeScript drafting pipeline and client before final
+> reconciliation; no TypeScript adapter or pipeline check exists in the final tree.
+
+The pre-prerequisite TypeScript drafting workflow imported the checker in-process. During that migration stage, it called the Go command through a thin process/JSON adapter with no lint semantics.
 
 Binary resolution is:
 
@@ -224,9 +236,9 @@ After cutover, delete:
 - `pipeline/src/markdown-url-placement.ts`;
 - `pipeline/src/markdown-url-placement.test.ts`.
 
-Add one small TypeScript process adapter under a name that does not imply semantic ownership, such as `pipeline/src/lint-guide-client.ts`, only while TypeScript workflow orchestration remains.
+The pre-prerequisite plan allowed one small semantics-free TypeScript process adapter only while TypeScript workflow orchestration remained. The merged Kit prerequisite removed that orchestration, so the final reconciled tree contains no adapter or pipeline package.
 
-Remove npm dependencies only after a repository-wide import search proves they are unused. Node 24 and TypeScript 7 standardization remains in PR #171 as previously requested; unrelated TypeScript pipeline tools continue to use that baseline.
+The historical cutover removed linter-only npm dependencies after a repository-wide import search. Node 24 remains pinned for repository JavaScript tooling; the prerequisite removed the obsolete TypeScript 7 drafting pipeline rather than this port reintroducing it.
 
 ## Existing Content Migration
 
@@ -247,7 +259,7 @@ Add focused tools-module checks:
 cd tools/lint-guide && go test ./...
 ```
 
-The pipeline workflow builds the command once before TypeScript tests and exports `LINT_GUIDE_BIN`. Mise's `lint-guide` task invokes the built Go command while preserving current examples. CI continues to run Node/TypeScript checks for remaining pipeline code and Go checks for both the public module and nested linter module.
+The live Kit integration builds the nested command once. `guide-draft.yml` uses `actions/setup-go@v5` with `go-version-file: tools/lint-guide/go.mod`, writes the executable to `${{ runner.temp }}/lint-guide`, and supplies it to export validation through `LINT_GUIDE_BIN`. Factory CI uses the same module version file, tests and builds the command, and supplies the binary to the complete factory suite. The factory image builds the nested module into `/usr/local/bin/lint-guide`; local validation falls back to building that same command. Mise invokes `go run ./cmd/lint-guide` from `tools/lint-guide`.
 
 The command must not require network access at runtime. Dependencies are resolved only during module download/build.
 
@@ -257,7 +269,7 @@ The command must not require network access at runtime. Dependencies are resolve
 - Operational file/process/configuration failures are returned errors and produce usage/runtime failure rather than partial findings.
 - JSON output is never mixed with human diagnostics on stdout.
 - Human diagnostics and usage text go to stderr where the current contract requires it.
-- The TypeScript adapter includes stderr in operational errors but does not expose environment contents or credentials.
+- Factory consumers validate grouped JSON and preserve stderr for operational errors without exposing environment contents or credentials.
 - No ignore or suppression mechanism is added for URL placement.
 
 ## Verification and Acceptance
@@ -269,18 +281,19 @@ The port is accepted only when all of the following pass:
 - Go CLI contract and exit-code tests;
 - temporary TypeScript-to-Go parity fixtures;
 - all committed guides with zero findings;
-- existing pipeline tests and TypeScript typecheck;
-- `go test ./...` in `tools/lint-guide`;
+- the complete Kit factory regression suite with the prebuilt `LINT_GUIDE_BIN`;
+- workflow structural checks, `actionlint`, and changed-script `shellcheck`;
+- `go test ./...` and `go vet ./...` in `tools/lint-guide`;
 - `go test ./...` in `go`;
 - `go/check.sh` generation, formatting, vet, and tests;
 - source/generated guide parity;
 - `git diff --check`;
 - final whole-branch review.
 
-The final PR tree contains one authoritative Go semantic checker, one temporary semantics-free TypeScript client for the remaining workflow, and no TypeScript guide-lint rules.
+The final reconciled PR tree contains one authoritative Go semantic checker, direct Kit-factory consumers, and no TypeScript client, pipeline package, duplicate public-module checker, or TypeScript guide-lint rules.
 
 ## Rollout and Compatibility
 
-PR #171 remains a draft until prerequisite work identified by the author has merged. This port is implemented directly on PR #171 rather than stacked on the local `feat/kit-guide-factory` branch. After any prerequisite merge, rebase or merge conflict resolution must rerun the full parity and acceptance matrix.
+The prerequisite factory series through PR #178 has merged. PR #171 remains draft while its rebased reconciliation and checks complete. Every prerequisite merge and rebase reruns the resolved-tree acceptance matrix.
 
-If a later factory migration introduces a different Go CLI protocol, preserve both consumer contracts through explicit modes or thin adapters first. Protocol consolidation is a separate design and must not silently change this PR's human/Mise contract.
+The live factory protocol preserves the human/Mise contract and adds the explicit `--meta-only` compatibility mode. Any later protocol consolidation must preserve both surfaces or introduce a tested thin adapter rather than silently changing either consumer.

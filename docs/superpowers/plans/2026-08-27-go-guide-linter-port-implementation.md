@@ -4,11 +4,27 @@
 
 **Goal:** Replace PR #171's TypeScript guide-lint semantics with one parity-tested Go checker in an isolated tools module while preserving current CLI, workflow, doctrine, and guide behavior.
 
-**Architecture:** `tools/lint-guide/internal/guidecheck` owns all validation and a goldmark-based rendered-URL classifier; `tools/lint-guide/cmd/lint-guide` preserves the current grouped human/JSON CLI contract. Remaining TypeScript workflow code calls the Go command through a semantics-free asynchronous process client until the rest of the pipeline is migrated.
+**Architecture:** `tools/lint-guide/internal/guidecheck` owns all validation and a goldmark-based rendered-URL classifier; `tools/lint-guide/cmd/lint-guide` preserves the grouped human/JSON CLI and adds the required `--meta-only` compatibility mode. The live Kit factory builds and consumes this nested command directly through `LINT_GUIDE_BIN`; no TypeScript workflow client remains.
 
-**Tech Stack:** Go 1.22+, goldmark 1.8.5, yaml.v3 3.0.1, jsonschema/v5 5.3.1, Node.js 24, TypeScript 7, `node:test`, and GitHub Actions.
+**Tech Stack:** Go 1.22+, goldmark 1.8.5, yaml.v3 3.0.1, jsonschema/v5 5.3.1, the Kit factory, Node.js 24 for remaining repository JavaScript tooling, and GitHub Actions.
 
 **Spec:** `docs/superpowers/specs/2026-08-27-markdown-url-placement-go-port-design.md`
+
+## Post-Prerequisite Reconciliation
+
+The factory prerequisite series through PR #178 merged before final review. The original task sequence below remains the historical record of the parity-first TypeScript-to-Go cutover, but steps that invoke `pipeline`, its temporary process client, npm tests, or TypeScript typecheck are superseded and are not commands for the final tree.
+
+The authoritative final integration is the Kit factory: production and Factory CI use `go-version-file: tools/lint-guide/go.mod`, build `tools/lint-guide/cmd/lint-guide` once, and pass the runner-temp executable as `LINT_GUIDE_BIN`; the factory image builds the same nested module. `factory/scripts/validate.sh` uses the supplied binary or a local nested-module fallback. The public `go` module contains no duplicate checker.
+
+`--meta-only` is now required for partial factory exports and is covered by checker, CLI, and host-validator regression tests. It preserves grouped human/JSON output and `0`/`1`/`2` exits. Current user invocations are:
+
+```bash
+mise run lint-guide -- asana
+mise run lint-guide -- --json guides/asana
+mise run lint-guide -- --meta-only guides/asana
+```
+
+The resolved-tree acceptance matrix is: tools-module fmt/test/vet/tidy drift; focused CLI and `--meta-only` contracts; all 21 guides; the complete factory suite with `LINT_GUIDE_BIN`; `actionlint` and structural workflow assertions; shellcheck; public Go tests and `go/check.sh`; linux/amd64 factory-image build; deletion/duplication searches; and Git diff/status hygiene.
 
 ## Global Constraints
 
@@ -19,21 +35,23 @@
 - Exclude real link/image/reference destinations, autolinks, resolved reference syntax, definition labels/destinations, and fenced code; scan prose, labels/alt text, titles, inline/indented code, raw HTML, and unresolved references.
 - Do not add URL suppression, network validation, GFM, or linkify behavior.
 - Never run two authoritative linters in production; TypeScript remains only as a temporary oracle during parity work.
-- Retain Node 24, TypeScript 7, doctrine changes, six migrated guide sources, and generated Go copies already in PR #171.
+- Retain Node 24 for repository JavaScript tooling, doctrine changes, six migrated guide sources, and generated Go copies already in PR #171. The merged prerequisite removed the obsolete TypeScript 7 drafting pipeline; do not reintroduce it.
 
-## File Structure
+## Final Reconciled File Structure
 
-- `tools/lint-guide/go.mod`, `go.sum`: isolated authoring dependencies.
-- `tools/lint-guide/internal/guidecheck/check.go`: file orchestration and all non-URL guide rules.
+- `tools/lint-guide/go.mod`, `go.sum`: isolated authoring dependencies and Go version authority.
+- `tools/lint-guide/internal/guidecheck/check.go`: file orchestration, metadata-only compatibility, and all non-URL guide rules.
 - `tools/lint-guide/internal/guidecheck/markdown.go`: goldmark parsing, source recovery, projection, and URL findings.
-- `tools/lint-guide/internal/guidecheck/*_test.go`: rule and Markdown parity tables.
-- `tools/lint-guide/internal/guidecheck/testdata/`: valid/malformed guide directories and golden findings.
-- `tools/lint-guide/cmd/lint-guide/main.go`: target resolution, output formatting, and exits.
-- `tools/lint-guide/cmd/lint-guide/main_test.go`: CLI contract tests.
-- `pipeline/src/lint-guide-client.ts`: asynchronous Go-process adapter only.
-- `pipeline/src/lint-guide-client.test.ts`: process and JSON/error contract tests.
-- `pipeline/src/workflow.ts`: await the Go client.
-- `pipeline/package.json`, lockfile, `mise.toml`, and Pipeline CI: build/invoke the Go tool and remove linter-only npm dependencies.
+- `tools/lint-guide/internal/guidecheck/*_test.go` and `testdata/`: rule, metadata-only, Markdown parity, and golden finding tests.
+- `tools/lint-guide/cmd/lint-guide/main.go` and `main_test.go`: Mise-facing usage, target resolution, grouped output, `--meta-only`, and exit contracts.
+- `.github/workflows/guide-draft.yml` and `factory-ci.yml`: version-file setup, build-once, and `LINT_GUIDE_BIN` wiring.
+- `factory/scripts/validate.sh`, `factory/Dockerfile`, and factory tests: live host, image, fallback, and compatibility consumers.
+- `mise.toml`: `mise run lint-guide -- ...` developer entry point.
+- `go/cmd/lint-guide` and `go/internal/guidecheck`: absent after duplicate prerequisite implementations were reconciled into the nested tool.
+
+### Historical Pre-Prerequisite Files (Superseded)
+
+The original plan temporarily used `pipeline/src/lint-guide-client.ts`, its process tests, `pipeline/src/workflow.ts`, pipeline package files, and Pipeline CI to bridge TypeScript orchestration to Go. The merged Kit factory deleted that pipeline before final reconciliation; these paths remain in the task history below only to document the parity-first cutover.
 
 ---
 
@@ -642,6 +660,9 @@ Do not delete the historical rationale or falsely rewrite completed history.
 
 - [ ] **Step 2: Run final acceptance verification**
 
+> Historical pre-prerequisite command block: the `pipeline` npm command and its
+> expected typecheck are superseded by the post-prerequisite matrix above.
+
 ```bash
 (cd tools/lint-guide && go test ./... && go vet ./...)
 (cd go && go test ./...)
@@ -657,7 +678,7 @@ git diff --check
 test -z "$(git status --porcelain)"
 ```
 
-Expected: tools/public Go tests pass, 21 guides and zero findings, pipeline tests/typecheck pass, and the worktree is clean after the documentation commit.
+Historical expectation at the time of the original plan: tools/public Go tests, 21 guides with zero findings, and pipeline tests/typecheck. In the reconciled tree, the complete Kit factory suite and workflow checks supersede the deleted pipeline checks; the worktree must still be clean after the documentation commit.
 
 - [ ] **Step 3: Commit documentation**
 
@@ -670,7 +691,7 @@ Rerun `git status --short`; expected output is empty.
 
 - [ ] **Step 4: Update the draft PR**
 
-Update PR #171 without changing its draft state. The title should describe deterministic Go guide linting. The body must summarize the nested module, parity-preserved CLI/workflow cutover, doctrine/guide migration, Node 24/TypeScript 7 baseline retained for remaining pipeline code, and exact final verification counts. Keep the prerequisite merge-order note.
+Update PR #171 without changing its draft state. The title should describe deterministic Go guide linting. The body must summarize the nested module, parity-preserved CLI, live Kit-factory integration, doctrine/guide migration, retained Node 24 tooling pin, superseded TypeScript pipeline, and exact final factory verification count. Keep the prerequisite merge-order history and record that reconciliation completed.
 
 - [ ] **Step 5: Request broad whole-branch review**
 
@@ -685,8 +706,8 @@ Review the complete PR range, not only the last task. Require explicit checks fo
 - [ ] Go and the former TypeScript oracle matched on every committed guide and malformed fixture before deletion.
 - [ ] URL behavior includes rendered entities/escapes/formatting, destination exclusions, unresolved references, non-ASCII byte columns, and linear traversal.
 - [ ] Human/JSON output, target order/resolution, and `0/1/2` exits match the current CLI.
-- [ ] Workflow uses only the semantics-free TypeScript process client.
-- [ ] TypeScript semantic files and linter-only npm dependencies are absent.
+- [ ] Workflow and factory image consume only the nested Go command; no TypeScript process client remains.
+- [ ] TypeScript semantic files, the deleted pipeline, duplicate public-module checker, and linter-only npm dependencies are absent.
 - [ ] Doctrine and all six guide migrations remain intact; generated copies match.
-- [ ] Tools Go tests, public Go checks, pipeline tests/typecheck, all-guide lint, and diff hygiene pass.
+- [ ] Tools Go tests/vet/tidy/fmt, public Go checks, complete factory tests, workflow checks, all-guide lint, Docker build, and diff hygiene pass.
 - [ ] PR #171 remains a draft and documents prerequisite merge ordering.

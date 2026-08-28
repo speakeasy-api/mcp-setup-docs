@@ -10,7 +10,7 @@ import (
 	"github.com/speakeasy-api/mcp-setup-docs/tools/lint-guide/internal/guidecheck"
 )
 
-const usageText = "Usage: npm run lint-guide -- [--json] [--meta-only] <slug|guides/<slug>|path>…"
+const usageText = "Usage: mise run lint-guide -- [--json] [--meta-only] <slug|guides/<slug>|path>…"
 
 type guideResult struct {
 	Guide    string               `json:"guide"`

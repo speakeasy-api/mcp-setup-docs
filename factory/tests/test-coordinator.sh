@@ -123,7 +123,7 @@ for phrase in \
   'group: guide-draft-issue-${{ github.event.issue.number }}' \
   'cancel-in-progress: false' 'TMPDIR=%s\n' \
   'uses: actions/setup-go@v5' \
-  "go-version: '1.22'" \
+  'go-version-file: tools/lint-guide/go.mod' \
   'go build -o "$RUNNER_TEMP/lint-guide" ./cmd/lint-guide' \
   'LINT_GUIDE_BIN: ${{ runner.temp }}/lint-guide' \
   'contents: write' 'issues: write' 'pull-requests: write' \

@@ -42,7 +42,7 @@ func TestUsageAndHelp(t *testing.T) {
 			if got.stdout != "" {
 				t.Fatalf("stdout = %q, want empty", got.stdout)
 			}
-			if got.stderr != "Usage: npm run lint-guide -- [--json] [--meta-only] <slug|guides/<slug>|path>…\n" {
+			if got.stderr != "Usage: mise run lint-guide -- [--json] [--meta-only] <slug|guides/<slug>|path>…\n" {
 				t.Fatalf("stderr = %q", got.stderr)
 			}
 		})
