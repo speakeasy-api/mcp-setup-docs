@@ -185,17 +185,86 @@ done
 assert_eq '6' "$(grep -Fc "bash \"\$PUBLISHER_PATH\"" "$WORKFLOW")"
 
 publisher_tmp="$(mktemp -d)"
-mkdir -p "$publisher_tmp/stable/factory/scripts" "$publisher_tmp/pre-cutover-checkout"
-cp "$ROOT/factory/scripts/publish.sh" "$ROOT/factory/scripts/lib.sh" \
-  "$publisher_tmp/stable/factory/scripts/"
-if publisher_error="$(cd "$publisher_tmp/pre-cutover-checkout" && \
-  GH_REPO=owner/repo ISSUE_NUMBER=1 \
-  bash "$publisher_tmp/stable/factory/scripts/publish.sh" unsupported 2>&1)"; then
-  rm -rf "$publisher_tmp"
-  fail 'stable publisher accepted an unsupported command'
-fi
+runner_temp="$publisher_tmp/runner-temp"
+stable_scripts="$runner_temp/guide-factory-publisher/factory/scripts"
+mkdir -p "$stable_scripts" "$publisher_tmp/bin" "$publisher_tmp/scratch"
+cp "$ROOT/factory/scripts/publish.sh" "$ROOT/factory/scripts/lib.sh" "$stable_scripts/"
+git clone -q --no-hardlinks "$ROOT" "$publisher_tmp/checkout"
+# 78faea1^ predates factory/scripts/publish.sh.
+git -C "$publisher_tmp/checkout" checkout -q 42074df10e82cdda8b8f29b8f1f06a1e311e075b
+test ! -e "$publisher_tmp/checkout/factory/scripts/publish.sh" ||
+  fail 'historical checkout unexpectedly contains the publisher'
+
+cat >"$publisher_tmp/bin/gh" <<'GH'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "$*" >>"$GH_LOG"
+case "$1 $2" in
+  'issue view') jq -Rn '[inputs | {name:.}] | {labels:.}' <"$LABEL_STATE" ;;
+  'issue edit')
+    previous=
+    for argument in "$@"; do
+      if [[ "$previous" == --remove-label ]]; then
+        grep -Fvx "$argument" "$LABEL_STATE" >"$LABEL_STATE.next" || true
+        mv "$LABEL_STATE.next" "$LABEL_STATE"
+      elif [[ "$previous" == --add-label ]] && ! grep -Fqx "$argument" "$LABEL_STATE"; then
+        printf '%s\n' "$argument" >>"$LABEL_STATE"
+      fi
+      previous=$argument
+    done
+    ;;
+  'issue comment')
+    previous=
+    for argument in "$@"; do
+      [[ "$previous" == --body-file ]] && cat "$argument" >>"$COMMENT_LOG"
+      previous=$argument
+    done
+    ;;
+esac
+GH
+chmod +x "$publisher_tmp/bin/gh"
+printf '%s\n' guide:draft guide:in-progress >"$publisher_tmp/labels"
+printf '%s\n' 'resume merge failed' >"$publisher_tmp/reason.txt"
+: >"$publisher_tmp/gh.log"
+: >"$publisher_tmp/comments.log"
+
+label_state="$publisher_tmp/labels"
+gh_log="$publisher_tmp/gh.log"
+comment_log="$publisher_tmp/comments.log"
+scratch="$publisher_tmp/scratch"
+
+fail_status=0
+(
+  cd "$publisher_tmp/checkout"
+  PATH="$publisher_tmp/bin:$PATH" \
+    GH_REPO=owner/repo ISSUE_NUMBER=145 GITHUB_RUN_ID=33131618676 \
+    GH_LOG="$gh_log" COMMENT_LOG="$comment_log" LABEL_STATE="$label_state" TMPDIR="$scratch" \
+    bash "$stable_scripts/publish.sh" fail "$publisher_tmp/reason.txt"
+) || fail_status=$?
+assert_eq 0 "$fail_status"
+assert_eq guide:blocked "$(cat "$label_state")"
+assert_contains 'resume merge failed' "$(cat "$comment_log")"
+assert_contains 'actions/runs/33131618676' "$(cat "$comment_log")"
+assert_contains '--remove-label guide:draft' "$(cat "$gh_log")"
+assert_contains '--remove-label guide:in-progress' "$(cat "$gh_log")"
+assert_contains '--add-label guide:blocked' "$(cat "$gh_log")"
+assert_eq 0 "$(find "$scratch" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')"
+
+printf '%s\n' guide:blocked guide:in-progress >"$label_state"
+: >"$gh_log"
+cleanup_status=0
+(
+  cd "$publisher_tmp/checkout"
+  PATH="$publisher_tmp/bin:$PATH" \
+    GH_REPO=owner/repo ISSUE_NUMBER=145 \
+    GH_LOG="$gh_log" COMMENT_LOG="$comment_log" LABEL_STATE="$label_state" TMPDIR="$scratch" \
+    bash "$stable_scripts/publish.sh" cleanup
+) || cleanup_status=$?
+assert_eq 0 "$cleanup_status"
+assert_contains '--remove-label guide:in-progress' "$(cat "$gh_log")"
+assert_eq guide:blocked "$(cat "$label_state")"
+assert_eq 0 "$(find "$scratch" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')"
 rm -rf "$publisher_tmp"
-assert_contains 'usage: publish.sh' "$publisher_error"
 
 assert_step_contains 'Report failure' 'id: failure_report'
 assert_step_contains 'Report failure' "failure() && steps.publisher_setup.outcome == 'success' && steps.refusal.outcome != 'success'"
