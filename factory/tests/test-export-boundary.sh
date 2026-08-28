@@ -58,6 +58,8 @@ prepare_entrypoint_fixture() {
   export FACTORY_EXPORT_ROOT="$TMP/entry/export"
   export FACTORY_KIT_HOME="$TMP/entry/home"
   export FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh"
+  export FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh"
+  export FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh"
 }
 
 run_entrypoint() {

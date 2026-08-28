@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://speakeasy.com/schemas/factory-diagnostics.schema.json",
+  "title": "Guide factory safe failure diagnostics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "status", "stage", "classification", "report", "events", "kit_errors"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "guide_factory_diagnostics"},
+    "status": {"const": "failed"},
+    "stage": {"enum": ["docker_build", "container_run", "kit_prompt", "report_validation", "factory_outcome"]},
+    "classification": {"enum": ["docker_build_failed", "container_run_failed", "kit_fatal", "kit_prompt_failed", "missing_run_report", "invalid_run_report", "factory_reported_failure", "unknown_failure"]},
+    "report": {"$ref": "#/$defs/report"},
+    "events": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {"$ref": "#/$defs/event"}
+    },
+    "kit_errors": {"$ref": "#/$defs/kit_errors"}
+  },
+  "$defs": {
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exists", "valid", "outcome", "review_rounds"],
+      "properties": {
+        "exists": {"type": "boolean"},
+        "valid": {"type": "boolean"},
+        "outcome": {"type": ["string", "null"], "enum": ["converged", "awaiting_scope", "blocked", "failed", null]},
+        "review_rounds": {"type": ["integer", "null"], "minimum": 0, "maximum": 3}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"valid": {"const": true}}, "required": ["valid"]},
+          "then": {
+            "properties": {
+              "exists": {"const": true},
+              "outcome": {"enum": ["converged", "awaiting_scope", "blocked", "failed"]},
+              "review_rounds": {"type": "integer"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"valid": {"const": false}}, "required": ["valid"]},
+          "then": {"properties": {"outcome": {"type": "null"}, "review_rounds": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"exists": {"const": false}}, "required": ["exists"]},
+          "then": {"properties": {"valid": {"const": false}}}
+        }
+      ]
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequence", "call_ref", "event", "tool", "operation", "success", "duration_ms"],
+      "properties": {
+        "sequence": {"type": "integer", "minimum": 1, "maximum": 512},
+        "call_ref": {"type": "integer", "minimum": 0},
+        "event": {"enum": ["started", "finished"]},
+        "tool": {"enum": ["kit_prompt", "shell", "edit", "subagent", "prompt", "fork", "close", "a2a", "docs", "skill", "tool_search", "tool", "auth", "unknown"]},
+        "operation": {"enum": ["kit_prompt", "inspect_inputs", "inspect_guide_context", "inspect_guide_artifacts", "lint_guide", "validate_report", "unrecognized", "edit", "subagent", "prompt", "fork", "close", "a2a", "docs", "skill", "tool_search", "tool", "auth", "unknown"]},
+        "success": {"type": ["boolean", "null"]},
+        "duration_ms": {"type": ["integer", "null"], "minimum": 0, "maximum": 10800000}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"event": {"const": "started"}}, "required": ["event"]},
+          "then": {"properties": {"success": {"type": "null"}, "duration_ms": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"event": {"const": "finished"}}, "required": ["event"]},
+          "then": {"properties": {"success": {"type": "boolean"}, "duration_ms": {"type": "integer"}}}
+        },
+        {
+          "if": {"properties": {"call_ref": {"const": 0}}, "required": ["call_ref"]},
+          "then": {"properties": {"tool": {"const": "kit_prompt"}, "operation": {"const": "kit_prompt"}}}
+        },
+        {
+          "if": {"properties": {"tool": {"const": "kit_prompt"}}, "required": ["tool"]},
+          "then": {"properties": {"call_ref": {"const": 0}, "operation": {"const": "kit_prompt"}}}
+        },
+        {
+          "if": {"properties": {"tool": {"const": "shell"}}, "required": ["tool"]},
+          "then": {"properties": {"call_ref": {"minimum": 1}, "operation": {"enum": ["inspect_inputs", "inspect_guide_context", "inspect_guide_artifacts", "lint_guide", "validate_report", "unrecognized"]}}}
+        },
+        {
+          "if": {"properties": {"tool": {"enum": ["edit", "subagent", "prompt", "fork", "close", "a2a", "docs", "skill", "tool_search", "tool", "auth", "unknown"]}}, "required": ["tool"]},
+          "then": {"properties": {"call_ref": {"minimum": 1}}}
+        }
+      ],
+      "oneOf": [
+        {"properties": {"tool": {"const": "kit_prompt"}, "operation": {"const": "kit_prompt"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "shell"}, "operation": {"enum": ["inspect_inputs", "inspect_guide_context", "inspect_guide_artifacts", "lint_guide", "validate_report", "unrecognized"]}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "edit"}, "operation": {"const": "edit"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "subagent"}, "operation": {"const": "subagent"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "prompt"}, "operation": {"const": "prompt"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "fork"}, "operation": {"const": "fork"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "close"}, "operation": {"const": "close"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "a2a"}, "operation": {"const": "a2a"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "docs"}, "operation": {"const": "docs"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "skill"}, "operation": {"const": "skill"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "tool_search"}, "operation": {"const": "tool_search"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "tool"}, "operation": {"const": "tool"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "auth"}, "operation": {"const": "auth"}}, "required": ["tool", "operation"]},
+        {"properties": {"tool": {"const": "unknown"}, "operation": {"const": "unknown"}}, "required": ["tool", "operation"]}
+      ]
+    },
+    "kit_errors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "records"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "records": {"type": "array", "items": {"$ref": "#/$defs/kit_error_record"}}
+      }
+    },
+    "kit_error_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "kind", "code", "diagnostics"],
+      "properties": {
+        "schema_version": {"const": 2},
+        "kind": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "code": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "diagnostics": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/kit_error_diagnostics"}]}
+      }
+    },
+    "kit_error_diagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage", "retryable", "attempt", "response_request_id", "reqwest", "source_chain_unknown", "source_chain_truncated"],
+      "properties": {
+        "stage": {"enum": ["request", "stream"]},
+        "retryable": {"type": "boolean"},
+        "attempt": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "response_request_id": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9_.:-]{1,128}$"},
+        "reqwest": {"$ref": "#/$defs/reqwest"},
+        "source_chain_unknown": {"type": "boolean"},
+        "source_chain_truncated": {"type": "boolean"}
+      }
+    },
+    "reqwest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timeout", "connect", "request", "body", "decode"],
+      "properties": {
+        "timeout": {"type": "boolean"},
+        "connect": {"type": "boolean"},
+        "request": {"type": "boolean"},
+        "body": {"type": "boolean"},
+        "decode": {"type": "boolean"}
+      }
+    }
+  }
+}
