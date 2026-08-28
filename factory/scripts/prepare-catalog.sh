@@ -55,13 +55,13 @@ for ((page = 1; page <= 20; page++)); do
         and (.server.name | type) == "string" and (.server.name | length) > 0
         and ((.server.title | type) == "string" or (.server.title | type) == "null")
         and ((.server.description | type) == "string" or (.server.description | type) == "null")
-        and ((.server.remotes // []) | type) == "array"
-        and all((.server.remotes // [])[];
+        and ((if (.server | has("remotes")) then .server.remotes else [] end) | type) == "array"
+        and all((if (.server | has("remotes")) then .server.remotes else [] end)[];
           (.type | type) == "string" and (.url | type) == "string"))
     ' "$response" >/dev/null; then
     die "malformed Pulse registry response on page $page"
   fi
-  jq -c '.servers[] | {name:.server.name, title:(.server.title // null), description:(.server.description // null), remotes:[(.server.remotes // [])[] | {transport:.type,url}]}' "$response" >>"$pages"
+  jq -c '.servers[] | {name:.server.name, title:(.server.title // null), description:(.server.description // null), remotes:[(if (.server | has("remotes")) then .server.remotes else [] end)[] | {transport:.type,url}]}' "$response" >>"$pages"
   next_cursor="$(jq -r '.metadata.nextCursor // empty' "$response")"
   [[ -n "$next_cursor" ]] || break
   jq -e --arg cursor "$next_cursor" 'index($cursor) == null' "$seen_cursors" >/dev/null \

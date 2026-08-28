@@ -242,6 +242,14 @@ cat >"$TMP/page1.json" <<'JSON'
 JSON
 expect_malformed_catalog_page malformed-remote-url do-not-log-url
 cat >"$TMP/page1.json" <<'JSON'
+{"servers":[{"server":{"name":"do-not-log-null-remotes","remotes":null}}]}
+JSON
+expect_malformed_catalog_page null-remotes do-not-log-null-remotes
+cat >"$TMP/page1.json" <<'JSON'
+{"servers":[{"server":{"name":"do-not-log-false-remotes","remotes":false}}]}
+JSON
+expect_malformed_catalog_page false-remotes do-not-log-false-remotes
+cat >"$TMP/page1.json" <<'JSON'
 {"servers":[{"server":{"name":"do-not-log-metadata"}}],"metadata":[]}
 JSON
 expect_malformed_catalog_page malformed-metadata do-not-log-metadata
