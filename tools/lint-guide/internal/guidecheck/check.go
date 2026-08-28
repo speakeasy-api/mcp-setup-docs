@@ -114,6 +114,14 @@ func CheckGuide(guideDir, repoRoot string) ([]Finding, error) {
 	speakeasyFindings := lintSpeakeasy(string(speakeasy))
 	findings = append(findings, speakeasyFindings...)
 
+	_, externalBody := stripFrontmatter(string(external))
+	externalLineOffset := 0
+	if len(externalBody) < len(external) {
+		externalLineOffset = strings.Count(string(external[:len(external)-len(externalBody)]), "\n")
+	}
+	findings = append(findings, lintURLPlacement([]byte(externalBody), "external", externalLineOffset)...)
+	findings = append(findings, lintURLPlacement(speakeasy, "speakeasy", 0)...)
+
 	var metaRaw string
 	metaExists, err := pathExists(metaPath)
 	if err != nil {
@@ -216,7 +224,8 @@ func lintExternal(raw string) []Finding {
 			out = append(out, finding("blocker", "external", where, "External setup step lacks a screenshot placeholder or screenshot-exception comment.", "Add <!-- screenshot: … --> or <!-- screenshot-exception: … --> on its own line in the step."))
 		}
 	}
-	return append(out, lintTemplateKeys(body, "external")...)
+	out = append(out, lintTemplateKeys(body, "external")...)
+	return out
 }
 
 func lintSpeakeasy(raw string) []Finding {
@@ -247,7 +256,25 @@ func lintSpeakeasy(raw string) []Finding {
 			out = append(out, finding("blocker", "speakeasy", fmt.Sprintf("line %d: %s", h.line, h.text), "Speakeasy setup H3 is missing its fixed {#…} anchor.", "Use the fixed anchors from doctrine/speakeasy-setup.md."))
 		}
 	}
-	return append(out, lintTemplateKeys(body, "speakeasy")...)
+	out = append(out, lintTemplateKeys(body, "speakeasy")...)
+	return out
+}
+
+func lintURLPlacement(markdown []byte, target string, lineOffset int) []Finding {
+	violations := FindURLPlacementViolations(markdown)
+	out := make([]Finding, 0, len(violations))
+	for _, violation := range violations {
+		out = append(out, Finding{
+			Severity:   "blocker",
+			Target:     target,
+			Where:      fmt.Sprintf("line %d, column %d", violation.Line+lineOffset, violation.Column),
+			Problem:    "URL is not in a Markdown link or fenced code block: " + violation.Source,
+			Suggestion: "URLs should either be Markdown links or appear in fenced code blocks. Use a link when the reader should open the URL; use a fenced code block when the reader should copy it.",
+			Dimension:  "lint",
+			Rule:       "url-placement",
+		})
+	}
+	return out
 }
 
 func lintMeta(raw, schemaPath string) ([]Finding, error) {
