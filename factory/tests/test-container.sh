@@ -6,6 +6,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT/factory/tests/test-helper.sh"
 TMP="$(mktemp -d)"
 export TMP
+export FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh"
+export FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh"
 trap 'rm -rf "$TMP"; exit 130' INT TERM
 
 test_config_is_pinned() {
@@ -28,7 +30,26 @@ test_dockerfile_builds_static_linter_without_go_in_final_image() {
   assert_contains "./cmd/lint-guide" "$dockerfile"
   assert_contains "COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide" "$dockerfile"
   assert_contains "COPY factory/scripts/validate-report.sh /usr/local/bin/validate-report" "$dockerfile"
+  assert_contains "COPY factory/scripts/project-kit-events.sh /usr/local/bin/project-kit-events" "$dockerfile"
+  assert_contains "COPY factory/scripts/build-diagnostics.sh /usr/local/bin/build-diagnostics" "$dockerfile"
+  assert_contains "COPY factory/scripts/validate-diagnostics.sh /usr/local/bin/validate-diagnostics" "$dockerfile"
+  # shellcheck disable=SC2016
+  grep -Fq 'EVENT_PROJECTOR=${FACTORY_EVENT_PROJECTOR:-/usr/local/bin/project-kit-events}' \
+    "$ROOT/factory/scripts/container-entrypoint.sh" || fail 'entrypoint does not default to installed projector'
+  # shellcheck disable=SC2016
+  grep -Fq 'DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-/usr/local/bin/build-diagnostics}' \
+    "$ROOT/factory/scripts/container-entrypoint.sh" || fail 'entrypoint does not default to installed builder'
   [[ "$(grep -c '^FROM ' "$ROOT/factory/Dockerfile")" -eq 2 ]] || fail "expected a two-stage image"
+  local image_bin="$TMP/image-helper-bin"
+  mkdir -p "$image_bin"
+  cp "$ROOT/factory/scripts/build-diagnostics.sh" "$image_bin/build-diagnostics"
+  cp "$ROOT/factory/scripts/validate-diagnostics.sh" "$image_bin/validate-diagnostics"
+  cp "$ROOT/factory/scripts/validate-report.sh" "$image_bin/validate-report"
+  chmod +x "$image_bin"/*
+  "$image_bin/build-diagnostics" docker_build 73 - - - "$TMP/image-helper-diagnostics.json" \
+    >/dev/null 2>&1 || fail 'installed-layout diagnostics builder is not runnable'
+  "$image_bin/validate-diagnostics" "$TMP/image-helper-diagnostics.json" >/dev/null \
+    || fail 'installed-layout diagnostics output is invalid'
 }
 
 test_docker_context_excludes_credentials_and_keeps_build_inputs() {
@@ -55,6 +76,9 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs() {
   cp -R "$ROOT/go/cmd" "$ROOT/go/internal" "$context/go/"
   cp "$ROOT/factory/Dockerfile" "$ROOT/factory/config.env" "$context/factory/"
   cp "$ROOT/factory/scripts/validate-report.sh" \
+    "$ROOT/factory/scripts/project-kit-events.sh" \
+    "$ROOT/factory/scripts/build-diagnostics.sh" \
+    "$ROOT/factory/scripts/validate-diagnostics.sh" \
     "$ROOT/factory/scripts/container-entrypoint.sh" "$context/factory/scripts/"
   tar -cf "$archive" --exclude-from="$ignore" -C "$context" .
   listing="$(tar -tf "$archive")"
@@ -65,7 +89,9 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs() {
     fi
   done
   for required in go/go.mod go/go.sum go/cmd/ go/internal/ factory/Dockerfile \
-    factory/config.env factory/scripts/validate-report.sh factory/scripts/container-entrypoint.sh; do
+    factory/config.env factory/scripts/validate-report.sh factory/scripts/project-kit-events.sh \
+    factory/scripts/build-diagnostics.sh factory/scripts/validate-diagnostics.sh \
+    factory/scripts/container-entrypoint.sh; do
     grep -Fq "$required" <<<"$listing" || fail "Docker context excludes required input: $required"
   done
   # Literal shell source is the build-interface contract under test.
@@ -147,8 +173,109 @@ JSON
   ! grep -q 'SECRET_STALE_DIAGNOSTIC' "$TMP/err" || fail 'run-kit logged stale diagnostics'
 }
 
-test_run_kit_uses_only_allowed_mounts() {
+test_run_kit_preserves_primary_status_when_diagnostics_fail() {
+  local bin export_dir status mode builder validator diagnostics_jq
+  bin="$TMP/diagnostics-failure-bin"; export_dir="$TMP/diagnostics-failure-export"
+  mkdir -p "$bin" "$export_dir"
+  printf '{}\n' >"$TMP/helper-issue.json"; printf '{}\n' >"$TMP/helper-catalog.json"
+  cat >"$TMP/helper-valid-diagnostics.json" <<'JSON'
+{"schema_version":1,"kind":"guide_factory_diagnostics","status":"failed","stage":"container_run","classification":"container_run_failed","report":{"exists":false,"valid":false,"outcome":null,"review_rounds":null},"events":[],"kit_errors":{"schema_version":1,"records":[]}}
+JSON
+  cat >"$bin/fail-builder" <<'MOCK'
+#!/usr/bin/env bash
+printf '%s\n' '{"raw":"SECRET_HELPER_CANARY"}' >"${6:?}"
+printf '%s\n' 'SECRET_HELPER_CANARY' >&2
+exit 88
+MOCK
+  cat >"$bin/fail-validator" <<'MOCK'
+#!/usr/bin/env bash
+printf '%s\n' 'SECRET_HELPER_CANARY' >&2
+exit 89
+MOCK
+  cat >"$bin/fail-jq" <<'MOCK'
+#!/usr/bin/env bash
+printf '%s\n' 'SECRET_HELPER_CANARY' >&2
+exit 90
+MOCK
+  chmod +x "$bin/fail-builder" "$bin/fail-validator" "$bin/fail-jq"
+
+  for mode in builder validator summary; do
+    if [[ $mode == builder ]]; then
+      make_fake docker 'exit 73'
+      builder="$bin/fail-builder"; validator="$ROOT/factory/scripts/validate-diagnostics.sh"; diagnostics_jq=jq
+    else
+      # shellcheck disable=SC2016
+      make_fake docker '[[ "${1:-}" == build ]] && exit 0; cp "$TMP/helper-valid-diagnostics.json" "$TMP/diagnostics-failure-export/factory-diagnostics.json"; exit 73'
+      builder="$ROOT/factory/scripts/build-diagnostics.sh"
+      if [[ $mode == validator ]]; then
+        validator="$bin/fail-validator"; diagnostics_jq=jq
+      else
+        validator="$ROOT/factory/scripts/validate-diagnostics.sh"; diagnostics_jq="$bin/fail-jq"
+      fi
+    fi
+    if OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$TMP/bin/docker" \
+      FACTORY_DIAGNOSTICS_BUILDER="$builder" FACTORY_DIAGNOSTICS_VALIDATOR="$validator" \
+      FACTORY_DIAGNOSTICS_JQ="$diagnostics_jq" TMPDIR="$TMP" \
+      "$ROOT/factory/scripts/run-kit.sh" "$TMP/helper-issue.json" "$TMP/helper-catalog.json" \
+      "$export_dir" >"$TMP/helper-$mode.out" 2>"$TMP/helper-$mode.err"; then
+      fail "run-kit accepted $mode helper failure"
+    else
+      status=$?
+    fi
+    assert_eq 73 "$status"
+    test ! -e "$export_dir/factory-diagnostics.json" || fail "run-kit retained $mode helper output"
+    if grep -q 'SECRET_HELPER_CANARY' "$TMP/helper-$mode.out" "$TMP/helper-$mode.err"; then
+      fail "run-kit logged unsafe $mode helper output"
+    fi
+    [[ -z "$(find "$TMP" -maxdepth 1 -type d -name 'mcp-setup-docs-source.*' -print -quit)" ]] \
+      || fail "run-kit leaked snapshot after $mode helper failure"
+  done
+}
+
+test_run_kit_synthesizes_setup_failure_diagnostics() {
+  local bin export_dir mode status expected real_realpath
+  bin="$TMP/setup-failure-bin"; export_dir="$TMP/setup-failure-export"
+  mkdir -p "$bin" "$export_dir"
+  printf '{}\n' >"$TMP/setup-issue.json"; printf '{}\n' >"$TMP/setup-catalog.json"
+  cat >"$bin/mktemp" <<'MOCK'
+#!/usr/bin/env bash
+if [[ "${SETUP_FAILURE_MODE:-}" == create && "$*" == *mcp-setup-docs-source* ]]; then exit 73; fi
+exec /usr/bin/mktemp "$@"
+MOCK
+  cat >"$bin/realpath" <<'MOCK'
+#!/usr/bin/env bash
+if [[ "${SETUP_FAILURE_MODE:-}" == normalize && "${1:-}" == *mcp-setup-docs-source* ]]; then exit 74; fi
+exec "$REAL_REALPATH" "$@"
+MOCK
+  chmod +x "$bin/mktemp" "$bin/realpath"
+  real_realpath=$(command -v realpath)
+  # shellcheck disable=SC2016
+  make_fake docker 'printf "%s\n" invoked >"$TMP/setup-docker-invoked"'
+
+  for mode in create normalize; do
+    expected=73; [[ $mode == normalize ]] && expected=74
+    rm -f "$TMP/setup-docker-invoked"
+    if OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$TMP/bin/docker" \
+      SETUP_FAILURE_MODE="$mode" REAL_REALPATH="$real_realpath" PATH="$bin:$PATH" TMPDIR="$TMP" \
+      "$ROOT/factory/scripts/run-kit.sh" "$TMP/setup-issue.json" "$TMP/setup-catalog.json" \
+      "$export_dir" >"$TMP/setup-$mode.out" 2>"$TMP/setup-$mode.err"; then
+      fail "run-kit accepted snapshot $mode failure"
+    else
+      status=$?
+    fi
+    assert_eq "$expected" "$status"
+    test ! -e "$TMP/setup-docker-invoked" || fail "run-kit invoked Docker after snapshot $mode failure"
+    "$ROOT/factory/scripts/validate-diagnostics.sh" "$export_dir/factory-diagnostics.json" >/dev/null \
+      || fail "run-kit did not validate snapshot $mode diagnostics"
+    jq -e '.stage == "docker_build" and .classification == "docker_build_failed" and .events == []' \
+      "$export_dir/factory-diagnostics.json" >/dev/null || fail "wrong snapshot $mode diagnostics"
+    [[ -z "$(find "$TMP" -maxdepth 1 -type d -name 'mcp-setup-docs-source.*' -print -quit)" ]] \
+      || fail "run-kit leaked snapshot after $mode failure"
+  done
+}
+
   export OPENROUTER_API_KEY=or-test
+test_run_kit_uses_only_allowed_mounts() {
   export FACTORY_DOCKER="$TMP/bin/docker"
   # shellcheck disable=SC2016
   make_fake docker 'printf "%s\n" "$@" >"$TMP/docker.args"'
@@ -168,7 +295,7 @@ test_run_kit_uses_only_allowed_mounts() {
 }
 
 test_run_kit_source_snapshot_applies_dockerignore() {
-  local repo bin recorded snapshot excluded
+  local repo bin recorded snapshot excluded status
   repo="$TMP/snapshot-repo"
   bin="$TMP/snapshot-bin"
   recorded="$TMP/source-volume"
@@ -179,6 +306,11 @@ test_run_kit_source_snapshot_applies_dockerignore() {
   cp "$ROOT/factory/config.env" "$repo/factory/config.env"
   cp "$ROOT/factory/Dockerfile" "$repo/factory/Dockerfile"
   cp "$ROOT/factory/scripts/run-kit.sh" "$repo/factory/scripts/run-kit.sh"
+  mkdir -p "$repo/factory/schemas"
+  cp "$ROOT/factory/scripts/build-diagnostics.sh" \
+    "$ROOT/factory/scripts/validate-diagnostics.sh" \
+    "$ROOT/factory/scripts/validate-report.sh" "$repo/factory/scripts/"
+  cp "$ROOT/factory/schemas/factory-diagnostics.schema.json" "$repo/factory/schemas/"
   printf '%s\n' modified-working-source >"$repo/working-change.txt"
   printf '%s\n' gitdir-private >"$repo/.git"
   printf '%s\n' nested-git-private >"$repo/nested/.git/config"
@@ -239,9 +371,16 @@ MOCK
     SNAPSHOT_REPO="$repo" SNAPSHOT_RECORDED="$recorded" \
     PATH="$bin:$PATH" TMPDIR="$TMP" "$repo/factory/scripts/run-kit.sh" \
     "$TMP/snapshot-issue.json" "$TMP/snapshot-catalog.json" \
-    "$TMP/snapshot-export" >/dev/null 2>&1; then
+    "$TMP/snapshot-export" >"$TMP/tar-failure.out" 2>"$TMP/tar-failure.err"; then
     fail 'run-kit continued after source archive failure'
+  else
+    status=$?
   fi
+  assert_eq 73 "$status"
+  "$repo/factory/scripts/validate-diagnostics.sh" "$TMP/snapshot-export/factory-diagnostics.json" >/dev/null \
+    || fail 'run-kit did not export valid source archive diagnostics'
+  jq -e '.stage == "docker_build" and .classification == "docker_build_failed" and .events == []' \
+    "$TMP/snapshot-export/factory-diagnostics.json" >/dev/null || fail 'wrong source archive diagnostics'
   [[ ! -e "$recorded" ]] || fail 'run-kit invoked Docker after source archive failure'
   [[ -z "$(find "$TMP" -maxdepth 1 -type d -name 'mcp-setup-docs-source.*' -print -quit)" ]] \
     || fail 'run-kit leaked a failed source snapshot'
@@ -534,7 +673,7 @@ test_opt_in_final_image() {
     -t "$image" "$ROOT" >/dev/null
   docker run --rm --platform linux/amd64 --entrypoint /bin/sh \
     -v "$ROOT:/fixture:ro" -w /fixture "$image" -c \
-    '! command -v go && test -x /usr/local/bin/lint-guide && ldd /usr/local/bin/lint-guide 2>&1 | grep -q "not a dynamic executable" && /usr/local/bin/lint-guide guides/asana'
+    '! command -v go && test -x /usr/local/bin/lint-guide && test -x /usr/local/bin/project-kit-events && test -x /usr/local/bin/build-diagnostics && test -x /usr/local/bin/validate-diagnostics && ldd /usr/local/bin/lint-guide 2>&1 | grep -q "not a dynamic executable" && /usr/local/bin/lint-guide guides/asana'
 }
 
 test_config_is_pinned
@@ -543,6 +682,8 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs
 test_release_archive_layout_and_checksum
 test_run_kit_does_not_forward_github_credentials
 test_run_kit_reports_safe_failure_diagnostics
+test_run_kit_preserves_primary_status_when_diagnostics_fail
+test_run_kit_synthesizes_setup_failure_diagnostics
 test_run_kit_uses_only_allowed_mounts
 test_run_kit_source_snapshot_applies_dockerignore
 test_entrypoint_exports_only_selected_guide_with_mocked_kit

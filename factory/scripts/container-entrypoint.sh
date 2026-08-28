@@ -7,11 +7,8 @@ WORKSPACE_ROOT=${FACTORY_WORKSPACE_ROOT:-/workspace}
 EXPORT_ROOT=${FACTORY_EXPORT_ROOT:-/export}
 KIT_HOME=${FACTORY_KIT_HOME:-/tmp/kit-home}
 REPORT_VALIDATOR=${FACTORY_REPORT_VALIDATOR:-/usr/local/bin/validate-report}
-EVENT_PROJECTOR=${FACTORY_EVENT_PROJECTOR:-$REPO_ROOT/factory/scripts/project-kit-events.sh}
-DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-$REPO_ROOT/factory/scripts/build-diagnostics.sh}
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-[[ -x $EVENT_PROJECTOR ]] || EVENT_PROJECTOR="$SCRIPT_DIR/project-kit-events.sh"
-[[ -x $DIAGNOSTICS_BUILDER ]] || DIAGNOSTICS_BUILDER="$SCRIPT_DIR/build-diagnostics.sh"
+EVENT_PROJECTOR=${FACTORY_EVENT_PROJECTOR:-/usr/local/bin/project-kit-events}
+DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-/usr/local/bin/build-diagnostics}
 
 test -r "$INPUT_ROOT/issue.json"
 test -r "$INPUT_ROOT/catalog.json"

@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-DIAGNOSTICS_VALIDATOR="$ROOT/factory/scripts/validate-diagnostics.sh"
-REPORT_VALIDATOR="${FACTORY_REPORT_VALIDATOR:-$ROOT/factory/scripts/validate-report.sh}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+DIAGNOSTICS_VALIDATOR=${FACTORY_DIAGNOSTICS_VALIDATOR:-$ROOT/factory/scripts/validate-diagnostics.sh}
+REPORT_VALIDATOR=${FACTORY_REPORT_VALIDATOR:-$ROOT/factory/scripts/validate-report.sh}
+[[ -x $DIAGNOSTICS_VALIDATOR ]] || DIAGNOSTICS_VALIDATOR="$SCRIPT_DIR/validate-diagnostics"
+[[ -x $REPORT_VALIDATOR ]] || REPORT_VALIDATOR="$SCRIPT_DIR/validate-report"
 output=
 temporary=
 empty_events=

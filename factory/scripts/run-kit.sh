@@ -24,30 +24,78 @@ export_dir="$(realpath "$export_dir")"
 rm -rf "$export_dir/guide" "$export_dir/run-report.json" \
   "$export_dir/kit-error-summary.json" "$export_dir/factory-diagnostics.json"
 
-source_snapshot="$(mktemp -d "${TMPDIR:-/tmp}/mcp-setup-docs-source.XXXXXX")"
-source_snapshot="$(realpath "$source_snapshot")"
+DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-$ROOT/factory/scripts/build-diagnostics.sh}
+DIAGNOSTICS_VALIDATOR=${FACTORY_DIAGNOSTICS_VALIDATOR:-$ROOT/factory/scripts/validate-diagnostics.sh}
+DIAGNOSTICS_JQ=${FACTORY_DIAGNOSTICS_JQ:-jq}
+DIAGNOSTICS="$export_dir/factory-diagnostics.json"
+source_snapshot=
 cleanup() {
   exit_code=$?
   trap - EXIT
-  rm -rf "$source_snapshot"
+  [[ -z $source_snapshot ]] || rm -rf -- "$source_snapshot" 2>/dev/null || true
   exit "$exit_code"
 }
 trap cleanup EXIT
-[[ -r "$ROOT/.dockerignore" ]] || { printf 'root .dockerignore is not readable\n' >&2; exit 1; }
-tar -cf - --exclude-from="$ROOT/.dockerignore" -C "$ROOT" . \
-  | tar -xf - -C "$source_snapshot"
 
-DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh"
-DIAGNOSTICS_VALIDATOR="$ROOT/factory/scripts/validate-diagnostics.sh"
-DIAGNOSTICS="$export_dir/factory-diagnostics.json"
+diagnostics_unavailable() {
+  rm -rf -- "$DIAGNOSTICS" 2>/dev/null || true
+  printf '%s\n' 'factory: diagnostics unavailable' >&2
+}
+
 print_diagnostics_summary() {
-  local stage classification events
-  stage=$(jq -r '.stage' "$DIAGNOSTICS")
-  classification=$(jq -r '.classification' "$DIAGNOSTICS")
-  events=$(jq -r '.events | length' "$DIAGNOSTICS")
+  local summary stage classification events
+  summary=$("$DIAGNOSTICS_JQ" -r '[.stage,.classification,(.events | length)] | @tsv' \
+    "$DIAGNOSTICS" 2>/dev/null) || return 1
+  IFS=$'\t' read -r stage classification events <<<"$summary" || return 1
+  [[ -n $stage && -n $classification && $events =~ ^[0-9]+$ ]] || return 1
   printf 'factory: diagnostics: stage=%s classification=%s events=%s\n' \
     "$stage" "$classification" "$events" >&2
 }
+
+retain_diagnostics() {
+  if ! "$DIAGNOSTICS_VALIDATOR" "$DIAGNOSTICS" >/dev/null 2>&1 \
+    || ! print_diagnostics_summary; then
+    diagnostics_unavailable
+    return 1
+  fi
+}
+
+build_minimal_diagnostics() {
+  local stage=$1 status=$2
+  rm -rf -- "$DIAGNOSTICS" 2>/dev/null || true
+  if ! "$DIAGNOSTICS_BUILDER" "$stage" "$status" - - - "$DIAGNOSTICS" >/dev/null 2>&1; then
+    diagnostics_unavailable
+    return 1
+  fi
+  retain_diagnostics || return 1
+}
+
+if source_snapshot=$(mktemp -d "${TMPDIR:-/tmp}/mcp-setup-docs-source.XXXXXX"); then
+  :
+else
+  setup_status=$?
+  build_minimal_diagnostics docker_build "$setup_status" || true
+  exit "$setup_status"
+fi
+if normalized_snapshot=$(realpath "$source_snapshot"); then
+  source_snapshot=$normalized_snapshot
+else
+  setup_status=$?
+  build_minimal_diagnostics docker_build "$setup_status" || true
+  exit "$setup_status"
+fi
+if [[ ! -r "$ROOT/.dockerignore" ]]; then
+  build_minimal_diagnostics docker_build 1 || true
+  exit 1
+fi
+if tar -cf - --exclude-from="$ROOT/.dockerignore" -C "$ROOT" . \
+  | tar -xf - -C "$source_snapshot"; then
+  :
+else
+  setup_status=$?
+  build_minimal_diagnostics docker_build "$setup_status" || true
+  exit "$setup_status"
+fi
 
 if "$FACTORY_DOCKER" build \
   --file "$ROOT/factory/Dockerfile" \
@@ -60,8 +108,7 @@ else
   build_status=$?
 fi
 if ((build_status != 0)); then
-  "$DIAGNOSTICS_BUILDER" docker_build "$build_status" - - - "$DIAGNOSTICS"
-  print_diagnostics_summary
+  build_minimal_diagnostics docker_build "$build_status" || true
   exit "$build_status"
 fi
 
@@ -80,21 +127,12 @@ else
 fi
 if ((container_status != 0)); then
   if [[ -e $DIAGNOSTICS ]]; then
-    if "$DIAGNOSTICS_VALIDATOR" "$DIAGNOSTICS" >/dev/null 2>&1; then
-      print_diagnostics_summary
-    else
-      rm -f -- "$DIAGNOSTICS"
-    fi
+    retain_diagnostics || true
   else
-    "$DIAGNOSTICS_BUILDER" container_run "$container_status" - - - "$DIAGNOSTICS"
-    print_diagnostics_summary
+    build_minimal_diagnostics container_run "$container_status" || true
   fi
   exit "$container_status"
 fi
 if [[ -e $DIAGNOSTICS ]]; then
-  if "$DIAGNOSTICS_VALIDATOR" "$DIAGNOSTICS" >/dev/null 2>&1; then
-    print_diagnostics_summary
-  else
-    rm -f -- "$DIAGNOSTICS"
-  fi
+  retain_diagnostics || true
 fi
