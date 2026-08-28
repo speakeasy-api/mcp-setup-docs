@@ -136,7 +136,7 @@ node "$D/compare-arms.mjs" google-sheets
 ```
 
 **One dependency is not in this directory.** The cost numbers come from usage instrumentation
-that the test branch added to `pipeline/src/pi-stream.ts`, `runtime-pi.ts` and `cli.ts`. That
+that the retired test branch added to its stream, runtime, and CLI code. That
 code did not merge. Without it the run record has no `usage` block, and `compare-arms.mjs`
 reports that cost is unavailable. The instrumentation reads `message.usage` from each pi
 `turn_end` event and sums it into a ledger keyed by `label :: phase`. See section 4.

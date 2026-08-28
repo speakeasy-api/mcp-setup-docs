@@ -201,6 +201,86 @@ MOCK
   done
 }
 
+test_local_draft_parsing_and_secret_boundary() {
+  local bin log tmpdir issue_path
+  bin="$TMP/local-bin"; log="$TMP/local.log"; tmpdir="$TMP/local tmp"
+  issue_path="$TMP/issue input.json"
+  mkdir -p "$bin" "$tmpdir"
+  cat >"$bin/run-kit" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+printf 'run\nissue=%s\ncatalog=%s\nexport=%s\n' "$1" "$2" "$3" >>"$LOCAL_TEST_LOG"
+for name in GH_TOKEN GITHUB_TOKEN PULSE_REGISTRY_KEY PULSE_REGISTRY_TENANT PULSE_REGISTRY_URL; do
+  [[ -z "${!name:-}" ]] || exit 91
+done
+if [[ -z "${LOCAL_TEST_EXPECT_PATH:-}" ]]; then
+  jq -e '.schema_version == 1 and .repository == "local" and .issue.number == 0 and .issue.title == "Draft Acme" and .issue.body == "Body text\n\nRequested guide slug: acme." and .issue.url == "local://guide-draft/acme" and .issue.author == "local" and .comments == []' "$1" >/dev/null
+fi
+jq -e '.status == "skipped" and .servers == []' "$2" >/dev/null
+mkdir -p "$3/guide"
+printf '%s\n' '{"slug":"acme","outcome":"converged"}' >"$3/run-report.json"
+MOCK
+  cat >"$bin/validate" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+printf 'validate\nexport=%s\nroot=%s\n' "$1" "$2" >>"$LOCAL_TEST_LOG"
+[[ -f "$1/run-report.json" && -d "$1/guide" ]]
+MOCK
+  chmod +x "$bin/run-kit" "$bin/validate"
+
+  LOCAL_TEST_LOG="$log" TMPDIR="$tmpdir" \
+    GH_TOKEN=host-gh GITHUB_TOKEN=host-github PULSE_REGISTRY_KEY=host-pulse \
+    PULSE_REGISTRY_TENANT=host-tenant PULSE_REGISTRY_URL=https://secret.invalid \
+    FACTORY_LOCAL_RUN_KIT="$bin/run-kit" FACTORY_LOCAL_VALIDATE="$bin/validate" \
+    "$ROOT/factory/scripts/local-draft.sh" --title 'Draft Acme' --body 'Body text' --slug acme
+  assert_eq $'run\nvalidate' "$(grep -E '^(run|validate)$' "$log")"
+  [[ -z "$(find "$tmpdir" -mindepth 1 -maxdepth 1 -print -quit)" ]] || fail 'local draft leaked temporary files'
+
+  jq -n '{schema_version:1,repository:"local",issue:{number:0,title:"Issue path",body:"Body",url:"local://issue",author:"local"},comments:[]}' >"$issue_path"
+  : >"$log"
+  LOCAL_TEST_LOG="$log" TMPDIR="$tmpdir" \
+    FACTORY_LOCAL_RUN_KIT="$bin/run-kit" FACTORY_LOCAL_VALIDATE="$bin/validate" \
+    LOCAL_TEST_EXPECT_PATH=1 "$ROOT/factory/scripts/local-draft.sh" -- "$issue_path"
+  assert_contains "issue=$issue_path" "$(cat "$log")"
+}
+
+test_local_draft_rejects_invalid_arguments_and_slug_mismatch() {
+  local bin tmpdir
+  bin="$TMP/reject-bin"; tmpdir="$TMP/reject-tmp"
+  mkdir -p "$bin" "$tmpdir"
+  cat >"$bin/run-kit" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+mkdir -p "$3/guide"
+printf '%s\n' '{"slug":"other","outcome":"converged"}' >"$3/run-report.json"
+MOCK
+  cat >"$bin/validate" <<'MOCK'
+#!/usr/bin/env bash
+exit 99
+MOCK
+  chmod +x "$bin/run-kit" "$bin/validate"
+
+  local args
+  for args in \
+    '--title T --body B' \
+    '--title T --body B --slug Not-Canonical' \
+    '--title T --title U --body B --slug acme' \
+    '--title T --body B --slug acme issue.json' \
+    '--unknown value'; do
+    # These fixtures intentionally contain no shell metacharacters or whitespace-bearing values.
+    # shellcheck disable=SC2086
+    if FACTORY_LOCAL_RUN_KIT="$bin/run-kit" FACTORY_LOCAL_VALIDATE="$bin/validate" \
+      "$ROOT/factory/scripts/local-draft.sh" $args >/dev/null 2>&1; then
+      fail "local draft accepted invalid arguments: $args"
+    fi
+  done
+  if TMPDIR="$tmpdir" FACTORY_LOCAL_RUN_KIT="$bin/run-kit" FACTORY_LOCAL_VALIDATE="$bin/validate" \
+    "$ROOT/factory/scripts/local-draft.sh" --title T --body B --slug acme >/dev/null 2>&1; then
+    fail 'local draft accepted a report selecting another slug'
+  fi
+  [[ -z "$(find "$tmpdir" -mindepth 1 -maxdepth 1 -print -quit)" ]] || fail 'failed local draft leaked temporary files'
+}
+
 test_opt_in_final_image() {
   [[ "${FACTORY_TEST_IMAGE:-0}" == 1 ]] || return 0
   # shellcheck disable=SC1091
@@ -222,5 +302,7 @@ test_run_kit_does_not_forward_github_credentials
 test_run_kit_uses_only_allowed_mounts
 test_entrypoint_exports_only_selected_guide_with_mocked_kit
 test_entrypoint_rejects_invalid_report
+test_local_draft_parsing_and_secret_boundary
+test_local_draft_rejects_invalid_arguments_and_slug_mismatch
 test_opt_in_final_image
 rm -rf "$TMP"

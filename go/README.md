@@ -78,9 +78,8 @@ mise run generate-go   # sync guides → go/generated + regenerate index
 mise run check-go      # regenerate, fail on drift, go test
 ```
 
-Publishable files only: `meta.yaml`, `external.md`, `speakeasy.md`,
-declared assets. Authoring files (`research.md`, `pipeline.lock.json`)
-are never embedded.
+Publishable files only: `meta.yaml`, `external.md`, `speakeasy.md`, and
+declared assets. The authoring-only `research.md` file is never embedded.
 
 ## Release flow
 

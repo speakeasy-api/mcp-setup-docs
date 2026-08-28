@@ -259,4 +259,27 @@ for forbidden in OPENROUTER_API_KEY run-kit.sh 'kit run' 'npm ' 'actions/setup-n
   if grep -Fiq "$forbidden" "$FACTORY_CI"; then fail "Factory CI performs model/legacy work: $forbidden"; fi
 done
 
+historical_exclusions=(
+  ':!docs/superpowers/specs/**'
+  ':!docs/superpowers/plans/**'
+  ':!.superpowers/**'
+  ':!doctrine/CHANGELOG.md'
+)
+for pattern in \
+  '(^|[^[:alnum:]_])P''i([^[:alnum:]_]|$)' \
+  "npm run ""factory" \
+  "pipeline[.]""lock[.]json" \
+  "pipeline/""src" \
+  "spawn.*p""i" \
+  "runtime-p""i"; do
+  if git -C "$ROOT" grep -nE "$pattern" -- . "${historical_exclusions[@]}" >"$workflow_tmp/references"; then
+    cat "$workflow_tmp/references" >&2
+    fail "retired factory reference remains: $pattern"
+  fi
+done
+
+if find "$ROOT/guides" -mindepth 2 -maxdepth 2 -name "pipeline.""lock.json" -print -quit | grep -q .; then
+  fail 'guide pipeline lock remains'
+fi
+
 printf 'PASS: coordinator and workflow contracts\n'

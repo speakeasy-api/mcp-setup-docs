@@ -34,7 +34,7 @@ factory) when a run completes: `runs/<UTC timestamp>-<slug>.json`.
   ],
   "unresolved": ["… only when unconverged …"],
   "open_questions": ["…"],
-  "skipped": ["… optional: step ids skipped via pipeline.lock.json, e.g. draft, review.fidelity …"],
+  "skipped": ["… optional: legacy run step ids omitted by the evaluator …"],
   "research_change": {
     "method": "digest | judge | none",
     "unchanged": true,
