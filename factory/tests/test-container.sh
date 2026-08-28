@@ -210,7 +210,7 @@ test_local_draft_parsing_and_secret_boundary() {
 #!/usr/bin/env bash
 set -euo pipefail
 printf 'run\nissue=%s\ncatalog=%s\nexport=%s\n' "$1" "$2" "$3" >>"$LOCAL_TEST_LOG"
-for name in GH_TOKEN GITHUB_TOKEN PULSE_REGISTRY_KEY PULSE_REGISTRY_TENANT PULSE_REGISTRY_URL; do
+for name in GH_TOKEN GITHUB_TOKEN PULSE_REGISTRY_KEY PULSE_REGISTRY_TENANT PULSE_REGISTRY_URL SSH_AUTH_SOCK SSH_AGENT_PID; do
   [[ -z "${!name:-}" ]] || exit 91
 done
 if [[ -z "${LOCAL_TEST_EXPECT_PATH:-}" ]]; then
@@ -231,6 +231,7 @@ MOCK
   LOCAL_TEST_LOG="$log" TMPDIR="$tmpdir" \
     GH_TOKEN=host-gh GITHUB_TOKEN=host-github PULSE_REGISTRY_KEY=host-pulse \
     PULSE_REGISTRY_TENANT=host-tenant PULSE_REGISTRY_URL=https://secret.invalid \
+    SSH_AUTH_SOCK=/tmp/host-agent.sock SSH_AGENT_PID=4242 \
     FACTORY_LOCAL_RUN_KIT="$bin/run-kit" FACTORY_LOCAL_VALIDATE="$bin/validate" \
     "$ROOT/factory/scripts/local-draft.sh" --title 'Draft Acme' --body 'Body text' --slug acme
   assert_eq $'run\nvalidate' "$(grep -E '^(run|validate)$' "$log")"

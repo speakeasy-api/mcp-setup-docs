@@ -127,7 +127,7 @@ for phrase in \
   grep -Fq "$phrase" "$WORKFLOW" || fail "missing workflow contract: $phrase"
 done
 
-for forbidden in 'actions/setup-node' 'npm ' 'pipeline/' ' pi ' 'PI_API_KEY' 'id-token:' 'actions: write'; do
+for forbidden in 'actions/setup-node' 'npm ' 'pipeline/' ' p''i ' 'PI_API_KEY' 'id-token:' 'actions: write'; do
   if grep -Fiq "$forbidden" "$WORKFLOW"; then fail "forbidden draft workflow content: $forbidden"; fi
 done
 
@@ -264,19 +264,53 @@ historical_exclusions=(
   ':!docs/superpowers/plans/**'
   ':!.superpowers/**'
   ':!doctrine/CHANGELOG.md'
+  ':!docs/feedback-threads.md'
+  ':!research/0001-north-star-research-methodology/**'
+  ':!retro/README.md'
+  ':!retro/runs/**'
 )
-for pattern in \
-  '(^|[^[:alnum:]_])P''i([^[:alnum:]_]|$)' \
-  "npm run ""factory" \
-  "pipeline[.]""lock[.]json" \
-  "pipeline/""src" \
-  "spawn.*p""i" \
-  "runtime-p""i"; do
-  if git -C "$ROOT" grep -nE "$pattern" -- . "${historical_exclusions[@]}" >"$workflow_tmp/references"; then
-    cat "$workflow_tmp/references" >&2
-    fail "retired factory reference remains: $pattern"
+retired_reference_scan() {
+  local repo=$1 output=$2 pattern
+  pattern='(^|[^[:alnum:]_])P''i([^[:alnum:]_]|$)'
+  if git -C "$repo" grep -niE "$pattern" -- . "${historical_exclusions[@]}" >"$output"; then
+    return 0
   fi
-done
+  for pattern in \
+    "npm run ""factory" \
+    "pipeline[.]""lock[.]json" \
+    "pipeline/""src" \
+    "spawn.*p""i" \
+    "runtime-p""i"; do
+    if git -C "$repo" grep -nE "$pattern" -- . "${historical_exclusions[@]}" >"$output"; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+if retired_reference_scan "$ROOT" "$workflow_tmp/references"; then
+  cat "$workflow_tmp/references" >&2
+  fail 'retired factory reference remains'
+fi
+
+reference_fixture="$workflow_tmp/reference-fixture"
+mkdir -p "$reference_fixture/docs/feedback" \
+  "$reference_fixture/research/0001-north-star-research-methodology/data"
+git -C "$reference_fixture" init -q
+printf 'active runtime: p%s\n' i >"$reference_fixture/active.txt"
+printf 'pipeline substring is not standalone\n' >"$reference_fixture/pipeline.txt"
+git -C "$reference_fixture" add .
+if ! retired_reference_scan "$reference_fixture" "$workflow_tmp/fixture-references"; then
+  fail 'lowercase active runtime reference escaped migration scan'
+fi
+rm "$reference_fixture/active.txt"
+printf 'historical runtime: p%s\n' i >"$reference_fixture/docs/feedback-threads.md"
+printf 'historical runtime: P%s\n' i >"$reference_fixture/research/0001-north-star-research-methodology/data/archive.txt"
+git -C "$reference_fixture" add -A
+if retired_reference_scan "$reference_fixture" "$workflow_tmp/fixture-references"; then
+  cat "$workflow_tmp/fixture-references" >&2
+  fail 'classified historical reference was not excluded'
+fi
 
 if find "$ROOT/guides" -mindepth 2 -maxdepth 2 -name "pipeline.""lock.json" -print -quit | grep -q .; then
   fail 'guide pipeline lock remains'

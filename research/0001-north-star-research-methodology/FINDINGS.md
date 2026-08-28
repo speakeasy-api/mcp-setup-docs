@@ -173,6 +173,6 @@ The test branch did not merge. This directory is the only surviving copy of the 
 | [`data/compare-arms.mjs`](data/compare-arms.mjs) | The scorer, preserved with the defect described above. |
 | [`data/matrix.sh`](data/matrix.sh) | The lane driver that ran the matrix. |
 
-The cost instrumentation is **not** preserved. It lived only on the retired test branch
+The cost instrumentation is **not** preserved. It lived in `pipeline/src/` on the test branch
 and did not merge, because the result did not justify shipping it. To repeat this test you
 must rebuild it. See [`PROCESS.md`](PROCESS.md) §6.

@@ -23,7 +23,7 @@ git show 42a88eb:doctrine/roles/technical-research.md
 ```
 
 One dependency is missing on purpose: the usage instrumentation that produced the cost
-numbers. It lived only on the retired test branch and did not merge. Without it the run
+numbers. It lived in `pipeline/src/` on the test branch and did not merge. Without it the run
 records carry no `usage` block.
 
 ## `source-measurement/`

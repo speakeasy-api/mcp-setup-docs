@@ -38,6 +38,7 @@ draft-guide (pi): persona=it-admin guides=google-sheets model=openai/gpt-5.6-sol
 [2026-07-31T20:48:40.810Z] [google-sheets review:achievability r3] cost $0.1633 tokens 79860 tools: read=9 ls=1
 [2026-07-31T20:48:41.000Z] [google-sheets review:fidelity r3] cost $0.1898 tokens 65504 tools: read=11 ls=1
 [2026-07-31T20:48:41.040Z] [google-sheets] converged after 3 round(s); 0 checklist item(s) remain
+[2026-07-31T20:48:41.078Z] [google-sheets] wrote pipeline.lock.json
 run record: /tmp/ns-exp/google-sheets-b-20260731T203845Z/retro/runs/2026-07-31T20:38:49Z-google-sheets.json
 {
   "slug": "google-sheets",

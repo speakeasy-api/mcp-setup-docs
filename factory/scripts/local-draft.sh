@@ -99,6 +99,7 @@ fi
 (
   unset GH_TOKEN GITHUB_TOKEN GH_ENTERPRISE_TOKEN AGENT_PAT
   unset PULSE_REGISTRY_KEY PULSE_REGISTRY_TENANT PULSE_REGISTRY_URL
+  unset SSH_AUTH_SOCK SSH_AGENT_PID
   "$run_kit" "$issue_json" "$catalog_json" "$export_dir"
   [[ -f "$export_dir/run-report.json" ]] || { printf 'local-draft: Kit did not export run-report.json\n' >&2; exit 1; }
   if [[ -n "$expected_slug" ]]; then
