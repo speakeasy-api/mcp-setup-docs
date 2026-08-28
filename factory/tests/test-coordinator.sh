@@ -26,7 +26,9 @@ for phrase in \
   'never inspect repository files directly or run another Phase 1 file-discovery tool' \
   'bash factory/scripts/read-guide-context-spill.sh <artifact> index' \
   'bash factory/scripts/read-guide-context-spill.sh <artifact> read <index> <offset>' \
-  'start each file at offset 0, use only the returned next_offset' \
+  'Files may be consumed in any order or interleaved' \
+  'start each file at offset 0 and use only that file' \
+  'Every listed file must reach done=true before Phase 2' \
   'Never construct jq, sed, Python, or other free-form spill commands' \
   'incomplete file consumption selects failed' \
   "catalog presence only from the \`.catalog\` object returned by the initial command" \
@@ -62,6 +64,10 @@ for phrase in \
   "including \`go\`, \`go run\`, \`npx\`, Python, and \`/usr/local/bin/lint-guide\`"; do
   grep -Fq "$phrase" "$CONTRACT" || fail "missing contract: $phrase"
 done
+
+if grep -Fq 'in index order' "$CONTRACT"; then
+  fail 'guide-context spill contract still requires global index order'
+fi
 
 context_boundary=$(cat <<'RUNLET'
 context_attempt = boundary {
