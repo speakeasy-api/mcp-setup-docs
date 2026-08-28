@@ -10,6 +10,8 @@ After identity selection, guide work is limited to `/workspace/guides/<slug>/`. 
 
 ## Universal caught-boundary and structured-output protocol
 
+For every subagent start, omit both model and harness from the tool input. Built-in `acp.kit` children inherit the coordinator provider, model, and reasoning effort; an explicit child selection is prohibited. The inherited child model is exactly `openai/gpt-5.6-sol` through OpenRouter.
+
 Every fallible subagent start/continuation, reviewer invocation, complete concurrent wave, revision, shell/linter call, and file or report validation call MUST execute inside an explicit caught boundary (`boundary { ... } catch err { ... }`). No such call may escape uncaught. Every catch records a concise blocker, sets terminal state to `failed`, sets `stop_model_phases = true`, must skip all remaining model phases, and must still continue to atomic report creation. In particular, each concurrent reviewer has its own caught boundary and the enclosing complete concurrent wave also has a caught boundary, so one failed reviewer can never abort report creation.
 
 For every `output_schema` subagent (research, writer, each reviewer, and revision), inspect the transport result before reading fields. A raw-text fallback, non-object output (or non-array for `review-findings.schema.json`), missing field, or schema-invalid value is malformed output. Allow exactly one repair: use prompt on the same session, state the validation defect, require only corrected structured output, and validate again in a caught boundary. Never fork or start a replacement for repair. A second invalid result or repair exhaustion becomes `failed`; there are no other retries. Repair attempts do not count as review rounds.
