@@ -50,7 +50,9 @@ for phrase in \
   'outside /workspace/guides/<slug>' \
   "Presentation-only uncertainty never selects \`awaiting_scope\`" \
   'Missing exact UI labels, control names or locations, and equivalent Save/Update/Apply chrome are presentation-only' \
-  "Open questions alone do not select \`awaiting_scope\`" \
+  'Open questions are operator-actionable decisions, not a list of documentation gaps' \
+  'If the operator could only repeat the same public-source search, record a research limitation and continue' \
+  'material to first connection, cannot be handled with a safe hedge, and answerable from operator knowledge or authority' \
   'Revision agents must not run validation commands' \
   "including \`go\`, \`go run\`, \`npx\`, Python, and \`/usr/local/bin/lint-guide\`"; do
   grep -Fq "$phrase" "$CONTRACT" || fail "missing contract: $phrase"
@@ -103,8 +105,15 @@ for role_contract in doctrine/roles/technical-research.md doctrine/roles/writer.
     fail "missing presentation-only uncertainty policy: $role_contract"
 done
 
-grep -Fq 'any unresolved material uncertainty' "$ROOT/doctrine/roles/technical-research.md" ||
-  fail 'research role narrows material uncertainty to operator decisions'
+for example in \
+  'alternate Configuration and Additional Configuration surfaces' \
+  'Save the integration credentials' \
+  'pre-filled redirect URI values' \
+  'Copy the client secret when it is shown' \
+  'whether scopes can be edited after saving'; do
+  grep -Fq "$example" "$ROOT/doctrine/roles/technical-research.md" ||
+    fail "missing non-question regression example: $example"
+done
 
 research_line="$(grep -n 'technical-research subagent' "$CONTRACT" | head -1 | cut -d: -f1)"
 persona_line="$(grep -n 'Resolve the persona only after' "$CONTRACT" | head -1 | cut -d: -f1)"
