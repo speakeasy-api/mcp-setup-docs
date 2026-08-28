@@ -188,12 +188,23 @@ publisher_tmp="$(mktemp -d)"
 runner_temp="$publisher_tmp/runner-temp"
 stable_scripts="$runner_temp/guide-factory-publisher/factory/scripts"
 mkdir -p "$stable_scripts" "$publisher_tmp/bin" "$publisher_tmp/scratch"
-cp "$ROOT/factory/scripts/publish.sh" "$ROOT/factory/scripts/lib.sh" "$stable_scripts/"
-git clone -q --no-hardlinks "$ROOT" "$publisher_tmp/checkout"
-# 78faea1^ predates factory/scripts/publish.sh.
-git -C "$publisher_tmp/checkout" checkout -q 42074df10e82cdda8b8f29b8f1f06a1e311e075b
+git init -q "$publisher_tmp/checkout"
+git -C "$publisher_tmp/checkout" config user.name Test
+git -C "$publisher_tmp/checkout" config user.email test@example.com
+printf '%s\n' pre-cutover >"$publisher_tmp/checkout/README.md"
+git -C "$publisher_tmp/checkout" add README.md
+git -C "$publisher_tmp/checkout" commit -qm 'pre-cutover fixture'
+pre_cutover_commit="$(git -C "$publisher_tmp/checkout" rev-parse HEAD)"
+mkdir -p "$publisher_tmp/checkout/factory/scripts"
+cp "$ROOT/factory/scripts/publish.sh" "$ROOT/factory/scripts/lib.sh" \
+  "$publisher_tmp/checkout/factory/scripts/"
+git -C "$publisher_tmp/checkout" add factory/scripts
+git -C "$publisher_tmp/checkout" commit -qm 'add publisher fixture'
+cp "$publisher_tmp/checkout/factory/scripts/publish.sh" \
+  "$publisher_tmp/checkout/factory/scripts/lib.sh" "$stable_scripts/"
+git -C "$publisher_tmp/checkout" checkout -q "$pre_cutover_commit"
 test ! -e "$publisher_tmp/checkout/factory/scripts/publish.sh" ||
-  fail 'historical checkout unexpectedly contains the publisher'
+  fail 'pre-cutover checkout unexpectedly contains the publisher'
 
 cat >"$publisher_tmp/bin/gh" <<'GH'
 #!/usr/bin/env bash
