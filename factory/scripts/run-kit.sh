@@ -21,7 +21,8 @@ issue_json="$(realpath "$issue_json")"
 catalog_json="$(realpath "$catalog_json")"
 mkdir -p "$export_dir"
 export_dir="$(realpath "$export_dir")"
-rm -rf "$export_dir/guide" "$export_dir/run-report.json" "$export_dir/kit-error-summary.json"
+rm -rf "$export_dir/guide" "$export_dir/run-report.json" \
+  "$export_dir/kit-error-summary.json" "$export_dir/factory-diagnostics.json"
 
 source_snapshot="$(mktemp -d "${TMPDIR:-/tmp}/mcp-setup-docs-source.XXXXXX")"
 source_snapshot="$(realpath "$source_snapshot")"
@@ -36,14 +37,35 @@ trap cleanup EXIT
 tar -cf - --exclude-from="$ROOT/.dockerignore" -C "$ROOT" . \
   | tar -xf - -C "$source_snapshot"
 
-"$FACTORY_DOCKER" build \
+DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh"
+DIAGNOSTICS_VALIDATOR="$ROOT/factory/scripts/validate-diagnostics.sh"
+DIAGNOSTICS="$export_dir/factory-diagnostics.json"
+print_diagnostics_summary() {
+  local stage classification events
+  stage=$(jq -r '.stage' "$DIAGNOSTICS")
+  classification=$(jq -r '.classification' "$DIAGNOSTICS")
+  events=$(jq -r '.events | length' "$DIAGNOSTICS")
+  printf 'factory: diagnostics: stage=%s classification=%s events=%s\n' \
+    "$stage" "$classification" "$events" >&2
+}
+
+if "$FACTORY_DOCKER" build \
   --file "$ROOT/factory/Dockerfile" \
   --build-arg "KIT_VERSION=$KIT_VERSION" \
   --build-arg "KIT_SHA256=$KIT_SHA256" \
   --tag "$KIT_IMAGE" \
-  "$ROOT"
+  "$ROOT"; then
+  build_status=0
+else
+  build_status=$?
+fi
+if ((build_status != 0)); then
+  "$DIAGNOSTICS_BUILDER" docker_build "$build_status" - - - "$DIAGNOSTICS"
+  print_diagnostics_summary
+  exit "$build_status"
+fi
 
-if ! "$FACTORY_DOCKER" run --rm \
+if "$FACTORY_DOCKER" run --rm \
   --env OPENROUTER_API_KEY \
   --env "KIT_MODEL=$KIT_MODEL" \
   --env "KIT_REASONING_EFFORT=$KIT_REASONING_EFFORT" \
@@ -52,33 +74,27 @@ if ! "$FACTORY_DOCKER" run --rm \
   --volume "$catalog_json:/input/catalog.json:ro" \
   --volume "$export_dir:/export" \
   "$KIT_IMAGE"; then
-  if [[ -f "$export_dir/kit-error-summary.json" ]] && jq -e '
-    (keys | sort) == (["records","schema_version"] | sort)
-    and .schema_version == 1
-    and (.records | type) == "array"
-    and all(.records[];
-      (keys | sort) == (["code","diagnostics","kind","schema_version"] | sort)
-      and .schema_version == 2
-      and (.kind | type) == "string" and (.kind | test("^[a-z0-9_]{1,64}$"))
-      and (.code | type) == "string" and (.code | test("^[a-z0-9_]{1,64}$"))
-      and (.diagnostics == null or (
-        (.diagnostics | type) == "object"
-        and (.diagnostics | keys | sort) == (["attempt","reqwest","response_request_id","retryable","source_chain_truncated","source_chain_unknown","stage"] | sort)
-        and (.diagnostics.stage | IN("request","stream"))
-        and (.diagnostics.retryable | type) == "boolean"
-        and (.diagnostics.attempt | type) == "number" and (.diagnostics.attempt | floor) == .diagnostics.attempt
-        and (.diagnostics.attempt >= 1 and .diagnostics.attempt <= 1000)
-        and (.diagnostics.response_request_id == null or (
-          (.diagnostics.response_request_id | type) == "string"
-          and (.diagnostics.response_request_id | test("^[A-Za-z0-9_.:-]{1,128}$"))))
-        and (.diagnostics.reqwest | keys | sort) == (["body","connect","decode","request","timeout"] | sort)
-        and all(.diagnostics.reqwest[]; type == "boolean")
-        and (.diagnostics.source_chain_unknown | type) == "boolean"
-        and (.diagnostics.source_chain_truncated | type) == "boolean"
-      )))
-  ' "$export_dir/kit-error-summary.json" >/dev/null; then
-    printf 'factory: Kit failure diagnostic: ' >&2
-    jq -c . "$export_dir/kit-error-summary.json" >&2
+  container_status=0
+else
+  container_status=$?
+fi
+if ((container_status != 0)); then
+  if [[ -e $DIAGNOSTICS ]]; then
+    if "$DIAGNOSTICS_VALIDATOR" "$DIAGNOSTICS" >/dev/null 2>&1; then
+      print_diagnostics_summary
+    else
+      rm -f -- "$DIAGNOSTICS"
+    fi
+  else
+    "$DIAGNOSTICS_BUILDER" container_run "$container_status" - - - "$DIAGNOSTICS"
+    print_diagnostics_summary
   fi
-  exit 1
+  exit "$container_status"
+fi
+if [[ -e $DIAGNOSTICS ]]; then
+  if "$DIAGNOSTICS_VALIDATOR" "$DIAGNOSTICS" >/dev/null 2>&1; then
+    print_diagnostics_summary
+  else
+    rm -f -- "$DIAGNOSTICS"
+  fi
 fi
