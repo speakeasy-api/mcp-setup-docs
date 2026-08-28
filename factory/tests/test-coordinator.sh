@@ -14,6 +14,13 @@ for phrase in \
   'bash factory/scripts/inspect-inputs.sh /input/issue.json /input/catalog.json' \
   'do not construct another initial-inspection tool program' \
   'bash factory/scripts/inspect-guide-context.sh <slug>' \
+  'bash factory/scripts/inspect-guide-artifacts.sh <slug> research' \
+  'bash factory/scripts/inspect-guide-artifacts.sh <slug> writer' \
+  'bash factory/scripts/inspect-guide-artifacts.sh <slug> revision' \
+  'Do not construct ad hoc artifact-validation commands' \
+  "Accept only the exact keys \`slug\`, \`stage\`, and \`artifacts\`" \
+  "Research accepts exactly \`[\"meta.yaml\",\"research.md\"]\` or the full four-file array" \
+  'Writer and revision require the full four-file array' \
   'never inspect repository files directly or run another Phase 1 file-discovery tool' \
   'permit only bounded reads of the helper-generated spill artifact' \
   'use only installed jq and sed for spill reads; Python is unavailable' \
@@ -48,6 +55,13 @@ done
 
 
 child_start_contract="$(sed -n '/^## Phase 2/,/^## Phase 5/p' "$CONTRACT")"
+phase2_contract="$(sed -n '/^## Phase 2/,/^## Phase 3/p' "$CONTRACT")"
+phase3_contract="$(sed -n '/^## Phase 3/,/^## Phase 4/p' "$CONTRACT")"
+phase4_contract="$(sed -n '/^## Phase 4/,/^## Phase 5/p' "$CONTRACT")"
+grep -Fq 'bash factory/scripts/inspect-guide-artifacts.sh <slug> research' <<<"$phase2_contract" || fail 'research phase does not invoke exact artifact helper'
+grep -Fq 'bash factory/scripts/inspect-guide-artifacts.sh <slug> writer' <<<"$phase3_contract" || fail 'writer phase does not invoke exact artifact helper'
+grep -Fq 'bash factory/scripts/inspect-guide-artifacts.sh <slug> revision' <<<"$phase4_contract" || fail 'revision phase does not invoke exact artifact helper'
+
 if grep -Eq '(^|[,{[:space:]])(model|harness)[[:space:]]*:|--(model|harness)' <<<"$child_start_contract"; then
   fail 'child start contains an explicit model or harness override'
 fi
