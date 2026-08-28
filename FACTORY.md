@@ -74,9 +74,10 @@ waves.
 ## Architecture and security boundary
 
 The Actions host normalizes issue data and obtains a credential-free catalog
-snapshot. `run-kit.sh` builds the pinned image, copies the repository to an
-ephemeral source snapshot, removes every `.git` entry, and mounts that snapshot
-read-only. The container receives only:
+snapshot. `run-kit.sh` builds the pinned image and creates an ephemeral source
+snapshot using the root `.dockerignore` exclusions, including every `.git` entry
+and local-only secret/worktree path, before mounting that snapshot read-only. The
+container receives only:
 
 - the gitless repository snapshot, read-only;
 - normalized issue and catalog JSON, read-only;

@@ -125,6 +125,86 @@ test_run_kit_uses_only_allowed_mounts() {
   ! grep -qE '/var/run/docker.sock|/[.]git|/[.]ssh|:/root|:/home' "$TMP/docker.args"
 }
 
+test_run_kit_source_snapshot_applies_dockerignore() {
+  local repo bin recorded snapshot excluded
+  repo="$TMP/snapshot-repo"
+  bin="$TMP/snapshot-bin"
+  recorded="$TMP/source-volume"
+  mkdir -p "$repo/factory/scripts" "$repo/nested/.git" \
+    "$repo/tools/pulse-catalog" "$repo/.tmp-run" \
+    "$repo/.worktrees/private" "$repo/.claude/worktrees/private" "$bin"
+  cp "$ROOT/.dockerignore" "$repo/.dockerignore"
+  cp "$ROOT/factory/config.env" "$repo/factory/config.env"
+  cp "$ROOT/factory/Dockerfile" "$repo/factory/Dockerfile"
+  cp "$ROOT/factory/scripts/run-kit.sh" "$repo/factory/scripts/run-kit.sh"
+  printf '%s\n' modified-working-source >"$repo/working-change.txt"
+  printf '%s\n' gitdir-private >"$repo/.git"
+  printf '%s\n' nested-git-private >"$repo/nested/.git/config"
+  for excluded in .env .env.local mise.local.toml pulse-catalog.json; do
+    printf '%s\n' private >"$repo/$excluded"
+  done
+  printf '%s\n' private >"$repo/tools/pulse-catalog/pulse-catalog.json"
+  printf '%s\n' private >"$repo/.tmp-run/value"
+  printf '%s\n' private >"$repo/.worktrees/private/value"
+  printf '%s\n' private >"$repo/.claude/worktrees/private/value"
+  ln -s working-change.txt "$repo/kept-link"
+  ln -s working-change.txt "$repo/.env.link"
+
+  cat >"$bin/docker" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$1" == build ]] && exit 0
+[[ "$1" == run ]] || exit 91
+shift
+source_volume=
+while [[ $# -gt 0 ]]; do
+  if [[ "$1" == --volume && "$2" == *:/repo:ro ]]; then
+    source_volume=${2%:/repo:ro}
+    break
+  fi
+  shift
+done
+[[ -n "$source_volume" && "$source_volume" != "$SNAPSHOT_REPO" ]] || exit 92
+printf '%s\n' "$source_volume" >"$SNAPSHOT_RECORDED"
+for path in .git nested/.git .env .env.local .env.link mise.local.toml \
+  pulse-catalog.json tools/pulse-catalog/pulse-catalog.json .tmp-run \
+  .worktrees .claude/worktrees; do
+  [[ ! -e "$source_volume/$path" && ! -L "$source_volume/$path" ]] || exit 93
+done
+[[ -f "$source_volume/working-change.txt" ]] || exit 94
+grep -Fqx modified-working-source "$source_volume/working-change.txt" || exit 95
+[[ -f "$source_volume/factory/scripts/run-kit.sh" ]] || exit 96
+[[ -L "$source_volume/kept-link" ]] || exit 97
+[[ "$(readlink "$source_volume/kept-link")" == working-change.txt ]] || exit 98
+MOCK
+  chmod +x "$bin/docker"
+  printf '{}\n' >"$TMP/snapshot-issue.json"
+  printf '{}\n' >"$TMP/snapshot-catalog.json"
+  OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$bin/docker" \
+    SNAPSHOT_REPO="$repo" SNAPSHOT_RECORDED="$recorded" \
+    TMPDIR="$TMP" "$repo/factory/scripts/run-kit.sh" \
+    "$TMP/snapshot-issue.json" "$TMP/snapshot-catalog.json" "$TMP/snapshot-export"
+  snapshot="$(cat "$recorded")"
+  [[ ! -e "$snapshot" ]] || fail 'run-kit leaked its source snapshot'
+
+  cat >"$bin/tar" <<'MOCK'
+#!/usr/bin/env bash
+exit 73
+MOCK
+  chmod +x "$bin/tar"
+  rm -f "$recorded"
+  if OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$bin/docker" \
+    SNAPSHOT_REPO="$repo" SNAPSHOT_RECORDED="$recorded" \
+    PATH="$bin:$PATH" TMPDIR="$TMP" "$repo/factory/scripts/run-kit.sh" \
+    "$TMP/snapshot-issue.json" "$TMP/snapshot-catalog.json" \
+    "$TMP/snapshot-export" >/dev/null 2>&1; then
+    fail 'run-kit continued after source archive failure'
+  fi
+  [[ ! -e "$recorded" ]] || fail 'run-kit invoked Docker after source archive failure'
+  [[ -z "$(find "$TMP" -maxdepth 1 -type d -name 'mcp-setup-docs-source.*' -print -quit)" ]] \
+    || fail 'run-kit leaked a failed source snapshot'
+}
+
 test_entrypoint_exports_only_selected_guide_with_mocked_kit() {
   grep -Fq "KIT_BIN=\${KIT_BIN:-kit}" "$ROOT/factory/scripts/container-entrypoint.sh" || fail "KIT_BIN does not default to kit"
   local repo input workspace export_root fake_kit
@@ -301,6 +381,7 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs
 test_release_archive_layout_and_checksum
 test_run_kit_does_not_forward_github_credentials
 test_run_kit_uses_only_allowed_mounts
+test_run_kit_source_snapshot_applies_dockerignore
 test_entrypoint_exports_only_selected_guide_with_mocked_kit
 test_entrypoint_rejects_invalid_report
 test_local_draft_parsing_and_secret_boundary

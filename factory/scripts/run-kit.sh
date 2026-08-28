@@ -32,8 +32,9 @@ cleanup() {
   exit "$exit_code"
 }
 trap cleanup EXIT
-cp -a "$ROOT/." "$source_snapshot/"
-find "$source_snapshot" -name .git -prune -exec rm -rf {} +
+[[ -r "$ROOT/.dockerignore" ]] || { printf 'root .dockerignore is not readable\n' >&2; exit 1; }
+tar -cf - --exclude-from="$ROOT/.dockerignore" -C "$ROOT" . \
+  | tar -xf - -C "$source_snapshot"
 
 "$FACTORY_DOCKER" build \
   --file "$ROOT/factory/Dockerfile" \
