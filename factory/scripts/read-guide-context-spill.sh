@@ -3,6 +3,7 @@ set -euo pipefail
 
 ERROR='factory: invalid guide context spill'
 CHUNK_CHARACTERS=4000
+MAX_ENCODED_BYTES=7000
 artifact=${1-}
 mode=${2-}
 index=${3-}
@@ -39,9 +40,41 @@ validate_filter='
      or .stderr != "" then error("invalid") else .stdout | fromjson end
   | if type != "object" or (exact(["slug","files"]) | not)
        or (.slug | type) != "string" or (.slug | test("^[a-z0-9]+(-[a-z0-9]+)*$") == false)
-       or (.files | type) != "object"
-       or (all(.files | to_entries[]; (.key | type) == "string" and (.value | type) == "string") | not)
+       or (.files | type) != "object" or (.files | length) < 1 or (.files | length) > 40
+       or ((.files | has("doctrine/constitution.md")) | not)
+       or ((.files | has("doctrine/shared.md")) | not)
+       or ((.files | has("doctrine/glossary.md")) | not)
+       or ((.files | has("doctrine/speakeasy-setup.md")) | not)
+       or ((.files | has("schema/guide.v1.schema.json")) | not)
+       or (all(.files | to_entries[];
+          (.key | type) == "string" and (.key | length) <= 120
+          and (.key | test("^(doctrine/(constitution|shared|glossary|speakeasy-setup)[.]md|doctrine/(personas|roles)/[A-Za-z0-9._-]+[.]md|factory/schemas/[A-Za-z0-9._-]+[.]json|schema/guide[.]v1[.]schema[.]json|guides/[a-z0-9]+(-[a-z0-9]+)*/(research[.]md|meta[.]yaml|external[.]md|speakeasy[.]md))$"))
+          and (.value | type) == "string") | not)
     then error("invalid") else . end
+'
+# jq programs intentionally use jq variables.
+# shellcheck disable=SC2016
+read_definitions='
+  def body($entry; $length; $next):
+    [
+      "path=\($entry.key)",
+      "index=\($index)",
+      "offset=\($offset)",
+      "next_offset=\($next)",
+      "done=\($next == $length)",
+      "",
+      $entry.value[$offset:$next]
+    ] | join("\n");
+  def encoded_bytes($text):
+    ({exit_code:0,success:true,stdout:($text + "\n"),stderr:""} | tojson | utf8bytelength);
+  def fit($entry; $length; $low; $high):
+    if $low >= $high then $low
+    else (($low + $high + 1) / 2 | floor) as $middle
+      | if encoded_bytes(body($entry; $length; $middle)) <= $max_encoded
+        then fit($entry; $length; $middle; $high)
+        else fit($entry; $length; $low; $middle - 1)
+        end
+    end;
 '
 # jq programs intentionally use jq variables.
 # shellcheck disable=SC2016
@@ -50,16 +83,10 @@ read_filter='
   | (if $index >= ($entries | length) then error("invalid") else $entries[$index] end) as $entry
   | ($entry.value | length) as $length
   | if $offset > $length then error("invalid") else . end
-  | ([$offset + $chunk, $length] | min) as $next
-  | [
-      "path=\($entry.key)",
-      "index=\($index)",
-      "offset=\($offset)",
-      "next_offset=\($next)",
-      "done=\($next == $length)",
-      "",
-      $entry.value[$offset:$next]
-    ] | join("\n")
+  | ([$offset + $chunk, $length] | min) as $maximum
+  | fit($entry; $length; $offset; $maximum) as $next
+  | if $next == $offset and $offset < $length then error("invalid")
+    else body($entry; $length; $next) end
 '
 
 case $mode in
@@ -68,7 +95,10 @@ case $mode in
     if ! jq -ce "$validate_filter
       | {slug, files:(.files | to_entries | sort_by(.key) | to_entries
           | map({index:.key,path:.value.key,characters:(.value.value | length)}))}
-    " "$resolved_artifact" >"$temporary" 2>/dev/null; then
+    " "$resolved_artifact" >"$temporary" 2>/dev/null \
+      || ! jq -en --rawfile stdout "$temporary" --argjson maximum "$MAX_ENCODED_BYTES" \
+        '({exit_code:0,success:true,stdout:$stdout,stderr:""} | tojson | utf8bytelength) <= $maximum' \
+        >/dev/null 2>&1; then
       fail_closed
     fi
     ;;
@@ -76,7 +106,8 @@ case $mode in
     (( $# == 4 )) || fail_closed
     [[ $index =~ ^(0|[1-9][0-9]*)$ && $offset =~ ^(0|[1-9][0-9]*)$ ]] || fail_closed
     if ! jq -rce --argjson index "$index" --argjson offset "$offset" \
-      --argjson chunk "$CHUNK_CHARACTERS" "$validate_filter$read_filter" \
+      --argjson chunk "$CHUNK_CHARACTERS" --argjson max_encoded "$MAX_ENCODED_BYTES" \
+      "$read_definitions$validate_filter$read_filter" \
       "$resolved_artifact" >"$temporary" 2>/dev/null; then
       fail_closed
     fi

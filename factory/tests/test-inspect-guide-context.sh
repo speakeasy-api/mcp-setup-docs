@@ -26,8 +26,20 @@ FACTORY_REPO_ROOT="$ROOT/" bash "$ROOT/factory/scripts/inspect-guide-context.sh"
 artifact_root="$TMP/home/.kit/artifacts/session/call"
 artifact="$artifact_root/compose-output.json"
 mkdir -p "$artifact_root"
-jq -n --rawfile stdout "$TMP/out" \
-  '{exit_code:0,success:true,stdout:$stdout,stderr:""}' >"$artifact"
+wrap_context() {
+  local context=$1 destination=$2
+  jq -n --rawfile stdout "$context" \
+    '{exit_code:0,success:true,stdout:$stdout,stderr:""}' >"$destination"
+}
+expect_rejected_spill() {
+  local rejected=$1
+  if HOME="$TMP/home" "$READER" "$rejected" index >"$TMP/rejected.out" 2>"$TMP/rejected.err"; then
+    fail 'spill reader accepted unsafe context metadata'
+  fi
+  assert_eq '' "$(cat "$TMP/rejected.out")"
+  assert_eq 'factory: invalid guide context spill' "$(cat "$TMP/rejected.err")"
+}
+wrap_context "$TMP/out" "$artifact"
 HOME="$TMP/home" "$READER" "$artifact" index >"$TMP/index" 2>"$TMP/reader.err"
 jq -e '
   .slug == "box" and (.files | length) > 10
@@ -63,6 +75,61 @@ fi
 assert_eq 'factory: invalid guide context spill' "$(cat "$TMP/rejected.err")"
 if grep -ER 'SECRET_OUTSIDE_SPILL_CANARY|SECRET_MALFORMED_SPILL_CANARY' "$TMP/rejected.out" "$TMP/rejected.err"; then
   fail 'spill reader leaked rejected source content'
+fi
+
+case_number=3
+for content_kind in ascii emoji control exact empty; do
+  case $content_kind in
+    ascii) jq '.files["doctrine/constitution.md"] = ([range(0;9000) | "x"] | join(""))' "$TMP/out" >"$TMP/context-$content_kind" ;;
+    emoji) jq '.files["doctrine/constitution.md"] = ([range(0;4000) | "😀"] | join(""))' "$TMP/out" >"$TMP/context-$content_kind" ;;
+    control) jq '.files["doctrine/constitution.md"] = ([range(0;4000) | "\u0001"] | join(""))' "$TMP/out" >"$TMP/context-$content_kind" ;;
+    exact) jq '.files["doctrine/constitution.md"] = ([range(0;4000) | "x"] | join(""))' "$TMP/out" >"$TMP/context-$content_kind" ;;
+    empty) jq '.files["doctrine/constitution.md"] = ""' "$TMP/out" >"$TMP/context-$content_kind" ;;
+  esac
+  bounded_artifact="$artifact_root/compose-output-$case_number.json"
+  wrap_context "$TMP/context-$content_kind" "$bounded_artifact"
+  offset=0
+  iterations=0
+  while :; do
+    HOME="$TMP/home" "$READER" "$bounded_artifact" read 0 "$offset" >"$TMP/bounded-chunk"
+    encoded_bytes="$(jq -n --rawfile stdout "$TMP/bounded-chunk" \
+      '{exit_code:0,success:true,stdout:$stdout,stderr:""} | tojson | utf8bytelength')"
+    (( encoded_bytes <= 7000 )) || fail "spill reader exceeded encoded bound for $content_kind"
+    next_offset="$(sed -n 's/^next_offset=//p' "$TMP/bounded-chunk")"
+    done_value="$(sed -n 's/^done=//p' "$TMP/bounded-chunk")"
+    if [[ $done_value == true ]]; then
+      break
+    fi
+    (( next_offset > offset )) || fail "spill reader did not advance for $content_kind"
+    offset=$next_offset
+    iterations=$((iterations + 1))
+    (( iterations < 20 )) || fail "spill reader used too many chunks for $content_kind"
+  done
+  if [[ $content_kind == ascii || $content_kind == emoji || $content_kind == control ]]; then
+    (( iterations > 0 )) || fail "spill reader did not chunk $content_kind content"
+  fi
+  case_number=$((case_number + 1))
+done
+
+jq '.files["../SECRET_TRAVERSAL_PATH_CANARY"] = "x"' "$TMP/out" >"$TMP/unsafe-context"
+wrap_context "$TMP/unsafe-context" "$artifact_root/compose-output-8.json"
+expect_rejected_spill "$artifact_root/compose-output-8.json"
+jq '.files["doctrine/roles/bad\nSECRET_NEWLINE_PATH_CANARY.md"] = "x"' "$TMP/out" >"$TMP/unsafe-context"
+wrap_context "$TMP/unsafe-context" "$artifact_root/compose-output-9.json"
+expect_rejected_spill "$artifact_root/compose-output-9.json"
+long_path="doctrine/roles/$(printf '%0120d' 0).md"
+jq --arg path "$long_path" '.files[$path] = "x"' "$TMP/out" >"$TMP/unsafe-context"
+wrap_context "$TMP/unsafe-context" "$artifact_root/compose-output-10.json"
+expect_rejected_spill "$artifact_root/compose-output-10.json"
+jq '.files = {}' "$TMP/out" >"$TMP/unsafe-context"
+wrap_context "$TMP/unsafe-context" "$artifact_root/compose-output-11.json"
+expect_rejected_spill "$artifact_root/compose-output-11.json"
+jq '.files += (reduce range(0;41) as $n ({}; .["doctrine/roles/extra-\($n).md"] = "x"))' \
+  "$TMP/out" >"$TMP/unsafe-context"
+wrap_context "$TMP/unsafe-context" "$artifact_root/compose-output-12.json"
+expect_rejected_spill "$artifact_root/compose-output-12.json"
+if grep -ER 'SECRET_TRAVERSAL_PATH_CANARY|SECRET_NEWLINE_PATH_CANARY' "$TMP/rejected.out" "$TMP/rejected.err"; then
+  fail 'spill reader leaked rejected path metadata'
 fi
 
 jq -e '
