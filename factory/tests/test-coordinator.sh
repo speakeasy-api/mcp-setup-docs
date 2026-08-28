@@ -40,7 +40,9 @@ for phrase in \
   'outside /workspace/guides/<slug>' \
   "Presentation-only uncertainty never selects \`awaiting_scope\`" \
   'Missing exact UI labels, control names or locations, and equivalent Save/Update/Apply chrome are presentation-only' \
-  "Open questions alone do not select \`awaiting_scope\`"; do
+  "Open questions alone do not select \`awaiting_scope\`" \
+  'Revision agents must not run validation commands' \
+  "including \`go\`, \`go run\`, \`npx\`, Python, and \`/usr/local/bin/lint-guide\`"; do
   grep -Fq "$phrase" "$CONTRACT" || fail "missing contract: $phrase"
 done
 
