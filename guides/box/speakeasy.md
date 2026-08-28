@@ -6,7 +6,7 @@
    **Connect**.
 2. Click **Add Source**.
 3. Choose **3rd-party server**.
-4. On the **MCP Catalog** page, use **Search MCP servers...** to find Box.
+4. On the **MCP Catalog** page, use **Search MCP servers...** to find **Box**.
 5. Click **View** on the Box entry.
 6. Click **Add**.
 7. In the **Add to Project** dialog, click **Add to Project**.
@@ -30,6 +30,7 @@ This creates the hosted MCP server and opens its **Overview** page.
    **Client Secret (optional)**.
 7. Click **Attach Identity Provider**.
 
+<!-- verify(operator): the template key substitutes this same Redirect URI value -->
 <!-- screenshot: the Attach Remote Identity Provider sheet with Client Type set to Manual, the Redirect URI visible, and credential values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Box's MCP documentation](https://docs.box.com/en/box-mcp/about-box-mcp-server).
