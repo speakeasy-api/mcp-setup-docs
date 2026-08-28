@@ -228,6 +228,27 @@ done
 for spec in 'Transition labels:id: transition' 'Prepare issue input:id: prepare_input' 'Prepare catalog snapshot:id: prepare_catalog' 'Run Kit:id: kit' 'Validate export:id: validate' 'Publish guide:id: publish'; do
   assert_step_contains "${spec%%:*}" "${spec#*:}"
 done
+assert_step_contains 'Upload safe factory diagnostics' 'uses: actions/upload-artifact@v4'
+assert_step_contains 'Upload safe factory diagnostics' "if: failure() && steps.kit.outcome == 'failure'"
+# shellcheck disable=SC2016
+assert_step_contains 'Upload safe factory diagnostics' 'name: guide-factory-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}'
+# shellcheck disable=SC2016
+assert_step_contains 'Upload safe factory diagnostics' 'path: ${{ runner.temp }}/export/factory-diagnostics.json'
+assert_step_contains 'Upload safe factory diagnostics' 'retention-days: 7'
+assert_step_contains 'Upload safe factory diagnostics' 'if-no-files-found: ignore'
+assert_eq '1' "$(grep -Fc 'uses: actions/upload-artifact@v4' "$WORKFLOW")"
+kit_line="$(grep -nF '      - name: Run Kit' "$WORKFLOW" | cut -d: -f1)"
+upload_line="$(grep -nF '      - name: Upload safe factory diagnostics' "$WORKFLOW" | cut -d: -f1)"
+failure_report_line="$(grep -nF '      - name: Report failure' "$WORKFLOW" | cut -d: -f1)"
+[[ -n "$upload_line" && "$kit_line" -lt "$upload_line" && "$upload_line" -lt "$failure_report_line" ]] ||
+  fail 'safe diagnostics upload must be after Run Kit and before failure reporting'
+failure_report_block="$(step_block 'Report failure')"
+if grep -Fqi 'diagnostic' <<<"$failure_report_block"; then
+  fail 'failure reporting must not read or inline diagnostics'
+fi
+# shellcheck disable=SC2016
+assert_contains 'fail "$RUNNER_TEMP/failure-reason.txt"' "$failure_report_block"
+
 for spec in \
   'Set up publisher:ensure-labels' \
   'Refuse non-factory pull request:refuse' \
