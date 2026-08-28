@@ -19,6 +19,24 @@ issue="$(mktemp "${TMPDIR:-/tmp}/factory-issue.XXXXXX")"
 catalog="$(mktemp "${TMPDIR:-/tmp}/factory-catalog.XXXXXX")"
 
 if ! jq -e -s '
+  def factory_comment:
+    .body as $body |
+    ($body | contains("<!-- guide-factory-status -->")) or
+    (($body | startswith("## Scope check\n")) and
+      ($body | contains("- **Outcome:** awaiting_scope")) and
+      ($body | contains("Reply with the numbered decisions, then re-add `guide:draft`."))) or
+    (($body | startswith("## Guide factory failed\n")) and
+      ((($body | contains("- **Outcome:** failed")) and
+        ($body | contains("Resolve the findings, then re-add `guide:draft`."))) or
+       (($body | contains("**Workflow run:** https://github.com/")) and
+        ($body | contains("Re-add `guide:draft` to retry after correcting the failure."))))) or
+    (($body | startswith("## Pipeline review\n")) and
+      ($body | contains("- **Outcome:** ")) and
+      ($body | contains("- **Provider:** ")) and
+      ($body | contains("- **Run context:** ")) and
+      ($body | contains("### Summary")) and
+      (($body | contains("Ready for review.")) or
+       ($body | contains("Resolve the findings, then re-add `guide:draft`."))));
   if length == 1 and (.[0] |
     type == "object"
     and (keys | sort) == (["comments","issue","repository","schema_version"] | sort)
@@ -38,11 +56,17 @@ if ! jq -e -s '
       and ((.author | type) == "string" or (.author | type) == "null")
       and (.created_at | type) == "string"
       and (.body | type) == "string"))
-  then .[0] | {
-    schema_version, repository,
-    issue:{number:.issue.number,title:.issue.title,body:.issue.body,url:.issue.url,author:.issue.author},
-    comments:[.comments[] | {author,created_at,body}]
-  }
+  then .[0]
+  | (.comments | to_entries | map(select(.value | factory_comment)) | last | .key) as $latest_factory_comment
+  | {
+      schema_version, repository,
+      issue:{number:.issue.number,title:.issue.title,body:.issue.body,url:.issue.url,author:.issue.author},
+      comments:[
+        .comments | to_entries[]
+        | select((.value | factory_comment | not) or .key == $latest_factory_comment)
+        | .value | {author,created_at,body}
+      ]
+    }
   else error("invalid issue")
   end
 ' "$issue_input" >"$issue" 2>/dev/null; then
