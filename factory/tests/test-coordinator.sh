@@ -170,6 +170,27 @@ assert_upload_field_equals() {
   assert_eq "$expected" "$actual" || return 1
 }
 
+count_upload_artifact_actions() {
+  local workflow=$1
+  awk '
+    {
+      scalar=$0
+      sub(/^[[:space:]]*uses:[[:space:]]+/, "", scalar)
+      if (scalar == $0) next
+      sub(/[[:space:]]+#.*$/, "", scalar)
+      sub(/^[[:space:]]+/, "", scalar)
+      sub(/[[:space:]]+$/, "", scalar)
+      first=substr(scalar, 1, 1)
+      last=substr(scalar, length(scalar), 1)
+      if ((first == "\"" && last == "\"") || (first == "'" && last == "'")) {
+        scalar=substr(scalar, 2, length(scalar) - 2)
+      }
+      if (scalar ~ /^actions\/upload-artifact@[^[:space:]]+$/) count++
+    }
+    END { print count + 0 }
+  ' "$workflow"
+}
+
 assert_upload_contract() {
   local workflow=$1 block upload_count
   block="$(upload_step_block "$workflow")"
@@ -186,7 +207,7 @@ assert_upload_contract() {
     fail 'upload step contains a multiline or nested field value'
     return 1
   fi
-  upload_count="$(awk '$0 == "        uses: actions/upload-artifact@v4" { count++ } END { print count + 0 }' "$workflow")"
+  upload_count="$(count_upload_artifact_actions "$workflow")"
   assert_eq '1' "$upload_count" || return 1
 }
 
@@ -298,6 +319,18 @@ awk '
 if (assert_upload_contract "$upload_contract_tmp/additional-path.yml") 2>/dev/null; then
   rm -rf "$upload_contract_tmp"
   fail 'upload contract accepted a multiline/additional path'
+fi
+awk '
+  $0 == "      - name: Validate export" {
+    print "      - name: Unexpected second diagnostics upload"
+    print "        uses: actions/upload-artifact@v3"
+    print
+  }
+  { print }
+' "$WORKFLOW" >"$upload_contract_tmp/alternate-ref-duplicate.yml"
+if (assert_upload_contract "$upload_contract_tmp/alternate-ref-duplicate.yml") 2>/dev/null; then
+  rm -rf "$upload_contract_tmp"
+  fail 'upload contract accepted a second upload-artifact action with an alternate ref'
 fi
 rm -rf "$upload_contract_tmp"
 
