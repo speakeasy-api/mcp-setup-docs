@@ -47,7 +47,7 @@ blocker.
 **Public-docs silence + hedge.** When public docs do not publish exact
 field or control labels, and the guide already hedges ("submission
 control shown in the console", conceptual inputs without invented chrome)
-with a matching Dossier open question, accept that rendering. Do **not**
+with a matching Dossier Research limitation, accept that rendering. Do **not**
 raise a blocker demanding a human-verified console capture of unpublished
 labels. A missing hedge is a nit (or a `research`-targeted nit to record
 the silence); console capture is only for live contradiction of
@@ -61,9 +61,9 @@ control is named — treat distrust of that citation as out of bounds.
 **Speakeasy canonical is fixed.** `doctrine/speakeasy-setup.md` is the fact
 ceiling for Speakeasy-side steps. Do not raise blockers that invent
 login URLs, catalog-first rewrites, post-credential verification chrome,
-or other steps the skeleton does not carry. Gaps in that file are nits
-or open questions for a human doctrine edit — never research-target
-blockers that expand the guide past the skeleton. Fidelity already fails
+or other steps the skeleton does not carry. Gaps in that file are nits for a human doctrine backlog — never operator
+questions or research-target blockers that expand the guide past the
+skeleton. Fidelity already fails
 drift from the skeleton; do not fight that check. When the Dossier (via
 Pulse-verified catalog presence, a tenanted-remote override, or
 `speakeasy_add_server`) selected only the catalog path or only the
@@ -76,8 +76,8 @@ requirement.
 
 **Owner-gloss ceiling (when scoring hedges).** Organization-specific
 values need at most one obtain-from-owner hedge per section. Re-raising
-the same gloss on adjacent fields is a nit. Provider picker enumeration
-is a nit or open question, not an achievability blocker.
+the same gloss on adjacent fields is a nit. Provider picker enumeration is a nit or Research limitation, not an
+operator question or achievability blocker.
 
 ## Severity and reporting
 

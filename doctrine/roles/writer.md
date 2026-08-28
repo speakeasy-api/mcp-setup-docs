@@ -20,11 +20,7 @@ recovery (reset a secret next month, rotate for drift), ongoing admin
 surfaces — stay out of the setup files. Guides cover getting the server
 working, not maintenance.
 
-If the Dossier is missing something you need — a step you cannot render
-without inventing, a term you cannot define from recorded facts — stop
-writing around it and report it as an open question in your structured
-report. A visible gap is a finding for the pipeline; an invisible patch is
-a defect.
+If the Dossier is missing something needed for first connection, do not invent it. Return a structured open question only when the gap is material to first connection, cannot be handled with a safe hedge, and is answerable from operator knowledge or authority unavailable in public sources. If the operator could only repeat public research, treat the gap as a research limitation: use Dossier-backed resilient wording or omit irrelevant detail and continue. A hidden guess is still a defect.
 
 ## Setup grammar (the parts that bite)
 
@@ -142,13 +138,11 @@ Dossier.
 
 Treat Dossier-listed presentation-only uncertainty as renderable, not blocking: when the underlying operation and required value are known but an exact UI label, control name or location, or Save/Update/Apply variant is not, preserve documented identifiers and use a resilient "visible or equivalent control" hedge. Do not return an open question or incomplete status solely for that uncertainty.
 
+Dossier Research limitations are not operator questions. Render around them without returning them. Only Dossier Operator decisions or newly discovered gaps that pass the same three-part operator-actionability test belong in structured `open_questions`.
+
 Status `ok` when `external.md` and `speakeasy.md` exist on disk, are
 complete, and every fact traces to the Dossier; status `blocked` only when
 Dossier gaps make the guide unwritable. A structured report without those
-files is incomplete. List open questions either way — but only gaps the
-Dossier does not already record. Rendering around a Dossier-listed open
-question is expected work, not a new question; restating it doubles the
-human's
-checklist. If rendering changed the picture (a workaround you chose, a
+files is incomplete. If rendering changed the picture (a workaround you chose, a
 fallback the reader needs verified), put that in `notes`, not in a
 duplicate question.

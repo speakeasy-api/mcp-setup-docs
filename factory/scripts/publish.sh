@@ -125,7 +125,6 @@ render_report_comment() {
       "", "### Summary", "", (.summary|bound), ""]
      + (if .outcome == "awaiting_scope" then (.open_questions|items("### Material decisions"; true)) else [] end)
      + (.blockers|items("### Blockers"; false))
-     + (if .outcome == "awaiting_scope" then [] else (.open_questions|items("### Open questions"; false)) end)
      + (.nits|items("### Nits"; false))
      + [if .outcome == "converged" then "Ready for review."
         elif .outcome == "awaiting_scope" then "Reply with the numbered decisions, then re-add `guide:draft`."

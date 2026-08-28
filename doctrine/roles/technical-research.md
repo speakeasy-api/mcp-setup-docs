@@ -121,23 +121,24 @@ path overrides:
 - **absent** (auto) — transclude only the Custom remote server path; do
   not emit a catalog-presence open question.
 - **ambiguous** or **skipped** (or no lookup note), auto, and no
-  override — keep both add-server bullets and a soft open question for
-  catalog presence.
+  override — keep both add-server bullets and record catalog presence as a research
+  limitation, not an operator decision.
 
-## Open questions
-Anything you could not confirm from documentation. Flagged, not guessed.
-Provider-documented UI (named in prose or shown in screenshots on those
-pages) is confirmed — never an open question asking for live console
-verification. Reserve this section for silence, unresolved property
-conflicts, or live probing that contradicts a documented URL/behavior.
-When public docs are silent on exact field or control labels, record the
-silence here and leave enough for the Writer to hedge — do not leave the
-walkthrough "incomplete" in a way that invites reviewers to demand a
-console capture. Your report's `open_questions` must match this section:
-do not re-list a UI label already recorded from provider docs as "needs
-verification."
+## Research limitations
+Record anything public documentation does not confirm. Flag it, do not guess. This section is provenance for writers and reviewers, not a request for human guidance, and its entries must not be copied into structured `open_questions`. If the operator could only repeat the same public-source search, record a research limitation and continue. Provider-documented UI is confirmed; undocumented labels, incidental pre-filled state, post-save mutability, and later maintenance belong here only when useful to explain a hedge or omission.
 
-This is presentation-only uncertainty, not a scope decision: after a reasonable source search, missing exact UI labels, control names or locations, or equivalent Save/Update/Apply chrome must not produce `awaiting_scope` when the underlying operation and required value are known. Preserve documented identifiers, give the Writer enough evidence for a resilient "visible or equivalent control" hedge, record the silence here, and report status `complete`. Reserve `awaiting_scope` for any unresolved material uncertainty about authentication, endpoints, required credentials, security-sensitive choices, provider capability or feasibility, or conflicting authoritative instructions.
+## Operator decisions
+Open questions are operator-actionable decisions, not a list of documentation gaps. An item may appear here and in structured `open_questions` only when it is material to first connection, cannot be handled with a safe hedge, and answerable from operator knowledge or authority unavailable in public sources. All three conditions are mandatory. Typical valid items are an organization-specific security choice, tenant/region value, or conflicting internal requirement. If none exist, write `None` and return an empty `open_questions` array. Reserve `awaiting_scope` for these decisions only.
+
+Apply these non-question regressions:
+
+- For alternate Configuration and Additional Configuration surfaces, name both documented paths and say to use the one present for the enterprise.
+- When a final button label is unpublished, say **Save the integration credentials** without inventing UI chrome.
+- Unknown pre-filled redirect URI values do not matter when the reader can add or replace the relevant entry with the documented callback URI.
+- If later secret visibility is undocumented, say **Copy the client secret when it is shown** and store it securely.
+- Omit whether scopes can be edited after saving because post-save mutability does not affect first connection.
+
+This presentation-only uncertainty must not produce `awaiting_scope`. Preserve documented identifiers, give the Writer enough evidence for resilient wording, record relevant silence under Research limitations, and report status `complete`.
 
 ## Provenance
 First, the source inventory from the sweep: every documentation property

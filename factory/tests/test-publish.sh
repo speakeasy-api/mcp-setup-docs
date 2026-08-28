@@ -193,7 +193,7 @@ test_blocked_artifacts_publish_draft() {
   assert_count 1 "commit -m" "$GIT_LOG"
   assert_contains "pr ready 77 --repo acme/docs --undo" "$(cat "$GH_LOG")"
   assert_contains "Blockers" "$(cat "$COMMENT_LOG")"
-  assert_contains "Open questions" "$(cat "$COMMENT_LOG")"
+  assert_not_contains "Open questions" "$(cat "$COMMENT_LOG")"
   assert_contains "Nits" "$(cat "$COMMENT_LOG")"
   assert_contains "Blocker && false" "$(cat "$COMMENT_LOG")"
 }
@@ -205,6 +205,8 @@ test_failed_and_hard_failure_never_commit() {
   bash "$SCRIPT" publish "$report"
   [[ ! -s "$GIT_LOG" ]] || fail "failed report invoked git"
   assert_contains "Summary" "$(cat "$COMMENT_LOG")"
+  assert_not_contains "Question; rm -rf /" "$(cat "$COMMENT_LOG")"
+  assert_not_contains "Open questions" "$(cat "$COMMENT_LOG")"
   assert_contains "--add-label guide:blocked" "$(cat "$GH_LOG")"
   assert_contains "--remove-label guide:in-progress" "$(cat "$GH_LOG")"
 
@@ -358,6 +360,7 @@ test_comments_and_title_are_bounded() {
 
   reset_logs
   jq -n '{schema_version:1,outcome:"blocked",provider:"Provider",slug:"safe-slug",persona:"Persona",summary:"Summary",open_questions:[range(0;25)|"question-\(.)"],blockers:[],nits:[],review_rounds:3,artifacts:["research.md","meta.yaml"]}' >"$report"
+  jq '.outcome = "awaiting_scope"' "$report" >"$report.next" && mv "$report.next" "$report"
   bash "$SCRIPT" publish "$report"
   assert_contains "question-19" "$(cat "$COMMENT_LOG")"
   assert_not_contains "question-20" "$(cat "$COMMENT_LOG")"
