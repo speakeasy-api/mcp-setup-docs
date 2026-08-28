@@ -105,6 +105,39 @@ test_run_kit_does_not_forward_github_credentials() {
   ! grep -qE 'GH_TOKEN|SSH_AUTH_SOCK' "$TMP/docker.args"
 }
 
+test_run_kit_reports_safe_failure_diagnostics() {
+  export OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$TMP/bin/docker"
+  # shellcheck disable=SC2016
+  make_fake docker '[[ "${1:-}" == build ]] && exit 0; mkdir -p "$TMP/error-run-export"; printf '"'"'{"schema_version":1,"records":[{"schema_version":2,"kind":"provider","code":"provider_error","diagnostics":null}]}\n'"'"' >"$TMP/error-run-export/kit-error-summary.json"; exit 1'
+  printf '{}\n' >"$TMP/issue.json"; printf '{}\n' >"$TMP/catalog.json"
+  if "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$TMP/error-run-export" \
+    >"$TMP/out" 2>"$TMP/err"; then
+    fail 'run-kit accepted failed container'
+  fi
+  assert_contains '"code":"provider_error"' "$(cat "$TMP/err")"
+
+  # shellcheck disable=SC2016
+  make_fake docker '[[ "${1:-}" == build ]] && exit 0; mkdir -p "$TMP/error-run-export"; printf '"'"'{"schema_version":1,"records":[{"schema_version":2,"kind":"provider","code":"provider_error","diagnostics":{"stage":"request","retryable":false,"attempt":1,"response_request_id":null,"reqwest":{"timeout":false,"connect":false,"request":false,"body":false,"decode":false},"source_chain_unknown":false,"source_chain_truncated":false,"provider_body":"sensitive-nested-diagnostic"}}]}\n'"'"' >"$TMP/error-run-export/kit-error-summary.json"; exit 1'
+  if "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$TMP/error-run-export" \
+    >"$TMP/out" 2>"$TMP/err"; then
+    fail 'run-kit accepted malicious diagnostics'
+  fi
+  if grep -q 'sensitive-nested-diagnostic' "$TMP/err"; then
+    fail 'run-kit logged unvalidated nested diagnostics'
+  fi
+
+  printf '%s\n' 'sensitive-stale-diagnostic' >"$TMP/error-run-export/kit-error-summary.json"
+  make_fake docker 'exit 1'
+  if "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$TMP/error-run-export" \
+    >"$TMP/out" 2>"$TMP/err"; then
+    fail 'run-kit accepted failed build'
+  fi
+  test ! -e "$TMP/error-run-export/kit-error-summary.json"
+  if grep -q 'sensitive-stale-diagnostic' "$TMP/err"; then
+    fail 'run-kit logged stale diagnostics'
+  fi
+}
+
 test_run_kit_uses_only_allowed_mounts() {
   export OPENROUTER_API_KEY=or-test
   export FACTORY_DOCKER="$TMP/bin/docker"
@@ -281,6 +314,46 @@ MOCK
   done
 }
 
+test_entrypoint_exports_safe_kit_failure_diagnostics() {
+  local repo input workspace export_root fake_kit
+  repo="$TMP/error-repo"; input="$TMP/error-input"
+  workspace="$TMP/error-workspace"; export_root="$TMP/error-export"
+  fake_kit="$TMP/bin/error-kit"
+  mkdir -p "$repo/factory" "$input" "$TMP/bin"
+  printf 'assignment\n' >"$repo/factory/coordinator.md"
+  printf '{}\n' >"$input/issue.json"; printf '{}\n' >"$input/catalog.json"
+  cat >"$fake_kit" <<'MOCK'
+#!/usr/bin/env bash
+mkdir -p "$HOME/errors/s-test"
+cat >"$HOME/errors/s-test/e-test.json" <<'JSON'
+{"schema_version":2,"event_id":"e-test","occurred_at_ms":1,"kit_version":"0.1.98","session_id":"s-test","surface":"prompt","kind":"provider","code":"provider_error","message":"sensitive-provider-body","prompt":{"code":"sensitive-code","provider":"sensitive-provider"},"url":"https://sensitive.example","diagnostics":null}
+JSON
+cat >"$HOME/errors/s-test/e-transport.json" <<'JSON'
+{"schema_version":2,"event_id":"e-transport","occurred_at_ms":2,"kit_version":"0.1.98","session_id":"s-test","surface":"prompt","kind":"provider","code":"request_transport","message":"sensitive-transport-message","diagnostics":{"stage":"request","retryable":true,"attempt":2,"response_request_id":"req_safe-123","reqwest":{"timeout":false,"connect":true,"request":true,"body":false,"decode":false},"source_chain":[{"code":"sensitive-source-code","provider":"sensitive-source-provider"}],"source_chain_unknown":true,"source_chain_truncated":false}}
+JSON
+exit 1
+MOCK
+  chmod +x "$fake_kit"
+  if FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
+    FACTORY_WORKSPACE_ROOT="$workspace" FACTORY_EXPORT_ROOT="$export_root" \
+    FACTORY_KIT_HOME="$TMP/error-home" KIT_BIN="$fake_kit" \
+    FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
+    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+    "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>&1; then
+    fail 'entrypoint accepted failed Kit process'
+  fi
+  jq -e '
+    (.records | length) == 2
+    and any(.records[]; .kind == "provider" and .code == "provider_error" and .diagnostics == null)
+    and any(.records[];
+      .code == "request_transport"
+      and .diagnostics == {stage:"request",retryable:true,attempt:2,response_request_id:"req_safe-123",reqwest:{timeout:false,connect:true,request:true,body:false,decode:false},source_chain_unknown:true,source_chain_truncated:false})
+  ' "$export_root/kit-error-summary.json" >/dev/null
+  if grep -Eq 'sensitive-provider-body|sensitive-code|sensitive-provider|sensitive-transport-message|sensitive-source|sensitive\.example' "$export_root/kit-error-summary.json"; then
+    fail 'Kit failure diagnostics leaked unsafe fields'
+  fi
+}
+
 test_local_draft_parsing_and_secret_boundary() {
   local bin log tmpdir issue_path
   bin="$TMP/local-bin"; log="$TMP/local.log"; tmpdir="$TMP/local tmp"
@@ -380,10 +453,12 @@ test_dockerfile_builds_static_linter_without_go_in_final_image
 test_docker_context_excludes_credentials_and_keeps_build_inputs
 test_release_archive_layout_and_checksum
 test_run_kit_does_not_forward_github_credentials
+test_run_kit_reports_safe_failure_diagnostics
 test_run_kit_uses_only_allowed_mounts
 test_run_kit_source_snapshot_applies_dockerignore
 test_entrypoint_exports_only_selected_guide_with_mocked_kit
 test_entrypoint_rejects_invalid_report
+test_entrypoint_exports_safe_kit_failure_diagnostics
 test_local_draft_parsing_and_secret_boundary
 test_local_draft_rejects_invalid_arguments_and_slug_mismatch
 test_opt_in_final_image

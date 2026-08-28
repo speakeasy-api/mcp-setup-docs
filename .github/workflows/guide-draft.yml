@@ -36,7 +36,12 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           printf '%s\n' 'Publisher setup failed.' >"$RUNNER_TEMP/failure-reason.txt"
-          bash factory/scripts/publish.sh ensure-labels
+          mkdir -p "$RUNNER_TEMP/guide-factory-publisher/factory/scripts"
+          cp factory/scripts/publish.sh factory/scripts/lib.sh \
+            "$RUNNER_TEMP/guide-factory-publisher/factory/scripts/"
+          PUBLISHER_PATH="$RUNNER_TEMP/guide-factory-publisher/factory/scripts/publish.sh"
+          printf 'PUBLISHER_PATH=%s\n' "$PUBLISHER_PATH" >>"$GITHUB_ENV"
+          bash "$PUBLISHER_PATH" ensure-labels
 
       - name: Preflight existing factory work
         id: preflight
@@ -57,7 +62,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           printf '%s\n' 'Refusal reporting failed.' >"$RUNNER_TEMP/failure-reason.txt"
-          bash factory/scripts/publish.sh refuse '${{ steps.preflight.outputs.refused_pr_url }}'
+          bash "$PUBLISHER_PATH" refuse '${{ steps.preflight.outputs.refused_pr_url }}'
 
       - name: Checkout resume branch and sync main
         id: resume_sync
@@ -66,6 +71,8 @@ jobs:
           RESUME_BRANCH: ${{ steps.preflight.outputs.resume_branch }}
         run: |
           printf '%s\n' 'Resume branch synchronization failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          git config --local user.name github-actions[bot]
+          git config --local user.email 41898282+github-actions[bot]@users.noreply.github.com
           git fetch origin main "$RESUME_BRANCH"
           git checkout -B "$RESUME_BRANCH" "origin/$RESUME_BRANCH"
           git merge --no-edit origin/main
@@ -79,7 +86,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           printf '%s\n' 'Label transition failed.' >"$RUNNER_TEMP/failure-reason.txt"
-          bash factory/scripts/publish.sh transition
+          bash "$PUBLISHER_PATH" transition
 
       - name: Prepare issue input
         id: prepare_input
@@ -136,7 +143,7 @@ jobs:
           printf '%s\n' 'Guide publication failed.' >"$RUNNER_TEMP/failure-reason.txt"
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          bash factory/scripts/publish.sh publish "$RUNNER_TEMP/run-report.json"
+          bash "$PUBLISHER_PATH" publish "$RUNNER_TEMP/run-report.json"
 
       - name: Report failure
         id: failure_report
@@ -145,7 +152,7 @@ jobs:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: bash factory/scripts/publish.sh fail "$RUNNER_TEMP/failure-reason.txt"
+        run: bash "$PUBLISHER_PATH" fail "$RUNNER_TEMP/failure-reason.txt"
 
       - name: Cleanup labels
         id: cleanup
@@ -154,7 +161,7 @@ jobs:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: bash factory/scripts/publish.sh cleanup
+        run: bash "$PUBLISHER_PATH" cleanup
 
       - name: Bootstrap failure fallback
         id: bootstrap_failure

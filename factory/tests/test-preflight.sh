@@ -197,17 +197,62 @@ case "$*" in
 esac'
 export CURL_LOG="$TMP/curl.log" CATALOG_PAGE1="$TMP/page1.json" CATALOG_PAGE2="$TMP/page2.json"
 cat >"$TMP/page1.json" <<'JSON'
-{"servers":[{"server":{"name":"zeta","title":"Zeta","description":"Z","extra":"secret"},"remotes":[{"transport":"sse","url":"https://z"}],"registrySecret":"drop"},{"server":{"name":"alpha","title":"Alpha","description":"A"},"remotes":[]}],"metadata":{"nextCursor":"page2"}}
+{"servers":[{"server":{"name":"zeta","title":"Zeta","description":"Z","extra":"secret","remotes":[{"type":"sse","url":"https://z","headers":{"Authorization":"drop"}}]},"_meta":{"registrySecret":"drop"}},{"server":{"name":"alpha","title":"Alpha","description":"A"},"_meta":{}}],"metadata":{"nextCursor":"page2"}}
 JSON
 cat >"$TMP/page2.json" <<'JSON'
-{"servers":[{"server":{"name":"zeta","title":"duplicate","description":"drop"},"remotes":[]},{"server":{"name":"beta","title":"Beta","description":null},"remotes":[{"transport":"streamable-http","url":"https://b","headers":{"x":"drop"}}]}],"metadata":{"nextCursor":null}}
+{"servers":[{"server":{"name":"zeta","title":"duplicate","description":"drop","remotes":[]}},{"server":{"name":"beta","title":"Beta","description":null,"remotes":[{"type":"streamable-http","url":"https://b","headers":{"x":"drop"}}]}}]}
 JSON
 PULSE_REGISTRY_KEY='key value' PULSE_REGISTRY_TENANT='tenant value' PULSE_REGISTRY_URL='https://pulse.test/' \
   bash "$ROOT/factory/scripts/prepare-catalog.sh" "$TMP/catalog.json"
-jq -e '.status == "ready" and .tenant == "tenant value" and (.observed_at|type) == "string" and [.servers[].name] == ["alpha","beta","zeta"] and .servers[2] == {name:"zeta",title:"Zeta",description:"Z",remotes:[{transport:"sse",url:"https://z"}]} and ([paths | map(tostring) | join(".")] | all(test("secret|headers|registrySecret"; "i") | not))' "$TMP/catalog.json" >/dev/null
+jq -e '.status == "ready" and .tenant == "tenant value" and (.observed_at|type) == "string" and [.servers[].name] == ["alpha","beta","zeta"] and .servers[0].remotes == [] and .servers[1].remotes == [{transport:"streamable-http",url:"https://b"}] and .servers[2] == {name:"zeta",title:"Zeta",description:"Z",remotes:[{transport:"sse",url:"https://z"}]} and ([paths | map(tostring) | join(".")] | all(test("secret|headers|registrySecret"; "i") | not))' "$TMP/catalog.json" >/dev/null
 assert_eq 2 "$(wc -l <"$TMP/curl.log" | tr -d ' ')"
 assert_contains 'X-Tenant-ID: tenant value' "$(cat "$TMP/curl.log")"
 assert_contains 'X-API-Key: key value' "$(cat "$TMP/curl.log")"
+
+cat >"$TMP/page1.json" <<'JSON'
+{"servers":[],"metadata":null}
+JSON
+: >"$TMP/curl.log"
+PULSE_REGISTRY_KEY=key PULSE_REGISTRY_TENANT=tenant \
+  bash "$ROOT/factory/scripts/prepare-catalog.sh" "$TMP/null-metadata.json"
+jq -e '.status == "ready" and .servers == []' "$TMP/null-metadata.json" >/dev/null
+assert_eq 1 "$(wc -l <"$TMP/curl.log" | tr -d ' ')"
+
+expect_malformed_catalog_page() {
+  local label=$1 sentinel=$2 destination stderr_file
+  destination="$TMP/$label.json"
+  stderr_file="$TMP/$label.stderr"
+  printf 'keep %s\n' "$label" >"$destination"
+  if PULSE_REGISTRY_KEY=key PULSE_REGISTRY_TENANT=tenant \
+    bash "$ROOT/factory/scripts/prepare-catalog.sh" "$destination" >/dev/null 2>"$stderr_file"; then
+    fail "malformed catalog page succeeded: $label"
+  fi
+  assert_eq "keep $label" "$(cat "$destination")"
+  assert_contains 'malformed Pulse registry response on page 1' "$(cat "$stderr_file")"
+  if grep -Fq "$sentinel" "$stderr_file"; then fail "catalog failure logged response data: $label"; fi
+  if compgen -G "$destination.*" >/dev/null; then fail "catalog failure left temporary files: $label"; fi
+}
+
+cat >"$TMP/page1.json" <<'JSON'
+{"servers":[{"server":{"name":"do-not-log-type","remotes":[{"type":7,"url":"https://valid"}]}}],"metadata":null}
+JSON
+expect_malformed_catalog_page malformed-remote-type do-not-log-type
+cat >"$TMP/page1.json" <<'JSON'
+{"servers":[{"server":{"name":"do-not-log-url","remotes":[{"type":"sse","url":null}]}}]}
+JSON
+expect_malformed_catalog_page malformed-remote-url do-not-log-url
+cat >"$TMP/page1.json" <<'JSON'
+{"servers":[{"server":{"name":"do-not-log-null-remotes","remotes":null}}]}
+JSON
+expect_malformed_catalog_page null-remotes do-not-log-null-remotes
+cat >"$TMP/page1.json" <<'JSON'
+{"servers":[{"server":{"name":"do-not-log-false-remotes","remotes":false}}]}
+JSON
+expect_malformed_catalog_page false-remotes do-not-log-false-remotes
+cat >"$TMP/page1.json" <<'JSON'
+{"servers":[{"server":{"name":"do-not-log-metadata"}}],"metadata":[]}
+JSON
+expect_malformed_catalog_page malformed-metadata do-not-log-metadata
 
 unset PULSE_REGISTRY_KEY
 PULSE_REGISTRY_TENANT=tenant bash "$ROOT/factory/scripts/prepare-catalog.sh" "$TMP/skipped.json"
