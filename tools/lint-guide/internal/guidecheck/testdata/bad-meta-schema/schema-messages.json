@@ -1,0 +1,240 @@
+[
+  {
+    "name": "type-summary",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: 42\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/summary",
+        "problem": "meta.yaml failed schema: must be string",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "additional-property",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\nunexpected: true\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "meta.yaml",
+        "problem": "meta.yaml failed schema: must NOT have additional properties",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "additional-properties-multiple",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\nfirstUnexpected: true\nsecondUnexpected: true\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "meta.yaml",
+        "problem": "meta.yaml failed schema: must NOT have additional properties",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      },
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "meta.yaml",
+        "problem": "meta.yaml failed schema: must NOT have additional properties",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "const-schema-version",
+    "meta": "schema_version: 2\nslug: sample\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/schema_version",
+        "problem": "meta.yaml failed schema: must be equal to constant",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "enum-transport",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: websocket\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/remotes/0/transport",
+        "problem": "meta.yaml failed schema: must be equal to one of the allowed values",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "min-length-summary",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: \"\"\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/summary",
+        "problem": "meta.yaml failed schema: must NOT have fewer than 1 characters",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "pattern-slug",
+    "meta": "schema_version: 1\nslug: Bad_Slug\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/slug",
+        "problem": "meta.yaml failed schema: must match pattern \"^[a-z0-9]+(-[a-z0-9]+)*$\"",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "format-observed-at",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: not-a-date\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/provenance/0/observed_at",
+        "problem": "meta.yaml failed schema: must match format \"date-time\"",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "min-items-remotes",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes: []\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/remotes",
+        "problem": "meta.yaml failed schema: must NOT have fewer than 1 items",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "unique-items-remotes",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/remotes",
+        "problem": "meta.yaml failed schema: must NOT have duplicate items (items ## 0 and 1 are identical)",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "conditional-then",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: oauth\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/credential_setup/options/0",
+        "problem": "meta.yaml failed schema: must have required property 'client_registration'",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      },
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/credential_setup/options/0",
+        "problem": "meta.yaml failed schema: must match \"then\" schema",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "conditional-else-not",
+    "meta": "schema_version: 1\nslug: sample\ntitle: Sample\nsummary: Sample guide.\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\n      client_registration: dynamic\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/credential_setup/options/0",
+        "problem": "meta.yaml failed schema: must NOT be valid",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      },
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/credential_setup/options/0",
+        "problem": "meta.yaml failed schema: must match \"else\" schema",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  },
+  {
+    "name": "ordered-multiple",
+    "meta": "schema_version: 2\nslug: Bad_Slug\nsummary: 42\ncredential_setup:\n  options:\n    - id: api-key\n      kind: api_key\n      upstream_setup: provider-steps\n      fields:\n        - id: api-key\n          label: API key\n          setup:\n            - external.md#create-key\ndocumentation:\n  external: external.md\n  speakeasy: speakeasy.md\nremotes:\n  - id: sample\n    transport: streamable-http\n    url: https://example.invalid/mcp\n    authentication:\n      - api-key\nprovenance:\n  - source: fixture\n    observed_at: \"2026-08-27T00:00:00Z\"\nunexpected: true\n",
+    "expected": [
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "meta.yaml",
+        "problem": "meta.yaml failed schema: must have required property 'title'",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      },
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "meta.yaml",
+        "problem": "meta.yaml failed schema: must NOT have additional properties",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      },
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/schema_version",
+        "problem": "meta.yaml failed schema: must be equal to constant",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      },
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/slug",
+        "problem": "meta.yaml failed schema: must match pattern \"^[a-z0-9]+(-[a-z0-9]+)*$\"",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      },
+      {
+        "severity": "blocker",
+        "target": "meta",
+        "where": "/summary",
+        "problem": "meta.yaml failed schema: must be string",
+        "suggestion": "Fix the field so meta.yaml validates against schema/guide.v1.schema.json.",
+        "dimension": "lint"
+      }
+    ]
+  }
+]

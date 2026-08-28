@@ -8,6 +8,16 @@ X Docs is public. You do not need an X account, developer app, API access, crede
 
 ### Confirm the X Docs server {#confirm-x-docs-server}
 
-Use `https://docs.x.com/mcp` as the fixed remote URL. Do not substitute `https://api.x.com/mcp`; that URL is for the separate X API MCP Server.
+Use this fixed remote URL:
+
+```text
+https://docs.x.com/mcp
+```
+
+Do not substitute this URL; it is for the separate X API MCP Server:
+
+```text
+https://api.x.com/mcp
+```
 
 <!-- screenshot-exception: there is no provider console or meaningful visual state for this public-URL confirmation -->

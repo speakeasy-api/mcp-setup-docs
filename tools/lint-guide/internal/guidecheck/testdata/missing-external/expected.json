@@ -1,0 +1,10 @@
+[
+  {
+    "severity": "blocker",
+    "target": "external",
+    "where": "external.md",
+    "problem": "external.md is missing.",
+    "suggestion": "Write external.md (provider-side setup) before review.",
+    "dimension": "lint"
+  }
+]

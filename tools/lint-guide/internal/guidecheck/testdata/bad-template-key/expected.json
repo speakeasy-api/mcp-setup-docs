@@ -1,0 +1,18 @@
+[
+  {
+    "severity": "blocker",
+    "target": "external",
+    "where": "line 9",
+    "problem": "Unsupported template key {{ provider.token }}.",
+    "suggestion": "Only {{ gram.oauth.callback_url }} is allowed.",
+    "dimension": "lint"
+  },
+  {
+    "severity": "blocker",
+    "target": "speakeasy",
+    "where": "line 11",
+    "problem": "Unsupported template key {{ other.key }}.",
+    "suggestion": "Only {{ gram.oauth.callback_url }} is allowed.",
+    "dimension": "lint"
+  }
+]

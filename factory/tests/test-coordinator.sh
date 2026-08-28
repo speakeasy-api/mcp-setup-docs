@@ -162,6 +162,10 @@ for phrase in \
   'timeout-minutes: 180' \
   'group: guide-draft-issue-${{ github.event.issue.number }}' \
   'cancel-in-progress: false' 'TMPDIR=%s\n' \
+  'uses: actions/setup-go@v5' \
+  'go-version-file: tools/lint-guide/go.mod' \
+  'go build -o "$RUNNER_TEMP/lint-guide" ./cmd/lint-guide' \
+  'LINT_GUIDE_BIN: ${{ runner.temp }}/lint-guide' \
   'contents: write' 'issues: write' 'pull-requests: write' \
   'factory/scripts/preflight.sh' \
   'factory/scripts/prepare-input.sh' \
@@ -410,11 +414,16 @@ if PATH="$workflow_tmp/bin:$PATH" GH_REPO=acme/docs ISSUE_NUMBER=42 \
 fi
 test -s "$COMMENT_STATE" || fail 'bootstrap fallback did not comment after a mutation failure'
 
+# Literal workflow expressions are intentionally matched without expansion.
+# shellcheck disable=SC2016
 for phrase in \
   '.dockerignore' \
   'bash factory/tests/run.sh' \
   'shellcheck factory/scripts/*.sh factory/tests/*.sh' \
-  'go test ./internal/guidecheck ./cmd/lint-guide' \
+  'tools/lint-guide/**' \
+  'go test ./...' \
+  'go build -o "$RUNNER_TEMP/lint-guide" ./cmd/lint-guide' \
+  'LINT_GUIDE_BIN: ${{ runner.temp }}/lint-guide' \
   'KIT_VERSION=0.1.98' \
   'KIT_SHA256=7d14561469ced8af21df1075a9071d04a7bad1b1c5ff90d685142d3231abae85' \
   '-f factory/Dockerfile .'; do

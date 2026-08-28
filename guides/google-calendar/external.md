@@ -131,7 +131,7 @@ Prepare the approved secret store before the next action. The new secret is visi
 
 Confirm the applicable Calendar app-access policy with the Workspace security owner. Complete this step only if the policy restricts Google Calendar access for unconfigured or limited apps.
 
-1. Sign in at `https://admin.google.com` with the **Service Settings administrator** privilege.
+1. Sign in at [admin.google.com](https://admin.google.com) with the **Service Settings administrator** privilege.
 2. Open **Security** > **Access and data control** > **API controls**.
 3. Click **Manage App Access**.
 4. Under **Configured apps**, click **Configure new app**.

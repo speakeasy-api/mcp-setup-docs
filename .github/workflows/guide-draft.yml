@@ -25,6 +25,15 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: tools/lint-guide/go.mod
+
+      - name: Build guide linter
+        working-directory: tools/lint-guide
+        run: go build -o "$RUNNER_TEMP/lint-guide" ./cmd/lint-guide
+
       - name: Configure runner temp
         run: printf 'TMPDIR=%s\n' "$RUNNER_TEMP" >>"$GITHUB_ENV"
 
@@ -125,6 +134,8 @@ jobs:
       - name: Validate export
         id: validate
         if: success() && steps.refusal.outcome != 'success'
+        env:
+          LINT_GUIDE_BIN: ${{ runner.temp }}/lint-guide
         run: |
           printf '%s\n' 'Factory export validation failed.' >"$RUNNER_TEMP/failure-reason.txt"
           bash factory/scripts/validate.sh "$RUNNER_TEMP/export" "$GITHUB_WORKSPACE"

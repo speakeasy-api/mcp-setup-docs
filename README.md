@@ -22,8 +22,9 @@ in [`FACTORY.md`](FACTORY.md).
 
 ## Run locally
 
-Local drafting requires Docker and `OPENROUTER_API_KEY`. It validates the
-selected guide but does not publish or use host GitHub/Pulse credentials.
+Mise pins Node 24 and Go 1.22. Local drafting also requires Docker and
+`OPENROUTER_API_KEY`; it validates the selected guide but does not publish or
+use host GitHub/Pulse credentials.
 
 ```bash
 export OPENROUTER_API_KEY=...
@@ -32,10 +33,11 @@ mise run draft-guide -- \
   --body "Dry-run the Kit factory without publishing" \
   --slug asana
 
-mise run lint-guide -- ../guides/asana
+mise run lint-guide -- asana
 ```
 
-See [`FACTORY.md`](FACTORY.md) for normalized issue-JSON input, stale sweeps,
+The deterministic linter is the nested Go tool in `tools/lint-guide`. See
+[`FACTORY.md`](FACTORY.md) for normalized issue-JSON input, stale sweeps,
 outcomes, and the local command's exact behavior.
 
 ## Related

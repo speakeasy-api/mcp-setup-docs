@@ -63,23 +63,12 @@ exact instructions well and improvise badly.
   groups. A section with a single action gets one imperative sentence —
   never a one-item numbered list.
 - Exact UI labels in **bold**, verbatim from the console.
-- Values the reader types or copies in `code spans`. A span holding an
-  unbroken run of more than ~30 characters — a URL, a scope, an endpoint —
-  wraps mid-token in a narrow panel and stops being copyable: put that
-  value in a fenced code block under its step, exactly as the field
-  receives it. Never split a copied value across lines; never comma-join
-  several values inside one span. Where the reader enters values one at a
-  time, each gets its own line in one block. Values that contain spaces
-  wrap cleanly and stay inline. Measure the value the reader sees, not the
-  source text: `{{ gram.oauth.callback_url }}` is short and spaced, but it
-  renders as an unbroken callback URL, so a step that has the reader enter
-  it uses a block.
-- The ceiling applies where the reader takes the value **from the guide**.
-  Where the value comes from the screen or the clipboard and the guide only
-  names it — "Confirm that **Redirect URI** matches …" — it stays inline.
-- A URL the reader opens is a link, never a code span and never bare
-  text. In a step, the link text is the URL without `https://`; in the
-  closing pointer, it names the document.
+- Values the reader types or copies from the guide use fenced code blocks,
+  exactly as the field receives them. Each separately entered value gets
+  its own block, regardless of length.
+- Every URL is either a Markdown link or in a fenced code block. A URL the
+  reader opens is a link; a URL the reader copies is in its own fenced code
+  block. URLs are never bare prose or inline code.
 
 ## Achievability bar
 

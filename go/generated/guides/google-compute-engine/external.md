@@ -11,8 +11,8 @@ console at [console.cloud.google.com](https://console.cloud.google.com). Each pe
 who will connect from the Speakeasy AI Control Plane needs their own Google
 account; you grant their access in [Grant IAM roles](#grant-iam-roles).
 
-The Google Compute Engine catalog entry connects to Google's hosted MCP
-Server at `https://compute.googleapis.com/mcp`; you do not need to install
+The Google Compute Engine catalog entry connects to [Google's hosted MCP
+Server](https://compute.googleapis.com/mcp); you do not need to install
 anything or paste the remote URL. The server's tools manage real Compute
 Engine resources — they can create, start, stop, and delete VM instances —
 and everything they do

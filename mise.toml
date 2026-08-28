@@ -14,8 +14,8 @@ run = "bash factory/scripts/local-draft.sh"
 
 [tasks.lint-guide]
 description = "Deterministic guide and metadata lint"
-dir = "go"
-run = "go run ./cmd/lint-guide --"
+dir = "tools/lint-guide"
+run = "go run ./cmd/lint-guide"
 
 [tasks.stale-sweep]
 description = "Report stale guides; optionally queue refresh tickets"

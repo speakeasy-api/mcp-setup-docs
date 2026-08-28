@@ -1,0 +1,406 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "asset": {
+      "additionalProperties": false,
+      "description": "Screenshot descriptor.",
+      "properties": {
+        "alt": {
+          "description": "Fallback alternative text when the image cannot be shown.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "content_hash": {
+          "description": "Exact lowercase sha256 hash of the asset bytes.",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "height": {
+          "description": "Derived pixel height.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "id": {
+          "description": "Stable logical Screenshot identity within the guide.",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "media_type": {
+          "enum": [
+            "image/png"
+          ]
+        },
+        "path": {
+          "description": "Guide-relative source path, fixed to assets/<id>.png.",
+          "pattern": "^assets/[a-z0-9]+(-[a-z0-9]+)*\\.png$",
+          "type": "string"
+        },
+        "width": {
+          "description": "Derived pixel width.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "alt",
+        "content_hash",
+        "height",
+        "id",
+        "media_type",
+        "path",
+        "width"
+      ],
+      "type": "object"
+    },
+    "authentication_option": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "not": {
+              "required": [
+                "client_registration"
+              ]
+            }
+          },
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "oauth"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "client_registration"
+            ]
+          }
+        }
+      ],
+      "description": "One supported credential-acquisition and credential-presentation path. Consumers derive the Speakeasy-side setup shape from kind + client_registration: open -> none; oauth + dynamic -> dcr; oauth + manual -> manual-oauth; api_key -> headers. That mapping is total (client_registration is required for oauth and forbidden otherwise) and must not be recorded separately.",
+      "properties": {
+        "client_registration": {
+          "description": "How the OAuth client is registered. Required when kind is oauth; forbidden otherwise.",
+          "enum": [
+            "dynamic",
+            "manual"
+          ]
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/definitions/credential_field"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "id": {
+          "description": "Stable Authentication Option identity within the guide.",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "api_key",
+            "oauth",
+            "open"
+          ]
+        },
+        "upstream_setup": {
+          "description": "Whether the reader must do anything at the provider to use this Authentication Option. none only when the reader opens nothing at the provider: no console, no documentation lookup, no hostname check. provider-steps otherwise, including steps that configure nothing (finding a region URL, an instance hostname, a project ID). When in doubt choose provider-steps: a wrongly hidden guide strands the reader, while a wrongly shown one is only noise. Account, plan, role, and credit prerequisites are standing rather than steps and belong in credential_setup.requirements, not here.",
+          "enum": [
+            "none",
+            "provider-steps"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "upstream_setup"
+      ],
+      "type": "object"
+    },
+    "credential_field": {
+      "additionalProperties": false,
+      "description": "One add-server credential input, mapped to the setup-guide sections that show how to obtain it.",
+      "properties": {
+        "id": {
+          "description": "Stable field identity within its Authentication Option.",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "label": {
+          "description": "User-facing field label.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "setup": {
+          "items": {
+            "description": "external.md#<section-id> (or speakeasy.md#…) reference into a setup file.",
+            "pattern": "^(external|speakeasy)\\.md#[a-z0-9]+(-[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "setup"
+      ],
+      "type": "object"
+    },
+    "credential_requirement": {
+      "additionalProperties": false,
+      "description": "One named account or access prerequisite for the credential setup.",
+      "properties": {
+        "description": {
+          "description": "What the requirement provides.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "description": "Stable requirement identity within the guide.",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "description",
+        "id"
+      ],
+      "type": "object"
+    },
+    "credential_setup": {
+      "additionalProperties": false,
+      "description": "Credential acquisition for the guide, shared by all its MCP Servers.",
+      "properties": {
+        "options": {
+          "items": {
+            "$ref": "#/definitions/authentication_option"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "requirements": {
+          "items": {
+            "$ref": "#/definitions/credential_requirement"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "options"
+      ],
+      "type": "object"
+    },
+    "documentation": {
+      "additionalProperties": false,
+      "description": "Split setup files and Screenshot descriptors; never delivery URLs. Consumers may show external.md alone (e.g. on an already-installed MCP server detail page) or both files together.",
+      "properties": {
+        "assets": {
+          "items": {
+            "$ref": "#/definitions/asset"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "external": {
+          "description": "Guide-relative path of the External setup file (provider-side; prerequisites folded into its opening prose).",
+          "const": "external.md"
+        },
+        "speakeasy": {
+          "description": "Guide-relative path of the Speakeasy setup file (Control Plane steps).",
+          "const": "speakeasy.md"
+        }
+      },
+      "required": [
+        "external",
+        "speakeasy"
+      ],
+      "type": "object"
+    },
+    "remote": {
+      "additionalProperties": false,
+      "description": "One MCP Server endpoint the guide documents.",
+      "properties": {
+        "authentication": {
+          "items": {
+            "description": "Authentication Option ID this MCP Server supports.",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "id": {
+          "description": "Stable MCP Server identity within the guide.",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "provenance": {
+          "items": {
+            "$ref": "#/definitions/source_record"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "tenanted": {
+          "description": "True when the reader must paste a region, instance, or org-specific MCP URL (not a single shared public endpoint). Tenanted remotes always use Custom remote add-server — never the Speakeasy MCP Catalog — even if Pulse lists the provider. For non-tenanted URLs that must still skip the catalog, set guide-level speakeasy_add_server: custom-remote instead.",
+          "type": "boolean"
+        },
+        "transport": {
+          "enum": [
+            "sse",
+            "streamable-http"
+          ]
+        },
+        "url": {
+          "description": "Absolute HTTPS MCP endpoint URL.",
+          "pattern": "^https://",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authentication",
+        "id",
+        "transport",
+        "url"
+      ],
+      "type": "object"
+    },
+    "source_record": {
+      "additionalProperties": false,
+      "description": "One provenance record: a source-scoped observation behind a fact.",
+      "properties": {
+        "classification": {
+          "enum": [
+            "mirror",
+            "official"
+          ]
+        },
+        "locator": {
+          "description": "Source-native locator, such as a registry key or URL.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "name": {
+          "description": "Source-native server name.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "observed_at": {
+          "description": "Observation time.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Registry or tenant scope of the observation.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "source": {
+          "description": "Upstream source system.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "description": "Source-reported record status.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "version": {
+          "description": "Source-native version.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "observed_at",
+        "source"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "One authored Guide (meta.yaml), schema_version 1. Consumers deciding whether to show a guide at all derive setup_required = any option's upstream_setup is not none, OR any option's derived Speakeasy setup is not none, OR any remote is tenanted. False means the reader has nothing to do beyond adding the server and the guide can be hidden. The tenanted term is load-bearing: a tenanted remote always means the reader must be told how to find their own URL. Resolve ambiguity toward true.",
+  "properties": {
+    "aliases": {
+      "items": {
+        "description": "Legacy or source-native alias resolved to this Guide.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "credential_setup": {
+      "$ref": "#/definitions/credential_setup"
+    },
+    "documentation": {
+      "$ref": "#/definitions/documentation"
+    },
+    "provenance": {
+      "items": {
+        "$ref": "#/definitions/source_record"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "remotes": {
+      "items": {
+        "$ref": "#/definitions/remote"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "slug": {
+      "description": "Stable Guide identity; must match the guide directory name.",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "speakeasy_add_server": {
+      "description": "How speakeasy.md adds the MCP server. auto (default): Pulse catalog when present, else Custom remote, unless any remote is tenanted (always Custom remote). catalog: force 3rd-party catalog path. custom-remote: force Custom remote (e.g. catalog mapping unreliable) even when Pulse lists the provider and remotes are not tenanted.",
+      "enum": [
+        "auto",
+        "catalog",
+        "custom-remote"
+      ],
+      "type": "string"
+    },
+    "summary": {
+      "description": "One-sentence user-facing summary.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "title": {
+      "description": "Display title.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "credential_setup",
+    "documentation",
+    "provenance",
+    "remotes",
+    "schema_version",
+    "slug",
+    "summary",
+    "title"
+  ],
+  "title": "Guide",
+  "type": "object"
+}

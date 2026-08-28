@@ -1,0 +1,26 @@
+schema_version: 1
+slug: sample
+title: Sample
+summary: Sample guide.
+credential_setup:
+  options:
+    - id: api-key
+      kind: api_key
+      upstream_setup: provider-steps
+      fields:
+        - id: api-key
+          label: API key
+          setup:
+            - speakeasy.md#add-server-in-speakeasy
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: sample
+    transport: streamable-http
+    url: https://example.invalid/mcp
+    authentication:
+      - api-key
+provenance:
+  - source: fixture
+    observed_at: '2026-08-27T00:00:00Z'

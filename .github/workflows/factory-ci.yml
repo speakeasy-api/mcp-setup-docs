@@ -7,8 +7,7 @@ on:
       - 'factory/**'
       - '.github/workflows/guide-draft.yml'
       - '.github/workflows/factory-ci.yml'
-      - 'go/internal/guidecheck/**'
-      - 'go/cmd/lint-guide/**'
+      - 'tools/lint-guide/**'
       - 'FACTORY.md'
       - 'mise.toml'
   push:
@@ -18,8 +17,7 @@ on:
       - 'factory/**'
       - '.github/workflows/guide-draft.yml'
       - '.github/workflows/factory-ci.yml'
-      - 'go/internal/guidecheck/**'
-      - 'go/cmd/lint-guide/**'
+      - 'tools/lint-guide/**'
       - 'FACTORY.md'
       - 'mise.toml'
 
@@ -37,17 +35,24 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go/go.mod
+          go-version-file: tools/lint-guide/go.mod
+
+      - name: Test guide linter
+        working-directory: tools/lint-guide
+        run: go test ./...
+
+      - name: Build guide linter
+        working-directory: tools/lint-guide
+        run: go build -o "$RUNNER_TEMP/lint-guide" ./cmd/lint-guide
 
       - name: Factory tests
+        env:
+          LINT_GUIDE_BIN: ${{ runner.temp }}/lint-guide
         run: bash factory/tests/run.sh
 
       - name: Shellcheck
         run: shellcheck factory/scripts/*.sh factory/tests/*.sh
 
-      - name: Guidecheck tests
-        working-directory: go
-        run: go test ./internal/guidecheck ./cmd/lint-guide
 
       - name: Build factory image
         run: |

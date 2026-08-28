@@ -1,9 +1,9 @@
 FROM golang:1.22.12-bookworm@sha256:3d699e4d15d0f8f13c9195c0632a16702b8cbdece2955af1c23b37ae5d55a253 AS lint-builder
 WORKDIR /src
-COPY go/go.mod go/go.sum ./
+COPY tools/lint-guide/go.mod tools/lint-guide/go.sum ./
 RUN go mod download
-COPY go/cmd ./cmd
-COPY go/internal ./internal
+COPY tools/lint-guide/cmd ./cmd
+COPY tools/lint-guide/internal ./internal
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath -ldflags='-s -w' -o /out/lint-guide ./cmd/lint-guide
 
