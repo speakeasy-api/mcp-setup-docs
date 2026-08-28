@@ -137,6 +137,8 @@ console capture. Your report's `open_questions` must match this section:
 do not re-list a UI label already recorded from provider docs as "needs
 verification."
 
+This is presentation-only uncertainty, not a scope decision: after a reasonable source search, missing exact UI labels, control names or locations, or equivalent Save/Update/Apply chrome must not produce `awaiting_scope` when the underlying operation and required value are known. Preserve documented identifiers, give the Writer enough evidence for a resilient "visible or equivalent control" hedge, record the silence here, and report status `complete`. Reserve `awaiting_scope` for any unresolved material uncertainty about authentication, endpoints, required credentials, security-sensitive choices, provider capability or feasibility, or conflicting authoritative instructions.
+
 ## Provenance
 First, the source inventory from the sweep: every documentation property
 found (developer, product/admin, support KB), including any you did not

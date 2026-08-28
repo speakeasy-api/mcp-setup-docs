@@ -140,6 +140,8 @@ Dossier.
 
 ## Report
 
+Treat Dossier-listed presentation-only uncertainty as renderable, not blocking: when the underlying operation and required value are known but an exact UI label, control name or location, or Save/Update/Apply variant is not, preserve documented identifiers and use a resilient "visible or equivalent control" hedge. Do not return an open question or incomplete status solely for that uncertainty.
+
 Status `ok` when `external.md` and `speakeasy.md` exist on disk, are
 complete, and every fact traces to the Dossier; status `blocked` only when
 Dossier gaps make the guide unwritable. A structured report without those
