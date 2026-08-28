@@ -10,13 +10,14 @@ REPORT_VALIDATOR=${FACTORY_REPORT_VALIDATOR:-/usr/local/bin/validate-report}
 EVENT_PROJECTOR=${FACTORY_EVENT_PROJECTOR:-/usr/local/bin/project-kit-events}
 DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-/usr/local/bin/build-diagnostics}
 
+mkdir -p "$EXPORT_ROOT"
+rm -rf "$EXPORT_ROOT/guide" "$EXPORT_ROOT/run-report.json" \
+  "$EXPORT_ROOT/kit-error-summary.json" "$EXPORT_ROOT/factory-diagnostics.json"
 test -r "$INPUT_ROOT/issue.json"
 test -r "$INPUT_ROOT/catalog.json"
 test -r "$REPO_ROOT/factory/coordinator.md"
 rm -rf "$WORKSPACE_ROOT"
-mkdir -p "$WORKSPACE_ROOT/.factory" "$KIT_HOME" "$EXPORT_ROOT"
-rm -rf "$EXPORT_ROOT/guide" "$EXPORT_ROOT/run-report.json" \
-  "$EXPORT_ROOT/kit-error-summary.json" "$EXPORT_ROOT/factory-diagnostics.json"
+mkdir -p "$WORKSPACE_ROOT/.factory" "$KIT_HOME"
 cp -a "$REPO_ROOT/." "$WORKSPACE_ROOT/"
 rm -rf "$WORKSPACE_ROOT/.git"
 export HOME="$KIT_HOME"

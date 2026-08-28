@@ -117,6 +117,39 @@ test_release_archive_layout_and_checksum() {
   assert_eq "kit" "$entries"
 }
 
+test_startup_failures_remove_stale_diagnostics() {
+  local host_export container_export repo input
+  host_export="$TMP/stale-host-export"
+  mkdir -p "$host_export"
+  printf '%s\n' 'SECRET_STALE_HOST_DIAGNOSTIC' >"$host_export/factory-diagnostics.json"
+
+  if OPENROUTER_API_KEY=or-test "$ROOT/factory/scripts/run-kit.sh" \
+    "$TMP/missing-issue.json" "$TMP/missing-catalog.json" "$host_export" \
+    >/dev/null 2>&1; then
+    fail 'run-kit accepted missing startup inputs'
+  fi
+  test ! -e "$host_export/factory-diagnostics.json" \
+    || fail 'run-kit retained stale diagnostics after startup failure'
+
+  repo="$TMP/stale-container-repo"
+  input="$TMP/stale-container-input"
+  container_export="$TMP/stale-container-export"
+  mkdir -p "$repo/factory" "$input" "$container_export"
+  printf 'assignment\n' >"$repo/factory/coordinator.md"
+  printf '%s\n' 'SECRET_STALE_CONTAINER_DIAGNOSTIC' \
+    >"$container_export/factory-diagnostics.json"
+
+  if FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
+    FACTORY_WORKSPACE_ROOT="$TMP/stale-container-workspace" \
+    FACTORY_EXPORT_ROOT="$container_export" \
+    FACTORY_KIT_HOME="$TMP/stale-container-home" \
+    "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>&1; then
+    fail 'entrypoint accepted missing startup inputs'
+  fi
+  test ! -e "$container_export/factory-diagnostics.json" \
+    || fail 'entrypoint retained stale diagnostics after startup failure'
+}
+
 test_run_kit_does_not_forward_github_credentials() {
   export OPENROUTER_API_KEY=or-test GH_TOKEN=forbidden SSH_AUTH_SOCK=/forbidden
   export FACTORY_DOCKER="$TMP/bin/docker"
@@ -680,6 +713,7 @@ test_config_is_pinned
 test_dockerfile_builds_static_linter_without_go_in_final_image
 test_docker_context_excludes_credentials_and_keeps_build_inputs
 test_release_archive_layout_and_checksum
+test_startup_failures_remove_stale_diagnostics
 test_run_kit_does_not_forward_github_credentials
 test_run_kit_reports_safe_failure_diagnostics
 test_run_kit_preserves_primary_status_when_diagnostics_fail

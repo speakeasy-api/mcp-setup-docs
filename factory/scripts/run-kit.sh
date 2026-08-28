@@ -9,6 +9,10 @@ fi
 issue_json=$1
 catalog_json=$2
 export_dir=$3
+mkdir -p "$export_dir"
+export_dir="$(realpath "$export_dir")"
+rm -rf "$export_dir/guide" "$export_dir/run-report.json" \
+  "$export_dir/kit-error-summary.json" "$export_dir/factory-diagnostics.json"
 [[ -r "$issue_json" ]] || { printf 'issue JSON is not readable: %s\n' "$issue_json" >&2; exit 2; }
 [[ -r "$catalog_json" ]] || { printf 'catalog JSON is not readable: %s\n' "$catalog_json" >&2; exit 2; }
 : "${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required}"
@@ -19,10 +23,6 @@ source "$ROOT/factory/config.env"
 FACTORY_DOCKER=${FACTORY_DOCKER:-docker}
 issue_json="$(realpath "$issue_json")"
 catalog_json="$(realpath "$catalog_json")"
-mkdir -p "$export_dir"
-export_dir="$(realpath "$export_dir")"
-rm -rf "$export_dir/guide" "$export_dir/run-report.json" \
-  "$export_dir/kit-error-summary.json" "$export_dir/factory-diagnostics.json"
 
 DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-$ROOT/factory/scripts/build-diagnostics.sh}
 DIAGNOSTICS_VALIDATOR=${FACTORY_DIAGNOSTICS_VALIDATOR:-$ROOT/factory/scripts/validate-diagnostics.sh}
