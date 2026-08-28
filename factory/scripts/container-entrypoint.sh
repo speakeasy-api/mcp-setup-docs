@@ -52,9 +52,11 @@ else
 fi
 rm -f -- "$RUNTIME_FIFO"
 
+diagnostics_available=true
 if ((projector_status != 0)); then
+  diagnostics_available=false
   rm -f -- "$EXPORT_ROOT/factory-diagnostics.json"
-  exit 1
+  printf '%s\n' '[]' >"$PROJECTED_EVENTS"
 fi
 
 jq --argjson success "$([[ $kit_status == 0 ]] && printf true || printf false)" '
@@ -107,8 +109,10 @@ elif [[ $(jq -r '.outcome' "$report") == failed ]]; then
 fi
 
 if [[ -n $stage ]]; then
-  "$DIAGNOSTICS_BUILDER" "$stage" "$kit_status" "$MANIFEST_EVENTS" \
-    "$report" "$kit_errors_path" "$EXPORT_ROOT/factory-diagnostics.json" || true
+  if [[ $diagnostics_available == true ]]; then
+    "$DIAGNOSTICS_BUILDER" "$stage" "$kit_status" "$MANIFEST_EVENTS" \
+      "$report" "$kit_errors_path" "$EXPORT_ROOT/factory-diagnostics.json" || true
+  fi
   if [[ $stage == factory_outcome ]]; then
     cp "$report" "$EXPORT_ROOT/run-report.json"
     exit 0

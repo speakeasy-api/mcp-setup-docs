@@ -595,6 +595,40 @@ MOCK
     fi
   done
 
+  workspace="$TMP/runtime-workspace-valid"; export_root="$TMP/runtime-export-valid"
+  cat >"$fake_kit" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+marker=$(printf '\001kit-runtime\001')
+printf '%s%s\n' "$marker" '{"event":"future_event","summary":"SECRET_VALID_REPORT_CANARY"}' >&2
+printf '%s\n' 'ordinary diagnostic after rejected projection' >&2
+mkdir -p "$FACTORY_WORKSPACE_ROOT/.factory" "$FACTORY_WORKSPACE_ROOT/guides/acme"
+printf 'research\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/research.md"
+printf 'metadata\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/meta.yaml"
+cat >"$FACTORY_WORKSPACE_ROOT/.factory/run-report.json" <<'JSON'
+{"schema_version":1,"outcome":"awaiting_scope","provider":"Acme","slug":"acme","persona":"it-admin","summary":"Needs scope","open_questions":["Which auth path?"],"blockers":[],"nits":[],"review_rounds":0,"artifacts":["research.md","meta.yaml"]}
+JSON
+MOCK
+  chmod +x "$fake_kit"
+  if ! FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
+    FACTORY_WORKSPACE_ROOT="$workspace" FACTORY_EXPORT_ROOT="$export_root" \
+    FACTORY_KIT_HOME="$TMP/runtime-home-valid" KIT_BIN="$fake_kit" \
+    FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
+    FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
+    FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
+    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+    "$ROOT/factory/scripts/container-entrypoint.sh" >"$TMP/runtime-valid.out" 2>"$TMP/runtime-valid.err"; then
+    fail 'entrypoint let rejected diagnostics replace a valid Kit report'
+  fi
+  test -f "$export_root/run-report.json" || fail 'entrypoint lost valid report after rejected diagnostics'
+  test -f "$export_root/guide/research.md" || fail 'entrypoint lost valid guide after rejected diagnostics'
+  test ! -e "$export_root/factory-diagnostics.json" || fail 'entrypoint retained rejected diagnostics for valid report'
+  assert_contains 'ordinary diagnostic after rejected projection' "$(cat "$TMP/runtime-valid.err")"
+  assert_contains 'factory: invalid Kit runtime event' "$(cat "$TMP/runtime-valid.err")"
+  if grep -Rq 'SECRET_VALID_REPORT_CANARY' "$TMP/runtime-valid.err" "$export_root"; then
+    fail 'entrypoint exposed rejected marked runtime input for valid report'
+  fi
+
   cat >"$fake_kit" <<'MOCK'
 #!/usr/bin/env bash
 [[ "${KIT_RUNTIME_EVENTS:-}" == 1 ]] || exit 91
