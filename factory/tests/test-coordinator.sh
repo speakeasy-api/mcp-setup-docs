@@ -16,6 +16,7 @@ for phrase in \
   'bash factory/scripts/inspect-guide-context.sh <slug>' \
   'never inspect repository files directly or run another Phase 1 file-discovery tool' \
   'permit only bounded reads of the helper-generated spill artifact' \
+  'use only installed jq and sed for spill reads; Python is unavailable' \
   "catalog presence only from the \`.catalog\` object returned by the initial command" \
   "never inspect \`/input/catalog.json\` directly" \
   'openai/gpt-5.6-sol' \
