@@ -14,6 +14,8 @@ for phrase in \
   'bash factory/scripts/inspect-inputs.sh /input/issue.json /input/catalog.json' \
   'do not construct another initial-inspection tool program' \
   'bash factory/scripts/inspect-guide-context.sh <slug>' \
+  'return the successful shell result object unchanged' \
+  'do not parse, project, or reshape it inside compose' \
   'bash factory/scripts/inspect-guide-artifacts.sh <slug> research' \
   'bash factory/scripts/inspect-guide-artifacts.sh <slug> writer' \
   'bash factory/scripts/inspect-guide-artifacts.sh <slug> revision' \
@@ -22,8 +24,11 @@ for phrase in \
   "Research accepts exactly \`[\"meta.yaml\",\"research.md\"]\` or the full four-file array" \
   'Writer and revision require the full four-file array' \
   'never inspect repository files directly or run another Phase 1 file-discovery tool' \
-  'permit only bounded reads of the helper-generated spill artifact' \
-  'use only installed jq and sed for spill reads; Python is unavailable' \
+  'bash factory/scripts/read-guide-context-spill.sh <artifact> index' \
+  'bash factory/scripts/read-guide-context-spill.sh <artifact> read <index> <offset>' \
+  'start each file at offset 0, use only the returned next_offset' \
+  'Never construct jq, sed, Python, or other free-form spill commands' \
+  'incomplete file consumption selects failed' \
   "catalog presence only from the \`.catalog\` object returned by the initial command" \
   "never inspect \`/input/catalog.json\` directly" \
   'openai/gpt-5.6-sol' \
