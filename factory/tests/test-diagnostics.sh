@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT/factory/tests/test-helper.sh"
 VALIDATOR="$ROOT/factory/scripts/validate-diagnostics.sh"
 PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh"
+BUILDER="$ROOT/factory/scripts/build-diagnostics.sh"
 SCHEMA="$ROOT/factory/schemas/factory-diagnostics.schema.json"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -13,6 +14,7 @@ trap 'rm -rf "$TMP"' EXIT
 test -f "$SCHEMA" || fail "diagnostics schema does not exist"
 test -x "$VALIDATOR" || fail "validate-diagnostics.sh is not executable"
 test -x "$PROJECTOR" || fail "project-kit-events.sh is not executable"
+test -x "$BUILDER" || fail "build-diagnostics.sh is not executable"
 jq -e '."$schema" == "https://json-schema.org/draft/2020-12/schema"' "$SCHEMA" >/dev/null || fail "diagnostics schema is not draft 2020-12"
 
 cat >"$TMP/valid.json" <<'JSON'
@@ -48,6 +50,80 @@ cat >"$TMP/valid.json" <<'JSON'
   }
 }
 JSON
+
+cat >"$TMP/events.json" <<'JSON'
+[]
+JSON
+cat >"$TMP/kit-errors-empty.json" <<'JSON'
+{"schema_version":1,"records":[]}
+JSON
+cat >"$TMP/kit-errors-fatal.json" <<'JSON'
+{"schema_version":1,"records":[{"schema_version":2,"kind":"provider","code":"provider_error","diagnostics":null}]}
+JSON
+cat >"$TMP/report-failed.json" <<'JSON'
+{"schema_version":1,"outcome":"failed","provider":null,"slug":null,"persona":null,"summary":"SECRET_REPORT_SUMMARY_CANARY","open_questions":["SECRET_QUESTION_CANARY"],"blockers":["SECRET_BLOCKER_CANARY"],"nits":["SECRET_NIT_CANARY"],"review_rounds":2,"artifacts":[]}
+JSON
+cat >"$TMP/report-blocked.json" <<'JSON'
+{"schema_version":1,"outcome":"blocked","provider":null,"slug":null,"persona":null,"summary":"Blocked","open_questions":[],"blockers":["scope"],"nits":[],"review_rounds":0,"artifacts":[]}
+JSON
+printf '%s\n' '{"SECRET_INVALID_REPORT_CANARY":true}' >"$TMP/report-invalid.json"
+
+build_case() {
+  local name=$1 expected=$2 stage=$3 status=$4 events=$5 report=$6 kit_errors=$7
+  local output="$TMP/$name.json"
+  if ! "$BUILDER" "$stage" "$status" "$events" "$report" "$kit_errors" "$output" \
+    >"$TMP/$name.out" 2>"$TMP/$name.err"; then
+    fail "builder rejected classification case: $name"
+  fi
+  [[ ! -s "$TMP/$name.out" ]] || fail "builder wrote stdout: $name"
+  [[ ! -s "$TMP/$name.err" ]] || fail "builder wrote stderr: $name"
+  assert_eq "$expected" "$(jq -r '.classification' "$output")"
+  "$VALIDATOR" "$output" || fail "builder produced invalid diagnostics: $name"
+}
+
+build_case docker-build docker_build_failed docker_build 1 - - -
+build_case container-run container_run_failed container_run 125 - - -
+build_case kit-fatal kit_fatal kit_prompt 1 "$TMP/events.json" - "$TMP/kit-errors-fatal.json"
+build_case kit-nonzero kit_prompt_failed kit_prompt 2 "$TMP/events.json" - "$TMP/kit-errors-empty.json"
+build_case missing-report missing_run_report kit_prompt 0 "$TMP/events.json" "$TMP/report-missing.json" -
+build_case invalid-report invalid_run_report report_validation 0 "$TMP/events.json" "$TMP/report-invalid.json" -
+build_case failed-report factory_reported_failure factory_outcome 0 "$TMP/events.json" "$TMP/report-failed.json" -
+build_case unknown unknown_failure factory_outcome 0 "$TMP/events.json" "$TMP/report-blocked.json" -
+
+jq -e '.report == {"exists":true,"valid":true,"outcome":"failed","review_rounds":2}' \
+  "$TMP/failed-report.json" >/dev/null || fail 'builder copied unsafe report fields'
+if rg -q 'SECRET_' "$TMP/failed-report.json"; then
+  fail 'builder leaked discarded report content'
+fi
+
+expect_build_failure() {
+  local name=$1 stage=$2 status=$3 events=$4 report=$5 kit_errors=$6
+  local output="$TMP/$name.json"
+  printf '%s\n' stale >"$output"
+  if "$BUILDER" "$stage" "$status" "$events" "$report" "$kit_errors" "$output" \
+    >"$TMP/$name.out" 2>"$TMP/$name.err"; then
+    fail "builder accepted invalid input: $name"
+  fi
+  [[ ! -e "$output" ]] || fail "builder left output after failure: $name"
+  [[ ! -s "$TMP/$name.out" ]] || fail "builder leaked stdout: $name"
+  assert_eq 'factory: diagnostics unavailable' "$(cat "$TMP/$name.err")"
+}
+
+printf '%s\n' '{"SECRET_EVENTS_CANARY":true}' >"$TMP/events-invalid.json"
+printf '%s\n' '{"schema_version":1,"records":[{"SECRET_KIT_ERROR_CANARY":true}]}' >"$TMP/kit-errors-invalid.json"
+expect_build_failure missing-events kit_prompt 1 "$TMP/no-events.json" - -
+expect_build_failure invalid-events kit_prompt 1 "$TMP/events-invalid.json" - -
+expect_build_failure invalid-kit-errors kit_prompt 1 "$TMP/events.json" - "$TMP/kit-errors-invalid.json"
+expect_build_failure bad-status kit_prompt 256 "$TMP/events.json" - -
+expect_build_failure bad-stage-combination docker_build 0 - - -
+mkdir "$TMP/output-directory"
+if "$BUILDER" docker_build 1 - - - "$TMP/output-directory" \
+  >"$TMP/output-directory.out" 2>"$TMP/output-directory.err"; then
+  fail 'builder accepted a directory output path'
+fi
+[[ -d "$TMP/output-directory" ]] || fail 'builder removed caller-owned output directory'
+[[ -z $(find "$TMP/output-directory" -mindepth 1 -print -quit) ]] || fail 'builder left a candidate in output directory'
+assert_eq 'factory: diagnostics unavailable' "$(cat "$TMP/output-directory.err")"
 
 assert_valid() {
   local name=$1 file=$2
