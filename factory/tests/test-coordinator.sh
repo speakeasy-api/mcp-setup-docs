@@ -5,8 +5,15 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck disable=SC1091
 source "$ROOT/factory/tests/test-helper.sh"
 CONTRACT="$ROOT/factory/coordinator.md"
+REVIEW_SCHEMA="$ROOT/factory/schemas/review-findings.schema.json"
 
 test -f "$CONTRACT" || fail "factory/coordinator.md does not exist"
+jq -e '
+  .maxItems == 8 and
+  .items.properties.where.maxLength == 300 and
+  .items.properties.problem.maxLength == 600 and
+  .items.properties.suggestion.maxLength == 600
+' "$REVIEW_SCHEMA" >/dev/null || fail "review findings are not deterministically bounded"
 
 for phrase in \
   '/input/issue.json' \
@@ -116,6 +123,13 @@ for phrase in \
   'repair exhaustion' \
   'REVIEWER 1/3' 'REVIEWER 2/3' 'REVIEWER 3/3' \
   'complete concurrent wave' \
+  'project each reviewer result inside that same compose program' \
+  "only its \`output\` plus a minimal reusable session handle" \
+  "Never return reviewer \`updates\`, complete transport envelopes, prompts, or session history" \
+  'Never use a local parser, shell, jq, Python, or another tool to recover review-wave results' \
+  "set \`updates\` to exactly \`{items:[],truncated:false}\`" \
+  "pass the same \`factory/schemas/review-findings.schema.json\` as \`output_schema\`" \
+  "project the repaired result with its new \`generation\`" \
   'exactly these three read-only reviewers' \
   'confirmatory review wave' \
   'failed reviewer output' \
