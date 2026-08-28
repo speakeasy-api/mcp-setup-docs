@@ -5,6 +5,7 @@ title: X
 summary: Connect the hosted X MCP server for read-only public-data access using an app-only Bearer Token.
 aliases:
   - com.pulsemcp.mirror/xdevplatform-xmcp
+speakeasy_add_server: catalog
 credential_setup:
   options:
     - id: app-only-bearer
@@ -31,63 +32,68 @@ remotes:
       - app-only-bearer
     provenance:
       - source: provider-documentation
-        locator: https://x-preview.mintlify.app/tools/mcp
+        locator: https://docs.x.com/tools/mcp.md
         name: MCP servers for the X API and X developer docs
         classification: official
-        observed_at: "2026-07-27T16:51:41Z"
+        observed_at: "2026-08-06T23:21:18Z"
 provenance:
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/tools/mcp
+    locator: https://docs.x.com/tools/mcp.md
     name: MCP servers for the X API and X developer docs
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: provider-documentation
     locator: https://docs.x.com/llms.txt
     name: X Developer Platform documentation index
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/x-api/getting-started/getting-access
+    locator: https://docs.x.com/x-api/getting-started/getting-access.md
     name: Getting Access
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/fundamentals/developer-portal
+    locator: https://docs.x.com/fundamentals/developer-portal.md
     name: Developer Console
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/fundamentals/developer-apps
+    locator: https://docs.x.com/fundamentals/developer-apps.md
     name: Apps
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/fundamentals/authentication/overview
+    locator: https://docs.x.com/fundamentals/authentication/overview.md
     name: Authentication
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/application-only
+    locator: https://docs.x.com/fundamentals/authentication/oauth-2-0/application-only.md
     name: App only authentication and OAuth 2.0 Bearer Token
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/fundamentals/authentication/oauth-2-0/authorization-code
+    locator: https://docs.x.com/fundamentals/authentication/oauth-2-0/authorization-code.md
     name: OAuth 2.0 Authorization Code Flow with PKCE
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/x-api/getting-started/pricing
+    locator: https://docs.x.com/x-api/getting-started/pricing.md
     name: X API pay-per-usage pricing and credits
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: provider-open-source
     locator: https://raw.githubusercontent.com/xdevplatform/xurl/main/README.md
     name: xurl
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
   - source: speakeasy-product-documentation
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-27T16:51:41Z"
+    observed_at: "2026-08-06T23:21:18Z"
+  - source: pulsemcp
+    locator: com.pulsemcp.mirror/xdevplatform-xmcp
+    name: X
+    classification: mirror
+    observed_at: "2026-08-06T23:21:18Z"

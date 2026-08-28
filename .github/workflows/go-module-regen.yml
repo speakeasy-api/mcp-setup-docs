@@ -178,6 +178,8 @@ jobs:
           gh label create "go-module:regen-failed" --color "D73A4A" \
             --description "Go module regen workflow failed" 2>/dev/null || true
           body_file="${RUNNER_TEMP:-/tmp}/go-module-regen-fail.md"
+          # Backticks are literal Markdown in these single-quoted messages.
+          # shellcheck disable=SC2016
           printf '%s\n' \
             'Go module regen failed on `main`.' \
             '' \

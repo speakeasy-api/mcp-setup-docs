@@ -1,0 +1,136 @@
+{
+  "slug": "gmail",
+  "provider": "gmail",
+  "persona": "it-admin",
+  "timestamp": "2026-08-20T19:49:41Z",
+  "started_at": "2026-08-20T19:49:41Z",
+  "finished_at": "2026-08-20T19:57:49Z",
+  "runtime": "pi",
+  "status": "converged",
+  "rounds": 3,
+  "nits": [],
+  "open_questions": [],
+  "history": [
+    {
+      "round": 1,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — Add-server path and Provenance",
+          "problem": "The Research Dossier incorrectly says the catalog lookup was absent even though the operator selected the Custom remote path through an override because catalog mapping is unreliable or unsuitable.",
+          "suggestion": "Record the add-server decision as the `custom-remote` override, remove the claim that Gmail was absent from the catalog, and state the operator-provided override rationale.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "meta",
+          "where": "provenance entry with `source: pulsemcp`",
+          "problem": "Metadata records `status: absent`, which contradicts the operator's `overridden-custom-remote` catalog result.",
+          "suggestion": "Replace the false absent status with provenance that accurately records the overridden Custom remote decision, or remove the unsupported catalog-status record while retaining `speakeasy_add_server: custom-remote`.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — `#connect-speakeasy-credentials`",
+          "problem": "The transcluded manual OAuth flow omits the canonical fact that the Attach Remote Identity Provider sheet displays the Redirect URI with a copy button and that this is the callback value registered during External setup.",
+          "suggestion": "Restore the omitted Redirect URI and copy-button text from `doctrine/speakeasy-setup.md`, including the clarification that the template value is entered directly during External setup.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — screenshot note under `#add-server-in-speakeasy`",
+          "problem": "The Dossier substitutes a screenshot of the custom-server form for the canonical skeleton's Add Source menu screenshot note.",
+          "suggestion": "Carry the canonical screenshot note from `doctrine/speakeasy-setup.md` verbatim for the selected Custom remote path.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "`#connect-speakeasy-credentials`, step 7",
+          "problem": "The credential flow omits the Dossier's explicit statement that the Redirect URI must match the `{{ gram.oauth.callback_url }}` value registered under Authorized redirect URIs.",
+          "suggestion": "Name `{{ gram.oauth.callback_url }}` explicitly in the Redirect URI confirmation step.",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "speakeasy",
+          "where": "Final sentence beginning `For more information`",
+          "problem": "The final pointer does not render the canonical setup-only closing sentence required by the Dossier's transcluded Speakeasy skeleton.",
+          "suggestion": "Replace it with: `This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Gmail's MCP documentation](https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server).`",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Opening prerequisites: \"enrolled in the Google Workspace Developer Preview Program and a Google Cloud project registered through that program\"",
+          "problem": "The guide requires preview enrollment and project registration but provides neither a direct entry point nor an actionable documented path for completing this gate.",
+          "suggestion": "Research the documented enrollment and project-registration path, then add a direct link and the required actions to External setup; if Google does not publish exact controls, record that silence and provide a clear owner-directed hedge.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Opening prerequisites: \"Sign in to the Google Cloud console\"",
+          "problem": "A reader with no prior Google Cloud console experience is not given a URL to open and must search for the starting screen.",
+          "suggestion": "Record the official Google Cloud console entry URL in the Research Dossier and render it as a link before the project-selection instruction.",
+          "dimension": "achievability"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "create-oauth-client: \"create a new client secret from the client's details before continuing\"",
+          "problem": "The immediate recovery path for a missed one-time client secret does not name the navigation or controls needed to create the replacement.",
+          "suggestion": "Research and document the exact supported controls for opening the client and creating a replacement secret, then render those steps in External setup before directing the reader back to Speakeasy.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Updated research.md to record the custom-remote override and rationale without claiming catalog absence; restored the canonical Add Source screenshot note and manual OAuth Redirect URI/copy-button details; added the official Developer Preview enrollment path, Google Cloud console URL, and documented missed-secret replacement controls with provenance observed at 2026-08-20T19:49:41Z. Updated meta.yaml by removing the contradictory Pulse absent record while retaining speakeasy_add_server: custom-remote and adding Google Cloud console provenance. Updated external.md with actionable preview enrollment, a linked Cloud console entry point, and exact secret-replacement navigation. Updated speakeasy.md to name {{ gram.oauth.callback_url }} in Redirect URI confirmation, show the Redirect URI copy-button step, use the canonical Add Source screenshot placeholder, and render the required setup-only closing sentence.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 2,
+      "blockers": [
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Speakeasy setup — closing pointer",
+          "problem": "The Research Dossier reduces the canonical closing pointer to a link-only note and omits the required setup-only sentence from `doctrine/speakeasy-setup.md`.",
+          "suggestion": "Replace the link-only note with the canonical sentence: `This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Gmail's MCP documentation](https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server).`",
+          "dimension": "fidelity"
+        },
+        {
+          "severity": "blocker",
+          "target": "research",
+          "where": "Opening prerequisite: “a Google Cloud project registered through that program”",
+          "problem": "A reader who does not already have a Google Cloud project cannot supply the project information required for Developer Preview enrollment because the guide provides no project-creation or obtain-from-owner path.",
+          "suggestion": "Research and document the official browser path for creating a Google Cloud project before enrollment, or direct the reader to obtain an existing project and its required information from their Google Cloud administrator.",
+          "dimension": "achievability"
+        }
+      ],
+      "nits": [],
+      "revision_notes": "Research closing pointer: replaced the link-only note in guides/gmail/research.md with the canonical setup-only sentence. Opening prerequisite: documented the official obtain-from-owner path in the Research Dossier and external guide—readers without a project must obtain an existing Google Cloud project, its project number, and service-enablement permission from their Google Cloud administrator; updated provenance to identify the project-number requirement.",
+      "disputed": [],
+      "skipped": []
+    },
+    {
+      "round": 3,
+      "blockers": [],
+      "nits": []
+    }
+  ],
+  "research_change": {
+    "method": "none",
+    "unchanged": false,
+    "notes": "no prior research outputs to compare"
+  },
+  "notes_digest": "sha256:edc9bb392773102ea4f02e4ae81eb89fb09a603c5665b3dff29753a5c83b11bc",
+  "setup_churn": {
+    "external_md_lines": 88,
+    "speakeasy_md_lines": 31
+  }
+}
