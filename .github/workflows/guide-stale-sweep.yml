@@ -40,6 +40,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       # One invocation: --create prints the same report before it files anything,
       # so a separate reporting pass would only duplicate the work. pipefail

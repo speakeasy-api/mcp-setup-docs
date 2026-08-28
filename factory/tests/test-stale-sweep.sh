@@ -58,7 +58,13 @@ cat >"$TMP/bin/gh" <<'FAKE_GH'
 set -euo pipefail
 printf '%s\n' "$*" >>"$GH_LOG"
 if [[ "$1 $2" == 'issue list' ]]; then
-  printf '%s\n' '<!-- stale-sweep:zeta -->' '<!-- stale-sweep:alpha -->'
+  case ${GH_LIST_MODE:-normal} in
+    normal) printf '%s\n' '[{"body":"edited title\n<!-- stale-sweep:zeta -->"},{"body":"<!-- stale-sweep:alpha -->"}]' ;;
+    fail) exit 1 ;;
+    malformed) printf '%s\n' '{not json' ;;
+    mistyped) printf '%s\n' '[{"body":42}]' ;;
+    no_markers) printf '%s\n' '[{"body":"ordinary issue body"}]' ;;
+  esac
 elif [[ "$1 $2" == 'issue create' ]]; then
   printf 'https://example.test/issues/1\n'
 else
@@ -66,17 +72,55 @@ else
 fi
 FAKE_GH
 chmod +x "$TMP/bin/gh"
-export GH_LOG="$TMP/gh.log"
+export GH_LOG="$TMP/gh.log" GH_REPO=owner/repo
+create_count() {
+  grep -c '^issue create ' "$GH_LOG" || true
+}
 : >"$GH_LOG"
 create_report=$(run_sweep --create --limit 2)
 assert_eq "$(run_sweep)" "$create_report"
-assert_contains 'issue list --state open --label guide:stale --limit 200' "$(cat "$GH_LOG")"
-assert_eq '2' "$(grep -c '^issue create ' "$GH_LOG")"
+assert_contains 'issue list --repo owner/repo --state open --label guide:stale --limit 200 --json body' "$(cat "$GH_LOG")"
+assert_eq '2' "$(create_count)"
 assert_contains '<!-- stale-sweep:uncommitted -->' "$(cat "$GH_LOG")"
 assert_contains '<!-- stale-sweep:beta -->' "$(cat "$GH_LOG")"
 if grep '^issue create ' "$GH_LOG" | grep -q 'stale-sweep:zeta'; then
   fail 'marker-covered zeta issue was created despite its edited title'
 fi
+
+for mode in fail malformed mistyped; do
+  : >"$GH_LOG"
+  if GH_LIST_MODE=$mode run_sweep --create --limit 2 >/dev/null 2>&1; then
+    fail "issue discovery unexpectedly succeeded in $mode mode"
+  fi
+  assert_eq '0' "$(create_count)"
+done
+
+: >"$GH_LOG"
+GH_LIST_MODE=no_markers run_sweep --create --limit 1 >/dev/null
+assert_eq '1' "$(create_count)"
+
+for bad_slug in 'bad slug' $'bad\tslug' $'bad\nslug'; do
+  mkdir -p "$REPO/guides/$bad_slug"
+  : >"$GH_LOG"
+  if invalid_output=$(run_sweep --create --limit 2 2>&1); then
+    fail 'invalid guide slug unexpectedly succeeded'
+  fi
+  assert_contains 'invalid guide slug' "$invalid_output"
+  assert_eq '0' "$(create_count)"
+  rm -rf "$REPO/guides/$bad_slug"
+done
+
+: >"$GH_LOG"
+if (unset GH_REPO; run_sweep --create) >/dev/null 2>&1; then
+  fail 'create succeeded without GH_REPO'
+fi
+assert_eq '0' "$(create_count)"
+
+: >"$GH_LOG"
+if GH_REPO=not-a-repo run_sweep --create >/dev/null 2>&1; then
+  fail 'create succeeded with malformed GH_REPO'
+fi
+assert_eq '0' "$(create_count)"
 
 : >"$GH_LOG"
 run_sweep --limit 2 >/dev/null
@@ -94,6 +138,7 @@ done
 
 workflow=$(cat "$ROOT/.github/workflows/guide-stale-sweep.yml")
 assert_contains 'bash factory/scripts/stale-sweep.sh' "$workflow"
+assert_contains $'- uses: actions/checkout@v4\n        with:\n          persist-credentials: false' "$workflow"
 if grep -Eq 'setup-node|npm (ci|run)' <<<"$workflow"; then
   fail 'stale workflow still depends on Node/npm'
 fi

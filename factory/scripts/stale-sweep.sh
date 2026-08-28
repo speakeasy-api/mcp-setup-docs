@@ -44,9 +44,20 @@ cd "$repo_root"
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/stale-sweep.XXXXXX")
 trap 'rm -rf "$tmp_dir"' EXIT
 stale_file="$tmp_dir/stale"
+issues_file="$tmp_dir/issues.json"
+bodies_file="$tmp_dir/bodies"
 markers_file="$tmp_dir/markers"
 : >"$stale_file"
 : >"$markers_file"
+
+for dir in guides/*; do
+  [[ -d $dir ]] || continue
+  slug=${dir#guides/}
+  if [[ ! $slug =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+    printf 'error: invalid guide slug: %q (expected lowercase words separated by single hyphens)\n' "$slug" >&2
+    exit 1
+  fi
+done
 
 factory_timestamp=$(git log -1 --format=%ct -- \
   factory doctrine schema/guide.v1.schema.json \
@@ -78,9 +89,32 @@ done <"$stale_file"
 
 [[ $create == true ]] || exit 0
 
-gh issue list --state open --label guide:stale --limit 200 --json body --jq '.[].body' \
-  | grep -oE '<!-- stale-sweep:[^>]+ -->' \
-  | LC_ALL=C sort -u >"$markers_file" || true
+if [[ ! ${GH_REPO:-} =~ ^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9._-]+$ ]]; then
+  printf 'error: --create requires GH_REPO in owner/repository form\n' >&2
+  exit 1
+fi
+
+if ! gh issue list --repo "$GH_REPO" --state open --label guide:stale --limit 200 --json body >"$issues_file"; then
+  printf 'error: could not list open guide:stale issues\n' >&2
+  exit 1
+fi
+if ! jq -e 'type == "array" and all(.[]; type == "object" and has("body") and (.body | type == "string"))' \
+  "$issues_file" >/dev/null; then
+  printf 'error: issue list returned malformed JSON\n' >&2
+  exit 1
+fi
+if ! jq -r '.[].body' "$issues_file" >"$bodies_file"; then
+  printf 'error: could not read issue bodies\n' >&2
+  exit 1
+fi
+
+grep_status=0
+grep -oE '<!-- stale-sweep:[a-z0-9]+(-[a-z0-9]+)* -->' "$bodies_file" >"$markers_file" || grep_status=$?
+if [[ $grep_status -gt 1 ]]; then
+  printf 'error: could not extract stale issue markers\n' >&2
+  exit 1
+fi
+LC_ALL=C sort -u "$markers_file" -o "$markers_file"
 
 created=0
 while IFS=$'\t' read -r timestamp slug; do
@@ -91,6 +125,7 @@ while IFS=$'\t' read -r timestamp slug; do
   fi
   [[ $created -lt $limit ]] || break
   gh issue create \
+    --repo "$GH_REPO" \
     --title "Refresh guide: $slug" \
     --label guide:stale \
     --body "$marker
