@@ -115,7 +115,7 @@ render_report_comment() {
            else ("- " + ($values[$i]|bound)) end)] + [""] end;
     ([(if .outcome == "awaiting_scope" then "## Scope check"
        elif .outcome == "failed" then "## Guide factory failed"
-       else "## Pipeline review" end), "",
+       else "## Pipeline review" end), "", "<!-- guide-factory-status -->", "",
       "- **Outcome:** " + (.outcome|bound),
       "- **Provider:** " + ((.provider // "unresolved")|bound),
       "- **Slug:** " + ((.slug // "unresolved")|bound),
@@ -249,7 +249,7 @@ fail_run() {
   register_temp "$body"
   reason="$(jq -Rs -r '.[0:1000]' "$reason_file")"
   run_url="https://github.com/$GH_REPO/actions/runs/${GITHUB_RUN_ID:-}"
-  printf '%s\n' '## Guide factory failed' '' "$reason" '' "**Workflow run:** $run_url" '' \
+  printf '%s\n' '## Guide factory failed' '' '<!-- guide-factory-status -->' '' "$reason" '' "**Workflow run:** $run_url" '' \
     "Re-add \`guide:draft\` to retry after correcting the failure." >"$body"
   remove_label guide:draft || status=$?
   remove_label guide:in-progress || status=$?
