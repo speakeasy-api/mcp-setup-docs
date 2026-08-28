@@ -63,6 +63,16 @@ for phrase in \
   grep -Fq "$phrase" "$CONTRACT" || fail "missing contract: $phrase"
 done
 
+context_boundary=$(cat <<'RUNLET'
+context_result = boundary {
+  return shell({ command: "bash factory/scripts/inspect-guide-context.sh <slug>" })
+} catch err {
+  return fail("GUIDE_CONTEXT_INSPECTION_FAILED", "guide context inspection failed")
+}
+return context_result
+RUNLET
+)
+[[ "$(cat "$CONTRACT")" == *"$context_boundary"* ]] || fail 'missing exact guide-context caught-boundary program'
 
 child_start_contract="$(sed -n '/^## Phase 2/,/^## Phase 5/p' "$CONTRACT")"
 phase2_contract="$(sed -n '/^## Phase 2/,/^## Phase 3/p' "$CONTRACT")"
