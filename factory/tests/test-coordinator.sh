@@ -11,8 +11,10 @@ test -f "$CONTRACT" || fail "factory/coordinator.md does not exist"
 for phrase in \
   '/input/issue.json' \
   '/input/catalog.json' \
-  'bash factory/scripts/inspect-catalog.sh /input/catalog.json' \
-  'do not construct ad hoc jq filters' \
+  'bash factory/scripts/inspect-inputs.sh /input/issue.json /input/catalog.json' \
+  'do not construct another initial-inspection tool program' \
+  "catalog presence only from the \`.catalog\` object returned by that command" \
+  "never inspect \`/input/catalog.json\` directly" \
   'openai/gpt-5.6-sol' \
   'research.md' 'meta.yaml' 'external.md' 'speakeasy.md' \
   'technical and source accuracy' \
