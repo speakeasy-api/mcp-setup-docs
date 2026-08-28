@@ -118,16 +118,16 @@ test_release_archive_layout_and_checksum() {
 }
 
 test_startup_failures_remove_stale_diagnostics() {
-  local host_export container_export repo input
+  local host_export host_status container_export container_status repo input
   host_export="$TMP/stale-host-export"
   mkdir -p "$host_export"
   printf '%s\n' 'SECRET_STALE_HOST_DIAGNOSTIC' >"$host_export/factory-diagnostics.json"
 
-  if OPENROUTER_API_KEY=or-test "$ROOT/factory/scripts/run-kit.sh" \
+  host_status=0
+  OPENROUTER_API_KEY=or-test "$ROOT/factory/scripts/run-kit.sh" \
     "$TMP/missing-issue.json" "$TMP/missing-catalog.json" "$host_export" \
-    >/dev/null 2>&1; then
-    fail 'run-kit accepted missing startup inputs'
-  fi
+    >/dev/null 2>&1 || host_status=$?
+  assert_eq 2 "$host_status"
   test ! -e "$host_export/factory-diagnostics.json" \
     || fail 'run-kit retained stale diagnostics after startup failure'
 
@@ -139,13 +139,14 @@ test_startup_failures_remove_stale_diagnostics() {
   printf '%s\n' 'SECRET_STALE_CONTAINER_DIAGNOSTIC' \
     >"$container_export/factory-diagnostics.json"
 
-  if FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
+  container_status=0
+  FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
     FACTORY_WORKSPACE_ROOT="$TMP/stale-container-workspace" \
     FACTORY_EXPORT_ROOT="$container_export" \
     FACTORY_KIT_HOME="$TMP/stale-container-home" \
-    "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>&1; then
-    fail 'entrypoint accepted missing startup inputs'
-  fi
+    "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>&1 \
+    || container_status=$?
+  assert_eq 1 "$container_status"
   test ! -e "$container_export/factory-diagnostics.json" \
     || fail 'entrypoint retained stale diagnostics after startup failure'
 }
