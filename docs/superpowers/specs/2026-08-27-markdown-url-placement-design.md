@@ -1,5 +1,10 @@
 # Markdown URL Placement Validator Design
 
+> Superseded for implementation by the Go port design in
+> `docs/superpowers/specs/2026-08-27-markdown-url-placement-go-port-design.md`.
+> The policy and regression rationale remain historical context; the final
+> authoritative checker is Go.
+
 ## Purpose
 
 Make URL formatting in published setup guides deterministic and agent-checkable. Every rendered HTTP or HTTPS URL must be presented according to reader intent: as a Markdown link when the reader should open it, or in a fenced code block when the reader should copy it.

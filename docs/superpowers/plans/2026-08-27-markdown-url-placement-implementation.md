@@ -1,5 +1,10 @@
 # Markdown URL Placement Validator Implementation Plan
 
+> Superseded for implementation by the Go port design in
+> `docs/superpowers/specs/2026-08-27-markdown-url-placement-go-port-design.md`.
+> The policy and regression rationale remain historical context; the final
+> authoritative checker is Go.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make `lint-guide` reject published-guide URLs that are neither Markdown links nor fenced code-block content.
