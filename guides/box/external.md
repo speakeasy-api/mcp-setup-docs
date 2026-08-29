@@ -85,10 +85,13 @@ Copy both values while Box shows them.
 ### Check the Access scopes {#check-access-scopes}
 
 1. Review **Access scopes**.
-2. Select the desired options.
+2. Select Box content access and any optional tool areas users need.
 
-Select Box AI or Box Doc Gen access only when the enterprise has enabled and
-licensed those features. The Doc Gen scope requires an Enterprise Advanced
+The documented scope strings are `root_readwrite` for Box content,
+`ai.readwrite` for Box AI, and `docgen.readwrite` for Box Doc Gen. The console
+may present descriptive checkbox labels instead of these strings. Select Box
+AI or Box Doc Gen access only when the enterprise has enabled and licensed
+those features. The Doc Gen scope requires an Enterprise Advanced
 license. Scopes cap what the connection can do; each user's existing Box
 permissions still limit the content they can access.
 
@@ -96,7 +99,8 @@ permissions still limit the content they can access.
 
 ### Save the credential entry {#save-credentials}
 
-Save the integration credentials.
+Click **Save**, or use the equivalent **Update** or **Apply** action shown by
+your tenant, to finish the integration credentials.
 
 After saving, if you have completed every required Box AI or Doc Gen section,
 continue to [Connect your credentials](speakeasy.md#connect-speakeasy-credentials)
