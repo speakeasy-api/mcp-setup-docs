@@ -23,6 +23,13 @@ for phrase in \
   'bash factory/scripts/inspect-guide-context.sh <slug>' \
   'return the successful shell result object unchanged' \
   'do not parse, project, or reshape it inside compose' \
+  'bounded manifest of approved repository paths and character counts' \
+  'require every mandatory authority, default-persona, role, and output-schema path' \
+  'read only those paths using bounded targeted reads' \
+  'Include an explicit phase-specific list of manifest-member relative paths in every child prompt' \
+  "resolve each listed path as \`/workspace/<path>\`" \
+  'prohibit every other repository read' \
+  'never return raw context file contents' \
   'bash factory/scripts/inspect-guide-artifacts.sh <slug> research' \
   'bash factory/scripts/inspect-guide-artifacts.sh <slug> writer' \
   'bash factory/scripts/inspect-guide-artifacts.sh <slug> revision' \
@@ -30,14 +37,8 @@ for phrase in \
   "Accept only the exact keys \`slug\`, \`stage\`, and \`artifacts\`" \
   "Research accepts exactly \`[\"meta.yaml\",\"research.md\"]\` or the full four-file array" \
   'Writer and revision require the full four-file array' \
-  'never inspect repository files directly or run another Phase 1 file-discovery tool' \
-  'bash factory/scripts/read-guide-context-spill.sh <artifact> index' \
-  'bash factory/scripts/read-guide-context-spill.sh <artifact> read <index> <offset>' \
-  'Files may be consumed in any order or interleaved' \
-  'start each file at offset 0 and use only that file' \
-  'Every listed file must reach done=true before Phase 2' \
-  'Never construct jq, sed, Python, or other free-form spill commands' \
-  'incomplete file consumption selects failed' \
+  'never run another Phase 1 file-discovery tool' \
+  'coordinator does not read every context file before Phase 2' \
   "catalog presence only from the \`.catalog\` object returned by the initial command" \
   "never inspect \`/input/catalog.json\` directly" \
   'openai/gpt-5.6-sol' \
@@ -72,8 +73,8 @@ for phrase in \
   grep -Fq "$phrase" "$CONTRACT" || fail "missing contract: $phrase"
 done
 
-if grep -Fq 'in index order' "$CONTRACT"; then
-  fail 'guide-context spill contract still requires global index order'
+if grep -Eq 'read-guide-context-spill|next_offset|done=true|spill consumption' "$CONTRACT"; then
+  fail 'coordinator still requires model-managed guide-context spill consumption'
 fi
 
 context_boundary=$(cat <<'RUNLET'
@@ -162,7 +163,7 @@ for example in \
 done
 
 research_line="$(grep -n 'technical-research subagent' "$CONTRACT" | head -1 | cut -d: -f1)"
-persona_line="$(grep -n 'Resolve the persona only after' "$CONTRACT" | head -1 | cut -d: -f1)"
+persona_line="$(grep -n 'Resolve the persona from issue evidence' "$CONTRACT" | head -1 | cut -d: -f1)"
 [[ -n "$persona_line" && "$persona_line" -lt "$research_line" ]] || fail "persona resolution must precede subagents"
 
 temp_line="$(grep -n 'temporary report' "$CONTRACT" | tail -1 | cut -d: -f1)"
