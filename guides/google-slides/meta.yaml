@@ -3,7 +3,7 @@ schema_version: 1
 slug: google-slides
 title: Google Slides
 summary: Connect Google Slides data through Google's hosted Slides MCP server.
-speakeasy_add_server: custom-remote
+speakeasy_add_server: auto
 credential_setup:
   options:
     - id: oauth-client
@@ -14,20 +14,22 @@ credential_setup:
         - id: client-id
           label: Client ID
           setup:
+            - external.md#select-google-cloud-project
             - external.md#create-oauth-client
             - external.md#copy-oauth-credentials
         - id: client-secret
           label: Client Secret
           setup:
+            - external.md#select-google-cloud-project
             - external.md#create-oauth-client
             - external.md#copy-oauth-credentials
   requirements:
     - id: google-cloud-project
       description: A Google Cloud project where an administrator can enable the Google Slides API and Google Slides MCP API, grant project IAM roles, configure Google Auth platform, and create OAuth credentials
     - id: connecting-user-access
-      description: Each connecting user has MCP Tool User on the project and access to the intended Google Slides presentations
+      description: Each connecting user has MCP Tool User on the selected project and access to the intended Google Slides presentations
     - id: workspace-api-access
-      description: When organizational API controls restrict high-risk Drive and Slides scopes or unconfigured apps, a Google Workspace Service Settings administrator can allow the OAuth client
+      description: When organizational API controls restrict high-risk Drive and Slides scopes or unconfigured apps, a Google Workspace Service Settings administrator can apply the access setting approved by the Google Workspace security owner
     - id: prompt-injection-screening
       description: An application or security owner has configured prompt and response screening for malicious content or prompt injection
 documentation:
@@ -44,99 +46,99 @@ remotes:
         locator: https://developers.google.com/workspace/slides/api/guides/configure-mcp-server
         name: Configure the Slides MCP server
         classification: official
-        observed_at: "2026-07-29T21:55:52Z"
+        observed_at: "2026-08-29T15:17:05Z"
       - source: endpoint-observation
         locator: https://slidesmcp.googleapis.com/mcp/v1
         name: Google Slides MCP endpoint
         classification: official
         status: MCP initialize returned HTTP 200
         version: "2025-03-26"
-        observed_at: "2026-07-29T21:55:52Z"
+        observed_at: "2026-08-29T15:17:05Z"
       - source: endpoint-observation
         locator: https://slidesmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
         name: Google Slides MCP protected-resource metadata
         classification: official
-        observed_at: "2026-07-29T21:55:52Z"
+        observed_at: "2026-08-29T15:17:05Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.google.com/workspace/slides/api/guides/configure-mcp-server
     name: Configure the Slides MCP server
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-mcp-servers
     name: Configure the Google Workspace MCP servers
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-oauth-consent
     name: Configure the OAuth consent screen and choose scopes
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/slides/api/scopes
     name: Choose Google Slides API scopes
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-mcp-security
     name: Configure security for Google Workspace MCP servers
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/release-notes
     name: Google Workspace developer release notes
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
     name: Set up authentication to Google and Google Cloud MCP servers
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://cloud.google.com/service-usage/docs/enable-disable
     name: Enable and disable services
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/iam/docs/grant-role-console
     name: Grant an IAM role by using the Google Cloud console
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549945
     name: Manage App Audience
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549135
     name: Manage App Data Access
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: provider-documentation
     locator: https://support.google.com/a/answer/7281227?hl=en
     name: Control which apps access Google Workspace data
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: endpoint-observation
     locator: https://slidesmcp.googleapis.com/mcp/v1
     name: Google Slides MCP endpoint
     classification: official
     status: MCP initialize returned HTTP 200
     version: "2025-03-26"
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: endpoint-observation
     locator: https://slidesmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
     name: Google Slides MCP protected-resource metadata
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: endpoint-observation
     locator: https://accounts.google.com/.well-known/oauth-authorization-server
     name: Google authorization-server metadata
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-08-29T15:17:05Z"
