@@ -118,20 +118,24 @@ func TestResolveAliasAndProvenance(t *testing.T) {
 
 	ms = guides.Resolve("com.pulsemcp.mirror/box")
 	foundBoxAlias := false
-	foundProv := false
 	for _, m := range ms {
 		if m.Kind == guides.MatchAlias && m.Ref.Guide == "box" && m.Ref.Remote == "" {
 			foundBoxAlias = true
-		}
-		if m.Kind == guides.MatchProvenance && m.Ref.Guide == "box" {
-			foundProv = true
 		}
 	}
 	if !foundBoxAlias {
 		t.Fatalf("box alias match missing: %#v", ms)
 	}
+
+	ms = guides.Resolve("Box")
+	foundProv := false
+	for _, m := range ms {
+		if m.Kind == guides.MatchProvenance && m.Ref.Guide == "box" && m.Ref.Remote == "hosted" {
+			foundProv = true
+		}
+	}
 	if !foundProv {
-		t.Fatalf("provenance match missing: %#v", ms)
+		t.Fatalf("box provenance-name match missing: %#v", ms)
 	}
 }
 
