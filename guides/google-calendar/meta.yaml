@@ -2,7 +2,8 @@
 schema_version: 1
 slug: google-calendar
 title: Google Calendar
-summary: Connect Google Calendar data through Google's hosted Calendar MCP server.
+summary: Connect Google Calendar through Google's hosted Calendar MCP server with a Google Cloud OAuth client.
+speakeasy_add_server: auto
 credential_setup:
   options:
     - id: oauth-client
@@ -11,22 +12,26 @@ credential_setup:
       upstream_setup: provider-steps
       fields:
         - id: client-id
-          label: OAuth client ID
+          label: Client ID
           setup:
             - external.md#create-oauth-client
             - external.md#copy-oauth-credentials
         - id: client-secret
-          label: OAuth client secret
+          label: Client Secret
           setup:
             - external.md#create-oauth-client
             - external.md#copy-oauth-credentials
   requirements:
+    - id: developer-preview
+      description: Google has confirmed the intended Google Workspace account and registered the Google Cloud project in the Google Workspace Developer Preview Program; each connecting user belongs to the applicant's domain or company unless Google permits otherwise
     - id: google-cloud-project
-      description: A Google Cloud project where administrators can enable both Calendar services, grant project IAM roles, configure Google Auth platform, and create OAuth credentials; enabling services requires serviceusage.services.enable, normally provided by Service Usage Admin or Owner but also available through another predefined or custom role
+      description: An administrator can enable Google Calendar API and Calendar MCP API in the registered project, configure Google Auth Platform, create OAuth credentials, and change project IAM; enabling services requires serviceusage.services.enable
     - id: connecting-user-access
-      description: Each connecting user has MCP Tool User on the project, access to the intended calendars, and permission under applicable Workspace app-access policy
+      description: Each Developer Preview-eligible connecting user has mcp.tools.call on the project, normally through MCP Tool User though another predefined or custom role containing that permission suffices, access to the intended calendars, and applicable External-audience test-user status
+    - id: workspace-app-approval
+      description: If Calendar is Restricted or the new app requires approval, a Google Workspace administrator with the Service Settings privilege can approve the app under Workspace API controls
     - id: prompt-injection-screening
-      description: An application or security owner has configured prompt and response screening for malicious content or prompt injection
+      description: An application or security owner has configured prompt and response screening for malicious content or prompt injection and documented the accepted risk when not using Google Model Armor
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -41,104 +46,79 @@ remotes:
         locator: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server
         name: Configure the Calendar MCP server
         classification: official
-        observed_at: "2026-07-29T22:37:27Z"
-      - source: endpoint-observation
-        locator: https://calendarmcp.googleapis.com/mcp/v1
-        name: Google Calendar MCP endpoint
-        classification: official
-        status: MCP initialize returned HTTP 200
-        version: "2025-03-26"
-        observed_at: "2026-07-29T22:37:27Z"
-      - source: endpoint-observation
+        observed_at: "2026-08-29T15:13:24Z"
+      - source: provider-metadata
         locator: https://calendarmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
         name: Google Calendar MCP protected-resource metadata
         classification: official
-        observed_at: "2026-07-29T22:37:27Z"
+        observed_at: "2026-08-29T15:13:24Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server
     name: Configure the Calendar MCP server
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-mcp-servers
-    name: Configure the Google Workspace MCP servers
+    locator: https://developers.google.com/workspace/preview
+    name: Google Workspace Developer Preview Program
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
-    locator: https://developers.google.com/workspace/calendar/api/auth
-    name: Choose Google Calendar API scopes
+    locator: https://docs.cloud.google.com/mcp/authenticate-mcp
+    name: Authenticate to Google and Google Cloud MCP servers
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-oauth-consent
-    name: Configure the OAuth consent screen and choose scopes
-    classification: official
-    observed_at: "2026-07-29T22:37:27Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-mcp-security
-    name: Configure security for Google Workspace MCP servers
-    classification: official
-    observed_at: "2026-07-29T22:37:27Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/release-notes
-    name: Google Workspace developer release notes
-    classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
-    name: Set up authentication to Google and Google Cloud MCP servers
+    name: Set up authentication for Google Cloud MCP servers
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://cloud.google.com/service-usage/docs/enable-disable
     name: Enable and disable services
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/iam/docs/grant-role-console
     name: Grant an IAM role by using the Google Cloud console
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549945
+    locator: https://support.google.com/cloud/answer/15549945?hl=en
     name: Manage App Audience
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549135
+    locator: https://support.google.com/cloud/answer/15549135?hl=en
     name: Manage App Data Access
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549257
+    locator: https://support.google.com/cloud/answer/15549257?hl=en
     name: Manage OAuth Clients
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
-    locator: https://support.google.com/a/answer/7281227
+    locator: https://support.google.com/a/answer/7281227?hl=en
     name: Control which apps access Google Workspace data
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
-  - source: endpoint-observation
-    locator: https://calendarmcp.googleapis.com/mcp/v1
-    name: Google Calendar MCP endpoint
-    classification: official
-    status: MCP initialize returned HTTP 200
-    version: "2025-03-26"
-    observed_at: "2026-07-29T22:37:27Z"
-  - source: endpoint-observation
+    observed_at: "2026-08-29T15:13:24Z"
+  - source: provider-metadata
     locator: https://calendarmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
     name: Google Calendar MCP protected-resource metadata
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
-  - source: endpoint-observation
+    observed_at: "2026-08-29T15:13:24Z"
+  - source: provider-metadata
     locator: https://accounts.google.com/.well-known/oauth-authorization-server
-    name: Google authorization-server metadata
+    name: Google OAuth authorization-server metadata
     classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
-    name: Speakeasy setup canonical section
-    classification: official
-    observed_at: "2026-07-29T22:37:27Z"
+    name: Speakeasy setup canonical file
+    observed_at: "2026-08-29T15:13:24Z"
+  - source: pulsemcp
+    locator: credential-free Pulse snapshot for Google Calendar
+    name: Google Calendar catalog lookup
+    status: ready; no Google Calendar catalog entry found
+    observed_at: "2026-08-29T15:13:24Z"
