@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: google-slides
-researched_at: 2026-07-29T21:55:52Z
+researched_at: 2026-08-29T15:17:05Z
 ---
 
 # Google Slides — Research Dossier
@@ -38,16 +38,19 @@ researched_at: 2026-07-29T21:55:52Z
   Workspace API controls classify `drive.readonly` and both presentation
   scopes as high-risk.
 - An **External** app in **Testing** permits up to 100 listed test users, and
-  each authorization expires seven days after consent. **Internal** is
-  available only to projects associated with a Google Cloud organization and
-  limits authorization to organization members.
+  each authorization expires seven days after consent. Select **Internal**
+  only when every connecting user belongs to the organization and the project
+  is associated with that Google Cloud organization; otherwise select
+  **External**.
 - Google requires Workspace MCP applications to screen prompts and responses
   for malicious content or prompt injection. Model Armor or another documented
   organizational solution can satisfy this requirement.
 - No Google Slides MCP-specific paid plan or license gate is documented.
-- The Speakeasy MCP Catalog lookup was **absent** for `google-slides` and
-  `google slides`. Render only the **Custom remote server** path; the shared
-  URL is not tenanted.
+- The shared endpoint is not tenanted. The credential-free `pulsemcp` tenant
+  lookup supplied to this run returned an ambiguous result at
+  `2026-08-29T15:17:05Z`: no confident Google Slides match. Catalog presence
+  is unknown, so keep both safe add-server paths under
+  `speakeasy_add_server: auto`.
 
 ## Credential flow
 
@@ -63,27 +66,39 @@ Create a **Web application** OAuth client. Enter
 | --- | --- |
 | Client ID | **OAuth 2.0 client created** in {#copy-oauth-credentials} |
 | Client Secret | **Client secrets** in {#copy-oauth-credentials}; copyable once |
-| Scope override | The four scopes configured in {#configure-oauth-consent}, comma-separated |
+| Scope override | The four scopes configured in {#configure-oauth-consent} |
 
-The callback template is the same **Redirect URI** later displayed in
-Speakeasy's **Attach Remote Identity Provider** sheet. Each connecting user
-then authorizes with the Google Account whose Slides permissions should apply.
+The callback template is the same **Redirect URI** later displayed with a
+copy button in Speakeasy's **Attach Remote Identity Provider** sheet. Each
+connecting user then authorizes with the Google Account whose Slides permissions
+should apply.
 
 ## Console walkthrough
 
-Sign in at `https://console.cloud.google.com`. Use the console toolbar's
-resource selector to select the project that will own this configuration, and
-keep it selected throughout the Google Cloud steps.
+If Workspace API controls restrict high-risk Drive and Slides scopes or block
+unconfigured apps, a **Service Settings administrator** and the Google Workspace
+security owner's approved access setting are also required. If applicability is
+unclear, ask that owner before starting.
+
+### Select the Google Cloud project {#select-google-cloud-project}
+
+- Sign in at `https://console.cloud.google.com`.
+- Use the console toolbar's resource selector to select the project that will
+  own this configuration.
+- Keep that project selected throughout the Google Cloud steps.
+- Next, enable the Google Slides APIs.
+- Values entered: none. Values copied: none.
+- Screenshot note: the console toolbar with the selected project visible.
 
 ### Enable the Google Slides APIs {#enable-google-slides-apis}
 
+- Prerequisite: the administrator needs `serviceusage.services.enable`,
+  normally through **Service Usage Admin** or **Owner**.
 - Open **APIs & Services** > **API Library**.
-- In **Search for APIs & Services**, search for `Google Slides API`, open it,
-  and click **Enable**.
-- Return to **API Library**, search for `Google Slides MCP API`, open it, and
-  click **Enable**.
-- The administrator needs `serviceusage.services.enable`, normally through
-  **Service Usage Admin** or **Owner**.
+- In **Search for APIs & Services**, search for `Google Slides API`.
+- Open **Google Slides API**, then click **Enable**.
+- Return to **API Library** and search for `Google Slides MCP API`.
+- Open **Google Slides MCP API**, then click **Enable**.
 - Next, open the project's **IAM** page.
 - Values entered: the two API names. Values copied: none.
 - Screenshot note: **Google Slides MCP API** showing its enabled state.
@@ -96,8 +111,9 @@ keep it selected throughout the Google Cloud steps.
 - In **New principals**, enter a connecting user's Google Account email.
 - Click **Select a role**, search for `MCP Tool User`, select
   **MCP Tool User**, and click **Save**.
-- Repeat for each connecting user. Google's IAM procedure names
-  **Project IAM Admin** as the role required to grant project roles.
+- Repeat the **Grant access** through **Save** actions for each additional
+  connecting user. Google's IAM procedure names **Project IAM Admin** as the
+  role required to grant project roles.
 - Next, open **Google Auth platform** > **Branding**.
 - Values entered: connecting-user emails and **MCP Tool User**. Values copied:
   none.
@@ -110,19 +126,26 @@ keep it selected throughout the Google Cloud steps.
   configuration. Obtain approved support and contact addresses first.
 - Open **Google Auth platform** > **Branding**. If the page says
   **Google Auth Platform not configured yet**, click **Get Started**.
+- Before choosing an audience, note that an **External** app in **Testing**
+  permits up to 100 listed test users, and each authorization expires seven
+  days after consent.
 - In the first-time wizard:
   1. Under **App Information**, enter `Slides MCP Server` in **App name**,
      choose an approved **User support email**, and click **Next**.
-  2. Under **Audience**, select **Internal** when all connecting users belong
-     to the project's Workspace organization; otherwise select **External**.
-     Click **Next**.
+  2. Under **Audience**, select **Internal** only when every connecting user
+     belongs to the organization and the selected project is associated with
+     that Google Cloud organization; otherwise select **External**. Click
+     **Next**.
   3. Under **Contact Information**, enter an approved monitored
      **Email address**, then click **Next**.
   4. Under **Finish**, review the Google API Services User Data Policy. With
      organizational approval, select **I agree to the Google API Services: User
      Data Policy**, click **Continue**, and click **Create**.
 - If Google Auth platform was already configured, retain its approved
-  **Branding** and **Audience** and continue to **Data Access**.
+  **Branding**, then open **Google Auth platform** > **Audience** and verify that
+  its audience meets the conditions above. If it does not, stop and ask the
+  Google Cloud project owner for a fresh project with the appropriate audience;
+  do not continue in the current project.
 - Open **Data Access**, then click **Add or Remove Scopes**.
 - Under **Manually add scopes**, paste all four scope URLs from Server facts.
   Click **Add to Table**, **Update**, and **Save**.
@@ -132,8 +155,6 @@ keep it selected throughout the Google Cloud steps.
 - Values entered: app and contact information, audience, four scopes, and
   applicable test-user emails. Values copied: none.
 - Screenshot note: **Data Access** with all four scopes selected.
-- Recovery: after a Testing authorization expires, the account remains a test
-  user but must complete browser authorization again.
 
 ### Create the OAuth client {#create-oauth-client}
 
@@ -156,18 +177,22 @@ keep it selected throughout the Google Cloud steps.
 - In **OAuth 2.0 client created**, copy **Client ID** to the approved secret
   store.
 - Under **Client secrets**, copy **Client secret** to the same store.
+- If the one-time dialog closes before both values are stored, do not continue
+  with an incomplete pair. Return to {#create-oauth-client} and repeat that
+  documented create-client path to create a new OAuth client, then copy both
+  values from the new **OAuth 2.0 client created** dialog.
 - If Workspace API controls restrict high-risk Drive and Slides scopes or
   block unconfigured apps, continue to {#allow-workspace-oauth-client}.
   Otherwise continue to {#add-server-in-speakeasy}.
 - Values copied: Client ID and Client Secret to the matching Speakeasy fields.
 - Screenshot exception: do not capture a dialog containing a one-time secret.
-- Recovery: if the secret is missed, delete it and create a new one before
-  continuing.
 
 ### Allow the OAuth client in restricted organizations {#allow-workspace-oauth-client}
 
 Use this step only when Workspace API controls restrict high-risk Drive and
-Slides scopes or block unconfigured apps.
+Slides scopes or block unconfigured apps. If applicability is unclear, ask the
+Google Workspace security owner before continuing. Obtain that owner's approved
+access setting before starting this step.
 
 - Sign in at `https://admin.google.com` with **Service Settings administrator**
   access. Open **Security** > **Access and data control** > **API controls**.
@@ -177,66 +202,73 @@ Slides scopes or block unconfigured apps.
   select the matching app.
 - Select the organizational units whose users will connect and click
   **Continue**.
-- Choose the approved access: **Trusted**, or **Specific Google data** with the
-  four Slides MCP scopes and any required Google sign-in scopes.
-- Click **Continue**, review the settings, and click **Finish**. Changes can
-  take up to 24 hours, though they usually apply sooner.
+- Select the access setting approved by the Google Workspace security owner.
+- Click **Continue**, review the settings, and click **Finish**. Authorization
+  can remain blocked for up to 24 hours while the change propagates, though it
+  usually applies sooner. Wait for propagation and retry before changing
+  credentials.
 - Continue to {#add-server-in-speakeasy}.
 - Screenshot note: the access review with the Client ID redacted.
 
 ## Speakeasy setup
 
 Transcluded from `doctrine/speakeasy-setup.md`, observed at
-`2026-07-29T21:55:52Z`. Fixed anchors are carried verbatim.
+`2026-08-29T15:17:05Z`. Fixed anchors are carried verbatim.
 
-The Speakeasy MCP Catalog lookup was **absent** for `google-slides` and
-`google slides`. Render only the Custom remote server path.
+The credential-free `pulsemcp` tenant lookup supplied to this run returned
+`ambiguous` at `2026-08-29T15:17:05Z`: no confident Google Slides match.
+Catalog presence is unknown. Because the remote is shared rather than tenanted
+and no override applies, render both safe add-server paths under
+`speakeasy_add_server: auto`.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
-Choose **Custom remote server**. On the
-**Add a custom remote MCP server** page, paste
-`https://slidesmcp.googleapis.com/mcp/v1` into
-**Remote MCP server URL** and click **Add server**.
+- If **Google Slides** is in the catalog, choose **3rd-party server**. On the
+  **MCP Catalog** page, find Google Slides with **Search MCP servers...**, open
+  its entry with **View**, and click **Add**. In **Add to Project**, click
+  **Add to Project**.
+- If it is not in the catalog, choose **Custom remote server**. On the
+  **Add a custom remote MCP server** page, paste
+  `https://slidesmcp.googleapis.com/mcp/v1` into
+  **Remote MCP server URL** and click **Add server**.
 
-This creates the hosted MCP server and opens its **Overview** page.
+Either branch creates the hosted MCP server and opens its **Overview** page.
 
-<!-- screenshot: the Add Source menu open on the Sources page -->
+<!-- screenshot: the Add Source menu open on the Sources page, or the provider's catalog entry -->
 
 Per-guide values:
 
 - Remote URL: `https://slidesmcp.googleapis.com/mcp/v1`.
 - Transport: `streamable-http`; **Transport** is read-only.
 - Authentication Option: `oauth-client`, manually registered OAuth.
-- Catalog decision: absent; Custom remote server only.
+- Catalog decision: unknown; `auto` with both safe add-server paths.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
 From the server's **Overview**, open **Settings**. Under **Authentication**,
 click **Configure Manually**, or **Use Discovered** when offered. In the
 **Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**.
+The sheet shows the **Redirect URI** with a copy button — the callback URL
+registered in {#create-oauth-client}.
+<!-- verify(operator): the template key substitutes this same Redirect URI value -->
 
 Confirm the sheet's **Redirect URI** matches `{{ gram.oauth.callback_url }}`
 entered in {#create-oauth-client}. Paste the **Client ID** and
 **Client Secret (optional)** from {#copy-oauth-credentials}. Google requires
 the generated secret even though the Speakeasy label says optional.
 
-In **Scope (override)**, enter these comma-separated values:
-`https://www.googleapis.com/auth/drive.readonly`,
-`https://www.googleapis.com/auth/drive.file`,
-`https://www.googleapis.com/auth/presentations.readonly`,
-`https://www.googleapis.com/auth/presentations`. Click
-**Attach Identity Provider**.
+In **Scope (override)**, enter the four required scopes from
+{#configure-oauth-consent}, then click **Attach Identity Provider**.
 
 Complete Google's browser authorization with an account granted
 **MCP Tool User** in {#grant-mcp-tool-user} and access to the intended
 presentations. An External app in **Testing** also requires that account under
 **Test users**.
 
-Screenshot note: the manual identity-provider sheet with credentials redacted.
+<!-- screenshot: the Attach Remote Identity Provider sheet (Manual with Redirect URI, or DCR after Discover with Client Type Dynamic Client Registration), or the Upstream Headers editor; values redacted -->
 
 Further-reading URL:
 `https://developers.google.com/workspace/slides/api/guides/configure-mcp-server`.
@@ -245,13 +277,31 @@ This guide covers setup only. For anything beyond it — billing, tool behavior,
 limits — see Google's Slides MCP documentation at
 https://developers.google.com/workspace/slides/api/guides/configure-mcp-server.
 
-## Open questions
+## Research limitations
 
-- The product-specific setup page requires four scopes, while live
+- Source `pulsemcp`: the credential-free tenant lookup supplied to this run
+  returned `ambiguous` at `2026-08-29T15:17:05Z`; it produced no confident
+  Google Slides match. Catalog presence is therefore unknown, not absent.
+  Under the catalog decision rules, this is a recorded research limitation,
+  not public provenance or an operator question. The resilient `auto` setup
+  keeps both add-server paths.
+- Public documentation reviewed for this dossier does not establish a complete
+  **Specific Google data** selection for this OAuth client. The walkthrough
+  delegates the organization-specific access setting to the Google Workspace
+  security owner instead of guessing additional Google sign-in scopes.
+- The product-specific setup page requires four scopes, while the live
   protected-resource metadata advertises those four plus the broader
-  `https://www.googleapis.com/auth/drive` scope. This Dossier follows the
+  `https://www.googleapis.com/auth/drive` scope. The walkthrough follows the
   explicit setup page for the manual override. Public documentation does not
-  explain the additional discovered scope.
+  explain the additional discovered scope, but the operator need not choose
+  between scope sets.
+
+Presentation-only console uncertainty is handled with resilient navigation
+wording in the walkthrough rather than an operator question.
+
+## Operator decisions
+
+None.
 
 ## Provenance
 
@@ -266,11 +316,10 @@ Documentation-property sweep:
   was used.
 - `support.google.com/a` — Workspace API controls and high-risk scope policy
   were used.
-- Google Codelabs was swept but not used because its application-development
-  flow is not the browser-only first-connection path.
 - `doctrine/speakeasy-setup.md` supplies Speakeasy labels and fixed anchors.
 
-All sources were observed at `2026-07-29T21:55:52Z`:
+All public sources and endpoint observations were observed at
+`2026-08-29T15:17:05Z`:
 
 - `https://developers.google.com/workspace/slides/api/guides/configure-mcp-server`
   — endpoint, transport, APIs, OAuth, consent, scopes, client creation,
@@ -302,5 +351,5 @@ All sources were observed at `2026-07-29T21:55:52Z`:
   — authorization server, resource URL, and advertised scopes.
 - `https://accounts.google.com/.well-known/oauth-authorization-server` —
   authorization/token endpoints and no registration endpoint.
-- `doctrine/speakeasy-setup.md` — Custom remote and Manual OAuth flow.
+- `doctrine/speakeasy-setup.md` — dual add-server and Manual OAuth flow.
 - `doctrine/personas/it-admin.md` — browser-only achievability requirements.
