@@ -20,9 +20,12 @@ Co-Admin account.
 
 <!-- screenshot-exception: a sign-in page with no MCP-specific state; the Integrations view is captured in the next step -->
 
-Before creating credentials, [enable Box AI](#enable-box-ai-api) or
-[enable Box Doc Gen](#enable-doc-gen) if users need those tools. Then create
-credentials for the **Custom Box MCP Server** integration.
+Before creating credentials, complete one or both conditional sections as
+required: [enable the Box AI API](#enable-box-ai-api) if users need Box AI
+tools, [enable Box Doc Gen](#enable-doc-gen) if users need Doc Gen tools, or
+both if they need both. If both are required, complete both before returning
+to **Integrations**. Then create credentials for the **Custom Box MCP Server**
+integration.
 
 ### Find Custom Box MCP Server under Integrations {#find-custom-box-mcp-server}
 
@@ -37,12 +40,14 @@ Do not select the **Box MCP Server** tab or a named partner tile.
 
 ### Add Integration Credentials {#add-integration-credentials}
 
-If **Configuration** appears:
+When adding credentials for the first time, use the branch the tile presents.
+
+If the **Custom Box MCP Server** tile shows **Configuration**:
 
 1. Open **Configuration**.
 2. Click **Add Integration Credentials**.
 
-If **Additional Configuration** appears instead:
+Otherwise:
 
 1. Hover over **Custom Box MCP Server**.
 2. Click **Configure**.
@@ -80,7 +85,7 @@ Copy both values while Box shows them.
 ### Check the Access scopes {#check-access-scopes}
 
 1. Review **Access scopes**.
-2. Select the options corresponding to the tool areas users need.
+2. Select the desired options.
 
 Select Box AI or Box Doc Gen access only when the enterprise has enabled and
 licensed those features. The Doc Gen scope requires an Enterprise Advanced
@@ -92,6 +97,12 @@ permissions still limit the content they can access.
 ### Save the credential entry {#save-credentials}
 
 Save the integration credentials.
+
+After saving, if you have completed every required Box AI or Doc Gen section,
+continue to [Connect your credentials](speakeasy.md#connect-speakeasy-credentials)
+unless you need optional tool-policy setup. If you do, complete [Manage tool
+access before rollout](#manage-tool-access) first, then continue to [Connect
+your credentials](speakeasy.md#connect-speakeasy-credentials).
 
 <!-- screenshot-exception: a standard button click with no unique state beyond the views captured in the prior steps -->
 
@@ -105,7 +116,10 @@ resolve the enterprise's Box AI entitlement before continuing.
 2. Select **Settings**.
 3. Enable **Enable AI API**.
 
-Then return to [Find Custom Box MCP Server under Integrations](#find-custom-box-mcp-server).
+If users also need Doc Gen tools and you have not completed that conditional
+section, complete [Enable Box Doc Gen](#enable-doc-gen). Return to [Find Custom
+Box MCP Server under Integrations](#find-custom-box-mcp-server) only after all
+required conditional sections are complete.
 
 <!-- screenshot: Box AI > Settings with Enable AI API visible; do not show user or tenant identifiers -->
 
@@ -123,7 +137,10 @@ an Enterprise Advanced license.
 
 By default, Doc Gen is disabled for all managed users.
 
-Then return to [Find Custom Box MCP Server under Integrations](#find-custom-box-mcp-server).
+If users also need Box AI tools and you have not completed that conditional
+section, complete [Enable the Box AI API](#enable-box-ai-api). Return to [Find
+Custom Box MCP Server under Integrations](#find-custom-box-mcp-server) only
+after all required conditional sections are complete.
 
 <!-- screenshot: Enterprise Settings > Content and Sharing scrolled to Box Doc Gen with the permissions control visible and identities redacted -->
 

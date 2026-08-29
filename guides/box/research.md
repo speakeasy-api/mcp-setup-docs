@@ -1,7 +1,7 @@
 ---
 research_version: 1
 slug: box
-researched_at: 2026-08-28T21:28:00Z
+researched_at: 2026-08-28T23:25:24Z
 ---
 
 # Box — Research Dossier
@@ -16,18 +16,18 @@ eligibility, no-DCR statement, and an alternate credential-creation surface.
 Where those properties disagree on UI, this dossier uses the product-doc flow
 and records the support flow as a documented alternative rather than merging
 the labels. All public sources below were observed on
-`2026-08-28T21:28:00Z` through Exa MCP.
+`2026-08-28T23:25:24Z` through Exa MCP.
 
 ## Server facts
 
 - **Remote URL:** `https://mcp.box.com`. Box calls this its hosted MCP
   endpoint and tells clients to connect to it; users do not self-host the
   standard remote. [About Box MCP Server; Set up the MCP server]
-- **Transport:** `streamable-http`. The Pulse catalog record for the shared
-  remote classifies it this way, and Box's current client examples configure
-  the endpoint as HTTP. The URL is shared, not region-, organization-, or
-  instance-specific, so the remote is not tenanted. [Pulse snapshot supplied
-  by the coordinator; Claude Code]
+- **Transport:** `streamable-http`. Box's current client examples configure
+  the hosted endpoint as an HTTP MCP server, and Speakeasy documents streamable
+  HTTP as the only transport supported by its remote-server proxy. The URL is
+  shared, not region-, organization-, or instance-specific, so the remote is
+  not tenanted. [Claude Code; Speakeasy Remote MCP servers]
 - **Authentication:** OAuth 2.0 with a pre-registered client. A Box Admin or
   Co-Admin creates **Integration Credentials**; Box provides a **Client ID**
   and **Client Secret**, and each user authorizes with their Box identity.
@@ -51,11 +51,11 @@ the labels. All public sources below were observed on
 - **Permissions:** scopes cap possible actions, while each user can access
   only content that their Box permissions permit. [Set up the MCP server;
   About Box MCP Server]
-- **Catalog path:** the coordinator's ready Pulse snapshot at this run's
-  timestamp has one exact match for Box (`com.pulsemcp.mirror/box`, title
-  **Box**). `speakeasy_add_server: catalog` therefore selects only the
-  catalog path. This remote is not tenanted. [Pulse snapshot supplied by the
-  coordinator]
+- **Catalog path:** coordinator-supplied facts did not establish a
+  provider-specific Box mapping. Catalog presence is therefore unknown, not
+  absent. The shared remote is not tenanted and Metadata keeps
+  `speakeasy_add_server: auto`, so the canonical Speakeasy setup preserves both
+  safe add-server branches. [Canonical Speakeasy setup]
 
 ## Credential flow
 
@@ -266,21 +266,28 @@ tool inventory. [Manage tool access; Available tools; MCP FAQ]
 ## Speakeasy setup
 
 Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-08-28T21:28:00Z`. Per-guide values are remote
+`2026-08-28T23:25:24Z`. Per-guide values are remote
 `https://mcp.box.com`, transport `streamable-http`, Authentication Option
 `oauth-integration`, credential sources `copy-client-credentials`, and further
 reading `https://docs.box.com/en/box-mcp/about-box-mcp-server`.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-Render only the catalog path because `speakeasy_add_server: catalog` is an
-explicit override and the remote is not tenanted. In the Speakeasy AI Control
-Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
-Choose **3rd-party server**. On the **MCP Catalog** page, find Box (the search
-box reads **Search MCP servers...**), open its entry with **View**, and click
-**Add**. In the **Add to Project** dialog, click **Add to Project**. This
-creates the hosted MCP server and opens its **Overview** page. Do not render a
-Custom remote alternative or a catalog-presence open question.
+Catalog presence is unresolved and no override applies, so render both safe
+branches. In the Speakeasy AI Control Plane sidebar, under **Connect**, select
+**Sources**, then click **Add Source**.
+
+- If Box is in the catalog, choose **3rd-party server**. On the **MCP Catalog**
+  page, find Box (the search box reads **Search MCP servers...**), open its
+  entry with **View**, and click **Add**. In the **Add to Project** dialog,
+  click **Add to Project**.
+- If Box is not in the catalog, choose **Custom remote server**. On the **Add a
+  custom remote MCP server** page, paste `https://mcp.box.com` into **Remote MCP
+  server URL** and click **Add server**.
+
+Either branch creates the hosted MCP server and opens its **Overview** page.
+Catalog presence remains the soft research question recorded under **Research
+limitations**.
 
 <!-- screenshot: the Add Source menu open on the Sources page, or the Box catalog entry -->
 
@@ -298,15 +305,19 @@ button; confirm it matches the value substituted for
 <!-- verify(operator): the template key substitutes this same Redirect URI value -->
 <!-- screenshot: the Attach Remote Identity Provider sheet with Client Type Manual and Redirect URI visible, and all credential values redacted -->
 
-This guide covers setup only. For anything beyond it — billing, tool behavior,
-limits — see Box's MCP documentation at
-`https://docs.box.com/en/box-mcp/about-box-mcp-server`.
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Box's MCP documentation](https://docs.box.com/en/box-mcp/about-box-mcp-server).
 
 ## Research limitations
 
 These public-source gaps are presentation-only or safely hedgeable; none is a
 material operator decision for first connection.
 
+- **Soft research question — Pulse catalog presence:** Is Box present in the
+  Pulse catalog? Coordinator-supplied facts did not establish a
+  provider-specific Box mapping, so presence remains unresolved and setup
+  retains both canonical add-server branches. This safely hedgeable gap is a
+  Research limitation, not an Operator decision; under the strict scope gate it
+  stays out of structured `open_questions`.
 - Box's current product pages use **Configuration** > **Add Integration
   Credentials**; current Support pages use **Additional Configuration** >
   **+ Add Integration Credentials** and an initial name save. Public docs do
@@ -341,13 +352,15 @@ None
   scopes, and license details, not to override product UI labels.
 - **Support KB:** `https://support.box.com`. Used for administrator eligibility,
   no-DCR, and the alternate credential surface.
-- No community, partner, issue, or researched-page claim was used as authority.
-  The coordinator-supplied Pulse result contributes only the derived catalog
-  match and transport fact allowed by doctrine.
+- **Speakeasy docs:** `https://www.speakeasy.com/docs/ai-control-plane/distribute/mcp-servers/remote-servers`.
+  Used to corroborate the supported remote transport and custom/catalog paths.
+- No community, partner, issue, or catalog record was used as factual authority.
+  The coordinator-supplied Pulse note establishes only that the snapshot was
+  ready and that the Box mapping remained unknown; no private data is recorded.
 
 ### Source records
 
-All records below were observed `2026-08-28T21:28:00Z`.
+All records below were observed `2026-08-28T23:25:24Z`.
 
 - `https://docs.box.com/llms.txt` — Box public documentation index; backs the
   documentation-property sweep and discovery of current Box MCP pages.
@@ -402,10 +415,12 @@ All records below were observed `2026-08-28T21:28:00Z`.
   metadata fetched through Exa; backs resource `https://mcp.box.com/`, resource
   name **Box Model Context Protocol Server**, authorization server
   `https://api.box.com/`, bearer-header support, and official resource docs.
-- `doctrine/speakeasy-setup.md` — repository authority supplied in the parsed
-  helper artifact; backs the transcluded Speakeasy labels, fixed anchors,
-  catalog-only selection under the override, manual OAuth flow, and closing
-  pointer form.
-- Pulse snapshot supplied by the coordinator — `source: pulsemcp`; backs only
-  the exact Box catalog match and `streamable-http` classification. No private
-  catalog content is reproduced.
+- `https://www.speakeasy.com/docs/ai-control-plane/distribute/mcp-servers/remote-servers`
+  — official Speakeasy documentation; backs streamable HTTP support and the
+  catalog and custom-URL registration paths.
+- `doctrine/speakeasy-setup.md` — repository authority supplied for this run;
+  backs the transcluded Speakeasy labels, fixed anchors, dual-path behavior when
+  catalog presence is unresolved, manual OAuth flow, and closing pointer form.
+- Credential-free Pulse snapshot note supplied by the coordinator — establishes
+  snapshot readiness and an unknown Box mapping only. It is not treated as a
+  provider record, and no private catalog content is reproduced.

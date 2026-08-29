@@ -2,16 +2,18 @@
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-1. In the Speakeasy AI Control Plane sidebar, select **Sources** under
-   **Connect**.
-2. Click **Add Source**.
-3. Choose **3rd-party server**.
-4. On the **MCP Catalog** page, use **Search MCP servers...** to find **Box**.
-5. Click **View** on the Box entry.
-6. Click **Add**.
-7. In the **Add to Project** dialog, click **Add to Project**.
+In the Speakeasy AI Control Plane sidebar, under **Connect**, select
+**Sources**, then click **Add Source**.
 
-This creates the hosted MCP server and opens its **Overview** page.
+- If Box is in the catalog: choose **3rd-party server**. On the **MCP Catalog**
+  page, find Box (the search box reads **Search MCP servers...**), open its
+  entry with **View**, and click **Add**. In the **Add to Project** dialog,
+  click **Add to Project**.
+- If it is not: choose **Custom remote server**. On the **Add a custom remote
+  MCP server** page, paste `https://mcp.box.com` into **Remote MCP server URL**
+  and click **Add server**.
+
+Either branch creates the hosted MCP server and opens its **Overview** page.
 
 <!-- screenshot: the Add Source menu with 3rd-party server visible, or the Box catalog entry and its View control -->
 
