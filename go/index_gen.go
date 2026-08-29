@@ -87,7 +87,7 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 	"box": {
 		Slug:               "box",
 		Title:              "Box",
-		Summary:            "Access, search, and manage Box content and Box AI through the hosted Box MCP server.",
+		Summary:            "Connect the Speakeasy AI Control Plane to Box's hosted MCP server with credentials created by a Box Admin or Co-Admin.",
 		SpeakeasyAddServer: "catalog",
 		SetupRequired:      true,
 		Aliases:            []string{"com.pulsemcp.mirror/box"},
@@ -530,7 +530,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Available Atlassian Rovo MCP server domains": {
 		{Guide: "atlassian", Remote: "rovo"},
 	},
-	"Available Tools": {
+	"Available tools": {
 		{Guide: "box", Remote: "hosted"},
 	},
 	"BigQuery IAM roles and permissions": {
@@ -548,7 +548,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"BigQuery MCP reference": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
-	"Box MCP resource documentation": {
+	"Box": {
 		{Guide: "box", Remote: "hosted"},
 	},
 	"Box MCP server": {
@@ -568,6 +568,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"CREATE SECURITY INTEGRATION (Snowflake OAuth)": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
+	},
+	"Canonical Speakeasy setup": {
+		{Guide: "box", Remote: "hosted"},
 	},
 	"Choose Google Calendar API scopes": {
 		{Guide: "google-calendar", Remote: "hosted"},
@@ -771,7 +774,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-sheets", Remote: "hosted"},
 		{Guide: "google-slides", Remote: "hosted"},
 	},
-	"Enterprise Settings: Content & Sharing Tab": {
+	"Enterprise Settings Content and Sharing": {
 		{Guide: "box", Remote: "hosted"},
 	},
 	"GRANT DATABASE ROLE": {
@@ -797,9 +800,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Getting started with the Atlassian Rovo MCP Server": {
 		{Guide: "atlassian", Remote: "rovo"},
-	},
-	"GitHub MCP Registry": {
-		{Guide: "box", Remote: "hosted"},
 	},
 	"GitHub MCP Server": {
 		{Guide: "github", Remote: "hosted"},
@@ -928,14 +928,14 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "sobject-reads-production"},
 		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
 	},
-	"MCP Frequently Asked Questions": {
-		{Guide: "box", Remote: "hosted"},
-	},
 	"MCP Server Activity Report": {
 		{Guide: "box", Remote: "hosted"},
 	},
 	"MCP Standard Tools SuiteApp": {
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
+	"MCP frequently asked questions": {
+		{Guide: "box", Remote: "hosted"},
 	},
 	"MCP servers for the X API and X developer docs": {
 		{Guide: "x-docs", Remote: "docs"},
@@ -974,7 +974,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Manage OAuth Clients": {
 		{Guide: "google-calendar", Remote: "hosted"},
 	},
-	"Manage Tool Access": {
+	"Manage tool access": {
 		{Guide: "box", Remote: "hosted"},
 	},
 	"Manage your app": {
@@ -1053,6 +1053,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Remote HubSpot MCP server is now generally available": {
 		{Guide: "hubspot", Remote: "hosted"},
+	},
+	"Remote MCP servers": {
+		{Guide: "box", Remote: "hosted"},
 	},
 	"Requesting organization approval for OAuth apps": {
 		{Guide: "github", Remote: "hosted"},
@@ -1178,6 +1181,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-sheets", Remote: "hosted"},
 		{Guide: "google-slides", Remote: "hosted"},
 	},
+	"Set up the MCP server": {
+		{Guide: "box", Remote: "hosted"},
+	},
 	"Setting up OAuth": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
@@ -1260,7 +1266,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Submitting your app for verification": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
-	"Supported AI Platforms": {
+	"Supported AI platforms": {
 		{Guide: "box", Remote: "hosted"},
 	},
 	"Supported products": {
@@ -1276,12 +1282,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"URLs for Account-Specific Domains": {
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
-	},
-	"Understanding AI Units In Box": {
-		{Guide: "box", Remote: "hosted"},
-	},
-	"Understanding Requests to Authorize or Allow Applications": {
-		{Guide: "box", Remote: "hosted"},
 	},
 	"Update Salesforce Settings for Tableau Next Embedding": {
 		{Guide: "salesforce", Remote: "sobject-all-production"},
@@ -1337,9 +1337,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"X Docs MCP": {
 		{Guide: "x-docs", Remote: "docs"},
-	},
-	"com.pulsemcp.mirror/box": {
-		{Guide: "box", Remote: "hosted"},
 	},
 	"com.pulsemcp.mirror/hubspot": {
 		{Guide: "hubspot", Remote: "hosted"},
