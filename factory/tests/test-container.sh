@@ -587,13 +587,47 @@ MOCK
       "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/runtime-$kind.err"; then
       fail "entrypoint accepted $kind runtime event"
     fi
-    test ! -e "$export_root/factory-diagnostics.json" || fail "entrypoint retained $kind diagnostics"
+    "$ROOT/factory/scripts/validate-diagnostics.sh" "$export_root/factory-diagnostics.json" >/dev/null \
+      || fail "entrypoint lost safe fallback for $kind runtime event"
+    jq -e '.stage == "kit_prompt" and (.events | length) == 2 and all(.events[]; .tool == "kit_prompt")' \
+      "$export_root/factory-diagnostics.json" >/dev/null || fail "fallback retained rejected events"
+    if grep -Eq 'SECRET_|ordinary diagnostic' "$export_root/factory-diagnostics.json"; then
+      fail "fallback leaked raw runtime input"
+    fi
     assert_contains 'ordinary diagnostic after bad event' "$(cat "$TMP/runtime-$kind.err")"
     assert_contains 'factory: invalid Kit runtime event' "$(cat "$TMP/runtime-$kind.err")"
     if grep -Eq 'SECRET_MALFORMED_CANARY|SECRET_UNKNOWN_CANARY' "$TMP/runtime-$kind.err"; then
       fail "entrypoint logged $kind marked runtime input"
     fi
   done
+
+  # A valid failed report exits zero, but still needs diagnostics after parser rejection.
+  workspace="$TMP/runtime-workspace-failed"; export_root="$TMP/runtime-export-failed"
+  cat >"$fake_kit" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '\001kit-runtime\001%s\n' '{"event":"future_event","summary":"SECRET_FAILED_CANARY"}' >&2
+cat >"$FACTORY_WORKSPACE_ROOT/.factory/run-report.json" <<'JSON'
+{"schema_version":1,"outcome":"failed","provider":"Acme","slug":"acme","persona":"it-admin","summary":"SECRET_REPORT_CANARY","open_questions":[],"blockers":["Review wave failed"],"nits":[],"review_rounds":1,"artifacts":[]}
+JSON
+MOCK
+  chmod +x "$fake_kit"
+  FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
+    FACTORY_WORKSPACE_ROOT="$workspace" FACTORY_EXPORT_ROOT="$export_root" \
+    FACTORY_KIT_HOME="$TMP/runtime-home-failed" KIT_BIN="$fake_kit" \
+    FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
+    FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
+    FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
+    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+    "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/runtime-failed.err"
+  "$ROOT/factory/scripts/validate-diagnostics.sh" "$export_root/factory-diagnostics.json" >/dev/null
+  jq -e '.stage == "factory_outcome" and .classification == "factory_reported_failure" and .report.outcome == "failed" and (.events | length) == 2' \
+    "$export_root/factory-diagnostics.json" >/dev/null || fail 'lost failed-report fallback'
+  test -f "$export_root/run-report.json" || fail 'lost failed report'
+  test ! -e "$export_root/guide" || fail 'exported failed guide'
+  if grep -q 'SECRET_' "$export_root/factory-diagnostics.json"; then
+    fail 'failed-report fallback leaked raw content'
+  fi
 
   workspace="$TMP/runtime-workspace-valid"; export_root="$TMP/runtime-export-valid"
   cat >"$fake_kit" <<'MOCK'

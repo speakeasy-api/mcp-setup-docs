@@ -242,7 +242,7 @@ assert_upload_contract() {
   local workflow=$1 block upload_count
   block="$(upload_step_block "$workflow")"
   [[ -n "$block" ]] || { fail 'missing workflow step: Upload safe factory diagnostics'; return 1; }
-  assert_upload_field_equals "$block" '        ' if "failure() && steps.kit.outcome == 'failure'" || return 1
+  assert_upload_field_equals "$block" '        ' if "always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')" || return 1
   assert_upload_field_equals "$block" '        ' uses 'actions/upload-artifact@v4' || return 1
   # shellcheck disable=SC2016
   assert_upload_field_equals "$block" '          ' name 'guide-factory-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}' || return 1
@@ -343,10 +343,8 @@ done
 assert_upload_contract "$WORKFLOW"
 upload_contract_tmp="$(mktemp -d)"
 awk '
-  $0 == "        if: failure() && steps.kit.outcome == '"'"'failure'"'"'" {
-    print $0 " || cancelled()"
-    next
-  }
+  $0 == "      - name: Upload safe factory diagnostics" { upload=1 }
+  upload && /^        if:/ { print $0 " || cancelled()"; upload=0; next }
   { print }
 ' "$WORKFLOW" >"$upload_contract_tmp/broadened-condition.yml"
 if (assert_upload_contract "$upload_contract_tmp/broadened-condition.yml") 2>/dev/null; then
