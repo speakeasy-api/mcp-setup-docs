@@ -143,8 +143,8 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 	"google-calendar": {
 		Slug:               "google-calendar",
 		Title:              "Google Calendar",
-		Summary:            "Connect Google Calendar data through Google's hosted Calendar MCP server.",
-		SpeakeasyAddServer: "",
+		Summary:            "Connect Google Calendar through Google's hosted Calendar MCP server with a Google Cloud OAuth client.",
+		SpeakeasyAddServer: "auto",
 		SetupRequired:      true,
 		Aliases:            []string{},
 		Remotes: []generatedRemote{
@@ -200,7 +200,7 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		Slug:               "google-people",
 		Title:              "Google People",
 		Summary:            "Connect Google profile, contacts, and directory data through Google's hosted People API MCP server.",
-		SpeakeasyAddServer: "",
+		SpeakeasyAddServer: "auto",
 		SetupRequired:      true,
 		Aliases:            []string{},
 		Remotes: []generatedRemote{
@@ -511,6 +511,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Authenticate to Google and Google Cloud MCP servers": {
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
 	},
 	"Authenticating to the REST API": {
@@ -572,9 +573,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Canonical Speakeasy setup": {
 		{Guide: "box", Remote: "hosted"},
 	},
-	"Choose Google Calendar API scopes": {
-		{Guide: "google-calendar", Remote: "hosted"},
-	},
 	"Choose Google Docs API scopes": {
 		{Guide: "google-docs", Remote: "hosted"},
 	},
@@ -629,7 +627,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
 	"Configure security for Google Workspace MCP servers": {
-		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-people", Remote: "hosted"},
 		{Guide: "google-sheets", Remote: "hosted"},
@@ -645,14 +642,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-drive", Remote: "hosted"},
 	},
 	"Configure the Google Workspace MCP servers": {
-		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-sheets", Remote: "hosted"},
 		{Guide: "google-slides", Remote: "hosted"},
 	},
 	"Configure the OAuth consent screen and choose scopes": {
 		{Guide: "google-big-query", Remote: "hosted"},
-		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
 		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
@@ -813,10 +808,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Giving an Employee Access to NetSuite": {
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
-	"Google Calendar MCP endpoint": {
+	"Google Calendar MCP protected-resource metadata": {
 		{Guide: "google-calendar", Remote: "hosted"},
 	},
-	"Google Calendar MCP protected-resource metadata": {
+	"Google Calendar catalog lookup": {
 		{Guide: "google-calendar", Remote: "hosted"},
 	},
 	"Google Cloud MCP quotas and system limits": {
@@ -833,10 +828,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Google Compute Engine": {
 		{Guide: "google-compute-engine", Remote: "hosted"},
 	},
-	"Google Docs MCP endpoint": {
+	"Google Docs MCP protected-resource metadata": {
 		{Guide: "google-docs", Remote: "hosted"},
 	},
-	"Google Docs MCP protected-resource metadata": {
+	"Google Docs catalog lookup": {
 		{Guide: "google-docs", Remote: "hosted"},
 	},
 	"Google Drive MCP endpoint": {
@@ -848,8 +843,8 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Google Drive MCP reference": {
 		{Guide: "google-drive", Remote: "hosted"},
 	},
-	"Google People API MCP endpoint": {
-		{Guide: "google-people", Remote: "hosted"},
+	"Google OAuth authorization-server metadata": {
+		{Guide: "google-calendar", Remote: "hosted"},
 	},
 	"Google People API MCP protected-resource metadata": {
 		{Guide: "google-people", Remote: "hosted"},
@@ -866,8 +861,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Google Slides MCP protected-resource metadata": {
 		{Guide: "google-slides", Remote: "hosted"},
 	},
-	"Google Workspace developer release notes": {
+	"Google Workspace Developer Preview Program": {
 		{Guide: "google-calendar", Remote: "hosted"},
+	},
+	"Google Workspace developer release notes": {
 		{Guide: "google-sheets", Remote: "hosted"},
 		{Guide: "google-slides", Remote: "hosted"},
 	},
@@ -876,7 +873,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Google authorization-server metadata": {
 		{Guide: "google-big-query", Remote: "hosted"},
-		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
 		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
@@ -958,7 +954,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
-		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
 		{Guide: "google-people", Remote: "hosted"},
 		{Guide: "google-sheets", Remote: "hosted"},
@@ -1169,12 +1164,14 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
 	},
+	"Set up authentication for Google Cloud MCP servers": {
+		{Guide: "google-calendar", Remote: "hosted"},
+	},
 	"Set up authentication for Google and Google Cloud MCP servers": {
 		{Guide: "google-compute-engine", Remote: "hosted"},
 	},
 	"Set up authentication to Google and Google Cloud MCP servers": {
 		{Guide: "google-big-query", Remote: "hosted"},
-		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
 		{Guide: "google-people", Remote: "hosted"},
@@ -1219,6 +1216,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
 	"Speakeasy setup canonical file": {
+		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
 	"Speakeasy setup canonical section": {
@@ -1226,7 +1224,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "atlassian", Remote: "rovo"},
 		{Guide: "github", Remote: "hosted"},
 		{Guide: "google-big-query", Remote: "hosted"},
-		{Guide: "google-calendar", Remote: "hosted"},
 		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
 		{Guide: "google-people", Remote: "hosted"},

@@ -4,22 +4,20 @@ setup_version: 1
 
 # Set up Google Docs
 
-Sign in to the [Google Cloud console](https://console.cloud.google.com) with an account that can select a Google Cloud project, enable APIs, configure the **Google Auth platform**, and create OAuth credentials. Google does not document a Google Docs MCP-specific paid plan or license requirement. Enabling APIs requires `serviceusage.services.enable`, normally through **Service Usage Admin** or **Owner**. Obtain the approved support and contact addresses before you begin. If your organization restricts high-risk Drive & Docs scopes or unconfigured apps, you also need a Google Workspace administrator with the **Service Settings administrator** privilege.
+Sign in to [console.cloud.google.com](https://console.cloud.google.com) with an account that can select a Google Cloud project, enable APIs, configure the **Google Auth platform**, and create OAuth credentials. Google does not document a Google Docs MCP-specific paid plan or license requirement. Enabling APIs requires `serviceusage.services.enable`; **Service Usage Admin** provides this permission. Each account that will connect needs **MCP Tool User** (`roles/mcp.toolUser`) on the project and access to the Google Docs it will use. Obtain the approved support and contact addresses before you begin. If your organization restricts high-risk Drive and Docs scopes or unconfigured apps, you also need a Google Workspace administrator with the **Service Settings administrator** privilege.
 
 ### Enable the Docs MCP APIs {#enable-docs-mcp-apis}
 
 1. In the toolbar, open the resource selector.
 2. Select the Google Cloud project that will own the credentials.
-3. Open **APIs & Services** > **API Library**.
-4. In **Search for APIs & Services**, enter `Google Docs API`.
-5. Open **Google Docs API**.
-6. Click **Enable**.
-7. Return to **API Library**.
-8. In **Search for APIs & Services**, enter `Google Docs MCP API`.
-9. Open **Google Docs MCP API**.
-10. Click **Enable**.
+3. Open **APIs & Services** > **Library**.
+4. Open **Google Docs API**.
+5. Click **Enable**.
+6. Return to **Library**.
+7. Open **Google Docs MCP API**.
+8. Click **Enable**.
 
-If **Enable** is unavailable, ask the project owner for `serviceusage.services.enable`.
+If **Enable** is unavailable, ask the project administrator for `serviceusage.services.enable`.
 
 Open **Google Auth platform** > **Branding**.
 
@@ -35,7 +33,7 @@ If the page says **Google Auth Platform not configured yet**:
 2. Under **App Information**, enter `Docs MCP Server` in **App name**.
 3. Choose the approved **User support email**.
 4. Click **Next**.
-5. Under **Audience**, select **Internal** when every connecting user belongs to the Google Cloud project's Google Workspace organization; otherwise select **External**.
+5. Under **Audience**, select **Internal** when it is available for your Google Workspace organization; otherwise select **External**.
 6. Click **Next**.
 7. Under **Contact Information**, enter the approved monitored address in **Email address**.
 8. Click **Next**.
@@ -87,8 +85,6 @@ If **Audience** is **External** and the app is in **Testing**, add every account
    {{ gram.oauth.callback_url }}
    ```
 
-Do not add an **Authorized JavaScript origins** value.
-
 Prepare secure password storage before the next action. Google says the client secret in the next dialog can be copied only once.
 
 7. Click **Create**.
@@ -105,15 +101,15 @@ Keep **OAuth 2.0 client created** open.
 
 If you lost the one-time secret, delete it and create a new secret before continuing.
 
-If your organization restricts high-risk Drive & Docs scopes or blocks unconfigured apps, continue to [Allow the OAuth client in restricted organizations](#allow-workspace-oauth-client). Otherwise, continue to [Speakeasy setup](speakeasy.md#add-server-in-speakeasy).
+If your organization restricts high-risk Drive and Docs scopes or blocks unconfigured apps, continue to [Allow the OAuth client in restricted organizations](#allow-workspace-oauth-client). Otherwise, continue to [Speakeasy setup](speakeasy.md#add-server-in-speakeasy).
 
 <!-- screenshot-exception: do not capture a dialog containing a secret -->
 
 ### Allow the OAuth client in restricted organizations {#allow-workspace-oauth-client}
 
-Complete this step only when your organization's Workspace API controls restrict high-risk Drive & Docs scopes or block unconfigured apps.
+Complete this step only when your organization's Workspace API controls restrict high-risk Drive and Docs scopes or block unconfigured apps.
 
-1. Sign in to the [Google Admin console](https://admin.google.com) with **Service Settings administrator** access.
+1. Sign in to [admin.google.com](https://admin.google.com) with **Service Settings administrator** access.
 2. Open **Security** > **Access and data control** > **API controls**.
 3. Click **Manage App Access**.
 4. Under **Configured apps**, click **Configure new app**.
@@ -124,7 +120,7 @@ Complete this step only when your organization's Workspace API controls restrict
 9. Click **Continue**.
 10. Choose the access approved by the security owner:
     - **Trusted**
-    - **Specific Google data**, with the four Docs MCP scopes and any required Google sign-in scopes
+    - **Specific Google data**, with the Docs MCP scopes and any Google sign-in scopes the app requests
 11. Click **Continue**.
 12. Review the settings.
 13. Click **Finish**.
