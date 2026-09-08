@@ -13,10 +13,10 @@ trap 'rm -rf "$TMP"; exit 130' INT TERM
 test_config_is_pinned() {
   # shellcheck disable=SC1091
   source "$ROOT/factory/config.env"
-  assert_eq "0.1.98" "$KIT_VERSION"
+  assert_eq "0.1.130" "$KIT_VERSION"
   assert_eq "openai/gpt-5.6-sol" "$KIT_MODEL"
   assert_eq "high" "$KIT_REASONING_EFFORT"
-  assert_eq "7d14561469ced8af21df1075a9071d04a7bad1b1c5ff90d685142d3231abae85" "$KIT_SHA256"
+  assert_eq "232bbbf2958e9b83aba352ecfc7195768868f630cbf5fcdcdeb45b2ed12f5ecd" "$KIT_SHA256"
 }
 
 test_dockerfile_builds_static_linter_without_go_in_final_image() {
@@ -512,10 +512,10 @@ printf '%s%s\n' "$marker" '{"event":"child_started","call":"SECRET_RAW_CALL","to
 printf '%s%s\n' "$marker" '{"event":"child_finished","call":"SECRET_RAW_CALL","tool":"shell","ok":false,"summary":"SECRET_RUNTIME_RESULT","millis":42}' >&2
 mkdir -p "$HOME/errors/s-test"
 cat >"$HOME/errors/s-test/e-test.json" <<'JSON'
-{"schema_version":2,"event_id":"e-test","occurred_at_ms":1,"kit_version":"0.1.98","session_id":"s-test","surface":"prompt","kind":"provider","code":"provider_error","message":"sensitive-provider-body","prompt":{"code":"sensitive-code","provider":"sensitive-provider"},"url":"https://sensitive.example","diagnostics":null}
+{"schema_version":2,"event_id":"e-test","occurred_at_ms":1,"kit_version":"0.1.130","session_id":"s-test","surface":"prompt","kind":"provider","code":"provider_error","message":"sensitive-provider-body","prompt":{"code":"sensitive-code","provider":"sensitive-provider"},"url":"https://sensitive.example","diagnostics":null}
 JSON
 cat >"$HOME/errors/s-test/e-transport.json" <<'JSON'
-{"schema_version":2,"event_id":"e-transport","occurred_at_ms":2,"kit_version":"0.1.98","session_id":"s-test","surface":"prompt","kind":"provider","code":"request_transport","message":"sensitive-transport-message","diagnostics":{"stage":"request","retryable":true,"attempt":2,"response_request_id":"req_safe-123","reqwest":{"timeout":false,"connect":true,"request":true,"body":false,"decode":false},"source_chain":[{"code":"sensitive-source-code","provider":"sensitive-source-provider"}],"source_chain_unknown":true,"source_chain_truncated":false}}
+{"schema_version":2,"event_id":"e-transport","occurred_at_ms":2,"kit_version":"0.1.130","session_id":"s-test","surface":"prompt","kind":"provider","code":"request_transport","message":"sensitive-transport-message","diagnostics":{"stage":"request","retryable":true,"attempt":2,"response_request_id":"req_safe-123","reqwest":{"timeout":false,"connect":true,"request":true,"body":false,"decode":false},"source_chain":[{"code":"sensitive-source-code","provider":"sensitive-source-provider"}],"source_chain_unknown":true,"source_chain_truncated":false}}
 JSON
 exit 1
 MOCK

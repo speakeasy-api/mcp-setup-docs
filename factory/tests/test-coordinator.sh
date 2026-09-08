@@ -578,8 +578,8 @@ for phrase in \
   'bash factory/tests/run.sh' \
   'shellcheck factory/scripts/*.sh factory/tests/*.sh' \
   'go test ./internal/guidecheck ./cmd/lint-guide' \
-  'KIT_VERSION=0.1.98' \
-  'KIT_SHA256=7d14561469ced8af21df1075a9071d04a7bad1b1c5ff90d685142d3231abae85' \
+  'KIT_VERSION=0.1.130' \
+  'KIT_SHA256=232bbbf2958e9b83aba352ecfc7195768868f630cbf5fcdcdeb45b2ed12f5ecd' \
   '-f factory/Dockerfile .'; do
   grep -Fq -- "$phrase" "$FACTORY_CI" || fail "missing Factory CI contract: $phrase"
 done

@@ -51,6 +51,6 @@ jobs:
 
       - name: Build factory image
         run: |
-          docker build --build-arg KIT_VERSION=0.1.98 \
-            --build-arg KIT_SHA256=7d14561469ced8af21df1075a9071d04a7bad1b1c5ff90d685142d3231abae85 \
+          docker build --build-arg KIT_VERSION=0.1.130 \
+            --build-arg KIT_SHA256=232bbbf2958e9b83aba352ecfc7195768868f630cbf5fcdcdeb45b2ed12f5ecd \
             -f factory/Dockerfile .
