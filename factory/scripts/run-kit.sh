@@ -12,7 +12,8 @@ export_dir=$3
 mkdir -p "$export_dir"
 export_dir="$(realpath "$export_dir")"
 rm -rf "$export_dir/guide" "$export_dir/run-report.json" \
-  "$export_dir/kit-error-summary.json" "$export_dir/factory-diagnostics.json"
+  "$export_dir/kit-error-summary.json" "$export_dir/factory-diagnostics.json" \
+  "$export_dir/execution-transcript.json"
 [[ -r "$issue_json" ]] || { printf 'issue JSON is not readable: %s\n' "$issue_json" >&2; exit 2; }
 [[ -r "$catalog_json" ]] || { printf 'catalog JSON is not readable: %s\n' "$catalog_json" >&2; exit 2; }
 : "${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required}"

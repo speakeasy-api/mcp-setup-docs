@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT/factory/tests/test-helper.sh"
 TMP="$(mktemp -d)"
 export TMP
+export FACTORY_TRANSCRIPT_BUILDER="$ROOT/factory/scripts/build-transcript.sh"
 trap 'rm -rf "$TMP"; exit 130' INT TERM
 
 test_launcher_canonicalizes_paths_and_mounts_gitless_snapshot() {

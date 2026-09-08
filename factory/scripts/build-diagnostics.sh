@@ -149,6 +149,7 @@ if ! jq -n \
 fi
 
 "$DIAGNOSTICS_VALIDATOR" "$temporary" >/dev/null 2>&1 || exit 1
+chmod 0644 "$temporary" 2>/dev/null || exit 1
 mv -f -- "$temporary" "$output" 2>/dev/null || exit 1
 temporary=
 succeeded=true

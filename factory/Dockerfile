@@ -22,6 +22,8 @@ RUN file=kit-v${KIT_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
 COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide
 COPY factory/scripts/validate-report.sh /usr/local/bin/validate-report
 COPY factory/scripts/project-kit-events.sh /usr/local/bin/project-kit-events
+COPY factory/scripts/build-transcript.sh /usr/local/bin/build-transcript
+COPY factory/scripts/transcript.jq /usr/local/bin/transcript.jq
 COPY factory/scripts/build-diagnostics.sh /usr/local/bin/build-diagnostics
 COPY factory/scripts/validate-diagnostics.sh /usr/local/bin/validate-diagnostics
 COPY factory/scripts/container-entrypoint.sh /usr/local/bin/factory-entrypoint
