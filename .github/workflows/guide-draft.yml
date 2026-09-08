@@ -123,7 +123,7 @@ jobs:
           cp "$RUNNER_TEMP/export/run-report.json" "$RUNNER_TEMP/run-report.json"
 
       - name: Upload safe factory diagnostics
-        if: failure() && steps.kit.outcome == 'failure'
+        if: always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')
         uses: actions/upload-artifact@v4
         with:
           name: guide-factory-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}

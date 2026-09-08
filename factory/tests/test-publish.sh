@@ -204,6 +204,10 @@ test_failed_and_hard_failure_never_commit() {
   make_report "$report" failed '[]'
   bash "$SCRIPT" publish "$report"
   [[ ! -s "$GIT_LOG" ]] || fail "failed report invoked git"
+  assert_contains "https://github.com/acme/docs/actions/runs/9001" "$(cat "$COMMENT_LOG")"
+  assert_contains "The automation did not complete" "$(cat "$COMMENT_LOG")"
+  assert_contains "diagnostic artifact" "$(cat "$COMMENT_LOG")"
+  assert_not_contains "Resolve the findings" "$(cat "$COMMENT_LOG")"
   assert_contains "Summary" "$(cat "$COMMENT_LOG")"
   assert_not_contains "Question; rm -rf /" "$(cat "$COMMENT_LOG")"
   assert_not_contains "Open questions" "$(cat "$COMMENT_LOG")"

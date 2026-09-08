@@ -106,7 +106,11 @@ refuse() {
 
 render_report_comment() {
   local report=$1 pr_url=$2 resumed=$3 output=$4
-  jq -r --arg pr_url "$pr_url" --arg resumed "$resumed" '
+  local run_url=""
+  if [[ -n ${GITHUB_RUN_ID:-} ]]; then
+    run_url="${GITHUB_SERVER_URL:-https://github.com}/$GH_REPO/actions/runs/$GITHUB_RUN_ID"
+  fi
+  jq -r --arg pr_url "$pr_url" --arg resumed "$resumed" --arg run_url "$run_url" '
     def bound: tostring[0:1000];
     def items($heading; $numbered):
       .[0:20] as $values | if ($values | length) == 0 then [] else
@@ -122,12 +126,14 @@ render_report_comment() {
       "- **Persona:** " + ((.persona // "unresolved")|bound),
       "- **Run context:** " + (if $resumed == "true" then "resumed existing factory branch" else "new factory branch" end),
       (if $pr_url == "" then empty else "- **Pull request:** " + $pr_url end),
+      (if $run_url == "" then empty else "- **Workflow run:** " + $run_url end),
       "", "### Summary", "", (.summary|bound), ""]
      + (if .outcome == "awaiting_scope" then (.open_questions|items("### Material decisions"; true)) else [] end)
      + (.blockers|items("### Blockers"; false))
      + (.nits|items("### Nits"; false))
      + [if .outcome == "converged" then "Ready for review."
         elif .outcome == "awaiting_scope" then "Reply with the numbered decisions, then re-add `guide:draft`."
+        elif .outcome == "failed" then "The automation did not complete; this is not a completed review requesting guide changes. Check the workflow logs and diagnostic artifact (if available) for the failure, then re-add `guide:draft` once it is resolved."
         else "Resolve the findings, then re-add `guide:draft`." end])
     | join("\n")
   ' "$report" >"$output"

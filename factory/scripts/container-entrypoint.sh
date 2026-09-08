@@ -52,9 +52,8 @@ else
 fi
 rm -f -- "$RUNTIME_FIFO"
 
-diagnostics_available=true
 if ((projector_status != 0)); then
-  diagnostics_available=false
+  # Discard rejected events, but retain independently validated failure metadata.
   rm -f -- "$EXPORT_ROOT/factory-diagnostics.json"
   printf '%s\n' '[]' >"$PROJECTED_EVENTS"
 fi
@@ -109,10 +108,8 @@ elif [[ $(jq -r '.outcome' "$report") == failed ]]; then
 fi
 
 if [[ -n $stage ]]; then
-  if [[ $diagnostics_available == true ]]; then
-    "$DIAGNOSTICS_BUILDER" "$stage" "$kit_status" "$MANIFEST_EVENTS" \
-      "$report" "$kit_errors_path" "$EXPORT_ROOT/factory-diagnostics.json" || true
-  fi
+  "$DIAGNOSTICS_BUILDER" "$stage" "$kit_status" "$MANIFEST_EVENTS" \
+    "$report" "$kit_errors_path" "$EXPORT_ROOT/factory-diagnostics.json" || true
   if [[ $stage == factory_outcome ]]; then
     cp "$report" "$EXPORT_ROOT/run-report.json"
     exit 0
