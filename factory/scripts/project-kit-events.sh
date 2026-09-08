@@ -70,6 +70,10 @@ while IFS= read -r line || [[ -n $line ]]; do
     elif .event == "session_started" then
       if exact(["event", "session_id"]) and (.session_id | type == "string")
       then {kind: "ignored"} else error("invalid") end
+    elif .event == "storage_status" then
+      if exact(["event", "pending", "exhausted"])
+         and (.pending | type == "boolean") and (.exhausted | type == "boolean")
+      then {kind: "ignored"} else error("invalid") end
     elif .event == "compaction_started" then
       if exact(["event", "reason", "at"]) and (.reason | type == "string") and (.at | uint)
       then {kind: "ignored"} else error("invalid") end

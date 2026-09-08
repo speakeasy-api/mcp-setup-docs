@@ -199,6 +199,7 @@ expect_invalid_file missing "$TMP/missing.json"
 marker=$(printf '\001kit-runtime\001')
 cat >"$TMP/runtime-events.in" <<EOF
 ordinary diagnostic
+${marker}{"event":"storage_status","pending":true,"exhausted":false}
 ${marker}{"event":"session_started","session_id":"SECRET_SESSION_ID_CANARY"}
 ${marker}{"event":"compaction_started","reason":"SECRET_COMPACTION_REASON_CANARY","at":7}
 ${marker}{"event":"child_started","call":"SECRET_RAW_CALL_1","tool":"shell","summary":"bash factory/scripts/inspect-inputs.sh /input/issue.json /input/catalog.json","at":8}
@@ -268,3 +269,16 @@ expect_bad_runtime inconsistent-tool \
 "${marker}{\"event\":\"child_finished\",\"call\":\"SECRET_INCONSISTENT_TOOL_CALL_CANARY\",\"tool\":\"shell\",\"ok\":true,\"summary\":\"SECRET_SHELL_RESULT_CANARY\",\"millis\":27}"
 
 printf 'PASS: strict diagnostics validation and runtime projection\n'
+
+for payload in '{"event":"storage_status","pending":true}' '{"event":"storage_status","pending":1,"exhausted":false}' '{"event":"storage_status","pending":false,"exhausted":null}' '{"event":"storage_status","pending":true,"exhausted":false,"SECRET_EXTRA":true}'; do
+  expect_bad_runtime storage-invalid "${marker}${payload}"
+done
+for pending in true false; do
+  for exhausted in true false; do
+    printf '%s{"event":"storage_status","pending":%s,"exhausted":%s}\n' "$marker" "$pending" "$exhausted" | "$PROJECTOR" "$TMP/storage-only.json"
+    jq -e '. == []' "$TMP/storage-only.json" >/dev/null
+  done
+done
+for payload in '{"event":"storage_status"}' '{"event":"storage_status","exhausted":true}' '{"event":"storage_status","pending":null,"exhausted":false}' '{"event":"storage_status","pending":"true","exhausted":false}' '{"event":"storage_status","pending":true,"exhausted":[]}' '{"event":"storage_status","pending":{},"exhausted":false}'; do
+  expect_bad_runtime storage-invalid-more "${marker}${payload}"
+done

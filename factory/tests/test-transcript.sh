@@ -48,3 +48,55 @@ grep -Fq "if: always() && !cancelled() && (steps.kit.outcome == 'success' || ste
 # shellcheck disable=SC2016
 grep -Fq 'path: ${{ runner.temp }}/export/execution-transcript.json' "$TMP/upload"
 grep -Fq 'retention-days: 7' "$TMP/upload"
+
+# Verified Kit v0.1.130 / compose 0.10.11 / Runlet 0.6.0 formats.
+mkdir -p "$TMP/details/.kit/sessions/w-test"
+python3 - "$TMP/details/.kit/sessions/w-test/test.jsonl" <<'PY'
+import json,sys
+errors = [
+ 'invalid tool input: runlet program rejected before execution; fix the errors and retry (warnings are advisory and do not block execution):\n\nerror RL1003 [invalid string escape] at 22..35: SECRET_ERROR\n  fix: SECRET_FIX',
+ 'tool execution failed: RL5201: INVALID_NUMERIC_OPERANDS\n  at 2..8: `SECRET_SOURCE`',
+ 'tool execution failed: RL6103: TOOL_OUTPUT_SCHEMA_MISMATCH\n  at 4..9: `SECRET_SCHEMA`',
+ 'tool execution failed: ACP harness handshake timeout: SECRET_TRANSPORT (harness="SECRET_ID", source=configured ACP profile, cwd=configured working directory)',
+ 'SECRET_UNKNOWN RL5201: INVALID_NUMERIC_OPERANDS',
+]
+with open(sys.argv[1],'w') as f:
+ for text in errors:
+  f.write(json.dumps(dict(schema_version=3,item=dict(kind='Tool',parts=[dict(ToolResult=dict(call_id='SECRET',is_error=True,output=dict(Text=text)))])))+'\n')
+ value={'nested':{'id':'SECRET','generation':1,'output':'SECRET_SCHEMA_FALLBACK','updates':{'items':[{'sessionUpdate':'tool_call_update','status':'failed','content':'SECRET_UPDATE','unknown':'SECRET'}, {'sessionUpdate':'tool_call_update','status':'SECRET_STATUS'}],'truncated':True}}}
+ f.write(json.dumps(dict(schema_version=3,item=dict(kind='Tool',parts=[dict(ToolResult=dict(call_id='SECRET',is_error=False,output=dict(Structured=value)))])))+'\n')
+PY
+bash "$BUILD" "$TMP/details" "$TMP/details.json"
+jq -e '[.events[0:4][].error_details[0].category] == ["runlet_compile","runlet_type","tool_output_schema","acp_transport"] and .events[0].error_details[0].start == 22 and .events[4].error_details == [] and .events[4].error_details_omitted == true and .events[5].subagent_results[0].output_kind == "string" and .events[5].subagent_results[0].schema_validation == "not_observable" and .events[5].subagent_results[0].statuses == ["failed"] and .events[5].subagent_results[0].updates_truncated == true' "$TMP/details.json" >/dev/null
+! grep -q SECRET "$TMP/details.json" || fail 'error/outcome projection leaked canaries'
+# Preserve late failure evidence beyond both source and event limits.
+python3 - "$TMP/details/.kit/sessions/w-test/test.jsonl" <<'PY'
+import json,sys
+with open(sys.argv[1], 'w') as f:
+ for _ in range(5000):
+  f.write(json.dumps({'schema_version':3,'item':{'kind':'Assistant','parts':[{'Text':'SECRET_PADDING'*30}]}})+'\n')
+ f.write(json.dumps({'schema_version':3,'item':{'kind':'Tool','parts':[{'ToolResult':{'is_error':True,'output':{'Text':'tool execution failed: RL6102: TOOL_INPUT_SCHEMA_MISMATCH'}}}]}})+'\n')
+PY
+bash "$BUILD" "$TMP/details" "$TMP/tail.json"
+jq -e '.limited and any(.events[]; any(.error_details[]?; .category == "tool_input_schema"))' "$TMP/tail.json" >/dev/null
+! grep -q SECRET "$TMP/tail.json" || fail 'tail leaked canary'
+# Compose may return a caught Runlet error nested in an otherwise successful result.
+jq -nc '{schema_version:3,item:{kind:"Tool",parts:[{ToolResult:{is_error:false,output:{Structured:{nested:{code:"RL6103",message:"SECRET_ERROR",retryable:false,uncertain:true,attempt:2,span:{start:4,end:9,SECRET:9},node_id:"SECRET_NODE",SECRET:"SECRET_EXTRA"},unknown:{code:"SECRET_CODE",message:"SECRET_UNKNOWN",attempt:3}}}}}]}}' >"$TMP/details/.kit/sessions/w-test/test.jsonl"
+bash "$BUILD" "$TMP/details" "$TMP/caught.json"
+jq -e '.events[0].error_details == [{category:"tool_output_schema",code:"RL6103",retryable:false,uncertain:true,attempt:2,start:4,end:9}]' "$TMP/caught.json" >/dev/null
+! grep -q SECRET "$TMP/caught.json" || fail 'caught error leaked canary'
+# Installed sibling layout needs no source-tree paths.
+mkdir -p "$TMP/installed"
+cp "$BUILD" "$ROOT/factory/scripts/transcript.jq" "$TMP/installed/"
+bash "$TMP/installed/build-transcript.sh" "$TMP/details" "$TMP/installed.json"
+cmp "$TMP/caught.json" "$TMP/installed.json"
+# Independently exercise the event cap without exceeding the source byte cap.
+python3 - "$TMP/details/.kit/sessions/w-test/test.jsonl" <<'PY'
+import json,sys
+with open(sys.argv[1], 'w') as f:
+ for _ in range(5000):
+  f.write('{"schema_version":3,"item":{"kind":"Assistant","parts":[{"Text":""}]}}\n')
+ f.write(json.dumps({'schema_version':3,'item':{'kind':'Tool','parts':[{'ToolResult':{'is_error':True,'output':{'Text':'tool execution failed: RL6102: TOOL_INPUT_SCHEMA_MISMATCH'}}}]}})+'\n')
+PY
+bash "$BUILD" "$TMP/details" "$TMP/event-cap.json"
+jq -e '.limited and (.events | length) == 4096 and .events[-1].error_details[0].code == "RL6102"' "$TMP/event-cap.json" >/dev/null
