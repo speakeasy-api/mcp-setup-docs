@@ -122,6 +122,15 @@ jobs:
             "$RUNNER_TEMP/export"
           cp "$RUNNER_TEMP/export/run-report.json" "$RUNNER_TEMP/run-report.json"
 
+      - name: Upload sanitized execution transcript
+        if: always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')
+        uses: actions/upload-artifact@v4
+        with:
+          name: guide-factory-transcript-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/export/execution-transcript.json
+          retention-days: 7
+          if-no-files-found: ignore
+
       - name: Upload safe factory diagnostics
         if: always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')
         uses: actions/upload-artifact@v4

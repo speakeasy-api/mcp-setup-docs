@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT/factory/tests/test-helper.sh"
 TMP="$(mktemp -d)"
 export TMP
+export FACTORY_TRANSCRIPT_BUILDER="$ROOT/factory/scripts/build-transcript.sh"
 export FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh"
 export FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh"
 trap 'rm -rf "$TMP"; exit 130' INT TERM
@@ -122,6 +123,7 @@ test_startup_failures_remove_stale_diagnostics() {
   host_export="$TMP/stale-host-export"
   mkdir -p "$host_export"
   printf '%s\n' 'SECRET_STALE_HOST_DIAGNOSTIC' >"$host_export/factory-diagnostics.json"
+  touch "$host_export/execution-transcript.json"
 
   host_status=0
   OPENROUTER_API_KEY=or-test "$ROOT/factory/scripts/run-kit.sh" \
@@ -130,6 +132,7 @@ test_startup_failures_remove_stale_diagnostics() {
   assert_eq 2 "$host_status"
   test ! -e "$host_export/factory-diagnostics.json" \
     || fail 'run-kit retained stale diagnostics after startup failure'
+  test ! -e "$host_export/execution-transcript.json" || fail 'stale host transcript'
 
   repo="$TMP/stale-container-repo"
   input="$TMP/stale-container-input"
@@ -138,6 +141,7 @@ test_startup_failures_remove_stale_diagnostics() {
   printf 'assignment\n' >"$repo/factory/coordinator.md"
   printf '%s\n' 'SECRET_STALE_CONTAINER_DIAGNOSTIC' \
     >"$container_export/factory-diagnostics.json"
+  touch "$container_export/execution-transcript.json"
 
   container_status=0
   FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
@@ -147,6 +151,7 @@ test_startup_failures_remove_stale_diagnostics() {
     "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>&1 \
     || container_status=$?
   assert_eq 1 "$container_status"
+  test ! -e "$container_export/execution-transcript.json" || fail 'stale container transcript'
   test ! -e "$container_export/factory-diagnostics.json" \
     || fail 'entrypoint retained stale diagnostics after startup failure'
 }
@@ -436,6 +441,8 @@ test_entrypoint_exports_only_selected_guide_with_mocked_kit() {
 #!/usr/bin/env bash
 set -euo pipefail
 [[ "$1" == prompt ]]
+mkdir -p "$HOME/.kit/sessions/w-success"
+printf '%s\n' '{"schema_version":3,"item":{"kind":"Assistant","parts":[{"Text":{"text":"SECRET_SUCCESS"}}]}}' >"$HOME/.kit/sessions/w-success/test.jsonl"
 mkdir -p "$FACTORY_WORKSPACE_ROOT/guides/acme"
 printf 'guide\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/research.md"
 printf 'ignore\n' >"$FACTORY_WORKSPACE_ROOT/not-exported.txt"
@@ -462,7 +469,9 @@ MOCK
   test -f "$export_root/guide/meta.yaml"
   test -f "$export_root/run-report.json"
   test ! -e "$export_root/not-exported.txt"
-  assert_eq "3" "$(find "$export_root" -type f | wc -l | tr -d ' ')"
+  jq -e '.sessions == 1 and .events[0].part == "Text"' "$export_root/execution-transcript.json" >/dev/null || fail 'successful Kit lost transcript'
+  ! grep -q SECRET "$export_root/execution-transcript.json" || fail 'successful transcript leaked text'
+  assert_eq "4" "$(find "$export_root" -type f | wc -l | tr -d ' ')"
 }
 
 test_entrypoint_rejects_invalid_report() {
@@ -566,6 +575,8 @@ test_entrypoint_handles_invalid_projection_and_missing_report() {
     workspace="$TMP/runtime-workspace-$kind"; export_root="$TMP/runtime-export-$kind"
     cat >"$fake_kit" <<'MOCK'
 #!/usr/bin/env bash
+mkdir -p "$HOME/.kit/sessions/w-test"
+printf '%s\n' '{"schema_version":3,"session_id":"SECRET_SESSION","generation":1,"item":{"kind":"Assistant","parts":[{"Text":{"text":"SECRET_TEXT"}}]}}' >"$HOME/.kit/sessions/w-test/session.jsonl"
 marker=$(printf '\001kit-runtime\001')
 printf '%s%s\n' "$marker" "${RUNTIME_BAD_LINE}" >&2
 printf '%s\n' 'ordinary diagnostic after bad event' >&2
@@ -587,6 +598,8 @@ MOCK
       "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/runtime-$kind.err"; then
       fail "entrypoint accepted $kind runtime event"
     fi
+    jq -e '.sessions == 1 and .events[0].part == "Text"' "$export_root/execution-transcript.json" >/dev/null || fail 'parser failure lost transcript'
+    ! grep -q SECRET "$export_root/execution-transcript.json" || fail 'container transcript leaked secret'
     "$ROOT/factory/scripts/validate-diagnostics.sh" "$export_root/factory-diagnostics.json" >/dev/null \
       || fail "entrypoint lost safe fallback for $kind runtime event"
     jq -e '.stage == "kit_prompt" and (.events | length) == 2 and all(.events[]; .tool == "kit_prompt")' \
@@ -623,6 +636,7 @@ MOCK
   "$ROOT/factory/scripts/validate-diagnostics.sh" "$export_root/factory-diagnostics.json" >/dev/null
   jq -e '.stage == "factory_outcome" and .classification == "factory_reported_failure" and .report.outcome == "failed" and (.events | length) == 2' \
     "$export_root/factory-diagnostics.json" >/dev/null || fail 'lost failed-report fallback'
+  test -r "$export_root/execution-transcript.json" || fail 'factory failure lost transcript'
   test -f "$export_root/run-report.json" || fail 'lost failed report'
   test ! -e "$export_root/guide" || fail 'exported failed guide'
   if grep -q 'SECRET_' "$export_root/factory-diagnostics.json"; then

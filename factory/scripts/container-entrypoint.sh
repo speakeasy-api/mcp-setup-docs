@@ -8,11 +8,13 @@ EXPORT_ROOT=${FACTORY_EXPORT_ROOT:-/export}
 KIT_HOME=${FACTORY_KIT_HOME:-/tmp/kit-home}
 REPORT_VALIDATOR=${FACTORY_REPORT_VALIDATOR:-/usr/local/bin/validate-report}
 EVENT_PROJECTOR=${FACTORY_EVENT_PROJECTOR:-/usr/local/bin/project-kit-events}
+TRANSCRIPT_BUILDER=${FACTORY_TRANSCRIPT_BUILDER:-/usr/local/bin/build-transcript}
 DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-/usr/local/bin/build-diagnostics}
 
 mkdir -p "$EXPORT_ROOT"
 rm -rf "$EXPORT_ROOT/guide" "$EXPORT_ROOT/run-report.json" \
-  "$EXPORT_ROOT/kit-error-summary.json" "$EXPORT_ROOT/factory-diagnostics.json"
+  "$EXPORT_ROOT/kit-error-summary.json" "$EXPORT_ROOT/factory-diagnostics.json" \
+  "$EXPORT_ROOT/execution-transcript.json"
 test -r "$INPUT_ROOT/issue.json"
 test -r "$INPUT_ROOT/catalog.json"
 test -r "$REPO_ROOT/factory/coordinator.md"
@@ -44,6 +46,11 @@ if KIT_RUNTIME_EVENTS=1 "$KIT_BIN" prompt \
   kit_status=0
 else
   kit_status=$?
+fi
+# Persist safe session structure before consuming any projector/report results.
+if ! "$TRANSCRIPT_BUILDER" "$KIT_HOME" "$EXPORT_ROOT/execution-transcript.json" 2>/dev/null; then
+  rm -f -- "$EXPORT_ROOT/execution-transcript.json"
+  printf '%s\n' 'factory: sanitized transcript unavailable' >&2
 fi
 if wait "$projector_pid"; then
   projector_status=0

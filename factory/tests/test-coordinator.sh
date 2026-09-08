@@ -194,10 +194,10 @@ assert_step_contains() {
 }
 
 upload_step_block() {
-  local workflow=$1
-  awk '
-    $0 == "      - name: Upload safe factory diagnostics" { found=1 }
-    found && /^      - name: / && $0 != "      - name: Upload safe factory diagnostics" { exit }
+  local workflow=$1 name=${2:-Upload safe factory diagnostics}
+  awk -v target="      - name: $name" '
+    $0 == target { found=1 }
+    found && /^      - name: / && $0 != target { exit }
     found { print }
   ' "$workflow"
 }
@@ -254,8 +254,22 @@ assert_upload_contract() {
     fail 'upload step contains a multiline or nested field value'
     return 1
   fi
+  block="$(upload_step_block "$workflow" 'Upload sanitized execution transcript')"
+  [[ -n "$block" ]] || { fail 'missing sanitized transcript upload'; return 1; }
+  assert_upload_field_equals "$block" '        ' if "always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')" || return 1
+  assert_upload_field_equals "$block" '        ' uses 'actions/upload-artifact@v4' || return 1
+  # shellcheck disable=SC2016
+  assert_upload_field_equals "$block" '          ' name 'guide-factory-transcript-${{ github.run_id }}-${{ github.run_attempt }}' || return 1
+  # shellcheck disable=SC2016
+  assert_upload_field_equals "$block" '          ' path '${{ runner.temp }}/export/execution-transcript.json' || return 1
+  assert_upload_field_equals "$block" '          ' retention-days '7' || return 1
+  assert_upload_field_equals "$block" '          ' if-no-files-found ignore || return 1
+  if grep -Eq '^            [^[:space:]]' <<<"$block"; then
+    fail 'transcript upload contains a multiline or nested field value'
+    return 1
+  fi
   upload_count="$(count_upload_artifact_actions "$workflow")"
-  assert_eq '1' "$upload_count" || return 1
+  assert_eq '2' "$upload_count" || return 1
 }
 
 steps_with() {
