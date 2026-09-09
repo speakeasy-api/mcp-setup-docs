@@ -517,8 +517,13 @@ test_entrypoint_exports_safe_kit_failure_diagnostics() {
 #!/usr/bin/env bash
 marker=$(printf '\001kit-runtime\001')
 printf '%s\n' 'ordinary Kit diagnostic' >&2
+printf '%s%s\n' "$marker" '{"event":"storage_status","pending":true,"exhausted":false}' >&2
 printf '%s%s\n' "$marker" '{"event":"child_started","call":"SECRET_RAW_CALL","tool":"shell","summary":"printf SECRET_RUNTIME_SUMMARY","at":8}' >&2
 printf '%s%s\n' "$marker" '{"event":"child_finished","call":"SECRET_RAW_CALL","tool":"shell","ok":false,"summary":"SECRET_RUNTIME_RESULT","millis":42}' >&2
+mkdir -p "$HOME/.kit/sessions/w-test"
+cat >"$HOME/.kit/sessions/w-test/failure.jsonl" <<'JSON'
+{"schema_version":3,"item":{"kind":"Tool","parts":[{"ToolResult":{"call_id":"SECRET_CALL","is_error":true,"output":{"Text":"tool execution failed: RL6103: TOOL_OUTPUT_SCHEMA_MISMATCH\n  at 4..9: `SECRET_SOURCE`"}}}]}}
+JSON
 mkdir -p "$HOME/errors/s-test"
 cat >"$HOME/errors/s-test/e-test.json" <<'JSON'
 {"schema_version":2,"event_id":"e-test","occurred_at_ms":1,"kit_version":"0.1.130","session_id":"s-test","surface":"prompt","kind":"provider","code":"provider_error","message":"sensitive-provider-body","prompt":{"code":"sensitive-code","provider":"sensitive-provider"},"url":"https://sensitive.example","diagnostics":null}
@@ -549,6 +554,8 @@ MOCK
   if grep -Eq 'sensitive-provider-body|sensitive-code|sensitive-provider|sensitive-transport-message|sensitive-source|sensitive\.example' "$export_root/kit-error-summary.json"; then
     fail 'Kit failure diagnostics leaked unsafe fields'
   fi
+  jq -e 'any(.events[]; .error_details[0].category == "tool_output_schema")' "$export_root/execution-transcript.json" >/dev/null
+  ! grep -q SECRET "$export_root/execution-transcript.json" || fail 'entrypoint transcript leaked error details'
   assert_contains 'ordinary Kit diagnostic' "$(cat "$TMP/entrypoint.err")"
   if grep -Eq 'SECRET_RAW_CALL|SECRET_RUNTIME_SUMMARY|SECRET_RUNTIME_RESULT' "$TMP/entrypoint.err" "$export_root/factory-diagnostics.json"; then
     fail 'entrypoint exposed raw runtime event data'
