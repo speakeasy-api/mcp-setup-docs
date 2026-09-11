@@ -1,10 +1,18 @@
-# yaml-language-server: $schema=../../schema/guide.v1.schema.json
 schema_version: 1
 slug: google-calendar
 title: Google Calendar
-summary: Connect Google Calendar through Google's hosted Calendar MCP server with a Google Cloud OAuth client.
-speakeasy_add_server: auto
+summary: Connect the Google Calendar remote MCP server for private preview read and availability access.
+speakeasy_add_server: custom-remote
 credential_setup:
+  requirements:
+    - id: registered-project
+      description: Use a Google Workspace account and an existing Google Cloud project registered for the Workspace Developer Preview Program.
+    - id: project-permissions
+      description: Obtain service enablement permission and OAuth Config Editor access on the registered project.
+    - id: security-screening
+      description: Supply organization-owned prompt and response screening and document the solution so users can accept the risk.
+    - id: permitted-users
+      description: Use permitted preview users with Calendar access and an eligible Internal account or assigned External test-user account.
   options:
     - id: oauth-client
       kind: oauth
@@ -15,110 +23,60 @@ credential_setup:
           label: Client ID
           setup:
             - external.md#create-oauth-client
-            - external.md#copy-oauth-credentials
         - id: client-secret
           label: Client Secret
           setup:
             - external.md#create-oauth-client
-            - external.md#copy-oauth-credentials
-  requirements:
-    - id: developer-preview
-      description: Google has confirmed the intended Google Workspace account and registered the Google Cloud project in the Google Workspace Developer Preview Program; each connecting user belongs to the applicant's domain or company unless Google permits otherwise
-    - id: google-cloud-project
-      description: An administrator can enable Google Calendar API and Calendar MCP API in the registered project, configure Google Auth Platform, create OAuth credentials, and change project IAM; enabling services requires serviceusage.services.enable
-    - id: connecting-user-access
-      description: Each Developer Preview-eligible connecting user has mcp.tools.call on the project, normally through MCP Tool User though another predefined or custom role containing that permission suffices, access to the intended calendars, and applicable External-audience test-user status
-    - id: workspace-app-approval
-      description: If Calendar is Restricted or the new app requires approval, a Google Workspace administrator with the Service Settings privilege can approve the app under Workspace API controls
-    - id: prompt-injection-screening
-      description: An application or security owner has configured prompt and response screening for malicious content or prompt injection and documented the accepted risk when not using Google Model Armor
+remotes:
+  - id: calendar
+    url: https://calendarmcp.googleapis.com/mcp/v1
+    # This is the client remote proxy transport. Google documents HTTP.
+    transport: streamable-http
+    tenanted: false
+    authentication:
+      - oauth-client
 documentation:
   external: external.md
   speakeasy: speakeasy.md
-remotes:
-  - id: hosted
-    url: https://calendarmcp.googleapis.com/mcp/v1
-    transport: streamable-http
-    authentication:
-      - oauth-client
-    provenance:
-      - source: provider-documentation
-        locator: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server
-        name: Configure the Calendar MCP server
-        classification: official
-        observed_at: "2026-08-29T15:13:24Z"
-      - source: provider-metadata
-        locator: https://calendarmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-        name: Google Calendar MCP protected-resource metadata
-        classification: official
-        observed_at: "2026-08-29T15:13:24Z"
+# Observation dates are normalized to midnight; the dossier gives no time of day.
 provenance:
-  - source: provider-documentation
+  - source: google-developers
+    classification: official
     locator: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server
-    name: Configure the Calendar MCP server
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: google-developers
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
     locator: https://developers.google.com/workspace/preview
-    name: Google Workspace Developer Preview Program
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: google-developers
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/authenticate-mcp
-    name: Authenticate to Google and Google Cloud MCP servers
+    locator: https://developers.google.com/workspace/guides/configure-mcp-security
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: google-developers
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
-    name: Set up authentication for Google Cloud MCP servers
+    locator: https://developers.google.com/identity/protocols/oauth2
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: google-cloud
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://cloud.google.com/service-usage/docs/enable-disable
-    name: Enable and disable services
+    locator: https://cloud.google.com/iam/docs/roles-permissions/oauthconfig
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: google-workspace
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/iam/docs/grant-role-console
-    name: Grant an IAM role by using the Google Cloud console
-    classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549945?hl=en
-    name: Manage App Audience
-    classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549135?hl=en
-    name: Manage App Data Access
-    classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549257?hl=en
-    name: Manage OAuth Clients
-    classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
     locator: https://support.google.com/a/answer/7281227?hl=en
-    name: Control which apps access Google Workspace data
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: google-workspace
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-metadata
-    locator: https://calendarmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-    name: Google Calendar MCP protected-resource metadata
+    locator: https://knowledge.workspace.google.com/admin/users/access/turn-calendar-on-or-off-for-users
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: google-calendar
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-metadata
-    locator: https://accounts.google.com/.well-known/oauth-authorization-server
-    name: Google OAuth authorization-server metadata
+    locator: https://support.google.com/calendar/answer/37082?hl=en
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: speakeasy-api-gram
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: repository-doctrine
+    locator: https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/interceptors/google.go
+    version: 496e62ca5d5ebd99f0c189f2614fc9c707e44659
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: speakeasy-setup-doctrine
     locator: doctrine/speakeasy-setup.md
-    name: Speakeasy setup canonical file
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: pulsemcp
-    locator: credential-free Pulse snapshot for Google Calendar
-    name: Google Calendar catalog lookup
-    status: ready; no Google Calendar catalog entry found
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: '2026-09-11T00:00:00Z'

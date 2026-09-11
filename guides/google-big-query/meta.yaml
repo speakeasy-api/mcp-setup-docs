@@ -2,9 +2,10 @@
 schema_version: 1
 slug: google-big-query
 title: Google BigQuery
-summary: Query and manage BigQuery data through Google's hosted BigQuery MCP server.
+summary: Connect to Google's remote BigQuery MCP server with manual OAuth.
 aliases:
   - com.pulsemcp.mirror/google-bigquery
+speakeasy_add_server: custom-remote
 credential_setup:
   options:
     - id: oauth-client
@@ -17,14 +18,26 @@ credential_setup:
           setup:
             - external.md#create-oauth-client
             - external.md#copy-client-credentials
+            - speakeasy.md#connect-speakeasy-credentials
         - id: client-secret
           label: OAuth client secret
           setup:
             - external.md#create-oauth-client
             - external.md#copy-client-credentials
+            - speakeasy.md#connect-speakeasy-credentials
   requirements:
     - id: google-cloud-project
-      description: A Google Cloud project with the BigQuery API enabled; an administrator who can enable APIs, grant project IAM roles, configure the Google Auth platform, and create OAuth credentials; and connecting users granted MCP Tool User, BigQuery Job User, and BigQuery Data Viewer access
+      description: Use an existing Google Cloud project. Enable the BigQuery API if necessary. Billing is optional for the sandbox.
+    - id: setup-authority
+      description: Use Service Usage Admin for API enablement, Project IAM Admin for project grants, and OAuth Config Editor for OAuth setup, or equivalent permissions.
+    - id: resource-grant-authority
+      description: Use resource-specific grant permissions for data access. Existing dataset-level BigQuery Data Owner is one option for dataset grants.
+    - id: organization-agreement-authority
+      description: Obtain approval or help from a representative authorized to bind the organization before agreement acceptance. IAM roles do not give this authority.
+    - id: connecting-user-access
+      description: Give users MCP Tool User on the selected project, BigQuery Job User on the job project, and BigQuery Data Viewer on approved data resources, or equivalent access.
+    - id: oauth-audience
+      description: Internal requires an organization-associated project and users in that organization. Otherwise, use External Testing with listed test users. The limit is 100 test users. Authorization and refresh tokens expire after seven days.
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -32,6 +45,7 @@ remotes:
   - id: hosted
     url: https://bigquery.googleapis.com/mcp
     transport: streamable-http
+    tenanted: false
     authentication:
       - oauth-client
     provenance:
@@ -39,180 +53,74 @@ remotes:
         locator: https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp
         name: Use the BigQuery MCP server
         classification: official
-        observed_at: "2026-08-06T23:23:41Z"
-      - source: provider-documentation
-        locator: https://docs.cloud.google.com/bigquery/docs/reference/mcp
-        name: BigQuery MCP reference
-        classification: official
-        observed_at: "2026-08-06T23:23:41Z"
+        observed_at: "2026-09-11T00:00:00Z"
       - source: provider-documentation
         locator: https://docs.cloud.google.com/mcp/supported-products
         name: Supported products
         classification: official
-        observed_at: "2026-08-06T23:23:41Z"
-      - source: endpoint-observation
-        locator: https://bigquery.googleapis.com/mcp
-        name: BigQuery MCP endpoint
-        classification: official
-        observed_at: "2026-08-06T23:23:41Z"
-      - source: endpoint-observation
-        locator: https://bigquery.googleapis.com/.well-known/oauth-protected-resource/mcp
-        name: BigQuery MCP protected-resource metadata
-        classification: official
-        observed_at: "2026-08-06T23:23:41Z"
+        observed_at: "2026-09-11T00:00:00Z"
 provenance:
+  - source: research-dossier
+    locator: research.md
+    name: Google BigQuery Research Dossier
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp
     name: Use the BigQuery MCP server
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/bigquery/docs/reference/mcp
-    name: BigQuery MCP reference
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/supported-products
-    name: Supported products
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/overview
-    name: Google Cloud MCP servers overview
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/authenticate-mcp
-    name: Authenticate to Google and Google Cloud MCP servers
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
-    name: Set up authentication to Google and Google Cloud MCP servers
+    name: Set up authentication for MCP servers
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/docs/security/data-loss-prevention/revoking-user-access
-    name: Revoke access to a Google Cloud project
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/release-notes
-    name: Google Cloud MCP servers release notes
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/quotas
-    name: Google Cloud MCP quotas and system limits
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/service-usage/docs/enable-disable
-    name: Enable and disable services
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/capacity-planner/docs/create-future-reservations
-    name: Create future reservation requests
-    classification: official
-    observed_at: "2026-07-23T19:36:30Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/iam/docs/grant-role-console
-    name: Grant an IAM role by using the Google Cloud console
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/bigquery/docs/access-control
-    name: BigQuery IAM roles and permissions
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/bigquery/docs/sandbox
-    name: Try BigQuery using the sandbox
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-oauth-consent
-    name: Configure the OAuth consent screen and choose scopes
+    name: Configure OAuth consent
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://developers.google.com/health/codelabs/make-your-first-api-call
-    name: Make your first Google Health API call
+    locator: https://docs.cloud.google.com/iam/docs/roles-permissions/oauthconfig
+    name: OAuth Config roles and permissions
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://developers.google.com/identity/protocols/oauth2
-    name: Using OAuth 2.0 to Access Google APIs
+    locator: https://docs.cloud.google.com/iam/docs/granting-changing-revoking-access
+    name: Manage access to projects
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://developers.google.com/identity/protocols/oauth2/scopes
-    name: OAuth 2.0 Scopes for Google APIs
+    locator: https://docs.cloud.google.com/bigquery/docs/control-access-to-resources-iam
+    name: Control access to BigQuery resources
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification
-    name: Sensitive scope verification
+    locator: https://docs.cloud.google.com/bigquery/docs/access-control
+    name: BigQuery access control
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/13461325
-    name: Submitting your app for verification
+    locator: https://docs.cloud.google.com/mcp/control-mcp-use-iam
+    name: Control MCP use with IAM
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15544987
-    name: Get started with the Google Auth Platform
+    locator: https://developers.google.com/terms/api-services-user-data-policy
+    name: Google API Services User Data Policy
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549945
-    name: Manage App Audience
+    locator: https://developers.google.com/terms
+    name: Google APIs Terms of Service
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
-  - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549049
-    name: Manage OAuth App Branding
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549135
-    name: Manage App Data Access
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: endpoint-observation
-    locator: https://bigquery.googleapis.com/mcp
-    name: BigQuery MCP endpoint (tools/list 200 unauthenticated; tools/call 401)
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: endpoint-observation
-    locator: https://bigquery.googleapis.com/.well-known/oauth-protected-resource/mcp
-    name: BigQuery MCP protected-resource metadata
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: endpoint-observation
-    locator: https://accounts.google.com/.well-known/oauth-authorization-server
-    name: Google authorization-server metadata
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: repository-doctrine
+    observed_at: "2026-09-11T00:00:00Z"
+  - source: client-doctrine
     locator: doctrine/speakeasy-setup.md
-    name: Speakeasy setup canonical section
+    name: Speakeasy setup
+    observed_at: "2026-09-11T00:00:00Z"
+  - source: client-source
+    locator: https://github.com/speakeasy-api/gram/tree/37d7a9025109f8bbeef1211924cb3e59e1646e59
+    name: Speakeasy AI Control Plane OAuth implementation
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: product-source
-    locator: speakeasy-api/gram@96f7f73:client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/IssuerFormFields.tsx
-    name: Speakeasy identity-provider form fields
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: product-source
-    locator: speakeasy-api/gram@96f7f73:client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/AttachRemoteIdentityProviderSheet.tsx
-    name: Speakeasy identity-provider attachment sheet
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/contact-center/ccai-platform/docs/oauth-email-google
-    name: Configure an email channel for OAuth with Gmail
-    classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    version: 37d7a9025109f8bbeef1211924cb3e59e1646e59
+    observed_at: "2026-09-11T00:00:00Z"
