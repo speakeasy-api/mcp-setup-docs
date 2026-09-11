@@ -20,10 +20,15 @@ test_config_is_pinned() {
   assert_eq "232bbbf2958e9b83aba352ecfc7195768868f630cbf5fcdcdeb45b2ed12f5ecd" "$KIT_SHA256"
 }
 
+test_go_toolchain_is_pinned() {
+  grep -Fxq 'go 1.27.0' "$ROOT/go/go.mod" || fail 'module must require Go 1.27.0'
+  grep -Fxq 'go = "1.27.0"' "$ROOT/mise.toml" || fail 'mise must pin Go 1.27.0'
+}
+
 test_dockerfile_builds_static_linter_without_go_in_final_image() {
   local dockerfile
   dockerfile="$(cat "$ROOT/factory/Dockerfile")"
-  assert_contains "FROM golang:1.22.12-bookworm@sha256:3d699e4d15d0f8f13c9195c0632a16702b8cbdece2955af1c23b37ae5d55a253 AS lint-builder" "$dockerfile"
+  assert_contains "FROM golang:1.27.0-bookworm@sha256:ded31c68586d2e49e760acc2e65a884b23d032e9bbbed0ae0c55abd3fcaf4452 AS lint-builder" "$dockerfile"
   assert_contains "AS lint-builder" "$dockerfile"
   assert_contains "FROM debian:trixie-slim@sha256:d7e12182ce18b85b93007c1dedf31f2d29e01ccf3182cc4017c709b6259bc132" "$dockerfile"
   assert_contains "CGO_ENABLED=0" "$dockerfile"
@@ -800,6 +805,7 @@ test_opt_in_final_image() {
 }
 
 test_config_is_pinned
+test_go_toolchain_is_pinned
 test_dockerfile_builds_static_linter_without_go_in_final_image
 test_docker_context_excludes_credentials_and_keeps_build_inputs
 test_release_archive_layout_and_checksum

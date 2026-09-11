@@ -1,0 +1,10 @@
+# Contract fixture only: Task 3 supplies paths, pinned hash, private sanitized
+# run records, caught boundaries, and bounded reusable handles in production.
+prepared = shell({command: input.command})
+assert(prepared.success, "research prompt assembly failed")
+child = if input.kind == "initial" {
+return subagent({prompt: prepared.stdout})
+} else {
+return prompt({subagent: input.existingHandle, prompt: prepared.stdout})
+}
+return child
