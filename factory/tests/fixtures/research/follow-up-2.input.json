@@ -1,0 +1,11 @@
+{
+  "topic_id": 5,
+  "follow_up_index": 2,
+  "gaps": [
+    "Check endpoint"
+  ],
+  "conflicting_evidence": [],
+  "cross_topic_findings": [],
+  "requested_checks": [],
+  "research_budget_seconds": 60
+}
