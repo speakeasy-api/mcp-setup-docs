@@ -120,11 +120,11 @@ A7. Select custom remote only to connect the exact Slides endpoint, independent 
 
 ## Research limitations
 
-### Draft validation limitation
+### Operator-approved transport normalization
 
-The guide draft is saved, but deterministic lint has one blocker. The saved official endpoint source states `Transport: HTTP`. The metadata schema requires either `sse` or `streamable-http` in `remotes[0].transport`. Neither narrower value is established by the completed research, so the draft metadata leaves this field absent. This is a schema and evidence mismatch, not evidence that the remote endpoint is unsupported. The remote URL gate remains passed. No schema or safeguard was changed to hide the failure.
+The saved official endpoint source states `Transport: HTTP`. The operator has approved mapping documented HTTP to `streamable-http` for these MCP guides, so `remotes[0].transport` now uses that schema value. This resolves the earlier missing-field blocker without changing the schema or endpoint gate. This is an operator-approved interpretation, not new fetched source evidence, a universal statement about HTTP, or live transport verification. Provider quotations remain unchanged.
 
-Both permitted factual follow-up rounds were used for authentication and the final authority audit. No third research round was started. A later authorized run needs official evidence for a schema-supported transport value, or an authorized schema decision that can represent the documented HTTP value. The current bundle must not be treated as validated or ready to publish. Exact lint output is saved in `.factory/google-slides-recovery/`.
+Both permitted factual follow-up rounds were used for authentication and the final authority audit. No third research round was started. Normal human review and CI remain required before merge or publication.
 
 No authenticated connection or provider change was made. No screenshot was captured. The client tests were inspected, not executed. A separate release-note check was not completed; maintained pages showed no replacement notice in the checked passages. Existing report dates and quotations are retained. Some earlier requests timed out; they do not establish that a feature is unsupported. The final reports identify which facts were confirmed live and which source excerpts were retained.
 

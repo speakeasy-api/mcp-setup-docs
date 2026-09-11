@@ -1491,12 +1491,13 @@ Metadata uses `2026-09-11T00:00:00Z` to encode the reports' observation date.
 This is a date-only normalization for the required date-time field. It does
 not claim that a source was observed at midnight.
 
-Topic 5 T5-01 quotes the provider's transport value as `HTTP`. The metadata
-schema requires either `streamable-http` or `sse`. This bundle uses
-`streamable-http` as the schema representation of the documented remote
-HTTP connection. This is not a new wire-level transport observation. The
-endpoint gate relies on the official remote MCP URL, as the trial permits.
-A live connection was not tested. No old endpoint probe is reused.
+Topic 5 T5-01 quotes the provider's transport value as `HTTP`. The operator
+has approved mapping documented HTTP to `streamable-http` for these MCP
+guides. This bundle uses that schema value under this normalization. This
+is not new fetched source evidence, a universal statement about HTTP, or
+live transport verification. Provider quotations remain unchanged. The
+endpoint gate relies on the official remote MCP URL. A live connection
+was not tested. No old endpoint probe is reused.
 
 The following headings put the canonical action IDs into the dossier's
 heading syntax. They do not change the actions or the final authority audit.

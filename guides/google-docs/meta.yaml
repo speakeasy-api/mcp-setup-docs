@@ -46,8 +46,8 @@ documentation:
 remotes:
   - id: hosted
     url: https://docsmcp.googleapis.com/mcp/v1
-    # Schema classification for the documented HTTP remote; the provider does not
-    # name Streamable HTTP. This value is not transport verification. See research.md.
+    # Operator-approved HTTP normalization for these MCP guides, not live
+    # transport verification. See research.md.
     transport: streamable-http
     tenanted: false
     authentication:

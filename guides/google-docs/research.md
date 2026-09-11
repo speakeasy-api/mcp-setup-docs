@@ -1622,8 +1622,8 @@ ever join guide scope.
 
 ```
 
-## Final draft checks and schema limitation
+## Final draft checks and transport normalization
 
 Observed: 2026-09-11. The source check confirms the exact command argument `--full-uri='projects/PROJECT_ID/locations/global/floorSetting'`. Sources: Workspace **Configure protection for Google and Google Cloud remote MCP servers**, https://developers.google.com/workspace/guides/configure-mcp-security; and gcloud **SYNOPSIS / REQUIRED FLAGS**, https://docs.cloud.google.com/sdk/gcloud/reference/model-armor/floorsettings/update. Exact excerpts: `gcloud model-armor floorsettings update --full-uri=FULL_URI`; “Full uri of the floor setting”. The draft uses this flag, not a positional resource argument. This correction does not change the action or audited authority.
 
-Google's maintained Docs page, **Configure your MCP client > Others**, states “Transport: HTTP”. It does not name Streamable HTTP. The unchanged repository schema requires a transport value and accepts only `sse` or `streamable-http`. Metadata uses `streamable-http` as its HTTP classification, not as a verified transport claim. The metadata comment makes this limitation explicit. The official remote URL passes this trial's endpoint gate without transport-specific proof. Do not infer an unsupported endpoint from this schema limitation. No schema or safeguard was changed. Normal review must retain this distinction or authorize a schema representation for unspecified HTTP.
+Google's maintained Docs page, **Configure your MCP client > Others**, states “Transport: HTTP”. The operator has approved mapping documented HTTP to `streamable-http` for these MCP guides. Metadata uses that schema value under this normalization. This is not new fetched source evidence, a universal statement about HTTP, or live transport verification. Provider quotations remain unchanged. No schema or safeguard was changed. Normal human review and CI remain required.

@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=../../schema/guide.v1.schema.json
 # Generated at 2026-09-11T20:18:38Z from research.md; observations dated 2026-09-11.
-# The source states HTTP only. The schema requires sse or streamable-http.
-# No supported transport value is established; transport is omitted.
+# Operator-approved normalization: documented HTTP maps to streamable-http for these MCP guides.
+# This is not new source evidence or live transport verification.
 schema_version: 1
 slug: google-slides
 title: Google Slides
@@ -41,6 +41,7 @@ documentation:
 remotes:
   - id: hosted
     url: https://slidesmcp.googleapis.com/mcp/v1
+    transport: streamable-http
     tenanted: false
     authentication:
       - oauth-client
