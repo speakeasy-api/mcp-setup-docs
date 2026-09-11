@@ -508,22 +508,22 @@ All observations are dated **2026-09-11**. Selected-action sources were checked 
 
 ## Unresolved questions
 
-- **Non-blocking — Internal delegation of acceptance authority.**  
+- **Non-blocking — Internal delegation of acceptance authority.**\
   The Google APIs Terms establish the required authority to bind the organization. They cannot identify which employee has that authority. Obtain an authorized representative. The previous uncertainty about the applicable legal requirement is closed.
 
-- **Non-blocking — Exact Speakeasy role.**  
+- **Non-blocking — Exact Speakeasy role.**\
   The supplied client procedure does not name a role for source creation or identity-provider attachment. The operation and values are concrete. The coordinator owns client access checks.
 
-- **Non-blocking — Organization-owned screening permissions.**  
+- **Non-blocking — Organization-owned screening permissions.**\
   Google permits this solution but cannot establish roles for the organization’s selected system. The application and security owners must supply it. Do not invent a Google IAM role or a Speakeasy screening capability.
 
-- **Non-blocking — Individual preview registration.**  
+- **Non-blocking — Individual preview registration.**\
   The preview page establishes account and project registration. It does not clearly require separate registration for every connecting user. Do not describe individual registration as universally required or explicitly unnecessary.
 
-- **Non-blocking — Separate MCP invocation role.**  
+- **Non-blocking — Separate MCP invocation role.**\
   The checked Calendar setup and preview pages do not establish a separate MCP invocation IAM role. The documented selected procedure remains sufficient. Do not invent such a role or claim that all unmentioned entitlements are unnecessary.
 
-- **Non-blocking — Separate release-note confirmation.**  
+- **Non-blocking — Separate release-note confirmation.**\
   The maintained setup pages showed no replacement notice. Separate release-note confirmation remains incomplete.
 
 **No blocking authority gap remains for the selected actions.**
@@ -718,19 +718,19 @@ All source observations below are dated **2026-09-11**. Unchanged findings retai
 
 ## Unresolved questions
 
-- **Non-blocking — Individual preview email registration.**  
+- **Non-blocking — Individual preview email registration.**\
   **How to join the program**, **Questions and Requests**, and the Program Terms were checked. They establish account and project registration and a process for additional registrations. They do not clearly require individual preview enrollment for every connecting user. Do not claim that individual enrollment is either universally required or explicitly unnecessary.
 
-- **Non-blocking — Screening implementation details.**  
+- **Non-blocking — Screening implementation details.**\
   The official security page and linked developer policy permit another screening solution. They give no universal implementation procedure. The selected prerequisite retains the full documented operation. No extra procedure or Speakeasy screening capability should be invented.
 
-- **Non-blocking — Authority for application configuration and preview application.**  
+- **Non-blocking — Authority for application configuration and preview application.**\
   The service page gives the actions but does not establish all applicable roles or authority to accept terms. Topic 1 retains this check. Missing exact role names do not invalidate the documented procedure.
 
-- **Non-blocking — Existing organization policies.**  
+- **Non-blocking — Existing organization policies.**\
   This research does not establish whether the organization has an existing policy that blocks the application. It does not prove that such policies are absent.
 
-- **Non-blocking — Separate release-note confirmation.**  
+- **Non-blocking — Separate release-note confirmation.**\
   The preview page links [Google Workspace developer release notes](https://developers.google.com/workspace/release-notes). Separate release-note confirmation remains incomplete. The checked live pages showed no replacement notice. The preview page states “Last updated 2026-09-11 UTC.”
 
 **No blocking gap remains in Topic 2 for the selected path.**
@@ -878,16 +878,16 @@ All sources below were observed on **2026-09-11**. Research used live official p
 
 ## Unresolved questions
 
-- **Non-blocking — Registration of each connecting user in the preview program.**  
+- **Non-blocking — Registration of each connecting user in the preview program.**\
   The preview page establishes account and project registration. It also provides a form for additional email addresses. It does not clearly state that every Calendar MCP connecting user must register separately. Sources checked: Calendar MCP setup page and preview program page. Topic 2 must retain this distinction. Do not state that project registration alone proves eligibility for every user.
 
-- **Non-blocking — Separate MCP user role or paid feature license.**  
+- **Non-blocking — Separate MCP user role or paid feature license.**\
   The checked Calendar MCP and preview pages do not identify a separate MCP invocation role or a Calendar MCP-specific paid license. This does not establish that all unmentioned entitlements are unnecessary. The documented trial procedure remains concrete.
 
-- **Non-blocking for a read trial — Write access.**  
+- **Non-blocking for a read trial — Write access.**\
   The Calendar MCP page lists write tools but prescribes `calendar.calendarlist.readonly`, `calendar.events.freebusy`, and `calendar.events.readonly`. Calendar `writer` permission alone does not resolve this scope question. Do not promise write operations until Topic 4 resolves it.
 
-- **Non-blocking — Separate release-note confirmation.**  
+- **Non-blocking — Separate release-note confirmation.**\
   The maintained Calendar page and preview feature list still identify Calendar MCP as Developer Preview. No replacement notice was observed. Separate release notes were not read within the research time limit.
 
 ## Cross-topic dependencies
@@ -1245,16 +1245,16 @@ The page documents these servers:
 
 ## Unresolved questions
 
-- **Non-blocking — Additional connection headers or URL parameters.**  
+- **Non-blocking — Additional connection headers or URL parameters.**\
   The Calendar **Others** configuration lists the URL, HTTP, and OAuth 2.0. The remote Claude example adds client credentials. These examples do not specify additional headers or URL parameters. No additional setting is established by this research. This does not prove that all unmentioned settings are unnecessary.
 
-- **Non-blocking for endpoint setup — Write tools and read-only scopes.**  
+- **Non-blocking for endpoint setup — Write tools and read-only scopes.**\
   The service page lists event creation, update, and deletion tools, but its scope instructions list read-only and availability scopes. The URL and documented read-access setup remain concrete. Topic 3 and Topic 4 must check the permissions if the final guide promises write access.
 
-- **Non-blocking — Complete requirements for other product servers.**  
+- **Non-blocking — Complete requirements for other product servers.**\
   Their URLs and functions are documented. This research did not establish every product-specific permission or scope. Those servers are not part of the requested Calendar setup.
 
-- **Non-blocking — Separate release-note confirmation.**  
+- **Non-blocking — Separate release-note confirmation.**\
   The live Calendar page shows an update date of 2026-09-11 and no replacement notice was observed. Separate release notes were not checked before the research time ended.
 
 **No blocking endpoint gap remains.**

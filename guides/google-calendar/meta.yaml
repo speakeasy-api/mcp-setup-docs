@@ -28,7 +28,7 @@ credential_setup:
           setup:
             - external.md#create-oauth-client
 remotes:
-  - id: calendar
+  - id: hosted
     url: https://calendarmcp.googleapis.com/mcp/v1
     # This is the client remote proxy transport. Google documents HTTP.
     transport: streamable-http

@@ -87,14 +87,14 @@ All sources were observed on **2026-09-11**. The follow-up checked the added app
 - **Required values:**
   - **Okta Managed MCP Server - Core Identity** for IAM tools.
   - **Okta Managed MCP Server - Identity Governance** for OIG tools.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm  
-  **Location:** Opening note, Early Access instructions.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm\
+  **Location:** Opening note, Early Access instructions.\
   **Exact quotations:**
   - “Okta Managed MCP Server is a self-service Early Access feature.”
   - “For IAM tools - Okta Managed MCP Server - Core Identity”
   - “For OIG tools - Okta Managed MCP Server - Identity Governance”
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/security/manage-ea-and-beta-features.htm  
-  **Locations:** Introduction; “Enable a Beta or Early Access feature.”  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/security/manage-ea-and-beta-features.htm\
+  **Locations:** Introduction; “Enable a Beta or Early Access feature.”\
   **Exact quotations:**
   - “A super admin can bypass Okta Support and enable a self-service Beta or Early Access feature for their org.”
   - “All features that your organization is eligible to use based on your subscription are listed.”
@@ -119,28 +119,28 @@ All sources were observed on **2026-09-11**. The follow-up checked the added app
   - Enable **Refresh Token** in **General Settings**.
   - Save the configuration. Obtain the **Client ID** and client secret from the app.
 - **Environment-specific values:** The setup owner selects the app name. The supplied client context gives `{{ gram.oauth.callback_url }}` as the callback value. Okta generates the app credentials.
-- **Authority source:** https://help.okta.com/oie/en-us/content/topics/security/administrators-app-admin.htm  
-  **Location:** Introduction and permission list.  
+- **Authority source:** https://help.okta.com/oie/en-us/content/topics/security/administrators-app-admin.htm\
+  **Location:** Introduction and permission list.\
   **Exact quotations:**
   - “App admins can also add and configure applications, assign applications to end users, and create users through an app import.”
   - “Create and modify an OIDC app”
   - “In the Admin Console, you can assign an app admin to an app or to an app instance.”
-- **MCP source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm  
-  **Location:** “Create the app integration” and final General-tab steps.  
+- **MCP source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm\
+  **Location:** “Create the app integration” and final General-tab steps.\
   **Exact quotations:**
   - “Web app: Select this if you're embedding the Okta Managed MCP Server into your app, such as a chatbot or a server-side web app.”
   - “In the Grant type, select Authorization code.”
   - “Copy the redirect URI from your MCP client and enter it in the Sign-in redirect URIs field.”
   - “Go to the General tab and confirm that the Proof Key for Code Exchange (PKCE) is selected.”
   - “Go to the General tab and copy the Client ID.”
-- **Secret and PKCE source:** https://help.okta.com/oie/en-us/content/topics/apps/apps_app_integration_wizard_oidc.htm  
-  **Location:** “Configure OIDC settings > Web apps,” Client Credentials.  
+- **Secret and PKCE source:** https://help.okta.com/oie/en-us/content/topics/apps/apps_app_integration_wizard_oidc.htm\
+  **Location:** “Configure OIDC settings > Web apps,” Client Credentials.\
   **Exact quotations:**
   - “Client authentication: Choose the client authentication method.”
   - “Click Save to generate the client secret and then view or copy the client secret.”
   - “Proof Key for Code Exchange (PKCE): Indicates if a PKCE code challenge is required to verify client requests.”
-- **Refresh-token source:** https://developer.okta.com/docs/guides/refresh-tokens/main/  
-  **Location:** “Set up your app.”  
+- **Refresh-token source:** https://developer.okta.com/docs/guides/refresh-tokens/main/\
+  **Location:** “Set up your app.”\
   **Exact quotations:**
   - “Open your app and click Edit in the General Settings section.”
   - “Select Refresh Token as a grant type and click Save.”
@@ -154,13 +154,13 @@ All sources were observed on **2026-09-11**. The follow-up checked the added app
 - **Recipient and scope:** The registered OIDC app's grants collection.
 - **Documented action:** Open **Okta API Scopes**. Click **Grant** for each selected API scope.
 - **Required values:** Select scopes for the intended tools from Okta's scope-to-tool documentation. Topics 3 and 4 own scope selection and token requests.
-- **Source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/  
-  **Location:** “Define allowed scopes.”  
+- **Source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/\
+  **Location:** “Define allowed scopes.”\
   **Exact quotations:**
   - “Only the Super Admin role has permission to grant scopes to an app.”
   - “Select the Okta API Scopes tab, and then click Grant for each scope that you want to add to the app's grants collection.”
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm  
-  **Location:** “Grant Okta API scopes.”  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm\
+  **Location:** “Grant Okta API scopes.”\
   **Exact quotations:**
   - “The scopes you grant here determine which tools load for this app.”
   - “Click Grant for the required API scopes.”
@@ -173,16 +173,16 @@ All sources were observed on **2026-09-11**. The follow-up checked the added app
 - **Recipient and scope:** Intended users or groups receive access to that OIDC app.
 - **Documented action:** Use **Assignments** during creation. For an existing app, open its **Assignments** tab and ensure that the intended users have access.
 - **Required values:** Select the intended users or groups from the organization's directory.
-- **Authority source:** https://help.okta.com/oie/en-us/content/topics/security/administrators-app-admin.htm  
-  **Location:** Permission list.  
+- **Authority source:** https://help.okta.com/oie/en-us/content/topics/security/administrators-app-admin.htm\
+  **Location:** Permission list.\
   **Exact quotation:** “Assign user access to apps”
-- **MCP source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm  
-  **Location:** Assignments step and note.  
+- **MCP source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm\
+  **Location:** Assignments step and note.\
   **Exact quotations:**
   - “In the Assignments section, select who can use this app integration.”
   - “A user or group must be assigned before they can connect to the Okta Managed MCP Server through this app integration, regardless of which scopes are granted.”
-- **Supporting source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/  
-  **Location:** “Create an OAuth 2.0 app in Okta.”  
+- **Supporting source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/\
+  **Location:** “Create an OAuth 2.0 app in Okta.”\
   **Exact quotation:** “Click the Assignments tab and ensure that the right users are assigned to the app.”
 - **Interpretation:** App assignment, API scope grants, and underlying user permissions are separate controls.
 
@@ -193,14 +193,14 @@ All sources were observed on **2026-09-11**. The follow-up checked the added app
 - **Recipient and scope:** The intended user or group receives the applicable administrator role for the required resources.
 - **Documented authority:** Super Administrators can create administrators, change their access, and assign roles to groups.
 - **Required values:** Select the least-privileged role and resource scope for the intended operations. Topic 3 owns this selection.
-- **Source:** https://help.okta.com/oie/en-us/content/topics/security/administrators-super-admin.htm  
-  **Location:** Permission list.  
+- **Source:** https://help.okta.com/oie/en-us/content/topics/security/administrators-super-admin.htm\
+  **Location:** Permission list.\
   **Exact quotations:**
   - “Create other admins”
   - “Edit or revoke other admins”
   - “Assign roles to Okta, AD, and LDAP groups”
-- **Source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/  
-  **Location:** “Get an access token and make a request.”  
+- **Source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/\
+  **Location:** “Get an access token and make a request.”\
   **Exact quotation:** “Scopes requested for the access token must exist in the app's grants collection, and the user must have permission to perform those actions.”
 - **Interpretation:** Use an existing Super Administrator for a necessary role assignment. This does not mean that the connecting user needs Super Administrator access. The cited evidence establishes a sufficient actor; it does not establish that this actor is the only possible authority for every role change.
 
@@ -210,8 +210,8 @@ All sources were observed on **2026-09-11**. The follow-up checked the added app
 - **Actor:** The organization setup owner confirms eligibility. Okta Support is the documented contact for more information.
 - **Recipient and scope:** The target Okta organization.
 - **Required subscriptions:** **IT Products - Okta Managed MCP Server**, plus **Core Identity**, **Identity Governance**, or both. The selected service also needs the underlying subscription stated below.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm  
-  **Location:** Opening subscription note.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm\
+  **Location:** Opening subscription note.\
   **Exact quotations:**
   - “The Okta Managed MCP Server requires a subscription to IT Products - Okta Managed MCP Server, plus at least one of the following:”
   - “Okta Managed MCP Server - Core Identity”
@@ -230,8 +230,8 @@ All sources were observed on **2026-09-11**. The follow-up checked the added app
 - **Recipient and scope:** Each user group receives access through its applicable OIDC app.
 - **Documented action:** Create separate apps for the user types. Grant the appropriate scopes. Share the correct client ID with each group.
 - **Environment-specific values:** Obtain each client ID from its app. Select groups and scopes from the intended operations.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-apps-multiple-user-types.htm  
-  **Locations:** “About this task”; “Procedure.”  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-apps-multiple-user-types.htm\
+  **Locations:** “About this task”; “Procedure.”\
   **Exact quotations:**
   - “If your Okta org requires different permission levels for different user types, create separate OIDC apps:”
   - “Share the appropriate client ID with each user group.”
@@ -247,8 +247,8 @@ All sources were observed on **2026-09-11**. The follow-up checked the added app
 - **Recipient and scope:** The setup owner obtains the domain for the target organization.
 - **Documented action:** Click the username in the upper-right corner of the Admin Console. Copy the domain from the menu.
 - **Environment-specific value:** Use the actual organization domain, not an example domain.
-- **Source:** https://developer.okta.com/docs/guides/find-your-domain/main/  
-  **Location:** “Find your Okta domain.”  
+- **Source:** https://developer.okta.com/docs/guides/find-your-domain/main/\
+  **Location:** “Find your Okta domain.”\
   **Exact quotations:**
   - “Sign in to your Okta organization with your administrator account.”
   - “Locate the Okta domain by clicking your username in the upper-right corner of the Admin Console. The domain appears in the dropdown menu.”
@@ -256,13 +256,13 @@ All sources were observed on **2026-09-11**. The follow-up checked the added app
 
 ## Unresolved questions
 
-1. **Non-blocking — purchasing and contract approval authority.**  
+1. **Non-blocking — purchasing and contract approval authority.**\
    The MCP overview specifies subscriptions and directs readers to Okta Support. It does not identify a purchasing role or a contract-approval procedure. This does not prevent setup for an eligible organization. If subscriptions are missing, the organization's authorized purchasing owner must arrange them.
 
-2. **Non-blocking — exact underlying role and resource set.**  
+2. **Non-blocking — exact underlying role and resource set.**\
    The intended MCP operations are not specified. The shared OAuth guide requires underlying user permissions, but it cannot establish one least-privileged role for all future tasks. Topic 3 must select access when the operations are known. This does not prevent app creation, assignment, or the initial connection configuration.
 
-3. **Non-blocking — release-note confirmation.**  
+3. **Non-blocking — release-note confirmation.**\
    The supplied Topic 5 report records an unreadable release-note destination. No permission action in this report depends on a missing release-note detail. The checked maintained pages showed no replacement notice. This does not prove that no relevant changes exist.
 
 **Resolved:** The final authority audit covers all supplied setup actions, including secret retrieval, PKCE, Refresh Token, separate apps, and domain retrieval. No blocking authority gap remains.
@@ -296,7 +296,7 @@ All sources below were checked on **2026-09-11**. No files or provider settings 
   - Identity Governance also requires an existing OIG subscription.
 - **Environment restriction:** The managed server is not available in the three government environments listed below.
 - **Documented action:** Check the organization subscriptions. Contact Okta Support for more information. The source does not give a purchase procedure.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm\
   **Location:** Opening note.
 - **Exact quotations:**
   - “The Okta Managed MCP Server requires a subscription to IT Products - Okta Managed MCP Server, plus at least one of the following:”
@@ -317,14 +317,14 @@ All sources below were checked on **2026-09-11**. No files or provider settings 
      - OIG tools: **Okta Managed MCP Server - Identity Governance**.
   4. Check any listed dependencies or limitations. Remove listed restrictions when necessary.
   5. Click **Save**.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm\
   **Location:** Early Access instructions after the subscription note.
 - **Exact quotations:**
   - “Okta Managed MCP Server is a self-service Early Access feature.”
   - “To enable it, go to Settings > Features in the Admin Console and turn on the following features:”
   - “For IAM tools - Okta Managed MCP Server - Core Identity”
   - “For OIG tools - Okta Managed MCP Server - Identity Governance”
-- **Shared-platform source:** https://help.okta.com/mcp/en-us/content/topics/security/manage-ea-and-beta-features.htm  
+- **Shared-platform source:** https://help.okta.com/mcp/en-us/content/topics/security/manage-ea-and-beta-features.htm\
   **Locations:** Introduction; “Enable a Beta or Early Access feature.”
 - **Exact quotations:**
   - “A super admin can bypass Okta Support and enable a self-service Beta or Early Access feature for their org.”
@@ -355,7 +355,7 @@ All sources below were checked on **2026-09-11**. No files or provider settings 
   - **Single-page app:** For a browser application that connects directly to the MCP server.
   - **Native app:** For MCP clients such as VS Code.
 - **Environment-specific values:** Choose the application name. Obtain the redirect URI from the actual MCP client. Select the intended organization users or groups.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm\
   **Location:** “Procedure,” “Create the app integration.”
 - **Exact quotations:**
   - “Select OIDC - OpenID Connect as the sign-in method.”
@@ -375,17 +375,17 @@ All sources below were checked on **2026-09-11**. No files or provider settings 
   2. Click **Grant** for each required scope.
   3. Use Okta’s scope-to-tool table and use cases to select scopes.
   4. Keep the list of granted scopes for client configuration.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm\
   **Location:** “Grant Okta API scopes.”
 - **Exact quotations:**
   - “The scopes you grant here determine which tools load for this app.”
   - “Select the Okta API Scopes tab.”
   - “Click Grant for the required API scopes.”
   - “Save these values and the list of granted scopes to configure your Okta Managed MCP Server.”
-- **Authority source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/  
+- **Authority source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/\
   **Location:** “Define allowed scopes.”
 - **Exact quotation:** “Only the Super Admin role has permission to grant scopes to an app.”
-- **Scope-selection source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/scope-based-tool-loading.htm  
+- **Scope-selection source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/scope-based-tool-loading.htm\
   **Location:** “Scope-to-tool mapping.”
 - **Exact table values:**
   - `okta_user_management`: `okta.users.read` and `okta.users.manage`.
@@ -401,7 +401,7 @@ All sources below were checked on **2026-09-11**. No files or provider settings 
   - Open **General** and confirm that PKCE is selected.
   - Copy **Client ID** from **General**.
   - Keep the client ID and granted-scope list for connection setup.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm\
   **Location:** End of “Grant Okta API scopes.”
 - **Exact quotations:**
   - “Go to the General tab and confirm that the Proof Key for Code Exchange (PKCE) is selected.”
@@ -413,7 +413,7 @@ All sources below were checked on **2026-09-11**. No files or provider settings 
 - **Status:** Required.
 - **Actor and scope:** The application administrator assigns the intended users or groups to the OIDC application.
 - **Documented action:** Use the **Assignments** selection during application creation. Topic 3 owns the individual access requirements.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm\
   **Location:** Note after **Assignments**.
 - **Exact quotation:** “A user or group must be assigned before they can connect to the Okta Managed MCP Server through this app integration, regardless of which scopes are granted.”
 - **Interpretation:** Scope grants alone do not permit a user to connect.
@@ -423,7 +423,7 @@ All sources below were checked on **2026-09-11**. No files or provider settings 
 - **Status:** Conditional. Applies when the organization needs different permission levels for different user types.
 - **Actor and scope:** The application administrator creates separate OIDC applications and gives each user group the correct client ID.
 - **Documented action:** Repeat the OIDC with PKCE procedure for each user type. Grant the appropriate scopes to each application.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-apps-multiple-user-types.htm  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-apps-multiple-user-types.htm\
   **Locations:** “About this task”; “Procedure.”
 - **Exact quotations:**
   - “If your Okta org requires different permission levels for different user types, create separate OIDC apps:”
@@ -434,16 +434,16 @@ All sources below were checked on **2026-09-11**. No files or provider settings 
 
 ## Unresolved questions
 
-1. **Non-blocking for Topic 2 — application administration authority.**  
+1. **Non-blocking for Topic 2 — application administration authority.**\
    The MCP procedure gives concrete application creation and configuration steps. It does not name the exact required role. Topic 1 must confirm authority for T2-03, T2-05, T2-06, and T2-07. Authority for feature enablement and scope grants is established above.
 
-2. **Non-blocking for Topic 2 — final application type and token settings.**  
+2. **Non-blocking for Topic 2 — final application type and token settings.**\
    The source supports several application types. Topic 4 and the coordinator must select the type for Speakeasy and check PKCE and client authentication. The documented organization actions can be completed after that selection. No claim is made here that Speakeasy supports the required protocol or authentication details.
 
-3. **Non-blocking — additional organization policies or API activation.**  
+3. **Non-blocking — additional organization policies or API activation.**\
    The overview, getting-started page, OIDC setup, scope-loading page, and multiple-user-type page did not establish another MCP-specific API activation or client-approval action. This does not prove that organization-specific policies are absent.
 
-4. **Non-blocking — release-note confirmation.**  
+4. **Non-blocking — release-note confirmation.**\
    The supplied Topic 5 report records an unreadable release-note destination. The live setup pages checked for this report showed no replacement notice. This does not prove that there are no relevant changes.
 
 ## Cross-topic dependencies
@@ -470,15 +470,15 @@ All sources below were checked live on **2026-09-11**. No files or provider sett
 - **Scope:** The OIDC app integration for the target Okta organization.
 - **Documented action:** During app creation, use the **Assignments** section to select who can use the app integration. If assignment was skipped during creation, open the app's **Assignments** tab and assign one or more users before they connect.
 - **Required values:** Use the intended users or groups from the organization's directory. Assign them to the OIDC app that supplies the client ID for this connection.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm  
-  **Location:** “Procedure” → “Create the app integration,” Assignments step and note.  
-  **Observed:** 2026-09-11.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm\
+  **Location:** “Procedure” → “Create the app integration,” Assignments step and note.\
+  **Observed:** 2026-09-11.\
   **Exact quotations:**
   - “In the Assignments section, select who can use this app integration.”
   - “A user or group must be assigned before they can connect to the Okta Managed MCP Server through this app integration, regardless of which scopes are granted.”
-- **Supporting source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/  
-  **Location:** “Create an OAuth 2.0 app in Okta.”  
-  **Observed:** 2026-09-11.  
+- **Supporting source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/\
+  **Location:** “Create an OAuth 2.0 app in Okta.”\
+  **Observed:** 2026-09-11.\
   **Exact quotations:**
   - “Click the Assignments tab and ensure that the right users are assigned to the app.”
   - “If you skipped the assignment during the app integration creation, you must add one or more users now.”
@@ -492,22 +492,22 @@ All sources below were checked live on **2026-09-11**. No files or provider sett
 - **Scope:** App integration and user session.
 - **Documented action:** Open the app's **Okta API Scopes** tab. Click **Grant** for each required scope. Select scopes from the official scope-to-tool table, based on the intended tasks.
 - **Examples from the documented table:** User management lists `okta.users.read` and `okta.users.manage`; system log access lists `okta.logs.read`. These are examples, not a requirement to grant all three.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm  
-  **Location:** “Grant Okta API scopes.”  
-  **Observed:** 2026-09-11.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm\
+  **Location:** “Grant Okta API scopes.”\
+  **Observed:** 2026-09-11.\
   **Exact quotations:**
   - “Select the Okta API Scopes tab.”
   - “Click Grant for the required API scopes.”
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/scope-based-tool-loading.htm  
-  **Location:** “How it works” → “Startup filtering” and “Runtime enforcement”; “Scope-to-tool mapping.”  
-  **Observed:** 2026-09-11.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/scope-based-tool-loading.htm\
+  **Location:** “How it works” → “Startup filtering” and “Runtime enforcement”; “Scope-to-tool mapping.”\
+  **Observed:** 2026-09-11.\
   **Exact quotations:**
   - “After authentication completes, the server reads the scopes in your access token.”
   - “Tools whose required scope isn't present are silently removed from the tool registry and don't appear in the tools list.”
   - “If you don't have the required scope, you can't perform the action and receive an error message in the tool execution response.”
-- **Authority source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/  
-  **Location:** “Define allowed scopes.”  
-  **Observed:** 2026-09-11.  
+- **Authority source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/\
+  **Location:** “Define allowed scopes.”\
+  **Observed:** 2026-09-11.\
   **Exact quotation:** “Only the Super Admin role has permission to grant scopes to an app.”
 - **Interpretation:** Assigning the user to the app does not select the tools. A visible tool also does not prove that the user can perform every action that the tool supports.
 
@@ -518,19 +518,19 @@ All sources below were checked live on **2026-09-11**. No files or provider sett
 - **Who receives access:** The connecting Okta user.
 - **Scope:** The Okta resources and operations used by the selected MCP tools.
 - **Documented action and values:** Check that the user can perform the intended Okta API actions. Choose access for the intended resources, not only a broad OAuth scope. The required role or resource assignment depends on those actions.
-- **Source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/  
-  **Location:** “Get an access token and make a request.”  
-  **Observed:** 2026-09-11.  
+- **Source:** https://developer.okta.com/docs/guides/implement-oauth-for-okta/main/\
+  **Location:** “Get an access token and make a request.”\
+  **Observed:** 2026-09-11.\
   **Exact quotation:** “Scopes requested for the access token must exist in the app's grants collection, and the user must have permission to perform those actions.”
-- **Same source:**  
-  **Location:** “Silent downscoping.”  
-  **Observed:** 2026-09-11.  
+- **Same source:**\
+  **Location:** “Silent downscoping.”\
+  **Observed:** 2026-09-11.\
   **Exact quotations:**
   - “It doesn't matter whether you have permissions for all the scopes that you request.”
   - “However, when you make requests to perform actions that you don't have permissions for, the token doesn't work, and you receive an error.”
-- **Same source:**  
-  **Location:** “Scope naming.”  
-  **Observed:** 2026-09-11.  
+- **Same source:**\
+  **Location:** “Scope naming.”\
+  **Observed:** 2026-09-11.\
   **Exact quotation:** “For example, a GET request to the /users endpoint with the okta.users.read scope returns all the users that the admin has access to.”
 - **Interpretation:** Token scopes do not increase the user's underlying permissions. Do not state that a connecting user must be a Super Admin. The cited Super Admin requirement applies to granting app scopes, not to every MCP user.
 
@@ -542,9 +542,9 @@ All sources below were checked live on **2026-09-11**. No files or provider sett
 - **Scope:** Separate OIDC app integrations.
 - **Documented action:** Create separate apps for the user types. Grant the appropriate scopes. Share the correct client ID with each user group. Apply T3-01 to each app.
 - **Required values:** Obtain each client ID from its app integration. Select the group and scopes from the organization's intended tasks.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-apps-multiple-user-types.htm  
-  **Location:** “About this task” and “Procedure.”  
-  **Observed:** 2026-09-11.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-apps-multiple-user-types.htm\
+  **Location:** “About this task” and “Procedure.”\
+  **Observed:** 2026-09-11.\
   **Exact quotations:**
   - “If your Okta org requires different permission levels for different user types, create separate OIDC apps:”
   - “For Okta admins: Follow OpenID Connect (OIDC) with Proof Key for Code Exchange (PKCE) to create an app integration, and grant management scopes such as okta.users.manage.”
@@ -559,9 +559,9 @@ All sources below were checked live on **2026-09-11**. No files or provider sett
 - **Who receives access:** The organization. The source does not describe a separate per-user MCP license.
 - **Scope:** Target Okta organization.
 - **Documented requirement:** The organization needs **IT Products - Okta Managed MCP Server**, plus **Core Identity**, **Identity Governance**, or both. Existing product subscriptions are also required for the selected service.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm  
-  **Location:** Opening subscription note.  
-  **Observed:** 2026-09-11.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm\
+  **Location:** Opening subscription note.\
+  **Observed:** 2026-09-11.\
   **Exact quotations:**
   - “The Okta Managed MCP Server requires a subscription to IT Products - Okta Managed MCP Server, plus at least one of the following:”
   - “Okta Managed MCP Server - Core Identity”
@@ -571,16 +571,16 @@ All sources below were checked live on **2026-09-11**. No files or provider sett
 
 ## Unresolved questions
 
-1. **Non-blocking — exact authority for user assignment and role changes.**  
+1. **Non-blocking — exact authority for user assignment and role changes.**\
    The MCP OIDC procedure and the shared OAuth guide give an actionable app-assignment procedure. They do not establish every administrator role that can perform assignments or change a user's underlying roles. Topic 1 must verify the applicable authority. This does not block the documented assignment action.
 
-2. **Non-blocking — exact role and resource set for future tasks.**  
+2. **Non-blocking — exact role and resource set for future tasks.**\
    The input identifies an IT administrator persona but does not list the intended MCP operations. No single role or resource set can be selected from that information. The shared OAuth guide establishes that underlying permissions remain in force. Select task-specific access when the intended actions are known. Do not grant Super Admin solely to make the connection work.
 
-3. **Non-blocking — separate individual enablement or license.**  
+3. **Non-blocking — separate individual enablement or license.**\
    The MCP overview, OIDC procedure, scope-loading page, and multiple-user-types page do not document a separate individual MCP registration, user toggle, or per-user MCP license assignment. This is not proof that all such requirements are absent.
 
-4. **Non-blocking — release-note confirmation.**  
+4. **Non-blocking — release-note confirmation.**\
    The supplied Topic 5 report records that the linked release notes could not be read. The live setup pages checked for this topic showed no replacement notice. No concrete user-access action depends on that missing confirmation.
 
 ## Cross-topic dependencies
@@ -761,10 +761,10 @@ All provider sources below were observed on **2026-09-11**. Unchanged findings r
 
 ### Resolved checks
 
-1. **PKCE and refresh-token compatibility — resolved.**  
+1. **PKCE and refresh-token compatibility — resolved.**\
    The supplied central implementation evidence confirms S256 PKCE, code-verifier submission, explicit scope overrides, and upstream refresh-token use for Manual OAuth.
 
-2. **Application type and token authentication — resolved.**  
+2. **Application type and token authentication — resolved.**\
    Official Okta sources support Web app, client secret, and PKCE together. They also support `client_secret_basic`. The central client evidence confirms the matching client functions.
 
 The central evidence is from official repository commit `0d9e5079540a7208a3b7cb0762ec7f8b9295e76c`, observed 2026-09-11:
@@ -776,16 +776,16 @@ These are supplied coordinator checks. This follow-up did not repeat client rese
 
 ### Remaining non-blocking questions
 
-1. **Refresh-token idle limit.**  
+1. **Refresh-token idle limit.**\
    The [refresh-token guide](https://developer.okta.com/docs/guides/refresh-tokens/main/), “Refresh token lifetime,” states: “The refresh token lifetime does expire every seven days if it hasn't been used.” That section also discusses access-policy settings and an Unlimited default. The OAuth reference separately fixes the organization-server lifetime at 90 days. The exact application of the idle statement remains uncertain. It does not prevent the documented initial grant and scope configuration. Do not claim that the selected refresh token lasts indefinitely.
 
-2. **Client-secret lifetime.**  
+2. **Client-secret lifetime.**\
    The checked Web app and client-authentication instructions do not specify a fixed secret expiration period. Do not claim that the secret never expires. This does not prevent initial secret retrieval.
 
-3. **Testing status and access programs.**  
+3. **Testing status and access programs.**\
    The checked authentication instructions do not state a testing-mode restriction or publication requirement for refresh tokens. This does not prove that none exists. Topic 2 owns organization eligibility and Early Access checks.
 
-4. **Release-note confirmation.**  
+4. **Release-note confirmation.**\
    The original endpoint report records an unreadable release-note destination. The checked maintained authentication pages showed no replacement notice. This does not prove that no relevant release changes exist.
 
 ## Cross-topic dependencies
@@ -815,10 +815,10 @@ All sources below were observed on **2026-09-11**. No files or provider settings
   https://{yourOktaDomain}/mcp
   ```
   Replace `{yourOktaDomain}` with the organization's Okta domain. `/mcp` is fixed. This is an MCP address, not a general API address.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcp-client-configuration-overview.htm  
-  **Location:** Main text, after “Early Access release.”  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcp-client-configuration-overview.htm\
+  **Location:** Main text, after “Early Access release.”\
   **Quotation:** “The Okta Managed MCP Server endpoint uses this format: https://{yourOktaDomain}/mcp.”
-- **Source:** Same page and location.  
+- **Source:** Same page and location.\
   **Quotation:** “The Okta Managed MCP Server is hosted in the cloud, so you don't need to download packages or manage local server processes.”
 - **Interpretation:** The managed server meets the remote URL requirement. Mark this remote as `tenanted: true`.
 
@@ -828,8 +828,8 @@ All sources below were observed on **2026-09-11**. No files or provider settings
 - **Actor and scope:** An administrator obtains the domain for the target organization.
 - **Documented action:** Sign in to the organization with an administrator account. Click the username in the upper-right corner of the Admin Console. Copy the domain from the menu.
 - **Environment-specific value:** The organization domain. Documented examples include `example.oktapreview.com`, `example.okta.com`, and `example.okta-emea.com`. These are examples, not shared server addresses.
-- **Source:** https://developer.okta.com/docs/guides/find-your-domain/main/  
-  **Location:** “Find your Okta domain.”  
+- **Source:** https://developer.okta.com/docs/guides/find-your-domain/main/\
+  **Location:** “Find your Okta domain.”\
   **Quotations:**
   - “Sign in to your Okta organization with your administrator account.”
   - “Locate the Okta domain by clicking your username in the upper-right corner of the Admin Console. The domain appears in the dropdown menu.”
@@ -839,8 +839,8 @@ All sources below were observed on **2026-09-11**. No files or provider settings
 
 - **Status:** Conditional. Select the option that meets the supported connection requirements.
 - **Actor and scope:** The setup owner selects the server deployment for access to the Okta organization.
-- **Source:** https://developer.okta.com/docs/guides/okta-open-source-mcp-server/main/  
-  **Locations:** Introduction, server descriptions, and “Choose a deployment option.”  
+- **Source:** https://developer.okta.com/docs/guides/okta-open-source-mcp-server/main/\
+  **Locations:** Introduction, server descriptions, and “Choose a deployment option.”\
   **Quotation:** “Okta offers two ways to deploy an MCP server: the Okta Open Source MCP Server and the Okta Managed MCP Server.”
 
 | Server | Address and function | Documented differences | Result |
@@ -861,8 +861,8 @@ All sources below were observed on **2026-09-11**. No files or provider settings
 - **Status:** Required.
 - **Actor and scope:** The coordinator checks the connecting client's implementation.
 - **Documented required value:** MCP protocol version `2025-11-25`.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcp-client-configuration-overview.htm  
-  **Location:** Note after the endpoint instructions.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcp-client-configuration-overview.htm\
+  **Location:** Note after the endpoint instructions.\
   **Quotation:** “The Okta Managed MCP Server supports the 2025-11-25 MCP protocol version. MCP clients that don't support this protocol version can't connect to the server.”
 - **Interpretation:** A remote HTTP connection alone does not establish client compatibility. The supplied client context does not establish support for this protocol version.
 
@@ -883,8 +883,8 @@ All sources below were observed on **2026-09-11**. No files or provider settings
   ```
   `yourorg.okta.com` is an example organization domain.
 - **Documented action:** Enter the previously created client ID when prompted, then authenticate with the organization.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-vscode-github-copilot.htm  
-  **Location:** “Procedure,” connection configuration and authentication steps.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-vscode-github-copilot.htm\
+  **Location:** “Procedure,” connection configuration and authentication steps.\
   **Quotations:**
   - “After the MCP client connects, you receive a prompt indicating that dynamic client registration isn't supported.”
   - “Enter the client ID that you copied earlier.”
@@ -899,8 +899,8 @@ All sources below were observed on **2026-09-11**. No files or provider settings
 - **Documented action and values:** In **Settings > Features** in the Admin Console, enable:
   - **Okta Managed MCP Server - Core Identity** for IAM tools.
   - **Okta Managed MCP Server - Identity Governance** for OIG tools.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm  
-  **Location:** Opening note and Early Access instructions.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm\
+  **Location:** Opening note and Early Access instructions.\
   **Quotations:**
   - “Okta Managed MCP Server is a self-service Early Access feature.”
   - “To enable it, go to Settings > Features in the Admin Console and turn on the following features:”
@@ -912,8 +912,8 @@ All sources below were observed on **2026-09-11**. No files or provider settings
 
 - **Status:** Required for managed-server setup.
 - **Actor and scope:** The organization setup owner confirms the subscriptions and deployment environment.
-- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm  
-  **Location:** Opening note.  
+- **Source:** https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm\
+  **Location:** Opening note.\
   **Quotations:**
   - “The Okta Managed MCP Server requires a subscription to IT Products - Okta Managed MCP Server, plus at least one of the following:”
   - “Okta Managed MCP Server - Core Identity”
@@ -924,11 +924,11 @@ All sources below were observed on **2026-09-11**. No files or provider settings
 
 ## Unresolved questions
 
-1. **Blocking for final client compatibility; coordinator owns the check:** Does the supplied Speakeasy client support MCP protocol version `2025-11-25`?  
+1. **Blocking for final client compatibility; coordinator owns the check:** Does the supplied Speakeasy client support MCP protocol version `2025-11-25`?\
    The provider explicitly requires it. The supplied client context describes remote connections and OAuth configuration, but does not state this protocol version. The coordinator cannot confirm the final connection path without this check.
 
-2. **Non-blocking — release-note confirmation:** The release-note link on the maintained setup pages points to:  
-   https://help.okta.com/okta_help.htm?type=mcp&id=mcpserver-releasenotes  
+2. **Non-blocking — release-note confirmation:** The release-note link on the maintained setup pages points to:\
+   https://help.okta.com/okta_help.htm?type=mcp&id=mcpserver-releasenotes\
    The fetch returned an “Okta Docs” page without readable release notes. The checked setup pages showed no replacement notice. This failed lookup does not prove that no relevant changes exist.
 
 3. **Non-blocking — unmentioned connection settings:** The official remote example does not specify additional custom headers, URL parameters, or custom-domain rules. No material setup action depends on these undocumented possibilities when the reader uses the documented organization domain and OAuth path.

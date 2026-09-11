@@ -39,7 +39,7 @@ documentation:
   external: external.md
   speakeasy: speakeasy.md
 remotes:
-  - id: compute-engine
+  - id: hosted
     url: https://compute.googleapis.com/mcp
     transport: streamable-http
     tenanted: false

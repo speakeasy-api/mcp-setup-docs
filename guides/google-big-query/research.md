@@ -315,8 +315,8 @@ The current BigQuery page gives a concrete project setup procedure. The shared M
   - The product page has an **Enable the API** link. The shared page also documents `gcloud services enable SERVICE_NAME`.
 - **Authority:** The product page identifies `serviceusage.services.enable`. It identifies **Service Usage Admin** (`roles/serviceusage.serviceUsageAdmin`) as a role that supplies this permission.
 
-**Source 1:** https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp  
-**Locations:** Introduction; “Before you begin”; “Roles required to enable APIs.”  
+**Source 1:** https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp\
+**Locations:** Introduction; “Before you begin”; “Roles required to enable APIs.”\
 **Exact quotations:**
 > “The BigQuery remote MCP server is enabled when you enable the BigQuery API.”
 
@@ -326,8 +326,8 @@ The current BigQuery page gives a concrete project setup procedure. The shared M
 
 > “To enable APIs, you need the serviceusage.services.enable permission.”
 
-**Source 2:** https://docs.cloud.google.com/mcp/enable-disable-mcp-servers  
-**Location:** “Enable a supported product.”  
+**Source 2:** https://docs.cloud.google.com/mcp/enable-disable-mcp-servers\
+**Location:** “Enable a supported product.”\
 **Exact quotations:**
 > “To connect to a supported product through MCP, enable the product API”
 
@@ -342,8 +342,8 @@ The current BigQuery page gives a concrete project setup procedure. The shared M
 - **Access and scope:** The selected BigQuery project.
 - **Documented action:** The reader can complete the product procedure without enabling billing or supplying a credit card. BigQuery supplies a sandbox for this path.
 
-**Source:** https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp  
-**Location:** “Before you begin.”  
+**Source:** https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp\
+**Location:** “Before you begin.”\
 **Exact quotation:**
 > “Optional: Enable billing for the project. If you don't want to enable billing or provide a credit card, the steps in this document still work. BigQuery provides you a sandbox to perform the steps.”
 
@@ -366,8 +366,8 @@ The current BigQuery page gives a concrete project setup procedure. The shared M
   - Retain the resulting client ID for client configuration.
 - **Conditional field:** **Authorized JavaScript origins** applies to applications that use client-side JavaScript to access Google APIs. Obtain any necessary origin from the client owner. Do not invent one from the MCP URL.
 
-**Source:** https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers  
-**Locations:** “Authenticate with an OAuth 2.0 client ID and secret”; “Create an OAuth 2.0 client ID and secret” → “Web.”  
+**Source:** https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+**Locations:** “Authenticate with an OAuth 2.0 client ID and secret”; “Create an OAuth 2.0 client ID and secret” → “Web.”\
 **Exact quotations:**
 > “Generally, if your application runs on your machine, then select Desktop. If you access your application through the internet, then select Web.”
 
@@ -399,8 +399,8 @@ The current BigQuery page gives a concrete project setup procedure. The shared M
   - For an application used outside the Google Workspace organization, open **Data Access > Add or Remove Scopes**. Select the necessary scopes and save.
 - **Scope value:** The BigQuery MCP page identifies `https://www.googleapis.com/auth/bigquery`. Topic 4 must confirm the complete scope set.
 
-**Source 1:** https://developers.google.com/workspace/guides/configure-oauth-consent  
-**Locations:** Introduction; “Configure OAuth consent.”  
+**Source 1:** https://developers.google.com/workspace/guides/configure-oauth-consent\
+**Locations:** Introduction; “Configure OAuth consent.”\
 **Exact quotations:**
 > “All apps using OAuth 2.0 require a consent screen configuration”
 
@@ -410,8 +410,8 @@ The current BigQuery page gives a concrete project setup procedure. The shared M
 
 > “If you're creating an app for use outside of your Google Workspace organization, click Data Access > Add or Remove Scopes.”
 
-**Source 2:** https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp  
-**Location:** “BigQuery MCP OAuth scopes.”  
+**Source 2:** https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp\
+**Location:** “BigQuery MCP OAuth scopes.”\
 **Exact quotation:**
 > “https://www.googleapis.com/auth/bigquery”
 
@@ -429,8 +429,8 @@ The current BigQuery page gives a concrete project setup procedure. The shared M
   - Obtain the OAuth client ID from **Google Auth Platform > Clients**.
   - If policy prevents the intended access, the policy owner must approve and make the necessary change. A new deny policy is not part of the basic connection procedure.
 
-**Source:** https://docs.cloud.google.com/mcp/control-mcp-use-iam  
-**Locations:** Introduction; “IAM deny policy attributes”; “Allow MCP use by Client ID.”  
+**Source:** https://docs.cloud.google.com/mcp/control-mcp-use-iam\
+**Locations:** Introduction; “IAM deny policy attributes”; “Allow MCP use by Client ID.”\
 **Exact quotations:**
 > “For example, you can deny or allow access based on:”
 
@@ -440,8 +440,8 @@ The current BigQuery page gives a concrete project setup procedure. The shared M
 
 > “To view existing client IDs, in the Google Cloud console, go to Google Auth Platform > Clients.”
 
-**Additional source:** https://docs.cloud.google.com/mcp/enable-disable-mcp-servers  
-**Location:** “Optional security and safety configurations.”  
+**Additional source:** https://docs.cloud.google.com/mcp/enable-disable-mcp-servers\
+**Location:** “Optional security and safety configurations.”\
 **Exact quotation:**
 > “Google Cloud offers defaults and customizable policies to control the use of MCP tools in your Google Cloud organization or project.”
 
@@ -457,8 +457,8 @@ The current BigQuery page gives a concrete project setup procedure. The shared M
   - **BigQuery Job User** — `roles/bigquery.jobUser`
   - **BigQuery Data Viewer** — `roles/bigquery.dataViewer`
 
-**Source:** https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp  
-**Location:** “Required roles.”  
+**Source:** https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp\
+**Location:** “Required roles.”\
 **Exact quotations:**
 > “ask your administrator to grant you the following IAM roles on the project where you want to use the BigQuery MCP server”
 
@@ -895,8 +895,8 @@ The supplied central evidence confirms server-side token operations. The conditi
 
 - **Question:** Is this application eligible for Internal use, and are all intended users eligible?
 - **Evidence retained:** Google MCP OAuth setup instructions and Google's documented External Testing token limit.
-- **Follow-up sources attempted:**  
-  https://developers.google.com/workspace/guides/configure-oauth-consent  
+- **Follow-up sources attempted:**\
+  https://developers.google.com/workspace/guides/configure-oauth-consent\
   https://developers.google.com/identity/protocols/oauth2
 - **Result:** The follow-up requests timed out. No new audience evidence was obtained.
 - **Classification:** Non-blocking for authentication compatibility. Topic 2 must select the applicable audience. Topic 3 must check user eligibility. External Testing remains a supported trial assessment with the stated limit, subject to those checks.

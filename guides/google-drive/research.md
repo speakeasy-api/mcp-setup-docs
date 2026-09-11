@@ -395,7 +395,7 @@ Authority checks belong to Topic 1. Client compatibility checks belong to the co
   > “Google Drive MCP API”
 
   > “Replace `PROJECT_ID` with your Google Cloud project ID.”
-- **Direct Console target confirmed in the source:**  
+- **Direct Console target confirmed in the source:**\
   https://console.cloud.google.com/flows/enableapi?apiid=drivemcp.googleapis.com
 - **Interpretation:** The browser procedure is documented. The page requires the gcloud CLI only to run its commands. Do not add a CLI installation requirement to the browser setup path.
 
@@ -728,7 +728,7 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
 - **Status:** Required.
 - **Actor and scope:** The application administrator configures the OAuth client. The connecting user grants the application access to their Drive data.
 - **Documented action:** Configure the OAuth consent screen before creating an OAuth client ID. Use OAuth 2.0 for the remote Drive MCP connection.
-- **Source:** https://developers.google.com/workspace/drive/api/guides/configure-mcp-server  
+- **Source:** https://developers.google.com/workspace/drive/api/guides/configure-mcp-server\
   **Locations:** “Set up the OAuth consent screen”; “Configure your MCP client” → “Others.”
 - **Exact quotations:**
   - “The Google Drive MCP server uses OAuth 2.0 for authentication and authorization.”
@@ -748,9 +748,9 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
   6. Select **Create** and copy the **Client ID** and **Client Secret**.
 - **Environment-specific value:** Use `{{ gram.oauth.callback_url }}` from the supplied client context. Do not use the Claude or Antigravity example address.
 - **Sources:**
-  - https://developers.google.com/workspace/drive/api/guides/configure-mcp-server  
+  - https://developers.google.com/workspace/drive/api/guides/configure-mcp-server\
     **Location:** “Configure your MCP client” → “Claude.”
-  - https://developers.google.com/identity/protocols/oauth2/web-server  
+  - https://developers.google.com/identity/protocols/oauth2/web-server\
     **Locations:** “Create authorization credentials”; authorization parameter `redirect_uri`.
 - **Exact quotations:**
   - “Select Web application as the application type.”
@@ -764,7 +764,7 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
 - **Status:** Required for the documented client-ID-and-secret path.
 - **Actor and scope:** The application administrator stores the OAuth client secret securely and supplies it to the Speakeasy connection.
 - **Documented action:** Copy or download the secret when Google creates the client. Store it securely.
-- **Source:** https://developers.google.com/identity/protocols/oauth2/web-server  
+- **Source:** https://developers.google.com/identity/protocols/oauth2/web-server\
   **Location:** “Create authorization credentials.”
 - **Exact quotations:**
   - “Your application's client secret will only be shown after you create the client.”
@@ -783,7 +783,7 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
     - `https://www.googleapis.com/auth/drive.file`
   - Select **Add to Table**, then **Update**.
   - On **Data Access**, select **Save**.
-- **Source:** https://developers.google.com/workspace/drive/api/guides/configure-mcp-server  
+- **Source:** https://developers.google.com/workspace/drive/api/guides/configure-mcp-server\
   **Location:** “Set up the OAuth consent screen.”
 - **Exact quotations:**
   - “Under Manually add scopes, paste the scopes for the Google Drive MCP server”
@@ -791,9 +791,9 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
   - “https://www.googleapis.com/auth/drive.file”
   - “After selecting the scopes required by your app, on the Data Access page, click Save.”
 - **Additional sources:**
-  - https://developers.google.com/identity/protocols/oauth2/web-server  
+  - https://developers.google.com/identity/protocols/oauth2/web-server\
     **Location:** Authorization parameter `scope`.
-  - https://drivemcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1  
+  - https://drivemcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1\
     **Location:** `scopes_supported`.
 - **Exact quotations:**
   - “A space-delimited list of scopes that identify the resources that your application could access on the user's behalf.”
@@ -810,7 +810,7 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
   - Refresh-token parameter: `access_type=offline`
   - Token endpoint: `https://oauth2.googleapis.com/token`
 - **Documented action:** Include `access_type=offline` in the initial authorization request.
-- **Source:** https://developers.google.com/identity/protocols/oauth2/web-server  
+- **Source:** https://developers.google.com/identity/protocols/oauth2/web-server\
   **Locations:** “Step 1: Set authorization parameters”; parameter `access_type`; “Step 5: Exchange authorization code for refresh and access tokens.”
 - **Exact quotations:**
   - “Valid parameter values are online, which is the default value, and offline.”
@@ -823,7 +823,7 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
 - **Status:** Required automatic behavior for the selected client path. Existing grants make renewed consent important during initial connection setup.
 - **Actor and scope:** The client requests consent. The connecting user authorizes the OAuth application.
 - **Documented value:** `prompt=consent`.
-- **Source:** https://developers.google.com/identity/protocols/oauth2/web-server  
+- **Source:** https://developers.google.com/identity/protocols/oauth2/web-server\
   **Locations:** Authorization parameter `prompt`; “Refreshing an access token (offline access)” → Node.js.
 - **Exact quotations:**
   - “consent” — “Prompt the user for consent.”
@@ -840,11 +840,11 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
   - If **Internal** is unavailable, select **External**.
   - For the documented External test setup, open **Audience > Test users > Add users**. Add the authorized users and select **Save**.
 - **Sources:**
-  - https://developers.google.com/workspace/drive/api/guides/configure-mcp-server  
+  - https://developers.google.com/workspace/drive/api/guides/configure-mcp-server\
     **Location:** “Set up the OAuth consent screen.”
-  - https://support.google.com/cloud/answer/15549945  
+  - https://support.google.com/cloud/answer/15549945\
     **Locations:** “Internal”; “Publishing status” → “Testing.”
-  - https://developers.google.com/identity/protocols/oauth2  
+  - https://developers.google.com/identity/protocols/oauth2\
     **Location:** “Refresh token expiration.”
 - **Exact quotations:**
   - “Under Audience, select Internal. If you can't select Internal, select External.”
@@ -860,11 +860,11 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
 - **Status:** Conditional. Applies only if an External production application is selected and meets Google’s verification criteria. It is not an action for the selected Internal or External Testing setup.
 - **Actor and scope:** The application owner handles applicable verification and security assessment for an External production application.
 - **Sources:**
-  - https://developers.google.com/workspace/drive/api/guides/api-specific-auth  
+  - https://developers.google.com/workspace/drive/api/guides/api-specific-auth\
     **Locations:** “Non-sensitive scopes”; “Restricted scopes”; scope-category requirements.
-  - https://developers.google.com/workspace/guides/configure-oauth-consent  
+  - https://developers.google.com/workspace/guides/configure-oauth-consent\
     **Location:** Scope selection instructions.
-  - https://support.google.com/cloud/answer/15549945  
+  - https://support.google.com/cloud/answer/15549945\
     **Location:** “In Production.”
 - **Exact quotations:**
   - Under “Non-sensitive scopes”: “https://www.googleapis.com/auth/drive.file”
@@ -885,9 +885,9 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
   - Revocation, expired time-based access, or administrator restrictions can stop access.
   - Each Google Account has a limit of 100 refresh tokens per OAuth client ID. A new token above this limit invalidates the oldest token.
 - **Sources:**
-  - https://developers.google.com/identity/protocols/oauth2/web-server  
+  - https://developers.google.com/identity/protocols/oauth2/web-server\
     **Location:** Token response fields.
-  - https://developers.google.com/identity/protocols/oauth2  
+  - https://developers.google.com/identity/protocols/oauth2\
     **Location:** “Refresh token expiration.”
 - **Exact quotations:**
   - “The remaining lifetime of the access token in seconds.”
@@ -906,7 +906,7 @@ The upstream refresh-token compatibility check now passes. The checked Speakeasy
 
 **Issuer match**
 
-- **Source:** https://drivemcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1  
+- **Source:** https://drivemcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1\
   **Location:** `authorization_servers`.
 - **Exact quotation:** `"authorization_servers":["https://accounts.google.com/"]`
 - **Source:** [google.go, lines 26–55](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/interceptors/google.go#L26-L55)
@@ -1008,7 +1008,7 @@ Google documents a remote Google Drive MCP endpoint. The endpoint meets the supp
   - Server URL: `https://drivemcp.googleapis.com/mcp/v1`
   - Transport: HTTP
   - Authentication: OAuth 2.0
-- **Source:** https://developers.google.com/workspace/drive/api/guides/configure-mcp-server  
+- **Source:** https://developers.google.com/workspace/drive/api/guides/configure-mcp-server\
   **Location:** “Configure your MCP client” → “Others.”
 - **Exact quotations:**
   - “Server URL: `https://drivemcp.googleapis.com/mcp/v1`”
@@ -1026,7 +1026,7 @@ Google documents a remote Google Drive MCP endpoint. The endpoint meets the supp
   - Enable Google Drive MCP API: `drivemcp.googleapis.com`.
   - The setup page provides Console options for both actions.
   - The CLI examples use `PROJECT_ID`, which the page identifies as the Google Cloud project ID. This value is not part of the MCP URL.
-- **Source:** https://developers.google.com/workspace/drive/api/guides/configure-mcp-server  
+- **Source:** https://developers.google.com/workspace/drive/api/guides/configure-mcp-server\
   **Locations:** “Configure the Google Drive MCP server,” “Enable the APIs,” and “Enable the MCP services.”
 - **Exact quotations:**
   - “To use the Google Drive MCP server, you must enable it in your Google Cloud project and then configure your MCP client to connect to it.”
@@ -1054,7 +1054,7 @@ Google documents a remote Google Drive MCP endpoint. The endpoint meets the supp
 
 - **Status:** Conditional. Configure another server only if the selected setup needs that product.
 - **Actor and scope:** The administrator selects the required server connections for the application.
-- **Source:** https://developers.google.com/workspace/guides/configure-mcp-servers  
+- **Source:** https://developers.google.com/workspace/guides/configure-mcp-servers\
   **Locations:** Opening description; “Configure your MCP client” → “Others”; “Supported products.”
 - **Exact quotations:**
   - “Each Google Workspace product has its own dedicated MCP server.”
@@ -1086,7 +1086,7 @@ The source gives the following addresses. The address text in each row is an exa
   - URL: `https://workspacemcp.googleapis.com/mcp/v1`
   - Authentication: OAuth 2.0, with a client ID and client secret in the documented connection example.
   - Enable `workspacemcp.googleapis.com` and the APIs for the products to search.
-- **Source:** https://developers.google.com/workspace/guides/universal-search-mcp  
+- **Source:** https://developers.google.com/workspace/guides/universal-search-mcp\
   **Locations:** Opening description; “Enable the APIs”; “Set up the OAuth consent screen”; “Configure your MCP client.”
 - **Exact quotations:**
   - “including Gmail messages, Google Drive files, Google Calendar events, and Google Chat spaces and messages, using a single tool.”
@@ -1099,7 +1099,7 @@ The source gives the following addresses. The address text in each row is an exa
 
 - **Status:** Conditional. Each set applies to its named server.
 - **Actor and scope:** The application administrator configures scopes; the user grants access. Topics 1 and 4 must confirm authority and authentication requirements.
-- **Source:** https://developers.google.com/workspace/guides/configure-mcp-servers  
+- **Source:** https://developers.google.com/workspace/guides/configure-mcp-servers\
   **Location:** “Set up the OAuth consent screen” → “Manually add scopes.”
 - **Exact quotation:** “paste the scopes for the MCP servers you want to use”
 - **Documented scope values:** Each suffix below follows the exact prefix `https://www.googleapis.com/auth/`.

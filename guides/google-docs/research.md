@@ -175,22 +175,22 @@ Use the limited project roles below. Do not require project Owner access. If the
 
 **Sources and exact quotations**
 
-1. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
-   Locations: **Enable the APIs** and **Enable the MCP services**.  
+1. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
+   Locations: **Enable the APIs** and **Enable the MCP services**.\
    Observed: 2026-09-11.
    - “Google Docs API”
    - “Google Docs MCP API”
    - “Replace PROJECT_ID with your Google Cloud project ID.”
 
-2. https://cloud.google.com/service-usage/docs/access-control  
-   Locations: service enablement permission table and **Service Usage Admin**.  
+2. https://cloud.google.com/service-usage/docs/access-control\
+   Locations: service enablement permission table and **Service Usage Admin**.\
    Original observation retained: 2026-09-11.
    - “On the project: serviceusage.services.enable”
    - “On the service: servicemanagement.services.bind”
    - `roles/serviceusage.serviceUsageAdmin`
 
-3. https://docs.cloud.google.com/model-armor/configure-floor-settings  
-   Location: **Enable APIs > Roles required to enable APIs**.  
+3. https://docs.cloud.google.com/model-armor/configure-floor-settings\
+   Location: **Enable APIs > Roles required to enable APIs**.\
    Live check: 2026-09-11.
    - “You must enable the Model Armor API before you can use Model Armor.”
    - “To enable APIs, you need the serviceusage.services.enable permission.”
@@ -221,8 +221,8 @@ Use the limited project roles below. Do not require project Owner access. If the
 
 **Sources and exact quotations**
 
-1. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
-   Locations: **Set up the OAuth consent screen** and **Configure your MCP client > Claude**.  
+1. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
+   Locations: **Set up the OAuth consent screen** and **Configure your MCP client > Claude**.\
    Observed: 2026-09-11.
    - “You must configure the OAuth consent screen before you can create an OAuth client ID.”
    - “Under Audience, select Internal. If you can't select Internal, select External.”
@@ -231,8 +231,8 @@ Use the limited project roles below. Do not require project Owner access. If the
    - “Select Web application as the application type.”
    - “Click Create and copy your Client ID and Client Secret.”
 
-2. https://cloud.google.com/iam/docs/roles-permissions/oauthconfig  
-   Location: **OAuth Config Editor**.  
+2. https://cloud.google.com/iam/docs/roles-permissions/oauthconfig\
+   Location: **OAuth Config Editor**.\
    Live check: 2026-09-11.
    - “Read/write access to OAuth config resources”
    - `roles/oauthconfig.editor`
@@ -261,25 +261,25 @@ The role does not establish authority to accept terms for an organization, chang
 
 **Sources and exact quotations**
 
-1. https://developers.google.com/workspace/preview  
-   Locations: **How to join the program** and **Developer Preview Program Terms**.  
+1. https://developers.google.com/workspace/preview\
+   Locations: **How to join the program** and **Developer Preview Program Terms**.\
    Live check: 2026-09-11.
    - “Read through the Program Terms before applying. We will ask you if you agree with the terms in the application form.”
    - “You need to provide us with your Google Workspace account and Google Cloud project information.”
    - “I agree to the Google APIs Terms of Service”
 
-2. https://developers.google.com/terms  
-   Location: **Section 1: Account and Registration > b. Entity Level Acceptance**.  
+2. https://developers.google.com/terms\
+   Location: **Section 1: Account and Registration > b. Entity Level Acceptance**.\
    Live check: 2026-09-11.
    - “If you are using the APIs on behalf of an entity, you represent and warrant that you have authority to bind that entity to the Terms”
 
-3. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
-   Location: **Set up the OAuth consent screen > Finish**.  
+3. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
+   Location: **Set up the OAuth consent screen > Finish**.\
    Live check: 2026-09-11.
    - “review the Google API Services User Data Policy and if you agree, select I agree to the Google API Services: User Data Policy.”
 
-4. https://developers.google.com/terms/api-services-user-data-policy  
-   Location: opening policy text.  
+4. https://developers.google.com/terms/api-services-user-data-policy\
+   Location: opening policy text.\
    Live check: 2026-09-11.
    - “The policy below, as well as the Google APIs Terms of Service”
 
@@ -296,8 +296,8 @@ The role does not establish authority to accept terms for an organization, chang
 
 **Source and exact quotation**
 
-https://cloud.google.com/resource-manager/docs/creating-managing-projects  
-Location: **Create a project**.  
+https://cloud.google.com/resource-manager/docs/creating-managing-projects\
+Location: **Create a project**.\
 Live check: 2026-09-11.
 
 > “To create a project, you must have the resourcemanager.projects.create permission. This permission is included in roles like the Project Creator role (roles/resourcemanager.projectCreator).”
@@ -317,8 +317,8 @@ Live check: 2026-09-11.
 
 **Source and exact quotations**
 
-https://cloud.google.com/iam/docs/granting-changing-revoking-access  
-Locations: **Required roles** and **Required permissions**.  
+https://cloud.google.com/iam/docs/granting-changing-revoking-access\
+Locations: **Required roles** and **Required permissions**.\
 Live check: 2026-09-11.
 - “To manage access to a project: Project IAM Admin (roles/resourcemanager.projectIamAdmin)”
 - `resourcemanager.projects.getIamPolicy`
@@ -345,8 +345,8 @@ Live check: 2026-09-11.
 
 **Sources and exact quotations**
 
-1. https://docs.cloud.google.com/model-armor/configure-floor-settings  
-   Locations: **Obtain the required permissions**, **Floor settings application**, and **Define how floor settings are inherited**.  
+1. https://docs.cloud.google.com/model-armor/configure-floor-settings\
+   Locations: **Obtain the required permissions**, **Floor settings application**, and **Define how floor settings are inherited**.\
    Live check: 2026-09-11.
    - “ask your administrator to grant you the Model Armor Floor Setting Admin (roles/modelarmor.floorSettingsAdmin) IAM role on Model Armor floor settings.”
    - “For more information about granting roles, see Manage access to projects, folders, and organizations.”
@@ -354,8 +354,8 @@ Live check: 2026-09-11.
    - “Custom: Define floor settings for this project.”
    - “Custom settings that you define for a project override any inherited floor settings.”
 
-2. https://docs.cloud.google.com/iam/docs/roles-permissions/modelarmor  
-   Location: **Model Armor Floor Setting Admin**.  
+2. https://docs.cloud.google.com/iam/docs/roles-permissions/modelarmor\
+   Location: **Model Armor Floor Setting Admin**.\
    Live check: 2026-09-11.
    - “Grants full access to all Model Armor Floor Setting resources.”
    - `roles/modelarmor.floorSettingsAdmin`
@@ -363,8 +363,8 @@ Live check: 2026-09-11.
    - `modelarmor.floorSettings.update`
    - `modelarmor.floorSettings.computeEffectiveFloorSetting`
 
-3. https://docs.cloud.google.com/model-armor/configure-floor-settings  
-   Location: **Set the API endpoint override using the gcloud CLI**.  
+3. https://docs.cloud.google.com/model-armor/configure-floor-settings\
+   Location: **Set the API endpoint override using the gcloud CLI**.\
    Live check: 2026-09-11.
    - “Run the following command to use the global API endpoint”
    - `gcloud config set api_endpoint_overrides/modelarmor "https://modelarmor.googleapis.com/"`
@@ -383,8 +383,8 @@ The technical ability to override inherited settings does not establish approval
 
 **Source and exact quotations**
 
-https://support.google.com/a/answer/7281227?hl=en  
-Locations: **Manage app access to Google services & add apps > Configure a new app** and access-setting descriptions.  
+https://support.google.com/a/answer/7281227?hl=en\
+Locations: **Manage app access to Google services & add apps > Configure a new app** and access-setting descriptions.\
 Live check: 2026-09-11.
 - “Requires having the Service Settings administrator privilege.”
 - “Enter the app's name or client ID, then click Search.”
@@ -404,8 +404,8 @@ Live check: 2026-09-11.
 
 **Source and exact quotations**
 
-https://support.google.com/docs/answer/2494822?hl=en  
-Locations: sharing permissions table, sharing tips, and **Share with specific people**.  
+https://support.google.com/docs/answer/2494822?hl=en\
+Locations: sharing permissions table, sharing tips, and **Share with specific people**.\
 Observed and live checked: 2026-09-11.
 - “Enter the email address you want to share with.”
 - “Click Send or Share.”
@@ -865,11 +865,11 @@ Google documents user permissions, test-user access, and administrator controls 
 - **Documented action:** In Google Drive, select the file and **Share**. Enter the connecting user’s email address. Select **Viewer**, **Commenter**, or **Editor**. Select **Send** or **Share**. Obtain the document and user email address from the document owner and connecting user.
 - **Authority:** The sharing permissions table says that an owner can share a file. An editor can share by default, but the owner can control this permission.
 - **Sources and exact quotations:**
-  - https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
-    Location: introduction, **Respect security**.  
+  - https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
+    Location: introduction, **Respect security**.\
     Quote: “Inherit the same permissions and data governance controls as the user.”
-  - https://support.google.com/docs/answer/2494822  
-    Locations: permissions table and **Share with specific people**.  
+  - https://support.google.com/docs/answer/2494822\
+    Locations: permissions table and **Share with specific people**.\
     Quotes:
     - “Enter the email address you want to share with.”
     - “Decide how people can use your file. Select one:”
@@ -883,7 +883,7 @@ Google documents user permissions, test-user access, and administrator controls 
 - **Who and scope:** The person who configures the Google Auth Platform adds the connecting users. The access applies to the application in the selected Google Cloud project.
 - **Documented action:** Open **Audience**. Under **Test users**, select **Add users**. Enter the connecting users’ email addresses. Select **Save**.
 - **Required values:** Use the Google Account email address of each authorized test user. Obtain these addresses from the users.
-- **Source:** https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
+- **Source:** https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
   Location: **Set up the OAuth consent screen**.
 - **Exact quotations:**
   - “Under Audience, select Internal. If you can't select Internal, select External.”
@@ -905,7 +905,7 @@ Google documents user permissions, test-user access, and administrator controls 
   - **Specific Google data** permits only the scopes that the administrator specifies.
   - **Trusted** permits all Google services, including restricted services.
   - **Limited** permits only unrestricted services. It is not sufficient when the application needs a restricted service.
-- **Source:** https://support.google.com/a/answer/7281227  
+- **Source:** https://support.google.com/a/answer/7281227\
   Locations: **Before you begin: Review apps for your organization**, **Restrict or unrestrict Google services**, and **Manage app access to Google services & add apps**.
 - **Exact quotations:**
   - “Requires having the Service Settings administrator privilege.”
@@ -924,11 +924,11 @@ Google documents user permissions, test-user access, and administrator controls 
 - **Documented action:** Follow the preview application procedure. Make sure that the applicant’s email account accepts addition to Google Groups. Wait for the final confirmation email before the trial.
 - **Required values:** Use the applicant’s Google Workspace account and the trial’s Google Cloud project details.
 - **Sources and exact quotations:**
-  - https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
-    Location: opening preview notice.  
+  - https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
+    Location: opening preview notice.\
     Quote: “Developer Preview: Available as part of the Google Workspace Developer Preview Program”
-  - https://developers.google.com/workspace/preview  
-    Location: **How to join the program**.  
+  - https://developers.google.com/workspace/preview\
+    Location: **How to join the program**.\
     Quotes:
     - “You need to provide us with your Google Workspace account and Google Cloud project information.”
     - “When we verify your Google Workspace account information, we will add you to a Google Group for the program and you should receive a notification.”
@@ -941,24 +941,24 @@ Google documents user permissions, test-user access, and administrator controls 
 
 - **Status:** Conditional. Applies when the applicant uses a Google Workspace for Education account.
 - **Who and scope:** The account holder applies through the same preview program.
-- **Source:** https://developers.google.com/workspace/preview  
+- **Source:** https://developers.google.com/workspace/preview\
   Location: **FAQ**, question about previously denied Education accounts.
 - **Exact quotation:** “any Google Workspace for Education account holders can now join the program.”
 - **Interpretation:** Do not exclude Education accounts on the basis of the earlier program restriction. This statement does not remove other organization policies.
 
 ## Unresolved questions
 
-- **Non-blocking — Preview registration for additional users.**  
+- **Non-blocking — Preview registration for additional users.**\
   The preview page says that API feature access is provided through registered projects. It also provides a process to register more email addresses:
   - Location: **FAQ**. Quote: “We provide you access to the program API features through your Google Cloud project(s).”
   - Location: **Questions and Requests**. Quote: “When you want to register more email addresses or Google Cloud projects to the program, submit a request using one of the forms.”
-  
+
   The Docs MCP page and preview page do not clearly state that every connecting user must register separately. This does not block a trial with the registered account. Do not state that project registration automatically admits every user.
 
-- **Non-blocking — Separate MCP license, user role, or individual switch.**  
+- **Non-blocking — Separate MCP license, user role, or individual switch.**\
   The checked Docs MCP setup page and preview page do not identify a separate Docs MCP license, an MCP invocation role, or an individual MCP enablement switch. This is not proof that these requirements are absent.
 
-- **Non-blocking — Authority to add OAuth test users.**  
+- **Non-blocking — Authority to add OAuth test users.**\
   The Docs procedure gives the necessary action and values. Topic 1 must confirm the applicable configuration authority.
 
 ## Cross-topic dependencies
@@ -1052,9 +1052,9 @@ The supplied central client evidence resolves the previous refresh-token compati
   - Select **Create**. Copy the **Client ID** and **Client Secret** to the client’s authentication settings.
 - **Environment-specific values:** Google supplies the client ID and client secret. Speakeasy supplies the callback. Do not use a Claude or Antigravity callback.
 - **Provider sources, observed 2026-09-11:**
-  1. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
+  1. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
      **Locations:** “Configure your MCP client > Claude”; “Antigravity.”
-  2. https://developers.google.com/identity/protocols/oauth2/web-server  
+  2. https://developers.google.com/identity/protocols/oauth2/web-server\
      **Location:** Authorization request parameters, `redirect_uri`.
 - **Exact quotations:**
   - “Select Web application as the application type.”
@@ -1187,9 +1187,9 @@ The supplied central client evidence resolves the previous refresh-token compati
   - An administrator can restrict a requested service.
   - Google permits 100 refresh tokens per Google Account per OAuth client ID. At that limit, a new token invalidates the oldest token.
 - **Sources, observed 2026-09-11:**
-  1. https://developers.google.com/identity/protocols/oauth2  
+  1. https://developers.google.com/identity/protocols/oauth2\
      **Location:** “Refresh token expiration.”
-  2. https://developers.google.com/identity/protocols/oauth2/web-server  
+  2. https://developers.google.com/identity/protocols/oauth2/web-server\
      **Location:** Token response field `refresh_token_expires_in`.
 - **Exact quotations:**
   - “The refresh token has not been used for six months.”
@@ -1258,7 +1258,7 @@ The documented connection does not need a local process, proxy, or bridge. Googl
   - Server URL: `https://docsmcp.googleapis.com/mcp/v1`
   - Transport: HTTP
   - Authentication: OAuth 2.0
-- **Source:** https://developers.google.com/workspace/docs/api/guides/configure-mcp-server#others  
+- **Source:** https://developers.google.com/workspace/docs/api/guides/configure-mcp-server#others\
   Location: **Configure your MCP client > Others**.
 - **Exact quotations:**
   - “Server name: docs”
@@ -1275,7 +1275,7 @@ The documented connection does not need a local process, proxy, or bridge. Googl
   - Google Docs API: `docs.googleapis.com`
   - Google Docs MCP API: `docsmcp.googleapis.com`
 - **Environment-specific value:** `PROJECT_ID` is the customer’s Google Cloud project ID. It is used for service enablement, not in the MCP URL.
-- **Source:** https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
+- **Source:** https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
   Locations: **Configure the Google Docs MCP server**, **Enable the APIs**, and **Enable the MCP services**.
 - **Exact quotations:**
   - “To use the Google Docs MCP server, you must enable it in your Google Cloud project and then configure your MCP client to connect to it.”
@@ -1291,9 +1291,9 @@ The documented connection does not need a local process, proxy, or bridge. Googl
 - **Actor and scope:** The applicant supplies Google Workspace account and Google Cloud project information. Google verifies the account and registers the project.
 - **Documented action:** Follow the linked Developer Preview application procedure. Topic 2 owns the application details. Topic 1 must check the authority to accept terms.
 - **Sources:**
-  1. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
+  1. https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
      Location: opening notice.
-  2. https://developers.google.com/workspace/preview  
+  2. https://developers.google.com/workspace/preview\
      Location: **How to join the program**.
 - **Exact quotations:**
   - “Developer Preview: Available as part of the Google Workspace Developer Preview Program”
@@ -1307,7 +1307,7 @@ The documented connection does not need a local process, proxy, or bridge. Googl
 - **Status:** Required.
 - **Actor and scope:** The application administrator configures OAuth. The connecting user authorizes access.
 - **Documented action:** Configure the consent screen before creating an OAuth client ID. The official remote connector example uses a client ID and client secret.
-- **Sources:** https://developers.google.com/workspace/docs/api/guides/configure-mcp-server  
+- **Sources:** https://developers.google.com/workspace/docs/api/guides/configure-mcp-server\
   Locations: **Set up the OAuth consent screen**, **Configure your MCP client > Claude**, and **Others**.
 - **Exact quotations:**
   - “You must configure the OAuth consent screen before you can create an OAuth client ID.”
@@ -1324,7 +1324,7 @@ The documented connection does not need a local process, proxy, or bridge. Googl
 
 - **Status:** Required selection for this task. Other servers are conditional on a separate need for their tools.
 - **Actor and scope:** The IT administrator selects the service connection. Each server gives the client access to its own product tools.
-- **Source:** https://developers.google.com/workspace/guides/configure-mcp-servers  
+- **Source:** https://developers.google.com/workspace/guides/configure-mcp-servers\
   Locations: introduction, **Configure your MCP client > Antigravity**, and **Supported products**.
 - **Exact quotation:** “Each Google Workspace product has its own dedicated MCP server.”
 - **Documented servers:**
@@ -1340,9 +1340,9 @@ The documented connection does not need a local process, proxy, or bridge. Googl
 | Google Chat | `https://chatmcp.googleapis.com/mcp/v1` | Search conversations and messages; send messages; change read state; list memberships. |
 | People API | `https://people.googleapis.com/mcp/v1` | Read user profiles; search contacts and directory people. |
 
-- **Exact tool-name quotations from Supported products:**  
-  Docs: “read_doc”, “update_doc”.  
-  Drive: “get_file_permissions”, “search_files”.  
+- **Exact tool-name quotations from Supported products:**\
+  Docs: “read_doc”, “update_doc”.\
+  Drive: “get_file_permissions”, “search_files”.\
   People API: “get_user_profile”, “search_contacts”, “search_directory_people”.
 - **Interpretation:** These are separate product servers, not tenant or environment variants. Only Docs is needed for the requested connection. Google lists Drive-related OAuth scopes for Docs, but that does not mean the client must also connect to the Drive MCP server.
 
@@ -1358,7 +1358,7 @@ The documented connection does not need a local process, proxy, or bridge. Googl
 
 - **Status:** Required; the choice of screening solution is conditional.
 - **Actor and scope:** The application operator must provide prompt and response screening. This applies to the client’s use of Workspace MCP.
-- **Source:** https://developers.google.com/workspace/guides/configure-mcp-security  
+- **Source:** https://developers.google.com/workspace/guides/configure-mcp-security\
   Location: opening text, before **Optional security and safety configurations**.
 - **Exact quotation:** “You must screen prompts and responses for malicious content or prompt injection attacks. You can use the Google-provided Model Armor, or you can use your own solution if you document it in order for users to accept that risk.”
 - **Interpretation:** Model Armor is not the only documented option. The coordinator must check whether the proposed Speakeasy setup meets this requirement. Topic 2 owns any required Google-side configuration.
