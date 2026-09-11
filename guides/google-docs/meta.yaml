@@ -2,7 +2,7 @@
 schema_version: 1
 slug: google-docs
 title: Google Docs
-summary: Read and update Google Docs through Google's hosted Docs MCP server.
+summary: Read and change Google Docs through Google's remote Docs MCP server.
 speakeasy_add_server: custom-remote
 credential_setup:
   options:
@@ -15,27 +15,39 @@ credential_setup:
           label: Client ID
           setup:
             - external.md#create-oauth-client
-            - external.md#copy-client-credentials
         - id: client-secret
           label: Client Secret
           setup:
             - external.md#create-oauth-client
-            - external.md#copy-client-credentials
   requirements:
-    - id: google-cloud-project
-      description: A Google Cloud project that will own the Google Docs API, Google Docs MCP API, and OAuth client
-    - id: google-cloud-administrator
-      description: An administrator who can enable services, configure Google Auth platform, and create OAuth credentials; Service Usage Admin provides the service enablement permission
-    - id: mcp-tool-access
-      description: MCP Tool User on the Google Cloud project for connecting users, plus access to the Google Docs resources they will use
-    - id: workspace-api-access
-      description: When organizational API controls restrict high-risk Drive and Docs scopes or unconfigured apps, a Google Workspace Service Settings administrator who can allow the OAuth client
+    - id: registered-preview-account
+      description: A Google Workspace account and Google Cloud project with final Developer Preview registration confirmation; use the registered account for this trial
+    - id: service-enablement
+      description: Service Usage Admin or equivalent permission to enable the Docs API, Docs MCP API, and Model Armor API in the registered project
+    - id: oauth-configuration
+      description: OAuth Config Editor (Beta) for consent configuration, test users, and manual Web application credentials
+    - id: model-armor-policy
+      description: Model Armor Floor Setting Admin for the project floor setting; security and billing approval for policy effects, usage cost, and applicable data-location requirements
+    - id: terms-authority
+      description: Authority to accept Preview terms and the Google API Services User Data Policy for the organization
+    - id: project-creation
+      description: Project Creator or equivalent permission only if a new project is needed
+    - id: project-role-grants
+      description: A project access administrator with Project IAM Admin or equivalent permission only if project roles must be granted
+    - id: document-access
+      description: The connecting account needs read or edit permission for the target documents; an owner or authorized editor can grant missing access
+    - id: workspace-policy
+      description: A Workspace administrator with Service Settings privilege only if policy blocks the client or required scopes
+    - id: speakeasy-project-access
+      description: Write access to the Speakeasy AI Control Plane project, separate from Google permissions
 documentation:
   external: external.md
   speakeasy: speakeasy.md
 remotes:
   - id: hosted
     url: https://docsmcp.googleapis.com/mcp/v1
+    # Operator-approved HTTP normalization for these MCP guides, not live
+    # transport verification. See research.md.
     transport: streamable-http
     tenanted: false
     authentication:
@@ -43,88 +55,47 @@ remotes:
     provenance:
       - source: provider-documentation
         locator: https://developers.google.com/workspace/docs/api/guides/configure-mcp-server
-        name: Configure the Docs MCP server
+        name: Configure the Google Docs MCP server
         classification: official
-        observed_at: "2026-08-29T15:13:21Z"
-      - source: endpoint-observation
-        locator: https://docsmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-        name: Google Docs MCP protected-resource metadata
-        classification: official
-        observed_at: "2026-08-29T15:13:21Z"
+        observed_at: "2026-09-11T19:52:38Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.google.com/workspace/docs/api/guides/configure-mcp-server
-    name: Configure the Docs MCP server
+    name: Configure the Google Docs MCP server
     classification: official
-    observed_at: "2026-08-29T15:13:21Z"
+    observed_at: "2026-09-11T19:52:38Z"
   - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-mcp-servers
-    name: Configure the Google Workspace MCP servers
+    locator: https://developers.google.com/workspace/preview
+    name: Google Workspace Developer Preview Program
     classification: official
-    observed_at: "2026-08-29T15:13:21Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-oauth-consent
-    name: Configure the OAuth consent screen and choose scopes
-    classification: official
-    observed_at: "2026-08-29T15:13:21Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/create-credentials
-    name: Create access credentials
-    classification: official
-    observed_at: "2026-08-29T15:13:21Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/enable-apis
-    name: Enable Google Workspace APIs
-    classification: official
-    observed_at: "2026-08-29T15:13:21Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/docs/api/auth
-    name: Choose Google Docs API scopes
-    classification: official
-    observed_at: "2026-08-29T15:13:21Z"
+    observed_at: "2026-09-11T19:52:38Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-mcp-security
     name: Configure security for Google Workspace MCP servers
     classification: official
-    observed_at: "2026-08-29T15:13:21Z"
+    observed_at: "2026-09-11T19:52:38Z"
   - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
-    name: Set up authentication to Google and Google Cloud MCP servers
+    locator: https://docs.cloud.google.com/model-armor/configure-floor-settings
+    name: Configure Model Armor floor settings
     classification: official
-    observed_at: "2026-08-29T15:13:21Z"
+    observed_at: "2026-09-11T19:52:38Z"
   - source: provider-documentation
-    locator: https://docs.cloud.google.com/service-usage/docs/enable-disable
-    name: Enable and disable services
+    locator: https://cloud.google.com/iam/docs/roles-permissions/oauthconfig
+    name: OAuth configuration roles
     classification: official
-    observed_at: "2026-08-29T15:13:21Z"
+    observed_at: "2026-09-11T19:52:38Z"
   - source: provider-documentation
     locator: https://support.google.com/a/answer/7281227?hl=en
     name: Control which apps access Google Workspace data
     classification: official
-    observed_at: "2026-08-29T15:13:21Z"
+    observed_at: "2026-09-11T19:52:38Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549945
-    name: Manage App Audience
+    locator: https://support.google.com/docs/answer/2494822
+    name: Share files from Google Drive
     classification: official
-    observed_at: "2026-08-29T15:13:21Z"
-  - source: endpoint-observation
-    locator: https://docsmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-    name: Google Docs MCP protected-resource metadata
-    classification: official
-    observed_at: "2026-08-29T15:13:21Z"
-  - source: endpoint-observation
-    locator: https://accounts.google.com/.well-known/oauth-authorization-server
-    name: Google authorization-server metadata
-    classification: official
-    observed_at: "2026-08-29T15:13:21Z"
+    observed_at: "2026-09-11T19:52:38Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-08-29T15:13:21Z"
-  - source: pulsemcp
-    locator: credential-free Pulse snapshot
-    name: Google Docs catalog lookup
-    scope: public
-    status: no-confident-exact-match
-    observed_at: "2026-08-29T15:13:21Z"
+    observed_at: "2026-09-11T19:52:38Z"

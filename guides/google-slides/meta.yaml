@@ -1,8 +1,11 @@
 # yaml-language-server: $schema=../../schema/guide.v1.schema.json
+# Generated at 2026-09-11T20:18:38Z from research.md; observations dated 2026-09-11.
+# Operator-approved normalization: documented HTTP maps to streamable-http for these MCP guides.
+# This is not new source evidence or live transport verification.
 schema_version: 1
 slug: google-slides
 title: Google Slides
-summary: Connect Google Slides data through Google's hosted Slides MCP server.
+summary: Connect Google Slides to the Speakeasy AI Control Plane with manual OAuth.
 speakeasy_add_server: custom-remote
 credential_setup:
   options:
@@ -23,13 +26,15 @@ credential_setup:
             - external.md#copy-oauth-credentials
   requirements:
     - id: google-cloud-project
-      description: A Google Cloud project where an administrator can enable the Google Slides API and Google Slides MCP API, grant project IAM roles, configure Google Auth platform, and create OAuth credentials
+      description: Use an existing Cloud project registered for Developer Preview. Use Service Usage Admin to enable services and OAuth Config Editor to configure OAuth.
+    - id: preview-approval
+      description: An authorized company representative must accept the preview terms. Keep use within the permitted audience and data limits.
     - id: connecting-user-access
-      description: Each connecting user has MCP Tool User on the project and access to the intended Google Slides presentations
+      description: Use an eligible Workspace account with permission for the intended presentation operations. Add authorized users for External Testing.
     - id: workspace-api-access
-      description: When organizational API controls restrict high-risk Drive and Slides scopes or unconfigured apps, a Google Workspace Service Settings administrator can allow the OAuth client
+      description: If Workspace policy limits access, a Workspace administrator with the Service Settings administrator privilege must approve the application.
     - id: prompt-injection-screening
-      description: An application or security owner has configured prompt and response screening for malicious content or prompt injection
+      description: Use project-level Model Armor. The security owner must approve logging, routing, data residency, and effects on other integrated services. Use Model Armor Floor Setting Admin for floor-setting changes.
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -37,106 +42,128 @@ remotes:
   - id: hosted
     url: https://slidesmcp.googleapis.com/mcp/v1
     transport: streamable-http
+    tenanted: false
     authentication:
       - oauth-client
     provenance:
       - source: provider-documentation
         locator: https://developers.google.com/workspace/slides/api/guides/configure-mcp-server
         name: Configure the Slides MCP server
+        scope: T5-01 and T5-02; shared Slides endpoint and service enablement
         classification: official
-        observed_at: "2026-07-29T21:55:52Z"
-      - source: endpoint-observation
-        locator: https://slidesmcp.googleapis.com/mcp/v1
-        name: Google Slides MCP endpoint
-        classification: official
-        status: MCP initialize returned HTTP 200
-        version: "2025-03-26"
-        observed_at: "2026-07-29T21:55:52Z"
-      - source: endpoint-observation
-        locator: https://slidesmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-        name: Google Slides MCP protected-resource metadata
-        classification: official
-        observed_at: "2026-07-29T21:55:52Z"
+        observed_at: "2026-09-11T20:18:38Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.google.com/workspace/slides/api/guides/configure-mcp-server
     name: Configure the Slides MCP server
+    scope: T5-01, T5-02, T4-02, and T1-07
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/preview
+    name: Google Workspace Developer Preview Program
+    scope: T2-01, T2-02, T1-03, and T1-08
+    classification: official
+    observed_at: "2026-09-11T20:18:38Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-mcp-servers
     name: Configure the Google Workspace MCP servers
+    scope: T2-04 through T2-06; consent, audience, and four Slides scopes
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-oauth-consent
-    name: Configure the OAuth consent screen and choose scopes
-    classification: official
-    observed_at: "2026-07-29T21:55:52Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/slides/api/scopes
-    name: Choose Google Slides API scopes
-    classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-09-11T20:18:38Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-mcp-security
     name: Configure security for Google Workspace MCP servers
+    scope: T2-08 and T1-05; project-level Model Armor settings and warnings
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-09-11T20:18:38Z"
   - source: provider-documentation
-    locator: https://developers.google.com/workspace/release-notes
-    name: Google Workspace developer release notes
+    locator: https://developers.google.com/identity/protocols/oauth2/web-server
+    name: OAuth 2.0 for Web Server Applications
+    scope: T4-02 through T4-05 and T4-08
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-09-11T20:18:38Z"
   - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
-    name: Set up authentication to Google and Google Cloud MCP servers
-    classification: official
-    observed_at: "2026-07-29T21:55:52Z"
-  - source: provider-documentation
-    locator: https://cloud.google.com/service-usage/docs/enable-disable
-    name: Enable and disable services
-    classification: official
-    observed_at: "2026-07-29T21:55:52Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/iam/docs/grant-role-console
-    name: Grant an IAM role by using the Google Cloud console
-    classification: official
-    observed_at: "2026-07-29T21:55:52Z"
-  - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549945
+    locator: https://support.google.com/cloud/answer/15549945?hl=en
     name: Manage App Audience
+    scope: T4-06, T4-07, and T1-08; Internal audience and External Testing limits
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-09-11T20:18:38Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549135
-    name: Manage App Data Access
+    locator: https://docs.cloud.google.com/service-usage/docs/access-control
+    name: Service Usage access control
+    scope: T1-01; service enablement authority
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: provider-documentation
+    locator: https://cloud.google.com/iam/docs/roles-permissions/oauthconfig?hl=en
+    name: OAuthConfig roles
+    scope: T1-02; OAuth Config Editor
+    classification: official
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/iam/docs/roles-permissions/modelarmor
+    name: Model Armor roles
+    scope: T1-05; Model Armor Floor Setting Admin
+    classification: official
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/model-armor/configure-floor-settings
+    name: Configure Model Armor floor settings
+    scope: T1-05; project floor-setting access
+    classification: official
+    observed_at: "2026-09-11T20:18:38Z"
   - source: provider-documentation
     locator: https://support.google.com/a/answer/7281227?hl=en
     name: Control which apps access Google Workspace data
+    scope: T1-06; conditional Workspace application approval
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
-  - source: endpoint-observation
-    locator: https://slidesmcp.googleapis.com/mcp/v1
-    name: Google Slides MCP endpoint
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: provider-documentation
+    locator: https://support.google.com/groups/answer/9792489?hl=en
+    name: Manage your global settings
+    scope: T1-08; preview applicant account setting
     classification: official
-    status: MCP initialize returned HTTP 200
-    version: "2025-03-26"
-    observed_at: "2026-07-29T21:55:52Z"
-  - source: endpoint-observation
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: public-oauth-metadata
     locator: https://slidesmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-    name: Google Slides MCP protected-resource metadata
+    name: Google Slides protected-resource metadata
+    scope: Central client check; shared resource and Google issuer
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
-  - source: endpoint-observation
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: public-oauth-metadata
     locator: https://accounts.google.com/.well-known/oauth-authorization-server
     name: Google authorization-server metadata
+    scope: Central client check; authorization and token endpoints
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: official-client-implementation
+    locator: https://github.com/speakeasy-api/gram/blob/5827550fca19b50c27e06fcabd384cae62963aa9/server/internal/remotesessions/interceptors/google.go#L26-L52
+    name: Google upstream OAuth interceptor
+    scope: C1; automatic offline access and consent
+    classification: official
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: official-client-implementation
+    locator: https://github.com/speakeasy-api/gram/blob/5827550fca19b50c27e06fcabd384cae62963aa9/server/internal/remotesessions/clienthandlers.go#L179-L222
+    name: Manual OAuth client creation
+    scope: C3; pre-registered client support
+    classification: official
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: official-client-implementation
+    locator: https://github.com/speakeasy-api/gram/blob/5827550fca19b50c27e06fcabd384cae62963aa9/server/internal/remotesessions/challenge.go#L988-L1003
+    name: Upstream token storage
+    scope: C4; refresh-token storage
+    classification: official
+    observed_at: "2026-09-11T20:18:38Z"
+  - source: official-client-implementation
+    locator: https://github.com/speakeasy-api/gram/blob/5827550fca19b50c27e06fcabd384cae62963aa9/server/internal/remotesessions/tokenservice.go#L559-L612
+    name: Upstream token refresh
+    scope: C4; stored refresh-token use
+    classification: official
+    observed_at: "2026-09-11T20:18:38Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
-    name: Speakeasy setup canonical section
+    name: Speakeasy setup
+    scope: Custom remote server and manual OAuth
     classification: official
-    observed_at: "2026-07-29T21:55:52Z"
+    observed_at: "2026-09-11T20:18:38Z"

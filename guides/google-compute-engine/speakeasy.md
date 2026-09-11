@@ -1,42 +1,57 @@
 # Speakeasy setup
 
+Use an account that can add a source and configure authentication in the intended Speakeasy project. Manual client creation requires project write access. Complete [Google Compute Engine setup](external.md) first.
+
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
+1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
+2. Select **Add Source**.
+3. Choose **Custom remote server**.
+4. On **Add a custom remote MCP server**, enter this value in **Remote MCP server URL**:
 
-Choose **3rd-party server**. On the **MCP Catalog** page, search for `Google Compute Engine` in **Search MCP servers...**, open the matched entry with **View**, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
+   ```text
+   https://compute.googleapis.com/mcp
+   ```
+
+5. Select **Add server**.
 
 This creates the hosted MCP server and opens its **Overview** page.
 
-<!-- screenshot: the Add Source menu open on the Sources page, or the Google Compute Engine catalog entry -->
+<!-- screenshot: the custom remote source form with the Compute Engine endpoint -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-1. From the server's **Overview** page, open **Settings**.
-2. Under **Authentication**, click **Configure Manually**. If
-   **Use Discovered** is offered, choose **Configure Manually** anyway —
-   manual configuration matches the client you created in
-   [Create the OAuth client](external.md#create-oauth-client). This opens the
-   **Attach Remote Identity Provider** sheet.
-3. Set **Client Type** to **Manual**.
-4. Confirm the **Redirect URI** the sheet shows matches the URL you
-   entered under **Authorized redirect URIs** in
-   [Create the OAuth client](external.md#create-oauth-client).
-5. Paste the client ID from
-   [Copy the client credentials](external.md#copy-client-credentials) into
-   **Client ID**.
-6. Paste the client secret into **Client Secret (optional)** — despite
-   the label, Google requires the secret, so treat the field as
-   required.
-7. Click **Attach Identity Provider**.
+Use the [OAuth client ID and client secret](external.md#copy-client-credentials) from Google setup. Do not use Dynamic Client Registration for this server.
 
-<!-- screenshot: the Attach Remote Identity Provider sheet showing the Redirect URI and credential fields, values redacted -->
+1. From **Overview**, open **Settings**.
+2. Under **Authentication**, select **Configure Manually**, or **Use Discovered** when offered.
+3. In **Attach Remote Identity Provider**, enter this **Issuer URL** if it is not already known:
 
-Each user who then connects signs in with their own Google account.
-For their sign-in to succeed, they need the roles from
-[Grant IAM roles](external.md#grant-iam-roles), and — while an External app's
-publishing status is **Testing** — a listing under **Test users** in
-[Configure the consent screen](external.md#consent-screen).
+   ```text
+   https://accounts.google.com
+   ```
 
-This guide covers setup only. For anything beyond it — billing, tool
-behavior, limits — see [Google's Compute Engine MCP documentation](https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp).
+4. Under **Endpoints**, select **Discover** to fill the Google authorization and token endpoints if they are not already filled.
+5. Set **Client Type** to **Manual**.
+6. Paste the Google OAuth client ID into **Client ID**.
+7. Paste the Google OAuth client secret into **Client Secret (optional)**. The secret is required for this Web client, despite the generic field label.
+8. In **Scope (override)**, replace any discovered scope value with this comma-separated value:
+
+   ```text
+   https://www.googleapis.com/auth/compute.read-only, https://www.googleapis.com/auth/compute.readonly
+   ```
+
+9. Leave **Audience (optional)** empty.
+10. Confirm that **Redirect URI** matches the value registered with `{{ gram.oauth.callback_url }}` in [Create the Web OAuth client](external.md#create-oauth-client). Do not continue if the values differ.
+11. Select **Attach Identity Provider**.
+12. When the application requests Google access, sign in with the intended read-only user's Google Account and complete the consent prompts. Do not use the more privileged setup helper's account.
+
+If you reuse an identity provider with an administrator scope override, ask the Speakeasy administrator to confirm the two read-only scopes above. An issuer-level override takes priority over client scopes.
+
+The Speakeasy AI Control Plane requests offline access and consent automatically. It stores and uses the refresh token. No separate offline-access setting is needed for this path.
+
+For an External application in Testing, access requires another sign-in after seven days. Other token or access limits can also require another sign-in.
+
+<!-- screenshot: the Manual identity provider sheet with credentials and environment-specific values redacted -->
+
+This guide covers setup only. For billing, tool behavior, and limits, see [Google's Compute Engine MCP documentation](https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp).

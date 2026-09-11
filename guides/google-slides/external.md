@@ -4,141 +4,160 @@ setup_version: 1
 
 # Set up Google Slides
 
-The Google Slides MCP Server is in Developer Preview. Google does not document a Google Slides MCP-specific paid plan or license requirement.
+The Google Slides MCP server is in Developer Preview. Use a Google Workspace account and an existing Google Cloud project. Each connecting user must have permission to read or change the intended presentations. If access is missing, ask the person who controls presentation access for help. Cloud setup roles do not give presentation access.
 
-Use a Google Cloud project where you can enable services, grant project roles, configure **Google Auth platform**, and create OAuth credentials. Each connecting user needs access to the intended presentations. An application or security owner must also configure prompt and response screening for malicious content or prompt injection.
+Use **Service Usage Admin** to enable services, **OAuth Config Editor** to configure OAuth, and **Model Armor Floor Setting Admin** to configure project protection. If you do not have these roles, ask the authorized administrator to do the applicable steps. Company approval and Workspace application approval are separate from these Cloud roles.
 
-Sign in to the [Google Cloud console](https://console.cloud.google.com). In the console toolbar, select the project that will own this configuration, and keep it selected throughout the Google Cloud steps.
+Sign in to the [Google Cloud console](https://console.cloud.google.com). Use the same project for all Cloud setup steps.
+
+### Register the project for Developer Preview {#register-developer-preview}
+
+Keep preview applications inside your domain or company unless Google explicitly permits an exception. Do not include preview features in public applications before general availability. For government or regulatory use, use only test or experimental data. The program terms give an exception for educational institutions.
+
+An authorized company representative must accept the program terms.
+
+1. Open [developers.google.com/workspace/preview](https://developers.google.com/workspace/preview).
+2. Read the **Developer Preview Program Terms**.
+3. Under **How to join the program**, open the application link.
+4. Submit the application with your Workspace account information and the existing Cloud project's **project number**.
+5. Make sure the applicant's email account permits Google Groups membership. Use the **Manage your global settings** link in the program instructions if necessary.
+6. Wait for the final project-registration confirmation from Google before you continue.
+
+<!-- screenshot: Developer Preview Program page with How to join the program and the application link; hide private application data -->
 
 ### Enable the Google Slides APIs {#enable-google-slides-apis}
 
-1. Open **APIs & Services** > **API Library**.
-2. In **Search for APIs & Services**, search for `Google Slides API`.
-3. Open **Google Slides API**.
-4. Click **Enable**. If the API is already enabled, continue.
-5. Reopen **APIs & Services** > **API Library**.
-6. In **Search for APIs & Services**, search for `Google Slides MCP API`.
-7. Open **Google Slides MCP API**.
-8. Click **Enable**. If the API is already enabled, continue.
+The person who enables these services needs **Service Usage Admin** on the registered project.
 
-You need `serviceusage.services.enable`, normally through **Service Usage Admin** or **Owner**.
+1. Select the registered project in Google Cloud.
+2. Open [developers.google.com/workspace/slides/api/guides/configure-mcp-server](https://developers.google.com/workspace/slides/api/guides/configure-mcp-server).
+3. Under **Enable the APIs**, use the console enablement link to enable the Google Slides API, `slides.googleapis.com`.
+4. Under **Enable the MCP services**, use the console enablement link to enable the Google Slides MCP API, `slidesmcp.googleapis.com`.
 
-<!-- screenshot: Google Slides MCP API showing its enabled state -->
+If you use an administrator for service enablement, ask that person to use the documented service commands. The commands use the registered project's **project ID**, not its project number. Enable only the Slides services for this connection.
 
-### Grant MCP Tool User access {#grant-mcp-tool-user}
+<!-- screenshot: Google Slides MCP API in the selected project; hide project-specific values -->
 
-You need **Project IAM Admin** to grant project roles.
+### Configure prompt and response screening {#configure-mcp-security}
 
-1. Open [**IAM**](https://console.cloud.google.com/iam-admin/iam).
-2. Confirm that the same project is selected.
-3. Click **Grant access**.
-4. In **New principals**, enter a connecting user's Google Account email.
-5. Click **Select a role**.
-6. Search for `MCP Tool User`.
-7. Select **MCP Tool User**.
-8. Click **Save**.
-9. Repeat these steps for each connecting user.
+**Warning:** Model Armor logs the entire payload. Request routing can break data-residency compliance for data in use and in transit. Floor-setting changes can affect traffic screening and safety controls across all integrated services in the project, not only MCP. The security owner must approve these effects before configuration.
 
-The server will apply each user's existing Slides and Drive permissions and governance controls.
+This guide uses project-level Model Armor to screen prompts and responses. OAuth does not supply this protection. An authorized Cloud administrator must do the following actions. API enablement needs **Service Usage Admin**. The floor-setting change needs **Model Armor Floor Setting Admin**.
 
-<!-- screenshot: Grant access with New principals and MCP Tool User visible -->
+1. Ask the security owner to approve payload logging, request routing, data residency, and effects on other integrated services.
+2. Ask the Cloud administrator to enable `modelarmor.googleapis.com` in the registered project.
+3. Ask the Cloud administrator to apply the command under **Configure protection for Google and Google Cloud remote MCP servers** in [developers.google.com/workspace/guides/configure-mcp-security](https://developers.google.com/workspace/guides/configure-mcp-security).
+
+Use the registered project's ID in this project floor-setting resource:
+
+```text
+projects/PROJECT_ID/locations/global/floorSetting
+```
+
+The command must use these settings:
+
+- Floor-setting enforcement: `TRUE`.
+- Integrated service: `GOOGLE_MCP_SERVER`.
+- MCP enforcement: `INSPECT_AND_BLOCK`.
+- Google MCP server Cloud Logging: enabled.
+- Malicious-URI filtering: `ENABLED`.
+- Responsible AI filter: `DANGEROUS`, with confidence level `MEDIUM_AND_ABOVE`.
+
+Use the project-level resource, not an organization-level resource. If both client and resource projects already have floor settings, Model Armor runs twice. This setup does not require a second project.
+
+<!-- screenshot-exception: The provider documents this selected floor-setting action as a command. -->
 
 ### Configure the OAuth consent screen {#configure-oauth-consent}
 
-Before configuring the consent screen, obtain approved support and contact addresses. Google says an OAuth consent screen cannot be removed after it is configured.
+Use **OAuth Config Editor** on the registered project. Obtain approved support and contact email addresses from the application owner. An authorized person must accept the user-data policy.
 
-1. Open **Google Auth platform** > **Branding**.
-2. If the page says **Google Auth Platform not configured yet**, click **Get Started**.
-3. Under **App Information**, enter `Slides MCP Server` in **App name**.
-4. Choose an approved **User support email**.
-5. Click **Next**.
-6. Under **Audience**, select **Internal** when all connecting users belong to the project's Workspace organization; otherwise select **External**.
-7. Click **Next**.
-8. Under **Contact Information**, enter an approved monitored **Email address**.
-9. Click **Next**.
-10. Under **Finish**, review the Google API Services User Data Policy.
-11. With organizational approval, select **I agree to the Google API Services: User Data Policy**.
-12. Click **Continue**.
-13. Click **Create**.
+1. Open [console.cloud.google.com/auth/branding](https://console.cloud.google.com/auth/branding) in the registered project. This opens **Google Auth Platform** > **Branding**.
+2. If the platform is not configured, select **Get Started**.
+3. Under **App Information**, enter `Workspace MCP Servers` in **App name**.
+4. Select the approved **User support email**.
+5. Under **Audience**, select **Internal**. If this option is not available, select **External**.
+6. Under **Contact Information**, enter the approved contact email address.
+7. Under **Finish**, review the Google API Services User Data Policy.
+8. With company approval, select **I agree to the Google API Services: User Data Policy**.
+9. Select **Continue**.
+10. Select **Create**.
 
-If **Google Auth platform** was already configured, retain its approved **Branding** and **Audience**.
+For an existing configuration, use **Branding** and **Audience** to set these values. Internal users must belong to the associated organization.
+
+For an **External** app in **Testing**, add authorized test users:
+
+1. Open **Audience**.
+2. Under **Test users**, select **Add users**.
+3. Enter your email address and the email addresses of other authorized test users.
+4. Select **Save**.
+
+**Warning:** External Testing permits up to 100 listed test users. Authorization and refresh tokens expire after seven days. Another sign-in is required. Do not publish the app to avoid this limit. The Developer Preview audience limits still apply.
+
+Set the four Slides scopes:
 
 1. Open **Data Access**.
-2. Click **Add or Remove Scopes**.
-3. Under **Manually add scopes**, paste these four scope URLs:
+2. Select **Add or Remove Scopes**.
+3. Under **Manually add scopes**, enter these four values:
 
-   ```
+   ```text
    https://www.googleapis.com/auth/drive.readonly
    https://www.googleapis.com/auth/drive.file
    https://www.googleapis.com/auth/presentations.readonly
    https://www.googleapis.com/auth/presentations
    ```
 
-4. Click **Add to Table**.
-5. Click **Update**.
-6. Click **Save**.
+4. Select **Add to Table**.
+5. Select **Update**.
+6. On **Data Access**, select **Save**.
 
-For an **External** app in **Testing**:
+The Drive scopes are part of the Slides setup. Do not add a Drive MCP connection.
 
-1. Open **Audience**.
-2. Under **Test users**, click **Add users**.
-3. Enter every connecting user's email.
-4. Click **Save**.
-
-An **External** app in **Testing** permits up to 100 listed test users. Each authorization expires seven days after consent; after it expires, the account remains a test user but must complete browser authorization again.
-
-<!-- screenshot: Data Access with all four scopes selected -->
+<!-- screenshot: Google Auth Platform Audience and Data Access with the four Slides scopes; hide user addresses -->
 
 ### Create the OAuth client {#create-oauth-client}
 
-1. Open **Google Auth platform** > **Clients**.
-2. Click **Create client**.
-3. In **Application type**, select **Web application**.
-4. In **Name**, enter a recognizable name such as `Speakeasy AI Control Plane`.
-5. Under **Authorized redirect URIs**, click **+ Add URI**.
-6. In **URIs**, enter this value:
+1. Open [console.cloud.google.com/auth/clients](https://console.cloud.google.com/auth/clients) in the same project.
+2. Under **Clients**, select **Create Client**.
+3. Select **Web application** as the application type.
+4. Enter a **Name** for this client.
+5. Under **Authorized redirect URIs**, select **+ Add URI**.
+6. Enter this value in the redirect URI field:
 
-   ```
+   ```text
    {{ gram.oauth.callback_url }}
    ```
 
-Do not add an **Authorized JavaScript origins** value.
+The rendered callback URL must match exactly. Speakeasy setup confirms this value later.
 
-Before clicking **Create**, prepare an approved secret store. The next dialog permits the client secret to be copied only once.
+**Warning:** Google shows the client secret only at creation. You cannot view or download it again. Prepare a secure store before you create the client.
 
-Click **Create**. This opens **OAuth 2.0 client created**.
+Select **Create**.
 
-<!-- screenshot: Create client with Web application and the callback template under Authorized redirect URIs -->
+<!-- screenshot: OAuth client creation with Web application and Authorized redirect URIs; hide credentials -->
 
 ### Copy the OAuth credentials {#copy-oauth-credentials}
 
-1. In **OAuth 2.0 client created**, copy **Client ID** to the approved secret store.
-2. Under **Client secrets**, copy **Client secret** to the same store.
+1. Copy **Client ID** from the creation result to your secure store.
+2. Copy **Client Secret** to the same store before you close the result.
 
-If you miss the one-time secret, delete it and create a new one before continuing.
+Use these values in [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).
 
-If Workspace API controls restrict high-risk Drive and Slides scopes or block unconfigured apps, complete [Allow the OAuth client in restricted organizations](#allow-workspace-oauth-client). Otherwise, continue to [Add the server in Speakeasy](speakeasy.md#add-server-in-speakeasy).
-
-<!-- screenshot-exception: do not capture a dialog containing a one-time secret -->
+<!-- screenshot: OAuth creation result with both credential values fully hidden -->
 
 ### Allow the OAuth client in restricted organizations {#allow-workspace-oauth-client}
 
-Use this step only when Workspace API controls restrict high-risk Drive and Slides scopes or block unconfigured apps. You need **Service Settings administrator** access.
+Use this step only if Workspace policy blocks or limits the required application access. Ask a Workspace administrator with the **Service Settings administrator privilege** to do this step.
 
-1. Sign in to the [Google Admin console](https://admin.google.com).
-2. Open **Security** > **Access and data control** > **API controls**.
-3. Click **Manage App Access**.
-4. Under **Configured apps**, click **Configure new app**.
-5. Enter the **Client ID** from [Copy the OAuth credentials](#copy-oauth-credentials).
-6. Click **Search**.
-7. Select the matching app.
-8. Select the organizational units whose users will connect.
-9. Click **Continue**.
-10. Choose the access approved by the security owner: **Trusted**, or **Specific Google data** with the four Slides MCP scopes and any required Google sign-in scopes.
-11. Click **Continue**.
-12. Review the settings.
-13. Click **Finish**.
+**Warning:** The top organizational unit is selected by default. A change at that level applies to the entire organization. Check the selected organizational unit before you change access.
 
-Google says changes can take up to 24 hours, though they usually apply sooner. Continue to [Add the server in Speakeasy](speakeasy.md#add-server-in-speakeasy).
+1. Sign in to [admin.google.com](https://admin.google.com).
+2. Open **Security** > **Access and data control** > **API controls** > **Manage App Access**.
+3. Select the application with the **Client ID** from [Copy the OAuth credentials](#copy-oauth-credentials). Follow the [Google application-approval procedure](https://support.google.com/a/answer/7281227?hl=en).
+4. Select the applicable organizational unit.
+5. Set the access level approved by the application owner. Use **Specific Google data** when the required scopes meet the approved access need.
 
-<!-- screenshot: the access review with the Client ID redacted -->
+Include the Google Sign-in scopes required by the app when applicable. Do not add other Slides data scopes. Do not select **Trusted** by default or disable access controls.
+
+Continue to [Add the server in Speakeasy](speakeasy.md#add-server-in-speakeasy).
+
+<!-- screenshot: Application access and selected organizational unit; hide the client ID and user data -->

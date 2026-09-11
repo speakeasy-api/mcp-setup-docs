@@ -2,135 +2,114 @@
 setup_version: 1
 ---
 
-# Set up Google Drive
+# Google Drive setup
 
-Use a Google Cloud project where you can enable services, configure the Google Auth platform, create credentials, and grant project roles. You need **Service Usage Admin** or **Owner** to enable the APIs and appropriate IAM administration access to grant **MCP Tool User**. Every connecting user needs a Google Account with access to the intended Drive files.
+Use Google's remote Drive MCP server with the Speakeasy AI Control Plane. This service is in the **Google Workspace Developer Preview Program**. Use an existing Google Cloud project and a Google Workspace account approved for the program.
 
-Sign in at [console.cloud.google.com](https://console.cloud.google.com) and select the project that will own the APIs and credentials. If your organization restricts high-risk Drive scopes, arrange access to a **Service Settings administrator** and obtain an approved app-access setting from the application or cloud security owner.
+Sign in to the [Google Cloud console](https://console.cloud.google.com/). You need **Service Usage Admin** on the project to enable services and **OAuth Config Editor** (Beta) to configure OAuth. Ask the project IAM administrator for missing roles. These roles do not give authority to accept terms for your organization.
 
-### Enable the Google Drive API {#enable-drive-api}
+Do not include preview features in a public application. Do not give access outside your domain or company unless Google expressly permits the request and grants permission for this feature. Government and regulatory entities, except educational institutions, must use only test or experimental data, not live or production data.
 
-1. Open [console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com](https://console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com).
-2. Confirm the intended project if prompted.
-3. Click **Enable**. If the API is already enabled, continue to the next section.
+### Enroll in Developer Preview {#enroll-preview}
 
-<!-- screenshot: Google Drive API with Enable, or its enabled state -->
+1. Open the [Developer Preview Program page](https://developers.google.com/workspace/preview).
+2. Read **Program Terms**. Ask an authorized representative to accept organizational terms if you cannot do so.
+3. Open **Apply to join the Developer Preview Program**.
+4. Supply the requested Workspace account and Cloud project information. Obtain these values from their owners.
+5. Make sure the submitted email account can be added to Google Groups.
+6. Wait for Google's final project registration confirmation at that email address before you continue.
 
-### Enable the Google Drive MCP API {#enable-drive-mcp-api}
+<!-- screenshot: the Developer Preview Program application link and enrollment requirements -->
 
-1. Open [console.cloud.google.com/flows/enableapi?apiid=drivemcp.googleapis.com](https://console.cloud.google.com/flows/enableapi?apiid=drivemcp.googleapis.com).
-2. Confirm the intended project if prompted.
-3. Click **Enable**. If the API is already enabled, continue to the next section.
+### Confirm security screening {#confirm-screening}
 
-<!-- screenshot: Google Drive MCP API with Enable, or its enabled state -->
+Ask the application or security owner to confirm that your existing solution screens MCP prompts and responses for malicious content and prompt injection. Require documentation so users can accept its risk. Do not continue without this screening. This guide does not configure a new screening service or claim that the Control Plane supplies it automatically. See [Google's MCP security requirements](https://developers.google.com/workspace/guides/configure-mcp-security).
 
-### Grant the MCP Tool User role {#grant-mcp-tool-user}
+<!-- screenshot-exception: the existing screening solution is specific to the organization -->
 
-1. Open [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam).
-2. Select the same project.
-3. Click **Grant access**.
-4. In **New principals**, enter the Google Account email of a user who will connect from the Speakeasy AI Control Plane.
-5. Click **Select a role**.
-6. Search for `MCP Tool User`.
-7. Select **MCP Tool User**.
-8. Click **Save**.
-9. Repeat these steps for every connecting user.
+### Enable the Drive services {#enable-drive-services}
 
-Existing Drive sharing and Workspace policy determine which files each user can access.
+1. Select the registered project in the [Google Cloud console](https://console.cloud.google.com/).
+2. Enable the [Google Drive API](https://console.cloud.google.com/flows/enableapi?apiid=drive.googleapis.com) for that project.
+3. Enable the [Google Drive MCP API](https://console.cloud.google.com/flows/enableapi?apiid=drivemcp.googleapis.com) for the same project.
 
-<!-- screenshot: Grant access with the principal and MCP Tool User -->
+<!-- screenshot: the Google Drive MCP API enablement page with the selected project -->
 
-### Configure the OAuth consent screen {#configure-oauth-consent}
+### Configure the consent screen {#configure-consent}
 
-Google does not permit an OAuth consent screen to be removed after it is configured.
+Obtain the support email address, project contact address, and approved user addresses from the application owner.
 
-Open [console.cloud.google.com/auth/branding](https://console.cloud.google.com/auth/branding).
+1. Open **Google Auth Platform > Branding** in the selected project.
+2. If Google Auth Platform is not configured, select **Get Started**.
+3. Under **App Information**, enter `Drive MCP Server` in **App name**.
+4. Select the appropriate **User support email**.
+5. Select **Next**.
+6. Under **Audience**, select **Internal**. If unavailable, select **External**.
+7. Select **Next**.
+8. Under **Contact Information**, enter the project contact **Email address**.
+9. Select **Next**.
+10. Under **Finish**, review the linked policy. An authorized person must select **I agree to the Google API Services: User Data Policy**.
+11. Select **Continue**.
+12. Select **Create**.
 
-If **Google Auth platform not configured yet** appears, complete the first-time configuration:
+For an existing configuration, use **Branding**, **Audience**, and **Data Access** to set the applicable values.
 
-1. Click **Get Started**.
-2. Under **App Information**, enter `Drive MCP Server` in **App name**.
-3. Select an approved **User support email**.
-4. Click **Next**.
-5. Under **Audience**, select **Internal** if every connecting account belongs to the project's Workspace organization. Otherwise, select **External**.
-6. Click **Next**.
-7. Under **Contact Information**, enter an approved **Email address**.
-8. Click **Next**.
-9. Under **Finish**, review the Google API Services User Data Policy.
-10. After obtaining organizational approval, select **I agree to the Google API Services: User Data Policy**.
-11. Click **Continue**.
-12. Click **Create**.
+For **External**, keep this setup in **Testing**. Add only users permitted by the preview terms:
 
-If the Google Auth platform was already configured, use its existing **Branding**, **Audience**, and **Data Access** pages.
+1. Open **Audience**.
+2. Under **Test users**, select **Add users**.
+3. Enter your email address and the other authorized test-user addresses.
+4. Select **Save**.
+
+**Testing is limited to 100 listed test users. With these Drive scopes, test authorization and refresh tokens expire after seven days. Users must then sign in again.** Internal users must belong to the application's Google Cloud organization. An External audience does not remove the preview limits.
+
+Add the two documented Drive scopes:
 
 1. Open **Data Access**.
-2. Click **Add or Remove Scopes**.
-3. Under **Manually add scopes**, paste these two scopes:
+2. Select **Add or Remove Scopes**.
+3. Under **Manually add scopes**, enter:
 
-   ```
+   ```text
    https://www.googleapis.com/auth/drive.readonly
    https://www.googleapis.com/auth/drive.file
    ```
 
-4. Click **Add to Table**.
-5. Click **Update**.
-6. Click **Save**.
+4. Select **Add to Table**.
+5. Select **Update**.
+6. On **Data Access**, select **Save**.
 
-If you selected **External** and the publishing status is **Testing**, add every connecting user:
-
-1. Open **Audience**.
-2. Under **Test users**, click **Add users**.
-3. Enter every connecting user's email.
-4. Click **Save**.
-
-Testing authorizations expire after seven days. For durable External use, hand publication, verification, and any required security assessment to the application or cloud security owner.
-
-<!-- screenshot: Data Access with both Drive scopes selected -->
+<!-- screenshot: Data Access with the two Drive scopes and Audience with approved test users -->
 
 ### Create the OAuth client {#create-oauth-client}
 
-1. Open [console.cloud.google.com/auth/clients/create](https://console.cloud.google.com/auth/clients/create).
-2. Set **Application type** to **Web application**.
-3. In **Name**, enter a recognizable name such as `Speakeasy AI Control Plane`.
-4. Under **Authorized redirect URIs**, click **+ Add URI**.
-5. Paste this value:
+1. Open **Google Auth Platform > Clients**.
+2. Select **Create Client**.
+3. Select **Web application** as the application type.
+4. Enter a **Name** for this connection.
+5. Under **Authorized redirect URIs**, select **+ Add URI**.
+6. Enter:
 
-   ```
+   ```text
    {{ gram.oauth.callback_url }}
    ```
 
-Do not add **Authorized JavaScript origins**. Before the next action, prepare an approved secret store: the next dialog permits the client secret to be copied only once.
+7. Select **Create**.
+8. Copy the **Client ID** and **Client Secret** to an approved secure store. Do not put the secret in a ticket or shared document. You need both values in [Speakeasy setup](speakeasy.md#connect-speakeasy-credentials).
 
-6. Click **Create**.
+The callback address must match exactly, including its scheme, case, and final slash. The Control Plane requests offline access and consent automatically. Do not add an `offline_access` scope.
 
-<!-- screenshot: Create client with the Web application type and redirect URI populated -->
+Google or your organization can end access. Users might need to sign in again.
 
-### Copy the client credentials {#copy-client-credentials}
+<!-- screenshot: the Web application client and redirect URI; hide the secret -->
 
-1. In **OAuth 2.0 client created**, copy the **Client ID** to your approved secret store.
-2. Under **Client secrets**, copy the **Client secret** to the same location.
-3. Keep both values ready for [Speakeasy setup](speakeasy.md#connect-speakeasy-credentials).
+### Confirm user access {#confirm-user-access}
 
-If you lose the client secret before connecting, delete it and create a new one.
+1. Confirm that each connecting user has Google Drive service access. If access is off, ask an administrator with the **Drive & Docs administrator privilege** to enable it under **Apps > Google Workspace > Drive and Docs > Service status** for the approved user scope.
+2. Confirm that users have access to the required files and folders. Ask the file owner or a person with sharing authority for missing access. A shared-drive **Manager** can manage shared-drive membership. At least reader access is needed for file eligibility; it does not permit every write operation.
+3. If Workspace API controls block the application or its Drive scopes, ask an administrator with the **Service Settings administrator privilege** to configure application access in **API controls**. Supply the OAuth client ID from [Create the OAuth client](#create-oauth-client). Approval must permit the two requested Drive scopes for the applicable users.
 
-<!-- screenshot-exception: do not capture live credentials -->
+File access alone is not sufficient. DLP policies that block download, copy, or print can make files ineligible. Context-Aware Access can block the client context, including offline operations when context is missing. Client-side encrypted files, spam or malware, and items in the trash are ineligible. Folder contents and shortcut targets must each pass the checks.
 
-### Permit the OAuth app under Workspace policy if required {#permit-workspace-app}
+An ineligible file can be absent from search results even when the user can see it in Drive. See [Drive MCP file eligibility](https://developers.google.com/workspace/drive/api/guides/drive-mcp-server-file-eligibility).
 
-Complete this section only if Workspace app-access restrictions require approval of the OAuth client.
-
-1. Sign in at [admin.google.com](https://admin.google.com) as a **Service Settings administrator**.
-2. Go to **Security** > **Access and data control** > **API controls**.
-3. Click **Manage App Access**.
-4. Under **Configured apps**, click **Configure new app**.
-5. Enter the Client ID from [Copy the client credentials](#copy-client-credentials).
-6. Click **Search**.
-7. Select the matching result.
-8. Under **Scope**, keep the top-level organization selected, or use **Select org units** > **Include organizations** to select the covered units.
-9. Click **Continue**.
-10. Under **Access to Google data**, have the application or cloud security owner choose the approved setting. **Trusted** permits all requested services, **Specific Google data** limits access to selected scopes, and **Limited** cannot permit the required `drive.readonly` scope.
-11. Click **Continue**.
-12. Review the setting.
-13. Click **Finish**.
-
-<!-- screenshot: the review screen with client identity, covered units, and approved access setting, without credential values -->
+<!-- screenshot: Workspace application access settings for the client ID; hide user-specific values -->

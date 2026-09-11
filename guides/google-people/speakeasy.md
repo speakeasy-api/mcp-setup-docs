@@ -23,27 +23,31 @@
 
 Either path creates the hosted MCP server and opens its **Overview** page.
 
-<!-- screenshot: the Add Source menu open on the Sources page, or the matching provider catalog entry -->
+<!-- screenshot: Add Source menu or Google People catalog entry -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
+Complete [Model Armor setup](external.md#configure-model-armor) before the first connection. If you cannot add a source or attach credentials, ask an authorized Speakeasy project administrator for access.
+
 1. From **Overview**, open **Settings**.
-2. Under **Authentication**, click **Configure Manually** or **Use Discovered** when offered.
-3. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-4. Confirm that **Redirect URI** matches `{{ gram.oauth.callback_url }}` entered when you [created the OAuth client](external.md#create-oauth-client).
-5. Paste the **Client ID** from the [OAuth credentials](external.md#copy-oauth-credentials).
-6. Paste the **Client Secret (optional)** from the [OAuth credentials](external.md#copy-oauth-credentials). Google requires this secret even though the field is labeled optional.
-7. In **Scope (override)**, enter these three identifiers using the field's visible or equivalent multi-scope format:
+2. Under **Authentication**, click **Configure Manually**.
+3. In **Attach Remote Identity Provider**, set **Issuer URL** to `https://accounts.google.com` if it is not already set.
+4. Under **Endpoints**, click **Discover** to load Google's OAuth endpoints.
+5. Set **Client Type** to **Manual**.
+6. Confirm that **Redirect URI** matches `{{ gram.oauth.callback_url }}` from [the OAuth client setup](external.md#create-oauth-client).
+7. Paste **Client ID** from [the OAuth credentials](external.md#copy-oauth-credentials).
+8. Paste **Client Secret (optional)** from [the OAuth credentials](external.md#copy-oauth-credentials). Use the Google client secret for this connection.
+9. In **Scope (override)**, enter the three scopes from [the consent configuration](external.md#configure-oauth-consent):
 
    ```
-   https://www.googleapis.com/auth/directory.readonly
-   https://www.googleapis.com/auth/userinfo.profile
-   https://www.googleapis.com/auth/contacts.readonly
+   https://www.googleapis.com/auth/directory.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/contacts.readonly
    ```
 
-8. Click **Attach Identity Provider**.
-9. At first connection, follow Google's visible or equivalent browser authorization controls with an account that has [MCP Tool User access](external.md#grant-mcp-tool-user).
+10. Click **Attach Identity Provider**.
+11. At the first connection, complete Google's browser sign-in and consent with an eligible account from [user setup](external.md#approve-user-access).
 
-<!-- screenshot: Attach Remote Identity Provider showing Manual client type, redirect URI, credential labels, and scopes, with secrets redacted -->
+The Speakeasy AI Control Plane requests offline access and consent automatically for this Google issuer. No extra authorization-parameter setup is needed. **External Testing** authorization and refresh tokens expire after seven days. The user must then sign in and give consent again. Google can also end access for other reasons; refresh tokens do not guarantee permanent access.
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Google's People API MCP documentation](https://developers.google.com/people/v1/configure-mcp-server).
+<!-- screenshot: Manual identity provider with Google issuer, scopes, and credential labels; credential values hidden -->
+
+This guide covers setup only. For billing, tool behavior, and limits, see [Google's People API MCP documentation](https://developers.google.com/people/v1/configure-mcp-server).
