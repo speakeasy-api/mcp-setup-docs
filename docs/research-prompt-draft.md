@@ -530,6 +530,14 @@ example or documented MCP URL as evidence. Do not require the provider to name
 Streamable HTTP or prove a specific HTTP transport. An unspecified transport
 or documented SSE connection does not by itself block setup.
 
+For MCP transport classification, normalize a provider-documented HTTP MCP
+endpoint to streamable-http in guide metadata. Preserve the provider’s
+terminology in research evidence. Do not require an additional transport
+probe solely to distinguish HTTP from Streamable HTTP. This mapping does not
+establish that an ordinary HTTP API is an MCP server; the endpoint must still
+be documented as MCP. Use sse when the provider explicitly documents the
+legacy HTTP+SSE transport.
+
 The URL must identify an MCP endpoint, not only a general API endpoint. If
 connection requires a local process, local proxy, or local bridge, report it
 as unsupported. A localhost URL does not establish a remote MCP service. Do

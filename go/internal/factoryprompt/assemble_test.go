@@ -82,6 +82,26 @@ func TestAssemble(t *testing.T) {
 		t.Fatal("mutated document")
 	}
 }
+func TestTopic5TransportClassification(t *testing.T) {
+	d, h := document(t)
+	got, err := Assemble(d, h, "initial", fixture(t, "topic-5"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	prompt := strings.Join(strings.Fields(string(got)), " ")
+	for _, instruction := range []string{
+		"For MCP transport classification, normalize a provider-documented HTTP MCP endpoint to streamable-http in guide metadata.",
+		"Preserve the provider’s terminology in research evidence.",
+		"Do not require an additional transport probe solely to distinguish HTTP from Streamable HTTP.",
+		"This mapping does not establish that an ordinary HTTP API is an MCP server; the endpoint must still be documented as MCP.",
+		"Use sse when the provider explicitly documents the legacy HTTP+SSE transport.",
+	} {
+		if !strings.Contains(prompt, instruction) {
+			t.Errorf("assembled Topic 5 missing instruction: %s", instruction)
+		}
+	}
+}
+
 func TestInvalid(t *testing.T) {
 	d, h := document(t)
 	in := string(fixture(t, "topic-5"))
