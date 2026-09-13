@@ -13,7 +13,7 @@ cleanup_on_exit() {
   if ((${#TEMP_FILES[@]} != 0)); then
     rm -f "${TEMP_FILES[@]}" || temp_status=$?
   fi
-  (cleanup) || cleanup_status=$?
+  if [[ ${CLEANUP_LABELS:-true} == true ]]; then (cleanup) || cleanup_status=$?; fi
   ((original_status != 0)) && exit "$original_status"
   ((temp_status != 0)) && exit "$temp_status"
   exit "$cleanup_status"
@@ -121,13 +121,14 @@ readable_context() {
 
 notify_report() {
   local report=$1 body comments comment_id payload viewer
+  local pr_url=${2:-}
   # This command never invokes git or a PR mutation, including on converged reports.
   bash "$ROOT/factory/scripts/validate-report.sh" "$report" || die 'invalid notification report'
   [[ ${GITHUB_RUN_ID:-} =~ ^[1-9][0-9]*$ && ${GITHUB_RUN_ATTEMPT:-} =~ ^[1-9][0-9]*$ ]] \
     || die 'notify requires a valid run and attempt'
   body=$(mktemp)
   register_temp "$body"
-  render_report_comment "$report" '' "${RESUME:-false}" "$body"
+  render_report_comment "$report" "$pr_url" "${RESUME:-false}" "$body"
   viewer=$(retry_gh api graphql -f query='{ viewer { login } }' --jq '.data.viewer.login') \
     || die 'could not identify comment author'
   [[ $viewer =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*(\[bot\])?$ ]] || die 'invalid comment author'
@@ -149,6 +150,24 @@ notify_report() {
   else
     gh issue comment "$ISSUE_NUMBER" --repo "$GH_REPO" --body-file "$body" >/dev/null
   fi
+}
+
+publication_state() {
+  python3 "$ROOT/factory/scripts/publication-state.py" "$@"
+}
+
+notify_publication() {
+  local report=$1 receipt=$2 pr_url status=0
+  pr_url=$(publication_state read "$receipt") || return 1
+  # Isolate die/exit in comment rendering so every notification failure is recorded.
+  (notify_report "$report" "$pr_url") || status=$?
+  if ((status == 0)); then
+    publication_state notification "$receipt" sent || return 1
+  else
+    publication_state notification "$receipt" failed || true
+    printf 'factory: PR published at %s; notification failed; repair comments only\n' "$pr_url" >&2
+  fi
+  return "$status"
 }
 
 render_report_comment() {
@@ -201,14 +220,16 @@ validate_pr_number() {
 FOUND_PR_NUMBER=''
 FOUND_PR_URL=''
 find_pr_for_head() {
-  local branch=$1 response count
+  local branch=$1 response count viewer
   FOUND_PR_NUMBER=''
   FOUND_PR_URL=''
-  response="$(retry_gh pr list --repo "$GH_REPO" --state open --head "$branch" --json number,url)" \
+  viewer=$(retry_gh api graphql -f query='{ viewer { login } }' --jq '.data.viewer.login') || die 'could not inspect publication author'
+  response="$(retry_gh pr list --repo "$GH_REPO" --state open --head "$branch" --json number,url,headRefName,headRepository,baseRefName,isCrossRepository,author,title,body)" \
     || die "failed to inspect pull requests for branch"
-  jq -e --arg repo "$GH_REPO" '
+  jq -e --arg repo "$GH_REPO" --arg branch "$branch" --arg viewer "$viewer" '
     type == "array" and length <= 1 and all(.[];
-      type == "object" and
+      type == "object" and .headRefName == $branch and .headRepository.nameWithOwner == $repo and
+      .baseRefName == "main" and .isCrossRepository == false and .author.login == $viewer and
       (.number | type) == "number" and (.number | floor) == .number and .number >= 1 and
       (.url | type) == "string" and
       .url == ("https://github.com/" + $repo + "/pull/" + (.number | tostring)))
@@ -222,7 +243,7 @@ find_pr_for_head() {
 
 publish_report() {
   local report=$1 outcome provider slug artifacts resumed branch title pr_body comment pr_number pr_url changed
-  local local_head remote_head push_needed=false
+  local local_head remote_head push_needed=false publication response mutation_status=0
   [[ -f "$report" && ! -L "$report" ]] || die "publish requires a regular report file"
   outcome="$(jq -r '.outcome' "$report")"
   provider="$(jq -r '.provider // empty' "$report")"
@@ -241,6 +262,8 @@ publish_report() {
     return 0
   fi
 
+  bash "$ROOT/factory/scripts/validate-report.sh" "$report" || die 'invalid publication report'
+  publication_state gate "$report" || die 'publication gates failed'
   if [[ "$resumed" == true ]]; then
     branch=${RESUME_BRANCH:-}
     [[ -n "$branch" ]] || branch="$(git branch --show-current)"
@@ -249,6 +272,7 @@ publish_report() {
     git checkout -b "$branch"
   fi
 
+  [[ $branch == "guide/issue-$ISSUE_NUMBER-$slug" ]] || die 'unexpected factory branch'
   git add -- "guides/$slug"
   changed=true
   if git diff --cached --quiet -- "guides/$slug"; then changed=false; fi
@@ -271,47 +295,71 @@ publish_report() {
   title="$(jq -r '(.provider // "guide")[0:249] | "guide: " + .' "$report")"
   printf 'Closes #%s\n' "$ISSUE_NUMBER" >"$pr_body"
   pr_number=${RESUME_PR_NUMBER:-}
-  pr_url=''
-  if [[ -n "$pr_number" ]]; then
-    validate_pr_number "$pr_number"
-    pr_url="https://github.com/$GH_REPO/pull/$pr_number"
-    retry_gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null
-  elif find_pr_for_head "$branch"; then
+  [[ -z $pr_number ]] || validate_pr_number "$pr_number"
+  if find_pr_for_head "$branch"; then
+    [[ -z $pr_number || $pr_number == "$FOUND_PR_NUMBER" ]] || die 'resume PR does not match trusted branch lookup'
     pr_number=$FOUND_PR_NUMBER
     pr_url=$FOUND_PR_URL
-    retry_gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null
-  else
-    if [[ "$outcome" == converged ]]; then
-      retry_gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" >/dev/null || true
-    else
-      retry_gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" --draft >/dev/null || true
+    publication=updated
+    publication_state begin || die 'could not reserve publication'
+    CLEANUP_LABELS=false
+    gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null 2>&1 || mutation_status=$?
+    if ((mutation_status != 0)); then
+      # A failed edit may have applied. Observe only, retain the known PR, and
+      # require explicit operator reconciliation rather than repeating the edit.
+      find_pr_for_head "$branch" || die 'publication uncertain; reconcile existing PR read-only'
+      printf 'factory: existing PR %s; edit status uncertain; explicit reconciliation required\n' "$pr_url" >&2
+      return 1
     fi
-    find_pr_for_head "$branch" || die "pull request creation did not produce a discoverable pull request"
-    pr_number=$FOUND_PR_NUMBER
-    pr_url=$FOUND_PR_URL
-  fi
-  validate_pr_number "$pr_number"
-
-  if [[ "$outcome" == converged ]]; then
-    retry_gh pr ready "$pr_number" --repo "$GH_REPO" >/dev/null
-    remove_label guide:blocked
   else
-    retry_gh pr ready "$pr_number" --repo "$GH_REPO" --undo >/dev/null
-    add_label guide:blocked
+    [[ -z $pr_number ]] || die 'resume PR not found on exact factory branch'
+    publication=created
+    publication_state begin || die 'could not reserve publication'
+    CLEANUP_LABELS=false
+    response=$(gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" 2>/dev/null) || mutation_status=$?
+    pr_url=$response
+    if ((mutation_status != 0)) || [[ $pr_url != "https://github.com/$GH_REPO/pull/"* || ! ${pr_url#"https://github.com/$GH_REPO/pull/"} =~ ^[1-9][0-9]*$ ]]; then
+      find_pr_for_head "$branch" || die 'publication status uncertain; reconcile read-only before explicit retry'
+      pr_url=$FOUND_PR_URL
+    fi
   fi
-  render_report_comment "$report" "$pr_url" "$resumed" "$comment"
-  post_comment "$comment"
+  # Persist known publication BEFORE labels, readiness, or issue comments.
+  publication_state record "$pr_url" "$publication" || {
+    printf 'factory: PR published at %s; receipt persistence failed; do not republish\n' "$pr_url" >&2
+    return 1
+  }
+  CLEANUP_LABELS=true
+  notify_publication "$report" "$FACTORY_PUBLICATION_RECEIPT" || return $?
+  # Non-draft creation is already ready. Existing draft promotion is separate
+  # from notification repair and never performed by notify-publication.
+  pr_number=${pr_url##*/}
+  gh pr ready "$pr_number" --repo "$GH_REPO" >/dev/null
+  remove_label guide:blocked
+
 }
 
 fail_run() {
   local reason_file=$1 body reason run_url status=0
+  if [[ -n ${FACTORY_PUBLICATION_RECEIPT:-} && ( -e $FACTORY_PUBLICATION_RECEIPT || -L $FACTORY_PUBLICATION_RECEIPT ) ]]; then
+    notify_publication "$RUNNER_TEMP/run-report.json" "$FACTORY_PUBLICATION_RECEIPT"
+    return $?
+  fi
+  # shellcheck disable=SC2016
+  local publication_uncertain=false recovery='Re-add `guide:draft` to retry after correcting the failure.'
+  if [[ -n ${RUNNER_TEMP:-} && -e $RUNNER_TEMP/guide-factory-publication/publication-started.json ]]; then
+    publication_uncertain=true
+  fi
   [[ -f "$reason_file" && ! -L "$reason_file" ]] || die "fail requires a regular reason file"
   body="$(mktemp)"
   register_temp "$body"
   reason="$(jq -Rs -r '.[0:1000]' "$reason_file")"
+  if [[ $publication_uncertain == true ]]; then
+    recovery='Do not repeat publication until read-only reconciliation establishes what happened.'
+    reason='A PR mutation was attempted; publication or receipt persistence could not be confirmed here. A PR may already exist. Inspect the trusted workflow diagnostics and reconcile the exact factory branch read-only before any explicit retry. Do not republish to repair notifications.'
+  fi
   run_url="https://github.com/$GH_REPO/actions/runs/${GITHUB_RUN_ID:-}"
   printf '%s\n' '## Guide factory failed' '' '<!-- guide-factory-status -->' '' "$reason" '' "**Workflow run:** $run_url" '' \
-    "Re-add \`guide:draft\` to retry after correcting the failure." >"$body"
+    "Readable chatlog unavailable; see the workflow run." "$recovery" >"$body"
   remove_label guide:draft || status=$?
   remove_label guide:in-progress || status=$?
   add_label guide:blocked || status=$?
@@ -325,6 +373,7 @@ case "$command" in
   ensure-labels) [[ $# -eq 1 ]] || die 'usage: publish.sh ensure-labels'; ensure_labels ;;
   transition) [[ $# -eq 1 ]] || die 'usage: publish.sh transition'; transition ;;
   refuse) [[ $# -le 2 ]] || die 'usage: publish.sh refuse [pr-url]'; refuse "${2:-}" ;;
+  notify-publication) [[ $# -eq 3 ]] || die 'usage: publish.sh notify-publication <report> <publication-receipt>'; notify_publication "$2" "$3" ;;
   notify) [[ $# -eq 2 ]] || die 'usage: publish.sh notify <report>'; notify_report "$2" ;;
   publish) [[ $# -eq 2 ]] || die 'usage: publish.sh publish <report>'; publish_report "$2" ;;
   fail) [[ $# -eq 2 ]] || die 'usage: publish.sh fail <reason-file>'; fail_run "$2" ;;

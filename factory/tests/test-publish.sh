@@ -8,7 +8,10 @@ SCRIPT="$ROOT/factory/scripts/publish.sh"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-export GH_REPO=acme/docs ISSUE_NUMBER=42 GITHUB_RUN_ID=9001
+TMP="$(cd "$TMP" && pwd -P)"
+export RUNNER_TEMP="$TMP/runner"
+mkdir -p "$RUNNER_TEMP/export"
+export GH_REPO=acme/docs ISSUE_NUMBER=42 GITHUB_RUN_ID=9001 GITHUB_RUN_ATTEMPT=1
 export FACTORY_RETRY_DELAY=0
 export GH_LOG="$TMP/gh.log" GIT_LOG="$TMP/git.log" COMMENT_LOG="$TMP/comments.log" RM_LOG="$TMP/rm.log"
 export PATH="$TMP/bin:$PATH"
@@ -51,9 +54,17 @@ case "$*" in
       done
     fi ;;
   "pr list"*)
-    if [[ -f "${GH_PR_STATE_FILE:-/nonexistent}" ]]; then cat "$GH_PR_STATE_FILE"
-    else printf "%s\n" "${GH_PR_LIST:-[]}"; fi ;;
+    if [[ -f "${GH_PR_STATE_FILE:-/nonexistent}" ]]; then response=$(cat "$GH_PR_STATE_FILE")
+    elif [[ -n ${GH_PR_LIST:-} ]]; then response=$GH_PR_LIST
+    elif [[ ${RESUME_PR_NUMBER:-} =~ ^[1-9][0-9]*$ ]]; then
+      response=$(jq -n --argjson n "$RESUME_PR_NUMBER" "[{number:\$n,url:(\"https://github.com/acme/docs/pull/\"+(\$n|tostring))}]")
+    else response="[]"; fi
+    jq --arg head "${GH_PR_HEAD:-guide/issue-42-safe-slug}" --arg author "${GH_PR_AUTHOR:-factory-agent}" \
+      "map({headRefName:\$head,headRepository:{nameWithOwner:\"acme/docs\"},baseRefName:\"main\",isCrossRepository:false,author:{login:\$author}} + .)" <<<"$response" ;;
   "pr create"*)
+    if [[ ${GH_RECEIPT_WRITE_FAIL:-0} == 1 ]]; then
+      ln -s "$RUNNER_TEMP/receipt-sentinel" "$FACTORY_PUBLICATION_RECEIPT.pending"
+    fi
     if [[ -n "${GH_CREATE_PR_JSON:-}" ]]; then printf "%s\n" "$GH_CREATE_PR_JSON" >"$GH_PR_STATE_FILE"; fi
     printf "%b" "${GH_CREATE_OUTPUT:-https://github.com/acme/docs/pull/77\n}"
     [[ "${GH_CREATE_LOST:-0}" == 0 ]] ;;
@@ -79,7 +90,15 @@ exec "$REAL_RM" "$@"'
 make_fake sleep 'exit 0'
 
 reset_logs() {
-  unset GH_FAIL_MUTATIONS GH_FAIL_COUNT_FILE GH_FAIL_MATCH GH_PR_LIST GH_CREATE_LOST GH_CREATE_OUTPUT GH_LABEL_STATE_FILE
+  export GITHUB_RUN_ATTEMPT=1 READABLE_UPLOAD_OUTCOME=success READABLE_LOG_STATUS=complete
+  export READABLE_ARTIFACT_URL=https://github.com/acme/docs/actions/runs/9001/artifacts/123
+  export FACTORY_PUBLICATION_RECEIPT="$RUNNER_TEMP/guide-factory-publication/publication-receipt.json"
+  "$REAL_RM" -rf "$RUNNER_TEMP/guide-factory-publication"
+  printf '%s' '{"version":1,"primary_outcome":"converged","readable_export":"ready","partial":false,"publication_ready":true}' >"$RUNNER_TEMP/export/finalization.json"
+  "$REAL_RM" -f "$RUNNER_TEMP/export/session-transcript.json"
+  printf '{}' >"$RUNNER_TEMP/export/session-transcript.json"
+
+  unset GH_RECEIPT_WRITE_FAIL GH_PR_HEAD GH_PR_AUTHOR GH_FAIL_MUTATIONS GH_FAIL_COUNT_FILE GH_FAIL_MATCH GH_PR_LIST GH_CREATE_LOST GH_CREATE_OUTPUT GH_LABEL_STATE_FILE
   unset GIT_COMMIT_FAIL GIT_COMMIT_STATUS GIT_SIGNAL GIT_LOCAL_HEAD GIT_REMOTE_HEAD RM_FAIL_MATCH RM_FAIL_STATUS
   : >"$GH_LOG"; : >"$GIT_LOG"; : >"$COMMENT_LOG"
   export GH_PR_STATE_FILE="$TMP/pr-state.json"
@@ -93,6 +112,7 @@ reset_logs() {
 make_report() {
   local file=$1 outcome=$2 artifacts=$3
   jq -n --arg outcome "$outcome" --argjson artifacts "$artifacts" '{schema_version:1,outcome:$outcome,provider:"Provider $(touch /tmp/provider-pwn)",slug:"safe-slug",persona:"Backend engineer",summary:"Summary `touch /tmp/nope` $(echo no)",open_questions:["Question; rm -rf /","Second question"],blockers:(if $outcome == "converged" then [] else ["Blocker && false"] end),nits:["Nit | cat"],review_rounds:2,artifacts:$artifacts}' >"$file"
+  cp "$file" "$RUNNER_TEMP/export/run-report.json"
 }
 
 assert_not_contains() { local needle=$1 haystack=$2; [[ "$haystack" != *"$needle"* ]] || fail "did not expect output to contain [$needle]"; }
@@ -293,7 +313,7 @@ test_pr_numbers_and_create_recovery_are_safe() {
   export GIT_HAS_DIFF=0 RESUME=true RESUME_BRANCH=guide/issue-42-safe-slug GH_CREATE_LOST=1
   export GH_CREATE_PR_JSON='[{"number":88,"url":"https://github.com/acme/docs/pull/88"}]'
   bash "$SCRIPT" publish "$report"
-  assert_count 3 "pr create" "$GH_LOG"
+  assert_count 1 "pr create" "$GH_LOG"
   assert_contains "pr ready 88 --repo acme/docs" "$(cat "$GH_LOG")"
 }
 
@@ -357,7 +377,8 @@ test_comments_and_title_are_bounded() {
   reset_logs
   report="$TMP/bounded.json"
   long=$(printf '%1200s' '' | tr ' ' x)
-  jq -n --arg long "$long" '{schema_version:1,outcome:"converged",provider:$long,slug:"safe-slug",persona:$long,summary:$long,open_questions:[range(0;25)|($long + tostring)],blockers:[range(0;25)|($long + tostring)],nits:[range(0;25)|($long + tostring)],review_rounds:3,artifacts:["research.md","meta.yaml"]}' >"$report"
+  jq -n --arg long "$long" '{schema_version:1,outcome:"converged",provider:$long,slug:"safe-slug",persona:$long,summary:$long,open_questions:[range(0;25)|($long + tostring)],blockers:[],nits:[range(0;25)|($long + tostring)],review_rounds:3,artifacts:["research.md","meta.yaml","external.md","speakeasy.md"]}' >"$report"
+  cp "$report" "$RUNNER_TEMP/export/run-report.json"
   bash "$SCRIPT" publish "$report"
   title=$(grep 'pr create' "$GH_LOG")
   (( ${#title} < 600 )) || fail "PR command/title was not bounded"
@@ -423,6 +444,98 @@ test_notify_only_and_trusted_logs() {
   unset READABLE_LOG_STATUS READABLE_ARTIFACT_URL GITHUB_RUN_ATTEMPT
 }
 
+test_publication_gate_and_receipt() {
+  local report="$TMP/receipt-report.json" key
+  for key in READABLE_UPLOAD_OUTCOME READABLE_ARTIFACT_URL; do
+    reset_logs
+    make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
+    if env "$key=" bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail "missing $key allowed publication"; fi
+    assert_eq '' "$(cat "$GIT_LOG")"
+    assert_not_contains 'pr create' "$(cat "$GH_LOG")"
+  done
+  reset_logs
+  jq '.publication_ready=false' "$RUNNER_TEMP/export/finalization.json" >"$TMP/state"
+  mv "$TMP/state" "$RUNNER_TEMP/export/finalization.json"
+  if bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail 'host unready allowed publication'; fi
+  assert_eq '' "$(cat "$GIT_LOG")"
+
+  for mode in created updated; do
+    reset_logs
+    if [[ $mode == updated ]]; then
+      export RESUME=true RESUME_BRANCH=guide/issue-42-safe-slug RESUME_PR_NUMBER=55
+    fi
+    export GH_FAIL_MATCH='issue comment'
+    if bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail 'comment failure returned success'; fi
+    jq -e --arg mode "$mode" '.publication==$mode and .notification=="failed" and .run_id=="9001" and .run_attempt==1 and (.pr_number|type)=="number"' "$FACTORY_PUBLICATION_RECEIPT" >/dev/null
+    assert_contains 'https://github.com/acme/docs/pull/' "$(cat "$FACTORY_PUBLICATION_RECEIPT")"
+    : >"$GH_LOG"; : >"$GIT_LOG"
+    unset GH_FAIL_MATCH
+    bash "$SCRIPT" notify-publication "$report" "$FACTORY_PUBLICATION_RECEIPT"
+    jq -e '.notification=="sent"' "$FACTORY_PUBLICATION_RECEIPT" >/dev/null
+    assert_not_contains 'pr ' "$(cat "$GH_LOG")"
+    assert_eq '' "$(cat "$GIT_LOG")"
+    if bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail 'receipt allowed repeat publication'; fi
+    assert_eq '' "$(cat "$GIT_LOG")"
+    if GITHUB_RUN_ATTEMPT=2 bash "$SCRIPT" notify-publication "$report" "$FACTORY_PUBLICATION_RECEIPT" >/dev/null 2>&1; then fail 'stale receipt accepted'; fi
+  done
+}
+
+test_receipt_and_reconciliation_boundaries() {
+  local report="$TMP/reconcile-report.json" kind
+  reset_logs
+  make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
+  for kind in stale symlink missing failure; do
+    reset_logs
+    case $kind in
+      stale) jq '.summary="Stale"' "$report" >"$RUNNER_TEMP/export/run-report.json" ;;
+      symlink) rm "$RUNNER_TEMP/export/session-transcript.json"; ln -s "$report" "$RUNNER_TEMP/export/session-transcript.json" ;;
+      missing) rm "$RUNNER_TEMP/export/session-transcript.json" ;;
+      failure) export READABLE_UPLOAD_OUTCOME=failure ;;
+    esac
+    if bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail "accepted $kind gate"; fi
+    assert_eq '' "$(cat "$GIT_LOG")"
+    rm -f "$RUNNER_TEMP/export/session-transcript.json"
+    cp "$report" "$RUNNER_TEMP/export/run-report.json"
+  done
+  for kind in head author; do
+    reset_logs
+    export RESUME=true RESUME_BRANCH=guide/issue-42-safe-slug RESUME_PR_NUMBER=55
+    if [[ $kind == head ]]; then export GH_PR_HEAD=user-branch; else export GH_PR_AUTHOR=unrelated-user; fi
+    if bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail "adopted wrong $kind PR"; fi
+    assert_not_contains 'pr edit' "$(cat "$GH_LOG")"
+    assert_not_contains 'pr create' "$(cat "$GH_LOG")"
+  done
+  reset_logs
+  export RESUME=true RESUME_BRANCH=guide/issue-42-safe-slug RESUME_PR_NUMBER=55 GH_FAIL_MATCH='pr edit'
+  if bash "$SCRIPT" publish "$report" >"$TMP/ambiguous" 2>&1; then fail 'uncertain edit succeeded'; fi
+  assert_count 1 'pr edit' "$GH_LOG"
+  assert_count 2 'pr list' "$GH_LOG"
+  assert_contains 'https://github.com/acme/docs/pull/55' "$(cat "$TMP/ambiguous")"
+  : >"$GIT_LOG"; : >"$GH_LOG"
+  if bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail 'uncertain edit retried'; fi
+  assert_eq '' "$(cat "$GIT_LOG")"
+  assert_not_contains 'pr edit' "$(cat "$GH_LOG")"
+
+  reset_logs
+  export GH_RECEIPT_WRITE_FAIL=1
+  printf unchanged >"$RUNNER_TEMP/receipt-sentinel"
+  if bash "$SCRIPT" publish "$report" >"$TMP/write-failure" 2>&1; then fail 'receipt write failure succeeded'; fi
+  assert_contains 'PR published at https://github.com/acme/docs/pull/77' "$(cat "$TMP/write-failure")"
+  assert_eq unchanged "$(cat "$RUNNER_TEMP/receipt-sentinel")"
+  assert_count 1 'pr create' "$GH_LOG"
+  assert_not_contains 'issue comment' "$(cat "$GH_LOG")"
+  assert_not_contains 'issue edit' "$(cat "$GH_LOG")"
+  : >"$GH_LOG"; : >"$GIT_LOG"
+  if bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail 'receipt write failure allowed duplicate'; fi
+  assert_eq '' "$(cat "$GIT_LOG")"
+  assert_not_contains 'pr create' "$(cat "$GH_LOG")"
+  printf 'Fixture failure' >"$TMP/reason"
+  bash "$SCRIPT" fail "$TMP/reason"
+  assert_contains 'A PR may already exist' "$(cat "$COMMENT_LOG")"
+}
+
+test_receipt_and_reconciliation_boundaries
+test_publication_gate_and_receipt
 test_notify_only_and_trusted_logs
 test_labels_and_transitions
 test_refuse_cleans_temp_body_on_failure

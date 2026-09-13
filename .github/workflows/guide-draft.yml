@@ -26,7 +26,9 @@ jobs:
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Configure runner temp
-        run: printf 'TMPDIR=%s\n' "$RUNNER_TEMP" >>"$GITHUB_ENV"
+        run: |
+          printf 'TMPDIR=%s\n' "$RUNNER_TEMP" >>"$GITHUB_ENV"
+          printf 'FACTORY_PUBLICATION_RECEIPT=%s/guide-factory-publication/publication-receipt.json\n' "$RUNNER_TEMP" >>"$GITHUB_ENV"
 
       - name: Set up publisher
         id: publisher_setup
@@ -37,7 +39,7 @@ jobs:
         run: |
           printf '%s\n' 'Publisher setup failed.' >"$RUNNER_TEMP/failure-reason.txt"
           mkdir -p "$RUNNER_TEMP/guide-factory-publisher/factory/scripts"
-          cp factory/scripts/publish.sh factory/scripts/lib.sh \
+          cp factory/scripts/publish.sh factory/scripts/lib.sh factory/scripts/validate-report.sh factory/scripts/publication-state.py \
             "$RUNNER_TEMP/guide-factory-publisher/factory/scripts/"
           PUBLISHER_PATH="$RUNNER_TEMP/guide-factory-publisher/factory/scripts/publish.sh"
           printf 'PUBLISHER_PATH=%s\n' "$PUBLISHER_PATH" >>"$GITHUB_ENV"
@@ -116,11 +118,26 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           printf '%s\n' 'Kit execution failed.' >"$RUNNER_TEMP/failure-reason.txt"
+          status=0
           bash factory/scripts/run-kit.sh \
             "$RUNNER_TEMP/issue.json" \
             "$RUNNER_TEMP/catalog.json" \
-            "$RUNNER_TEMP/export"
-          cp "$RUNNER_TEMP/export/run-report.json" "$RUNNER_TEMP/run-report.json"
+            "$RUNNER_TEMP/export" || status=$?
+          if test -f "$RUNNER_TEMP/export/run-report.json"; then
+            cp "$RUNNER_TEMP/export/run-report.json" "$RUNNER_TEMP/run-report.json"
+          fi
+          exit "$status"
+
+      - name: Upload readable session transcript
+        id: readable_upload
+        timeout-minutes: 3
+        if: always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')
+        uses: actions/upload-artifact@v4
+        with:
+          name: guide-factory-readable-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/export/session-transcript.json
+          retention-days: 7
+          if-no-files-found: error
 
       - name: Upload sanitized execution transcript
         if: always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')
@@ -140,16 +157,40 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+      - name: Check publication gates
+        id: publication_gate
+        timeout-minutes: 1
+        if: always() && !cancelled() && steps.publisher_setup.outcome == 'success' && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')
+        env:
+          GH_REPO: ${{ github.repository }}
+          READABLE_UPLOAD_OUTCOME: ${{ steps.readable_upload.outcome }}
+          READABLE_ARTIFACT_URL: ${{ steps.readable_upload.outputs.artifact-url }}
+        run: |
+          READABLE_LOG_STATUS=unavailable
+          if [[ "$READABLE_UPLOAD_OUTCOME" == success && -n "$READABLE_ARTIFACT_URL" ]] &&
+             jq -e '.version == 1 and .readable_export == "ready" and (.partial | type == "boolean")' "$RUNNER_TEMP/export/finalization.json" >/dev/null 2>&1; then
+            READABLE_LOG_STATUS=$(jq -r 'if .partial then "partial" else "complete" end' "$RUNNER_TEMP/export/finalization.json")
+          fi
+          export READABLE_LOG_STATUS
+          # Upload output stays in host env; never interpolate model report text.
+          printf 'READABLE_UPLOAD_OUTCOME=%s\nREADABLE_ARTIFACT_URL=%s\nREADABLE_LOG_STATUS=%s\n' \
+            "$READABLE_UPLOAD_OUTCOME" "$READABLE_ARTIFACT_URL" "$READABLE_LOG_STATUS" >>"$GITHUB_ENV"
+          ready=false
+          if python3 "$RUNNER_TEMP/guide-factory-publisher/factory/scripts/publication-state.py" gate "$RUNNER_TEMP/run-report.json"; then ready=true; fi
+          printf 'ready=%s\n' "$ready" >>"$GITHUB_OUTPUT"
+
       - name: Validate export
         id: validate
-        if: success() && steps.refusal.outcome != 'success'
+        timeout-minutes: 3
+        if: always() && !cancelled() && steps.kit.outcome == 'success' && steps.publication_gate.outputs.ready == 'true'
         run: |
           printf '%s\n' 'Factory export validation failed.' >"$RUNNER_TEMP/failure-reason.txt"
           bash factory/scripts/validate.sh "$RUNNER_TEMP/export" "$GITHUB_WORKSPACE"
 
       - name: Publish guide
         id: publish
-        if: success() && steps.refusal.outcome != 'success'
+        timeout-minutes: 3
+        if: always() && !cancelled() && steps.validate.outcome == 'success' && steps.publication_gate.outputs.ready == 'true'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -163,14 +204,24 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           bash "$PUBLISHER_PATH" publish "$RUNNER_TEMP/run-report.json"
 
-      - name: Report failure
+      - name: Report outcome
         id: failure_report
-        if: failure() && steps.publisher_setup.outcome == 'success' && steps.refusal.outcome != 'success'
+        timeout-minutes: 3
+        if: always() && !cancelled() && steps.publisher_setup.outcome == 'success' && steps.refusal.outcome != 'success' && steps.publish.outcome != 'success'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: bash "$PUBLISHER_PATH" fail "$RUNNER_TEMP/failure-reason.txt"
+        run: |
+          if [[ -e "$FACTORY_PUBLICATION_RECEIPT" || -L "$FACTORY_PUBLICATION_RECEIPT" ]]; then
+            bash "$PUBLISHER_PATH" notify-publication "$RUNNER_TEMP/run-report.json" "$FACTORY_PUBLICATION_RECEIPT"
+          elif [[ -e "$RUNNER_TEMP/guide-factory-publication/publication-started.json" ]]; then
+            bash "$PUBLISHER_PATH" fail "$RUNNER_TEMP/failure-reason.txt"
+          elif bash "$RUNNER_TEMP/guide-factory-publisher/factory/scripts/validate-report.sh" "$RUNNER_TEMP/run-report.json" >/dev/null 2>&1; then
+            bash "$PUBLISHER_PATH" notify "$RUNNER_TEMP/run-report.json"
+          else
+            bash "$PUBLISHER_PATH" fail "$RUNNER_TEMP/failure-reason.txt"
+          fi
 
       - name: Cleanup labels
         id: cleanup
