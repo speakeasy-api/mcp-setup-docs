@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/speakeasy-api/mcp-setup-docs/go/internal/factoryrun"
+	"github.com/speakeasy-api/mcp-setup-docs/go/internal/factorytranscript"
 )
 
 type options struct{ containerID, controlDir, runID, result, finalizer, exportDir string }
@@ -200,7 +201,16 @@ func supervise(ctx context.Context, o options, s settings) int {
 		if !ok || st.Nlink != 1 || st.Uid != uint32(os.Geteuid()) {
 			return 1
 		}
-		cmd := exec.CommandContext(finalContext, o.finalizer, filepath.Dir(filepath.Dir(o.result)), o.result, o.exportDir)
+		// Reserve the final 20% (60s in production) for supervisor-owned raw
+		// record cleanup and revocation. Never grant another 300s window.
+		workerDeadline := deadline.Add(-budget / 5)
+		workerContext, cancelWorker := context.WithDeadline(context.Background(), workerDeadline)
+		defer cancelWorker()
+		stage := filepath.Join(o.exportDir, ".finalizing")
+		if os.Mkdir(stage, 0700) != nil {
+			return 1
+		}
+		cmd := exec.CommandContext(workerContext, o.finalizer, filepath.Dir(filepath.Dir(o.result)), o.result, stage)
 		// Host validators are trusted non-detaching subprocesses. Kill their
 		// group on this same deadline; model cleanup remains container removal.
 		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
@@ -209,7 +219,12 @@ func supervise(ctx context.Context, o options, s settings) int {
 		cmd.Env = []string{"OPENROUTER_API_KEY=" + os.Getenv("OPENROUTER_API_KEY")}
 		cmd.Stdout, cmd.Stderr = io.Discard, io.Discard
 		cmd.WaitDelay = 50 * time.Millisecond
-		if cmd.Run() != nil || finalContext.Err() != nil {
+		workerOK := cmd.Run() == nil && workerContext.Err() == nil
+		// Last 1% (3s in production) is held back from traversal for the
+		// bounded safe-result/revocation writes; total remains exactly 300s.
+		cleanupContext, cancelCleanup := context.WithDeadline(context.Background(), deadline.Add(-budget/100))
+		defer cancelCleanup()
+		if factorytranscript.CompleteHost(cleanupContext, filepath.Dir(filepath.Dir(o.result)), o.exportDir, workerOK) != nil {
 			return 1
 		}
 	}

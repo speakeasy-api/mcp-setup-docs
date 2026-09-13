@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -43,5 +44,40 @@ func TestCLI(t *testing.T) {
 		if bytes.Contains(stderr.Bytes(), []byte(secret)) || bytes.Contains(stderr.Bytes(), []byte(home)) {
 			t.Fatal("private error text")
 		}
+	}
+}
+
+func TestCLIAssistantNativeHandleProjection(t *testing.T) {
+	base, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	home, work, out := base+"/home", base+"/workspace", base+"/export/readable.json"
+	for _, path := range []string{home + "/.kit/sessions/w-test", work, filepath.Dir(out)} {
+		if err := os.MkdirAll(path, 0700); err != nil {
+			t.Fatal(err)
+		}
+	}
+	handle := `{"id":"private-child-handle-123","generation":1,"output":"public finding","updates":{"items":[],"truncated":false}}`
+	wrapped, _ := json.Marshal(map[string]any{"nested": []any{handle}})
+	parts := []any{}
+	for _, text := range []string{handle, string(wrapped)} {
+		parts = append(parts, map[string]any{"Text": map[string]any{"text": text, "metadata": map[string]any{}}})
+	}
+	record, _ := json.Marshal(map[string]any{"schema_version": 3, "session_id": "synthetic-session", "generation": 1, "item": map[string]any{"kind": "Assistant", "parts": parts}})
+	os.WriteFile(home+"/.kit/sessions/w-test/session.jsonl", append(record, '\n'), 0600)
+	var stderr bytes.Buffer
+	if run([]string{"--home", home, "--workspace", work, "--output", out}, &stderr) != 0 {
+		t.Fatal(stderr.String())
+	}
+	data, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(data, []byte("private-child-handle-123")) {
+		t.Fatal("native handle leaked through ordinary Assistant Text")
+	}
+	if !bytes.Contains(data, []byte("public finding")) || !bytes.Contains(data, []byte("native_handle_metadata")) {
+		t.Fatal("readable output or explicit omission lost")
 	}
 }

@@ -45,6 +45,12 @@ elif command=='start':
         with (guide/'research.md').open('a') as f: f.write('\nsynthetic-provider-key\n')
     if os.environ.get('FAKE_BAD') == 'transcript':
         (sessions/'fixture.jsonl').write_text('malformed complete record\n')
+    pause=os.environ.get('FAKE_PAUSE')
+    if pause:
+        marker=os.environ['FAKE_STATE']+'.reached'
+        target=(home.parent/'host/lint-guide') if pause=='validation' else (pathlib.Path(record['mounts']['/repo'])/'factory/scripts/build-transcript.sh')
+        target.write_text('#!/bin/sh\nprintf reached > '+marker+'\nexec /bin/sleep 30\n')
+        target.chmod(0o700)
     (work/'outside-link').symlink_to(os.environ['OUTSIDE'])
 elif command=='wait': print('0' if os.environ.get('FAKE_CONVERGED') == '1' else '7')
 elif command=='logs': print('PRIVATE RAW FIXTURE MUST NOT BE EXPORTED')
@@ -68,6 +74,11 @@ bash "$ROOT/factory/scripts/validate-diagnostics.sh" "$tmp/export/factory-diagno
 grep -qx 'outside sentinel' "$tmp/outside"
 run=$(find "$tmp/private" -mindepth 1 -maxdepth 1 -type d)
 [[ -n $run && ! -e "$run/home" && ! -e "$run/workspace" ]]
+[[ -z $(find "$run" -type f ! -path "$run/host/result.json" -print -quit) ]]
+[[ ! -e "$tmp/export/.finalizing" ]]
+[[ ! -e "$run/host/container.stdout" && ! -e "$run/host/container.stderr" && ! -e "$run/host/commands.stdout" && ! -e "$run/host/commands.stderr" ]]
+[[ ! -e "$run/source" && ! -e "$run/input" ]]
+if [[ -e "$run/host/container.stdout" || -e "$run/source" ]]; then printf "FAIL: raw private records retained\n" >&2; exit 1; fi
 printf 'actual host wrapper offline finalization checks passed\n'
 
 PATH="$tmp/bin:$PATH" FACTORY_DOCKER="$tmp/bin/docker" FACTORY_PRIVATE_ROOT="$tmp/private" FAKE_STATE="$tmp/state-success" FAKE_CONVERGED=1 OUTSIDE="$tmp/outside" OPENROUTER_API_KEY=synthetic-provider-key bash "$ROOT/factory/scripts/run-kit.sh" "$tmp/issue.json" "$tmp/catalog.json" "$tmp/success" >"$tmp/stdout" 2>"$tmp/stderr"
@@ -86,3 +97,16 @@ for bad in guide transcript; do
   [[ ! -e "$tmp/$bad/guide" ]]
 done
 printf 'changed-guide and failed-readable export remain ineligible\n'
+
+(cd "$ROOT/go" && GOTOOLCHAIN=go1.27.0 CGO_ENABLED=0 go test -c -o "$tmp/supervisor.test" ./cmd/supervise-factory)
+printf '#!/bin/sh\nexec "%s" --factory-test-supervisor "$@"\n' "$tmp/supervisor.test" > "$tmp/supervisor-fixture"
+chmod 700 "$tmp/supervisor-fixture"
+for phase in validation fallback; do
+  if PATH="$tmp/bin:$PATH" FACTORY_SUPERVISOR="$tmp/supervisor-fixture" FACTORY_DOCKER="$tmp/bin/docker" FACTORY_PRIVATE_ROOT="$tmp/private" FAKE_STATE="$tmp/state-$phase" FAKE_CONVERGED=1 FAKE_PAUSE="$phase" OUTSIDE="$tmp/outside" OPENROUTER_API_KEY=synthetic-provider-key bash "$ROOT/factory/scripts/run-kit.sh" "$tmp/issue.json" "$tmp/catalog.json" "$tmp/$phase" >"$tmp/stdout" 2>"$tmp/stderr"; then exit 1; fi
+  if [[ ! -f "$tmp/state-$phase.reached" || -e "$tmp/$phase/guide" || -e "$tmp/$phase/.finalizing" ]]; then printf 'FAIL: actual worker phase/revocation\n' >&2; exit 1; fi
+  bash "$ROOT/factory/scripts/validate-report.sh" "$tmp/$phase/run-report.json"
+  jq -e '.outcome == "failed" and .artifacts == []' "$tmp/$phase/run-report.json" >/dev/null
+  jq -e '.publication_ready == false' "$tmp/$phase/finalization.json" >/dev/null
+  if find "$tmp/private" -type f | grep -v '/host/result.json$' | grep -q .; then printf 'FAIL: raw records survived worker kill\n' >&2; exit 1; fi
+done
+printf 'actual finalizer validation/fallback kills revoked and cleaned\n'

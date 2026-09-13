@@ -407,6 +407,34 @@ func sanitizeDecoded(s *Sanitizer, text string, depth int) (string, error) {
 				}
 				return x, nil
 			case map[string]any:
+				// Native handles can also occur in ordinary Assistant Text, not
+				// only ToolResult. Recognize the structure, never an ID spelling.
+				_, hasID := x["id"]
+				_, hasGeneration := x["generation"]
+				output, hasOutput := x["output"]
+				if hasID && hasGeneration && hasOutput {
+					id, ok := x["id"].(string)
+					if !ok || id == "" {
+						return nil, errUnsafe
+					}
+					generation, ok := x["generation"].(json.Number)
+					if !ok {
+						return nil, errUnsafe
+					}
+					n, e := generation.Int64()
+					if e != nil || n < 1 {
+						return nil, errUnsafe
+					}
+					selected, e := projectToolText(output, depth+1)
+					if e != nil {
+						return nil, errUnsafe
+					}
+					values := make([]any, len(selected))
+					for i, text := range selected {
+						values[i] = text
+					}
+					return walk(map[string]any{"output": values, "omissions": []any{"native_handle_metadata"}})
+				}
 				out := map[string]any{}
 				for k, v := range x {
 					key, e := sanitizeDecoded(s, k, depth+1)

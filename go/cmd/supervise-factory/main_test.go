@@ -19,6 +19,9 @@ func fixture(t *testing.T, mode string) (options, settings, string) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if err := os.Chmod(dir, 0700); err != nil {
+		t.Fatal(err)
+	}
 	for _, name := range []string{"control", "host"} {
 		if err := os.Mkdir(filepath.Join(dir, name), 0700); err != nil {
 			t.Fatal(err)
@@ -281,6 +284,7 @@ func TestMain(m *testing.M) {
 		s := production()
 		s.research = 2 * time.Second
 		s.outer = 3 * time.Second
+		s.finalization = 5 * time.Second
 		os.Exit(runWithSettings(ctx, os.Args[2:], s))
 	}
 	os.Exit(m.Run())
@@ -296,7 +300,8 @@ func TestSharedFinalizationDeadline(t *testing.T) {
 		t.Fatal(err)
 	}
 	o.finalizer = dir + "/host/finalize-factory"
-	o.exportDir = dir + "/export"
+	o.exportDir, _ = filepath.EvalSymlinks(t.TempDir())
+	os.Chmod(o.exportDir, 0700)
 	os.Mkdir(o.exportDir, 0700)
 	os.WriteFile(o.finalizer, []byte("#!/bin/sh\nsleep 0.10\nprintf wrong > \"$3/incorrect-success\"\n"), 0700)
 	started := time.Now()
@@ -315,7 +320,8 @@ func TestFinalizerFailurePreservesLifecycle(t *testing.T) {
 	o, s, dir := fixture(t, "normal")
 	s.finalization = time.Second
 	o.finalizer = dir + "/host/finalize-factory"
-	o.exportDir = dir + "/export"
+	o.exportDir, _ = filepath.EvalSymlinks(t.TempDir())
+	os.Chmod(o.exportDir, 0700)
 	os.Mkdir(o.exportDir, 0700)
 	os.WriteFile(o.finalizer, []byte("#!/bin/sh\nexit 7\n"), 0700)
 	if supervise(context.Background(), o, s) == 0 {
@@ -331,7 +337,8 @@ func TestFinalizerInterruptionLeavesSafeReport(t *testing.T) {
 	o, s, dir := fixture(t, "normal")
 	s.finalization = time.Second
 	o.finalizer = dir + "/host/finalize-factory"
-	o.exportDir = dir + "/export"
+	o.exportDir, _ = filepath.EvalSymlinks(t.TempDir())
+	os.Chmod(o.exportDir, 0700)
 	os.Mkdir(o.exportDir, 0700)
 	report := `{"schema_version":1,"outcome":"failed","provider":null,"slug":null,"persona":null,"summary":"Factory model execution failed.","open_questions":[],"blockers":["Factory model execution failed."],"nits":[],"review_rounds":0,"artifacts":[]}`
 	script := "#!/bin/sh\nprintf '%s' '" + report + "' > \"$3/run-report.json\"\nsleep 5\nmkdir \"$3/guide\"\n"
