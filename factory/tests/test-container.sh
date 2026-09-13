@@ -459,9 +459,11 @@ mkdir -p "$FACTORY_WORKSPACE_ROOT/guides/acme"
 printf 'guide\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/research.md"
 printf 'ignore\n' >"$FACTORY_WORKSPACE_ROOT/not-exported.txt"
 cat >"$FACTORY_WORKSPACE_ROOT/.factory/run-report.json" <<'JSON'
-{"schema_version":1,"outcome":"awaiting_scope","provider":"Acme","slug":"acme","persona":"it-admin","summary":"Needs scope","open_questions":["Which auth path?"],"blockers":[],"nits":[],"review_rounds":0,"artifacts":["research.md","meta.yaml"]}
+{"schema_version":1,"outcome":"converged","provider":"Acme","slug":"acme","persona":"it-admin","summary":"Complete mocked bundle","open_questions":[],"blockers":[],"nits":[],"review_rounds":0,"artifacts":["research.md","meta.yaml","external.md","speakeasy.md"]}
 JSON
 printf 'metadata\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/meta.yaml"
+printf 'external\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/external.md"
+printf 'speakeasy\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/speakeasy.md"
 MOCK
   chmod +x "$fake_kit"
 
@@ -483,7 +485,7 @@ MOCK
   test ! -e "$export_root/not-exported.txt"
   jq -e '.sessions == 1 and .events[0].part == "Text"' "$export_root/execution-transcript.json" >/dev/null || fail 'successful Kit lost transcript'
   ! grep -q SECRET "$export_root/execution-transcript.json" || fail 'successful transcript leaked text'
-  assert_eq "4" "$(find "$export_root" -type f | wc -l | tr -d ' ')"
+  assert_eq "6" "$(find "$export_root" -type f | wc -l | tr -d ' ')"
 }
 
 test_entrypoint_rejects_invalid_report() {
@@ -672,8 +674,10 @@ printf '%s\n' 'ordinary diagnostic after rejected projection' >&2
 mkdir -p "$FACTORY_WORKSPACE_ROOT/.factory" "$FACTORY_WORKSPACE_ROOT/guides/acme"
 printf 'research\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/research.md"
 printf 'metadata\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/meta.yaml"
+printf 'external\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/external.md"
+printf 'speakeasy\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/speakeasy.md"
 cat >"$FACTORY_WORKSPACE_ROOT/.factory/run-report.json" <<'JSON'
-{"schema_version":1,"outcome":"awaiting_scope","provider":"Acme","slug":"acme","persona":"it-admin","summary":"Needs scope","open_questions":["Which auth path?"],"blockers":[],"nits":[],"review_rounds":0,"artifacts":["research.md","meta.yaml"]}
+{"schema_version":1,"outcome":"converged","provider":"Acme","slug":"acme","persona":"it-admin","summary":"Complete mocked bundle","open_questions":[],"blockers":[],"nits":[],"review_rounds":0,"artifacts":["research.md","meta.yaml","external.md","speakeasy.md"]}
 JSON
 MOCK
   chmod +x "$fake_kit"
