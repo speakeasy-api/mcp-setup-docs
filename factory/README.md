@@ -1,5 +1,33 @@
 # Guide factory operations
 
+## Host lifecycle migration — Task 3 partial checkpoint
+
+The host deadline value and `begin-writing` protocol are implemented in
+`go/internal/factoryrun` and `go/cmd/begin-writing`. These are not yet wired into
+`run-kit.sh` or installed in the image. Production cleanup has **not** changed.
+The protocol uses a private 0700 control directory, host-generated 128-bit
+lowercase hexadecimal run ID, and an atomic no-replace `phase.json` regular file
+of at most 256 bytes containing exactly `version: 1`, `run_id`, and
+`phase: "writing"`. Duplicate valid signals do not extend host deadlines.
+
+The previous process-group cleanup regression was run once and remains RED:
+
+```bash
+(cd go && GOTOOLCHAIN=go1.27.0 CGO_ENABLED=0 go test ./internal/factoryresearch -run '^TestSeparateGroupToolCleanup$' -count=1 -timeout=15s)
+```
+
+It failed because a normal tool in a separate process group survived cancellation
+and wrote its delayed canary. Process-group termination is therefore not proof
+that all model writers have stopped. The old runner and its failing test remain
+present until real Docker regressions through the actual host lifecycle prove
+container removal prevents delayed writers on both timeout and normal parent
+exit. Docker availability alone is not replacement evidence.
+
+Pending Task 3 work includes the owned-container supervisor, private host mounts,
+image/host prebuild installation, entrypoint migration, and real Docker acceptance.
+Task 4 host postmortem finalization is separately pending; these primitives grant
+no trusted snapshot, installable success, or publication authority.
+
 ## Failed Kit diagnostics
 
 When `Run Kit` fails or reports a factory failure (even with a successful step),
