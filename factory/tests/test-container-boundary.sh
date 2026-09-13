@@ -54,16 +54,29 @@ for mode in timeout normal cancel; do
     "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$TMP/export-$mode" \
     > "$TMP/$mode.stdout" 2> "$TMP/$mode.stderr" &
   wrapper=$!
+  capture_ready=0
   if [[ $mode == cancel ]]; then
+    # The child creates groups before the parent emits its marker. Synchronize
+    # with host log capture, not merely child startup, to test retained output.
     for ((i=0;i<100;i++)); do
-      [[ -z $(find "$TMP/runs/$mode" -name groups -print -quit) ]] || break
+      run=$(find "$TMP/runs/$mode" -mindepth 1 -maxdepth 1 -type d)
+      if [[ -n $run && -f $run/workspace/groups ]] &&
+        grep -q PRIVATE_RAW_CANARY "$run/host/container.stdout" 2>/dev/null; then
+        capture_ready=1
+        break
+      fi
       sleep .05
     done
+    # Always terminate and reap the wrapper, including synchronization failure.
     kill -TERM "$wrapper"
   fi
   wait "$wrapper"
   code=$?
   set -e
+  if [[ $mode == cancel && $capture_ready != 1 ]]; then
+    echo 'private marker capture was not ready before cancellation' >&2
+    exit 1
+  fi
   [[ $code != 0 ]] || { echo 'unfinalized wrapper reported success' >&2; exit 1; }
   run=$(find "$TMP/runs/$mode" -mindepth 1 -maxdepth 1 -type d)
   expected=completed
