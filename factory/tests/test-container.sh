@@ -84,6 +84,25 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs() {
     "$ROOT/factory/scripts/build-diagnostics.sh" \
     "$ROOT/factory/scripts/validate-diagnostics.sh" \
     "$ROOT/factory/scripts/container-entrypoint.sh" "$context/factory/scripts/"
+  # Fake-only private canaries: both archive mechanisms must omit these exact
+  # local evidence/session/credential paths, without excluding reviewed fixtures.
+  local -a private_files=(
+    .superpowers/sdd/trial/private.log nested/.superpowers/sdd/private.log
+    .kit/sessions/w-private/session.jsonl nested/.kit/sessions/private.jsonl
+    nested/.env nested/.env.local nested/mise.local.toml
+    nested/.worktrees/private/token nested/.claude/worktrees/private/token
+    nested/.tmp-trial/private.log .mcp.json nested/.mcp.json
+    .claude/settings.local.json nested/.claude/settings.local.json
+    local/ssl/private.key nested/local/ssl/private.key
+  )
+  local path
+  for path in "${private_files[@]}"; do
+    mkdir -p "$(dirname "$context/$path")"
+    printf '%s\n' FAKE_PRIVATE_CANARY > "$context/$path"
+  done
+  mkdir -p "$context/factory/tests/fixtures/kit-v0.1.134"
+  printf '%s\n' REVIEWED_FIXTURE > "$context/factory/tests/fixtures/kit-v0.1.134/session.jsonl"
+  cp "$ignore" "$context/.dockerignore"
   tar -cf "$archive" --exclude-from="$ignore" -C "$context" .
   listing="$(tar -tf "$archive")"
   for excluded in .git nested/.git .worktrees .claude/worktrees mise.local.toml \
@@ -92,12 +111,39 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs() {
       fail "Docker context contains local-only path: $excluded"
     fi
   done
-  for required in go/go.mod go/go.sum go/cmd/ go/internal/ factory/Dockerfile \
+  for required in go/go.mod go/go.sum go/cmd/ go/internal/ \
+    go/cmd/begin-writing/main.go go/cmd/supervise-factory/main.go factory/Dockerfile \
     factory/config.env factory/scripts/validate-report.sh factory/scripts/project-kit-events.sh \
     factory/scripts/build-diagnostics.sh factory/scripts/validate-diagnostics.sh \
     factory/scripts/container-entrypoint.sh; do
     grep -Fq "$required" <<<"$listing" || fail "Docker context excludes required input: $required"
   done
+  for path in "${private_files[@]}"; do
+    if grep -Fxq "./$path" <<<"$listing"; then
+      fail "source archive contains fake private canary: $path"
+    fi
+  done
+  grep -Fq 'factory/tests/fixtures/kit-v0.1.134/session.jsonl' <<<"$listing" \
+    || fail 'source archive excluded reviewed session fixture'
+  # Exercise Docker's ignore parser too, rather than assuming tar and Docker
+  # assign identical meaning to patterns. Scratch build never runs a container.
+  printf 'FROM scratch\nCOPY . /snapshot\n' > "$TMP/context.Dockerfile"
+  if ! docker build --file "$TMP/context.Dockerfile" \
+    --output "type=local,dest=$TMP/docker-output" "$context" > "$TMP/context-build.log" 2>&1; then
+    fail 'Docker context exclusion test requires available Docker/BuildKit'
+  fi
+  for path in "${private_files[@]}" .git nested/.git/config .env .env.local mise.local.toml \
+    .worktrees/private/token .claude/worktrees/private/token .tmp-run/token \
+    pulse-catalog.json tools/pulse-catalog/pulse-catalog.json; do
+    [[ ! -e "$TMP/docker-output/snapshot/$path" ]] || fail "Docker context leaked fake private path: $path"
+  done
+  for path in go/go.mod go/go.sum go/cmd/begin-writing/main.go \
+    go/cmd/supervise-factory/main.go factory/scripts/container-entrypoint.sh \
+    factory/tests/fixtures/kit-v0.1.134/session.jsonl; do
+    [[ -f "$TMP/docker-output/snapshot/$path" ]] || fail "Docker context excluded required source: $path"
+  done
+  grep -Fq "'--exclude-from='+root+'/.dockerignore'" "$ROOT/factory/scripts/run-kit.sh" \
+    || fail 'source snapshot does not use the tested shared exclusion file'
   # Literal shell source is the build-interface contract under test.
   # shellcheck disable=SC2016
   grep -Fq "[docker, 'build'," "$ROOT/factory/scripts/run-kit.sh" \

@@ -8,3 +8,23 @@ mise.local.toml
 pulse-catalog.json
 tools/pulse-catalog/pulse-catalog.json
 .tmp-*
+# Local agent evidence and raw session stores are never model/build inputs.
+.superpowers
+**/.superpowers
+.kit
+**/.kit
+# Docker patterns need explicit nested forms; tar consumes this same file.
+**/.env
+**/.env.*
+**/mise.local.toml
+**/.worktrees
+**/.claude/worktrees
+**/.tmp-*
+# Local MCP/agent settings can contain credentials (also globally git-ignored).
+.mcp.json
+**/.mcp.json
+.claude/settings.local.json
+**/.claude/settings.local.json
+# Local TLS material is globally git-ignored and must not enter snapshots.
+local/ssl
+**/local/ssl
