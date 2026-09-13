@@ -121,7 +121,7 @@ readable_context() {
 
 notify_report() {
   local report=$1 body comments comment_id payload viewer
-  local pr_url=${2:-}
+  local pr_url=${2:-} status=0
   # This command never invokes git or a PR mutation, including on converged reports.
   bash "$ROOT/factory/scripts/validate-report.sh" "$report" || die 'invalid notification report'
   [[ ${GITHUB_RUN_ID:-} =~ ^[1-9][0-9]*$ && ${GITHUB_RUN_ATTEMPT:-} =~ ^[1-9][0-9]*$ ]] \
@@ -129,6 +129,11 @@ notify_report() {
   body=$(mktemp)
   register_temp "$body"
   render_report_comment "$report" "$pr_url" "${RESUME:-false}" "$body"
+  # Outcome-only notification means publication was withheld. Receipt repair
+  # already has a PR and must not reclassify it as blocked/unpublished.
+  if [[ -z $pr_url ]]; then add_label guide:blocked || status=$?; fi
+  # Label failure must not suppress the truthful outcome comment.
+
   viewer=$(retry_gh api graphql -f query='{ viewer { login } }' --jq '.data.viewer.login') \
     || die 'could not identify comment author'
   [[ $viewer =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*(\[bot\])?$ ]] || die 'invalid comment author'
@@ -146,10 +151,11 @@ notify_report() {
     register_temp "$payload"
     jq -n --rawfile body "$body" '{body:$body}' >"$payload"
     # Do not blindly retry a comment mutation after an ambiguous transport error.
-    gh api --method PATCH "repos/$GH_REPO/issues/comments/$comment_id" --input "$payload" >/dev/null
+    gh api --method PATCH "repos/$GH_REPO/issues/comments/$comment_id" --input "$payload" >/dev/null || status=$?
   else
-    gh issue comment "$ISSUE_NUMBER" --repo "$GH_REPO" --body-file "$body" >/dev/null
+    gh issue comment "$ISSUE_NUMBER" --repo "$GH_REPO" --body-file "$body" >/dev/null || status=$?
   fi
+  return "$status"
 }
 
 publication_state() {

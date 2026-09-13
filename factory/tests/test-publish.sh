@@ -488,6 +488,7 @@ test_publication_gate_and_receipt() {
     : >"$GH_LOG"; : >"$GIT_LOG"
     unset GH_FAIL_MATCH
     bash "$SCRIPT" notify-publication "$report" "$FACTORY_PUBLICATION_RECEIPT"
+    assert_not_contains '--add-label guide:blocked' "$(cat "$GH_LOG")"
     jq -e '.notification=="sent"' "$FACTORY_PUBLICATION_RECEIPT" >/dev/null
     assert_not_contains 'pr ' "$(cat "$GH_LOG")"
     assert_eq '' "$(cat "$GIT_LOG")"
@@ -601,6 +602,49 @@ test_fresh_identity_and_primary_outcome() {
   assert_not_contains 'Ready for review.' "$(cat "$COMMENT_LOG")"
 }
 
+test_workflow_withheld_labels() {
+  local outcome mode report="$RUNNER_TEMP/run-report.json"
+  export PUBLISHER_PATH="$SCRIPT"
+  mkdir -p "$RUNNER_TEMP/guide-factory-publisher/factory/scripts"
+  cp "$ROOT/factory/scripts/validate-report.sh" "$RUNNER_TEMP/guide-factory-publisher/factory/scripts/"
+  python3 - "$ROOT/.github/workflows/guide-draft.yml" "$TMP/notify-route.sh" <<'PYROUTE'
+import pathlib, sys
+workflow=pathlib.Path(sys.argv[1]).read_text()
+step=workflow.split('      - name: Report outcome\n',1)[1].split('      - name:',1)[0]
+body=step.split('        run: |\n',1)[1]
+pathlib.Path(sys.argv[2]).write_text('\n'.join(line[10:] for line in body.splitlines()))
+PYROUTE
+  for outcome in awaiting_scope blocked failed converged; do
+    for mode in success label-failure comment-failure; do
+      reset_logs
+      export GH_LABEL_STATE_FILE="$TMP/withheld-labels"
+      printf 'guide:in-progress\n' >"$GH_LABEL_STATE_FILE"
+      if [[ $outcome == converged ]]; then
+        make_report "$report" "$outcome" '["research.md","meta.yaml","external.md","speakeasy.md"]'
+      else make_report "$report" "$outcome" '[]'; fi
+      if [[ $mode == label-failure ]]; then export GH_FAIL_MATCH='--add-label guide:blocked'; fi
+      if [[ $mode == comment-failure ]]; then export GH_FAIL_MATCH='issue comment'; fi
+      if bash -e "$TMP/notify-route.sh" >"$TMP/notify-route.log" 2>&1; then
+        [[ $mode == success ]] || fail "$mode was hidden for $outcome"
+      else [[ $mode != success ]] || fail "workflow notify failed for $outcome"; fi
+      assert_contains '--add-label guide:blocked' "$(cat "$GH_LOG")"
+      assert_contains "**Outcome:** $outcome" "$(cat "$COMMENT_LOG")"
+      assert_eq '' "$(cat "$GIT_LOG")"
+      assert_not_contains 'pr ' "$(cat "$GH_LOG")"
+      if [[ $mode != label-failure ]]; then grep -Fqx guide:blocked "$GH_LABEL_STATE_FILE" || fail 'blocked label lost'; fi
+      # Even when labeling fails, comment is attempted afterward with the outcome.
+      awk '/--add-label guide:blocked/ {label=NR} /issue comment/ {comment=NR} END {exit !(label && comment && label < comment)}' "$GH_LOG" || fail 'label/comment ordering changed'
+      if [[ $outcome == awaiting_scope ]]; then
+        assert_contains '1. Question; rm -rf /' "$(cat "$COMMENT_LOG")"
+        # shellcheck disable=SC2016
+        assert_contains 're-add `guide:draft`' "$(cat "$COMMENT_LOG")"
+      fi
+    done
+  done
+  unset PUBLISHER_PATH
+}
+
+test_workflow_withheld_labels
 test_fresh_identity_and_primary_outcome
 test_hostile_receipt_paths_and_installed_mutation
 test_receipt_and_reconciliation_boundaries
