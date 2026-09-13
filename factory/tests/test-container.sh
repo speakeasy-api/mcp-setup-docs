@@ -195,8 +195,9 @@ MOCK
   cat >"$bin/validate" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
-printf 'validate\nexport=%s\nroot=%s\n' "$1" "$2" >>"$LOCAL_TEST_LOG"
-[[ -f "$1/run-report.json" && -d "$1/guide" ]]
+[[ $1 == --local && $4 =~ ^[a-f0-9]{32}$ ]]
+printf 'validate\nexport=%s\nroot=%s\n' "$2" "$3" >>"$LOCAL_TEST_LOG"
+[[ -f "$2/run-report.json" && -d "$2/guide" ]]
 MOCK
   chmod +x "$bin/run-kit" "$bin/validate"
 
@@ -258,7 +259,7 @@ test_opt_in_final_image() {
   [[ "${FACTORY_TEST_IMAGE:-0}" == 1 ]] || return 0
   # shellcheck disable=SC1091
   source "$ROOT/factory/config.env"
-  local image="mcp-setup-docs-kit:test"
+  local image="$KIT_IMAGE"
   docker build --platform linux/amd64 -f "$ROOT/factory/Dockerfile" \
     --build-arg "KIT_VERSION=$KIT_VERSION" --build-arg "KIT_SHA256=$KIT_SHA256" \
     -t "$image" "$ROOT" >/dev/null

@@ -187,8 +187,23 @@ assert_upload_contract() {
     fail 'transcript upload contains a multiline or nested field value'
     return 1
   fi
+  block="$(upload_step_block "$workflow" 'Upload readable session transcript')"
+  [[ -n "$block" ]] || { fail 'missing mandatory readable upload'; return 1; }
+  assert_upload_field_equals "$block" '        ' id readable_upload || return 1
+  assert_upload_field_equals "$block" '        ' if "always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')" || return 1
+  assert_upload_field_equals "$block" '        ' uses 'actions/upload-artifact@v4' || return 1
+  # shellcheck disable=SC2016
+  assert_upload_field_equals "$block" '          ' name 'guide-factory-readable-${{ github.run_id }}-${{ github.run_attempt }}' || return 1
+  # shellcheck disable=SC2016
+  assert_upload_field_equals "$block" '          ' path '${{ runner.temp }}/export/session-transcript.json' || return 1
+  assert_upload_field_equals "$block" '          ' retention-days '7' || return 1
+  assert_upload_field_equals "$block" '          ' if-no-files-found error || return 1
+  if grep -Eq '^            [^[:space:]]' <<<"$block"; then
+    fail 'readable upload contains a multiline or nested field value'
+    return 1
+  fi
   upload_count="$(count_upload_artifact_actions "$workflow")"
-  assert_eq '2' "$upload_count" || return 1
+  assert_eq '3' "$upload_count" || return 1
 }
 
 steps_with() {
@@ -267,9 +282,11 @@ email_line="$(grep -nF 'git config --local user.email 41898282+github-actions[bo
 merge_line="$(grep -nF 'git merge --no-edit origin/main' <<<"$resume_block" | cut -d: -f1)"
 [[ -n "$name_line" && -n "$email_line" && "$name_line" -lt "$merge_line" && "$email_line" -lt "$merge_line" ]] ||
   fail 'repo-local bot identity must be configured before resume merge'
-for step in 'Transition labels' 'Prepare issue input' 'Prepare catalog snapshot' 'Run Kit' 'Validate export' 'Publish guide'; do
+for step in 'Transition labels' 'Prepare issue input' 'Prepare catalog snapshot' 'Run Kit'; do
   assert_step_contains "$step" "if: success() && steps.refusal.outcome != 'success'"
 done
+assert_step_contains 'Validate export' "if: always() && !cancelled() && steps.kit.outcome == 'success' && steps.publication_gate.outputs.ready == 'true'"
+assert_step_contains 'Publish guide' "if: always() && !cancelled() && steps.validate.outcome == 'success' && steps.publication_gate.outputs.ready == 'true'"
 for spec in 'Transition labels:id: transition' 'Prepare issue input:id: prepare_input' 'Prepare catalog snapshot:id: prepare_catalog' 'Run Kit:id: kit' 'Validate export:id: validate' 'Publish guide:id: publish'; do
   assert_step_contains "${spec%%:*}" "${spec#*:}"
 done
@@ -310,14 +327,26 @@ if (assert_upload_contract "$upload_contract_tmp/alternate-ref-duplicate.yml") 2
   rm -rf "$upload_contract_tmp"
   fail 'upload contract accepted a second upload-artifact action with an alternate ref'
 fi
+# A readable artifact must be mandatory and may never name the private store.
+for mutation in optional private-path; do
+  if [[ $mutation == optional ]]; then
+    sed 's/if-no-files-found: error/if-no-files-found: ignore/' "$WORKFLOW" >"$upload_contract_tmp/$mutation.yml"
+  else
+    sed 's@/export/session-transcript.json@/private/session.jsonl@' "$WORKFLOW" >"$upload_contract_tmp/$mutation.yml"
+  fi
+  if (assert_upload_contract "$upload_contract_tmp/$mutation.yml") 2>/dev/null; then
+    rm -rf "$upload_contract_tmp"
+    fail "upload contract accepted $mutation readable artifact"
+  fi
+done
 rm -rf "$upload_contract_tmp"
 
 kit_line="$(grep -nF '      - name: Run Kit' "$WORKFLOW" | cut -d: -f1)"
 upload_line="$(grep -nF '      - name: Upload safe factory diagnostics' "$WORKFLOW" | cut -d: -f1)"
-failure_report_line="$(grep -nF '      - name: Report failure' "$WORKFLOW" | cut -d: -f1)"
+failure_report_line="$(grep -nF '      - name: Report outcome' "$WORKFLOW" | cut -d: -f1)"
 [[ -n "$upload_line" && "$kit_line" -lt "$upload_line" && "$upload_line" -lt "$failure_report_line" ]] ||
   fail 'safe diagnostics upload must be after Run Kit and before failure reporting'
-failure_report_block="$(step_block 'Report failure')"
+failure_report_block="$(step_block 'Report outcome')"
 if grep -Fqi 'diagnostic' <<<"$failure_report_block"; then
   fail 'failure reporting must not read or inline diagnostics'
 fi
@@ -329,11 +358,19 @@ for spec in \
   'Refuse non-factory pull request:refuse' \
   'Transition labels:transition' \
   'Publish guide:publish' \
-  'Report failure:fail' \
+  'Report outcome:fail' \
   'Cleanup labels:cleanup'; do
   assert_step_contains "${spec%%:*}" "bash \"\$PUBLISHER_PATH\" ${spec#*:}"
 done
-assert_eq '6' "$(grep -Fc "bash \"\$PUBLISHER_PATH\"" "$WORKFLOW")"
+assert_eq '9' "$(grep -Fc "bash \"\$PUBLISHER_PATH\"" "$WORKFLOW")"
+
+# Confirmed publication must be repaired by notification, never republished.
+# shellcheck disable=SC2016
+assert_step_contains 'Report outcome' 'notify-publication "$RUNNER_TEMP/run-report.json" "$FACTORY_PUBLICATION_RECEIPT"'
+assert_step_contains 'Report outcome' 'publication-started.json'
+# shellcheck disable=SC2016
+assert_step_contains 'Report outcome' 'notify "$RUNNER_TEMP/run-report.json"'
+! grep -Eq 'bash .* publish ' <<<"$failure_report_block" || fail 'outcome reporting may not republish'
 
 publisher_tmp="$(mktemp -d)"
 runner_temp="$publisher_tmp/runner-temp"
@@ -428,8 +465,8 @@ assert_eq guide:blocked "$(cat "$label_state")"
 assert_eq 0 "$(find "$scratch" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')"
 rm -rf "$publisher_tmp"
 
-assert_step_contains 'Report failure' 'id: failure_report'
-assert_step_contains 'Report failure' "failure() && steps.publisher_setup.outcome == 'success' && steps.refusal.outcome != 'success'"
+assert_step_contains 'Report outcome' 'id: failure_report'
+assert_step_contains 'Report outcome' "if: always() && !cancelled() && steps.publisher_setup.outcome == 'success' && steps.refusal.outcome != 'success' && steps.publish.outcome != 'success'"
 assert_step_contains 'Cleanup labels' "if: always() && steps.publisher_setup.outcome == 'success'"
 assert_step_contains 'Bootstrap failure fallback' "if: always() && steps.publisher_setup.outcome != 'success'"
 
@@ -439,7 +476,7 @@ done
 assert_eq 'Run Kit' "$(steps_with 'secrets.OPENROUTER_API_KEY')"
 while IFS= read -r step; do
   case "$step" in
-    Checkout|'Set up publisher'|'Preflight existing factory work'|'Refuse non-factory pull request'|'Transition labels'|'Prepare issue input'|'Publish guide'|'Report failure'|'Cleanup labels'|'Bootstrap failure fallback') ;;
+    Checkout|'Set up publisher'|'Preflight existing factory work'|'Refuse non-factory pull request'|'Transition labels'|'Prepare issue input'|'Publish guide'|'Report outcome'|'Cleanup labels'|'Bootstrap failure fallback') ;;
     *) fail "GitHub credential escapes host step scope: $step" ;;
   esac
 done < <(steps_with 'secrets.AGENT_PAT || secrets.GITHUB_TOKEN')
@@ -582,3 +619,11 @@ if find "$ROOT/guides" -mindepth 2 -maxdepth 2 -name "pipeline.""lock.json" -pri
 fi
 
 printf 'PASS: coordinator and workflow contracts\n'
+
+# Image-requiring tests must not depend on a workstation-only alias or late build.
+image_line=$(grep -nF '      - name: Build and smoke-test factory image' "$FACTORY_CI" | cut -d: -f1)
+tests_line=$(grep -nF '      - name: Factory tests' "$FACTORY_CI" | cut -d: -f1)
+[[ $image_line -lt $tests_line ]] || fail 'CI must build configured image before boundary tests'
+for path in factorytranscript factoryrun export-transcript supervise-factory begin-writing finalize-factory; do
+  grep -Fq "$path/**" "$FACTORY_CI" || fail "missing CI trigger: $path"
+done

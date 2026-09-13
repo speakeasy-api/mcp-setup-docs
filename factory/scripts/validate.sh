@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+local_run_id=
+if [[ ${1:-} == --local ]]; then
+  [[ $# == 4 && $4 =~ ^[a-f0-9]{32}$ ]] || { printf 'usage: validate.sh --local <export-dir> <repo-root> <host-run-id>\n' >&2; exit 2; }
+  local_run_id=$4
+  set -- "$2" "$3"
+fi
 [[ $# -eq 2 ]] || { printf 'usage: validate.sh <export-dir> <repo-root>\n' >&2; exit 2; }
 script_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 export_dir="$(cd "$1" && pwd -P)"
@@ -25,6 +31,14 @@ slug=
 fatal() {
   printf 'validate: %s\n' "$*" >&2
   exit 1
+}
+
+check_candidate() {
+  if [[ -n $local_run_id ]]; then
+    python3 "$script_root/factory/scripts/publication-state.py" local-gate "$export_dir" "$local_run_id" "$1"
+  else
+    python3 "$script_root/factory/scripts/publication-state.py" candidate "$report" "$1"
+  fi
 }
 
 verify_guides_dir() {
@@ -161,8 +175,12 @@ validate_artifacts "$guide_dir"
 
 [[ -d "$repo_root/.git" || -f "$repo_root/.git" ]] || fatal "repository root is not a Git worktree"
 if [[ "$outcome" == converged ]]; then
-  [[ "$export_dir" == "${RUNNER_TEMP:?}/export" ]] || fatal 'export must be the fixed host export directory'
-  python3 "$script_root/factory/scripts/publication-state.py" gate "$report" || fatal 'trusted publication handoff rejected'
+  if [[ -n $local_run_id ]]; then
+    python3 "$script_root/factory/scripts/publication-state.py" local-gate "$export_dir" "$local_run_id" || fatal 'trusted local handoff rejected'
+  else
+    [[ "$export_dir" == "${RUNNER_TEMP:?}/export" ]] || fatal 'export must be the fixed host export directory'
+    python3 "$script_root/factory/scripts/publication-state.py" gate "$report" || fatal 'trusted publication handoff rejected'
+  fi
 fi
 
 [[ -d "$guides_dir" && ! -L "$guides_dir" ]] || fatal "repository guides path must be a physical directory"
@@ -198,7 +216,7 @@ cp -a "$guide_dir/." "$stage_dir/" || fatal "could not copy export to stage"
 validate_tree "$stage_dir"
 validate_artifacts "$stage_dir"
 
-python3 "$script_root/factory/scripts/publication-state.py" candidate "$report" "$PWD/${stage_dir#./}" || fatal 'staged candidate differs from host validation'
+check_candidate "$PWD/${stage_dir#./}" || fatal 'staged candidate differs from host validation'
 
 # Preserve unrelated trusted bundle files. Only four host-validated files replace
 # existing content, and the original directory remains the rollback source.
@@ -214,7 +232,7 @@ if [[ -e "$slug" || -L "$slug" ]]; then
   rm -rf -- "$stage_dir"
   stage_dir=$preserve_dir
   preserve_dir=
-  python3 "$script_root/factory/scripts/publication-state.py" candidate "$report" "$PWD/${stage_dir#./}" || fatal 'merged candidate differs from host validation'
+  check_candidate "$PWD/${stage_dir#./}" || fatal 'merged candidate differs from host validation'
 fi
 
 verify_guides_dir || fatal "repository guides directory changed before install"
@@ -229,7 +247,7 @@ stage_dir=
 verify_guides_dir || fatal "repository guides directory changed after install"
 check_git_paths "guides/$slug/"
 verify_guides_dir || fatal "repository guides directory changed after Git checks"
-python3 "$script_root/factory/scripts/publication-state.py" candidate "$report" "$PWD/$slug" || fatal 'installed candidate differs from host validation'
+check_candidate "$PWD/$slug" || fatal 'installed candidate differs from host validation'
 
 # The new guide is committed once validation, install, and Git checks pass.
 # Destructive old-backup collection cannot be rollback-safe if it partially fails.

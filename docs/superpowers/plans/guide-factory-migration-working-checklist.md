@@ -144,3 +144,18 @@ The spike did not establish universal secret detection or production readiness.
 - [ ] Implement and run targeted tests.
 - [ ] Verify full containerized generation.
 - [ ] Verify authorized Action publishing.
+
+### Task 6 offline checkpoint: local installation and CI contracts
+
+The explicit local no-PR install interface now consumes fresh host-run identity,
+frozen readable readiness and byte equality using common staging/rollback checks.
+It does not fabricate artifact uploads; the publisher CLI still requires a real
+readable upload. Offline local regression covers stale/failed/mutated handoffs.
+Current coordinator tests assert mandatory readable upload and receipt-aware,
+notification-only outcome repair. CI builds the configured image before boundary
+checks and runs affected Go packages. The offline shell suite is green at this
+checkpoint; native dispatch is explicitly static-only in that suite.
+
+Still open: complete connected Docker-to-fake-gh lifecycle matrix, reproducible
+pinned native fixture execution, and measured maximum-input finalization headroom
+below the original 300 seconds. No live acceptance is authorized by this checkpoint.

@@ -64,6 +64,7 @@ else
 fi
 
 tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/mcp-setup-docs-local-draft.XXXXXX")"
+tmp_root="$(cd "$tmp_root" && pwd -P)"
 cleanup() {
   status=$?
   trap - EXIT HUP INT TERM
@@ -100,13 +101,17 @@ fi
   unset GH_TOKEN GITHUB_TOKEN GH_ENTERPRISE_TOKEN AGENT_PAT
   unset PULSE_REGISTRY_KEY PULSE_REGISTRY_TENANT PULSE_REGISTRY_URL
   unset SSH_AUTH_SOCK SSH_AGENT_PID
+  unset GITHUB_RUN_ID GITHUB_RUN_ATTEMPT GITHUB_OUTPUT GITHUB_ENV
+  unset READABLE_UPLOAD_OUTCOME READABLE_ARTIFACT_URL READABLE_LOG_STATUS
+  export FACTORY_HOST_RUN_ID
+  FACTORY_HOST_RUN_ID=$(python3 -c 'import secrets; print(secrets.token_hex(16))')
   "$run_kit" "$issue_json" "$catalog_json" "$export_dir"
   [[ -f "$export_dir/run-report.json" ]] || { printf 'local-draft: Kit did not export run-report.json\n' >&2; exit 1; }
   if [[ -n "$expected_slug" ]]; then
     selected_slug="$(jq -er '.slug // empty' "$export_dir/run-report.json")" || { printf 'local-draft: report does not select a slug\n' >&2; exit 1; }
     [[ "$selected_slug" == "$expected_slug" ]] || { printf 'local-draft: report selected %s, expected %s\n' "$selected_slug" "$expected_slug" >&2; exit 1; }
   fi
-  "$validate" "$export_dir" "$ROOT"
+  "$validate" --local "$export_dir" "$ROOT" "$FACTORY_HOST_RUN_ID"
 )
 
 outcome="$(jq -r '.outcome' "$export_dir/run-report.json")"

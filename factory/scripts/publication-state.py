@@ -81,8 +81,11 @@ def write(fd, name, data):
 
 def host_state(base, run, attempt):
     export = os.open('export', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=base)
+    return frozen_state(export, os.environ.get('FACTORY_HOST_RUN_ID', ''), run, attempt)
+
+
+def frozen_state(export, host, run, attempt):
     state = read(export, 'finalization.json')
-    host = os.environ.get('FACTORY_HOST_RUN_ID', '')
     if not re.fullmatch(r'[a-f0-9]{32}', host):
         raise ValueError()
     if set(state) != {'version','host_run_id','workflow_run_id','workflow_run_attempt','primary_outcome','readable_export','partial','publication_ready'}:
@@ -96,6 +99,22 @@ def host_state(base, run, attempt):
 
 def main():
     command = sys.argv[1]
+    if command == 'local-gate':
+        # Explicit no-PR interface. Never sets upload outputs or publication state;
+        # the publisher invokes only the separate, upload-mandatory gate below.
+        if len(sys.argv) not in (4, 5):
+            raise ValueError()
+        path, host = sys.argv[2:4]
+        export, state = frozen_state(directory(path), host, '', 0)
+        if not state['publication_ready'] or state['primary_outcome'] != 'converged' or state['readable_export'] != 'ready':
+            raise ValueError()
+        report = read(export, 'run-report.json')
+        if report['outcome'] != 'converged':
+            raise ValueError()
+        candidate(export, path + '/guide', report)
+        if len(sys.argv) == 5:
+            candidate(export, sys.argv[4], report)
+        return
     run = os.environ['GITHUB_RUN_ID']
     attempt = os.environ['GITHUB_RUN_ATTEMPT']
     repo = os.environ['GH_REPO']

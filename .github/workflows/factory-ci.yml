@@ -11,6 +11,12 @@ on:
       - 'go/cmd/lint-guide/**'
       - 'go/cmd/prepare-research-prompt/**'
       - 'go/internal/factoryprompt/**'
+      - 'go/internal/factorytranscript/**'
+      - 'go/internal/factoryrun/**'
+      - 'go/cmd/export-transcript/**'
+      - 'go/cmd/supervise-factory/**'
+      - 'go/cmd/begin-writing/**'
+      - 'go/cmd/finalize-factory/**'
       - 'go/internal/gen/**'
       - 'go/go.mod'
       - 'go/go.sum'
@@ -27,6 +33,12 @@ on:
       - 'go/cmd/lint-guide/**'
       - 'go/cmd/prepare-research-prompt/**'
       - 'go/internal/factoryprompt/**'
+      - 'go/internal/factorytranscript/**'
+      - 'go/internal/factoryrun/**'
+      - 'go/cmd/export-transcript/**'
+      - 'go/cmd/supervise-factory/**'
+      - 'go/cmd/begin-writing/**'
+      - 'go/cmd/finalize-factory/**'
       - 'go/internal/gen/**'
       - 'go/go.mod'
       - 'go/go.sum'
@@ -39,6 +51,8 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: '0'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,6 +62,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go/go.mod
+
+      - name: Build and smoke-test factory image
+        timeout-minutes: 10
+        run: FACTORY_TEST_IMAGE=1 bash factory/tests/test-container.sh
 
       - name: Factory tests
         run: bash factory/tests/run.sh
@@ -59,6 +77,6 @@ jobs:
         working-directory: go
         run: go test ./internal/guidecheck ./cmd/lint-guide
 
-      - name: Build and smoke-test factory image
-        timeout-minutes: 10
-        run: FACTORY_TEST_IMAGE=1 bash factory/tests/test-container.sh
+      - name: Factory Go tests
+        working-directory: go
+        run: go test ./internal/factoryprompt ./cmd/prepare-research-prompt ./internal/factorytranscript ./cmd/export-transcript ./internal/factoryrun ./cmd/supervise-factory ./cmd/begin-writing ./cmd/finalize-factory

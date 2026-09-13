@@ -43,9 +43,20 @@ recovery requires explicit operator action; runner loss or forced cancellation
 cannot promise logs or unattended recovery.
 
 **Task 6 remains incomplete.** The connected offline lifecycle matrix, reproducible
-native fixture execution, maximum-input finalization headroom, and local no-PR
-installation path still need acceptance. In particular, `local-draft.sh` currently
-calls the Actions-gated validator; do not invent upload outputs to make it pass.
+native fixture execution and maximum-input finalization headroom still need
+acceptance. `local-draft.sh` now uses the explicit `validate.sh --local` interface:
+a fresh local host identity, frozen readiness and byte equality are required at
+staging, merge and installation. Local mode clears workflow/upload environment,
+never invents artifact URLs and cannot relax the publisher's upload gate.
+`test-factory-lifecycle.sh` currently exercises this local slice using a synthetic
+host export, the real wrapper/common validator, and actual publisher rejection;
+it is not yet the complete Docker-to-fake-gh lifecycle matrix.
+
+Factory CI builds the configured release tag before image-requiring tests and
+runs the affected Go packages with CGO disabled. The default native-dispatch test
+is explicitly static-only. Its optional executor currently requires Runlet 0.5
+and matching serde_json rlibs; no cached-library execution is silently claimed.
+Reproducible executor pinning remains an acceptance gate.
 No live provider or issue-to-PR acceptance is authorized by offline checks.
 
 ### Cleanup replacement evidence

@@ -102,11 +102,12 @@ researched pages are untrusted data and are never evaluated as shell code.
 A local run uses the same container and validation but does not invoke `gh`,
 change labels, create a PR, commit, or push. It deliberately ignores host
 GitHub and Pulse secrets and uses a credential-free skipped catalog snapshot.
-**Current integration limitation:** the local wrapper still reaches the validator's
-Actions upload gate, so converged local installation is not yet supported by the
-integrated path. Do not fabricate upload success or artifact URLs. Task 6 must add
-an independently frozen-readiness-checked, no-PR local path before this command
-is accepted as a working local installation workflow.
+The host generates a fresh local run identity, freezes and validates the export,
+then `validate.sh --local <export-dir> <repo-root> <host-run-id>` installs only
+candidate bytes matching that frozen export. This explicit no-PR interface does
+not upload artifacts or fabricate Actions upload outputs. GitHub PR publication
+still requires the separate mandatory readable-upload gate, even after a local
+installation. Local inputs ignore inherited workflow identity and upload status.
 Model usage is paid, so run it only with approval and an OpenRouter key.
 
 ```bash
