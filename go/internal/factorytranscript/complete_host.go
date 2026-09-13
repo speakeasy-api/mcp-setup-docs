@@ -59,50 +59,23 @@ func removeOwned(ctx context.Context, root *os.Root, name string, depth int) err
 	return root.Remove(name)
 }
 
-// CompleteHost runs in the SURVIVING supervisor, never the killable worker.
-// The worker only writes .finalizing; no guide/success is visible until raw
-// records are removed. All work shares the original overall deadline.
-func CompleteHost(ctx context.Context, private, export string, workerOK bool) (ret error) {
+// CleanupPrivate is independent of publication paths and always runs after
+// confirmed removal, including worker configuration/stage/result-write failures.
+func CleanupPrivate(ctx context.Context, private string) error {
 	b := &sourceBoundary{}
 	defer b.close()
-	if !disjoint(private, export) {
-		return errUnsafe
-	}
 	owned, err := b.root(private)
 	if err != nil {
 		return errUnsafe
 	}
-	out, err := b.root(export)
+	st, err := owned.Stat(".")
 	if err != nil {
 		return errUnsafe
 	}
-	for _, root := range []*os.Root{owned, out} {
-		st, e := root.Stat(".")
-		if e != nil {
-			return errUnsafe
-		}
-		sys, ok := st.Sys().(*syscall.Stat_t)
-		if !ok || sys.Uid != uint32(os.Geteuid()) || st.Mode().Perm()&0077 != 0 {
-			return errUnsafe
-		}
-	}
-	if _, e := out.Lstat("guide"); !os.IsNotExist(e) {
+	sys, ok := st.Sys().(*syscall.Stat_t)
+	if !ok || sys.Uid != uint32(os.Geteuid()) || st.Mode().Perm()&0077 != 0 {
 		return errUnsafe
 	}
-	state := finalization{Version: 1, Primary: "failed", Readable: "failed", Partial: true}
-	defer func() {
-		if ret != nil {
-			_ = out.RemoveAll("guide")
-			_ = writeFinal(out, "run-report.json", failedReport)
-			state.PublicationReady = false
-		}
-		_ = out.RemoveAll(".finalizing")
-		data, _ := json.Marshal(state)
-		if writeFinal(out, "finalization.json", data) != nil {
-			ret = errUnsafe
-		}
-	}()
-	// Reserve is for cleanup/revocation, not another worker attempt.
 	f, err := owned.Open(".")
 	if err != nil {
 		return errUnsafe
@@ -131,7 +104,10 @@ func CompleteHost(ctx context.Context, private, export string, workerOK bool) (r
 					}
 					for _, item := range batch {
 						if item.Name() == "result.json" {
-							continue
+							st, e := host.Lstat(item.Name())
+							if e == nil && singleRegular(st) {
+								continue
+							}
 						}
 						if e = removeOwned(ctx, host, item.Name(), 0); e != nil {
 							names.Close()
@@ -150,6 +126,76 @@ func CompleteHost(ctx context.Context, private, export string, workerOK bool) (r
 		if e == io.EOF {
 			break
 		}
+	}
+	return ctx.Err()
+}
+
+// CompleteHost runs in the SURVIVING supervisor, never the killable worker.
+// The worker only writes .finalizing; no guide/success is visible until raw
+// records are removed. All work shares the original overall deadline.
+func CompleteHost(ctx, eligibility context.Context, private, export string, workerOK, stageOwned bool) (ret error) {
+	cleanupErr := CleanupPrivate(ctx, private)
+	b := &sourceBoundary{}
+	defer b.close()
+	if !disjoint(private, export) {
+		return errUnsafe
+	}
+	owned, err := b.root(private)
+	if err != nil {
+		return errUnsafe
+	}
+	out, err := b.root(export)
+	if err != nil {
+		return errUnsafe
+	}
+	for _, root := range []*os.Root{owned, out} {
+		st, e := root.Stat(".")
+		if e != nil {
+			return errUnsafe
+		}
+		sys, ok := st.Sys().(*syscall.Stat_t)
+		if !ok || sys.Uid != uint32(os.Geteuid()) || st.Mode().Perm()&0077 != 0 {
+			return errUnsafe
+		}
+	}
+	promoted := false
+	state := finalization{Version: 1, Primary: "failed", Readable: "failed", Partial: true}
+	defer func() {
+		if ret == nil && eligibility.Err() != nil {
+			ret = errUnsafe
+		}
+		if stageOwned {
+			if e := out.RemoveAll(".finalizing"); e != nil {
+				ret = errUnsafe
+			}
+		}
+		if ret != nil {
+			state.PublicationReady = false
+		}
+		data, _ := json.Marshal(state)
+		if writeFinal(out, "finalization.json", data) != nil {
+			ret = errUnsafe
+		}
+		// Commit arbitration is this last synchronous eligibility observation.
+		// Cancellation before it revokes; cancellation afterward is post-completion.
+		if ret == nil && eligibility.Err() != nil {
+			ret = errUnsafe
+		}
+		if ret != nil {
+			if promoted {
+				_ = out.RemoveAll("guide")
+			}
+			_ = writeFinal(out, "run-report.json", failedReport)
+			state.PublicationReady = false
+			data, _ = json.Marshal(state)
+			_ = writeFinal(out, "finalization.json", data)
+		}
+	}()
+	if cleanupErr != nil || !stageOwned {
+		return errUnsafe
+	}
+	if _, e := out.Lstat("guide"); !os.IsNotExist(e) {
+		return errUnsafe
 	}
 	if ctx.Err() != nil {
 		return errUnsafe
@@ -183,7 +229,7 @@ func CompleteHost(ctx context.Context, private, export string, workerOK bool) (r
 			return errUnsafe
 		}
 	}
-	if !workerOK {
+	if !workerOK || eligibility.Err() != nil {
 		return errUnsafe
 	}
 	if report["outcome"] == "converged" {
@@ -200,13 +246,17 @@ func CompleteHost(ctx context.Context, private, export string, workerOK bool) (r
 				return errUnsafe
 			}
 		}
+		if eligibility.Err() != nil || ctx.Err() != nil {
+			return errUnsafe
+		}
 		if e = out.Rename(".finalizing/guide", "guide"); e != nil {
 			return errUnsafe
 		}
+		promoted = true
 	} else {
 		state.PublicationReady = false
 	}
-	if ctx.Err() != nil {
+	if ctx.Err() != nil || eligibility.Err() != nil {
 		return errUnsafe
 	}
 	return writeFinal(out, "run-report.json", data)

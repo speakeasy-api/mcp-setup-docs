@@ -142,7 +142,7 @@ func cleanupUntil(ctx context.Context, s settings, id string) bool {
 	remaining, confirmErr := command(ctx, s, s.commandLimit, "ps", "--all", "--no-trunc", "--filter", "id="+id, "--format", "{{.ID}}")
 	return removeErr == nil && confirmErr == nil && remaining == ""
 }
-func supervise(ctx context.Context, o options, s settings) int {
+func supervise(ctx context.Context, o options, s settings) (status int) {
 	if !validHex(o.containerID, 64) || !validHex(o.runID, 32) {
 		return 2
 	}
@@ -182,6 +182,18 @@ func supervise(ctx context.Context, o options, s settings) int {
 		r.Termination = "cleanup_failed"
 		r.ExitCode = 1
 	}
+	workerOK, stageOwned := false, false
+	// ONE post-removal exit funnel, registered before result writes or any worker
+	// option checks. Refusing a foreign stage never skips owned private cleanup.
+	if r.ContainerRemoved && o.finalizer != "" {
+		defer func() {
+			cleanupContext, cancel := context.WithDeadline(context.Background(), deadline.Add(-budget/100))
+			defer cancel()
+			if factorytranscript.CompleteHost(cleanupContext, ctx, filepath.Dir(filepath.Dir(o.result)), o.exportDir, workerOK, stageOwned) != nil {
+				status = 1
+			}
+		}()
+	}
 	if root == nil || saveResult(root, name, r) != nil {
 		return 1
 	}
@@ -204,12 +216,13 @@ func supervise(ctx context.Context, o options, s settings) int {
 		// Reserve the final 20% (60s in production) for supervisor-owned raw
 		// record cleanup and revocation. Never grant another 300s window.
 		workerDeadline := deadline.Add(-budget / 5)
-		workerContext, cancelWorker := context.WithDeadline(context.Background(), workerDeadline)
+		workerContext, cancelWorker := context.WithDeadline(ctx, workerDeadline)
 		defer cancelWorker()
 		stage := filepath.Join(o.exportDir, ".finalizing")
 		if os.Mkdir(stage, 0700) != nil {
 			return 1
 		}
+		stageOwned = true
 		cmd := exec.CommandContext(workerContext, o.finalizer, filepath.Dir(filepath.Dir(o.result)), o.result, stage)
 		// Host validators are trusted non-detaching subprocesses. Kill their
 		// group on this same deadline; model cleanup remains container removal.
@@ -219,16 +232,12 @@ func supervise(ctx context.Context, o options, s settings) int {
 		cmd.Env = []string{"OPENROUTER_API_KEY=" + os.Getenv("OPENROUTER_API_KEY")}
 		cmd.Stdout, cmd.Stderr = io.Discard, io.Discard
 		cmd.WaitDelay = 50 * time.Millisecond
-		workerOK := cmd.Run() == nil && workerContext.Err() == nil
-		// Last 1% (3s in production) is held back from traversal for the
-		// bounded safe-result/revocation writes; total remains exactly 300s.
-		cleanupContext, cancelCleanup := context.WithDeadline(context.Background(), deadline.Add(-budget/100))
-		defer cancelCleanup()
-		if factorytranscript.CompleteHost(cleanupContext, filepath.Dir(filepath.Dir(o.result)), o.exportDir, workerOK) != nil {
+		workerOK = cmd.Run() == nil && workerContext.Err() == nil && ctx.Err() == nil
+		if !workerOK {
 			return 1
 		}
 	}
-	if r.Termination == "completed" && r.ContainerRemoved {
+	if r.Termination == "completed" && r.ContainerRemoved && ctx.Err() == nil {
 		return 0
 	}
 	return 1

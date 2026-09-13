@@ -358,3 +358,101 @@ func TestFinalizerInterruptionLeavesSafeReport(t *testing.T) {
 		t.Fatal("partial installable output")
 	}
 }
+
+func finalizerFixture(t *testing.T) (options, settings, string) {
+	t.Helper()
+	o, s, dir := fixture(t, "normal")
+	s.finalization = 3 * time.Second
+	o.finalizer = dir + "/host/finalize-factory"
+	o.exportDir, _ = filepath.EvalSymlinks(t.TempDir())
+	os.Chmod(o.exportDir, 0700)
+	report := `{"schema_version":1,"outcome":"converged","provider":"Example","slug":"example","persona":"admin","summary":"Public fixture","open_questions":[],"blockers":[],"nits":[],"review_rounds":0,"artifacts":["research.md","meta.yaml","external.md","speakeasy.md"]}`
+	state := `{"version":1,"primary_outcome":"converged","readable_export":"ready","partial":true,"publication_ready":true}`
+	script := "#!/bin/sh\nprintf started > \"$1/worker-started\"\nsleep 0.2\nmkdir \"$3/guide\"\nfor name in research.md meta.yaml external.md speakeasy.md; do printf public > \"$3/guide/$name\"; done\nprintf '%s' '" + report + "' > \"$3/run-report.json\"\nprintf '%s' '" + state + "' > \"$3/finalization.json\"\n"
+	if err := os.WriteFile(o.finalizer, []byte(script), 0700); err != nil {
+		t.Fatal(err)
+	}
+	return o, s, dir
+}
+func TestCancelAfterFinalizerStarted(t *testing.T) {
+	o, s, dir := finalizerFixture(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan int, 1)
+	go func() { done <- supervise(ctx, o, s) }()
+	until := time.After(2 * time.Second)
+	ticker := time.NewTicker(time.Millisecond)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-until:
+			t.Fatal("worker marker not observed")
+		case <-ticker.C:
+			if _, err := os.Stat(dir + "/worker-started"); err == nil {
+				cancel()
+				goto cancelled
+			}
+		}
+	}
+cancelled:
+	if code := <-done; code == 0 {
+		t.Fatal("cancelled parent promoted worker success")
+	}
+	if _, err := os.Stat(o.exportDir + "/guide"); !os.IsNotExist(err) {
+		t.Fatal("cancelled guide promoted")
+	}
+	if _, err := os.Stat(dir + "/host/container.stdout"); !os.IsNotExist(err) {
+		t.Fatal("cancellation skipped independent cleanup")
+	}
+}
+func TestPostRemovalFailuresAlwaysClean(t *testing.T) {
+	for _, kind := range []string{"foreign-stage", "foreign-stage-file", "invalid-program", "missing-program", "linked-program", "worker-exit", "save-result"} {
+		t.Run(kind, func(t *testing.T) {
+			o, s, dir := finalizerFixture(t)
+			sentinel := o.exportDir + "/.finalizing/sentinel"
+			switch kind {
+			case "foreign-stage":
+				os.Mkdir(o.exportDir+"/.finalizing", 0700)
+				os.WriteFile(sentinel, []byte("foreign"), 0600)
+			case "foreign-stage-file":
+				os.WriteFile(o.exportDir+"/.finalizing", []byte("foreign"), 0600)
+			case "invalid-program":
+				o.finalizer = dir + "/host/not-authorized"
+			case "missing-program":
+				os.Remove(o.finalizer)
+			case "linked-program":
+				os.Link(o.finalizer, dir+"/alias")
+			case "worker-exit":
+				os.WriteFile(o.finalizer, []byte("#!/bin/sh\nexit 7\n"), 0700)
+			case "save-result":
+				os.Mkdir(o.result, 0700)
+			}
+			if supervise(context.Background(), o, s) == 0 {
+				t.Fatal("post-removal failure accepted")
+			}
+			if _, err := os.Stat(dir + "/host/container.stdout"); !os.IsNotExist(err) {
+				t.Fatal("post-removal path retained raw log")
+			}
+			if kind == "foreign-stage-file" {
+				b, e := os.ReadFile(o.exportDir + "/.finalizing")
+				if e != nil || string(b) != "foreign" {
+					t.Fatal("foreign stage file modified")
+				}
+			}
+			if kind == "foreign-stage" {
+				b, err := os.ReadFile(sentinel)
+				if err != nil || string(b) != "foreign" {
+					t.Fatal("foreign stage modified")
+				}
+			}
+			data, err := os.ReadFile(o.exportDir + "/run-report.json")
+			if err != nil {
+				t.Fatal("safe fallback absent")
+			}
+			var report map[string]any
+			if json.Unmarshal(data, &report) != nil || report["outcome"] != "failed" {
+				t.Fatal("failed fallback invalid")
+			}
+		})
+	}
+}
