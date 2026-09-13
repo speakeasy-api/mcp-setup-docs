@@ -258,6 +258,9 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 		return errUnsafe
 	}
 	if err == nil {
+		if e := boundary.snapshots(w, factory, &doc); e != nil {
+			return errUnsafe
+		}
 		research, e := boundary.directory(factory, "research")
 		if e != nil && !os.IsNotExist(e) {
 			return errUnsafe
@@ -283,8 +286,10 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 			}
 		}
 	}
-	// Guide snapshots require report/path validation in the remaining Task 4 work.
-	doc.Omissions = append(doc.Omissions, "candidate_guides_not_exported")
+	if factory == nil {
+		doc.Omissions = append(doc.Omissions, "missing_candidate_report")
+	}
+	omitConfidential(&doc)
 	sanitizer, err := newScanner(known)
 	if err != nil {
 		return errUnsafe

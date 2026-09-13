@@ -291,27 +291,17 @@ func decodeSession(source []byte) (decodedSession, error) {
 						}
 						for variant, value := range output {
 							switch variant {
-							case "Text":
-								text, ok := value.(string)
-								if !ok {
-									return fail()
-								}
-								event.Text = []string{text}
-							case "Structured":
-								// Narrow projection; unknown object members are never serialized.
-								fields, ok := value.(map[string]any)
-								if !ok {
-									return fail()
-								}
-								for _, key := range []string{"text", "stdout", "stderr"} {
-									if v, exists := fields[key]; exists {
-										text, ok := v.(string)
-										if !ok {
-											return fail()
-										}
-										event.Text = append(event.Text, text)
+							case "Text", "Structured":
+								if variant == "Text" {
+									if _, ok := value.(string); !ok {
+										return fail()
 									}
 								}
+								selected, err := projectToolText(value, 0)
+								if err != nil {
+									return fail()
+								}
+								event.Text = selected
 								omit("structured_fields")
 							default:
 								return fail()
@@ -330,6 +320,65 @@ func decodeSession(source []byte) (decodedSession, error) {
 				}
 			}
 		}
+	}
+	return out, nil
+}
+
+// ToolOutput::Structured is arbitrary JSON in pinned agentkit-core, as are
+// compose/native-child return values. Project only known readable result slots;
+// never copy a whole object, its IDs, metadata, update payloads or unknown keys.
+// Text-wrapped JSON gets the SAME projection, not an all-fields escape hatch.
+func projectToolText(value any, depth int) ([]string, error) {
+	if depth > 32 {
+		return nil, errUnsafe
+	}
+	out := []string{}
+	switch x := value.(type) {
+	case string:
+		if len(x) > 1<<20 {
+			return nil, errUnsafe
+		}
+		if confidentialText(x, 0) {
+			return []string{"[confidential_content omitted]"}, nil
+		}
+		if json.Valid([]byte(x)) {
+			d := json.NewDecoder(bytes.NewReader([]byte(x)))
+			d.UseNumber()
+			decoded, err := readValue(d, depth)
+			if err != nil {
+				return nil, errUnsafe
+			}
+			return projectToolText(decoded, depth+1)
+		}
+		return []string{x}, nil
+	case []any:
+		for _, v := range x {
+			selected, err := projectToolText(v, depth+1)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, selected...)
+			if len(out) > 4096 {
+				return nil, errUnsafe
+			}
+		}
+	case map[string]any:
+		for _, key := range []string{"text", "stdout", "stderr", "output", "result", "results", "items"} {
+			if v, ok := x[key]; ok {
+				selected, err := projectToolText(v, depth+1)
+				if err != nil {
+					return nil, err
+				}
+				out = append(out, selected...)
+				if len(out) > 4096 {
+					return nil, errUnsafe
+				}
+			}
+		}
+	case nil, json.Number, bool:
+		// No readable text to retain; the containing event records the omission.
+	default:
+		return nil, errUnsafe
 	}
 	return out, nil
 }

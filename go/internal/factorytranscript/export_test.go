@@ -97,3 +97,19 @@ func TestPinnedReasoningOmitted(t *testing.T) {
 		t.Fatal("reasoning leaked")
 	}
 }
+
+func TestNestedToolProjection(t *testing.T) {
+	for _, output := range []string{
+		`{"Structured":{"id":"private-handle","generation":2,"output":{"results":[{"stdout":"public nested output","stderr":"public diagnostic","private":"PRIVATE-UNKNOWN"}]}}}`,
+		`{"Text":"{\"id\":\"private-handle\",\"generation\":2,\"output\":{\"results\":[{\"stdout\":\"public nested output\",\"stderr\":\"public diagnostic\",\"private\":\"PRIVATE-UNKNOWN\"}]}}"}`,
+	} {
+		got, err := decodeSession(fixtureRecord(`{"ToolResult":{"call_id":"private-call","output":` + output + `,"is_error":false,"metadata":{}}}`))
+		if err != nil {
+			t.Fatal(err)
+		}
+		b, _ := json.Marshal(got)
+		if !bytes.Contains(b, []byte("public nested output")) || bytes.Contains(b, []byte("private-handle")) || bytes.Contains(b, []byte("PRIVATE-UNKNOWN")) {
+			t.Fatal("incorrect nested tool projection")
+		}
+	}
+}
