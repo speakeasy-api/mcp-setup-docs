@@ -63,3 +63,38 @@ coordinator or validator invocation; their owning tasks wire the binary.
   Existing `TestSeparateGroupToolCleanup` RED was not changed or rerun; no
   full-suite GREEN claim. Coordinator, host supervision and readable export
   remain with their owning tasks.
+
+## Review correction: parent/child characterization
+
+`parent.jsonl` and `session.jsonl` represent **two separate persisted session
+files**, for a synthetic parent subagent and its nested child. Both start
+with a System item carrying `dev.kit.session.origin: "subagent"`, exactly
+as `src/runtime.rs:1607-1619` constructs it. A top-level session would instead
+use `"top_level"`; this fixture deliberately models the nested case. The
+child then appends an Assistant Text item and replaces its transcript.
+
+`lifecycle.json` is the **decoded JSON payload of a separate stderr lifecycle
+event**, not a session record or a file Kit writes under this name. Actual
+emission prefixes it with `\u0001kit-runtime\u0001` (`src/events.rs:1-37`).
+Its `subagent_state_changed` fields and enum values come from
+`src/events.rs:72-106,317-334`. That event supplies the explicit parent_id;
+`src/tools/subagent.rs:1174-1213` fills parent context when forwarding nested
+events. `src/tools/subagent.rs:394-399` assigns the Kit child persisted ID
+from its registry ID, tying the child session, event and returned handle.
+All IDs, task text, output and timestamps here are fabricated fixture values.
+
+No parent_id was invented in JSONL or item metadata. Kit's separate
+`<session_id>.metadata.json` contains only optional display_name
+(`src/session.rs:50-55,2163-2165`), not parent relationships; no such sidecar
+is necessary for this fixture. Origin classifies a session as a subagent,
+not its particular parent. The explicit link here comes only from the event.
+
+Review-round RED: the stricter release test exited 2 before fixture additions
+because parent.jsonl was absent. GREEN after adding the source-derived
+fixtures: focused release test with and without source assertions, bash -n,
+Shellcheck 0.10.0 and whitespace checks. Six disposable malformed-fixture
+controls reject numeric Text.text, missing Text metadata, wrong item kind,
+empty handle output, mismatched parent_id and missing session-origin metadata.
+The checker compares these synthetic examples exactly; it is not a universal
+Kit schema validator (native output remains arbitrary JSON in real handles).
+No image rebuild, providers or native runtime acceptance in this fix round.

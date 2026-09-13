@@ -20,8 +20,50 @@ for binary in prepare-research-prompt factory-generate; do
   grep -Fq "/usr/local/bin/$binary" "$ROOT/factory/Dockerfile"
 done
 fixture="$ROOT/factory/tests/fixtures/kit-v0.1.134"
-jq -e 'keys == ["generation","id","name","output","updates"] and .generation == 1 and .updates == {items:[],truncated:false}' "$fixture/handle.json" >/dev/null
-jq -se 'length == 2 and all(.[]; .schema_version == 3 and .session_id == "synthetic-session" and .workspace_root == "/workspace") and .[0].generation == 1 and .[1].generation == 2 and .[0].item.kind == "Assistant" and .[1].replacement == [.[0].item] and (.[0] | has("replacement") | not) and (.[1] | has("item") | not)' "$fixture/session.jsonl" >/dev/null
+validate_fixtures() {
+  local dir="$1"
+  jq -ne --slurpfile child "$dir/session.jsonl" --slurpfile parent "$dir/parent.jsonl" \
+    --slurpfile handle "$dir/handle.json" --slurpfile event "$dir/lifecycle.json" '
+    def item($kind; $text; $metadata):
+      {id:null, kind:$kind, parts:[{Text:{text:$text,metadata:{}}}],
+       metadata:$metadata, usage:null, finish_reason:null, created_at:null};
+    def record($id; $generation; $item):
+      {schema_version:3,session_id:$id,generation:$generation,workspace_root:"/workspace",item:$item};
+    {"dev.kit.session.origin":"subagent"} as $origin |
+    item("Assistant"; "Synthetic assistant output"; {}) as $assistant |
+    $parent == [record("synthetic-parent"; 1; item("System"; "Synthetic parent system"; $origin))] and
+    $child == [record("synthetic-child"; 1; item("System"; "Synthetic child system"; $origin)),
+      record("synthetic-child"; 2; $assistant),
+      {schema_version:3,session_id:"synthetic-child",generation:3,workspace_root:"/workspace",replacement:[$assistant]}] and
+    $handle == [{id:"synthetic-child",name:"Synthetic researcher",
+      output:{summary:"Synthetic fixture, not a provider result"},generation:1,
+      updates:{items:[],truncated:false}}] and
+    $event == [{event:"subagent_state_changed",id:$handle[0].id,name:$handle[0].name,
+      status:"idle",outcome:"success",generation:$handle[0].generation,task:"Synthetic task",
+      parent_id:$parent[0].session_id,parent_name:"Synthetic parent",harness:"acp.kit",
+      model:null,created_at_unix_ms:10,generation_started_at_unix_ms:20,generation_finished_at_unix_ms:30}]
+  ' >/dev/null
+}
+validate_fixtures "$fixture"
+
+# Negative controls use disposable copies; never alter the checked-in fixtures.
+negative=$(mktemp -d)
+trap 'rm -rf "$negative"' EXIT
+for mutation in text part item output parent origin; do
+  cp "$fixture"/{session.jsonl,parent.jsonl,handle.json,lifecycle.json} "$negative/"
+  file=session.jsonl
+  case "$mutation" in
+    text) filter='.[1].item.parts[0].Text.text = 42' ;;
+    part) filter='.[1].item.parts[0] = {Text:{text:"Synthetic assistant output"}}' ;;
+    item) filter='.[1].item.kind = "User"' ;;
+    output) file=handle.json; filter='.[0].output = {}' ;;
+    parent) file=lifecycle.json; filter='.[0].parent_id = "unrelated"' ;;
+    origin) file=parent.jsonl; filter='.[0].item.metadata = {}' ;;
+  esac
+  jq -sc "$filter | .[]" "$negative/$file" >"$negative/mutated"
+  mv "$negative/mutated" "$negative/$file"
+  if validate_fixtures "$negative"; then fail "malformed $mutation fixture accepted"; fi
+done
 # Optional pinned-source characterization, not a Rust test/runtime claim.
 if [[ -n "${KIT_RELEASE_SOURCE_ROOT:-}" ]]; then
   source_root="$KIT_RELEASE_SOURCE_ROOT/src"
