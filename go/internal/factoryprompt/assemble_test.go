@@ -169,6 +169,37 @@ func TestOrderAndFollowUpSections(t *testing.T) {
 	}
 }
 
+// Task 2's canonical coordinator must produce the approved instruction bytes.
+// This exercises the real assembler only, not native tools or a live provider.
+func TestCanonicalCoordinatorPrompts(t *testing.T) {
+	approved, approvedHash := document(t)
+	canonical, err := os.ReadFile("../../../factory/coordinator.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	canonicalHash := fmt.Sprintf("%x", sha256.Sum256(canonical))
+	for _, name := range []string{"topic-1", "topic-2", "topic-3", "topic-4", "topic-5", "follow-up-1", "follow-up-2"} {
+		t.Run(name, func(t *testing.T) {
+			kind := "initial"
+			if strings.HasPrefix(name, "follow-up-") {
+				kind = "follow-up"
+			}
+			input := fixture(t, name)
+			want, err := Assemble(approved, approvedHash, kind, input)
+			if err != nil {
+				t.Fatalf("approved prompt: %v", err)
+			}
+			got, err := Assemble(canonical, canonicalHash, kind, input)
+			if err != nil {
+				t.Fatalf("canonical coordinator prompt: %v", err)
+			}
+			if !bytes.Equal(got, want) {
+				t.Fatal("canonical coordinator changed approved prompt bytes")
+			}
+		})
+	}
+}
+
 // No provider calls: protect the source-level dependency contract for Task 3.
 func TestDispatchContract(t *testing.T) {
 	b, e := os.ReadFile("../../../factory/tests/fixtures/research/dispatch.runlet")
