@@ -1,4 +1,4 @@
-// Test-only adapter to the real Runlet 0.5 Runtime, not an interpreter.
+// Test-only adapter to the real Runlet 0.6.0 Runtime, not an interpreter.
 // Native tools and private filesystem are fake; assembler CLI is real.
 use runlet::{
     CallSchema, CanonicalValue as V, ExecutionPolicy, Runtime, Schema, ToolDescriptor, ToolError,

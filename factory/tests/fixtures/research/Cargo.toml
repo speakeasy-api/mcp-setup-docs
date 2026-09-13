@@ -1,0 +1,13 @@
+[package]
+name = "native-dispatch-fixture"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[[bin]]
+name = "native-dispatch"
+path = "native_dispatch.rs"
+
+[dependencies]
+runlet = "=0.6.0"
+serde_json = "=1.0.151"

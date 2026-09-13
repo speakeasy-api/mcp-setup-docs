@@ -27,17 +27,11 @@ for forbidden in 'input.command' 'model:' 'harness:' 'generation +' 'text.trim(p
 done
 printf 'PASS: static exact dispatch contract (not native execution proof)\n'
 
-# Explicit execution mode uses an already-built real Runlet library. No download,
-# interpreter, provider, native agent, or production orchestration is introduced.
+# Execution mode builds the actual release-locked crate, never a static substitute.
 if [[ ${1:-} == --execute ]]; then
-  : "${FACTORY_RUNLET_RLIB:?set the existing Runlet 0.5 rlib path}"
-  : "${FACTORY_SERDE_JSON_RLIB:?set the matching existing serde_json rlib path}"
   : "${FACTORY_PROMPT_ASSEMBLER:?set the prebuilt prepare-research-prompt path}"
-  deps=$(dirname "$FACTORY_RUNLET_RLIB")
-  rustc --edition=2024 "$ROOT/factory/tests/fixtures/research/native_dispatch.rs" \
-    -L "dependency=$deps" --extern "runlet=$FACTORY_RUNLET_RLIB" \
-    --extern "serde_json=$FACTORY_SERDE_JSON_RLIB" -o "$tmp/native-dispatch"
-  "$tmp/native-dispatch" "$ROOT" "$FACTORY_PROMPT_ASSEMBLER" "$tmp"
+  bash "$ROOT/factory/tests/build-native-dispatch.sh" "$tmp/build"
+  "$tmp/build/target/debug/native-dispatch" "$ROOT" "$FACTORY_PROMPT_ASSEMBLER" "$tmp"
 elif [[ $# -ne 0 ]]; then
   fail 'usage: test-native-dispatch.sh [--execute]'
 fi
