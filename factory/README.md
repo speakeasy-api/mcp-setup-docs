@@ -1,6 +1,6 @@
 # Guide factory operations
 
-## Host lifecycle migration — Task 3, Task 4 finalization pending
+## Host lifecycle integration — Tasks 1–5 approved; Task 6 acceptance pending
 
 `run-kit.sh <issue-json> <catalog-json> <export-dir>` now prebuilds the native Go
 supervisor, prepares private inputs/source, creates a run-labelled Docker container,
@@ -27,14 +27,26 @@ completion; duplicates do not reset deadlines. TERM/INT maps to
 `lifecycle_invalid`; unconfirmed cleanup yields sticky `cleanup_failed`. Removal
 and successful absence confirmation are independent of model cancellation.
 
-**Integration gap:** Task 4 postmortem/export/validation/upload is not implemented.
-The wrapper therefore returns failure/unready and installs nothing even when the
-lifecycle result says completed. That result is not publication readiness. Stale
-installable files are removed; stale guide directories are renamed into private
-host quarantine without recursive traversal. Private run trees are retained for
-Task 4; do not upload them or interpret retention as an automatic recovery service.
-The diagnostics/transcript sections below describe the previous delivery contract,
-not a current promise from this interim fail-closed wrapper.
+The host now freezes the candidate after confirmed container removal, sanitizes
+readable session output, runs full deterministic validation, and removes private
+records within the independent 300-second finalization clock. Research has an
+1800-second deadline and writing a one-time 900-second deadline; finalization
+is not model time. There are no per-topic native timeout flags or global guide cap.
+Released Kit 0.1.134 uses Astra, medium reasoning and a 300-second logical request
+budget; none of those settings replaces the host phase clocks.
+
+Publication requires the frozen readable export **and successful readable artifact
+upload**. A confirmed PR is recorded before notification side effects; a failed
+comment does not mean no PR was created. Raw records are never fallback uploads.
+Cleanup failure is a residual operational failure, not proof of removal. Any later
+recovery requires explicit operator action; runner loss or forced cancellation
+cannot promise logs or unattended recovery.
+
+**Task 6 remains incomplete.** The connected offline lifecycle matrix, reproducible
+native fixture execution, maximum-input finalization headroom, and local no-PR
+installation path still need acceptance. In particular, `local-draft.sh` currently
+calls the Actions-gated validator; do not invent upload outputs to make it pass.
+No live provider or issue-to-PR acceptance is authorized by offline checks.
 
 ### Cleanup replacement evidence
 

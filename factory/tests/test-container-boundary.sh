@@ -2,7 +2,9 @@
 # Actual run-kit/entrypoint regression; Docker absence is a hard failure.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
-BASE=${FACTORY_BOUNDARY_IMAGE:-mcp-setup-docs-kit:task3}
+# shellcheck disable=SC1091
+source "$ROOT/factory/config.env"
+BASE=${FACTORY_BOUNDARY_IMAGE:-$KIT_IMAGE}
 TMP=$(mktemp -d)
 TMP=$(cd "$TMP" && pwd -P)
 chmod 700 "$TMP"
@@ -33,6 +35,7 @@ mv /workspace/.factory/run-report.json.tmp /workspace/.factory/run-report.json
 if [[ $mode == timeout || $mode == cancel ]]; then exec sleep 30; fi
 begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"
 begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"
+sleep 1 # Host fixture records safe boundary evidence before private cleanup.
 KIT
 chmod 755 "$TMP/build/kit"
 printf 'FROM %s\nCOPY kit /usr/local/bin/kit\n' "$BASE" > "$TMP/build/Dockerfile"
@@ -55,43 +58,52 @@ for mode in timeout normal cancel; do
     > "$TMP/$mode.stdout" 2> "$TMP/$mode.stderr" &
   wrapper=$!
   capture_ready=0
-  if [[ $mode == cancel ]]; then
+  {
     # The child creates groups before the parent emits its marker. Synchronize
-    # with host log capture, not merely child startup, to test retained output.
+    # with host log capture, not merely child startup, to record evidence before cleanup.
     for ((i=0;i<100;i++)); do
       run=$(find "$TMP/runs/$mode" -mindepth 1 -maxdepth 1 -type d)
       if [[ -n $run && -f $run/workspace/groups ]] &&
         grep -q PRIVATE_RAW_CANARY "$run/host/container.stdout" 2>/dev/null; then
+        cp "$run/workspace/groups" "$TMP/$mode.groups"
+        if [[ $mode == normal ]]; then
+          [[ -f $run/control/phase.json ]] || { sleep .05; continue; }
+          cp "$run/control/phase.json" "$TMP/$mode.phase.json"
+        fi
         capture_ready=1
         break
       fi
       sleep .05
     done
     # Always terminate and reap the wrapper, including synchronization failure.
-    kill -TERM "$wrapper"
-  fi
+    [[ $mode != cancel ]] || kill -TERM "$wrapper"
+  }
   wait "$wrapper"
   code=$?
   set -e
-  if [[ $mode == cancel && $capture_ready != 1 ]]; then
-    echo 'private marker capture was not ready before cancellation' >&2
+  if [[ $capture_ready != 1 ]]; then
+    echo 'private boundary evidence was not ready before cleanup' >&2
     exit 1
   fi
-  [[ $code != 0 ]] || { echo 'unfinalized wrapper reported success' >&2; exit 1; }
+  [[ $code != 0 ]] || { echo 'invalid candidate wrapper reported success' >&2; exit 1; }
   run=$(find "$TMP/runs/$mode" -mindepth 1 -maxdepth 1 -type d)
   expected=completed
   [[ $mode != timeout ]] || expected=research_timeout
   [[ $mode != cancel ]] || expected=lifecycle_invalid
   jq -e --arg want "$expected" '.version==1 and .termination==$want and .container_removed==true' "$run/host/result.json" >/dev/null
-  read -r parent group session < "$run/workspace/groups"
+  read -r parent group session < "$TMP/$mode.groups"
   [[ $parent != "$group" && $group == "$session" ]] || { echo 'separate group not proven' >&2; exit 1; }
   if [[ $mode == normal ]]; then
-    jq -e '.version==1 and .phase=="writing" and (.run_id|length)==32' "$run/control/phase.json" >/dev/null
+    jq -e '.version==1 and .phase=="writing" and (.run_id|length)==32' "$TMP/$mode.phase.json" >/dev/null
   fi
   sleep 4.5
   [[ ! -e "$run/workspace/canary" ]]
-  [[ -z $(find "$TMP/export-$mode" -mindepth 1 -print -quit) ]]
+  [[ -z $(docker ps --all --filter "label=factory.run-id=$(jq -r .run_id "$run/host/result.json")" --format '{{.ID}}') ]]
+  bash "$ROOT/factory/scripts/validate-report.sh" "$TMP/export-$mode/run-report.json"
+  jq -e '.outcome == "failed" and .artifacts == []' "$TMP/export-$mode/run-report.json" >/dev/null
+  jq -e '.publication_ready == false' "$TMP/export-$mode/finalization.json" >/dev/null
+  [[ ! -e "$TMP/export-$mode/guide" ]]
+  [[ -z $(find "$run" -type f ! -path "$run/host/result.json" -print -quit) ]]
   if grep -q PRIVATE_RAW_CANARY "$TMP/$mode.stdout" "$TMP/$mode.stderr"; then exit 1; fi
-  grep -q PRIVATE_RAW_CANARY "$run/host/container.stdout"
 done
-printf '%s\n' 'PASS: actual run-kit timeout, normal-exit and TERM separate-group boundary; Task 4 still unready'
+printf '%s\n' 'PASS: actual run-kit timeout, normal-exit and TERM separate-group boundary; failed report and private cleanup'

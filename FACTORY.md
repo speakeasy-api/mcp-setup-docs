@@ -102,7 +102,11 @@ researched pages are untrusted data and are never evaluated as shell code.
 A local run uses the same container and validation but does not invoke `gh`,
 change labels, create a PR, commit, or push. It deliberately ignores host
 GitHub and Pulse secrets and uses a credential-free skipped catalog snapshot.
-Validation places a valid selected guide in the local working tree for review.
+**Current integration limitation:** the local wrapper still reaches the validator's
+Actions upload gate, so converged local installation is not yet supported by the
+integrated path. Do not fabricate upload success or artifact URLs. Task 6 must add
+an independently frozen-readiness-checked, no-PR local path before this command
+is accepted as a working local installation workflow.
 Model usage is paid, so run it only with approval and an OpenRouter key.
 
 ```bash

@@ -1,7 +1,10 @@
 # Guide factory migration — agreed design and decision record
 
-Status: product/workflow decisions agreed through discussion. Consolidated from
-our working checklist; production implementation has not started.
+Status: integration Tasks 1–5 independently approved at `5a0316c`; Task 6 offline
+acceptance is in progress, not complete. The original cleanup RED command below
+is historical evidence, not a request to restore the removed process runner.
+See [the integration plan](2026-09-11-factory-integration-implementation.md).
+Live acceptance requires separate user authorization.
 
 **Implementation plan:** [Guide factory migration](2026-09-10-guide-factory-migration.md)
 **Prompt source:** [`docs/research-prompt-draft.md`](../../research-prompt-draft.md)

@@ -15,7 +15,9 @@ assert_eq mcp-setup-docs-kit:0.1.134 "$KIT_IMAGE"
 # shellcheck disable=SC2016
 grep -Fq -- '--request-budget-seconds "${KIT_REQUEST_BUDGET_SECONDS:-300}"' "$ROOT/factory/scripts/container-entrypoint.sh"
 # shellcheck disable=SC2016
-grep -Fq -- '--env "KIT_REQUEST_BUDGET_SECONDS=$KIT_REQUEST_BUDGET_SECONDS"' "$ROOT/factory/scripts/run-kit.sh"
+grep -Fq "'KIT_REQUEST_BUDGET_SECONDS')" "$ROOT/factory/scripts/run-kit.sh"
+grep -Fq "args += ['--env', key]" "$ROOT/factory/scripts/run-kit.sh"
+grep -Fq 'export KIT_IMAGE KIT_VERSION KIT_SHA256 KIT_MODEL KIT_REASONING_EFFORT KIT_REQUEST_BUDGET_SECONDS' "$ROOT/factory/scripts/run-kit.sh"
 for binary in prepare-research-prompt factory-generate; do
   grep -Fq "/usr/local/bin/$binary" "$ROOT/factory/Dockerfile"
 done
