@@ -285,3 +285,69 @@ func TestMain(m *testing.M) {
 	}
 	os.Exit(m.Run())
 }
+
+func TestSharedFinalizationDeadline(t *testing.T) {
+	o, s, dir := fixture(t, "normal")
+	s.finalization = 150 * time.Millisecond
+	// Removal consumes most of the SAME finalization budget, not a fresh child one.
+	docker, _ := os.ReadFile(s.docker)
+	docker = []byte(strings.Replace(string(docker), "rm) if", "rm) sleep 0.10; if", 1))
+	if err := os.WriteFile(s.docker, docker, 0700); err != nil {
+		t.Fatal(err)
+	}
+	o.finalizer = dir + "/host/finalize-factory"
+	o.exportDir = dir + "/export"
+	os.Mkdir(o.exportDir, 0700)
+	os.WriteFile(o.finalizer, []byte("#!/bin/sh\nsleep 0.10\nprintf wrong > \"$3/incorrect-success\"\n"), 0700)
+	started := time.Now()
+	code := supervise(context.Background(), o, s)
+	if code == 0 {
+		t.Fatal("finalizer got a fresh budget")
+	}
+	if time.Since(started) > time.Second {
+		t.Fatal("finalizer unbounded")
+	}
+	if _, err := os.Stat(o.exportDir + "/incorrect-success"); !os.IsNotExist(err) {
+		t.Fatal("late success")
+	}
+}
+func TestFinalizerFailurePreservesLifecycle(t *testing.T) {
+	o, s, dir := fixture(t, "normal")
+	s.finalization = time.Second
+	o.finalizer = dir + "/host/finalize-factory"
+	o.exportDir = dir + "/export"
+	os.Mkdir(o.exportDir, 0700)
+	os.WriteFile(o.finalizer, []byte("#!/bin/sh\nexit 7\n"), 0700)
+	if supervise(context.Background(), o, s) == 0 {
+		t.Fatal("finalizer failure accepted")
+	}
+	r := readResult(t, o.result)
+	if r.Termination != "completed" || !r.ContainerRemoved {
+		t.Fatal("diagnostic failure replaced primary lifecycle")
+	}
+}
+
+func TestFinalizerInterruptionLeavesSafeReport(t *testing.T) {
+	o, s, dir := fixture(t, "normal")
+	s.finalization = time.Second
+	o.finalizer = dir + "/host/finalize-factory"
+	o.exportDir = dir + "/export"
+	os.Mkdir(o.exportDir, 0700)
+	report := `{"schema_version":1,"outcome":"failed","provider":null,"slug":null,"persona":null,"summary":"Factory model execution failed.","open_questions":[],"blockers":["Factory model execution failed."],"nits":[],"review_rounds":0,"artifacts":[]}`
+	script := "#!/bin/sh\nprintf '%s' '" + report + "' > \"$3/run-report.json\"\nsleep 5\nmkdir \"$3/guide\"\n"
+	os.WriteFile(o.finalizer, []byte(script), 0700)
+	if supervise(context.Background(), o, s) == 0 {
+		t.Fatal("interrupted finalizer accepted")
+	}
+	data, err := os.ReadFile(o.exportDir + "/run-report.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed map[string]any
+	if json.Unmarshal(data, &parsed) != nil || parsed["outcome"] != "failed" {
+		t.Fatal("interruption lost safe fallback")
+	}
+	if _, err := os.Stat(o.exportDir + "/guide"); !os.IsNotExist(err) {
+		t.Fatal("partial installable output")
+	}
+}

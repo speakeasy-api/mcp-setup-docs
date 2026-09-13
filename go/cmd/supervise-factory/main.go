@@ -22,17 +22,17 @@ import (
 	"github.com/speakeasy-api/mcp-setup-docs/go/internal/factoryrun"
 )
 
-type options struct{ containerID, controlDir, runID, result string }
+type options struct{ containerID, controlDir, runID, result, finalizer, exportDir string }
 
 // Unexported settings are injected only by in-package tests. CLI/env have no
 // deadline knobs and production constructs these constants unconditionally.
 type settings struct {
-	docker                                       string
-	commandLimit, research, writing, outer, poll time.Duration
+	docker                                                     string
+	commandLimit, research, writing, outer, poll, finalization time.Duration
 }
 
 func production() settings {
-	return settings{"docker", 10 * time.Second, 1800 * time.Second, 900 * time.Second, 2700 * time.Second, 100 * time.Millisecond}
+	return settings{"docker", 10 * time.Second, 1800 * time.Second, 900 * time.Second, 2700 * time.Second, 100 * time.Millisecond, 300 * time.Second}
 }
 
 type result struct {
@@ -41,6 +41,8 @@ type result struct {
 	Termination      string `json:"termination"`
 	ExitCode         int    `json:"exit_code"`
 	ContainerRemoved bool   `json:"container_removed"`
+	ModelTermination string `json:"model_termination"`
+	ModelExitCode    int    `json:"model_exit_code"`
 }
 type limitedBuffer struct{ bytes.Buffer }
 
@@ -131,10 +133,12 @@ func saveResult(root *os.Root, name string, r result) error {
 	// Name was cleared before execution; no-replace refuses unexpected writers.
 	return root.Link(temp, name)
 }
-func cleanup(s settings, id string) bool {
-	// Cancellation of model work never cancels its independent cleanup budget.
-	_, removeErr := command(context.Background(), s, s.commandLimit, "rm", "--force", id)
-	remaining, confirmErr := command(context.Background(), s, s.commandLimit, "ps", "--all", "--no-trunc", "--filter", "id="+id, "--format", "{{.ID}}")
+func cleanup(s settings, id string) bool { return cleanupUntil(context.Background(), s, id) }
+func cleanupUntil(ctx context.Context, s settings, id string) bool {
+	// Model cancellation does not cancel cleanup, but the original finalization
+	// deadline caps both removal and confirmation.
+	_, removeErr := command(ctx, s, s.commandLimit, "rm", "--force", id)
+	remaining, confirmErr := command(ctx, s, s.commandLimit, "ps", "--all", "--no-trunc", "--filter", "id="+id, "--format", "{{.ID}}")
 	return removeErr == nil && confirmErr == nil && remaining == ""
 }
 func supervise(ctx context.Context, o options, s settings) int {
@@ -155,10 +159,24 @@ func supervise(ctx context.Context, o options, s settings) int {
 		return 1
 	}
 	// Every path after ownership verification removes this exact immutable ID.
-	if pathErr == nil {
-		r.Termination, r.ExitCode = runContainer(ctx, o, s, root)
+	budget := s.finalization
+	if budget == 0 {
+		budget = 300 * time.Second
 	}
-	r.ContainerRemoved = cleanup(s, o.containerID)
+	deadline := time.Time{}
+	ended := func(at time.Time) {
+		if deadline.IsZero() {
+			deadline = at.Add(budget)
+		}
+	}
+	if pathErr == nil {
+		r.Termination, r.ExitCode = runContainerEnded(ctx, o, s, root, ended)
+	}
+	ended(time.Now()) // only for failure before model startup
+	finalContext, cancelFinal := context.WithDeadline(context.Background(), deadline)
+	defer cancelFinal()
+	r.ModelTermination, r.ModelExitCode = r.Termination, r.ExitCode
+	r.ContainerRemoved = cleanupUntil(finalContext, s, o.containerID)
 	if !r.ContainerRemoved {
 		r.Termination = "cleanup_failed"
 		r.ExitCode = 1
@@ -166,36 +184,88 @@ func supervise(ctx context.Context, o options, s settings) int {
 	if root == nil || saveResult(root, name, r) != nil {
 		return 1
 	}
+	if o.finalizer != "" {
+		if !r.ContainerRemoved || finalContext.Err() != nil {
+			return 1
+		}
+		// Host-created executable beside the trusted result, never model argv.
+		if o.finalizer != filepath.Join(filepath.Dir(o.result), "finalize-factory") || !filepath.IsAbs(o.exportDir) {
+			return 1
+		}
+		info, e := root.Lstat("finalize-factory")
+		if e != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0022 != 0 {
+			return 1
+		}
+		st, ok := info.Sys().(*syscall.Stat_t)
+		if !ok || st.Nlink != 1 || st.Uid != uint32(os.Geteuid()) {
+			return 1
+		}
+		cmd := exec.CommandContext(finalContext, o.finalizer, filepath.Dir(filepath.Dir(o.result)), o.result, o.exportDir)
+		// Host validators are trusted non-detaching subprocesses. Kill their
+		// group on this same deadline; model cleanup remains container removal.
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+
+		cmd.Env = []string{"OPENROUTER_API_KEY=" + os.Getenv("OPENROUTER_API_KEY")}
+		cmd.Stdout, cmd.Stderr = io.Discard, io.Discard
+		cmd.WaitDelay = 50 * time.Millisecond
+		if cmd.Run() != nil || finalContext.Err() != nil {
+			return 1
+		}
+	}
 	if r.Termination == "completed" && r.ContainerRemoved {
 		return 0
 	}
 	return 1
 }
 func runContainer(ctx context.Context, o options, s settings, root *os.Root) (string, int) {
+	return runContainerEnded(ctx, o, s, root, func(time.Time) {})
+}
+func runContainerEnded(ctx context.Context, o options, s settings, root *os.Root, ended func(time.Time)) (string, int) {
+	var phases *factoryrun.Deadlines
+	var terminalObserved time.Time
+	finish := func(reason string, code int) (string, int) {
+		at := time.Now()
+		if !terminalObserved.IsZero() {
+			at = terminalObserved
+		}
+		if phases != nil && (reason == "research_timeout" || reason == "writing_timeout") {
+			at = phases.Research
+			if phases.Begun {
+				at = phases.Writing
+			}
+			if phases.Outer.Before(at) {
+				at = phases.Outer
+			}
+		}
+		ended(at) // MUST happen before any deferred log/wait/descriptor teardown.
+		return reason, code
+	}
 	control, err := factoryrun.OpenControl(o.controlDir, o.runID)
 	if err != nil {
-		return "lifecycle_invalid", 1
+		return finish("lifecycle_invalid", 1)
 	}
 	defer control.Close()
 	stdout, err := root.OpenFile("container.stdout", os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
-		return "lifecycle_invalid", 1
+		return finish("lifecycle_invalid", 1)
 	}
 	defer stdout.Close()
 	stderr, err := root.OpenFile("container.stderr", os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
-		return "lifecycle_invalid", 1
+		return finish("lifecycle_invalid", 1)
 	}
 	defer stderr.Close()
 	now := time.Now()
 	d := factoryrun.Start(now)
+	phases = &d
 	d.Research = now.Add(s.research)
 	d.Outer = now.Add(s.outer)
 	if _, err := command(ctx, s, s.commandLimit, "start", o.containerID); err != nil {
 		if failure := d.Check(time.Now()); failure != "" {
-			return failure, 1
+			return finish(failure, 1)
 		}
-		return "lifecycle_invalid", 1
+		return finish("lifecycle_invalid", 1)
 	}
 	work, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -205,7 +275,7 @@ func runContainer(ctx context.Context, o options, s settings, root *os.Root) (st
 	logs.Stderr = stderr
 	logs.WaitDelay = 50 * time.Millisecond
 	if logs.Start() != nil {
-		return "lifecycle_invalid", 1
+		return finish("lifecycle_invalid", 1)
 	}
 	logsDone := make(chan error, 1)
 	go func() { logsDone <- logs.Wait() }()
@@ -232,8 +302,9 @@ func runContainer(ctx context.Context, o options, s settings, root *os.Root) (st
 		var finished *waited
 		select {
 		case <-ctx.Done():
-			return "lifecycle_invalid", 1
+			return finish("lifecycle_invalid", 1)
 		case w := <-done:
+			terminalObserved = time.Now()
 			waitReceived = true
 			finished = &w
 		case <-ticker.C:
@@ -241,16 +312,16 @@ func runContainer(ctx context.Context, o options, s settings, root *os.Root) (st
 		// Host receipt time, not file timestamps or Docker wall time, arbitrates.
 		now = time.Now()
 		if failure := d.Check(now); failure != "" {
-			return failure, 1
+			return finish(failure, 1)
 		}
 		yes, err := control.Read()
 		now = time.Now()
 		if err != nil {
-			return d.Reject(now), 1
+			return finish(d.Reject(now), 1)
 		}
 		if yes && !d.Begun {
 			if failure := d.Begin(now); failure != "" {
-				return failure, 1
+				return finish(failure, 1)
 			}
 			d.Writing = now.Add(s.writing)
 			if d.Writing.After(d.Outer) {
@@ -259,17 +330,17 @@ func runContainer(ctx context.Context, o options, s settings, root *os.Root) (st
 		}
 		if finished != nil {
 			if finished.err != nil {
-				return d.Reject(time.Now()), 1
+				return finish(d.Reject(time.Now()), 1)
 			}
 			code, err := strconv.Atoi(finished.text)
 			if err != nil || code < 0 || code > 255 {
-				return d.Reject(time.Now()), 1
+				return finish(d.Reject(time.Now()), 1)
 			}
 			termination := d.Complete(time.Now(), code)
 			if termination != "completed" && code == 0 {
 				code = 1
 			}
-			return termination, code
+			return finish(termination, code)
 		}
 	}
 }
@@ -282,6 +353,8 @@ func runWithSettings(ctx context.Context, args []string, s settings) int {
 	fs.StringVar(&o.controlDir, "control-dir", "", "private control mount")
 	fs.StringVar(&o.runID, "run-id", "", "host run ID")
 	fs.StringVar(&o.result, "result", "", "host-only result file")
+	fs.StringVar(&o.finalizer, "finalizer", "", "trusted host finalizer beside result")
+	fs.StringVar(&o.exportDir, "export-dir", "", "host-only export directory")
 	if fs.Parse(args) != nil || fs.NArg() != 0 {
 		return 2
 	}

@@ -17,6 +17,8 @@ container = None
 create_attempted = False
 supervisor = None
 private = None
+supervised = False
+exit_code = 1
 run_id = secrets.token_hex(16)
 docker = os.environ.get('FACTORY_DOCKER', 'docker')
 
@@ -71,7 +73,7 @@ def interrupted(signum, frame):
     if supervisor is not None:
         supervisor.send_signal(signal.SIGTERM)
         try:
-            supervisor.wait(timeout=25)
+            supervisor.wait(timeout=305)
         except subprocess.TimeoutExpired:
             supervisor.kill()
             supervisor.wait(timeout=5)
@@ -97,7 +99,7 @@ try:
     export = safe_path(export, True)
     fd = os.open(export, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
-        for name in ('guide', 'run-report.json', 'kit-error-summary.json', 'factory-diagnostics.json', 'execution-transcript.json'):
+        for name in ('guide', 'run-report.json', 'kit-error-summary.json', 'factory-diagnostics.json', 'execution-transcript.json', 'session-transcript.json', 'finalization.json'):
             try:
                 st = os.stat(name, dir_fd=fd, follow_symlinks=False)
             except FileNotFoundError:
@@ -126,6 +128,22 @@ try:
         env = dict(os.environ, GOTOOLCHAIN='go1.27.0', CGO_ENABLED='0')
         with open(private+'/host/build.log', 'ab') as log:
             subprocess.run(['go', 'build', '-o', native, './cmd/supervise-factory'], cwd=root+'/go', env=env, stdout=log, stderr=log, timeout=120, check=True)
+    # Build all postmortem tools BEFORE any model execution. No model-controlled
+    # workspace scripts/binaries are used during host finalization.
+    env = dict(os.environ, GOTOOLCHAIN='go1.27.0', CGO_ENABLED='0')
+    with open(private+'/host/build.log', 'ab') as log:
+        subprocess.run(['go', 'build', '-o', private+'/host/', './cmd/export-transcript', './cmd/finalize-factory', './cmd/lint-guide'], cwd=root+'/go', env=env, stdout=log, stderr=log, timeout=120, check=True)
+    with open(private+'/host/build.log', 'ab') as log:
+        subprocess.run(['go', 'build', '-o', private+'/host/factory-generate', '.'], cwd=root+'/go/internal/gen', env=env, stdout=log, stderr=log, timeout=120, check=True)
+    goroot = subprocess.check_output(['go', 'env', 'GOROOT'], cwd=root+'/go', env=env, timeout=10, text=True).strip()
+    shutil.copyfile(goroot+'/bin/gofmt', private+'/host/gofmt')
+    os.chmod(private+'/host/gofmt', 0o700)
+    # Fixed reporting survives supervisor interruption; never contains model data.
+    fallback = dict(schema_version=1, outcome='failed', provider=None, slug=None, persona=None, summary='Factory model execution failed.', open_questions=[], blockers=['Factory model execution failed.'], nits=[], review_rounds=0, artifacts=[])
+    with open(export+'/run-report.json.pending', 'x') as report:
+        json.dump(fallback, report)
+    os.chmod(export+'/run-report.json.pending', 0o600)
+    os.replace(export+'/run-report.json.pending', export+'/run-report.json')
     image = os.environ.get('FACTORY_KIT_IMAGE', os.environ['KIT_IMAGE'])
     try:
         command([docker, 'image', 'inspect', '--format', '{{.Id}}', image], 10, True)
@@ -147,12 +165,21 @@ try:
         raise ValueError('invalid create identity')
     result = private + '/host/result.json'
     with open(private+'/host/supervisor.stdout','ab') as out, open(private+'/host/supervisor.stderr','ab') as err:
-        supervisor = subprocess.Popen([native, '--container-id', container, '--control-dir', private+'/control', '--run-id', run_id, '--result', result], stdout=out, stderr=err)
-        supervisor.wait(timeout=2760)
+        supervisor = subprocess.Popen([native, '--container-id', container, '--control-dir', private+'/control', '--run-id', run_id, '--result', result, '--finalizer', private+'/host/finalize-factory', '--export-dir', export], stdout=out, stderr=err)
+        supervised = True
+        exit_code = supervisor.wait(timeout=3030)
     supervisor = None
-    # Task 4 owns trusted report/export/upload gates. Never install candidate files
-    # or return success merely because model work completed and the container died.
-    print('factory: model lifecycle ended; Task 4 finalization pending', file=sys.stderr)
+    # Reports live directly in the host export directory even on nonzero status.
+    # Host readiness includes current validation and frozen output; Task 5 upload
+    # remains a separate mandatory gate, never implied by this process status.
+    print('factory: host finalization ended; inspect trusted run report', file=sys.stderr)
+except subprocess.TimeoutExpired:
+    # The outer watchdog already includes model + finalization allowance. Do not
+    # grant a stalled supervisor another 300 seconds in the finally handler.
+    if supervisor is not None and supervisor.poll() is None:
+        supervisor.kill()
+        supervisor.wait(timeout=5)
+    print('factory: host watchdog expired; fallback report retained', file=sys.stderr)
 except Exception:
     print('factory: lifecycle failed or unready; no output installed', file=sys.stderr)
 finally:
@@ -161,13 +188,14 @@ finally:
     if supervisor is not None and supervisor.poll() is None:
         supervisor.terminate()
         try:
-            supervisor.wait(timeout=25)
+            supervisor.wait(timeout=305)
         except subprocess.TimeoutExpired:
             supervisor.kill()
             supervisor.wait(timeout=5)
-    if private and not cleanup_owned():
+    if private and not supervised and not cleanup_owned():
         print('factory: cleanup failed; private state withheld', file=sys.stderr)
-    # Private trees are intentionally retained for bounded Task 4 postmortem.
-    # No recursive deletion of model-controlled mounts in this migration stage.
-sys.exit(1)
+    # Once supervised, do not grant another cleanup/finalization budget here.
+    # The deadline-owning supervisor/finalizer removes only owned home/workspace.
+    # Abrupt supervisor loss may leave private state withheld for host recovery.
+sys.exit(0 if exit_code == 0 else 1)
 PY
