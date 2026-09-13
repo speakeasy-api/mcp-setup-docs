@@ -273,7 +273,8 @@ func runContainer(ctx context.Context, o options, s settings, root *os.Root) (st
 		}
 	}
 }
-func run(ctx context.Context, args []string) int {
+func run(ctx context.Context, args []string) int { return runWithSettings(ctx, args, production()) }
+func runWithSettings(ctx context.Context, args []string, s settings) int {
 	fs := flag.NewFlagSet("supervise-factory", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
 	var o options
@@ -284,7 +285,7 @@ func run(ctx context.Context, args []string) int {
 	if fs.Parse(args) != nil || fs.NArg() != 0 {
 		return 2
 	}
-	return supervise(ctx, o, production())
+	return supervise(ctx, o, s)
 }
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"github.com/speakeasy-api/mcp-setup-docs/go/internal/factoryrun"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -43,7 +45,7 @@ esac
 	t.Setenv("OWNER", id)
 	t.Setenv("MODE", mode)
 	t.Setenv("CONTAINER", strings.Repeat("b", 64))
-	return options{containerID: strings.Repeat("b", 64), controlDir: filepath.Join(dir, "control"), runID: id, result: filepath.Join(dir, "host", "result.json")}, settings{docker: docker, commandLimit: 500 * time.Millisecond, research: time.Second, writing: 500 * time.Millisecond, outer: 2 * time.Second, poll: 5 * time.Millisecond}, dir
+	return options{containerID: strings.Repeat("b", 64), controlDir: filepath.Join(dir, "control"), runID: id, result: filepath.Join(dir, "host", "result.json")}, settings{docker: docker, commandLimit: 2 * time.Second, research: 3 * time.Second, writing: time.Second, outer: 5 * time.Second, poll: 5 * time.Millisecond}, dir
 }
 func readResult(t *testing.T, path string) result {
 	t.Helper()
@@ -63,7 +65,7 @@ func TestLifecycle(t *testing.T) {
 			o, s, dir := fixture(t, mode)
 			started := time.Now()
 			code := supervise(context.Background(), o, s)
-			if time.Since(started) > 4*time.Second {
+			if time.Since(started) > 8*time.Second {
 				t.Fatal("unbounded command")
 			}
 			r := readResult(t, o.result)
@@ -268,4 +270,18 @@ if [[ "$1" == timeout ]]; then sleep 30; fi
 			}
 		})
 	}
+}
+
+// Only the compiled test binary recognizes this host fixture mode. Production
+// CLI and environment cannot select shorter deadlines.
+func TestMain(m *testing.M) {
+	if len(os.Args) > 1 && os.Args[1] == "--factory-test-supervisor" {
+		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+		defer stop()
+		s := production()
+		s.research = 2 * time.Second
+		s.outer = 3 * time.Second
+		os.Exit(runWithSettings(ctx, os.Args[2:], s))
+	}
+	os.Exit(m.Run())
 }

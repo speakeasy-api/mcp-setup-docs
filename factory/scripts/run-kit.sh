@@ -1,140 +1,173 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 if [[ $# -ne 3 ]]; then
   printf 'usage: %s <issue-json> <catalog-json> <export-dir>\n' "${0##*/}" >&2
   exit 2
 fi
-
-issue_json=$1
-catalog_json=$2
-export_dir=$3
-mkdir -p "$export_dir"
-export_dir="$(realpath "$export_dir")"
-rm -rf "$export_dir/guide" "$export_dir/run-report.json" \
-  "$export_dir/kit-error-summary.json" "$export_dir/factory-diagnostics.json" \
-  "$export_dir/execution-transcript.json"
-[[ -r "$issue_json" ]] || { printf 'issue JSON is not readable: %s\n' "$issue_json" >&2; exit 2; }
-[[ -r "$catalog_json" ]] || { printf 'catalog JSON is not readable: %s\n' "$catalog_json" >&2; exit 2; }
-: "${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required}"
-
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 # shellcheck disable=SC1091
 source "$ROOT/factory/config.env"
-FACTORY_DOCKER=${FACTORY_DOCKER:-docker}
-issue_json="$(realpath "$issue_json")"
-catalog_json="$(realpath "$catalog_json")"
+export KIT_IMAGE KIT_VERSION KIT_SHA256 KIT_MODEL KIT_REASONING_EFFORT KIT_REQUEST_BUDGET_SECONDS
+# Python's stdlib supplies portable bounded subprocesses and fd-relative cleanup;
+# all model work/deadlines remain in the existing Go supervisor, not here.
+exec python3 - "$ROOT" "$@" <<'PY'
+import json, os, pathlib, secrets, shutil, signal, stat, subprocess, sys, tempfile
+root, issue, catalog, export = sys.argv[1:]
+container = None
+create_attempted = False
+supervisor = None
+private = None
+run_id = secrets.token_hex(16)
+docker = os.environ.get('FACTORY_DOCKER', 'docker')
 
-DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-$ROOT/factory/scripts/build-diagnostics.sh}
-DIAGNOSTICS_VALIDATOR=${FACTORY_DIAGNOSTICS_VALIDATOR:-$ROOT/factory/scripts/validate-diagnostics.sh}
-DIAGNOSTICS_JQ=${FACTORY_DIAGNOSTICS_JQ:-jq}
-DIAGNOSTICS="$export_dir/factory-diagnostics.json"
-source_snapshot=
-cleanup() {
-  exit_code=$?
-  trap - EXIT
-  [[ -z $source_snapshot ]] || rm -rf -- "$source_snapshot" 2>/dev/null || true
-  exit "$exit_code"
-}
-trap cleanup EXIT
+def safe_path(path, directory=False):
+    p = pathlib.Path(path).absolute()
+    if p.resolve(strict=True) != p:
+        raise ValueError('symlink path')
+    st = p.stat()
+    if not (stat.S_ISDIR(st.st_mode) if directory else stat.S_ISREG(st.st_mode)):
+        raise ValueError('unsafe path type')
+    if any(c in str(p) for c in (',', '\n', '\r')):
+        raise ValueError('unsafe mount path')
+    return str(p)
 
-diagnostics_unavailable() {
-  rm -rf -- "$DIAGNOSTICS" 2>/dev/null || true
-  printf '%s\n' 'factory: diagnostics unavailable' >&2
-}
+def command(args, timeout=30, capture=False):
+    with open(private + '/host/commands.stderr', 'ab') as err:
+        if capture:
+            # Docker create/inspect/list outputs are small; never expose them.
+            p = subprocess.run(args, stdout=subprocess.PIPE, stderr=err, timeout=timeout, check=True)
+            if len(p.stdout) > 4096:
+                raise ValueError('oversized docker response')
+            return p.stdout.decode().strip()
+        with open(private + '/host/commands.stdout', 'ab') as out:
+            subprocess.run(args, stdout=out, stderr=err, timeout=timeout, check=True)
 
-print_diagnostics_summary() {
-  local summary stage classification events
-  summary=$("$DIAGNOSTICS_JQ" -r '[.stage,.classification,(.events | length)] | @tsv' \
-    "$DIAGNOSTICS" 2>/dev/null) || return 1
-  IFS=$'\t' read -r stage classification events <<<"$summary" || return 1
-  [[ -n $stage && -n $classification && $events =~ ^[0-9]+$ ]] || return 1
-  printf 'factory: diagnostics: stage=%s classification=%s events=%s\n' \
-    "$stage" "$classification" "$events" >&2
-}
+def cleanup_owned():
+    global container
+    if container is None:
+        if not create_attempted:
+            return True
+        try:
+            container = command([docker, 'inspect', '--format', '{{.Id}}', 'factory-'+run_id], 10, True)
+            if len(container) != 64 or any(c not in '0123456789abcdef' for c in container):
+                return False
+        except Exception:
+            return False # ambiguous create is not proof of absence
+    try:
+        owner = command([docker, 'inspect', '--format', '{{index .Config.Labels "factory.run-id"}}', container], 10, True)
+        if owner != run_id:
+            return False
+        command([docker, 'rm', '--force', container], 10)
+        return not command([docker, 'ps', '--all', '--no-trunc', '--filter', 'id='+container, '--format', '{{.ID}}'], 10, True)
+    except (OSError, ValueError, subprocess.SubprocessError):
+        # An already-supervised container may be gone. Only successful listing
+        # can confirm absence; daemon errors never count as removed.
+        try:
+            return not command([docker, 'ps', '--all', '--no-trunc', '--filter', 'id='+container, '--format', '{{.ID}}'], 10, True)
+        except (OSError, ValueError, subprocess.SubprocessError):
+            return False
 
-retain_diagnostics() {
-  if ! "$DIAGNOSTICS_VALIDATOR" "$DIAGNOSTICS" >/dev/null 2>&1 \
-    || ! print_diagnostics_summary; then
-    diagnostics_unavailable
-    return 1
-  fi
-}
+def interrupted(signum, frame):
+    if supervisor is not None:
+        supervisor.send_signal(signal.SIGTERM)
+        try:
+            supervisor.wait(timeout=25)
+        except subprocess.TimeoutExpired:
+            supervisor.kill()
+            supervisor.wait(timeout=5)
+    raise InterruptedError('host cancelled')
 
-build_minimal_diagnostics() {
-  local stage=$1 status=$2
-  rm -rf -- "$DIAGNOSTICS" 2>/dev/null || true
-  if ! "$DIAGNOSTICS_BUILDER" "$stage" "$status" - - - "$DIAGNOSTICS" >/dev/null 2>&1; then
-    diagnostics_unavailable
-    return 1
-  fi
-  retain_diagnostics || return 1
-}
-
-if source_snapshot=$(mktemp -d "${TMPDIR:-/tmp}/mcp-setup-docs-source.XXXXXX"); then
-  :
-else
-  setup_status=$?
-  build_minimal_diagnostics docker_build "$setup_status" || true
-  exit "$setup_status"
-fi
-if normalized_snapshot=$(realpath "$source_snapshot"); then
-  source_snapshot=$normalized_snapshot
-else
-  setup_status=$?
-  build_minimal_diagnostics docker_build "$setup_status" || true
-  exit "$setup_status"
-fi
-if [[ ! -r "$ROOT/.dockerignore" ]]; then
-  build_minimal_diagnostics docker_build 1 || true
-  exit 1
-fi
-if tar -cf - --exclude-from="$ROOT/.dockerignore" -C "$ROOT" . \
-  | tar -xf - -C "$source_snapshot"; then
-  :
-else
-  setup_status=$?
-  build_minimal_diagnostics docker_build "$setup_status" || true
-  exit "$setup_status"
-fi
-
-if "$FACTORY_DOCKER" build \
-  --file "$ROOT/factory/Dockerfile" \
-  --build-arg "KIT_VERSION=$KIT_VERSION" \
-  --build-arg "KIT_SHA256=$KIT_SHA256" \
-  --tag "$KIT_IMAGE" \
-  "$ROOT"; then
-  build_status=0
-else
-  build_status=$?
-fi
-if ((build_status != 0)); then
-  build_minimal_diagnostics docker_build "$build_status" || true
-  exit "$build_status"
-fi
-
-if "$FACTORY_DOCKER" run --rm \
-  --env OPENROUTER_API_KEY \
-  --env "KIT_MODEL=$KIT_MODEL" \
-  --env "KIT_REASONING_EFFORT=$KIT_REASONING_EFFORT" \
-  --env "KIT_REQUEST_BUDGET_SECONDS=$KIT_REQUEST_BUDGET_SECONDS" \
-  --volume "$source_snapshot:/repo:ro" \
-  --volume "$issue_json:/input/issue.json:ro" \
-  --volume "$catalog_json:/input/catalog.json:ro" \
-  --volume "$export_dir:/export" \
-  "$KIT_IMAGE"; then
-  container_status=0
-else
-  container_status=$?
-fi
-if ((container_status != 0)); then
-  if [[ -e $DIAGNOSTICS ]]; then
-    retain_diagnostics || true
-  else
-    build_minimal_diagnostics container_run "$container_status" || true
-  fi
-  exit "$container_status"
-fi
-if [[ -e $DIAGNOSTICS ]]; then
-  retain_diagnostics || true
-fi
+signal.signal(signal.SIGINT, interrupted)
+signal.signal(signal.SIGTERM, interrupted)
+try:
+    issue, catalog = safe_path(issue), safe_path(catalog)
+    parent = os.environ.get('FACTORY_PRIVATE_ROOT')
+    if parent:
+        parent = safe_path(parent, True)
+        if stat.S_IMODE(os.stat(parent).st_mode) != 0o700:
+            raise ValueError('private parent required')
+    private = str(pathlib.Path(tempfile.mkdtemp(prefix='factory-run-', dir=parent)).resolve())
+    os.chmod(private, 0o700)
+    for name in ('host', 'home', 'workspace', 'control', 'source', 'input'):
+        os.mkdir(private + '/' + name, 0o700)
+    # Refuse unsafe existing exports, then remove only established contracts via
+    # a directory handle. Never rm -rf a model-chosen or re-resolved path.
+    safe_path(str(pathlib.Path(export).absolute().parent), True)
+    pathlib.Path(export).mkdir(mode=0o700, exist_ok=True)
+    export = safe_path(export, True)
+    fd = os.open(export, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        for name in ('guide', 'run-report.json', 'kit-error-summary.json', 'factory-diagnostics.json', 'execution-transcript.json'):
+            try:
+                st = os.stat(name, dir_fd=fd, follow_symlinks=False)
+            except FileNotFoundError:
+                continue
+            if stat.S_ISDIR(st.st_mode) and name == 'guide':
+                os.rename(name, private+'/host/stale-guide', src_dir_fd=fd)
+            elif stat.S_ISREG(st.st_mode):
+                os.unlink(name, dir_fd=fd)
+            else:
+                raise ValueError('unsafe stale export')
+    finally:
+        os.close(fd)
+    if not os.environ.get('OPENROUTER_API_KEY'):
+        raise ValueError('provider configuration missing')
+    # Inputs are copied before any model starts; private input/source mounts are RO.
+    shutil.copyfile(issue, private + '/input/issue.json')
+    shutil.copyfile(catalog, private + '/input/catalog.json')
+    archive = private + '/host/source.tar'
+    command(['tar', '-cf', archive, '--exclude-from='+root+'/.dockerignore', '-C', root, '.'], 60)
+    command(['tar', '-xf', archive, '-C', private+'/source'], 60)
+    native = os.environ.get('FACTORY_SUPERVISOR')
+    if native:
+        native = safe_path(native)
+    else:
+        native = private + '/host/supervise-factory'
+        env = dict(os.environ, GOTOOLCHAIN='go1.27.0', CGO_ENABLED='0')
+        with open(private+'/host/build.log', 'ab') as log:
+            subprocess.run(['go', 'build', '-o', native, './cmd/supervise-factory'], cwd=root+'/go', env=env, stdout=log, stderr=log, timeout=120, check=True)
+    image = os.environ.get('FACTORY_KIT_IMAGE', os.environ['KIT_IMAGE'])
+    try:
+        command([docker, 'image', 'inspect', '--format', '{{.Id}}', image], 10, True)
+    except subprocess.CalledProcessError:
+        command([docker, 'build', '--file', root+'/factory/Dockerfile', '--build-arg', 'KIT_VERSION='+os.environ['KIT_VERSION'], '--build-arg', 'KIT_SHA256='+os.environ['KIT_SHA256'], '--tag', image, root], 120)
+    args = [docker, 'create', '--name', 'factory-'+run_id, '--label', 'factory.run-id='+run_id]
+    for key in ('OPENROUTER_API_KEY', 'KIT_MODEL', 'KIT_REASONING_EFFORT', 'KIT_REQUEST_BUDGET_SECONDS'):
+        args += ['--env', key]
+    args += ['--env', 'FACTORY_RUN_ID='+run_id]
+    for source, target, readonly in [('source','/repo',True),('input','/input',True),('home','/kit-home',False),('workspace','/workspace',False),('control','/control',False)]:
+        path = safe_path(private+'/'+source, True)
+        args += ['--mount', 'type=bind,src='+path+',dst='+target+(',readonly' if readonly else '')]
+    # Use the checked-out entrypoint with the cached owning image's real tools.
+    args += ['--entrypoint', '/repo/factory/scripts/container-entrypoint.sh', image]
+    create_attempted = True
+    container = command(args, 30, True)
+    if len(container) != 64 or any(c not in '0123456789abcdef' for c in container):
+        container = None
+        raise ValueError('invalid create identity')
+    result = private + '/host/result.json'
+    with open(private+'/host/supervisor.stdout','ab') as out, open(private+'/host/supervisor.stderr','ab') as err:
+        supervisor = subprocess.Popen([native, '--container-id', container, '--control-dir', private+'/control', '--run-id', run_id, '--result', result], stdout=out, stderr=err)
+        supervisor.wait(timeout=2760)
+    supervisor = None
+    # Task 4 owns trusted report/export/upload gates. Never install candidate files
+    # or return success merely because model work completed and the container died.
+    print('factory: model lifecycle ended; Task 4 finalization pending', file=sys.stderr)
+except Exception:
+    print('factory: lifecycle failed or unready; no output installed', file=sys.stderr)
+finally:
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    if supervisor is not None and supervisor.poll() is None:
+        supervisor.terminate()
+        try:
+            supervisor.wait(timeout=25)
+        except subprocess.TimeoutExpired:
+            supervisor.kill()
+            supervisor.wait(timeout=5)
+    if private and not cleanup_owned():
+        print('factory: cleanup failed; private state withheld', file=sys.stderr)
+    # Private trees are intentionally retained for bounded Task 4 postmortem.
+    # No recursive deletion of model-controlled mounts in this migration stage.
+sys.exit(1)
+PY

@@ -1,52 +1,67 @@
 # Guide factory operations
 
-## Host lifecycle migration — Task 3 partial checkpoint
+## Host lifecycle migration — Task 3, Task 4 finalization pending
 
-The host deadline value, `begin-writing` protocol, and owned-container
-`supervise-factory` CLI are implemented. Both CLIs are built and installed by the
-Dockerfile; the supervisor also builds as a native host binary. They are not yet
-wired into `run-kit.sh`, so production wrapper cleanup has **not** changed.
-The protocol uses a private 0700 control directory, host-generated 128-bit
-lowercase hexadecimal run ID, and an atomic no-replace `phase.json` regular file
-of at most 256 bytes containing exactly `version: 1`, `run_id`, and
-`phase: "writing"`. Duplicate valid signals do not extend host deadlines.
+`run-kit.sh <issue-json> <catalog-json> <export-dir>` now prebuilds the native Go
+supervisor, prepares private inputs/source, creates a run-labelled Docker container,
+and hands its full immutable ID to `supervise-factory`. The cached configured
+image is reused; absent images are built with a bounded command. Both lifecycle
+CLIs are built/installed by the owning Dockerfile. Operator-only
+`FACTORY_KIT_IMAGE`, `FACTORY_SUPERVISOR`, and `FACTORY_PRIVATE_ROOT` overrides
+support reviewed local images, prebuilt host tools and private storage; none is
+passed to the model. There are no production deadline overrides.
 
-The previous process-group cleanup regression was run once and remains RED:
+The host creates 0700 HOME/workspace/control directories; only these are writable
+mounts. Source and copied issue/catalog inputs are readonly. There is no public
+export mount, Docker socket or GitHub token in the model container. The entrypoint
+executes Kit with the established prompt flags and real exit status; its atomic
+candidate report stays private. It no longer runs exporters or waits on a FIFO.
+Raw streams and command logs remain under the private host run directory.
+
+The supervisor verifies the `factory.run-id` label before touching the full
+64-hex container ID. It starts monotonic deadlines immediately before Docker start:
+1800 seconds research, one-time 900 seconds writing capped by 2700 seconds outer.
+Signals are regular files of at most 256 bytes with version 1, host-generated
+128-bit lowercase hex run ID and writing phase. Exact-expiry wins over phase or
+completion; duplicates do not reset deadlines. TERM/INT maps to
+`lifecycle_invalid`; unconfirmed cleanup yields sticky `cleanup_failed`. Removal
+and successful absence confirmation are independent of model cancellation.
+
+**Integration gap:** Task 4 postmortem/export/validation/upload is not implemented.
+The wrapper therefore returns failure/unready and installs nothing even when the
+lifecycle result says completed. That result is not publication readiness. Stale
+installable files are removed; stale guide directories are renamed into private
+host quarantine without recursive traversal. Private run trees are retained for
+Task 4; do not upload them or interpret retention as an automatic recovery service.
+The diagnostics/transcript sections below describe the previous delivery contract,
+not a current promise from this interim fail-closed wrapper.
+
+### Cleanup replacement evidence
+
+Before replacement, the following command ran once and failed:
 
 ```bash
 (cd go && GOTOOLCHAIN=go1.27.0 CGO_ENABLED=0 go test ./internal/factoryresearch -run '^TestSeparateGroupToolCleanup$' -count=1 -timeout=15s)
 ```
 
-It failed because a normal tool in a separate process group survived cancellation
-and wrote its delayed canary. Process-group termination is therefore not proof
-that all model writers have stopped. The old runner and its failing test remain
-present until real Docker regressions through the actual host lifecycle prove
-container removal prevents delayed writers on both timeout and normal parent
-exit. Docker availability alone is not replacement evidence.
+A normal separate-process-group tool survived cancellation and wrote its delayed
+canary. Process-group termination was not proof that model writers had stopped.
+The old research-task CLI and factoryresearch runner/tests were removed together
+**only after** real Docker replacement acceptance through the actual run-kit and
+entrypoint path passed:
 
-The supervisor accepts the approved `--container-id`, `--control-dir`, `--run-id`,
-and `--result` flags. The host must create the container with label
-`factory.run-id=<run-id>` and pass its full immutable 64-hex ID. A foreign or
-unverifiable label never authorizes removal. Docker commands have fixed bounds;
-TERM/INT cancellation maps to `lifecycle_invalid` (the fixed result enum has no
-cancellation value). Cleanup uses an independent budget and overrides the outcome
-with `cleanup_failed` unless removal and absence are confirmed. The result and
-0600 raw streams require a separate host-only 0700 directory, not the control mount.
-Lifecycle `completed` means container exit only, never publication readiness.
+```bash
+FACTORY_BOUNDARY_IMAGE=mcp-setup-docs-kit:task3 bash factory/tests/test-container-boundary.sh
+```
 
-`factory/tests/test-container-boundary.sh` currently tests the supervisor directly
-with real Docker, fake Kit, a proven separate session/process group, short test-only
-deadlines, and delayed canaries after timeout and normal parent exit. It fails when
-Docker or its prebuilt image is unavailable. Set `FACTORY_BOUNDARY_IMAGE` to a
-reviewed local factory image (otherwise it uses the configured image). This is
-**preliminary supervisor evidence**, not the required actual `run-kit` replacement
-acceptance; it does not authorize deleting the old RED.
-
-Pending Task 3 work includes production host prebuild integration, host-owned
-create and cleanup handoff, private mounts/streams in `run-kit`, entrypoint
-migration, and the actual-wrapper Docker regression.
-Task 4 host postmortem finalization is separately pending; these primitives grant
-no trusted snapshot, installable success, or publication authority.
+That regression uses fake Kit, proves a separate session/process group, injects
+short deadlines only in a compiled test supervisor, and covers timeout, normal
+parent exit with orphan, and direct wrapper TERM. It confirms removal, waits beyond
+the canary delay, rejects installable success, checks private/readonly mounts and
+credential absence, and invokes the real begin-writing CLI twice. Docker/image
+absence is a hard failure, never a skip. Exact native dispatch/report persistence
+coverage remains in the independently approved native-dispatch fixture tests; the
+obsolete CLI is not used as an alternate coordinator.
 
 ## Failed Kit diagnostics
 

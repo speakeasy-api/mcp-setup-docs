@@ -1,12 +1,84 @@
 #!/usr/bin/env bash
-# Preliminary supervisor regression. This is NOT run-kit replacement acceptance;
-# retain research-task and its known RED until the actual wrapper is migrated.
+# Actual run-kit/entrypoint regression; Docker absence is a hard failure.
 set -euo pipefail
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-# shellcheck disable=SC1091
-source "$ROOT/factory/config.env"
-export FACTORY_BOUNDARY_IMAGE=${FACTORY_BOUNDARY_IMAGE:-$KIT_IMAGE}
-cd "$ROOT/go"
-GOTOOLCHAIN=go1.27.0 CGO_ENABLED=0 go test ./cmd/supervise-factory \
-  -run '^TestDockerSupervisorBoundary$' -count=1 -timeout=45s
-printf '%s\n' 'PASS: supervisor container boundary only; run-kit replacement acceptance remains pending'
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+BASE=${FACTORY_BOUNDARY_IMAGE:-mcp-setup-docs-kit:task3}
+TMP=$(mktemp -d)
+TMP=$(cd "$TMP" && pwd -P)
+chmod 700 "$TMP"
+# Retain private evidence on failure; no recursive cleanup of model mounts.
+trap 'printf "boundary: private fixture retained\n" >&2' EXIT
+mkdir -m 700 "$TMP/build" "$TMP/runs"
+(cd "$ROOT/go" && GOTOOLCHAIN=go1.27.0 CGO_ENABLED=0 go test -c -o "$TMP/supervisor-test" ./cmd/supervise-factory)
+printf '#!/bin/sh\nexec "%s" --factory-test-supervisor "$@"\n' "$TMP/supervisor-test" > "$TMP/supervisor"
+chmod 700 "$TMP/supervisor"
+cat > "$TMP/build/kit" <<'KIT'
+#!/bin/bash
+set -euo pipefail
+[[ $1 == prompt && $2 == --root && $3 == /workspace ]] || exit 32
+[[ $* == *'--request-budget-seconds 300'* ]] || exit 33
+[[ $HOME == /kit-home && ! -e /export && ! -e /var/run/docker.sock ]] || exit 34
+test ! -e /workspace/.git
+for path in /repo /input; do if touch "$path/.write-probe" 2>/dev/null; then exit 36; fi; done
+for path in /kit-home /workspace /control; do [[ $(stat -c %a "$path") == 700 ]] || exit 37; done
+[[ -z ${GH_TOKEN:-} && -z ${GITHUB_TOKEN:-} ]] || exit 35
+mode=$(jq -r .mode /input/issue.json)
+read -r pid comm state ppid parent_group rest < /proc/$$/stat
+export parent_group
+setsid /bin/bash -c 'read -r pid comm state ppid group session rest < /proc/$$/stat; printf "%s %s %s\n" "$parent_group" "$group" "$session" > /workspace/groups; sleep 4; echo escaped > /workspace/canary' &
+for ((i=0;i<100;i++)); do [[ -s /workspace/groups ]] && break; sleep .01; done
+printf 'PRIVATE_RAW_CANARY\n'
+printf '{"outcome":"converged"}\n' > /workspace/.factory/run-report.json.tmp
+mv /workspace/.factory/run-report.json.tmp /workspace/.factory/run-report.json
+if [[ $mode == timeout || $mode == cancel ]]; then exec sleep 30; fi
+begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"
+begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"
+KIT
+chmod 755 "$TMP/build/kit"
+printf 'FROM %s\nCOPY kit /usr/local/bin/kit\n' "$BASE" > "$TMP/build/Dockerfile"
+image="factory-boundary-$(basename "$TMP" | tr '[:upper:]' '[:lower:]')"
+docker build --platform linux/amd64 --tag "$image" "$TMP/build" > "$TMP/build.log" 2>&1
+printf '{}\n' > "$TMP/catalog.json"
+for mode in timeout normal cancel; do
+  mkdir -m 700 "$TMP/runs/$mode" "$TMP/export-$mode"
+  mkdir "$TMP/export-$mode/guide"
+  printf stale > "$TMP/export-$mode/guide/stale"
+  printf '{"outcome":"converged"}' > "$TMP/export-$mode/run-report.json"
+  printf '{"mode":"%s"}\n' "$mode" > "$TMP/issue.json"
+  chosen_supervisor="$TMP/supervisor"
+  [[ $mode != normal ]] || chosen_supervisor=
+  set +e
+  OPENROUTER_API_KEY=fixture-only GH_TOKEN=must-not-pass GITHUB_TOKEN=must-not-pass \
+    FACTORY_KIT_IMAGE="$image" FACTORY_SUPERVISOR="$chosen_supervisor" \
+    FACTORY_PRIVATE_ROOT="$TMP/runs/$mode" \
+    "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$TMP/export-$mode" \
+    > "$TMP/$mode.stdout" 2> "$TMP/$mode.stderr" &
+  wrapper=$!
+  if [[ $mode == cancel ]]; then
+    for ((i=0;i<100;i++)); do
+      [[ -z $(find "$TMP/runs/$mode" -name groups -print -quit) ]] || break
+      sleep .05
+    done
+    kill -TERM "$wrapper"
+  fi
+  wait "$wrapper"
+  code=$?
+  set -e
+  [[ $code != 0 ]] || { echo 'unfinalized wrapper reported success' >&2; exit 1; }
+  run=$(find "$TMP/runs/$mode" -mindepth 1 -maxdepth 1 -type d)
+  expected=completed
+  [[ $mode != timeout ]] || expected=research_timeout
+  [[ $mode != cancel ]] || expected=lifecycle_invalid
+  jq -e --arg want "$expected" '.version==1 and .termination==$want and .container_removed==true' "$run/host/result.json" >/dev/null
+  read -r parent group session < "$run/workspace/groups"
+  [[ $parent != "$group" && $group == "$session" ]] || { echo 'separate group not proven' >&2; exit 1; }
+  if [[ $mode == normal ]]; then
+    jq -e '.version==1 and .phase=="writing" and (.run_id|length)==32' "$run/control/phase.json" >/dev/null
+  fi
+  sleep 4.5
+  [[ ! -e "$run/workspace/canary" ]]
+  [[ -z $(find "$TMP/export-$mode" -mindepth 1 -print -quit) ]]
+  if grep -q PRIVATE_RAW_CANARY "$TMP/$mode.stdout" "$TMP/$mode.stderr"; then exit 1; fi
+  grep -q PRIVATE_RAW_CANARY "$run/host/container.stdout"
+done
+printf '%s\n' 'PASS: actual run-kit timeout, normal-exit and TERM separate-group boundary; Task 4 still unready'
