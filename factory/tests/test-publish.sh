@@ -10,7 +10,8 @@ trap 'rm -rf "$TMP"' EXIT
 
 TMP="$(cd "$TMP" && pwd -P)"
 export RUNNER_TEMP="$TMP/runner"
-mkdir -p "$RUNNER_TEMP/export"
+mkdir -p "$RUNNER_TEMP/export/guide" "$TMP/publish-repo/guides/safe-slug"
+cd "$TMP/publish-repo"
 export GH_REPO=acme/docs ISSUE_NUMBER=42 GITHUB_RUN_ID=9001 GITHUB_RUN_ATTEMPT=1
 export FACTORY_RETRY_DELAY=0
 export GH_LOG="$TMP/gh.log" GIT_LOG="$TMP/git.log" COMMENT_LOG="$TMP/comments.log" RM_LOG="$TMP/rm.log"
@@ -73,7 +74,7 @@ esac'
 # shellcheck disable=SC2016
 make_fake git 'printf "%s\n" "$*" >>"$GIT_LOG"
 case "$1" in
-  diff) [[ "${GIT_HAS_DIFF:-1}" == 0 ]] ; exit ;;
+  diff) if [[ "$*" == *"--name-only"* ]]; then printf "%s" "${GIT_STAGED_PATH:-}"; exit 0; fi; [[ "${GIT_HAS_DIFF:-1}" == 0 ]] ; exit ;;
   commit)
     if [[ -n "${GIT_SIGNAL:-}" ]]; then kill -s "$GIT_SIGNAL" "$PPID"; exit 0; fi
     [[ "${GIT_COMMIT_FAIL:-0}" == 0 ]] || exit "${GIT_COMMIT_STATUS:-1}" ;;
@@ -96,10 +97,10 @@ reset_logs() {
   "$REAL_RM" -rf "$RUNNER_TEMP/guide-factory-publication"
   printf '%s' '{"version":1,"primary_outcome":"converged","readable_export":"ready","partial":false,"publication_ready":true}' >"$RUNNER_TEMP/export/finalization.json"
   "$REAL_RM" -f "$RUNNER_TEMP/export/session-transcript.json"
-  printf '{}' >"$RUNNER_TEMP/export/session-transcript.json"
+  if [[ -f "$TMP/frozen-transcript.json" ]]; then cp "$TMP/frozen-transcript.json" "$RUNNER_TEMP/export/session-transcript.json"; else printf '{}' >"$RUNNER_TEMP/export/session-transcript.json"; fi
 
   unset GH_RECEIPT_WRITE_FAIL GH_PR_HEAD GH_PR_AUTHOR GH_FAIL_MUTATIONS GH_FAIL_COUNT_FILE GH_FAIL_MATCH GH_PR_LIST GH_CREATE_LOST GH_CREATE_OUTPUT GH_LABEL_STATE_FILE
-  unset GIT_COMMIT_FAIL GIT_COMMIT_STATUS GIT_SIGNAL GIT_LOCAL_HEAD GIT_REMOTE_HEAD RM_FAIL_MATCH RM_FAIL_STATUS
+  unset GIT_STAGED_PATH GIT_COMMIT_FAIL GIT_COMMIT_STATUS GIT_SIGNAL GIT_LOCAL_HEAD GIT_REMOTE_HEAD RM_FAIL_MATCH RM_FAIL_STATUS
   : >"$GH_LOG"; : >"$GIT_LOG"; : >"$COMMENT_LOG"
   export GH_PR_STATE_FILE="$TMP/pr-state.json"
   rm -f "$GH_PR_STATE_FILE"
@@ -113,6 +114,20 @@ make_report() {
   local file=$1 outcome=$2 artifacts=$3
   jq -n --arg outcome "$outcome" --argjson artifacts "$artifacts" '{schema_version:1,outcome:$outcome,provider:"Provider $(touch /tmp/provider-pwn)",slug:"safe-slug",persona:"Backend engineer",summary:"Summary `touch /tmp/nope` $(echo no)",open_questions:["Question; rm -rf /","Second question"],blockers:(if $outcome == "converged" then [] else ["Blocker && false"] end),nits:["Nit | cat"],review_rounds:2,artifacts:$artifacts}' >"$file"
   cp "$file" "$RUNNER_TEMP/export/run-report.json"
+  python3 - "$RUNNER_TEMP/export" "$TMP" "$PWD" <<'PYFIX'
+import json, pathlib, sys
+root, tmp, repo = map(pathlib.Path, sys.argv[1:])
+names = ['research.md', 'meta.yaml', 'external.md', 'speakeasy.md']
+files = [dict(name='run-report.json', text=(root/'run-report.json').read_text())]
+for name in names:
+    text = 'Trusted fixture ' + name
+    (root/'guide'/name).write_text(text)
+    (repo/'guides/safe-slug'/name).write_text(text)
+    files.append(dict(name='guide/'+name, text=text))
+text = json.dumps(dict(schema_version=1, kind='guide_factory_readable_transcript', files=files))
+(root/'session-transcript.json').write_text(text)
+(tmp/'frozen-transcript.json').write_text(text)
+PYFIX
 }
 
 assert_not_contains() { local needle=$1 haystack=$2; [[ "$haystack" != *"$needle"* ]] || fail "did not expect output to contain [$needle]"; }
@@ -379,6 +394,7 @@ test_comments_and_title_are_bounded() {
   long=$(printf '%1200s' '' | tr ' ' x)
   jq -n --arg long "$long" '{schema_version:1,outcome:"converged",provider:$long,slug:"safe-slug",persona:$long,summary:$long,open_questions:[range(0;25)|($long + tostring)],blockers:[],nits:[range(0;25)|($long + tostring)],review_rounds:3,artifacts:["research.md","meta.yaml","external.md","speakeasy.md"]}' >"$report"
   cp "$report" "$RUNNER_TEMP/export/run-report.json"
+  jq --rawfile report "$report" '(.files[] | select(.name=="run-report.json").text)=$report' "$TMP/frozen-transcript.json" >"$RUNNER_TEMP/export/session-transcript.json"
   bash "$SCRIPT" publish "$report"
   title=$(grep 'pr create' "$GH_LOG")
   (( ${#title} < 600 )) || fail "PR command/title was not bounded"
@@ -534,6 +550,29 @@ test_receipt_and_reconciliation_boundaries() {
   assert_contains 'A PR may already exist' "$(cat "$COMMENT_LOG")"
 }
 
+test_hostile_receipt_paths_and_installed_mutation() {
+  local report="$TMP/hostile.json" kind
+  for kind in index installed parent receipt hardlink orphan; do
+    reset_logs
+    make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
+    case $kind in
+      index) export GIT_STAGED_PATH=unrelated-file ;;
+      installed) printf 'Late model text' >>"$PWD/guides/safe-slug/research.md" ;;
+      parent) mkdir -p "$TMP/outside-receipt"; ln -s "$TMP/outside-receipt" "$RUNNER_TEMP/guide-factory-publication" ;;
+      receipt) mkdir -m 700 "$RUNNER_TEMP/guide-factory-publication"; ln -s "$TMP/receipt-outside" "$FACTORY_PUBLICATION_RECEIPT" ;;
+      hardlink) mkdir -m 700 "$RUNNER_TEMP/guide-factory-publication"; printf '{}' >"$TMP/receipt-outside"; ln "$TMP/receipt-outside" "$FACTORY_PUBLICATION_RECEIPT" ;;
+      orphan) mkdir -m 700 "$RUNNER_TEMP/guide-factory-publication"; printf '{}' >"$FACTORY_PUBLICATION_RECEIPT.pending" ;;
+    esac
+    if bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail "accepted $kind publication state"; fi
+    if [[ $kind != index ]]; then assert_eq '' "$(cat "$GIT_LOG")"; fi
+    assert_not_contains 'pr create' "$(cat "$GH_LOG")"
+    if [[ $kind != installed ]]; then
+      if bash "$SCRIPT" notify-publication "$report" "$FACTORY_PUBLICATION_RECEIPT" >/dev/null 2>&1; then fail "accepted unsafe $kind receipt"; fi
+    fi
+  done
+}
+
+test_hostile_receipt_paths_and_installed_mutation
 test_receipt_and_reconciliation_boundaries
 test_publication_gate_and_receipt
 test_notify_only_and_trusted_logs

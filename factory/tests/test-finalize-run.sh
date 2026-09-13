@@ -45,6 +45,17 @@ elif command=='start':
         with (guide/'research.md').open('a') as f: f.write('\nsynthetic-provider-key\n')
     if os.environ.get('FAKE_BAD') == 'transcript':
         (sessions/'fixture.jsonl').write_text('malformed complete record\n')
+    bad=os.environ.get('FAKE_BAD')
+    if bad == 'whitespace':
+        with (guide/'research.md').open('a') as f: f.write('\nTrailing whitespace   \n')
+    if bad == 'remote-id':
+        meta=guide/'meta.yaml'; meta.write_text(meta.read_text().replace('- id: hosted', '- id: replaced'))
+    if bad in ('lint', 'generator', 'size', 'total-size'):
+        target=home.parent/'host'/('lint-guide' if bad == 'lint' else 'factory-generate')
+        script='#!/bin/sh\nexit 1\n'
+        if bad == 'size': script='#!/bin/sh\nmkdir -p generated\n/bin/dd if=/dev/zero of=generated/large bs=524289 count=1\n'
+        if bad == 'total-size': script='#!/bin/sh\nmkdir -p generated\nfor n in 1 2 3 4 5 6 7 8 9 10 11; do /bin/dd if=/dev/zero of=generated/$n bs=524288 count=1; done\n'
+        target.write_text(script); target.chmod(0o700)
     pause=os.environ.get('FAKE_PAUSE')
     if pause:
         marker=os.environ['FAKE_STATE']+'.reached'
@@ -89,14 +100,14 @@ done
 jq -e ' .limited == true ' "$tmp/success/execution-transcript.json" >/dev/null
 printf 'current host validation and byte-preserving frozen guide checks passed\n'
 
-for bad in guide transcript; do
+for bad in guide transcript lint generator size total-size whitespace remote-id; do
   if PATH="$tmp/bin:$PATH" FACTORY_DOCKER="$tmp/bin/docker" FACTORY_PRIVATE_ROOT="$tmp/private" FAKE_STATE="$tmp/state-$bad" FAKE_CONVERGED=1 FAKE_BAD="$bad" OUTSIDE="$tmp/outside" OPENROUTER_API_KEY=synthetic-provider-key bash "$ROOT/factory/scripts/run-kit.sh" "$tmp/issue.json" "$tmp/catalog.json" "$tmp/$bad" >"$tmp/stdout" 2>"$tmp/stderr"; then exit 1; fi
   jq -e '.primary_outcome == "converged" and .publication_ready == false' "$tmp/$bad/finalization.json" >/dev/null
   bash "$ROOT/factory/scripts/validate-report.sh" "$tmp/$bad/run-report.json"
   bash "$ROOT/factory/scripts/validate-diagnostics.sh" "$tmp/$bad/factory-diagnostics.json"
   [[ ! -e "$tmp/$bad/guide" ]]
 done
-printf 'changed-guide and failed-readable export remain ineligible\n'
+printf 'PASS: host lint/generator/size/whitespace/remote-ID and readable failures remain ineligible\n'
 
 (cd "$ROOT/go" && GOTOOLCHAIN=go1.27.0 CGO_ENABLED=0 go test -c -o "$tmp/supervisor.test" ./cmd/supervise-factory)
 printf '#!/bin/sh\nexec "%s" --factory-test-supervisor "$@"\n' "$tmp/supervisor.test" > "$tmp/supervisor-fixture"

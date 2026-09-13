@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck disable=SC1091
 source "$ROOT/factory/tests/test-helper.sh"
 TMP="$(mktemp -d)"
+TMP="$(cd "$TMP" && pwd -P)"
 trap 'rm -rf "$TMP"' EXIT
 
 RUN_SCHEMA="$ROOT/factory/schemas/run-report.schema.json"
@@ -200,6 +201,11 @@ reset_validation_fixture() {
   git -C "$REPO" add .
   git -C "$REPO" commit -qm baseline
   mkdir -p "$VALIDATE_TMP/bin"
+  export RUNNER_TEMP="$VALIDATE_TMP" GH_REPO=acme/docs GITHUB_RUN_ID=9001 GITHUB_RUN_ATTEMPT=1
+  export FACTORY_PUBLICATION_RECEIPT="$VALIDATE_TMP/guide-factory-publication/publication-receipt.json"
+  export READABLE_UPLOAD_OUTCOME=success READABLE_LOG_STATUS=complete
+  export READABLE_ARTIFACT_URL=https://github.com/acme/docs/actions/runs/9001/artifacts/123
+  printf '%s' '{"version":1,"primary_outcome":"converged","readable_export":"ready","partial":false,"publication_ready":true}' >"$EXPORT/finalization.json"
 }
 
 make_validation_fake() {
@@ -227,6 +233,12 @@ copy_valid_guide() {
   for name in research.md meta.yaml external.md speakeasy.md; do
     cp "$ROOT/guides/github/$name" "$EXPORT/guide/"
   done
+  python3 - "$EXPORT" <<'PYFIX'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+names = ['run-report.json'] + ['guide/' + n for n in ('research.md', 'meta.yaml', 'external.md', 'speakeasy.md')]
+(root / 'session-transcript.json').write_text(json.dumps(dict(schema_version=1, kind='guide_factory_readable_transcript', files=[dict(name=n, text=(root/n).read_text()) for n in names])))
+PYFIX
 }
 
 expect_validation_failure() {
@@ -298,7 +310,7 @@ test_validation_preserves_stale_target_until_success() {
 
   cp "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/meta.yaml"
   GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
-  [[ ! -e "$REPO/guides/github/stale.txt" ]] || fail "successful install retained stale target"
+  [[ -f "$REPO/guides/github/stale.txt" ]] || fail "successful install deleted unrelated bundle file"
   cmp "$EXPORT/guide/meta.yaml" "$REPO/guides/github/meta.yaml"
   grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "missing safe GitHub output"
 }
@@ -478,7 +490,7 @@ test_validation_backup_cleanup_failure_warns_after_commit() {
   make_validation_fake rm 'if [[ "$*" == *".factory-backup."* ]]; then exit 74; fi; exec "$REAL_RM" "$@"'
   output=$(run_validator 2>&1) || fail "pre-deletion backup cleanup failure rejected a committed guide"
   assert_contains "warning: committed guide; leftover backup: ./.factory-backup." "$output"
-  [[ -f "$REPO/guides/github/meta.yaml" && ! -e "$REPO/guides/github/stale.txt" ]] || fail "valid new guide was rolled back after backup cleanup failure"
+  [[ -f "$REPO/guides/github/meta.yaml" && -e "$REPO/guides/github/stale.txt" ]] || fail "valid new guide was rolled back after backup cleanup failure"
   grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "cleanup warning suppressed GitHub outputs"
   find "$REPO/guides" -maxdepth 1 -type d -name '.factory-backup.*' -print -quit | grep -q . || fail "warning did not name a leftover backup"
 }
@@ -498,7 +510,7 @@ test_validation_partial_backup_cleanup_failure_keeps_commit() {
   for name in research.md meta.yaml external.md speakeasy.md; do
     cmp "$EXPORT/guide/$name" "$REPO/guides/github/$name" || fail "partial cleanup damaged installed $name"
   done
-  [[ ! -e "$REPO/guides/github/stale.txt" && ! -e "$REPO/guides/github/preserve.txt" ]] || fail "old guide was spuriously restored"
+  [[ -e "$REPO/guides/github/stale.txt" && -e "$REPO/guides/github/preserve.txt" ]] || fail "unrelated bundle files were lost"
   grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "partial cleanup warning suppressed GitHub outputs"
 }
 
@@ -512,6 +524,16 @@ test_validation_rejects_preexisting_out_of_scope_diff() {
   [[ ! -e "$REPO/guides/github" ]] || fail "diff guard left an installed guide"
 }
 
+test_validation_rejects_late_clean_candidate_change() {
+  reset_validation_fixture
+  make_export_report converged
+  copy_valid_guide
+  printf '\nUnvalidated change\n' >>"$EXPORT/guide/research.md"
+  expect_validation_failure 'candidate differs from host-validated readable snapshot'
+  [[ ! -e "$REPO/guides/github" ]] || fail 'late candidate installed'
+}
+
+test_validation_rejects_late_clean_candidate_change
 test_validation_rejects_malformed_and_traversal_reports
 test_validation_requires_outcome_files_and_exact_artifacts
 test_validation_rejects_symlinks_and_unexpected_files

@@ -19,6 +19,7 @@ jobs:
 
     steps:
       - name: Checkout
+        timeout-minutes: 5
         uses: actions/checkout@v4
         with:
           ref: main
@@ -26,11 +27,13 @@ jobs:
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Configure runner temp
+        timeout-minutes: 3
         run: |
           printf 'TMPDIR=%s\n' "$RUNNER_TEMP" >>"$GITHUB_ENV"
           printf 'FACTORY_PUBLICATION_RECEIPT=%s/guide-factory-publication/publication-receipt.json\n' "$RUNNER_TEMP" >>"$GITHUB_ENV"
 
       - name: Set up publisher
+        timeout-minutes: 3
         id: publisher_setup
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
@@ -46,6 +49,7 @@ jobs:
           bash "$PUBLISHER_PATH" ensure-labels
 
       - name: Preflight existing factory work
+        timeout-minutes: 3
         id: preflight
         env:
           GH_TOKEN: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
@@ -56,6 +60,7 @@ jobs:
           bash factory/scripts/preflight.sh
 
       - name: Refuse non-factory pull request
+        timeout-minutes: 3
         id: refusal
         if: success() && steps.preflight.outputs.refused == 'true'
         env:
@@ -67,6 +72,7 @@ jobs:
           bash "$PUBLISHER_PATH" refuse '${{ steps.preflight.outputs.refused_pr_url }}'
 
       - name: Checkout resume branch and sync main
+        timeout-minutes: 5
         id: resume_sync
         if: success() && steps.refusal.outcome != 'success' && steps.preflight.outputs.resume == 'true'
         env:
@@ -80,6 +86,7 @@ jobs:
           git merge --no-edit origin/main
 
       - name: Transition labels
+        timeout-minutes: 3
         id: transition
         if: success() && steps.refusal.outcome != 'success'
         env:
@@ -91,6 +98,7 @@ jobs:
           bash "$PUBLISHER_PATH" transition
 
       - name: Prepare issue input
+        timeout-minutes: 3
         id: prepare_input
         if: success() && steps.refusal.outcome != 'success'
         env:
@@ -101,6 +109,7 @@ jobs:
           bash factory/scripts/prepare-input.sh '${{ github.event.issue.number }}' "$RUNNER_TEMP/issue.json"
 
       - name: Prepare catalog snapshot
+        timeout-minutes: 3
         id: prepare_catalog
         if: success() && steps.refusal.outcome != 'success'
         env:
@@ -112,6 +121,7 @@ jobs:
           bash factory/scripts/prepare-catalog.sh "$RUNNER_TEMP/catalog.json"
 
       - name: Run Kit
+        timeout-minutes: 165
         id: kit
         if: success() && steps.refusal.outcome != 'success'
         env:
@@ -140,6 +150,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload sanitized execution transcript
+        timeout-minutes: 3
         if: always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')
         uses: actions/upload-artifact@v4
         with:
@@ -149,6 +160,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload safe factory diagnostics
+        timeout-minutes: 3
         if: always() && !cancelled() && (steps.kit.outcome == 'success' || steps.kit.outcome == 'failure')
         uses: actions/upload-artifact@v4
         with:
@@ -224,6 +236,7 @@ jobs:
           fi
 
       - name: Cleanup labels
+        timeout-minutes: 3
         id: cleanup
         if: always() && steps.publisher_setup.outcome == 'success'
         env:
@@ -233,6 +246,7 @@ jobs:
         run: bash "$PUBLISHER_PATH" cleanup
 
       - name: Bootstrap failure fallback
+        timeout-minutes: 3
         id: bootstrap_failure
         if: always() && steps.publisher_setup.outcome != 'success'
         env:

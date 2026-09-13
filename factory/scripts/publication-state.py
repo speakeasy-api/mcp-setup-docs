@@ -22,13 +22,38 @@ def directory(path):
         raise
 
 
-def read(fd, name):
+def contents(fd, name):
     f = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
     with os.fdopen(f, 'rb') as stream:
         info = os.fstat(stream.fileno())
         if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size > 2 << 20:
             raise ValueError()
-        return json.load(stream)
+        return stream.read((2 << 20) + 1)
+
+
+def read(fd, name):
+    return json.loads(contents(fd, name))
+
+
+def candidate(export, path, report):
+    # Task 4 already ran full prebuilt validation on these exact transcript bytes.
+    # Recheck identity, not semantics; do not rebuild or rerun model-time tooling.
+    transcript = read(export, 'session-transcript.json')
+    if type(transcript.get('schema_version')) is not int or transcript['schema_version'] != 1 or transcript.get('kind') != 'guide_factory_readable_transcript':
+        raise ValueError()
+    selected = {}
+    names = ('research.md', 'meta.yaml', 'external.md', 'speakeasy.md')
+    for item in transcript['files']:
+        if item['name'] in ['run-report.json'] + ['guide/' + n for n in names]:
+            if item['name'] in selected or type(item['text']) is not str:
+                raise ValueError()
+            selected[item['name']] = item['text']
+    if json.loads(selected['run-report.json']) != report:
+        raise ValueError()
+    fd = directory(os.path.abspath(path))
+    for name in names:
+        if contents(fd, name) != selected['guide/' + name].encode('utf-8'):
+            raise ValueError()
 
 
 def write(fd, name, data):
@@ -77,7 +102,7 @@ def main():
     if info.st_uid != os.getuid() or info.st_mode & 0o077:
         raise ValueError()
     name = 'publication-receipt.json'
-    if command == 'gate':
+    if command in ('gate', 'candidate'):
         # An interrupted or ambiguous mutation requires explicit read-only repair,
         # never a second invocation of publish.
         for entry in (name, 'publication-started.json', name + '.pending'):
@@ -95,7 +120,9 @@ def main():
         report_fd = directory(os.path.dirname(os.path.abspath(sys.argv[2])))
         if frozen != read(report_fd, os.path.basename(sys.argv[2])) or frozen['outcome'] != 'converged':
             raise ValueError()
-        read(export, 'session-transcript.json')
+        candidate(export, root + '/export/guide', frozen)
+        if command == 'candidate':
+            candidate(export, sys.argv[3], frozen)
         if os.environ.get('READABLE_UPLOAD_OUTCOME') != 'success':
             raise ValueError()
         url = os.environ.get('READABLE_ARTIFACT_URL', '')

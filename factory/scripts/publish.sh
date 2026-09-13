@@ -160,7 +160,7 @@ notify_publication() {
   local report=$1 receipt=$2 pr_url status=0
   pr_url=$(publication_state read "$receipt") || return 1
   # Isolate die/exit in comment rendering so every notification failure is recorded.
-  (notify_report "$report" "$pr_url") || status=$?
+  (CLEANUP_LABELS=false; notify_report "$report" "$pr_url") || status=$?
   if ((status == 0)); then
     publication_state notification "$receipt" sent || return 1
   else
@@ -243,7 +243,7 @@ find_pr_for_head() {
 
 publish_report() {
   local report=$1 outcome provider slug artifacts resumed branch title pr_body comment pr_number pr_url changed
-  local local_head remote_head push_needed=false publication response mutation_status=0
+  local local_head remote_head push_needed=false publication response mutation_status=0 staged
   [[ -f "$report" && ! -L "$report" ]] || die "publish requires a regular report file"
   outcome="$(jq -r '.outcome' "$report")"
   provider="$(jq -r '.provider // empty' "$report")"
@@ -264,6 +264,9 @@ publish_report() {
 
   bash "$ROOT/factory/scripts/validate-report.sh" "$report" || die 'invalid publication report'
   publication_state gate "$report" || die 'publication gates failed'
+  publication_state candidate "$report" "$PWD/guides/$slug" || die 'installed candidate differs from host validation'
+  staged=$(git diff --cached --name-only) || die 'could not inspect staging area'
+  [[ -z $staged ]] || die 'publication requires an initially clean staging area'
   if [[ "$resumed" == true ]]; then
     branch=${RESUME_BRANCH:-}
     [[ -n "$branch" ]] || branch="$(git branch --show-current)"
@@ -273,7 +276,7 @@ publish_report() {
   fi
 
   [[ $branch == "guide/issue-$ISSUE_NUMBER-$slug" ]] || die 'unexpected factory branch'
-  git add -- "guides/$slug"
+  git add -- "guides/$slug/research.md" "guides/$slug/meta.yaml" "guides/$slug/external.md" "guides/$slug/speakeasy.md"
   changed=true
   if git diff --cached --quiet -- "guides/$slug"; then changed=false; fi
   if [[ "$changed" == true ]]; then
