@@ -53,3 +53,13 @@ nonzero shell exit, and thrown tool failure. It asserts exactly one shell call,
 the fixed failure sentinel, and zero dispatch for a synthetic malformed program.
 The normal `--execute` path runs these checks too. Tool execution is simulated;
 this is not evidence about the omitted live-trial literals or model compliance.
+
+The same focused and normal executor modes also execute `report.runlet`, requiring
+an exact fenced copy in the coordinator. Actual Bash argument parsing verifies
+hostile JSON remains one unchanged data argument. Simulated shell success,
+validation rejection, other nonzero exits and throws each dispatch once, without
+retry. `bash factory/tests/test-write-report.sh` separately runs the real writer
+and validator, checking exact persisted bytes, private permissions, rejection of
+unsafe entries and preservation of the previous final on validator failure.
+The production helper uses existing Bash/coreutils/jq only (no Python runtime).
+These tests do not reproduce the omitted live-trial programs or prove model compliance.

@@ -661,8 +661,29 @@ Presentation-only uncertainty never selects `awaiting_scope`. Missing exact UI l
 
 Use exactly `factory/schemas/run-report.schema.json` fields: `schema_version: 1`, `outcome`, `provider`, `slug`, `persona`, `summary`, `open_questions`, `blockers`, `nits`, `review_rounds: 0`, `artifacts`. No added mode, status, questions, handles or research-limitation fields. Record create/update in summary. For unresolved identity, leave all three identity fields null and use blocked or failed. For resolved material scope gaps preserve identity and use awaiting_scope. Questions are plain nonempty strings in decision order; the publisher numbers them. Only converged lists the exact four artifact basenames. Every non-converged outcome has `artifacts: []`, even when private partial evidence exists; awaiting_scope requires questions. No partial installation or guide PR. Publication belongs to the authorized host workflow and also requires later readable export/upload gates.
 
-1. Write a sibling temporary report `/workspace/.factory/run-report.json.tmp` in a caught boundary.
-2. In a caught boundary invoke `/workspace/factory/scripts/validate-report.sh` on that candidate and check success.
-3. Only after successful validation perform the atomic rename to `/workspace/.factory/run-report.json` in a caught boundary; never write the final path directly.
+Supply only the report object as compose `input.report`; execute this exact program unchanged. Do not generate another reporting Runlet program or interpolate report fields into shell syntax. The fixed single-quote encoding preserves JSON as one argument; report data is never evaluated as code. Invoke once per candidate, with no automatic retry.
 
-If validation rejects the candidate, select failed, rebuild one schema-valid failed candidate and repeat once. Never resume model work. If reporting itself cannot complete, return only a fixed failure category; do not claim a report exists. Host crash/deadline reporting remains host authority.
+```runlet
+report_attempt = boundary {
+  result = shell({command: "bash /workspace/factory/scripts/write-report.sh '" + text.replace(json.encode(input.report), "'", "'\"'\"'") + "'"})
+  return if result.success {
+    return {factory_status: "report_saved"}
+  } else if result.exit_code == 2 {
+    return {factory_status: "report_validation_failed"}
+  } else {
+    return {factory_status: "report_creation_failed"}
+  }
+} catch err {
+  return {factory_status: "report_creation_failed"}
+}
+return report_attempt
+```
+
+The trusted `write-report.sh` helper owns the sequence inside that caught call:
+1. Write a bounded private sibling temporary report `/workspace/.factory/run-report.json.tmp`, rejecting unsafe physical paths and existing candidates.
+2. Invoke the existing `validate-report.sh` exactly once and check success.
+3. Only after successful validation perform the same-directory atomic rename to `/workspace/.factory/run-report.json`; never write the final path directly.
+
+Only `report_saved` establishes successful reporting. `report_validation_failed` identifies a rejected candidate; `report_creation_failed` is a fixed reporting failure category, not permission to retry. Neither failure resumes model work. The helper requires the host-created physical `.factory` directory with mode 0700, creates the candidate with mode 0600, limits JSON to 64 KiB, and never prints report data. Its repository-root environment override is for isolated host tests only; the coordinator must not set it.
+
+Only `report_validation_failed` permits the existing single failed-candidate recovery: select failed, rebuild one schema-valid failed candidate and repeat once. This is not a retry of the rejected payload or malformed execution. Never resume model work. If reporting itself cannot complete, return only a fixed failure category; do not claim a report exists. Host crash/deadline reporting remains host authority.

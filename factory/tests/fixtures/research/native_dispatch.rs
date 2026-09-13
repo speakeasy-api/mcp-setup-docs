@@ -214,9 +214,64 @@ fn context_contract(root: &str) {
     }
     println!("PASS: Runlet 0.6 context success/exact bytes/nonzero/throw/predispatch rejection");
 }
+fn report_contract(root: &str) {
+    let source = fs::read_to_string(format!(
+        "{root}/factory/tests/fixtures/research/report.runlet"
+    ))
+    .unwrap();
+    let document = fs::read_to_string(format!("{root}/factory/coordinator.md")).unwrap();
+    assert!(
+        document.contains(&format!("```runlet\n{source}```")),
+        "canonical reporting literal drifted"
+    );
+    let report = json!({"summary":"quotes ' \" $(printf PWNED) `printf PWNED` \\ \n雪"});
+    for case in ["success", "nonzero", "invalid", "throw"] {
+        let mut registry = ToolRegistry::default();
+        registry
+            .register(ToolDescriptor {
+                name: "shell".into(),
+                summary: String::new(),
+                input: CallSchema::positional(vec![Schema::Any]),
+                output: Schema::Any,
+                execution: ExecutionPolicy::Unsafe,
+                schema_version: "1".into(),
+            })
+            .unwrap();
+        let calls = Arc::new(Mutex::new(0));
+        let observed = calls.clone();
+        let expected = report.clone();
+        let runtime = Runtime::builder().registry(registry).with_prelude().input("input", Schema::Any, cv(json!({"report":report}))).tool("shell", move |args,_| {
+            *observed.lock().unwrap() += 1;
+            let arg = j(&args[0]);
+            let command = arg["command"].as_str().unwrap();
+            let quoted = command.strip_prefix("bash /workspace/factory/scripts/write-report.sh ").expect("fixed trusted helper");
+            // Real shell parsing proves hostile JSON is one literal argument, not code.
+            let out = Command::new("bash").args(["-c", &format!("set -- {quoted}; test $# -eq 1 || exit 9; printf '%s' \"$1\"")]).output().unwrap();
+            assert!(out.status.success());
+            assert_eq!(serde_json::from_slice::<Value>(&out.stdout).unwrap(), expected);
+            if case == "throw" { return Err(ToolError::new("TEST", "synthetic shell failure")); }
+            Ok(cv(json!({"success":case == "success","exit_code":if case == "invalid" {2} else {1},"stdout":"","stderr":""})))
+        }).build().unwrap();
+        let program = runtime
+            .compile(&source)
+            .unwrap_or_else(|d| panic!("report compile: {d:?}"));
+        let value = j(&runtime.run(&program).unwrap().value);
+        assert_eq!(*calls.lock().unwrap(), 1, "no reporting retry");
+        let status = match case {
+            "success" => "report_saved",
+            "invalid" => "report_validation_failed",
+            _ => "report_creation_failed",
+        };
+        assert_eq!(value, json!({"factory_status":status}));
+    }
+    println!(
+        "PASS: Runlet 0.6 reporting success/nonzero/throw/one invocation/hostile JSON quoting"
+    );
+}
 fn main() {
     let a: Vec<String> = std::env::args().collect();
     context_contract(&a[1]);
+    report_contract(&a[1]);
     if a.get(2).map(String::as_str) == Some("--context") {
         return;
     }
