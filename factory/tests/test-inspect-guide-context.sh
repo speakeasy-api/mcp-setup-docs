@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# The helper owns validation; the coordinator must not invent another program.
+grep -Fq 'Do not generate a separate context-validation Runlet program.' "$ROOT/factory/coordinator.md" || { echo 'FAIL: context validation ownership is unspecified' >&2; exit 1; }
 # shellcheck disable=SC1091
 source "$ROOT/factory/tests/test-helper.sh"
 TMP="$(mktemp -d)"

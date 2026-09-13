@@ -143,8 +143,83 @@ fn dispatch(
         .unwrap_or_else(|d| panic!("canonical dispatch compile: {d:?}"));
     j(&runtime.run(&program).unwrap().value)
 }
+// Execute the exact coordinator context literal, not a retyped substitute.
+fn context_contract(root: &str) {
+    let document = fs::read_to_string(format!("{root}/factory/coordinator.md")).unwrap();
+    let source = document
+        .split("```runlet\n")
+        .nth(1)
+        .unwrap()
+        .split("```")
+        .next()
+        .unwrap()
+        .replace("<slug>", "box");
+    let out = Command::new("bash")
+        .arg(format!("{root}/factory/scripts/inspect-guide-context.sh"))
+        .arg("box")
+        .current_dir(root)
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    let stdout = String::from_utf8(out.stdout).unwrap();
+    assert!(stdout.ends_with('\n'));
+    let successful = json!({"success":true,"exit_code":0,"stdout":stdout,"stderr":""});
+    for case in ["success", "nonzero", "throw", "malformed"] {
+        let mut registry = ToolRegistry::default();
+        registry
+            .register(ToolDescriptor {
+                name: "shell".into(),
+                summary: String::new(),
+                input: CallSchema::positional(vec![Schema::Any]),
+                output: Schema::Any,
+                execution: ExecutionPolicy::Unsafe,
+                schema_version: "1".into(),
+            })
+            .unwrap();
+        let calls = Arc::new(Mutex::new(0));
+        let observed = calls.clone();
+        let result = successful.clone();
+        let runtime = Runtime::builder().registry(registry).with_prelude().tool("shell", move |args,_| {
+            *observed.lock().unwrap() += 1;
+            assert_eq!(j(&args[0]), json!({"command":"bash factory/scripts/inspect-guide-context.sh box"}));
+            if case == "throw" { return Err(ToolError::new("TEST", "synthetic shell failure")); }
+            if case == "nonzero" { return Ok(cv(json!({"success":false,"exit_code":1,"stdout":"","stderr":"synthetic rejection"}))); }
+            Ok(cv(result.clone()))
+        }).build().unwrap();
+        if case == "malformed" {
+            assert!(runtime.compile("return {").is_err());
+            assert_eq!(*calls.lock().unwrap(), 0);
+            continue;
+        }
+        let program = runtime
+            .compile(&source)
+            .unwrap_or_else(|d| panic!("context compile: {d:?}"));
+        let value = j(&runtime.run(&program).unwrap().value);
+        assert_eq!(
+            *calls.lock().unwrap(),
+            1,
+            "no retry or extra validation dispatch"
+        );
+        if case == "success" {
+            assert_eq!(
+                value, successful,
+                "complete shell output including exact stdout bytes"
+            );
+        } else {
+            assert_eq!(
+                value,
+                json!({"factory_status":"guide_context_inspection_failed"})
+            );
+        }
+    }
+    println!("PASS: Runlet 0.6 context success/exact bytes/nonzero/throw/predispatch rejection");
+}
 fn main() {
     let a: Vec<String> = std::env::args().collect();
+    context_contract(&a[1]);
+    if a.get(2).map(String::as_str) == Some("--context") {
+        return;
+    }
     let state = Arc::new(Mutex::new(Fake::default()));
     let mut handles = vec![];
     for topic in 1..=5 {

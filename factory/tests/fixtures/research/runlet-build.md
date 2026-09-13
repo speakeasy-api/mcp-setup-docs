@@ -42,3 +42,14 @@ distinct topic handles, complete same-session continuation handles, prior eviden
 preservation after an uncertain failure without retry, empty-output rejection,
 and hostile issue data kept out of shell command syntax. This is not live native
 agent/provider or whole-factory acceptance.
+
+## Focused coordinator context regression
+
+`bash factory/tests/test-native-dispatch.sh --execute-context` uses the same
+fresh, release-locked build without requiring the research assembler. It extracts
+the first Runlet literal directly from the coordinator, replaces only the slug,
+and exercises success (real helper stdout, exact bytes and complete shell result),
+nonzero shell exit, and thrown tool failure. It asserts exactly one shell call,
+the fixed failure sentinel, and zero dispatch for a synthetic malformed program.
+The normal `--execute` path runs these checks too. Tool execution is simulated;
+this is not evidence about the omitted live-trial literals or model compliance.

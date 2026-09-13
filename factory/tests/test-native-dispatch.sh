@@ -32,6 +32,9 @@ if [[ ${1:-} == --execute ]]; then
   : "${FACTORY_PROMPT_ASSEMBLER:?set the prebuilt prepare-research-prompt path}"
   bash "$ROOT/factory/tests/build-native-dispatch.sh" "$tmp/build"
   "$tmp/build/target/debug/native-dispatch" "$ROOT" "$FACTORY_PROMPT_ASSEMBLER" "$tmp"
+elif [[ ${1:-} == --execute-context ]]; then
+  bash "$ROOT/factory/tests/build-native-dispatch.sh" "$tmp/build"
+  "$tmp/build/target/debug/native-dispatch" "$ROOT" --context
 elif [[ $# -ne 0 ]]; then
-  fail 'usage: test-native-dispatch.sh [--execute]'
+  fail 'usage: test-native-dispatch.sh [--execute|--execute-context]'
 fi
