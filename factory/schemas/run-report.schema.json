@@ -108,12 +108,8 @@
       },
       "then": {
         "properties": {
-          "artifacts": {
-            "allOf": [
-              {"contains": {"const": "research.md"}},
-              {"contains": {"const": "meta.yaml"}}
-            ]
-          }
+          "artifacts": {"maxItems": 0},
+          "open_questions": {"minItems": 1}
         }
       }
     },

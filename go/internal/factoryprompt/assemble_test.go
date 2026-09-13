@@ -206,7 +206,7 @@ func TestDispatchContract(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	for _, required := range []string{`prepared = shell({command: input.command})`, `assert(prepared.success, "research prompt assembly failed")`, `subagent({prompt: prepared.stdout})`, `prompt({subagent: input.existingHandle, prompt: prepared.stdout})`} {
+	for _, required := range []string{`return shell({command: "/usr/local/bin/prepare-research-prompt --document /workspace/factory/coordinator.md --sha256 " + input.documentHash`, `assert(prepared.success, "research prompt assembly failed")`, `subagent({prompt: prepared.stdout})`, `prompt({subagent: input.existingHandle, prompt: prepared.stdout})`} {
 		if !bytes.Contains(b, []byte(required)) {
 			t.Fatalf("missing dependency %s", required)
 		}

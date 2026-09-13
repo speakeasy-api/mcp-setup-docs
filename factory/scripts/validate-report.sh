@@ -28,7 +28,7 @@ jq -e '
   (if .outcome == "converged" then
      (.blockers | length == 0) and (durable - .artifacts | length == 0)
    elif .outcome == "awaiting_scope" then
-     (["research.md","meta.yaml"] - .artifacts | length == 0)
+     (.artifacts | length == 0) and (.open_questions | length > 0)
    elif .outcome == "failed" then
      (.artifacts | length == 0)
    else true end)

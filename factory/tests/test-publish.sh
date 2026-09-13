@@ -170,28 +170,29 @@ test_converged_new_publication() {
   [[ -z "$other_adds" ]] || fail "staged paths outside selected guide"
 }
 
-test_awaiting_scope_and_resumed_ready_conversion() {
+test_awaiting_scope_never_publishes() {
   reset_logs
   export RESUME=true RESUME_BRANCH=guide/issue-42-safe-slug RESUME_PR_NUMBER=55
   report="$TMP/scope.json"
   make_report "$report" awaiting_scope '["research.md","meta.yaml"]'
   bash "$SCRIPT" publish "$report"
   assert_not_contains "checkout" "$(cat "$GIT_LOG")"
-  assert_contains "pr edit 55 --repo acme/docs" "$(cat "$GH_LOG")"
-  assert_contains "pr ready 55 --repo acme/docs --undo" "$(cat "$GH_LOG")"
+  [[ ! -s "$GIT_LOG" ]] || fail "historical scope report invoked git"
+  assert_not_contains "pr " "$(cat "$GH_LOG")"
+  assert_contains "Reply with the numbered decisions" "$(cat "$COMMENT_LOG")"
   assert_contains "--add-label guide:blocked" "$(cat "$GH_LOG")"
   assert_contains "## Scope check" "$(cat "$COMMENT_LOG")"
   assert_contains "1. Question; rm -rf /" "$(cat "$COMMENT_LOG")"
   assert_contains "resumed" "$(cat "$COMMENT_LOG")"
 }
 
-test_blocked_artifacts_publish_draft() {
+test_blocked_artifacts_never_publish() {
   reset_logs
   report="$TMP/blocked.json"
   make_report "$report" blocked '["research.md","meta.yaml"]'
   bash "$SCRIPT" publish "$report"
-  assert_count 1 "commit -m" "$GIT_LOG"
-  assert_contains "pr ready 77 --repo acme/docs --undo" "$(cat "$GH_LOG")"
+  [[ ! -s "$GIT_LOG" ]] || fail "blocked report invoked git"
+  assert_not_contains "pr " "$(cat "$GH_LOG")"
   assert_contains "Blockers" "$(cat "$COMMENT_LOG")"
   assert_not_contains "Open questions" "$(cat "$COMMENT_LOG")"
   assert_contains "Nits" "$(cat "$COMMENT_LOG")"
@@ -354,7 +355,7 @@ test_comments_and_title_are_bounded() {
   reset_logs
   report="$TMP/bounded.json"
   long=$(printf '%1200s' '' | tr ' ' x)
-  jq -n --arg long "$long" '{schema_version:1,outcome:"blocked",provider:$long,slug:"safe-slug",persona:$long,summary:$long,open_questions:[range(0;25)|($long + tostring)],blockers:[range(0;25)|($long + tostring)],nits:[range(0;25)|($long + tostring)],review_rounds:3,artifacts:["research.md","meta.yaml"]}' >"$report"
+  jq -n --arg long "$long" '{schema_version:1,outcome:"converged",provider:$long,slug:"safe-slug",persona:$long,summary:$long,open_questions:[range(0;25)|($long + tostring)],blockers:[range(0;25)|($long + tostring)],nits:[range(0;25)|($long + tostring)],review_rounds:3,artifacts:["research.md","meta.yaml"]}' >"$report"
   bash "$SCRIPT" publish "$report"
   title=$(grep 'pr create' "$GH_LOG")
   (( ${#title} < 600 )) || fail "PR command/title was not bounded"
@@ -373,8 +374,8 @@ test_comments_and_title_are_bounded() {
 test_labels_and_transitions
 test_refuse_cleans_temp_body_on_failure
 test_converged_new_publication
-test_awaiting_scope_and_resumed_ready_conversion
-test_blocked_artifacts_publish_draft
+test_awaiting_scope_never_publishes
+test_blocked_artifacts_never_publish
 test_failed_and_hard_failure_never_commit
 test_no_change_orphan_creates_pr_and_converges_resume
 test_resumed_merge_is_pushed_without_guide_changes

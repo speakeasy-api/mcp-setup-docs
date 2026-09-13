@@ -179,7 +179,7 @@ publish_report() {
   register_temp "$pr_body"
   register_temp "$comment"
 
-  if [[ "$outcome" == failed || -z "$slug" || "$artifacts" -eq 0 ]]; then
+  if [[ "$outcome" != converged || -z "$slug" || "$artifacts" -eq 0 ]]; then
     render_report_comment "$report" '' "$resumed" "$comment"
     add_label guide:blocked
     post_comment "$comment"

@@ -172,7 +172,7 @@ anchor_active=true
 [[ "$guides_physical" == "$repo_root/guides" ]] || fatal "repository guides path resolved outside the repository"
 verify_guides_dir || fatal "repository guides directory changed"
 
-if [[ "$outcome" == failed || ("$outcome" == blocked && -z "$slug") ]]; then
+if [[ "$outcome" != converged ]]; then
   check_git_paths ""
   transaction_complete=true
   write_output outcome "$outcome"
@@ -187,12 +187,6 @@ if [[ "$outcome" == converged ]]; then
   for name in research.md meta.yaml external.md speakeasy.md; do
     [[ -f "$guide_dir/$name" ]] || fatal "converged export is missing $name"
   done
-elif [[ "$outcome" == awaiting_scope ]]; then
-  for name in research.md meta.yaml; do
-    [[ -f "$guide_dir/$name" ]] || fatal "awaiting_scope export is missing $name"
-  done
-elif [[ "$outcome" != blocked ]]; then
-  fatal "unsupported outcome: $outcome"
 fi
 
 verify_guides_dir || fatal "repository guides directory changed before staging"

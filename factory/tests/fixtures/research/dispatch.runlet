@@ -1,10 +1,46 @@
-# Contract fixture only: Task 3 supplies paths, pinned hash, private sanitized
-# run records, caught boundaries, and bounded reusable handles in production.
-prepared = shell({command: input.command})
-assert(prepared.success, "research prompt assembly failed")
-child = if input.kind == "initial" {
-return subagent({prompt: prepared.stdout})
-} else {
-return prompt({subagent: input.existingHandle, prompt: prepared.stdout})
+# Native dispatch contract; production executes this program verbatim.
+# input fields are coordinator-owned, not an issue-provided shell command.
+attempt = boundary {
+  assert(input.topic >= 1 and input.topic <= 5, "invalid topic")
+  assert(input.index >= 0 and input.index <= 2, "invalid follow-up index")
+  assert((input.kind == "initial" and input.index == 0) or (input.kind == "follow-up" and input.index > 0), "invalid dispatch kind")
+  assert(regex.test(input.documentHash, "^[a-f0-9]{64}$"), "invalid document hash")
+  assignment = json.parse(input.assignmentJSON)
+  assert(assignment.topic_id == input.topic, "topic identity mismatch")
+  _ = if input.kind == "follow-up" {
+    assert(assignment.follow_up_index == input.index, "follow-up identity mismatch")
+    return true
+  } else { return true }
+  base = "/workspace/.factory/research/topic-" + json.encode(input.topic) + "-" + json.encode(input.index)
+  checked = shell({command: "test -d /workspace/.factory/research && test ! -L /workspace/.factory && test ! -L /workspace/.factory/research && test \"$(realpath /workspace/.factory/research)\" = /workspace/.factory/research && test ! -e " + base + ".input.json && test ! -L " + base + ".input.json && test ! -e " + base + ".prompt.md && test ! -L " + base + ".prompt.md && test ! -e " + base + ".report.md && test ! -L " + base + ".report.md && test ! -e " + base + ".handle.json && test ! -L " + base + ".handle.json"})
+  assert(checked.success, "unsafe research record path")
+  savedInput = after checked {
+    return if checked.success {
+      return edit({op:"add", path:base + ".input.json", content:input.assignmentJSON})
+    } else { return fail("UNSAFE_PATH", "unsafe research record path") }
+  }
+  prepared = after savedInput {
+    return shell({command: "/usr/local/bin/prepare-research-prompt --document /workspace/factory/coordinator.md --sha256 " + input.documentHash + " --kind " + input.kind + " --input " + base + ".input.json"})
+  }
+  assert(prepared.success, "research prompt assembly failed")
+  savedPrompt = if prepared.success {
+    return edit({op:"add", path:base + ".prompt.md", content:prepared.stdout})
+  } else { return fail("ASSEMBLY_FAILED", "research prompt assembly failed") }
+  child = after savedPrompt {
+    return if input.kind == "initial" {
+      return subagent({prompt: prepared.stdout})
+    } else {
+      return prompt({subagent: input.existingHandle, prompt: prepared.stdout})
+    }
+  }
+  assert(child.id != "" and child.generation >= 1, "invalid native handle")
+  assert(text.length(child.output) > 0, "empty research report")
+  savedReport = edit({op:"add", path:base + ".report.md", content:child.output})
+  savedHandle = after savedReport {
+    return edit({op:"add", path:base + ".handle.json", content:json.encode(child)})
+  }
+  return after savedHandle { return {status:"returned", handle:child} }
+} catch err {
+  return {status:"failed", category:"native_dispatch_failed"}
 }
-return child
+return attempt
