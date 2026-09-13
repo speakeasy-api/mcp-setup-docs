@@ -41,6 +41,7 @@ if KIT_RUNTIME_EVENTS=1 "$KIT_BIN" prompt \
   --provider openrouter \
   --model "$KIT_MODEL" \
   --reasoning-effort "$KIT_REASONING_EFFORT" \
+  --request-budget-seconds "${KIT_REQUEST_BUDGET_SECONDS:-300}" \
   --mcp-config "$WORKSPACE_ROOT/factory/mcp/exa.json" \
   "$(cat "$WORKSPACE_ROOT/factory/coordinator.md")" 2>"$RUNTIME_FIFO"; then
   kit_status=0

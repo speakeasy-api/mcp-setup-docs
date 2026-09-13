@@ -1,4 +1,5 @@
 FROM golang:1.27.0-bookworm@sha256:ded31c68586d2e49e760acc2e65a884b23d032e9bbbed0ae0c55abd3fcaf4452 AS lint-builder
+ENV GOTOOLCHAIN=go1.27.0
 WORKDIR /src
 COPY go/go.mod go/go.sum ./
 RUN go mod download
@@ -7,8 +8,14 @@ COPY go/internal ./internal
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath -ldflags='-s -w' -o /out/lint-guide ./cmd/lint-guide
 
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -trimpath -ldflags='-s -w' -o /out/prepare-research-prompt ./cmd/prepare-research-prompt
+# Generator retains its existing nested module; no runtime Go toolchain.
+RUN cd internal/gen && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -trimpath -ldflags='-s -w' -o /out/factory-generate .
+
 FROM debian:trixie-slim@sha256:d7e12182ce18b85b93007c1dedf31f2d29e01ccf3182cc4017c709b6259bc132
-ARG KIT_VERSION=0.1.130
+ARG KIT_VERSION=0.1.134
 ARG KIT_SHA256
 RUN apt-get update \
  && apt-get install -y --no-install-recommends bash ca-certificates curl git jq ripgrep \
@@ -20,6 +27,10 @@ RUN file=kit-v${KIT_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
  && kit --version \
  && rm /tmp/kit.tgz
 COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide
+COPY --from=lint-builder /out/prepare-research-prompt /usr/local/bin/prepare-research-prompt
+COPY --from=lint-builder /out/factory-generate /usr/local/bin/factory-generate
+# Existing generator invokes gofmt; ship the formatter, not the Go toolchain.
+COPY --from=lint-builder /usr/local/go/bin/gofmt /usr/local/bin/gofmt
 COPY factory/scripts/validate-report.sh /usr/local/bin/validate-report
 COPY factory/scripts/project-kit-events.sh /usr/local/bin/project-kit-events
 COPY factory/scripts/build-transcript.sh /usr/local/bin/build-transcript

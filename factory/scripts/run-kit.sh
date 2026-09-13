@@ -117,6 +117,7 @@ if "$FACTORY_DOCKER" run --rm \
   --env OPENROUTER_API_KEY \
   --env "KIT_MODEL=$KIT_MODEL" \
   --env "KIT_REASONING_EFFORT=$KIT_REASONING_EFFORT" \
+  --env "KIT_REQUEST_BUDGET_SECONDS=$KIT_REQUEST_BUDGET_SECONDS" \
   --volume "$source_snapshot:/repo:ro" \
   --volume "$issue_json:/input/issue.json:ro" \
   --volume "$catalog_json:/input/catalog.json:ro" \

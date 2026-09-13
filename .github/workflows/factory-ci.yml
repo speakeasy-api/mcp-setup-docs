@@ -9,6 +9,11 @@ on:
       - '.github/workflows/factory-ci.yml'
       - 'go/internal/guidecheck/**'
       - 'go/cmd/lint-guide/**'
+      - 'go/cmd/prepare-research-prompt/**'
+      - 'go/internal/factoryprompt/**'
+      - 'go/internal/gen/**'
+      - 'go/go.mod'
+      - 'go/go.sum'
       - 'FACTORY.md'
       - 'mise.toml'
   push:
@@ -20,6 +25,11 @@ on:
       - '.github/workflows/factory-ci.yml'
       - 'go/internal/guidecheck/**'
       - 'go/cmd/lint-guide/**'
+      - 'go/cmd/prepare-research-prompt/**'
+      - 'go/internal/factoryprompt/**'
+      - 'go/internal/gen/**'
+      - 'go/go.mod'
+      - 'go/go.sum'
       - 'FACTORY.md'
       - 'mise.toml'
 
@@ -49,8 +59,6 @@ jobs:
         working-directory: go
         run: go test ./internal/guidecheck ./cmd/lint-guide
 
-      - name: Build factory image
-        run: |
-          docker build --build-arg KIT_VERSION=0.1.130 \
-            --build-arg KIT_SHA256=232bbbf2958e9b83aba352ecfc7195768868f630cbf5fcdcdeb45b2ed12f5ecd \
-            -f factory/Dockerfile .
+      - name: Build and smoke-test factory image
+        timeout-minutes: 10
+        run: FACTORY_TEST_IMAGE=1 bash factory/tests/test-container.sh

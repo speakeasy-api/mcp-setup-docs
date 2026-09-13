@@ -14,10 +14,10 @@ trap 'rm -rf "$TMP"; exit 130' INT TERM
 test_config_is_pinned() {
   # shellcheck disable=SC1091
   source "$ROOT/factory/config.env"
-  assert_eq "0.1.130" "$KIT_VERSION"
-  assert_eq "openai/gpt-5.6-sol" "$KIT_MODEL"
-  assert_eq "high" "$KIT_REASONING_EFFORT"
-  assert_eq "232bbbf2958e9b83aba352ecfc7195768868f630cbf5fcdcdeb45b2ed12f5ecd" "$KIT_SHA256"
+  assert_eq "0.1.134" "$KIT_VERSION"
+  assert_eq "openai/gpt-6-astra" "$KIT_MODEL"
+  assert_eq "medium" "$KIT_REASONING_EFFORT"
+  assert_eq "e1262d364187f3c244ec28a099c7cb2e1f2c22b4440f1d8179de34b707d56487" "$KIT_SHA256"
 }
 
 test_go_toolchain_is_pinned() {
@@ -120,7 +120,13 @@ test_release_archive_layout_and_checksum() {
   fi
   printf '%s  %s\n' "$KIT_SHA256" "$archive" | sha256sum -c - >/dev/null
   entries="$(tar -tzf "$archive")"
-  assert_eq "kit" "$entries"
+  # v0.1.134 also ships required license notices. Reject unexpected paths.
+  for required in kit LICENSE THIRD_PARTY_NOTICES.md third_party/licenses/; do
+    grep -Fxq "$required" <<<"$entries" || fail "archive missing $required"
+  done
+  if grep -Ev '^(kit|LICENSE|THIRD_PARTY_NOTICES\.md|third_party/licenses/([A-Za-z0-9_.-]+\.(txt|md))?)$' <<<"$entries"; then
+    fail 'unexpected release archive path'
+  fi
 }
 
 test_startup_failures_remove_stale_diagnostics() {
@@ -446,6 +452,7 @@ test_entrypoint_exports_only_selected_guide_with_mocked_kit() {
 #!/usr/bin/env bash
 set -euo pipefail
 [[ "$1" == prompt ]]
+[[ " $* " == *" --request-budget-seconds 300 "* ]]
 mkdir -p "$HOME/.kit/sessions/w-success"
 printf '%s\n' '{"schema_version":3,"item":{"kind":"Assistant","parts":[{"Text":{"text":"SECRET_SUCCESS"}}]}}' >"$HOME/.kit/sessions/w-success/test.jsonl"
 mkdir -p "$FACTORY_WORKSPACE_ROOT/guides/acme"
@@ -465,8 +472,8 @@ MOCK
     FACTORY_KIT_HOME="$TMP/kit-home" \
     KIT_BIN="$fake_kit" \
     FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol \
-    KIT_REASONING_EFFORT=high \
+    KIT_MODEL=openai/gpt-6-astra \
+    KIT_REASONING_EFFORT=medium \
     "$ROOT/factory/scripts/container-entrypoint.sh"
 
   "$ROOT/factory/scripts/validate-report.sh" "$workspace/.factory/run-report.json"
@@ -502,7 +509,7 @@ MOCK
       FACTORY_WORKSPACE_ROOT="$workspace-$kind" FACTORY_EXPORT_ROOT="$export_root-$kind" \
       FACTORY_KIT_HOME="$TMP/invalid-home-$kind" KIT_BIN="$fake_kit" \
       FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
-      KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+      KIT_MODEL=openai/gpt-6-astra KIT_REASONING_EFFORT=medium \
       "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>&1; then
       fail "entrypoint accepted invalid report: $kind"
     fi
@@ -531,10 +538,10 @@ cat >"$HOME/.kit/sessions/w-test/failure.jsonl" <<'JSON'
 JSON
 mkdir -p "$HOME/errors/s-test"
 cat >"$HOME/errors/s-test/e-test.json" <<'JSON'
-{"schema_version":2,"event_id":"e-test","occurred_at_ms":1,"kit_version":"0.1.130","session_id":"s-test","surface":"prompt","kind":"provider","code":"provider_error","message":"sensitive-provider-body","prompt":{"code":"sensitive-code","provider":"sensitive-provider"},"url":"https://sensitive.example","diagnostics":null}
+{"schema_version":2,"event_id":"e-test","occurred_at_ms":1,"kit_version":"0.1.134","session_id":"s-test","surface":"prompt","kind":"provider","code":"provider_error","message":"sensitive-provider-body","prompt":{"code":"sensitive-code","provider":"sensitive-provider"},"url":"https://sensitive.example","diagnostics":null}
 JSON
 cat >"$HOME/errors/s-test/e-transport.json" <<'JSON'
-{"schema_version":2,"event_id":"e-transport","occurred_at_ms":2,"kit_version":"0.1.130","session_id":"s-test","surface":"prompt","kind":"provider","code":"request_transport","message":"sensitive-transport-message","diagnostics":{"stage":"request","retryable":true,"attempt":2,"response_request_id":"req_safe-123","reqwest":{"timeout":false,"connect":true,"request":true,"body":false,"decode":false},"source_chain":[{"code":"sensitive-source-code","provider":"sensitive-source-provider"}],"source_chain_unknown":true,"source_chain_truncated":false}}
+{"schema_version":2,"event_id":"e-transport","occurred_at_ms":2,"kit_version":"0.1.134","session_id":"s-test","surface":"prompt","kind":"provider","code":"request_transport","message":"sensitive-transport-message","diagnostics":{"stage":"request","retryable":true,"attempt":2,"response_request_id":"req_safe-123","reqwest":{"timeout":false,"connect":true,"request":true,"body":false,"decode":false},"source_chain":[{"code":"sensitive-source-code","provider":"sensitive-source-provider"}],"source_chain_unknown":true,"source_chain_truncated":false}}
 JSON
 exit 1
 MOCK
@@ -545,7 +552,7 @@ MOCK
     FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
     FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
     FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+    KIT_MODEL=openai/gpt-6-astra KIT_REASONING_EFFORT=medium \
     "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/entrypoint.err"; then
     fail 'entrypoint accepted failed Kit process'
   fi
@@ -606,7 +613,7 @@ MOCK
       FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
       FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
       FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-      KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+      KIT_MODEL=openai/gpt-6-astra KIT_REASONING_EFFORT=medium \
       "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/runtime-$kind.err"; then
       fail "entrypoint accepted $kind runtime event"
     fi
@@ -643,7 +650,7 @@ MOCK
     FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
     FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
     FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+    KIT_MODEL=openai/gpt-6-astra KIT_REASONING_EFFORT=medium \
     "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/runtime-failed.err"
   "$ROOT/factory/scripts/validate-diagnostics.sh" "$export_root/factory-diagnostics.json" >/dev/null
   jq -e '.stage == "factory_outcome" and .classification == "factory_reported_failure" and .report.outcome == "failed" and (.events | length) == 2' \
@@ -676,7 +683,7 @@ MOCK
     FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
     FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
     FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+    KIT_MODEL=openai/gpt-6-astra KIT_REASONING_EFFORT=medium \
     "$ROOT/factory/scripts/container-entrypoint.sh" >"$TMP/runtime-valid.out" 2>"$TMP/runtime-valid.err"; then
     fail 'entrypoint let rejected diagnostics replace a valid Kit report'
   fi
@@ -702,7 +709,7 @@ MOCK
     FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
     FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
     FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
+    KIT_MODEL=openai/gpt-6-astra KIT_REASONING_EFFORT=medium \
     "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/runtime-missing.err"; then
     fail 'entrypoint accepted zero-exit Kit without a report'
   fi
@@ -801,7 +808,23 @@ test_opt_in_final_image() {
     -t "$image" "$ROOT" >/dev/null
   docker run --rm --platform linux/amd64 --entrypoint /bin/sh \
     -v "$ROOT:/fixture:ro" -w /fixture "$image" -c \
-    '! command -v go && test -x /usr/local/bin/lint-guide && test -x /usr/local/bin/project-kit-events && test -x /usr/local/bin/build-diagnostics && test -x /usr/local/bin/validate-diagnostics && ldd /usr/local/bin/lint-guide 2>&1 | grep -q "not a dynamic executable" && /usr/local/bin/lint-guide guides/asana'
+    'set -eu
+     if command -v go; then exit 1; fi
+     for binary in lint-guide prepare-research-prompt factory-generate; do
+       test -x "/usr/local/bin/$binary"
+       ldd "/usr/local/bin/$binary" 2>&1 | grep -q "not a dynamic executable"
+     done
+     for binary in project-kit-events build-diagnostics validate-diagnostics gofmt; do
+       test -x "/usr/local/bin/$binary"
+     done
+     lint-guide guides/asana
+     kit --version | grep -Fx "kit 0.1.134"
+     kit prompt --help | grep -q -- --request-budget-seconds
+     mkdir -p /tmp/generate/go
+     cp -a guides /tmp/generate/
+     cp go/go.mod go/published_server_refs.txt /tmp/generate/go/
+     cd /tmp/generate/go
+     factory-generate'
 }
 
 test_config_is_pinned

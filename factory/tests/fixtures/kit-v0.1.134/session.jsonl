@@ -1,0 +1,2 @@
+{"schema_version":3,"session_id":"synthetic-session","generation":1,"workspace_root":"/workspace","item":{"id":null,"kind":"Assistant","parts":[{"Text":{"text":"Synthetic assistant output","metadata":{}}}],"metadata":{},"usage":null,"finish_reason":null,"created_at":null}}
+{"schema_version":3,"session_id":"synthetic-session","generation":2,"workspace_root":"/workspace","replacement":[{"id":null,"kind":"Assistant","parts":[{"Text":{"text":"Synthetic assistant output","metadata":{}}}],"metadata":{},"usage":null,"finish_reason":null,"created_at":null}]}
