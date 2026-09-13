@@ -201,11 +201,12 @@ reset_validation_fixture() {
   git -C "$REPO" add .
   git -C "$REPO" commit -qm baseline
   mkdir -p "$VALIDATE_TMP/bin"
+  export FACTORY_HOST_RUN_ID=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
   export RUNNER_TEMP="$VALIDATE_TMP" GH_REPO=acme/docs GITHUB_RUN_ID=9001 GITHUB_RUN_ATTEMPT=1
   export FACTORY_PUBLICATION_RECEIPT="$VALIDATE_TMP/guide-factory-publication/publication-receipt.json"
   export READABLE_UPLOAD_OUTCOME=success READABLE_LOG_STATUS=complete
   export READABLE_ARTIFACT_URL=https://github.com/acme/docs/actions/runs/9001/artifacts/123
-  printf '%s' '{"version":1,"primary_outcome":"converged","readable_export":"ready","partial":false,"publication_ready":true}' >"$EXPORT/finalization.json"
+  printf '%s' '{"version":1,"host_run_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","workflow_run_id":"9001","workflow_run_attempt":1,"primary_outcome":"converged","readable_export":"ready","partial":false,"publication_ready":true}' >"$EXPORT/finalization.json"
 }
 
 make_validation_fake() {

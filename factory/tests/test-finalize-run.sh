@@ -73,11 +73,12 @@ PY
 chmod 700 "$tmp/bin/docker"
 # Nonzero lifecycle must still leave a validated host report, without installing
 # the stale converged candidate or leaking private raw logs/provider key.
-if PATH="$tmp/bin:$PATH" FACTORY_DOCKER="$tmp/bin/docker" FACTORY_PRIVATE_ROOT="$tmp/private" FAKE_STATE="$tmp/state" OUTSIDE="$tmp/outside" OPENROUTER_API_KEY=synthetic-provider-key bash "$ROOT/factory/scripts/run-kit.sh" "$tmp/issue.json" "$tmp/catalog.json" "$tmp/export" >"$tmp/stdout" 2>"$tmp/stderr"; then
+if FACTORY_HOST_RUN_ID=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa GITHUB_RUN_ID=9001 GITHUB_RUN_ATTEMPT=1 PATH="$tmp/bin:$PATH" FACTORY_DOCKER="$tmp/bin/docker" FACTORY_PRIVATE_ROOT="$tmp/private" FAKE_STATE="$tmp/state" OUTSIDE="$tmp/outside" OPENROUTER_API_KEY=synthetic-provider-key bash "$ROOT/factory/scripts/run-kit.sh" "$tmp/issue.json" "$tmp/catalog.json" "$tmp/export" >"$tmp/stdout" 2>"$tmp/stderr"; then
   printf 'provider-exit wrapper incorrectly succeeded\n' >&2; exit 1
 fi
 bash "$ROOT/factory/scripts/validate-report.sh" "$tmp/export/run-report.json"
 jq -e '.outcome == "failed" and .artifacts == []' "$tmp/export/run-report.json" >/dev/null
+jq -e '.host_run_id=="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" and .workflow_run_id=="9001" and .workflow_run_attempt==1' "$tmp/export/finalization.json" >/dev/null
 jq -e '.primary_outcome == "failed" and .readable_export == "ready" and .publication_ready == false' "$tmp/export/finalization.json" >/dev/null
 [[ ! -e "$tmp/export/guide" ]]
 if grep -R -q -E 'synthetic-provider-key|PRIVATE RAW FIXTURE' "$tmp/export"; then exit 1; fi
@@ -92,12 +93,13 @@ run=$(find "$tmp/private" -mindepth 1 -maxdepth 1 -type d)
 if [[ -e "$run/host/container.stdout" || -e "$run/source" ]]; then printf "FAIL: raw private records retained\n" >&2; exit 1; fi
 printf 'actual host wrapper offline finalization checks passed\n'
 
-PATH="$tmp/bin:$PATH" FACTORY_DOCKER="$tmp/bin/docker" FACTORY_PRIVATE_ROOT="$tmp/private" FAKE_STATE="$tmp/state-success" FAKE_CONVERGED=1 OUTSIDE="$tmp/outside" OPENROUTER_API_KEY=synthetic-provider-key bash "$ROOT/factory/scripts/run-kit.sh" "$tmp/issue.json" "$tmp/catalog.json" "$tmp/success" >"$tmp/stdout" 2>"$tmp/stderr"
+FACTORY_HOST_RUN_ID=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb GITHUB_RUN_ID=9001 GITHUB_RUN_ATTEMPT=2 PATH="$tmp/bin:$PATH" FACTORY_DOCKER="$tmp/bin/docker" FACTORY_PRIVATE_ROOT="$tmp/private" FAKE_STATE="$tmp/state-success" FAKE_CONVERGED=1 OUTSIDE="$tmp/outside" OPENROUTER_API_KEY=synthetic-provider-key bash "$ROOT/factory/scripts/run-kit.sh" "$tmp/issue.json" "$tmp/catalog.json" "$tmp/success" >"$tmp/stdout" 2>"$tmp/stderr"
 jq -e '.primary_outcome == "converged" and .readable_export == "ready" and .publication_ready == true' "$tmp/success/finalization.json" >/dev/null
 for name in research.md meta.yaml external.md speakeasy.md; do
   cmp "$ROOT/guides/asana/$name" "$tmp/success/guide/$name"
 done
 jq -e ' .limited == true ' "$tmp/success/execution-transcript.json" >/dev/null
+jq -e '.host_run_id=="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" and .workflow_run_id=="9001" and .workflow_run_attempt==2' "$tmp/success/finalization.json" >/dev/null
 printf 'current host validation and byte-preserving frozen guide checks passed\n'
 
 for bad in guide transcript lint generator size total-size whitespace remote-id; do

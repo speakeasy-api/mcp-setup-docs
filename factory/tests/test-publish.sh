@@ -91,11 +91,12 @@ exec "$REAL_RM" "$@"'
 make_fake sleep 'exit 0'
 
 reset_logs() {
-  export GITHUB_RUN_ATTEMPT=1 READABLE_UPLOAD_OUTCOME=success READABLE_LOG_STATUS=complete
+  export FACTORY_HOST_RUN_ID=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  export GITHUB_RUN_ID=9001 GITHUB_RUN_ATTEMPT=1 READABLE_UPLOAD_OUTCOME=success READABLE_LOG_STATUS=complete
   export READABLE_ARTIFACT_URL=https://github.com/acme/docs/actions/runs/9001/artifacts/123
   export FACTORY_PUBLICATION_RECEIPT="$RUNNER_TEMP/guide-factory-publication/publication-receipt.json"
   "$REAL_RM" -rf "$RUNNER_TEMP/guide-factory-publication"
-  printf '%s' '{"version":1,"primary_outcome":"converged","readable_export":"ready","partial":false,"publication_ready":true}' >"$RUNNER_TEMP/export/finalization.json"
+  printf '%s' '{"version":1,"host_run_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","workflow_run_id":"9001","workflow_run_attempt":1,"primary_outcome":"converged","readable_export":"ready","partial":false,"publication_ready":true}' >"$RUNNER_TEMP/export/finalization.json"
   "$REAL_RM" -f "$RUNNER_TEMP/export/session-transcript.json"
   if [[ -f "$TMP/frozen-transcript.json" ]]; then cp "$TMP/frozen-transcript.json" "$RUNNER_TEMP/export/session-transcript.json"; else printf '{}' >"$RUNNER_TEMP/export/session-transcript.json"; fi
 
@@ -572,6 +573,35 @@ test_hostile_receipt_paths_and_installed_mutation() {
   done
 }
 
+test_fresh_identity_and_primary_outcome() {
+  local report="$TMP/identity.json" key
+  reset_logs
+  make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
+  for key in host attempt run partial missing; do
+    reset_logs
+    : >"$GIT_LOG"; : >"$GH_LOG"
+    case $key in
+      host) export FACTORY_HOST_RUN_ID=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ;;
+      attempt) export FACTORY_HOST_RUN_ID=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa GITHUB_RUN_ATTEMPT=2 ;;
+      run) export GITHUB_RUN_ID=9002 READABLE_ARTIFACT_URL=https://github.com/acme/docs/actions/runs/9002/artifacts/123 ;;
+      partial) jq '.partial=true' "$RUNNER_TEMP/export/finalization.json" >"$TMP/partial"; mv "$TMP/partial" "$RUNNER_TEMP/export/finalization.json" ;;
+      missing) export GITHUB_RUN_ATTEMPT=1 FACTORY_HOST_RUN_ID='' ;;
+    esac
+    if bash "$SCRIPT" publish "$report" >/dev/null 2>&1; then fail "replayed whole export with $key identity"; fi
+    assert_eq '' "$(cat "$GIT_LOG")"
+  done
+  reset_logs
+  make_report "$report" failed '[]'
+  jq '.publication_ready=false | .readable_export="failed"' "$RUNNER_TEMP/export/finalization.json" >"$TMP/state"
+  mv "$TMP/state" "$RUNNER_TEMP/export/finalization.json"
+  READABLE_LOG_STATUS=unavailable READABLE_ARTIFACT_URL='' bash "$SCRIPT" notify "$report"
+  assert_contains 'Research completed with a converged primary outcome' "$(cat "$COMMENT_LOG")"
+  assert_contains 'required readable log export/upload failed' "$(cat "$COMMENT_LOG")"
+  assert_contains 'publication is withheld' "$(cat "$COMMENT_LOG")"
+  assert_not_contains 'Ready for review.' "$(cat "$COMMENT_LOG")"
+}
+
+test_fresh_identity_and_primary_outcome
 test_hostile_receipt_paths_and_installed_mutation
 test_receipt_and_reconciliation_boundaries
 test_publication_gate_and_receipt

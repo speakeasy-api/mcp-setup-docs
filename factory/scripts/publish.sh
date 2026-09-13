@@ -172,6 +172,8 @@ notify_publication() {
 
 render_report_comment() {
   local report=$1 pr_url=$2 resumed=$3 output=$4
+  local primary=""
+  primary=$(publication_state primary 2>/dev/null) || primary=""
   local run_url="" marker="<!-- guide-factory-status -->"
   readable_context
   if [[ ${GITHUB_RUN_ID:-} =~ ^[1-9][0-9]*$ && ${GITHUB_RUN_ATTEMPT:-} =~ ^[1-9][0-9]*$ ]]; then
@@ -181,8 +183,9 @@ render_report_comment() {
     run_url="${GITHUB_SERVER_URL:-https://github.com}/$GH_REPO/actions/runs/$GITHUB_RUN_ID"
   fi
   jq -r --arg pr_url "$pr_url" --arg resumed "$resumed" --arg run_url "$run_url" --arg marker "$marker" \
-    --arg readable_url "$READABLE_URL" --arg readable_status "$READABLE_STATUS" '
+    --arg readable_url "$READABLE_URL" --arg readable_status "$READABLE_STATUS" --arg primary "$primary" '
     def bound: tostring[0:1000];
+    def logging_failure: $primary == "converged" and .outcome == "failed" and $readable_status == "unavailable";
     def items($heading; $numbered):
       .[0:20] as $values | if ($values | length) == 0 then [] else
         [$heading, ""] + [range(0; $values|length) as $i |
@@ -192,6 +195,10 @@ render_report_comment() {
        elif .outcome == "failed" then "## Guide factory failed"
        else "## Pipeline review" end), "", $marker, "",
       "- **Outcome:** " + (.outcome|bound),
+      (if $primary == "" then empty else "- **Primary research outcome:** " + $primary end),
+      (if $primary == "converged" and .outcome == "failed" and $readable_status == "unavailable" then
+        "Research completed with a converged primary outcome, but required readable log export/upload failed; guide publication is withheld. No guide publication is claimed."
+       else empty end),
       "- **Provider:** " + ((.provider // "unresolved")|bound),
       "- **Slug:** " + ((.slug // "unresolved")|bound),
       "- **Persona:** " + ((.persona // "unresolved")|bound),
@@ -200,9 +207,9 @@ render_report_comment() {
       (if $run_url == "" then empty else "- **Workflow run:** " + $run_url end),
       "- **Readable chatlog:** " + (if $readable_url == "" then "unavailable; see the workflow run instead."
         else $readable_url + " (" + $readable_status + "; expires after seven days; GitHub artifact access required)." end),
-      "", "### Summary", "", (.summary|bound), ""]
+      "", "### Summary", "", (if logging_failure then "Required readable logging did not complete. Guide publication remains withheld." else (.summary|bound) end), ""]
      + (if .outcome == "awaiting_scope" then (.open_questions|items("### Material decisions"; true)) else [] end)
-     + (.blockers|items("### Blockers"; false))
+     + (if logging_failure then [] else (.blockers|items("### Blockers"; false)) end)
      + (.nits|items("### Nits"; false))
      + [if .outcome == "converged" then (if $pr_url != "" then "Ready for review."
           else "Research converged; guide publication is withheld until all validation and readable export/upload gates pass." end)

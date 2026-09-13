@@ -12,6 +12,8 @@ import (
 
 func completeFixture(t *testing.T) (string, string) {
 	t.Helper()
+	t.Setenv("GITHUB_RUN_ID", "")
+	t.Setenv("GITHUB_RUN_ATTEMPT", "")
 	private, _ := filepath.EvalSymlinks(t.TempDir())
 	out, _ := filepath.EvalSymlinks(t.TempDir())
 	os.Chmod(private, 0700)
@@ -27,7 +29,7 @@ func completeFixture(t *testing.T) (string, string) {
 		os.WriteFile(out+"/.finalizing/guide/"+name, []byte("public"), 0600)
 	}
 	os.WriteFile(out+"/.finalizing/run-report.json", candidateReport("converged"), 0600)
-	data, _ := json.Marshal(finalization{Version: 1, Primary: "converged", Readable: "ready", Partial: true, PublicationReady: true})
+	data, _ := json.Marshal(finalization{Version: 1, HostRunID: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", Primary: "converged", Readable: "ready", Partial: true, PublicationReady: true})
 	os.WriteFile(out+"/.finalizing/finalization.json", data, 0600)
 	return private, out
 }
@@ -90,7 +92,7 @@ func TestCancellationCommitArbitration(t *testing.T) {
 				}
 			}
 			eligibility := cancelAtBoundary{ctx, cancel, reached}
-			if CompleteHost(context.Background(), eligibility, private, out, true, true) == nil {
+			if CompleteHost(context.Background(), eligibility, private, out, true, true, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") == nil {
 				t.Fatal("cancellation before commit accepted")
 			}
 			assertRevoked(t, out)
@@ -111,7 +113,7 @@ func TestCleanupDeadlineCannotPromote(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
 	started := time.Now()
-	err := CompleteHost(ctx, context.Background(), private, out, true, true)
+	err := CompleteHost(ctx, context.Background(), private, out, true, true, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 	if err == nil || ctx.Err() != context.DeadlineExceeded {
 		t.Fatal("cleanup budget did not expire")
 	}

@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"syscall"
 )
 
@@ -16,11 +18,35 @@ type hostLifecycle struct {
 	Removed     bool   `json:"container_removed"`
 }
 type finalization struct {
-	Version          int    `json:"version"`
-	Primary          string `json:"primary_outcome"`
-	Readable         string `json:"readable_export"`
-	Partial          bool   `json:"partial"`
-	PublicationReady bool   `json:"publication_ready"`
+	HostRunID          string `json:"host_run_id"`
+	WorkflowRunID      string `json:"workflow_run_id"`
+	WorkflowRunAttempt int    `json:"workflow_run_attempt"`
+	Version            int    `json:"version"`
+	Primary            string `json:"primary_outcome"`
+	Readable           string `json:"readable_export"`
+	Partial            bool   `json:"partial"`
+	PublicationReady   bool   `json:"publication_ready"`
+}
+
+// Identity comes only from the host launch/supervisor, never model reports.
+func initialFinalization(runID string) finalization {
+	attempt := 0
+	if value := os.Getenv("GITHUB_RUN_ATTEMPT"); value != "" {
+		var err error
+		attempt, err = strconv.Atoi(value)
+		if err != nil {
+			attempt = -1
+		}
+	}
+	return finalization{Version: 1, HostRunID: runID, WorkflowRunID: os.Getenv("GITHUB_RUN_ID"), WorkflowRunAttempt: attempt, Primary: "failed", Readable: "failed", Partial: true}
+}
+func (s finalization) validIdentity() bool {
+	return regexp.MustCompile(`^[a-f0-9]{32}$`).MatchString(s.HostRunID) &&
+		((s.WorkflowRunID == "" && s.WorkflowRunAttempt == 0) ||
+			(regexp.MustCompile(`^[1-9][0-9]*$`).MatchString(s.WorkflowRunID) && s.WorkflowRunAttempt > 0))
+}
+func (s finalization) sameIdentity(other finalization) bool {
+	return s.validIdentity() && s.HostRunID == other.HostRunID && s.WorkflowRunID == other.WorkflowRunID && s.WorkflowRunAttempt == other.WorkflowRunAttempt
 }
 
 var failedReport = []byte(`{"schema_version":1,"outcome":"failed","provider":null,"slug":null,"persona":null,"summary":"Factory model execution failed.","open_questions":[],"blockers":["Factory model execution failed."],"nits":[],"review_rounds":0,"artifacts":[]}`)
@@ -94,7 +120,7 @@ func Finalize(private, result, export string, known []string) (ret error) {
 		return errUnsafe
 	}
 	guidePublished := false
-	state := finalization{Version: 1, Primary: "failed", Readable: "failed", Partial: true}
+	state := initialFinalization(os.Getenv("FACTORY_HOST_RUN_ID"))
 	if err = writeFinal(out, "run-report.json", failedReport); err != nil {
 		return errUnsafe
 	}
@@ -125,7 +151,7 @@ func Finalize(private, result, export string, known []string) (ret error) {
 		return errUnsafe
 	}
 	var lifecycle hostLifecycle
-	if json.Unmarshal(data, &lifecycle) != nil || lifecycle.Version != 1 || len(lifecycle.RunID) != 32 || !lifecycle.Removed {
+	if json.Unmarshal(data, &lifecycle) != nil || lifecycle.Version != 1 || !state.validIdentity() || lifecycle.RunID != state.HostRunID || !lifecycle.Removed {
 		return errUnsafe
 	}
 	// Only this proven removal branch may touch or delete private model mounts.

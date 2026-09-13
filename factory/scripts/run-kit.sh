@@ -19,7 +19,8 @@ supervisor = None
 private = None
 supervised = False
 exit_code = 1
-run_id = secrets.token_hex(16)
+run_id = os.environ.get('FACTORY_HOST_RUN_ID') or secrets.token_hex(16)
+os.environ['FACTORY_HOST_RUN_ID'] = run_id
 docker = os.environ.get('FACTORY_DOCKER', 'docker')
 
 def safe_path(path, directory=False):

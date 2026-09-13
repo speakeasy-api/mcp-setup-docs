@@ -79,6 +79,21 @@ def write(fd, name, data):
             pass
 
 
+def host_state(base, run, attempt):
+    export = os.open('export', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=base)
+    state = read(export, 'finalization.json')
+    host = os.environ.get('FACTORY_HOST_RUN_ID', '')
+    if not re.fullmatch(r'[a-f0-9]{32}', host):
+        raise ValueError()
+    if set(state) != {'version','host_run_id','workflow_run_id','workflow_run_attempt','primary_outcome','readable_export','partial','publication_ready'}:
+        raise ValueError()
+    if type(state['version']) is not int or state['version'] != 1 or state['host_run_id'] != host or state['workflow_run_id'] != run or type(state['workflow_run_attempt']) is not int or state['workflow_run_attempt'] != int(attempt):
+        raise ValueError()
+    if state['primary_outcome'] not in ('converged','blocked','awaiting_scope','failed') or state['readable_export'] not in ('ready','failed') or type(state['partial']) is not bool or type(state['publication_ready']) is not bool:
+        raise ValueError()
+    return export, state
+
+
 def main():
     command = sys.argv[1]
     run = os.environ['GITHUB_RUN_ID']
@@ -102,7 +117,10 @@ def main():
     if info.st_uid != os.getuid() or info.st_mode & 0o077:
         raise ValueError()
     name = 'publication-receipt.json'
-    if command in ('gate', 'candidate'):
+    if command == 'primary':
+        _, state = host_state(base, run, attempt)
+        print(state['primary_outcome'])
+    elif command in ('gate', 'candidate'):
         # An interrupted or ambiguous mutation requires explicit read-only repair,
         # never a second invocation of publish.
         for entry in (name, 'publication-started.json', name + '.pending'):
@@ -111,10 +129,8 @@ def main():
             except FileNotFoundError:
                 continue
             raise ValueError()
-        export = os.open('export', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=base)
-        state = read(export, 'finalization.json')
-        if type(state.get('version')) is not int or state.get('publication_ready') is not True or state != {'version': 1, 'primary_outcome': 'converged', 'readable_export': 'ready',
-                     'partial': state.get('partial'), 'publication_ready': True} or type(state['partial']) is not bool:
+        export, state = host_state(base, run, attempt)
+        if not state['publication_ready'] or state['primary_outcome'] != 'converged' or state['readable_export'] != 'ready':
             raise ValueError()
         frozen = read(export, 'run-report.json')
         report_fd = directory(os.path.dirname(os.path.abspath(sys.argv[2])))

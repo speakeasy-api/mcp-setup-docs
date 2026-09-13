@@ -127,6 +127,9 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
+          FACTORY_HOST_RUN_ID=$(python3 -c 'import secrets; print(secrets.token_hex(16))')
+          export FACTORY_HOST_RUN_ID
+          printf 'FACTORY_HOST_RUN_ID=%s\n' "$FACTORY_HOST_RUN_ID" >>"$GITHUB_ENV"
           printf '%s\n' 'Kit execution failed.' >"$RUNNER_TEMP/failure-reason.txt"
           status=0
           bash factory/scripts/run-kit.sh \

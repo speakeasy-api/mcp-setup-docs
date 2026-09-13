@@ -12,6 +12,9 @@ import (
 )
 
 func exportFixture(t *testing.T) (string, string, string) {
+	t.Setenv("FACTORY_HOST_RUN_ID", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	t.Setenv("GITHUB_RUN_ID", "")
+	t.Setenv("GITHUB_RUN_ATTEMPT", "")
 	t.Helper()
 	base, err := filepath.EvalSymlinks(t.TempDir())
 	if err != nil {

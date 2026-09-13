@@ -133,7 +133,7 @@ func CleanupPrivate(ctx context.Context, private string) error {
 // CompleteHost runs in the SURVIVING supervisor, never the killable worker.
 // The worker only writes .finalizing; no guide/success is visible until raw
 // records are removed. All work shares the original overall deadline.
-func CompleteHost(ctx, eligibility context.Context, private, export string, workerOK, stageOwned bool) (ret error) {
+func CompleteHost(ctx, eligibility context.Context, private, export string, workerOK, stageOwned bool, runID string) (ret error) {
 	cleanupErr := CleanupPrivate(ctx, private)
 	b := &sourceBoundary{}
 	defer b.close()
@@ -159,7 +159,8 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 		}
 	}
 	promoted := false
-	state := finalization{Version: 1, Primary: "failed", Readable: "failed", Partial: true}
+	expected := initialFinalization(runID)
+	state := expected
 	defer func() {
 		if ret == nil && eligibility.Err() != nil {
 			ret = errUnsafe
@@ -205,7 +206,8 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 		return errUnsafe
 	}
 	data, err := b.read(stage, "finalization.json")
-	if err != nil || json.Unmarshal(data, &state) != nil || state.Version != 1 {
+	if err != nil || json.Unmarshal(data, &state) != nil || state.Version != 1 || !state.sameIdentity(expected) {
+		state = expected
 		return errUnsafe
 	}
 	data, err = b.read(stage, "run-report.json")

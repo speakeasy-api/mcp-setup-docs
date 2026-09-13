@@ -189,7 +189,7 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 		defer func() {
 			cleanupContext, cancel := context.WithDeadline(context.Background(), deadline.Add(-budget/100))
 			defer cancel()
-			if factorytranscript.CompleteHost(cleanupContext, ctx, filepath.Dir(filepath.Dir(o.result)), o.exportDir, workerOK, stageOwned) != nil {
+			if factorytranscript.CompleteHost(cleanupContext, ctx, filepath.Dir(filepath.Dir(o.result)), o.exportDir, workerOK, stageOwned, o.runID) != nil {
 				status = 1
 			}
 		}()
@@ -229,7 +229,7 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 		cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
 
-		cmd.Env = []string{"OPENROUTER_API_KEY=" + os.Getenv("OPENROUTER_API_KEY")}
+		cmd.Env = []string{"OPENROUTER_API_KEY=" + os.Getenv("OPENROUTER_API_KEY"), "FACTORY_HOST_RUN_ID=" + o.runID, "GITHUB_RUN_ID=" + os.Getenv("GITHUB_RUN_ID"), "GITHUB_RUN_ATTEMPT=" + os.Getenv("GITHUB_RUN_ATTEMPT")}
 		cmd.Stdout, cmd.Stderr = io.Discard, io.Discard
 		cmd.WaitDelay = 50 * time.Millisecond
 		workerOK = cmd.Run() == nil && workerContext.Err() == nil && ctx.Err() == nil
