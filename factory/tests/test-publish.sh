@@ -28,6 +28,7 @@ if [[ "$*" == *"--body-file"* ]]; then
     previous=$argument
   done
 fi
+if [[ ${GH_LOOKUP_FAIL_AFTER_PUSH:-0} == 1 && -f ${GIT_PUSH_APPLIED_FILE:-/nonexistent} && "$*" == "pr list"* ]]; then exit 1; fi
 if [[ -n "${GH_FAIL_MATCH:-}" && "$*" == *"$GH_FAIL_MATCH"* ]]; then exit 1; fi
 if [[ "${GH_FAIL_MUTATIONS:-0}" -gt 0 ]]; then
   count_file="${GH_FAIL_COUNT_FILE:?}"
@@ -75,12 +76,21 @@ esac'
 make_fake git 'printf "%s\n" "$*" >>"$GIT_LOG"
 case "$1" in
   diff) if [[ "$*" == *"--name-only"* ]]; then printf "%s" "${GIT_STAGED_PATH:-}"; exit 0; fi; [[ "${GIT_HAS_DIFF:-1}" == 0 ]] ; exit ;;
+  remote) printf "%s\n" "${GIT_PUSH_URL:-https://github.com/acme/docs.git}" ;;
+  push)
+    if [[ ${GIT_REQUIRE_RESERVATION:-0} == 1 && ! -f $RUNNER_TEMP/guide-factory-publication/publication-started.json ]]; then exit 92; fi
+    if [[ -n ${GIT_PUSH_APPLIED_FILE:-} && ${GIT_PUSH_NO_APPLY:-0} == 0 ]]; then
+      printf "%s\trefs/heads/guide/issue-42-safe-slug\n" "${GIT_LOCAL_HEAD:-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}" >"$GIT_PUSH_APPLIED_FILE"
+    fi
+    exit "${GIT_PUSH_FAIL:-0}" ;;
+  ls-remote) if [[ -n ${GIT_REMOTE_REPLY:-} ]]; then printf "%b" "$GIT_REMOTE_REPLY"; exit 0; fi; [[ -f ${GIT_PUSH_APPLIED_FILE:-/nonexistent} ]] || exit 1; cat "$GIT_PUSH_APPLIED_FILE" ;;
   commit)
+    if [[ ${GIT_COMPETING_RESERVATION:-0} == 1 ]]; then printf "{}" >"$RUNNER_TEMP/guide-factory-publication/publication-started.json"; fi
     if [[ -n "${GIT_SIGNAL:-}" ]]; then kill -s "$GIT_SIGNAL" "$PPID"; exit 0; fi
     [[ "${GIT_COMMIT_FAIL:-0}" == 0 ]] || exit "${GIT_COMMIT_STATUS:-1}" ;;
   rev-parse)
-    if [[ "${3:-}" == HEAD ]]; then printf "%s\n" "${GIT_LOCAL_HEAD:-same}"
-    else printf "%s\n" "${GIT_REMOTE_HEAD:-same}"; fi ;;
+    if [[ "${3:-}" == HEAD ]]; then printf "%s\n" "${GIT_LOCAL_HEAD:-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}"
+    else printf "%s\n" "${GIT_REMOTE_HEAD:-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}"; fi ;;
 esac'
 
 # shellcheck disable=SC2016
@@ -101,6 +111,7 @@ reset_logs() {
   if [[ -f "$TMP/frozen-transcript.json" ]]; then cp "$TMP/frozen-transcript.json" "$RUNNER_TEMP/export/session-transcript.json"; else printf '{}' >"$RUNNER_TEMP/export/session-transcript.json"; fi
 
   unset GH_RECEIPT_WRITE_FAIL GH_PR_HEAD GH_PR_AUTHOR GH_FAIL_MUTATIONS GH_FAIL_COUNT_FILE GH_FAIL_MATCH GH_PR_LIST GH_CREATE_LOST GH_CREATE_OUTPUT GH_LABEL_STATE_FILE
+  unset GIT_REMOTE_REPLY GH_LOOKUP_FAIL_AFTER_PUSH GIT_PUSH_APPLIED_FILE GIT_PUSH_NO_APPLY GIT_PUSH_FAIL GIT_REQUIRE_RESERVATION GIT_PUSH_URL GIT_COMPETING_RESERVATION
   unset GIT_STAGED_PATH GIT_COMMIT_FAIL GIT_COMMIT_STATUS GIT_SIGNAL GIT_LOCAL_HEAD GIT_REMOTE_HEAD RM_FAIL_MATCH RM_FAIL_STATUS
   : >"$GH_LOG"; : >"$GIT_LOG"; : >"$COMMENT_LOG"
   export GH_PR_STATE_FILE="$TMP/pr-state.json"
@@ -193,7 +204,7 @@ test_converged_new_publication() {
   assert_contains "checkout -b guide/issue-42-safe-slug" "$git_log"
   assert_contains "add -- guides/safe-slug" "$git_log"
   assert_contains "commit -m guide: Provider \$(touch /tmp/provider-pwn)" "$git_log"
-  assert_contains "push --set-upstream origin guide/issue-42-safe-slug" "$git_log"
+  assert_contains "push https://github.com/acme/docs.git aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:refs/heads/guide/issue-42-safe-slug" "$git_log"
   assert_contains "pr create --repo acme/docs --base main --head guide/issue-42-safe-slug" "$gh_log"
   assert_contains "pr ready 77 --repo acme/docs" "$gh_log"
   assert_contains "Provider \$(touch /tmp/provider-pwn)" "$comments"
@@ -277,7 +288,7 @@ test_no_change_orphan_creates_pr_and_converges_resume() {
   make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
   bash "$SCRIPT" publish "$report"
   assert_count 0 "commit -m" "$GIT_LOG"
-  assert_count 0 "push --set-upstream" "$GIT_LOG"
+  assert_count 0 "push " "$GIT_LOG"
   assert_contains "pr create" "$(cat "$GH_LOG")"
   assert_contains "pr ready 77 --repo acme/docs" "$(cat "$GH_LOG")"
 
@@ -293,12 +304,12 @@ test_no_change_orphan_creates_pr_and_converges_resume() {
 test_resumed_merge_is_pushed_without_guide_changes() {
   reset_logs
   export GIT_HAS_DIFF=0 RESUME=true RESUME_BRANCH=guide/issue-42-safe-slug RESUME_PR_NUMBER=55
-  export GIT_REMOTE_HEAD=before-merge GIT_LOCAL_HEAD=after-merge
+  export GIT_REMOTE_HEAD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb GIT_LOCAL_HEAD=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
   report="$TMP/resumed-merge.json"
   make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
   bash "$SCRIPT" publish "$report"
   assert_count 0 "commit -m" "$GIT_LOG"
-  assert_contains "push --set-upstream origin guide/issue-42-safe-slug" "$(cat "$GIT_LOG")"
+  assert_contains "push https://github.com/acme/docs.git aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:refs/heads/guide/issue-42-safe-slug" "$(cat "$GIT_LOG")"
 }
 
 test_pr_numbers_and_create_recovery_are_safe() {
@@ -602,8 +613,7 @@ test_fresh_identity_and_primary_outcome() {
   assert_not_contains 'Ready for review.' "$(cat "$COMMENT_LOG")"
 }
 
-test_workflow_withheld_labels() {
-  local outcome mode report="$RUNNER_TEMP/run-report.json"
+prepare_workflow_notify_route() {
   export PUBLISHER_PATH="$SCRIPT"
   mkdir -p "$RUNNER_TEMP/guide-factory-publisher/factory/scripts"
   cp "$ROOT/factory/scripts/validate-report.sh" "$RUNNER_TEMP/guide-factory-publisher/factory/scripts/"
@@ -614,6 +624,11 @@ step=workflow.split('      - name: Report outcome\n',1)[1].split('      - name:'
 body=step.split('        run: |\n',1)[1]
 pathlib.Path(sys.argv[2]).write_text('\n'.join(line[10:] for line in body.splitlines()))
 PYROUTE
+}
+
+test_workflow_withheld_labels() {
+  local outcome mode report="$RUNNER_TEMP/run-report.json"
+  prepare_workflow_notify_route
   for outcome in awaiting_scope blocked failed converged; do
     for mode in success label-failure comment-failure; do
       reset_logs
@@ -644,6 +659,70 @@ PYROUTE
   unset PUBLISHER_PATH
 }
 
+test_push_is_reserved_and_reconciled() {
+  local report="$RUNNER_TEMP/run-report.json" mode
+  prepare_workflow_notify_route
+  for mode in applied-failure success-lookup-failure indeterminate wrong-target competitor foreign-remote; do
+    reset_logs
+    make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
+    export RESUME=true RESUME_BRANCH=guide/issue-42-safe-slug RESUME_PR_NUMBER=55
+    export GIT_REMOTE_HEAD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    export GIT_PUSH_APPLIED_FILE="$TMP/pushed-commit" GIT_REQUIRE_RESERVATION=1
+    rm -f "$GIT_PUSH_APPLIED_FILE"
+    case $mode in
+      applied-failure) export GIT_PUSH_FAIL=1 ;;
+      success-lookup-failure) export GH_LOOKUP_FAIL_AFTER_PUSH=1 GH_FAIL_MATCH='pr edit' ;;
+      indeterminate) export GIT_PUSH_FAIL=1 GIT_PUSH_NO_APPLY=1 ;;
+      wrong-target) export GIT_PUSH_FAIL=1 GIT_REMOTE_REPLY='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\trefs/heads/foreign-branch\n' ;;
+      foreign-remote) export GIT_PUSH_URL=https://github.com/foreign/repo.git ;;
+      competitor) export GIT_COMPETING_RESERVATION=1 ;;
+    esac
+    bash "$SCRIPT" publish "$report" >"$TMP/push-result" 2>&1 || true
+    if [[ $mode == competitor || $mode == foreign-remote ]]; then
+      assert_not_contains 'push https://' "$(cat "$GIT_LOG")"
+      assert_not_contains 'pr edit' "$(cat "$GH_LOG")"
+      continue
+    fi
+    [[ -f "$RUNNER_TEMP/guide-factory-publication/publication-started.json" ]] || fail 'push ran before reservation'
+    assert_count 1 'push https://' "$GIT_LOG"
+    if [[ $mode == applied-failure || $mode == indeterminate || $mode == wrong-target ]]; then assert_count 1 'ls-remote ' "$GIT_LOG"; fi
+    if [[ $mode == indeterminate || $mode == wrong-target ]]; then
+      [[ ! -e "$FACTORY_PUBLICATION_RECEIPT" ]] || fail 'indeterminate push claimed confirmed update'
+      printf 'Push uncertain' >"$TMP/reason"
+      cp "$TMP/reason" "$RUNNER_TEMP/failure-reason.txt"
+      bash -e "$TMP/notify-route.sh"
+      assert_contains 'A PR may already exist' "$(cat "$COMMENT_LOG")"
+      assert_not_contains 'publication is withheld' "$(cat "$COMMENT_LOG")"
+    else
+      jq -e '.publication=="updated" and .pr_url=="https://github.com/acme/docs/pull/55"' "$FACTORY_PUBLICATION_RECEIPT" >/dev/null || fail 'confirmed branch update lost receipt'
+      unset GH_FAIL_MATCH GH_LOOKUP_FAIL_AFTER_PUSH
+      : >"$GH_LOG"
+      bash -e "$TMP/notify-route.sh"
+      assert_not_contains 'pr edit' "$(cat "$GH_LOG")"
+      assert_not_contains '--add-label guide:blocked' "$(cat "$GH_LOG")"
+    fi
+  done
+}
+
+test_publication_reservation_concurrency() {
+  local report="$RUNNER_TEMP/run-report.json" one two a=0 b=0
+  reset_logs
+  make_report "$report" converged '["research.md","meta.yaml","external.md","speakeasy.md"]'
+  export RESUME=true RESUME_BRANCH=guide/issue-42-safe-slug RESUME_PR_NUMBER=55
+  export GIT_REMOTE_HEAD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb GIT_REQUIRE_RESERVATION=1
+  bash "$SCRIPT" publish "$report" >"$TMP/concurrent-one" 2>&1 & one=$!
+  bash "$SCRIPT" publish "$report" >"$TMP/concurrent-two" 2>&1 & two=$!
+  wait "$one" || a=$?
+  wait "$two" || b=$?
+  [[ ( $a == 0 && $b != 0 ) || ( $a != 0 && $b == 0 ) ]] || fail 'reservation did not select exactly one publisher'
+  assert_count 1 'push https://' "$GIT_LOG"
+  assert_count 1 'pr edit' "$GH_LOG"
+  assert_count 0 'pr create' "$GH_LOG"
+  jq -e '.publication=="updated" and .notification=="sent"' "$FACTORY_PUBLICATION_RECEIPT" >/dev/null
+}
+
+test_publication_reservation_concurrency
+test_push_is_reserved_and_reconciled
 test_workflow_withheld_labels
 test_fresh_identity_and_primary_outcome
 test_hostile_receipt_paths_and_installed_mutation

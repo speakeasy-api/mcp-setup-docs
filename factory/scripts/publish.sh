@@ -256,7 +256,7 @@ find_pr_for_head() {
 
 publish_report() {
   local report=$1 outcome provider slug artifacts resumed branch title pr_body comment pr_number pr_url changed
-  local local_head remote_head push_needed=false publication response mutation_status=0 staged
+  local local_head remote_head push_needed=false publication response mutation_status=0 staged push_url recorded=false
   [[ -f "$report" && ! -L "$report" ]] || die "publish requires a regular report file"
   outcome="$(jq -r '.outcome' "$report")"
   provider="$(jq -r '.provider // empty' "$report")"
@@ -289,6 +289,20 @@ publish_report() {
   fi
 
   [[ $branch == "guide/issue-$ISSUE_NUMBER-$slug" ]] || die 'unexpected factory branch'
+  # Resolve canonical existing PR linkage BEFORE any remote branch mutation.
+  pr_number=${RESUME_PR_NUMBER:-}
+  [[ -z $pr_number ]] || validate_pr_number "$pr_number"
+  pr_url=''
+  if find_pr_for_head "$branch"; then
+    [[ -z $pr_number || $pr_number == "$FOUND_PR_NUMBER" ]] || die 'resume PR does not match trusted branch lookup'
+    pr_number=$FOUND_PR_NUMBER
+    pr_url=$FOUND_PR_URL
+    publication=updated
+  else
+    [[ -z $pr_number ]] || die 'resume PR not found on exact factory branch'
+    publication=created
+  fi
+
   git add -- "guides/$slug/research.md" "guides/$slug/meta.yaml" "guides/$slug/external.md" "guides/$slug/speakeasy.md"
   changed=true
   if git diff --cached --quiet -- "guides/$slug"; then changed=false; fi
@@ -305,20 +319,37 @@ publish_report() {
     push_needed=true
   fi
   if [[ "$push_needed" == true ]]; then
-    git push --set-upstream origin "$branch"
+    local_head=$(git rev-parse --verify HEAD) || die 'could not resolve publication commit'
+    [[ $local_head =~ ^[a-f0-9]{40}$ || $local_head =~ ^[a-f0-9]{64}$ ]] || die 'invalid publication commit'
+    push_url=$(git remote get-url --push origin) || die 'could not inspect publication remote'
+    case "$push_url" in
+      "https://github.com/$GH_REPO"|"https://github.com/$GH_REPO.git"|"git@github.com:$GH_REPO.git") ;;
+      *) die 'publication remote does not match trusted repository' ;;
+    esac
+  fi
+  # One exclusive reservation precedes EVERY remote mutation, including a push
+  # that already publishes guide contents on an existing PR.
+  publication_state begin || die 'could not reserve publication'
+  CLEANUP_LABELS=false
+  if [[ "$push_needed" == true ]]; then
+    if ! git push "$push_url" "$local_head:refs/heads/$branch" >/dev/null 2>&1; then
+      response=$(git ls-remote --exit-code "$push_url" "refs/heads/$branch" 2>/dev/null) \
+        || die 'push status indeterminate; preserve reservation and reconcile read-only'
+      [[ $response == "$local_head"$'\t'"refs/heads/$branch" ]] \
+        || die 'push target unconfirmed; preserve reservation and reconcile read-only'
+    fi
+    if [[ -n $pr_url ]]; then
+      publication_state record "$pr_url" updated || {
+        printf 'factory: PR published at %s; branch advanced but receipt persistence failed; do not republish\n' "$pr_url" >&2
+        return 1
+      }
+      recorded=true
+    fi
   fi
 
   title="$(jq -r '(.provider // "guide")[0:249] | "guide: " + .' "$report")"
   printf 'Closes #%s\n' "$ISSUE_NUMBER" >"$pr_body"
-  pr_number=${RESUME_PR_NUMBER:-}
-  [[ -z $pr_number ]] || validate_pr_number "$pr_number"
-  if find_pr_for_head "$branch"; then
-    [[ -z $pr_number || $pr_number == "$FOUND_PR_NUMBER" ]] || die 'resume PR does not match trusted branch lookup'
-    pr_number=$FOUND_PR_NUMBER
-    pr_url=$FOUND_PR_URL
-    publication=updated
-    publication_state begin || die 'could not reserve publication'
-    CLEANUP_LABELS=false
+  if [[ -n $pr_url ]]; then
     gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null 2>&1 || mutation_status=$?
     if ((mutation_status != 0)); then
       # A failed edit may have applied. Observe only, retain the known PR, and
@@ -328,10 +359,6 @@ publish_report() {
       return 1
     fi
   else
-    [[ -z $pr_number ]] || die 'resume PR not found on exact factory branch'
-    publication=created
-    publication_state begin || die 'could not reserve publication'
-    CLEANUP_LABELS=false
     response=$(gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" 2>/dev/null) || mutation_status=$?
     pr_url=$response
     if ((mutation_status != 0)) || [[ $pr_url != "https://github.com/$GH_REPO/pull/"* || ! ${pr_url#"https://github.com/$GH_REPO/pull/"} =~ ^[1-9][0-9]*$ ]]; then
@@ -340,10 +367,12 @@ publish_report() {
     fi
   fi
   # Persist known publication BEFORE labels, readiness, or issue comments.
-  publication_state record "$pr_url" "$publication" || {
-    printf 'factory: PR published at %s; receipt persistence failed; do not republish\n' "$pr_url" >&2
-    return 1
-  }
+  if [[ $recorded == false ]]; then
+    publication_state record "$pr_url" "$publication" || {
+      printf 'factory: PR published at %s; receipt persistence failed; do not republish\n' "$pr_url" >&2
+      return 1
+    }
+  fi
   CLEANUP_LABELS=true
   notify_publication "$report" "$FACTORY_PUBLICATION_RECEIPT" || return $?
   # Non-draft creation is already ready. Existing draft promotion is separate
