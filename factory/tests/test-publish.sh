@@ -31,6 +31,8 @@ if [[ "${GH_FAIL_MUTATIONS:-0}" -gt 0 ]]; then
   if (( count < GH_FAIL_MUTATIONS )); then printf "%s" $((count + 1)) >"$count_file"; exit 1; fi
 fi
 case "$*" in
+  "api graphql"*) printf "%s\n" "${GH_VIEWER:-factory-agent}" ;;
+  "api repos/acme/docs/issues/42/comments"*) printf "[%s]\n" "${GH_COMMENTS_JSON:-[]}" ;;
   "issue view"*)
     if [[ -n "${GH_LABEL_STATE_FILE:-}" ]]; then
       jq -Rn "[inputs | {name:.}] | {labels:.}" <"$GH_LABEL_STATE_FILE"
@@ -371,6 +373,57 @@ test_comments_and_title_are_bounded() {
   assert_not_contains "question-20" "$(cat "$COMMENT_LOG")"
 }
 
+test_notify_only_and_trusted_logs() {
+  local report="$TMP/notify.json"
+  reset_logs
+  make_report "$report" awaiting_scope '[]'
+  export GITHUB_RUN_ATTEMPT=2 READABLE_LOG_STATUS=partial
+  export READABLE_ARTIFACT_URL=https://github.com/acme/docs/actions/runs/9001/artifacts/123
+  bash "$SCRIPT" notify "$report"
+  assert_eq '' "$(cat "$GIT_LOG")"
+  assert_not_contains 'pr ' "$(cat "$GH_LOG")"
+  assert_contains '1. Question; rm -rf /' "$(cat "$COMMENT_LOG")"
+  # shellcheck disable=SC2016
+  assert_contains 're-add `guide:draft`' "$(cat "$COMMENT_LOG")"
+  assert_contains '<!-- guide-factory-status:9001:2 -->' "$(cat "$COMMENT_LOG")"
+  assert_contains "$READABLE_ARTIFACT_URL" "$(cat "$COMMENT_LOG")"
+  assert_contains 'partial' "$(cat "$COMMENT_LOG")"
+  assert_contains 'seven days' "$(cat "$COMMENT_LOG")"
+  assert_contains 'GitHub artifact access' "$(cat "$COMMENT_LOG")"
+  export GH_COMMENTS_JSON='[{"id":99,"user":{"type":"User","login":"factory-agent"},"body":"<!-- guide-factory-status:9001:2 -->"},{"id":98,"user":{"type":"User","login":"factory-agent"},"body":"<!-- guide-factory-status:9001:1 -->"}]'
+  : >"$GH_LOG"
+  bash "$SCRIPT" notify "$report"
+  assert_contains 'issues/comments/99' "$(cat "$GH_LOG")"
+  assert_not_contains 'issues/comments/98' "$(cat "$GH_LOG")"
+  assert_not_contains 'issue comment 42' "$(cat "$GH_LOG")"
+  unset GH_COMMENTS_JSON
+  for url in '' https://github.com/acme/docs/actions/runs/9001/artifacts/raw/123 https://github.com/acme/other/actions/runs/9001/artifacts/123 https://github.com/acme/docs/actions/runs/9002/artifacts/123; do
+    : >"$COMMENT_LOG"
+    READABLE_ARTIFACT_URL="$url" bash "$SCRIPT" notify "$report"
+    assert_contains '**Readable chatlog:** unavailable' "$(cat "$COMMENT_LOG")"
+  done
+  for outcome in converged blocked failed; do
+    reset_logs
+    if [[ $outcome == converged ]]; then
+      make_report "$report" "$outcome" '["research.md","meta.yaml","external.md","speakeasy.md"]'
+    else make_report "$report" "$outcome" '[]'; fi
+    READABLE_ARTIFACT_URL=https://evil.invalid/raw bash "$SCRIPT" notify "$report"
+    assert_contains "**Outcome:** $outcome" "$(cat "$COMMENT_LOG")"
+    assert_contains 'unavailable' "$(cat "$COMMENT_LOG")"
+    assert_contains 'https://github.com/acme/docs/actions/runs/9001' "$(cat "$COMMENT_LOG")"
+    assert_not_contains 'evil.invalid' "$(cat "$COMMENT_LOG")"
+    assert_not_contains 'Ready for review.' "$(cat "$COMMENT_LOG")"
+    assert_not_contains 'pr ' "$(cat "$GH_LOG")"
+    assert_eq '' "$(cat "$GIT_LOG")"
+  done
+  reset_logs
+  printf '{}' >"$report"
+  if bash "$SCRIPT" notify "$report" >/dev/null 2>&1; then fail 'invalid notification report accepted'; fi
+  assert_eq '' "$(cat "$COMMENT_LOG")"
+  unset READABLE_LOG_STATUS READABLE_ARTIFACT_URL GITHUB_RUN_ATTEMPT
+}
+
+test_notify_only_and_trusted_logs
 test_labels_and_transitions
 test_refuse_cleans_temp_body_on_failure
 test_converged_new_publication

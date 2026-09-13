@@ -104,13 +104,65 @@ refuse() {
   post_comment "$body"
 }
 
+# Only host environment values can supply artifact links. Never read report URLs.
+readable_context() {
+  READABLE_URL=''
+  READABLE_STATUS=unavailable
+  if [[ ${GITHUB_RUN_ID:-} =~ ^[1-9][0-9]*$ &&
+        ${READABLE_LOG_STATUS:-} =~ ^(complete|partial)$ &&
+        ${READABLE_ARTIFACT_URL:-} == "https://github.com/$GH_REPO/actions/runs/$GITHUB_RUN_ID/artifacts/"* ]]; then
+    local artifact_id=${READABLE_ARTIFACT_URL#"https://github.com/$GH_REPO/actions/runs/$GITHUB_RUN_ID/artifacts/"}
+    if [[ $artifact_id =~ ^[1-9][0-9]*$ ]]; then
+      READABLE_URL=$READABLE_ARTIFACT_URL
+      READABLE_STATUS=$READABLE_LOG_STATUS
+    fi
+  fi
+}
+
+notify_report() {
+  local report=$1 body comments comment_id payload viewer
+  # This command never invokes git or a PR mutation, including on converged reports.
+  bash "$ROOT/factory/scripts/validate-report.sh" "$report" || die 'invalid notification report'
+  [[ ${GITHUB_RUN_ID:-} =~ ^[1-9][0-9]*$ && ${GITHUB_RUN_ATTEMPT:-} =~ ^[1-9][0-9]*$ ]] \
+    || die 'notify requires a valid run and attempt'
+  body=$(mktemp)
+  register_temp "$body"
+  render_report_comment "$report" '' "${RESUME:-false}" "$body"
+  viewer=$(retry_gh api graphql -f query='{ viewer { login } }' --jq '.data.viewer.login') \
+    || die 'could not identify comment author'
+  [[ $viewer =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*(\[bot\])?$ ]] || die 'invalid comment author'
+  comments=$(retry_gh api "repos/$GH_REPO/issues/$ISSUE_NUMBER/comments" --paginate --slurp) \
+    || die 'could not inspect outcome comments'
+  comment_id=$(jq -er --arg viewer "$viewer" --arg marker "<!-- guide-factory-status:$GITHUB_RUN_ID:$GITHUB_RUN_ATTEMPT -->" '
+    if type != "array" or any(.[]; type != "array") then error("invalid comment pages") else add // [] end |
+    [.[] | select(.user.login == $viewer and (.body | type == "string") and
+      (.body | split("\n") | index($marker) != null))] |
+    if length == 0 then "" elif length == 1 and
+      (.[0].id | type == "number" and floor == . and . > 0) then .[0].id | tostring
+    else error("ambiguous outcome comment") end' <<<"$comments") || die 'invalid outcome comments'
+  if [[ -n $comment_id ]]; then
+    payload=$(mktemp)
+    register_temp "$payload"
+    jq -n --rawfile body "$body" '{body:$body}' >"$payload"
+    # Do not blindly retry a comment mutation after an ambiguous transport error.
+    gh api --method PATCH "repos/$GH_REPO/issues/comments/$comment_id" --input "$payload" >/dev/null
+  else
+    gh issue comment "$ISSUE_NUMBER" --repo "$GH_REPO" --body-file "$body" >/dev/null
+  fi
+}
+
 render_report_comment() {
   local report=$1 pr_url=$2 resumed=$3 output=$4
-  local run_url=""
+  local run_url="" marker="<!-- guide-factory-status -->"
+  readable_context
+  if [[ ${GITHUB_RUN_ID:-} =~ ^[1-9][0-9]*$ && ${GITHUB_RUN_ATTEMPT:-} =~ ^[1-9][0-9]*$ ]]; then
+    marker="<!-- guide-factory-status:$GITHUB_RUN_ID:$GITHUB_RUN_ATTEMPT -->"
+  fi
   if [[ -n ${GITHUB_RUN_ID:-} ]]; then
     run_url="${GITHUB_SERVER_URL:-https://github.com}/$GH_REPO/actions/runs/$GITHUB_RUN_ID"
   fi
-  jq -r --arg pr_url "$pr_url" --arg resumed "$resumed" --arg run_url "$run_url" '
+  jq -r --arg pr_url "$pr_url" --arg resumed "$resumed" --arg run_url "$run_url" --arg marker "$marker" \
+    --arg readable_url "$READABLE_URL" --arg readable_status "$READABLE_STATUS" '
     def bound: tostring[0:1000];
     def items($heading; $numbered):
       .[0:20] as $values | if ($values | length) == 0 then [] else
@@ -119,7 +171,7 @@ render_report_comment() {
            else ("- " + ($values[$i]|bound)) end)] + [""] end;
     ([(if .outcome == "awaiting_scope" then "## Scope check"
        elif .outcome == "failed" then "## Guide factory failed"
-       else "## Pipeline review" end), "", "<!-- guide-factory-status -->", "",
+       else "## Pipeline review" end), "", $marker, "",
       "- **Outcome:** " + (.outcome|bound),
       "- **Provider:** " + ((.provider // "unresolved")|bound),
       "- **Slug:** " + ((.slug // "unresolved")|bound),
@@ -127,11 +179,14 @@ render_report_comment() {
       "- **Run context:** " + (if $resumed == "true" then "resumed existing factory branch" else "new factory branch" end),
       (if $pr_url == "" then empty else "- **Pull request:** " + $pr_url end),
       (if $run_url == "" then empty else "- **Workflow run:** " + $run_url end),
+      "- **Readable chatlog:** " + (if $readable_url == "" then "unavailable; see the workflow run instead."
+        else $readable_url + " (" + $readable_status + "; expires after seven days; GitHub artifact access required)." end),
       "", "### Summary", "", (.summary|bound), ""]
      + (if .outcome == "awaiting_scope" then (.open_questions|items("### Material decisions"; true)) else [] end)
      + (.blockers|items("### Blockers"; false))
      + (.nits|items("### Nits"; false))
-     + [if .outcome == "converged" then "Ready for review."
+     + [if .outcome == "converged" then (if $pr_url != "" then "Ready for review."
+          else "Research converged; guide publication is withheld until all validation and readable export/upload gates pass." end)
         elif .outcome == "awaiting_scope" then "Reply with the numbered decisions, then re-add `guide:draft`."
         elif .outcome == "failed" then "The automation did not complete; this is not a completed review requesting guide changes. Check the workflow logs and diagnostic artifact (if available) for the failure, then re-add `guide:draft` once it is resolved."
         else "Resolve the findings, then re-add `guide:draft`." end])
@@ -270,8 +325,9 @@ case "$command" in
   ensure-labels) [[ $# -eq 1 ]] || die 'usage: publish.sh ensure-labels'; ensure_labels ;;
   transition) [[ $# -eq 1 ]] || die 'usage: publish.sh transition'; transition ;;
   refuse) [[ $# -le 2 ]] || die 'usage: publish.sh refuse [pr-url]'; refuse "${2:-}" ;;
+  notify) [[ $# -eq 2 ]] || die 'usage: publish.sh notify <report>'; notify_report "$2" ;;
   publish) [[ $# -eq 2 ]] || die 'usage: publish.sh publish <report>'; publish_report "$2" ;;
   fail) [[ $# -eq 2 ]] || die 'usage: publish.sh fail <reason-file>'; fail_run "$2" ;;
   cleanup) [[ $# -eq 1 ]] || die 'usage: publish.sh cleanup'; cleanup ;;
-  *) die 'usage: publish.sh {ensure-labels|transition|refuse|publish <report>|fail <reason-file>|cleanup}' ;;
+  *) die 'usage: publish.sh {ensure-labels|transition|refuse|publish <report>|notify <report>|fail <reason-file>|cleanup}' ;;
 esac
