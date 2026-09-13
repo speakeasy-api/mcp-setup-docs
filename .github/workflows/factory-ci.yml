@@ -71,7 +71,7 @@ jobs:
         run: bash factory/tests/run.sh
 
       - name: Shellcheck
-        run: shellcheck factory/scripts/*.sh factory/tests/*.sh
+        run: shellcheck factory/scripts/*.sh factory/tests/*.sh factory/tests/fixtures/lifecycle/kit
 
       - name: Guidecheck tests
         working-directory: go

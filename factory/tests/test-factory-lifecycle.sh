@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Offline local slice: actual local wrapper + common validator + publication gate.
-# This is not yet the complete Docker-to-fake-gh lifecycle acceptance matrix.
+# Followed by connected real Docker -> workflow gate/report -> fake-gh publisher.
 set -euo pipefail
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)
 TMP=$(mktemp -d)
@@ -78,3 +78,5 @@ for mode in success failed host-failed stale changed report-changed workflow mis
   [[ -z $(find "$TMP/runs" -mindepth 1 -print -quit) ]]
   printf 'PASS: local lifecycle %s; no GitHub calls\n' "$mode"
 done
+
+python3 "$ROOT/factory/tests/fixtures/lifecycle/connected.py"

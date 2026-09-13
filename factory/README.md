@@ -48,9 +48,25 @@ acceptance. `local-draft.sh` now uses the explicit `validate.sh --local` interfa
 a fresh local host identity, frozen readiness and byte equality are required at
 staging, merge and installation. Local mode clears workflow/upload environment,
 never invents artifact URLs and cannot relax the publisher's upload gate.
-`test-factory-lifecycle.sh` currently exercises this local slice using a synthetic
-host export, the real wrapper/common validator, and actual publisher rejection;
-it is not yet the complete Docker-to-fake-gh lifecycle matrix.
+`test-factory-lifecycle.sh` first exercises the local slice, then runs a connected
+real Docker/fake Kit matrix through the actual wrapper, entrypoint, supervisor,
+finalizer, extracted workflow run/upload-gate/outcome shell, common validator and
+publisher with fake gh. Upload fixtures copy only the real readable export;
+no live provider or GitHub calls occur. Cases include success, blocked, numbered
+scope request, crash with stale success, timeout with proven separate process
+group, sanitized-candidate rejection, malformed/truncated store, maximum accepted
+8 MiB source, upload failure and confirmed publication with notification repair.
+
+A test-only Go build overlay records elapsed host monotonic time from the exact
+terminal callback through supervisor return (after deferred finalization/private
+cleanup). It shortens research only; the original 300-second finalization and
+60-second worker reserve remain unchanged. Each exporter is a fresh process;
+this is cold exporter initialization, not forced-cold Docker rebuilding. Output
+reports per-case intervals and remaining 300-second headroom. The 8 MiB fixture
+uses whitespace padding and is not an exhaustive worst-case parser/secret-density
+proof. Separate unit tests cover late/malformed phase, Titus warning and interrupted
+export behavior; those are not all connected rows. Release cache-assisted builds
+are valid release checks; cold-image timing is optional rollout-capacity evidence.
 
 Factory CI builds the configured release tag before image-requiring tests and
 runs the affected Go packages with CGO disabled. The default native-dispatch test

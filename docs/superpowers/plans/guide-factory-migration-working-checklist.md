@@ -159,3 +159,17 @@ checkpoint; native dispatch is explicitly static-only in that suite.
 Still open: complete connected Docker-to-fake-gh lifecycle matrix, reproducible
 pinned native fixture execution, and measured maximum-input finalization headroom
 below the original 300 seconds. No live acceptance is authorized by this checkpoint.
+
+### Task 6 connected offline measurement checkpoint
+
+Eleven connected real-Docker rows now consume actual host exports through the
+actual workflow gate/report shell and publisher with fake gh. The maximum accepted
+source row reaches exactly 8 MiB and passes full validation/publication fixtures.
+Host monotonic finalization intervals include teardown and deferred private
+cleanup; observed completed rows are approximately 1.60 seconds or less, leaving
+approximately 298.40 seconds of the unchanged 300-second budget. This is measured
+headroom on the test host, not an exhaustive runner-performance guarantee.
+
+Full current suite/CI review, pinned native executor, and the remaining unit-only
+warning/interruption cases still gate final acceptance. Cached release verification
+is accepted; cold-image timing is optional capacity evidence. No live run authorized.
