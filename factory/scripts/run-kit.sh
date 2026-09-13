@@ -150,7 +150,7 @@ try:
         command([docker, 'image', 'inspect', '--format', '{{.Id}}', image], 10, True)
     except subprocess.CalledProcessError:
         command([docker, 'build', '--file', root+'/factory/Dockerfile', '--build-arg', 'KIT_VERSION='+os.environ['KIT_VERSION'], '--build-arg', 'KIT_SHA256='+os.environ['KIT_SHA256'], '--tag', image, root], 120)
-    args = [docker, 'create', '--name', 'factory-'+run_id, '--label', 'factory.run-id='+run_id]
+    args = [docker, 'create', '--user', str(os.getuid())+':'+str(os.getgid()), '--name', 'factory-'+run_id, '--label', 'factory.run-id='+run_id]
     for key in ('OPENROUTER_API_KEY', 'KIT_MODEL', 'KIT_REASONING_EFFORT', 'KIT_REQUEST_BUDGET_SECONDS'):
         args += ['--env', key]
     args += ['--env', 'FACTORY_RUN_ID='+run_id]

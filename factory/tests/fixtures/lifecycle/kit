@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 [[ $1 == prompt && $HOME == /kit-home && ! -e /export ]]
+[[ $(id -u) == $(stat -c %u /workspace) ]]
 mode=$(jq -r .mode /input/issue.json)
 printf HOSTILE_PRIVATE_CANARY > /workspace/.env
 printf HOSTILE_PRIVATE_CANARY > /kit-home/.env

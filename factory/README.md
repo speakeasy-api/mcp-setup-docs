@@ -214,3 +214,24 @@ must succeed before the transcript becomes world-readable (`0644`), allowing the
 non-root Actions host to read a root-owned container export. Diagnostics likewise
 receive `0644` only after their existing strict validator succeeds. Neither
 artifact contains raw session logs; do not upload those as a fallback.
+
+### Linux ownership and released Runlet pin
+
+The wrapper runs the model container with the host numeric UID:GID. A real Linux
+(tmpfs, not macOS file sharing) fixture proves root-owned 0700 session directories
+prevent non-root host export/cleanup, while matching UID permits both actual Go
+operations. The model still receives no Docker socket or GitHub credentials.
+The connected fixture now reaps subprocess groups on timeout/signals and its
+finally handler removes only containers matching its image, private mount root
+and run label, confirming actual absence. Forced SIGKILL/runner loss still cannot
+promise cleanup; leftover private state requires explicit recovery.
+
+Kit v0.1.134 resolves to `5eb76012530cc374a37ed6ebb0ddea965e116c18`.
+Its release Cargo.lock pins Runlet **0.6.0**, crates.io checksum
+`057e0864428c5a79a68683942d3750d05e9ffae541aa0185fde9ae1c87eca100`,
+and serde_json **1.0.151**. The existing adapter targets Runlet 0.5; this is a real
+version mismatch, not missing evidence to be solved by arbitrary cache lookup.
+The 0.6.0 crate archive was verified against that checksum without building Rust.
+A separately bounded build should compile the adapter against the release-locked
+0.6.0/serde dependency graph and pinned compiler. Default CI remains explicitly
+static-only until that characterization succeeds; no dependency was changed here.

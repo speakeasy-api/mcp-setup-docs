@@ -1,14 +1,45 @@
 #!/usr/bin/env python3
 """Offline real-Docker lifecycle, actual workflow shell and publisher; no provider/GH."""
-import json, os, pathlib, shutil, subprocess, tempfile
+import json, os, pathlib, shutil, signal, subprocess, tempfile
 root=pathlib.Path(__file__).resolve().parents[4]
 tmp=pathlib.Path(tempfile.mkdtemp()).resolve(); tmp.chmod(0o700)
 log=tmp/'commands.log'
+image=None
+completed=False
 def call(args, env=None, cwd=None, ok=True, timeout=90):
     with log.open('ab') as out:
-        p=subprocess.run(args,env=env,cwd=cwd or root,stdout=out,stderr=out,timeout=timeout)
-    if ok and p.returncode: raise AssertionError('command failed: '+str(args[:2]))
-    return p.returncode
+        p=subprocess.Popen(args,env=env,cwd=cwd or root,stdout=out,stderr=out,start_new_session=True)
+        try:
+            code=p.wait(timeout=timeout)
+        except BaseException:
+            if p.poll() is None:
+                os.killpg(p.pid,signal.SIGTERM)
+                try: p.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    os.killpg(p.pid,signal.SIGKILL); p.wait(timeout=5)
+            raise
+    if ok and code: raise AssertionError('command failed: '+str(args[:2]))
+    return code
+
+def cleanup_containers():
+    if image is None: return 0
+    removed=0
+    ids=subprocess.check_output(['docker','ps','--all','--filter','ancestor='+image,'--format','{{.ID}}'],timeout=10,text=True).split()
+    for cid in ids:
+        v=json.loads(subprocess.check_output(['docker','inspect',cid],timeout=10))[0]
+        mounts=v['Mounts']
+        if v['Config']['Image']!=image or not mounts or not all(m['Source'].startswith(str(tmp)+'/') for m in mounts): continue
+        owner=v['Config']['Labels'].get('factory.run-id','')
+        assert len(owner)==32 and all(c in '0123456789abcdef' for c in owner)
+        subprocess.run(['docker','rm','--force',v['Id']],check=True,stdout=subprocess.DEVNULL,timeout=10)
+        assert not subprocess.check_output(['docker','ps','--all','--filter','id='+v['Id'],'--format','{{.ID}}'],timeout=10).strip()
+        removed+=1
+    return removed
+
+def interrupted(signum, frame):
+    raise KeyboardInterrupt('fixture interrupted')
+signal.signal(signal.SIGTERM, interrupted)
+signal.signal(signal.SIGINT, interrupted)
 workflow=(root/'.github/workflows/guide-draft.yml').read_text()
 def step(name):
     block=workflow.split('      - name: '+name+'\n',1)[1].split('\n      - name:',1)[0]
@@ -119,8 +150,14 @@ try:
         print(f'PASS: connected {mode} primary={state["primary_outcome"]} readable={state["readable_export"]} prs={gh["prs"]} finalization_seconds={duration:.3f}',flush=True)
     maximum=max(x[1] for x in timings)
     print(f'MEASURED maximum finalization seconds={maximum:.6f}; original_300s_headroom={300-maximum:.6f}',flush=True)
-    call(['docker','image','rm',image])
-    shutil.rmtree(tmp)
+    completed=True
 except BaseException:
     print('Connected fixture failed; private evidence: '+str(tmp),flush=True)
     raise
+finally:
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    cleanup_containers()
+    if completed:
+        call(['docker','image','rm',image])
+        shutil.rmtree(tmp)
