@@ -84,3 +84,16 @@ func TestDecodeToolsAndOmissions(t *testing.T) {
 		t.Fatal("projection/correlation lost")
 	}
 }
+
+func TestPinnedReasoningOmitted(t *testing.T) {
+	// agentkit-core 0.10.5 ReasoningPart: optional summary/data, redacted bool,
+	// metadata map. Omitted content must never be copied into the readable event.
+	got, err := decodeSession(fixtureRecord(`{"Reasoning":{"summary":"private reasoning","data":null,"redacted":false,"metadata":{}}}`))
+	if err != nil || !got.Limited {
+		t.Fatal("supported reasoning omission", err)
+	}
+	b, _ := json.Marshal(got)
+	if bytes.Contains(b, []byte("private reasoning")) {
+		t.Fatal("reasoning leaked")
+	}
+}

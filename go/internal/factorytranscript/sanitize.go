@@ -182,7 +182,7 @@ func (s *Sanitizer) Close() error {
 	}
 	err := s.scanner.Close()
 	s.scanner = nil
-	if err != nil {
+	if err != nil || s.warned.Load() {
 		return errUnsafe
 	}
 	return nil

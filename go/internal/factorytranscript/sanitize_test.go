@@ -146,8 +146,8 @@ func TestSanitizeFailClosed(t *testing.T) {
 	if out, err := s.Sanitize(make([]byte, maxInputBytes+1)); out != nil || err == nil {
 		t.Fatal("unbounded input")
 	}
-	if err := s.Close(); err != nil {
-		t.Fatal(err)
+	if err := s.Close(); err != errUnsafe {
+		t.Fatal("poisoned Close must fail closed", err)
 	}
 	if out, err := s.Sanitize([]byte("clean")); out != nil || err == nil {
 		t.Fatal("closed sanitizer accepted input")

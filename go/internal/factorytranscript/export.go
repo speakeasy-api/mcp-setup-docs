@@ -237,6 +237,24 @@ func decodeSession(source []byte) (decodedSession, error) {
 							return fail()
 						}
 						event.Text = []string{text}
+					case "Reasoning":
+						fields, err := object(body, "summary", "data", "redacted", "metadata")
+						if err != nil {
+							return fail()
+						}
+						if summary := fields["summary"]; summary != nil {
+							if _, ok := summary.(string); !ok {
+								return fail()
+							}
+						}
+						if _, ok := fields["redacted"].(bool); !ok {
+							return fail()
+						}
+						// Opaque DataRef variants still require a validated decoder.
+						if fields["data"] != nil {
+							return fail()
+						}
+						omit("reasoning")
 					case "ToolCall":
 						fields, err := object(body, "id", "name", "input", "metadata")
 						if err != nil {
@@ -303,6 +321,10 @@ func decodeSession(source []byte) (decodedSession, error) {
 					// Do not accept arbitrary malformed shapes as harmless omissions.
 					default:
 						return fail()
+					}
+					if role == "System" || role == "Developer" || role == "Context" {
+						event.Text = nil
+						omit("private_context")
 					}
 					out.Events = append(out.Events, event)
 				}
