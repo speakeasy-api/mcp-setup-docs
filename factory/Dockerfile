@@ -10,6 +10,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath -ldflags='-s -w' -o /out/prepare-research-prompt ./cmd/prepare-research-prompt
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -trimpath -ldflags='-s -w' -o /out/begin-writing ./cmd/begin-writing
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -trimpath -ldflags='-s -w' -o /out/supervise-factory ./cmd/supervise-factory
 # Generator retains its existing nested module; no runtime Go toolchain.
 RUN cd internal/gen && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath -ldflags='-s -w' -o /out/factory-generate .
@@ -28,6 +32,8 @@ RUN file=kit-v${KIT_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
  && rm /tmp/kit.tgz
 COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide
 COPY --from=lint-builder /out/prepare-research-prompt /usr/local/bin/prepare-research-prompt
+COPY --from=lint-builder /out/begin-writing /usr/local/bin/begin-writing
+COPY --from=lint-builder /out/supervise-factory /usr/local/bin/supervise-factory
 COPY --from=lint-builder /out/factory-generate /usr/local/bin/factory-generate
 # Existing generator invokes gofmt; ship the formatter, not the Go toolchain.
 COPY --from=lint-builder /usr/local/go/bin/gofmt /usr/local/bin/gofmt

@@ -2,9 +2,10 @@
 
 ## Host lifecycle migration — Task 3 partial checkpoint
 
-The host deadline value and `begin-writing` protocol are implemented in
-`go/internal/factoryrun` and `go/cmd/begin-writing`. These are not yet wired into
-`run-kit.sh` or installed in the image. Production cleanup has **not** changed.
+The host deadline value, `begin-writing` protocol, and owned-container
+`supervise-factory` CLI are implemented. Both CLIs are built and installed by the
+Dockerfile; the supervisor also builds as a native host binary. They are not yet
+wired into `run-kit.sh`, so production wrapper cleanup has **not** changed.
 The protocol uses a private 0700 control directory, host-generated 128-bit
 lowercase hexadecimal run ID, and an atomic no-replace `phase.json` regular file
 of at most 256 bytes containing exactly `version: 1`, `run_id`, and
@@ -23,8 +24,27 @@ present until real Docker regressions through the actual host lifecycle prove
 container removal prevents delayed writers on both timeout and normal parent
 exit. Docker availability alone is not replacement evidence.
 
-Pending Task 3 work includes the owned-container supervisor, private host mounts,
-image/host prebuild installation, entrypoint migration, and real Docker acceptance.
+The supervisor accepts the approved `--container-id`, `--control-dir`, `--run-id`,
+and `--result` flags. The host must create the container with label
+`factory.run-id=<run-id>` and pass its full immutable 64-hex ID. A foreign or
+unverifiable label never authorizes removal. Docker commands have fixed bounds;
+TERM/INT cancellation maps to `lifecycle_invalid` (the fixed result enum has no
+cancellation value). Cleanup uses an independent budget and overrides the outcome
+with `cleanup_failed` unless removal and absence are confirmed. The result and
+0600 raw streams require a separate host-only 0700 directory, not the control mount.
+Lifecycle `completed` means container exit only, never publication readiness.
+
+`factory/tests/test-container-boundary.sh` currently tests the supervisor directly
+with real Docker, fake Kit, a proven separate session/process group, short test-only
+deadlines, and delayed canaries after timeout and normal parent exit. It fails when
+Docker or its prebuilt image is unavailable. Set `FACTORY_BOUNDARY_IMAGE` to a
+reviewed local factory image (otherwise it uses the configured image). This is
+**preliminary supervisor evidence**, not the required actual `run-kit` replacement
+acceptance; it does not authorize deleting the old RED.
+
+Pending Task 3 work includes production host prebuild integration, host-owned
+create and cleanup handoff, private mounts/streams in `run-kit`, entrypoint
+migration, and the actual-wrapper Docker regression.
 Task 4 host postmortem finalization is separately pending; these primitives grant
 no trusted snapshot, installable success, or publication authority.
 
