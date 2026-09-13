@@ -29,7 +29,7 @@ jq -e '
      (.blockers | length == 0) and (durable - .artifacts | length == 0)
    elif .outcome == "awaiting_scope" then
      (.artifacts | length == 0) and (.open_questions | length > 0)
-   elif .outcome == "failed" then
+   else
      (.artifacts | length == 0)
-   else true end)
+   end)
 ' "$report" >/dev/null || { printf 'run report failed validation\n' >&2; exit 1; }

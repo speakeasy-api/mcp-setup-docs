@@ -20,6 +20,24 @@ for path in sys.argv[1:]:
         json.load(handle)
 PY
 
+# New reports never expose partial installable artifacts, even with identity resolved.
+for outcome in blocked awaiting_scope failed; do
+  report="$TMP/nonconverged-$outcome.json"
+  jq -n --arg outcome "$outcome" '{schema_version:1,outcome:$outcome,
+    provider:"Fixture",slug:"fixture",persona:"it-admin",summary:"Incomplete",
+    open_questions:["Which authorized tenant?"],blockers:[],nits:[],
+    review_rounds:0,artifacts:[]}' >"$report"
+  "$ROOT/factory/scripts/validate-report.sh" "$report" || fail "empty $outcome rejected"
+  jq '.artifacts = ["research.md"]' "$report" >"$report.partial"
+  if "$ROOT/factory/scripts/validate-report.sh" "$report.partial" >/dev/null 2>&1; then
+    fail "identity-resolved $outcome accepted partial artifacts"
+  fi
+  jq -e --arg outcome "$outcome" '
+    any(.allOf[]; .if.properties.outcome.const == $outcome and
+      .if.required == ["outcome"] and .then.properties.artifacts.maxItems == 0)
+  ' "$RUN_SCHEMA" >/dev/null || fail "schema permits $outcome artifacts"
+done
+
 jq -e '
   def durable: ["research.md","meta.yaml","external.md","speakeasy.md"];
   def outcome_rule($name): [.allOf[] | select(.if.properties.outcome.const == $name and .if.required == ["outcome"])] | if length == 1 then .[0].then else null end;
@@ -89,7 +107,7 @@ validate_report() {
     (if .outcome == "awaiting_scope" then
        (.artifacts | length) == 0 and (.open_questions | length) > 0
      else true end) and
-    (if .outcome == "failed" then (.artifacts | length) == 0 else true end)
+    (if .outcome != "converged" then (.artifacts | length) == 0 else true end)
   ' "$1" >/dev/null
 }
 
@@ -301,7 +319,7 @@ test_validation_never_installs_blocked_partial() {
   reset_validation_fixture
   make_export_report blocked github '["research.md"]'
   cp "$ROOT/guides/github/research.md" "$EXPORT/guide/"
-  GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
+  expect_validation_failure "identity-resolved blocked partial artifacts"
   [[ ! -e "$REPO/guides/github/research.md" ]] || fail "blocked artifact was installed"
 
   reset_validation_fixture
@@ -379,7 +397,7 @@ test_validation_nonconverged_no_install_and_converged_full_lint() {
   cp "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/"
   printf 'invalid setup\n' >"$EXPORT/guide/external.md"
   printf 'invalid setup\n' >"$EXPORT/guide/speakeasy.md"
-  run_validator
+  expect_validation_failure "blocked metadata/setup partial artifacts"
   [[ ! -e "$REPO/guides/github/meta.yaml" ]] || fail "blocked metadata-only validation installed"
 
   reset_validation_fixture

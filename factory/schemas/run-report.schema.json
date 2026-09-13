@@ -115,6 +115,15 @@
     },
     {
       "if": {
+        "properties": {"outcome": {"const": "blocked"}},
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {"artifacts": {"maxItems": 0}}
+      }
+    },
+    {
+      "if": {
         "properties": {"outcome": {"const": "failed"}},
         "required": ["outcome"]
       },
