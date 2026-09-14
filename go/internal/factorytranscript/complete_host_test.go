@@ -171,3 +171,123 @@ func TestHostObservedReason(t *testing.T) {
 		})
 	}
 }
+
+// Inject context errors at synchronous host boundaries without clock races.
+type errorAtBoundary struct {
+	context.Context
+	reached func() bool
+	err     error
+}
+
+func (c errorAtBoundary) Err() error {
+	if c.reached() {
+		return c.err
+	}
+	return nil
+}
+
+func TestLateContextReason(t *testing.T) {
+	for _, point := range []string{"before-promotion", "guide-renamed", "report-written", "ready-written"} {
+		for _, cause := range []error{context.Canceled, context.DeadlineExceeded} {
+			t.Run(point+"/"+cause.Error(), func(t *testing.T) {
+				private, out := completeFixture(t)
+				calls := 0
+				reached := func() bool {
+					switch point {
+					case "before-promotion":
+						calls++
+						return calls >= 2
+					case "guide-renamed":
+						_, e := os.Stat(out + "/guide")
+						return e == nil
+					case "report-written":
+						b, _ := os.ReadFile(out + "/run-report.json")
+						r, e := decodeReport(b)
+						return e == nil && r["outcome"] == "converged"
+					default:
+						b, _ := os.ReadFile(out + "/finalization.json")
+						var s finalization
+						return json.Unmarshal(b, &s) == nil && s.PublicationReady
+					}
+				}
+				eligibility := errorAtBoundary{context.Background(), reached, cause}
+				if CompleteHost(context.Background(), eligibility, private, out, true, true, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") == nil {
+					t.Fatal("late context accepted")
+				}
+				assertRevoked(t, out)
+				b, _ := os.ReadFile(out + "/finalization.json")
+				var s finalization
+				json.Unmarshal(b, &s)
+				want := "context_cancelled"
+				if cause == context.DeadlineExceeded {
+					want = "context_deadline"
+				}
+				if s.HostReason != want {
+					t.Fatalf("reason %s, want %s", s.HostReason, want)
+				}
+				if s.Primary != "converged" {
+					t.Fatal("primary changed")
+				}
+			})
+		}
+	}
+}
+
+func TestEarlierFailureSurvivesLateContext(t *testing.T) {
+	for _, worker := range []bool{false, true} {
+		t.Run(fmt.Sprint(worker), func(t *testing.T) {
+			private, out := completeFixture(t)
+			want := "worker_failed"
+			if worker {
+				os.WriteFile(out+"/.finalizing/run-report.json", []byte("invalid"), 0600)
+				want = "export_validation_failed"
+			}
+			eligibility := errorAtBoundary{context.Background(), func() bool { return true }, context.DeadlineExceeded}
+			if CompleteHost(context.Background(), eligibility, private, out, worker, true, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") == nil {
+				t.Fatal("failure accepted")
+			}
+			b, _ := os.ReadFile(out + "/finalization.json")
+			var s finalization
+			json.Unmarshal(b, &s)
+			if s.HostReason != want {
+				t.Fatalf("reason %s, want %s", s.HostReason, want)
+			}
+		})
+	}
+}
+
+func TestLateCleanupContextReason(t *testing.T) {
+	for _, point := range []string{"before-promotion", "guide-renamed"} {
+		for _, cause := range []error{context.Canceled, context.DeadlineExceeded} {
+			t.Run(point+"/"+cause.Error(), func(t *testing.T) {
+				private, out := completeFixture(t)
+				if e := os.WriteFile(out+"/.finalizing/session-transcript.json", []byte(`{}`), 0600); e != nil {
+					t.Fatal(e)
+				}
+				reached := func() bool {
+					name := "session-transcript.json"
+					if point == "guide-renamed" {
+						name = "guide"
+					}
+					_, e := os.Stat(out + "/" + name)
+					return e == nil
+				}
+				ctx := errorAtBoundary{context.Background(), reached, cause}
+				if CompleteHost(ctx, context.Background(), private, out, true, true, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") == nil {
+					t.Fatal("late context accepted")
+				}
+				assertRevoked(t, out)
+				b, _ := os.ReadFile(out + "/finalization.json")
+				var s finalization
+				json.Unmarshal(b, &s)
+				want := "context_cancelled"
+				if cause == context.DeadlineExceeded {
+					want = "context_deadline"
+				}
+				if s.HostReason != want {
+					t.Fatalf("reason %s, want %s", s.HostReason, want)
+				}
+			})
+		}
+	}
+}

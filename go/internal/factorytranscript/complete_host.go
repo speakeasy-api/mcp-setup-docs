@@ -130,6 +130,14 @@ func CleanupPrivate(ctx context.Context, private string) error {
 	return ctx.Err()
 }
 
+// contextReason classifies only the error observed by a rejecting context check.
+func contextReason(err error) string {
+	if err == context.DeadlineExceeded {
+		return "context_deadline"
+	}
+	return "context_cancelled"
+}
+
 // CompleteHost runs in the SURVIVING supervisor, never the killable worker.
 // The worker only writes .finalizing; no guide/success is visible until raw
 // records are removed. All work shares the original overall deadline.
@@ -163,9 +171,11 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 	state := expected
 	reason := "unknown"
 	defer func() {
-		if ret == nil && eligibility.Err() != nil {
-			reason = "context_cancelled"
-			ret = errUnsafe
+		if ret == nil {
+			if e := eligibility.Err(); e != nil {
+				reason = contextReason(e)
+				ret = errUnsafe
+			}
 		}
 		if stageOwned {
 			if e := out.RemoveAll(".finalizing"); e != nil {
@@ -183,9 +193,11 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 		}
 		// Commit arbitration is this last synchronous eligibility observation.
 		// Cancellation before it revokes; cancellation afterward is post-completion.
-		if ret == nil && eligibility.Err() != nil {
-			reason = "context_cancelled"
-			ret = errUnsafe
+		if ret == nil {
+			if e := eligibility.Err(); e != nil {
+				reason = contextReason(e)
+				ret = errUnsafe
+			}
 		}
 		if ret != nil {
 			if promoted {
@@ -215,7 +227,8 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 	if _, e := out.Lstat("guide"); !os.IsNotExist(e) {
 		return errUnsafe
 	}
-	if ctx.Err() != nil {
+	if e := ctx.Err(); e != nil {
+		reason = contextReason(e)
 		return errUnsafe
 	}
 	stage, err := b.directory(out, ".finalizing")
@@ -254,8 +267,8 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 		reason = "worker_failed"
 		return errUnsafe
 	}
-	if eligibility.Err() != nil {
-		reason = "context_cancelled"
+	if e := eligibility.Err(); e != nil {
+		reason = contextReason(e)
 		return errUnsafe
 	}
 	if report["outcome"] == "converged" {
@@ -272,7 +285,12 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 				return errUnsafe
 			}
 		}
-		if eligibility.Err() != nil || ctx.Err() != nil {
+		if e := eligibility.Err(); e != nil {
+			reason = contextReason(e)
+			return errUnsafe
+		}
+		if e := ctx.Err(); e != nil {
+			reason = contextReason(e)
 			return errUnsafe
 		}
 		if e = out.Rename(".finalizing/guide", "guide"); e != nil {
@@ -282,7 +300,12 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 	} else {
 		state.PublicationReady = false
 	}
-	if ctx.Err() != nil || eligibility.Err() != nil {
+	if e := ctx.Err(); e != nil {
+		reason = contextReason(e)
+		return errUnsafe
+	}
+	if e := eligibility.Err(); e != nil {
+		reason = contextReason(e)
 		return errUnsafe
 	}
 	if err := writeFinal(out, "run-report.json", data); err != nil {

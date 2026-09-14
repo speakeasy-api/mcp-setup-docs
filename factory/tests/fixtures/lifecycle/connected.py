@@ -102,7 +102,11 @@ try:
         with (row/'remaining').open('w') as out:
             subprocess.run(['docker','ps','--all','--filter','label=factory.run-id='+e['FACTORY_HOST_RUN_ID'],'--format','{{.ID}}'],stdout=out,check=True,timeout=10)
         assert not (row/'remaining').read_text().strip()
-        assert [p for p in run.rglob('*') if p.is_file()]==[run/'host/result.json']
+        assert {p for p in run.rglob('*') if p.is_file()}=={run/'host/result.json', run/'host/host-reason.json'}
+        diagnostic=json.loads((run/'host/host-reason.json').read_text())
+        assert diagnostic['host_reason'] in ('none','prerequisite_failed','worker_failed','context_deadline','context_cancelled')
+        assert diagnostic == dict(result, host_reason=diagnostic['host_reason'])
+        assert state['host_reason'] in ('none','unknown','worker_failed','cleanup_failed','context_deadline','context_cancelled','stage_missing_or_invalid','export_validation_failed')
         assert not (run/'workspace/canary').exists()
         if mode=='timeout': assert (row/'timing.group').read_text()=='proven'
         if mode=='maximum': assert int((row/'timing.bytes').read_text())==8<<20
