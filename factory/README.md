@@ -1,6 +1,6 @@
 # Guide factory operations
 
-## Approved optional research-tool policy adjustment
+## Earlier approved optional research-tool policy adjustment
 
 The user subsequently approved one narrow exception to strict execution-failure
 handling: an unavailable optional exploratory command (for example, an absent
@@ -16,6 +16,34 @@ report/export and publication gates are unchanged. This is a later approved
 policy adjustment, not a claim that the original strict design allowed recovery.
 Static prompt fixtures and assembler parity do not prove model compliance.
 No live run is authorized by this adjustment alone.
+
+## Later approved read-only fetch/parsing recovery adjustment
+
+The user later expanded the exception above to positively known read-only
+optional fetch/parsing command failures, not just unavailable tools. Permit one
+correction OR one simpler already available alternative per failed research
+operation. This single shared budget never resets on a different error class or
+by treating a recovery attempt as a new operation; failed recovery is fatal.
+Both attempts must have no mutation or uncertain partial side effects. A malformed
+shell sed expression is distinct from malformed Runlet, which remains fatal.
+A curl 23 downstream-pipe failure qualifies only with positive read-only evidence;
+the exit code alone is insufficient. Transient HTTP retries use this same budget,
+not an open-ended allowance. HTTP failures provide no invented source evidence
+and cannot bypass the Topic 5 endpoint gate.
+
+Mandatory helpers, validation, reporting, privacy, native handles, publication,
+deadlines, ambiguous writes and malformed dispatch retain their fatal gates.
+No automatic service-write retries, installs, known-absent Python invocation, or
+broader authentication/access/bypass changes are allowed. Shared child instructions
+cover every topic and assembled follow-up; parent audit uses the same policy.
+Existing private research evidence records the failure and recovery, without new logs.
+
+The private `okta-live-a83626b.mJVvvG` evidence recorded malformed sed syntax and
+curl 23, but omitted the exact input: this is not an original-root-cause reproduction
+claim. This later policy does not rewrite the earlier approval or historical facts.
+Prompt-text tests are not a runtime classifier or proof of model compliance.
+Independent review and fresh approval are required before any further live run.
+No runtime image or dependency change is part of this adjustment.
 
 ## Host lifecycle integration — Tasks 1–5 approved; Task 6 acceptance pending
 

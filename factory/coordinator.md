@@ -14,7 +14,7 @@ Every fallible call, child start/continuation, concurrent wave, file operation, 
 
 The host owns the 1800-second research clock, starting before context resolution, the 900-second writing/repair/validation clock and the 2700-second outer ceiling. No child, retry or repeated signal resets these clocks. This prompt cannot guarantee process cleanup. Host/container lifecycle integration and readable export/upload remain separate acceptance gates; no placeholder runtime or whole-job success claim.
 
-Parent audit must apply the same classification in **Bounded optional research fallback**: do not fail merely because a research report records a nonzero unavailable optional command when the read-only/no-side-effects conditions and bounded fallback evidence are satisfied. Missing research evidence still uses the existing factual-gap gates. Mandatory-helper failures, fallback execution failures, ambiguous side effects and malformed dispatch remain fatal. This exception never permits restarting a failed child or reusing a stale handle.
+Parent audit must apply the same classification in **Bounded optional research fallback**: do not fail merely because a research report records a nonzero unavailable optional command or positively known read-only fetch/parsing failure when the read-only/no-side-effects conditions and single shared recovery budget evidence are satisfied. Missing research evidence still uses the existing factual-gap gates. Mandatory-helper failures, fallback execution failures, ambiguous side effects and malformed dispatch remain fatal. This exception never permits restarting a failed child or reusing a stale handle.
 
 ## Input and context contract
 
@@ -417,10 +417,16 @@ Use these owners for cross-topic dependencies:
 
 Prefer installed shell/curl/jq/rg; do not knowingly invoke absent Python.
 Never install Python, dependencies, or new tools. This exception covers only an
-unavailable optional exploratory research command, not a mandatory helper.
+unavailable optional exploratory research command or a positively known read-only
+fetch/parsing command failure, not a mandatory helper. It permits one correction
+OR one simpler already available alternative, never both, with no mutation or
+uncertain side effects in the original attempt or recovery.
 Check and classify every caught error and nonzero shell result before continuing:
 
 - optional fetch-helper: command-not-found (127), simple known read-only attempt before any mutation => one available-tool fallback permitted
+- optional read-only sed extraction: malformed shell sed expression => one correction or simpler available alternative permitted
+- optional read-only curl pipeline: downstream parser closes pipe, curl exits 23, no file/service mutation or uncertain side effects => one correction or simpler available alternative permitted
+- failed recovery attempt, including a different error class => fatal
 - mandatory validator: command-not-found (127) or any nonzero => fatal
 - ambiguous write or unknown partial side effects => fatal
 - malformed Runlet/dispatch => fatal; never repair and resubmit
@@ -429,11 +435,16 @@ A compound shell exit 127 cannot establish that earlier commands had no side eff
 The exception requires positive knowledge that the simple attempt was read-only
 and had no partial side effects; uncertainty is fatal. Mandatory context, prompt
 assembly, validation, reporting, and lifecycle helpers are never optional.
+A shell sed expression error is not malformed Runlet grammar; the latter remains fatal.
+Exit codes alone (including curl 23) do not establish read-only/no-side-effects eligibility.
 Other nonzero or caught execution errors remain fatal, including fallback failure.
-At most one fallback per unavailable command; no repeated attempts or indefinite loop.
+One shared recovery budget per failed research operation; changing error class or treating the next attempt as a new operation never resets it.
 Use only an already available tool for the same permitted public-source read,
 within the existing deadline and research limits. No retry of the absent command.
-Record the original failure, fallback used, and its result in the existing private research report evidence;
+Transient HTTP retries consume this same single budget; no open-ended retries.
+HTTP source failure cannot invent source evidence or bypass the Topic 5 endpoint gate.
+No automatic service-write retries or broader authentication, access, or bypass changes.
+Record the original failure, fallback used, and its result in the existing private research report evidence; include any correction as the recovery used;
 return this evidence for coordinator persistence, without new logs or child file writes.
 If no available fallback exists, record the unanswered research check; do not
 claim that missing evidence proves absence or unsupported service.
