@@ -556,8 +556,8 @@ for phrase in \
 done
 factory_checkout="$(sed -n '/uses: actions\/checkout@v4/,/uses: actions\/setup-go@v5/p' "$FACTORY_CI")"
 assert_contains 'persist-credentials: false' "$factory_checkout"
-assert_contains 'KIT_VERSION=0.1.134' "$(cat "$ROOT/factory/config.env")"
-assert_contains 'KIT_SHA256=e1262d364187f3c244ec28a099c7cb2e1f2c22b4440f1d8179de34b707d56487' "$(cat "$ROOT/factory/config.env")"
+assert_contains 'KIT_VERSION=0.2.2' "$(cat "$ROOT/factory/config.env")"
+assert_contains 'KIT_SHA256=1371a3d708ed5a897d15bbe3a76fb92c9ee20d69eeb5bb7d6626fee1e914310f' "$(cat "$ROOT/factory/config.env")"
 assert_contains 'docker build --platform linux/amd64' "$(cat "$ROOT/factory/tests/test-container.sh")"
 
 for forbidden in OPENROUTER_API_KEY run-kit.sh 'kit run' 'npm ' 'actions/setup-node'; do

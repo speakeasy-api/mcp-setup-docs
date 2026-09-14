@@ -199,7 +199,7 @@ func TestCLIRejectsDeadlineKnobs(t *testing.T) {
 func TestDockerSupervisorBoundary(t *testing.T) {
 	image := os.Getenv("FACTORY_BOUNDARY_IMAGE")
 	if image == "" {
-		image = "mcp-setup-docs-kit:0.1.134"
+		image = "mcp-setup-docs-kit:0.2.2"
 	}
 	s := production()
 	s.research = 2 * time.Second

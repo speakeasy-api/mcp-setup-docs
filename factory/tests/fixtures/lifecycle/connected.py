@@ -48,8 +48,8 @@ try:
     env=dict(os.environ,GOTOOLCHAIN='go1.27.0',CGO_ENABLED='0')
     image='factory-connected-'+tmp.name.lower().replace('_','-')+'-fixture'
     shutil.copy(root/'factory/tests/fixtures/lifecycle/kit',tmp/'kit')
-    (tmp/'Dockerfile').write_text('FROM mcp-setup-docs-kit:0.1.134\nCOPY kit /usr/local/bin/kit\n')
-    call(['docker','image','inspect','mcp-setup-docs-kit:0.1.134'])
+    (tmp/'Dockerfile').write_text('FROM mcp-setup-docs-kit:0.2.2\nCOPY kit /usr/local/bin/kit\n')
+    call(['docker','image','inspect','mcp-setup-docs-kit:0.2.2'])
     call(['docker','build','--platform','linux/amd64','-t',image,str(tmp)],timeout=120)
     # Build-only overlay: instrument exact host terminal callback and return,
     # including all deferred CompleteHost cleanup. Production source is unchanged.

@@ -5,12 +5,12 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT/factory/tests/test-helper.sh"
 # shellcheck disable=SC1091
 source "$ROOT/factory/config.env"
-assert_eq 0.1.134 "$KIT_VERSION"
-assert_eq e1262d364187f3c244ec28a099c7cb2e1f2c22b4440f1d8179de34b707d56487 "$KIT_SHA256"
+assert_eq 0.2.2 "$KIT_VERSION"
+assert_eq 1371a3d708ed5a897d15bbe3a76fb92c9ee20d69eeb5bb7d6626fee1e914310f "$KIT_SHA256"
 assert_eq openai/gpt-6-astra "$KIT_MODEL"
 assert_eq medium "$KIT_REASONING_EFFORT"
 assert_eq 300 "${KIT_REQUEST_BUDGET_SECONDS:-}"
-assert_eq mcp-setup-docs-kit:0.1.134 "$KIT_IMAGE"
+assert_eq mcp-setup-docs-kit:0.2.2 "$KIT_IMAGE"
 # Literal shell contracts: config must reach the actual prompt invocation.
 # shellcheck disable=SC2016
 grep -Fq -- '--request-budget-seconds "${KIT_REQUEST_BUDGET_SECONDS:-300}"' "$ROOT/factory/scripts/container-entrypoint.sh"

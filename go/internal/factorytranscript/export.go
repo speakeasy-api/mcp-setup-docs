@@ -10,9 +10,10 @@ import (
 // This is a private, UNSANITIZED projection, not an upload artifact. The owning
 // exporter must sanitize all selected fields and rescan its final serialization
 // with one shared Sanitizer, then check Close before writing anything.
-// Source: Kit 0.1.134 (5eb7601), src/session.rs Record/append/replace;
+// Normal schema-3: Kit 0.1.134 (5eb7601) and 0.2.2 (bf34745),
+// src/session.rs Record/append/replace; historical fixture names retained.
 // agentkit-core 0.10.5 src/lib.rs Item, Part, ToolCallPart, ToolResultPart.
-// Schema-5 child/snapshot source: Kit 735409e, src/session.rs; see children.go.
+// Schema-5 child/snapshot source: Kit 735409e (included in release 0.2.2, bf34745), src/session.rs; see children.go.
 // Persistence generations are not native returned-handle generations.
 type decodedSession struct {
 	Events    []decodedEvent `json:"events"`

@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-// Source-derived synthetic fixtures: Kit 735409e src/session.rs Record and
+// Source-derived synthetic fixtures: Kit 735409e (included in release 0.2.2, bf34745) src/session.rs Record and
 // ChildSnapshot; src/session/children.rs DurableChild; agentkit-core
 // 0.10.5+git8e4ee Item/Part. No provider session data or pin changes.
 const childFixture = `{"id":"child-1","acp_session_id":"PRIVATE_ACP","name":"PRIVATE_NAME","task":"PRIVATE_TASK","generation":2,"handle_generation":2,"output":{"private":"PRIVATE_OUTPUT"},"updates":{"private":"PRIVATE_UPDATES"},"harness":"PRIVATE_HARNESS","model":null,"root":"/PRIVATE_ROOT","depth":1,"lifecycle":"Idle","created_at_unix_ms":0}`

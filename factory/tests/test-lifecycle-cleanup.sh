@@ -4,7 +4,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)
 python3 - "$ROOT" <<'PY'
 import ast,json,os,pathlib,signal,subprocess,sys,tempfile,shutil
 root=pathlib.Path(sys.argv[1]); tmp=pathlib.Path(tempfile.mkdtemp()).resolve(); log=tmp/'log'
-image='mcp-setup-docs-kit:0.1.134'
+image='mcp-setup-docs-kit:0.2.2'
 (tmp/'probe').mkdir()
 # Exercise the actual fixture helpers without running its acceptance matrix.
 source=(root/'factory/tests/fixtures/lifecycle/connected.py').read_text()

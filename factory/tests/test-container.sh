@@ -14,10 +14,10 @@ trap 'rm -rf "$TMP"; exit 130' INT TERM
 test_config_is_pinned() {
   # shellcheck disable=SC1091
   source "$ROOT/factory/config.env"
-  assert_eq "0.1.134" "$KIT_VERSION"
+  assert_eq "0.2.2" "$KIT_VERSION"
   assert_eq "openai/gpt-6-astra" "$KIT_MODEL"
   assert_eq "medium" "$KIT_REASONING_EFFORT"
-  assert_eq "e1262d364187f3c244ec28a099c7cb2e1f2c22b4440f1d8179de34b707d56487" "$KIT_SHA256"
+  assert_eq "1371a3d708ed5a897d15bbe3a76fb92c9ee20d69eeb5bb7d6626fee1e914310f" "$KIT_SHA256"
 }
 
 test_go_toolchain_is_pinned() {
@@ -164,7 +164,7 @@ test_release_archive_layout_and_checksum() {
   fi
   printf '%s  %s\n' "$KIT_SHA256" "$archive" | sha256sum -c - >/dev/null
   entries="$(tar -tzf "$archive")"
-  # v0.1.134 also ships required license notices. Reject unexpected paths.
+  # v0.2.2 also ships required license notices. Reject unexpected paths.
   for required in kit LICENSE THIRD_PARTY_NOTICES.md third_party/licenses/; do
     grep -Fxq "$required" <<<"$entries" || fail "archive missing $required"
   done
@@ -275,7 +275,7 @@ test_opt_in_final_image() {
        test -x "/usr/local/bin/$binary"
      done
      lint-guide guides/asana
-     kit --version | grep -Fx "kit 0.1.134"
+     kit --version | grep -Fx "kit 0.2.2"
      kit prompt --help | grep -q -- --request-budget-seconds
      mkdir -p /tmp/generate/go
      cp -a guides /tmp/generate/

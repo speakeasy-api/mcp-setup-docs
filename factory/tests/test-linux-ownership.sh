@@ -5,7 +5,7 @@ TMP=$(mktemp -d)
 trap 'rm -rf -- "$TMP"' EXIT
 (cd "$ROOT/go" && GOTOOLCHAIN=go1.27.0 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go test -c -o "$TMP/ownership.test" ./internal/factorytranscript)
 docker run --rm --platform linux/amd64 --tmpfs /fixture --entrypoint /bin/bash \
-  -v "$TMP/ownership.test:/ownership.test:ro" mcp-setup-docs-kit:0.1.134 -c '
+  -v "$TMP/ownership.test:/ownership.test:ro" mcp-setup-docs-kit:0.2.2 -c '
 set -euo pipefail
 for mode in root matched; do
   base=/fixture/$mode

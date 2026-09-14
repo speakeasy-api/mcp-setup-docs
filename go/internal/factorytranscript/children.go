@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-// Kit 735409e: src/session/children.rs:8-45 and session.rs:2423-2432.
+// Kit 735409e (included in release 0.2.2, bf34745): src/session/children.rs:8-45 and session.rs:2423-2432.
 // Recovery output/updates are opaque JSON, already duplicate/depth checked by
 // readValue. They are never projected as messages or followed as paths.
 var durableChildID = regexp.MustCompile(`^[A-Za-z0-9_-]{1,128}$`)

@@ -84,7 +84,7 @@ readable session output, runs full deterministic validation, and removes private
 records within the independent 300-second finalization clock. Research has an
 1800-second deadline and writing a one-time 900-second deadline; finalization
 is not model time. There are no per-topic native timeout flags or global guide cap.
-Released Kit 0.1.134 uses Astra, medium reasoning and a 300-second logical request
+Released Kit 0.2.2 uses Astra, medium reasoning and a 300-second logical request
 budget; none of those settings replaces the host phase clocks.
 
 Publication requires the frozen readable export **and successful readable artifact
@@ -278,12 +278,15 @@ finally handler removes only containers matching its image, private mount root
 and run label, confirming actual absence. Forced SIGKILL/runner loss still cannot
 promise cleanup; leftover private state requires explicit recovery.
 
-Kit v0.1.134 resolves to `5eb76012530cc374a37ed6ebb0ddea965e116c18`.
-Its release Cargo.lock pins Runlet **0.6.0**, crates.io checksum
-`057e0864428c5a79a68683942d3750d05e9ffae541aa0185fde9ae1c87eca100`,
-and serde_json **1.0.151**. The existing adapter targets Runlet 0.5; this is a real
-version mismatch, not missing evidence to be solved by arbitrary cache lookup.
-The 0.6.0 crate archive was verified against that checksum without building Rust.
-A separately bounded build should compile the adapter against the release-locked
-0.6.0/serde dependency graph and pinned compiler. Default CI remains explicitly
-static-only until that characterization succeeds; no dependency was changed here.
+Kit v0.2.2 resolves to `bf347453982d0d62f57d4f4c38d2541537f967f9`, including
+PR 224 (`b4d204e76d5422410c728364eb614b9205878e6a`). See
+[release provenance](tests/fixtures/kit-v0.2.2/README.md) and
+[native executor provenance](tests/fixtures/research/runlet-build.md).
+Runlet **0.6.0**, serde_json **1.0.151**, and Rust **1.94.0** are unchanged;
+all 31 registry tuples in the native executor lock match the new release lock.
+No dependency updates were needed. Default shell checks remain static; CI also
+executes the release-locked native fixture.
+
+Build the new `mcp-setup-docs-kit:0.2.2` image before image-dependent tests or the
+full suite: helpers and configuration are baked into the image. The existing
+`0.1.134` Docker image/tag remains untouched and is not evidence for this release.

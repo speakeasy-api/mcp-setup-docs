@@ -8,10 +8,10 @@ execution. Missing compiler, download, checksum, build or runtime errors fail CI
 
 ## Immutable release provenance
 
-Kit **0.1.134**, commit **5eb76012530cc374a37ed6ebb0ddea965e116c18**:
+Kit **0.2.2**, commit **bf347453982d0d62f57d4f4c38d2541537f967f9**:
 
-- `https://raw.githubusercontent.com/speakeasy-api/kit/5eb76012530cc374a37ed6ebb0ddea965e116c18/Cargo.lock`
-  SHA-256: `f87846b20a6e42624fb47b3eeef5b9b3e43cc0d80e6f096fc5fa9487f3b23678`.
+- `https://raw.githubusercontent.com/speakeasy-api/kit/bf347453982d0d62f57d4f4c38d2541537f967f9/Cargo.lock`
+  SHA-256: `5b01623c86d10beebf7089d81ec39bca1b03870e4817001c65cd3a77f1752be1`.
 - The same commit's `mise.toml` pins Rust **1.94.0**; `Cargo.toml`
   declares that minimum compiler. There is no release `rust-toolchain.toml`.
 - Runlet **0.6.0** archive SHA-256:
@@ -22,7 +22,7 @@ Kit **0.1.134**, commit **5eb76012530cc374a37ed6ebb0ddea965e116c18**:
 The adjacent Cargo.lock is the transitive subset for those two dependencies,
 not a newly selected graph. It was extracted from the release lock by following
 package dependencies; Cargo 1.94.0 pruned unused feature dependencies offline.
-Every resulting registry name/version/source/checksum tuple was compared with
+All 31 registry name/version/source/checksum tuples were compared with
 the original release lock. No dependency version was updated. To audit, verify
 the original lock's SHA-256, then compare these tuples for every registry package
 in the fixture lock. The fixture root is the only non-registry package.
