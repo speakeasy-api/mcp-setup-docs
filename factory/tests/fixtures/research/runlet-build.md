@@ -74,11 +74,21 @@ returns every byte without projecting output or updates. Missing predecessors
 (including failed prior attempts) fail closed; no arbitrary latest-file search.
 The return contract still includes the complete native handle.
 
-`test-read-research-handle.sh` covers a 36 KB opaque handle, both predecessor
-indexes, malformed/missing records, foreign identity, changed paths, permissions,
-symlinks, hardlinks and the 64 KiB cap. This conservative cap rejects oversized
-records rather than truncating them. It is below the inspected development Kit
-shell's 64 MiB internal output limit; model-facing artifact previews are not used.
+`test-read-research-handle.sh` covers byte-exact reads above 64 KiB at both
+predecessor indexes with growing opaque updates, plus malformed/missing records,
+foreign identity, changed paths, permissions, symlinks and hardlinks. Records
+above the existing 1 MiB per-source budget are rejected with empty stdout, never
+truncated. This replaces the arbitrary 64 KiB handle ceiling; the inspected Kit
+9829cc2 shell has a separate 64 MiB internal output limit, and model-facing
+artifact preview limits do not constrain direct Runlet values. The Runlet
+executor fixture invokes the actual helper for large persisted handles and
+checks exact stdout bytes and complete parsed continuation-handle equality,
+including generation and opaque updates, without field projection.
+
+Filesystem checks assume private records are quiescent during dispatch and no
+concurrent same-UID writer. They are not TOCTOU-atomic protection against path
+replacement between checks and reads. The generation nondecrease check is a
+sanity check, not proof of currentness; native runtime validation is authoritative.
 
 Local synthetic native verification used the existing
 `.tmp-kit-dev-9829cc2-a1128c8/latestE-native/{repro.py,verify.py}` harness, with the

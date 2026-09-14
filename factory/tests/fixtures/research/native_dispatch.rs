@@ -1,5 +1,5 @@
 // Test-only adapter to the real Runlet 0.6.0 Runtime, not an interpreter.
-// Native tools and private filesystem are fake; assembler CLI is real.
+// Native tools and persistence are fake; assembler and private snapshot reader are real.
 use runlet::{
     CallSchema, CanonicalValue as V, ExecutionPolicy, Runtime, Schema, ToolDescriptor, ToolError,
     ToolRegistry,
@@ -107,7 +107,26 @@ fn dispatch(
                     if command.starts_with("bash /workspace/factory/scripts/read-research-handle.sh ") {
                         assert_eq!(command,format!("bash /workspace/factory/scripts/read-research-handle.sh {topic} {index}"));
                         let path=format!("/workspace/.factory/research/topic-{topic}-{}.handle.json", index-1);
-                        return Ok(cv(json!({"success":s.files.contains_key(&path),"stdout":s.files.get(&path).cloned().unwrap_or_default()})));
+                        // Exercise the actual bounded reader, not a projected/mock stdout.
+                        use std::os::unix::fs::PermissionsExt;
+                        let sandbox=fs::canonicalize(&temp).unwrap().join(format!("handle-reader-{topic}-{index}"));
+                        let private=sandbox.join(".factory/research");
+                        fs::create_dir_all(&private).unwrap();
+                        for dir in [sandbox.join(".factory"), private.clone()] {
+                            fs::set_permissions(dir,fs::Permissions::from_mode(0o700)).unwrap();
+                        }
+                        for (name, content) in &s.files {
+                            let file=sandbox.join(name.strip_prefix("/workspace/").unwrap());
+                            fs::write(&file,content).unwrap();
+                            fs::set_permissions(file,fs::Permissions::from_mode(0o600)).unwrap();
+                        }
+                        let out=Command::new("bash").arg(format!("{root}/factory/scripts/read-research-handle.sh"))
+                            .args([topic.to_string(),index.to_string()]).env("FACTORY_REPO_ROOT",&sandbox).output().unwrap();
+                        assert!(out.status.success(),"actual private reader failed");
+                        assert!(out.stdout.len()>65536,"large handle fixture required");
+                        let stdout=String::from_utf8(out.stdout).unwrap();
+                        assert_eq!(stdout,s.files[&path],"reader changed complete handle bytes");
+                        return Ok(cv(json!({"success":true,"stdout":stdout})));
                     }
                     let words:Vec<_>=command.split_whitespace().collect();
                     assert_eq!(words.len(),9); assert_eq!(words[0],"/usr/local/bin/prepare-research-prompt");
@@ -133,7 +152,7 @@ fn dispatch(
                     if fail { let mut e=ToolError::new("UNCERTAIN","fake interrupted continuation");e.uncertain=true;return Err(e); }
                     return Ok(cv(json!({"id":format!("native-topic-{topic}"),"generation":if index==0 {17+topic} else {41},
                         "name":format!("topic-{topic}"),"output":if topic == 2 && index == 1 { String::new() } else { format!("complete topic {topic}, attempt {index}\n\n") },
-                        "updates":{"items":[{"opaque":"preserve me"}],"truncated":false}})));
+                        "updates":{"items":[{"opaque":{"extra":[1,2,3],"data":"u".repeat(70000*(index as usize+1))}}],"truncated":false}})));
                 }
             }
         });
@@ -371,5 +390,5 @@ fn main() {
         !s.files
             .contains_key("/workspace/.factory/research/topic-2-1.report.md")
     );
-    println!("PASS: real Runlet executor + real assembler; fake native tools and filesystem only");
+    println!("PASS: real Runlet executor + real assembler + actual large-handle reader; fake native tools/persistence");
 }

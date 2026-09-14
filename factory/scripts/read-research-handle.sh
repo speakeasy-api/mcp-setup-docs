@@ -11,10 +11,10 @@ for dir in "$ROOT/.factory" "$ROOT/.factory/research"; do
 done
 base="$ROOT/.factory/research/topic-$1"
 prior="$base-$(($2 - 1))"
-# Stay below the native shell's output budget; reject rather than truncate.
+# Reuse the existing 1 MiB per-source budget; reject rather than truncate.
 regular() {
   [[ ! -L $1 && -n $(find "$1" -maxdepth 0 -type f -uid "$(id -u)" -perm 0600 -links 1 -print) ]] || fail
-  [[ $(wc -c <"$1") -le 65536 ]] || fail
+  [[ $(wc -c <"$1") -le 1048576 ]] || fail
 }
 for file in "$base-0.handle.json" "$prior.handle.json" "$prior.input.json"; do regular "$file"; done
 jq -e --argjson topic "$1" --argjson index "$(($2 - 1))" '
