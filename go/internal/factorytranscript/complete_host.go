@@ -9,7 +9,7 @@ import (
 )
 
 // removeOwned checks the original deadline between bounded directory batches.
-// It never follows a symlink and keeps only the already-approved host/result.json.
+// It never follows a symlink; only fixed host result/diagnostic records survive.
 func removeOwned(ctx context.Context, root *os.Root, name string, depth int) error {
 	if ctx.Err() != nil || depth > 128 {
 		return errUnsafe
@@ -103,7 +103,7 @@ func CleanupPrivate(ctx context.Context, private string) error {
 						return errUnsafe
 					}
 					for _, item := range batch {
-						if item.Name() == "result.json" {
+						if item.Name() == "result.json" || item.Name() == "host-reason.json" {
 							st, e := host.Lstat(item.Name())
 							if e == nil && singleRegular(st) {
 								continue
@@ -161,18 +161,22 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 	promoted := false
 	expected := initialFinalization(runID)
 	state := expected
+	reason := "unknown"
 	defer func() {
 		if ret == nil && eligibility.Err() != nil {
+			reason = "context_cancelled"
 			ret = errUnsafe
 		}
 		if stageOwned {
 			if e := out.RemoveAll(".finalizing"); e != nil {
+				reason = "cleanup_failed"
 				ret = errUnsafe
 			}
 		}
 		if ret != nil {
 			state.PublicationReady = false
 		}
+		state.HostReason = reason // Never trust a child-authored diagnostic.
 		data, _ := json.Marshal(state)
 		if writeFinal(out, "finalization.json", data) != nil {
 			ret = errUnsafe
@@ -180,6 +184,7 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 		// Commit arbitration is this last synchronous eligibility observation.
 		// Cancellation before it revokes; cancellation afterward is post-completion.
 		if ret == nil && eligibility.Err() != nil {
+			reason = "context_cancelled"
 			ret = errUnsafe
 		}
 		if ret != nil {
@@ -188,11 +193,23 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 			}
 			_ = writeFinal(out, "run-report.json", failedReport)
 			state.PublicationReady = false
+			state.HostReason = reason
 			data, _ = json.Marshal(state)
 			_ = writeFinal(out, "finalization.json", data)
 		}
 	}()
-	if cleanupErr != nil || !stageOwned {
+	if cleanupErr != nil {
+		reason = "cleanup_failed"
+		if ctx.Err() != nil {
+			reason = "context_cancelled"
+		}
+		if ctx.Err() == context.DeadlineExceeded {
+			reason = "context_deadline"
+		}
+		return errUnsafe
+	}
+	reason = "stage_missing_or_invalid"
+	if !stageOwned {
 		return errUnsafe
 	}
 	if _, e := out.Lstat("guide"); !os.IsNotExist(e) {
@@ -206,10 +223,12 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 		return errUnsafe
 	}
 	data, err := b.read(stage, "finalization.json")
+	state = finalization{} // Missing identity fields must not inherit host defaults.
 	if err != nil || json.Unmarshal(data, &state) != nil || state.Version != 1 || !state.sameIdentity(expected) {
 		state = expected
 		return errUnsafe
 	}
+	reason = "export_validation_failed"
 	data, err = b.read(stage, "run-report.json")
 	if err != nil {
 		return errUnsafe
@@ -231,7 +250,12 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 			return errUnsafe
 		}
 	}
-	if !workerOK || eligibility.Err() != nil {
+	if !workerOK {
+		reason = "worker_failed"
+		return errUnsafe
+	}
+	if eligibility.Err() != nil {
+		reason = "context_cancelled"
 		return errUnsafe
 	}
 	if report["outcome"] == "converged" {
@@ -261,5 +285,9 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 	if ctx.Err() != nil || eligibility.Err() != nil {
 		return errUnsafe
 	}
-	return writeFinal(out, "run-report.json", data)
+	if err := writeFinal(out, "run-report.json", data); err != nil {
+		return err
+	}
+	reason = "none"
+	return nil
 }

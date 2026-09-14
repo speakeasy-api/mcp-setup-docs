@@ -37,6 +37,7 @@ func production() settings {
 }
 
 type result struct {
+	HostReason       string `json:"host_reason,omitempty"`
 	Version          int    `json:"version"`
 	RunID            string `json:"run_id"`
 	Termination      string `json:"termination"`
@@ -183,10 +184,15 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 		r.ExitCode = 1
 	}
 	workerOK, stageOwned := false, false
+	r.HostReason = "prerequisite_failed"
 	// ONE post-removal exit funnel, registered before result writes or any worker
 	// option checks. Refusing a foreign stage never skips owned private cleanup.
 	if r.ContainerRemoved && o.finalizer != "" {
 		defer func() {
+			// Persist fixed host observations before private cleanup discards logs.
+			if root != nil {
+				_ = saveResult(root, "host-reason.json", r)
+			}
 			cleanupContext, cancel := context.WithDeadline(context.Background(), deadline.Add(-budget/100))
 			defer cancel()
 			if factorytranscript.CompleteHost(cleanupContext, ctx, filepath.Dir(filepath.Dir(o.result)), o.exportDir, workerOK, stageOwned, o.runID) != nil {
@@ -233,6 +239,16 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 		cmd.Stdout, cmd.Stderr = io.Discard, io.Discard
 		cmd.WaitDelay = 50 * time.Millisecond
 		workerOK = cmd.Run() == nil && workerContext.Err() == nil && ctx.Err() == nil
+		r.HostReason = "none"
+		if !workerOK {
+			r.HostReason = "worker_failed"
+		}
+		if workerContext.Err() == context.DeadlineExceeded {
+			r.HostReason = "context_deadline"
+		}
+		if ctx.Err() != nil {
+			r.HostReason = "context_cancelled"
+		}
 		if !workerOK {
 			return 1
 		}

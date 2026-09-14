@@ -129,3 +129,45 @@ func TestCleanupDeadlineCannotPromote(t *testing.T) {
 		t.Fatal("owned stage not revoked")
 	}
 }
+
+func TestHostObservedReason(t *testing.T) {
+	for _, tc := range []struct{ name, want string }{
+		{"worker", "worker_failed"}, {"missing", "stage_missing_or_invalid"},
+		{"cleanup", "context_deadline"}, {"invalid", "stage_missing_or_invalid"},
+		{"success", "none"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			private, out := completeFixture(t)
+			ctx := context.Background()
+			if tc.name == "cleanup" {
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithDeadline(ctx, time.Now().Add(-time.Second))
+				defer cancel()
+			}
+			if tc.name == "missing" {
+				os.RemoveAll(out + "/.finalizing")
+			}
+			if tc.name == "invalid" {
+				os.WriteFile(out+"/.finalizing/finalization.json", []byte(`{"version":1,"reason":"secret"}`), 0600)
+			}
+			err := CompleteHost(ctx, context.Background(), private, out, tc.name != "worker", true, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+			if (err == nil) != (tc.name == "success") {
+				t.Fatal("wrong status")
+			}
+			data, e := os.ReadFile(out + "/finalization.json")
+			if e != nil {
+				t.Fatal(e)
+			}
+			var state map[string]any
+			if json.Unmarshal(data, &state) != nil {
+				t.Fatal("invalid json")
+			}
+			if state["host_reason"] != tc.want {
+				t.Fatalf("reason = %v, want %s", state["host_reason"], tc.want)
+			}
+			if tc.name == "worker" && (state["primary_outcome"] != "converged" || state["publication_ready"] != false) {
+				t.Fatal("diagnostic changed primary or released guide")
+			}
+		})
+	}
+}

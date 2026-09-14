@@ -18,6 +18,7 @@ type hostLifecycle struct {
 	Removed     bool   `json:"container_removed"`
 }
 type finalization struct {
+	HostReason         string `json:"host_reason,omitempty"`
 	HostRunID          string `json:"host_run_id"`
 	WorkflowRunID      string `json:"workflow_run_id"`
 	WorkflowRunAttempt int    `json:"workflow_run_attempt"`

@@ -88,11 +88,13 @@ def frozen_state(export, host, run, attempt):
     state = read(export, 'finalization.json')
     if not re.fullmatch(r'[a-f0-9]{32}', host):
         raise ValueError()
-    if set(state) != {'version','host_run_id','workflow_run_id','workflow_run_attempt','primary_outcome','readable_export','partial','publication_ready'}:
+    if set(state) - {'host_reason'} != {'version','host_run_id','workflow_run_id','workflow_run_attempt','primary_outcome','readable_export','partial','publication_ready'}:
         raise ValueError()
     if type(state['version']) is not int or state['version'] != 1 or state['host_run_id'] != host or state['workflow_run_id'] != run or type(state['workflow_run_attempt']) is not int or state['workflow_run_attempt'] != int(attempt):
         raise ValueError()
     if state['primary_outcome'] not in ('converged','blocked','awaiting_scope','failed') or state['readable_export'] not in ('ready','failed') or type(state['partial']) is not bool or type(state['publication_ready']) is not bool:
+        raise ValueError()
+    if "host_reason" in state and state["host_reason"] not in ("none", "unknown", "worker_failed", "cleanup_failed", "context_deadline", "context_cancelled", "stage_missing_or_invalid", "export_validation_failed"):
         raise ValueError()
     return export, state
 

@@ -171,6 +171,14 @@ try:
         supervised = True
         exit_code = supervisor.wait(timeout=3030)
         supervisor_status = exit_code
+    # Only fixed host-authored status; raw worker output stays private.
+    try:
+        with open(private + '/host/host-reason.json') as diagnostic:
+            reason = json.load(diagnostic).get('host_reason')
+        if reason in ('none', 'prerequisite_failed', 'worker_failed', 'context_deadline', 'context_cancelled'):
+            print('FACTORY_HOST_REASON=' + reason)
+    except Exception:
+        pass
     supervisor = None
     # Reports live directly in the host export directory even on nonzero status.
     # Host readiness includes current validation and frozen output; Task 5 upload

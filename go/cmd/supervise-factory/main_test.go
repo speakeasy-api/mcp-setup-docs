@@ -292,10 +292,10 @@ func TestMain(m *testing.M) {
 
 func TestSharedFinalizationDeadline(t *testing.T) {
 	o, s, dir := fixture(t, "normal")
-	s.finalization = 150 * time.Millisecond
+	s.finalization = 600 * time.Millisecond
 	// Removal consumes most of the SAME finalization budget, not a fresh child one.
 	docker, _ := os.ReadFile(s.docker)
-	docker = []byte(strings.Replace(string(docker), "rm) if", "rm) sleep 0.10; if", 1))
+	docker = []byte(strings.Replace(string(docker), "rm) if", "rm) sleep 0.40; if", 1))
 	if err := os.WriteFile(s.docker, docker, 0700); err != nil {
 		t.Fatal(err)
 	}
@@ -303,13 +303,16 @@ func TestSharedFinalizationDeadline(t *testing.T) {
 	o.exportDir, _ = filepath.EvalSymlinks(t.TempDir())
 	os.Chmod(o.exportDir, 0700)
 	os.Mkdir(o.exportDir, 0700)
-	os.WriteFile(o.finalizer, []byte("#!/bin/sh\nsleep 0.10\nprintf wrong > \"$3/incorrect-success\"\n"), 0700)
+	os.WriteFile(o.finalizer, []byte("#!/bin/sh\nsleep 0.40\nprintf wrong > \"$3/incorrect-success\"\n"), 0700)
 	started := time.Now()
 	code := supervise(context.Background(), o, s)
 	if code == 0 {
 		t.Fatal("finalizer got a fresh budget")
 	}
-	if time.Since(started) > time.Second {
+	if readResult(t, filepath.Join(filepath.Dir(o.result), "host-reason.json")).HostReason != "context_deadline" {
+		t.Fatal("worker deadline reason lost")
+	}
+	if time.Since(started) > 2*time.Second {
 		t.Fatal("finalizer unbounded")
 	}
 	if _, err := os.Stat(o.exportDir + "/incorrect-success"); !os.IsNotExist(err) {
