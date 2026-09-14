@@ -184,6 +184,7 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 		r.ExitCode = 1
 	}
 	workerOK, stageOwned := false, false
+	workerCode := 0
 	r.HostReason = "prerequisite_failed"
 	// ONE post-removal exit funnel, registered before result writes or any worker
 	// option checks. Refusing a foreign stage never skips owned private cleanup.
@@ -195,7 +196,7 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 			}
 			cleanupContext, cancel := context.WithDeadline(context.Background(), deadline.Add(-budget/100))
 			defer cancel()
-			if factorytranscript.CompleteHost(cleanupContext, ctx, filepath.Dir(filepath.Dir(o.result)), o.exportDir, workerOK, stageOwned, o.runID) != nil {
+			if factorytranscript.CompleteHost(cleanupContext, ctx, filepath.Dir(filepath.Dir(o.result)), o.exportDir, workerOK, stageOwned, o.runID, workerCode) != nil {
 				status = 1
 			}
 		}()
@@ -238,10 +239,15 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 		cmd.Env = []string{"OPENROUTER_API_KEY=" + os.Getenv("OPENROUTER_API_KEY"), "FACTORY_HOST_RUN_ID=" + o.runID, "GITHUB_RUN_ID=" + os.Getenv("GITHUB_RUN_ID"), "GITHUB_RUN_ATTEMPT=" + os.Getenv("GITHUB_RUN_ATTEMPT")}
 		cmd.Stdout, cmd.Stderr = io.Discard, io.Discard
 		cmd.WaitDelay = 50 * time.Millisecond
-		workerOK = cmd.Run() == nil && workerContext.Err() == nil && ctx.Err() == nil
+		workerCode = 1
+		workerErr := cmd.Run()
+		if cmd.ProcessState != nil {
+			workerCode = cmd.ProcessState.ExitCode()
+		}
+		workerOK = workerErr == nil && workerContext.Err() == nil && ctx.Err() == nil
 		r.HostReason = "none"
 		if !workerOK {
-			r.HostReason = "worker_failed"
+			r.HostReason = factorytranscript.WorkerHostReason(workerCode)
 		}
 		if workerContext.Err() == context.DeadlineExceeded {
 			r.HostReason = "context_deadline"

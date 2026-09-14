@@ -100,7 +100,10 @@ func (b *sourceBoundary) read(root *os.Root, name string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !singleRegular(before) || before.Size() > 1<<20 || b.bytes+int(before.Size()) > 8<<20 {
+	if before.Size() > 1<<20 || b.bytes+int(before.Size()) > 8<<20 {
+		return nil, stageError(workerLimits, errUnsafe)
+	}
+	if !singleRegular(before) {
 		return nil, errUnsafe
 	}
 	file, err := root.OpenFile(name, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
@@ -138,7 +141,7 @@ func (b *sourceBoundary) names(root *os.Root) ([]string, error) {
 	}
 	b.entries += len(entries)
 	if b.entries > 4096 {
-		return nil, errUnsafe
+		return nil, stageError(workerLimits, errUnsafe)
 	}
 	names := make([]string, 0, len(entries))
 	for _, e := range entries {
@@ -158,7 +161,9 @@ func disjoint(a, b string) bool {
 func Export(home, workspace, output string, known []string) error {
 	return exportWithSanitizer(home, workspace, output, known, NewSanitizer)
 }
-func exportWithSanitizer(home, workspace, output string, known []string, newScanner func([]string) (*Sanitizer, error)) error {
+func exportWithSanitizer(home, workspace, output string, known []string, newScanner func([]string) (*Sanitizer, error)) (ret error) {
+	stage := workerStore
+	defer func() { ret = stageError(stage, ret) }()
 	boundary := &sourceBoundary{}
 	defer boundary.close()
 	if !filepath.IsAbs(output) || filepath.Clean(output) != output {
@@ -170,19 +175,19 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	}
 	h, err := boundary.root(home)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	w, err := boundary.root(workspace)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	out, err := boundary.root(parent)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	info, err := out.Stat(".")
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	st, ok := info.Sys().(*syscall.Stat_t)
 	if !ok || st.Uid != uint32(os.Geteuid()) || info.Mode().Perm()&0077 != 0 {
@@ -194,15 +199,15 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	doc := readableArtifact{Version: 1, Kind: "guide_factory_readable_transcript", Omissions: []string{"metadata_and_unselected_files"}, Sessions: []readableSession{}, Files: []readableFile{}, Limited: true}
 	kit, err := boundary.directory(h, ".kit")
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	sessions, err := boundary.directory(kit, "sessions")
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	dirs, err := boundary.names(sessions)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	count := 0
 	for _, dir := range dirs {
@@ -211,15 +216,15 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 		}
 		count++
 		if count > 64 {
-			return errUnsafe
+			return stageError(workerLimits, errUnsafe)
 		}
 		root, err := boundary.directory(sessions, dir)
 		if err != nil {
-			return errUnsafe
+			return err
 		}
 		names, err := boundary.names(root)
 		if err != nil {
-			return errUnsafe
+			return err
 		}
 		for _, name := range names {
 			if !strings.HasSuffix(name, ".jsonl") {
@@ -227,19 +232,19 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 			}
 			boundary.sessions++
 			if boundary.sessions > 64 {
-				return errUnsafe
+				return stageError(workerLimits, errUnsafe)
 			}
 			data, err := boundary.read(root, name)
 			if err != nil {
-				return errUnsafe
+				return err
 			}
 			session, err := decodeSession(data)
 			if err != nil {
-				return errUnsafe
+				return stageError(workerDecode, err)
 			}
 			boundary.events += len(session.Events)
 			if boundary.events > 4096 {
-				return errUnsafe
+				return stageError(workerLimits, errUnsafe)
 			}
 			reference := fmt.Sprintf("session-%d", len(doc.Sessions)+1)
 			for i := range session.Events {
@@ -290,9 +295,10 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 		doc.Omissions = append(doc.Omissions, "missing_candidate_report")
 	}
 	omitConfidential(&doc)
+	stage = workerExport
 	sanitizer, err := newScanner(known)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	closed := false
 	defer func() {
@@ -309,7 +315,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 				for k, text := range e.Text {
 					clean, e2 := sanitizeDecoded(sanitizer, text, 0)
 					if e2 != nil {
-						return errUnsafe
+						return e2
 					}
 					e.Text[k] = clean
 				}
@@ -318,23 +324,29 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 		for i := range doc.Files {
 			clean, e := sanitizeDecoded(sanitizer, doc.Files[i].Text, 0)
 			if e != nil {
-				return errUnsafe
+				return e
 			}
 			doc.Files[i].Text = clean
 		}
 	}
 	data, err := json.MarshalIndent(doc, "", "  ")
-	if err != nil || len(data) > 2<<20 {
+	if len(data) > 2<<20 {
+		return stageError(workerLimits, errUnsafe)
+	}
+	if err != nil {
 		return errUnsafe
 	}
 	final, err := sanitizer.Sanitize(data)
-	if err != nil || !bytes.Equal(final, data) || !json.Valid(final) {
+	if err != nil {
+		return err
+	}
+	if !bytes.Equal(final, data) || !json.Valid(final) {
 		return errUnsafe
 	}
 	err = sanitizer.Close()
 	closed = true
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	for _, check := range boundary.checks {
 		if !check() {
@@ -348,7 +360,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	tmp := ".transcript-" + hex.EncodeToString(nonce)
 	file, err := out.OpenFile(tmp, os.O_WRONLY|os.O_CREATE|os.O_EXCL|syscall.O_NOFOLLOW, 0600)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	defer out.Remove(tmp)
 	_, writeErr := file.Write(final)

@@ -68,7 +68,7 @@ func writeFinal(root *os.Root, name string, data []byte) error {
 	tmp := name + ".pending"
 	f, err := root.OpenFile(tmp, os.O_WRONLY|os.O_CREATE|os.O_EXCL|syscall.O_NOFOLLOW, 0600)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	defer root.Remove(tmp)
 	_, e := f.Write(data)
@@ -91,6 +91,8 @@ func writeFinal(root *os.Root, name string, data []byte) error {
 // Finalize is run only as the supervisor's deadline-bound host child. There is
 // intentionally NO local timer reset and NO publication/upload authority.
 func Finalize(private, result, export string, known []string) (ret error) {
+	stage := workerInput
+	defer func() { ret = stageError(stage, ret) }()
 	b := &sourceBoundary{}
 	defer b.close()
 	if result != filepath.Join(private, "host", "result.json") {
@@ -98,16 +100,16 @@ func Finalize(private, result, export string, known []string) (ret error) {
 	}
 	owned, err := b.root(private)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	out, err := b.root(export)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	for _, root := range []*os.Root{owned, out} {
 		st, err := root.Stat(".")
 		if err != nil {
-			return errUnsafe
+			return err
 		}
 		sys, ok := st.Sys().(*syscall.Stat_t)
 		if !ok || sys.Uid != uint32(os.Geteuid()) || st.Mode().Perm()&0077 != 0 {
@@ -122,16 +124,19 @@ func Finalize(private, result, export string, known []string) (ret error) {
 	}
 	guidePublished := false
 	state := initialFinalization(os.Getenv("FACTORY_HOST_RUN_ID"))
+	stage = workerState
 	if err = writeFinal(out, "run-report.json", failedReport); err != nil {
 		return errUnsafe
 	}
 	saveState := func() error { data, _ := json.Marshal(state); return writeFinal(out, "finalization.json", data) }
 	if err = saveState(); err != nil {
-		return errUnsafe
+		return err
 	}
 	defer func() {
 		if e := hostFallbacks(private, export, out, state, ret != nil); e != nil {
-			ret = errUnsafe
+			if ret == nil {
+				ret = stageError(workerMetadata, e)
+			}
 		}
 		if ret != nil {
 			if guidePublished {
@@ -140,16 +145,19 @@ func Finalize(private, result, export string, known []string) (ret error) {
 			state.PublicationReady = false
 		}
 		if e := saveState(); e != nil {
-			ret = errUnsafe
+			if ret == nil {
+				ret = stageError(workerState, e)
+			}
 		}
 	}()
+	stage = workerInput
 	host, err := b.directory(owned, "host")
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	data, err := b.read(host, "result.json")
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	var lifecycle hostLifecycle
 	if json.Unmarshal(data, &lifecycle) != nil || lifecycle.Version != 1 || !state.validIdentity() || lifecycle.RunID != state.HostRunID || !lifecycle.Removed {
@@ -158,18 +166,22 @@ func Finalize(private, result, export string, known []string) (ret error) {
 	// Only this proven removal branch may touch or delete private model mounts.
 	// os.Root.RemoveAll does not follow symlinks; never delete source/input/host.
 	defer func() {
-		if owned.RemoveAll("home") != nil {
-			ret = errUnsafe
+		if e := owned.RemoveAll("home"); e != nil {
+			if ret == nil {
+				ret = stageError(workerCleanup, e)
+			}
 		}
-		if owned.RemoveAll("workspace") != nil {
-			ret = errUnsafe
+		if e := owned.RemoveAll("workspace"); e != nil {
+			if ret == nil {
+				ret = stageError(workerCleanup, e)
+			}
 		}
 	}()
 	eligible := lifecycle.Termination == "completed" && lifecycle.ExitCode == 0
 	if eligible {
 		workspace, e := b.directory(owned, "workspace")
 		if e != nil {
-			return errUnsafe
+			return e
 		}
 		factory, e := b.directory(workspace, ".factory")
 		if e == nil {
@@ -182,12 +194,13 @@ func Finalize(private, result, export string, known []string) (ret error) {
 		}
 	}
 	// Always attempt readable evidence, even for timeout/stale converged candidates.
+	stage = workerExport
 	if err = Export(filepath.Join(private, "home"), filepath.Join(private, "workspace"), filepath.Join(export, "session-transcript.json"), known); err != nil {
-		return errUnsafe
+		return err
 	}
 	f, err := out.OpenFile("session-transcript.json", os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	st, err := f.Stat()
 	if err != nil || !singleRegular(st) || st.Size() > 2<<20 {
@@ -203,6 +216,7 @@ func Finalize(private, result, export string, known []string) (ret error) {
 	if json.Unmarshal(data, &transcript) != nil || transcript.Version != 1 || transcript.Kind != "guide_factory_readable_transcript" {
 		return errUnsafe
 	}
+	stage = workerGuide
 	state.Readable = "ready"
 	state.Partial = transcript.Limited
 	if eligible {
@@ -217,7 +231,7 @@ func Finalize(private, result, export string, known []string) (ret error) {
 			if state.Primary == "converged" {
 				frozen, e := validateFrozen(b, private, report, transcript)
 				if e != nil {
-					return errUnsafe
+					return e
 				}
 				if e = os.Rename(frozen, export+"/guide"); e != nil {
 					return errUnsafe
@@ -226,7 +240,7 @@ func Finalize(private, result, export string, known []string) (ret error) {
 				state.PublicationReady = true
 			}
 			if e = writeFinal(out, "run-report.json", []byte(file.Text)); e != nil {
-				return errUnsafe
+				return stageError(workerMetadata, e)
 			}
 		}
 	}
@@ -234,7 +248,7 @@ func Finalize(private, result, export string, known []string) (ret error) {
 		return errUnsafe
 	}
 	if !eligible {
-		return errUnsafe
+		return stageError(workerInput, errUnsafe)
 	}
 	return nil
 }

@@ -11,8 +11,8 @@ func main() {
 		fmt.Fprintln(os.Stderr, "factory finalization: invalid arguments")
 		os.Exit(2)
 	}
-	if factorytranscript.Finalize(os.Args[1], os.Args[2], os.Args[3], []string{os.Getenv("OPENROUTER_API_KEY")}) != nil {
+	if err := factorytranscript.Finalize(os.Args[1], os.Args[2], os.Args[3], []string{os.Getenv("OPENROUTER_API_KEY")}); err != nil {
 		fmt.Fprintln(os.Stderr, "factory finalization: incomplete")
-		os.Exit(1)
+		os.Exit(factorytranscript.WorkerExitCode(err))
 	}
 }

@@ -141,7 +141,7 @@ func contextReason(err error) string {
 // CompleteHost runs in the SURVIVING supervisor, never the killable worker.
 // The worker only writes .finalizing; no guide/success is visible until raw
 // records are removed. All work shares the original overall deadline.
-func CompleteHost(ctx, eligibility context.Context, private, export string, workerOK, stageOwned bool, runID string) (ret error) {
+func CompleteHost(ctx, eligibility context.Context, private, export string, workerOK, stageOwned bool, runID string, workerCode ...int) (ret error) {
 	cleanupErr := CleanupPrivate(ctx, private)
 	b := &sourceBoundary{}
 	defer b.close()
@@ -186,7 +186,10 @@ func CompleteHost(ctx, eligibility context.Context, private, export string, work
 		if ret != nil {
 			state.PublicationReady = false
 		}
-		state.HostReason = reason // Never trust a child-authored diagnostic.
+		if !workerOK && len(workerCode) == 1 && workerCode[0] != 0 && reason != "context_deadline" && reason != "context_cancelled" {
+			reason = WorkerHostReason(workerCode[0])
+		}
+		state.HostReason = reason // Only the supervisor supplies the trusted exit code.
 		data, _ := json.Marshal(state)
 		if writeFinal(out, "finalization.json", data) != nil {
 			ret = errUnsafe

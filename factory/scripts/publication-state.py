@@ -94,7 +94,7 @@ def frozen_state(export, host, run, attempt):
         raise ValueError()
     if state['primary_outcome'] not in ('converged','blocked','awaiting_scope','failed') or state['readable_export'] not in ('ready','failed') or type(state['partial']) is not bool or type(state['publication_ready']) is not bool:
         raise ValueError()
-    if "host_reason" in state and state["host_reason"] not in ("none", "unknown", "worker_failed", "cleanup_failed", "context_deadline", "context_cancelled", "stage_missing_or_invalid", "export_validation_failed"):
+    if "host_reason" in state and state["host_reason"] not in ("none", "unknown", "worker_failed", "worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed", "cleanup_failed", "context_deadline", "context_cancelled", "stage_missing_or_invalid", "export_validation_failed"):
         raise ValueError()
     return export, state
 

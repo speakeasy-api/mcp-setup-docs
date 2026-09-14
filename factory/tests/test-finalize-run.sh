@@ -123,9 +123,9 @@ for phase in validation fallback; do
   if find "$tmp/private" -type f | grep -Ev '/host/(result|host-reason)\.json$' | grep -q .; then printf 'FAIL: raw records survived worker kill\n' >&2; exit 1; fi
   while IFS= read -r diagnostic; do
     jq -e --slurpfile result "$(dirname "$diagnostic")/result.json" '
-      (.host_reason as $reason | ["none","prerequisite_failed","worker_failed","context_deadline","context_cancelled"] | index($reason) != null)
+      (.host_reason as $reason | ["none","prerequisite_failed","worker_failed", "worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed","context_deadline","context_cancelled"] | index($reason) != null)
       and . == ($result[0] + {host_reason: .host_reason})' "$diagnostic" >/dev/null
   done < <(find "$tmp/private" -type f -name host-reason.json)
-  jq -e '.host_reason as $reason | ["none","unknown","worker_failed","cleanup_failed","context_deadline","context_cancelled","stage_missing_or_invalid","export_validation_failed"] | index($reason) != null' "$tmp/$phase/finalization.json" >/dev/null
+  jq -e '.host_reason as $reason | ["none","unknown","worker_failed", "worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed","cleanup_failed","context_deadline","context_cancelled","stage_missing_or_invalid","export_validation_failed"] | index($reason) != null' "$tmp/$phase/finalization.json" >/dev/null
 done
 printf 'actual finalizer validation/fallback kills revoked and cleaned\n'

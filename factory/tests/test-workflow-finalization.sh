@@ -69,9 +69,9 @@ with tempfile.TemporaryDirectory() as temp:
     (export/'session-transcript.json').write_text(json.dumps(dict(schema_version=1,kind='guide_factory_readable_transcript',files=files)))
     env.update(FACTORY_HOST_RUN_ID='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',GITHUB_RUN_ID='9001',GITHUB_RUN_ATTEMPT='1',FACTORY_PUBLICATION_RECEIPT=str(cwd/'guide-factory-publication/publication-receipt.json'),GITHUB_ENV=str(cwd/'env'),GITHUB_OUTPUT=str(cwd/'output'))
     script='\n'.join(line[10:] for line in step('Check publication gates').split('        run: |\n',1)[1].splitlines())
-    for case in ('ready','upload-failed','missing-url','unready','mutated'):
+    for case in ('ready','upload-failed','missing-url','unready','worker_input_failed','worker_store_failed','worker_decode_failed','worker_export_failed','worker_guide_failed','worker_metadata_failed','worker_cleanup_failed','worker_state_failed','worker_limits_failed','mutated'):
         (cwd/'output').write_text('')
-        (export/'finalization.json').write_text(json.dumps(dict(version=1,host_run_id='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',workflow_run_id='9001',workflow_run_attempt=1,primary_outcome='converged',readable_export='ready',partial=False,publication_ready=case!='unready')))
+        (export/'finalization.json').write_text(json.dumps(dict(version=1,host_run_id='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',workflow_run_id='9001',workflow_run_attempt=1,primary_outcome='converged',readable_export='ready',partial=False,publication_ready=case!='unready' and not case.startswith('worker_'), **({'host_reason':case} if case.startswith('worker_') else {}))))
         env.update(READABLE_UPLOAD_OUTCOME='failure' if case=='upload-failed' else 'success',READABLE_ARTIFACT_URL='' if case=='missing-url' else 'https://github.com/acme/docs/actions/runs/9001/artifacts/123')
         if case=='mutated': (export/'guide/research.md').write_text('Late candidate')
         result=subprocess.run(['bash','-e','-c',script],cwd=cwd,env=env,capture_output=True)

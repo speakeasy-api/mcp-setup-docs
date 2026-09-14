@@ -175,7 +175,7 @@ try:
     try:
         with open(private + '/host/host-reason.json') as diagnostic:
             reason = json.load(diagnostic).get('host_reason')
-        if reason in ('none', 'prerequisite_failed', 'worker_failed', 'context_deadline', 'context_cancelled'):
+        if reason in ('none', 'prerequisite_failed', 'worker_failed', 'worker_input_failed', 'worker_store_failed', 'worker_decode_failed', 'worker_export_failed', 'worker_guide_failed', 'worker_metadata_failed', 'worker_cleanup_failed', 'worker_state_failed', 'worker_limits_failed', 'context_deadline', 'context_cancelled'):
             print('FACTORY_HOST_REASON=' + reason)
     except Exception:
         pass

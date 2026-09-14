@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/speakeasy-api/mcp-setup-docs/go/internal/factoryrun"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"strings"
@@ -455,6 +457,63 @@ func TestPostRemovalFailuresAlwaysClean(t *testing.T) {
 			var report map[string]any
 			if json.Unmarshal(data, &report) != nil || report["outcome"] != "failed" {
 				t.Fatal("failed fallback invalid")
+			}
+		})
+	}
+}
+
+func TestWorkerStageRetention(t *testing.T) {
+	binary := t.TempDir() + "/finalize-factory"
+	build := exec.Command("go", "build", "-o", binary, "../finalize-factory")
+	if data, err := build.CombinedOutput(); err != nil {
+		t.Fatalf("build: %v %s", err, data)
+	}
+	for _, code := range []int{40, 41, 42, 43, 44, 45, 46, 47, 48, 7, 130, 0} {
+		t.Run(fmt.Sprint(code), func(t *testing.T) {
+			o, s, dir := fixture(t, "normal")
+			s.finalization = 3 * time.Second
+			o.finalizer = dir + "/host/finalize-factory"
+			o.exportDir, _ = filepath.EvalSymlinks(t.TempDir())
+			os.Chmod(o.exportDir, 0700)
+			worker := []byte(fmt.Sprintf("#!/bin/sh\nexit %d\n", code))
+			want := "worker_failed"
+			reasons := []string{"worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed"}
+			if code >= 40 && code <= 48 {
+				want = reasons[code-40]
+			}
+			if code == 0 { // Real CLI: fixture has no native store; cleanup must not hide it.
+				var err error
+				worker, err = os.ReadFile(binary)
+				if err != nil {
+					t.Fatal(err)
+				}
+				want = "worker_store_failed"
+				os.Mkdir(dir+"/workspace", 0700)
+				os.Mkdir(dir+"/home", 0700)
+			}
+			if err := os.WriteFile(o.finalizer, worker, 0700); err != nil {
+				t.Fatal(err)
+			}
+			if supervise(context.Background(), o, s) != 1 {
+				t.Fatal("worker failure accepted")
+			}
+			diagnostic := readResult(t, dir+"/host/host-reason.json")
+			if diagnostic.HostReason != want || diagnostic.Termination != "completed" || !diagnostic.ContainerRemoved {
+				t.Fatal(diagnostic, want)
+			}
+			data, err := os.ReadFile(o.exportDir + "/finalization.json")
+			if err != nil {
+				t.Fatal(err)
+			}
+			var state struct {
+				HostReason       string `json:"host_reason"`
+				PublicationReady bool   `json:"publication_ready"`
+			}
+			if json.Unmarshal(data, &state) != nil || state.PublicationReady || state.HostReason != want {
+				t.Fatalf("state %s", data)
+			}
+			if _, err := os.Stat(o.finalizer); !os.IsNotExist(err) {
+				t.Fatal("worker survived cleanup")
 			}
 		})
 	}
