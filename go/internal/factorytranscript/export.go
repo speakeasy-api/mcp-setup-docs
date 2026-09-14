@@ -12,6 +12,7 @@ import (
 // with one shared Sanitizer, then check Close before writing anything.
 // Source: Kit 0.1.134 (5eb7601), src/session.rs Record/append/replace;
 // agentkit-core 0.10.5 src/lib.rs Item, Part, ToolCallPart, ToolResultPart.
+// Schema-5 child/snapshot source: Kit 735409e, src/session.rs; see children.go.
 // Persistence generations are not native returned-handle generations.
 type decodedSession struct {
 	Events    []decodedEvent `json:"events"`
@@ -156,11 +157,12 @@ func decodeSession(source []byte) (decodedSession, error) {
 		if _, err = d.Token(); err != io.EOF {
 			return fail()
 		}
-		record, err := object(value, "schema_version", "session_id", "generation", "workspace_root", "item", "replacement", "redirect")
+		record, err := object(value, "schema_version", "session_id", "generation", "workspace_root", "item", "replacement", "redirect", "child", "snapshot")
 		if err != nil {
 			return fail()
 		}
-		if record["schema_version"] != json.Number("3") || record["redirect"] != nil {
+		version := record["schema_version"]
+		if (version != json.Number("3") && version != json.Number("5")) || record["redirect"] != nil {
 			return fail()
 		}
 		id, err := stringField(record, "session_id")
@@ -185,17 +187,34 @@ func decodeSession(source []byte) (decodedSession, error) {
 				return fail()
 			}
 		}
-		item, hasItem := record["item"]
-		replacement, hasReplacement := record["replacement"]
-		if hasItem == hasReplacement {
-			return fail()
-		}
-		items := []any{item}
-		if hasReplacement {
-			var ok bool
-			items, ok = replacement.([]any)
-			if !ok {
+		var items []any
+		hasReplacement := false
+		if version == json.Number("5") {
+			items, err = childItems(record)
+			if err != nil {
 				return fail()
+			}
+			hasReplacement = items != nil
+			omit("child_recovery_metadata")
+		} else {
+			for _, key := range []string{"child", "snapshot"} {
+				if _, exists := record[key]; exists {
+					return fail()
+				}
+			}
+			item, hasItem := record["item"]
+			replacement, present := record["replacement"]
+			hasReplacement = present
+			if hasItem == hasReplacement {
+				return fail()
+			}
+			items = []any{item}
+			if hasReplacement {
+				var ok bool
+				items, ok = replacement.([]any)
+				if !ok {
+					return fail()
+				}
 			}
 		}
 		for _, raw := range items {
