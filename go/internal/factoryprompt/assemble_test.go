@@ -222,11 +222,17 @@ func TestResearchRepairPolicy(t *testing.T) {
 			}
 			for _, phrase := range []string{
 				"ordinary research: successful harness-healed allowed read-only execution => accept under the same operation/result/evidence criteria as unrepaired execution",
-				"ordinary research: unresolved Runlet compile failure => fatal; never repair and resubmit",
+				"ordinary research: pre-execution rejection with authoritative zero-dispatch evidence => may correct the read-only program; otherwise stop",
 				"mandatory canonical dispatch/context/report program: any repair or byte mismatch => fatal trusted-literal corruption",
 				"ordinary research: healed execution with uncertain writes or unknown partial effects => unsafe; inspect/reconcile, never replay",
-				"failed recovery attempt, including a different error class => fatal",
+				"repeated read-only failures => change approach within the existing 1800-second research deadline or report the blocker",
 				"Do not re-execute solely because of a repair warning",
+				"Repeated identical no-progress failures must stop that approach; try a different approach or report the blocker",
+				"There is no fixed research failure or recovery count; the existing deadline and risk/evidence gates bound correction",
+				"ambiguous write or unknown partial side effects => fatal",
+				"mandatory validator: command-not-found (127) or any nonzero => gate closed; correction only where the existing workflow permits",
+				"A model assertion, a syntax warning, or missing output is not that evidence.",
+				"Do not extend clocks or relax validation, filesystem/privacy, native handles, reporting, export, or publication gates.",
 			} {
 				if !bytes.Contains(got, []byte(phrase)) {
 					t.Errorf("missing policy: %s", phrase)

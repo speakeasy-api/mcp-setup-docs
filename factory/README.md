@@ -1,49 +1,32 @@
 # Guide factory operations
 
-## Earlier approved optional research-tool policy adjustment
+## Approved ordinary read-only research correction
 
-The user subsequently approved one narrow exception to strict execution-failure
-handling: an unavailable optional exploratory command (for example, an absent
-fetch helper returning 127) may use one already available read-only fallback
-only when the simple original attempt preceded any mutation and is known to
-have no partial side effects. Prefer installed shell/curl/jq/rg, never knowingly
-invoke absent Python, and install nothing. Record the original failure and
-fallback outcome in existing private research evidence; introduce no new logs.
-Mandatory helpers, other nonzero failures, ambiguous writes, unresolved Runlet compile failures,
-and failed fallback execution remain fatal. Parent audit applies the same
-classification. All deadlines, validation, filesystem/privacy, native-handle,
-report/export and publication gates are unchanged. This is a later approved
-policy adjustment, not a claim that the original strict design allowed recovery.
-Static prompt fixtures and assembler parity do not prove model compliance.
-No live run is authorized by this adjustment alone.
+The current policy supersedes earlier fixed-count restrictions.
+Ordinary read-only fetch, parsing, quoting, and tool-selection mistakes can be
+corrected with already available tools within the existing 1800-second research
+deadline. There is no fixed failure count. Repeated identical no-progress failures
+stop that approach: change approach or report the blocker, never blindly loop.
+Every attempted operation must be positively known read-only with no uncertain
+partial effects; exit codes alone are insufficient. Record failures, corrections,
+and outcomes in existing private research evidence, without new logs or child writes.
+Parent audit applies the same classification as shared child instructions.
 
-## Later approved read-only fetch/parsing recovery adjustment
+Unresolved model-generated ordinary research Runlet may be corrected only after
+authoritative pre-execution rejection evidence establishes zero dispatch and the
+intended program remains read-only within existing authority. Otherwise stop.
+Warnings, absent output, and model assertions do not prove zero dispatch.
+Mandatory exact-byte canonical programs remain strict, even before dispatch.
+Unknown writes cannot be blindly retried. No installs, known-absent Python,
+automatic service-write retries, or expanded authentication/access authority.
+Validation remains gate closed, with correction only where the existing workflow
+permits. Mandatory helpers, privacy, evidence integrity, native handles, factual
+and endpoint gates, reporting/export, publication and host deadlines are unchanged.
 
-The user later expanded the exception above to positively known read-only
-optional fetch/parsing command failures, not just unavailable tools. Permit one
-correction OR one simpler already available alternative per failed research
-operation. This single shared budget never resets on a different error class or
-by treating a recovery attempt as a new operation; failed recovery is fatal.
-Both attempts must have no mutation or uncertain partial side effects. A malformed
-shell sed expression is distinct from unresolved Runlet compile failure, which remains fatal. Successful harness-healed ordinary research is governed by the later adjustment below.
-A curl 23 downstream-pipe failure qualifies only with positive read-only evidence;
-the exit code alone is insufficient. Transient HTTP retries use this same budget,
-not an open-ended allowance. HTTP failures provide no invented source evidence
-and cannot bypass the Topic 5 endpoint gate.
-
-Mandatory helpers, validation, reporting, privacy, native handles, publication,
-deadlines, ambiguous writes and corrupted mandatory canonical programs retain their fatal gates.
-No automatic service-write retries, installs, known-absent Python invocation, or
-broader authentication/access/bypass changes are allowed. Shared child instructions
-cover every topic and assembled follow-up; parent audit uses the same policy.
-Existing private research evidence records the failure and recovery, without new logs.
-
-The private `okta-live-a83626b.mJVvvG` evidence recorded malformed sed syntax and
-curl 23, but omitted the exact input: this is not an original-root-cause reproduction
-claim. This later policy does not rewrite the earlier approval or historical facts.
-Prompt-text tests are not a runtime classifier or proof of model compliance.
-Independent review and fresh approval are required before any further live run.
-No runtime image or dependency change is part of this adjustment.
+Prompt-text fixtures and assembler parity are not a runtime classifier or proof
+of model compliance. No live providers, runtime/dependency change, or new live-run
+authorization is part of this adjustment. Historical private sed/curl evidence
+omitted exact input and does not establish an original-root-cause reproduction.
 
 ## Later approved automatic syntax-repair policy correction
 
@@ -53,8 +36,8 @@ repair. Child instructions and parent audit assess the resulting execution using
 the same allowed-operation, result and evidence criteria as unrepaired research.
 A warning proves neither failure nor zero effects. Do not replay solely for the
 warning or require proof of zero dispatch to accept already-executed allowed research.
-Actual errors retain the existing one-recovery, positively read-only/no-ambiguity
-eligibility rules; failed recovery and unresolved compile failures remain fatal.
+Actual errors use the ordinary read-only correction policy above; acceptance of
+a successful healed result is unchanged and is not a recovery attempt.
 Unknown/partial mutative effects require existing-policy inspection/reconciliation,
 not replay. Exact-byte mandatory canonical dispatch/context/report programs still
 reject any healing or improvisation as trusted-literal corruption; ordinary child
