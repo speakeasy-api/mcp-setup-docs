@@ -1,8 +1,8 @@
 # Native dispatch contract; production executes this program verbatim.
 # input fields are coordinator-owned, not an issue-provided shell command.
 attempt = boundary {
-  assert(input.topic >= 1 and input.topic <= 5, "invalid topic")
-  assert(input.index >= 0 and input.index <= 2, "invalid follow-up index")
+  assert(regex.test(json.encode(input.topic), "^[1-5]$"), "invalid topic")
+  assert(regex.test(json.encode(input.index), "^[0-2]$"), "invalid follow-up index")
   assert((input.kind == "initial" and input.index == 0) or (input.kind == "follow-up" and input.index > 0), "invalid dispatch kind")
   assert(regex.test(input.documentHash, "^[a-f0-9]{64}$"), "invalid document hash")
   assignment = json.parse(input.assignmentJSON)
@@ -30,7 +30,11 @@ attempt = boundary {
     return if input.kind == "initial" {
       return subagent({prompt: prepared.stdout})
     } else {
-      return prompt({subagent: input.existingHandle, prompt: prepared.stdout})
+      handleRead = shell({command: "bash /workspace/factory/scripts/read-research-handle.sh " + json.encode(input.topic) + " " + json.encode(input.index)})
+      assert(handleRead.success, "unsafe or missing prior handle")
+      return if handleRead.success {
+        return prompt({subagent: json.parse(handleRead.stdout), prompt: prepared.stdout})
+      } else { return fail("HANDLE_READ_FAILED", "unsafe or missing prior handle") }
     }
   }
   assert(child.id != "" and child.generation >= 1, "invalid native handle")

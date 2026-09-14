@@ -63,3 +63,31 @@ and validator, checking exact persisted bytes, private permissions, rejection of
 unsafe entries and preservation of the previous final on validator failure.
 The production helper uses existing Bash/coreutils/jq only (no Python runtime).
 These tests do not reproduce the omitted live-trial programs or prove model compliance.
+
+## Private predecessor handles
+
+Follow-ups no longer accept `existingHandle` input. The canonical program calls
+`read-research-handle.sh` with validated numeric topic/index and passes
+`json.parse(handleRead.stdout)` directly to native `prompt`. The helper reads only
+the exact predecessor, validates its assignment and original session ID, and
+returns every byte without projecting output or updates. Missing predecessors
+(including failed prior attempts) fail closed; no arbitrary latest-file search.
+The return contract still includes the complete native handle.
+
+`test-read-research-handle.sh` covers a 36 KB opaque handle, both predecessor
+indexes, malformed/missing records, foreign identity, changed paths, permissions,
+symlinks, hardlinks and the 64 KiB cap. This conservative cap rejects oversized
+records rather than truncating them. It is below the inspected development Kit
+shell's 64 MiB internal output limit; model-facing artifact previews are not used.
+
+Local synthetic native verification used the existing
+`.tmp-kit-dev-9829cc2-a1128c8/latestE-native/{repro.py,verify.py}` harness, with the
+canonical script unchanged, no handle inputs and production `umask 077`. Four
+concurrent original sessions completed initial dispatch plus two follow-ups
+(generations 1, 2, 3; 12 successful dispatches). Verification checked exact prompt
+bytes, complete persisted handle/report equality, durable idle generations, and
+model-facing artifact wrappers. The first mock run omitted the production umask;
+its 0644 records were correctly rejected. This is a local mock-provider result,
+not live provider acceptance or proof of the original failure's cause. It removes
+the fragile model-copy boundary; it does not establish that boundary caused the
+original failure. Release pins and privacy/frozen-export rules are unchanged.

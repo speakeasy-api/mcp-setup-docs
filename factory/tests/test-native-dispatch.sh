@@ -15,14 +15,14 @@ for phrase in \
   'assignment.follow_up_index == input.index' \
   'after checked' 'after savedInput' 'after savedPrompt' \
   'subagent({prompt: prepared.stdout})' \
-  'prompt({subagent: input.existingHandle, prompt: prepared.stdout})' \
+  'prompt({subagent: json.parse(handleRead.stdout), prompt: prepared.stdout})' \
   'path:base + ".report.md", content:child.output' \
   'path:base + ".handle.json", content:json.encode(child)' \
   'after savedReport' 'after savedHandle' \
   'status:"failed"' 'test ! -L'; do
   grep -Fq "$phrase" "$fixture" || fail "missing dispatch dependency: $phrase"
 done
-for forbidden in 'input.command' 'model:' 'harness:' 'generation +' 'text.trim(prepared.stdout)' 'text.trim(child.output)'; do
+for forbidden in 'input.existingHandle' 'input.command' 'model:' 'harness:' 'generation +' 'text.trim(prepared.stdout)' 'text.trim(child.output)'; do
   ! grep -Fq "$forbidden" "$fixture" || fail "unsafe dispatch contract: $forbidden"
 done
 printf 'PASS: static exact dispatch contract (not native execution proof)\n'

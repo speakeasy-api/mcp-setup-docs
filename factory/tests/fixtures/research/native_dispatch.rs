@@ -72,7 +72,7 @@ fn dispatch(
         .unwrap()
         .to_string();
     let input = json!({"topic":topic,"index":index,"kind":kind,"documentHash":hash,
-        "assignmentJSON":assignment,"existingHandle":prior});
+        "assignmentJSON":assignment});
     let mut registry = ToolRegistry::default();
     for name in ["shell", "edit", "subagent", "prompt"] {
         registry
@@ -104,6 +104,11 @@ fn dispatch(
                     let command=a["command"].as_str().unwrap();
                     assert!(!command.contains("touch /tmp"),"issue text entered command");
                     if command.starts_with("test -d ") { return Ok(cv(json!({"success":true,"stdout":""}))); }
+                    if command.starts_with("bash /workspace/factory/scripts/read-research-handle.sh ") {
+                        assert_eq!(command,format!("bash /workspace/factory/scripts/read-research-handle.sh {topic} {index}"));
+                        let path=format!("/workspace/.factory/research/topic-{topic}-{}.handle.json", index-1);
+                        return Ok(cv(json!({"success":s.files.contains_key(&path),"stdout":s.files.get(&path).cloned().unwrap_or_default()})));
+                    }
                     let words:Vec<_>=command.split_whitespace().collect();
                     assert_eq!(words.len(),9); assert_eq!(words[0],"/usr/local/bin/prepare-research-prompt");
                     let source=s.files.get(words[8]).expect("input persisted before assembly");
