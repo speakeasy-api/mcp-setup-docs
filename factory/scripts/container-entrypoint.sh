@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Kit/native descendants must create private records as 0600 and directories
+# as 0700 from the outset. cp -a below preserves snapshot/helper modes.
+umask 077
 # The host owns deadlines, logs, cleanup and later finalization. The model writes
 # only its atomic candidate report in /workspace/.factory; it cannot export.
 REPO_ROOT=${FACTORY_REPO_ROOT:-/repo}
