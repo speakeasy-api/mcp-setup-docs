@@ -10,9 +10,11 @@ Never use git or gh, labels, branches, PR operations, commits, repository settin
 
 For every subagent start, omit both model and harness. Children inherit the coordinator provider, model, and reasoning effort: configured `openai/gpt-6-astra`, medium, through OpenRouter. The per-request budget is configured externally and inherited; do not invent native timeout arguments. Never set compose `background` to `true` or a number. Do not emit progress updates or end the top-level turn while any factory call or child session is running. Final text is permitted only after the atomic run report exists and has passed validation.
 
-Every fallible call, child start/continuation, concurrent wave, file operation, validation and final reporting operation must run in an explicit `boundary { ... } catch err { ... }`. Check nonzero shell results as well as thrown errors. A caught or malformed execution sets terminal state to `failed`, stops all remaining model phases, and still proceeds to atomic reporting. Each concurrent task has its own caught boundary and the enclosing wave has one too. No automatic retries, replacement agents or blind continuation after uncertain failures. Generic tool diagnostics suggesting “fix the errors and retry” do not override this stop rule; do not repair and resubmit malformed execution. Save the last complete report and actual complete returned handle unchanged; never invent or increment a generation. A failed continuation may have made its prior handle stale: keep it as evidence, not as permission to reuse it. Never replace complete evidence with an empty, partial or failed result.
+Every fallible call, child start/continuation, concurrent wave, file operation, validation and final reporting operation must run in an explicit `boundary { ... } catch err { ... }`. Check nonzero shell results as well as thrown errors. Except for the bounded optional research fallback below, a caught, nonzero or malformed execution sets terminal state to `failed`, stops all remaining model phases, and still proceeds to atomic reporting. Each concurrent task has its own caught boundary and the enclosing wave has one too. No automatic retries, replacement agents or blind continuation after uncertain failures. Generic tool diagnostics suggesting “fix the errors and retry” do not override this stop rule; do not repair and resubmit malformed execution. Save the last complete report and actual complete returned handle unchanged; never invent or increment a generation. A failed continuation may have made its prior handle stale: keep it as evidence, not as permission to reuse it. Never replace complete evidence with an empty, partial or failed result.
 
 The host owns the 1800-second research clock, starting before context resolution, the 900-second writing/repair/validation clock and the 2700-second outer ceiling. No child, retry or repeated signal resets these clocks. This prompt cannot guarantee process cleanup. Host/container lifecycle integration and readable export/upload remain separate acceptance gates; no placeholder runtime or whole-job success claim.
+
+Parent audit must apply the same classification in **Bounded optional research fallback**: do not fail merely because a research report records a nonzero unavailable optional command when the read-only/no-side-effects conditions and bounded fallback evidence are satisfied. Missing research evidence still uses the existing factual-gap gates. Mandatory-helper failures, fallback execution failures, ambiguous side effects and malformed dispatch remain fatal. This exception never permits restarting a failed child or reusing a stale handle.
 
 ## Input and context contract
 
@@ -410,6 +412,33 @@ Use these owners for cross-topic dependencies:
 - Research public instructions only. Do not change provider settings, accept
   terms, grant access, create credentials, or collect secrets.
 
+
+### Bounded optional research fallback
+
+Prefer installed shell/curl/jq/rg; do not knowingly invoke absent Python.
+Never install Python, dependencies, or new tools. This exception covers only an
+unavailable optional exploratory research command, not a mandatory helper.
+Check and classify every caught error and nonzero shell result before continuing:
+
+- optional fetch-helper: command-not-found (127), simple known read-only attempt before any mutation => one available-tool fallback permitted
+- mandatory validator: command-not-found (127) or any nonzero => fatal
+- ambiguous write or unknown partial side effects => fatal
+- malformed Runlet/dispatch => fatal; never repair and resubmit
+
+A compound shell exit 127 cannot establish that earlier commands had no side effects.
+The exception requires positive knowledge that the simple attempt was read-only
+and had no partial side effects; uncertainty is fatal. Mandatory context, prompt
+assembly, validation, reporting, and lifecycle helpers are never optional.
+Other nonzero or caught execution errors remain fatal, including fallback failure.
+At most one fallback per unavailable command; no repeated attempts or indefinite loop.
+Use only an already available tool for the same permitted public-source read,
+within the existing deadline and research limits. No retry of the absent command.
+Record the original failure, fallback used, and its result in the existing private research report evidence;
+return this evidence for coordinator persistence, without new logs or child file writes.
+If no available fallback exists, record the unanswered research check; do not
+claim that missing evidence proves absence or unsupported service.
+Do not extend clocks or relax validation, filesystem/privacy, native handles, reporting, export, or publication gates.
+
 ## Return format
 
 Use this structure for each topic report:
@@ -653,7 +682,7 @@ The coordinator alone validates after writing. Preserve unrelated existing files
 
 Allow at most one deterministic-validation repair via `prompt` on that same writer's actual successful handle, with only validation defects and dossier-backed edits. No new research, reviewer agent or review round. Repair agents must not run validation commands. Recreate the private four-file inspection snapshot and re-run artifact inspection (`revision` stage), lint, full generation, ID continuity, size and whitespace checks. Any exhausted validation failure selects `failed`. All writing, repair and validation stay inside the writing clock.
 
-Only a complete supported dossier, final authority audit and accepted four-file guide can converge. Missing source/support facts or exhausted factual follow-up rounds with unresolved material checks select `blocked`; execution, timeout, malformed result or exhausted writer validation repair selects `failed`.
+Only a complete supported dossier, final authority audit and accepted four-file guide can converge. Missing source/support facts or exhausted factual follow-up rounds with unresolved material checks select `blocked`; execution errors outside the bounded optional research fallback, timeout, malformed result or exhausted writer validation repair selects `failed`.
 
 Presentation-only uncertainty never selects `awaiting_scope`. Missing exact UI labels, control names or locations, and equivalent Save/Update/Apply chrome are presentation-only when operation and values are clear. Open questions are operator-actionable decisions, not a list of documentation gaps. Each must be material to first connection, cannot be handled with a safe hedge, and answerable from operator knowledge or authority. If the operator could only repeat the same public-source search, record a research limitation and continue when the supported path remains established; otherwise select blocked. Material operator-only decisions select `awaiting_scope`, with an ordered nonempty open_questions array for the publisher's numbered reply/relabel response. Do not wait during this run. Explicit later reply/relabel is recovery, not a deadline reset.
 

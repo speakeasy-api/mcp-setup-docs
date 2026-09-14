@@ -85,6 +85,33 @@ Use these owners for cross-topic dependencies:
 - Research public instructions only. Do not change provider settings, accept
   terms, grant access, create credentials, or collect secrets.
 
+
+### Bounded optional research fallback
+
+Prefer installed shell/curl/jq/rg; do not knowingly invoke absent Python.
+Never install Python, dependencies, or new tools. This exception covers only an
+unavailable optional exploratory research command, not a mandatory helper.
+Check and classify every caught error and nonzero shell result before continuing:
+
+- optional fetch-helper: command-not-found (127), simple known read-only attempt before any mutation => one available-tool fallback permitted
+- mandatory validator: command-not-found (127) or any nonzero => fatal
+- ambiguous write or unknown partial side effects => fatal
+- malformed Runlet/dispatch => fatal; never repair and resubmit
+
+A compound shell exit 127 cannot establish that earlier commands had no side effects.
+The exception requires positive knowledge that the simple attempt was read-only
+and had no partial side effects; uncertainty is fatal. Mandatory context, prompt
+assembly, validation, reporting, and lifecycle helpers are never optional.
+Other nonzero or caught execution errors remain fatal, including fallback failure.
+At most one fallback per unavailable command; no repeated attempts or indefinite loop.
+Use only an already available tool for the same permitted public-source read,
+within the existing deadline and research limits. No retry of the absent command.
+Record the original failure, fallback used, and its result in the existing private research report evidence;
+return this evidence for coordinator persistence, without new logs or child file writes.
+If no available fallback exists, record the unanswered research check; do not
+claim that missing evidence proves absence or unsupported service.
+Do not extend clocks or relax validation, filesystem/privacy, native handles, reporting, export, or publication gates.
+
 ## Return format
 
 Use this structure for each topic report:

@@ -1,5 +1,22 @@
 # Guide factory operations
 
+## Approved optional research-tool policy adjustment
+
+The user subsequently approved one narrow exception to strict execution-failure
+handling: an unavailable optional exploratory command (for example, an absent
+fetch helper returning 127) may use one already available read-only fallback
+only when the simple original attempt preceded any mutation and is known to
+have no partial side effects. Prefer installed shell/curl/jq/rg, never knowingly
+invoke absent Python, and install nothing. Record the original failure and
+fallback outcome in existing private research evidence; introduce no new logs.
+Mandatory helpers, other nonzero failures, ambiguous writes, malformed Runlet,
+and failed fallback execution remain fatal. Parent audit applies the same
+classification. All deadlines, validation, filesystem/privacy, native-handle,
+report/export and publication gates are unchanged. This is a later approved
+policy adjustment, not a claim that the original strict design allowed recovery.
+Static prompt fixtures and assembler parity do not prove model compliance.
+No live run is authorized by this adjustment alone.
+
 ## Host lifecycle integration — Tasks 1–5 approved; Task 6 acceptance pending
 
 `run-kit.sh <issue-json> <catalog-json> <export-dir>` now prebuilds the native Go
