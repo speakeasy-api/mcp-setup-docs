@@ -264,7 +264,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	}
 	if err == nil {
 		if e := boundary.snapshots(w, factory, &doc); e != nil {
-			return errUnsafe
+			return e
 		}
 		research, e := boundary.directory(factory, "research")
 		if e != nil && !os.IsNotExist(e) {
@@ -285,7 +285,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 					continue
 				}
 				if e != nil {
-					return errUnsafe
+					return e
 				}
 				doc.Files = append(doc.Files, readableFile{"research/" + name, string(data)})
 			}

@@ -115,7 +115,7 @@ func (b *sourceBoundary) snapshots(workspace, factory *os.Root, doc *readableArt
 		return nil
 	}
 	if err != nil {
-		return errUnsafe
+		return err
 	}
 	report, err := decodeReport(data)
 	if err != nil {
@@ -150,7 +150,7 @@ func (b *sourceBoundary) snapshots(workspace, factory *os.Root, doc *readableArt
 			continue
 		}
 		if err != nil {
-			return errUnsafe
+			return err
 		}
 		// Fixed display name: no raw slug or model-selected paths in artifact metadata.
 		doc.Files = append(doc.Files, readableFile{"guide/" + name, string(data)})
