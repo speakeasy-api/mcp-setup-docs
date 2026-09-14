@@ -99,6 +99,19 @@ def frozen_state(export, host, run, attempt):
     return export, state
 
 
+# Exact host-authored fallback bytes, not a model-selected failed report.
+HOST_FAILURE = b'{"schema_version":1,"outcome":"failed","provider":null,"slug":null,"persona":null,"summary":"Factory model execution failed.","open_questions":[],"blockers":["Factory model execution failed."],"nits":[],"review_rounds":0,"artifacts":[]}'
+
+
+def host_failure(export, state, transcript):
+    return (state['primary_outcome'] == 'failed' and
+            state['publication_ready'] is False and state['readable_export'] == 'ready' and
+            transcript.get('limited') is True and
+            'missing_candidate_report' in transcript.get('omissions', []) and
+            not any(f.get('name') == 'run-report.json' for f in transcript['files']) and
+            contents(export, 'run-report.json') == HOST_FAILURE)
+
+
 def main():
     command = sys.argv[1]
     if command == 'local-gate':
@@ -108,6 +121,17 @@ def main():
             raise ValueError()
         path, host = sys.argv[2:4]
         export, state = frozen_state(directory(path), host, '', 0)
+        report = read(export, 'run-report.json')
+        if state['primary_outcome'] != 'converged':
+            if len(sys.argv) != 4 or state['publication_ready'] or state['readable_export'] != 'ready' or report['outcome'] != state['primary_outcome']:
+                raise ValueError()
+            transcript = read(export, 'session-transcript.json')
+            if type(transcript.get('schema_version')) is not int or transcript['schema_version'] != 1 or transcript.get('kind') != 'guide_factory_readable_transcript':
+                raise ValueError()
+            reports = [f['text'] for f in transcript['files'] if f['name'] == 'run-report.json']
+            if not host_failure(export, state, transcript) and (len(reports) != 1 or json.loads(reports[0]) != report):
+                raise ValueError()
+            return
         if not state['publication_ready'] or state['primary_outcome'] != 'converged' or state['readable_export'] != 'ready':
             raise ValueError()
         report = read(export, 'run-report.json')
@@ -205,8 +229,9 @@ def main():
         raise ValueError()
 
 
-try:
-    main()
-except Exception:
-    print('factory: publication state rejected; preserve state and reconcile read-only before retry', file=sys.stderr)
-    sys.exit(1)
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception:
+        print('factory: publication state rejected; preserve state and reconcile read-only before retry', file=sys.stderr)
+        sys.exit(1)

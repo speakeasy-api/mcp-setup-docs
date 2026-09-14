@@ -108,8 +108,10 @@ fi
   "$run_kit" "$issue_json" "$catalog_json" "$export_dir"
   [[ -f "$export_dir/run-report.json" ]] || { printf 'local-draft: Kit did not export run-report.json\n' >&2; exit 1; }
   if [[ -n "$expected_slug" ]]; then
-    selected_slug="$(jq -er '.slug // empty' "$export_dir/run-report.json")" || { printf 'local-draft: report does not select a slug\n' >&2; exit 1; }
-    [[ "$selected_slug" == "$expected_slug" ]] || { printf 'local-draft: report selected %s, expected %s\n' "$selected_slug" "$expected_slug" >&2; exit 1; }
+    selected_slug="$(jq -r '.slug // empty' "$export_dir/run-report.json")"
+    outcome="$(jq -r '.outcome' "$export_dir/run-report.json")"
+    [[ "$outcome" != converged || -n "$selected_slug" ]] || { printf 'local-draft: report does not select a slug\n' >&2; exit 1; }
+    [[ -z "$selected_slug" || "$selected_slug" == "$expected_slug" ]] || { printf 'local-draft: report selected %s, expected %s\n' "$selected_slug" "$expected_slug" >&2; exit 1; }
   fi
   "$validate" --local "$export_dir" "$ROOT" "$FACTORY_HOST_RUN_ID"
 )

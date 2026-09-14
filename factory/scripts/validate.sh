@@ -174,13 +174,11 @@ validate_tree "$guide_dir"
 validate_artifacts "$guide_dir"
 
 [[ -d "$repo_root/.git" || -f "$repo_root/.git" ]] || fatal "repository root is not a Git worktree"
-if [[ "$outcome" == converged ]]; then
-  if [[ -n $local_run_id ]]; then
-    python3 "$script_root/factory/scripts/publication-state.py" local-gate "$export_dir" "$local_run_id" || fatal 'trusted local handoff rejected'
-  else
-    [[ "$export_dir" == "${RUNNER_TEMP:?}/export" ]] || fatal 'export must be the fixed host export directory'
-    python3 "$script_root/factory/scripts/publication-state.py" gate "$report" || fatal 'trusted publication handoff rejected'
-  fi
+if [[ -n $local_run_id ]]; then
+  python3 "$script_root/factory/scripts/publication-state.py" local-gate "$export_dir" "$local_run_id" || fatal 'trusted local handoff rejected'
+elif [[ "$outcome" == converged ]]; then
+  [[ "$export_dir" == "${RUNNER_TEMP:?}/export" ]] || fatal 'export must be the fixed host export directory'
+  python3 "$script_root/factory/scripts/publication-state.py" gate "$report" || fatal 'trusted publication handoff rejected'
 fi
 
 [[ -d "$guides_dir" && ! -L "$guides_dir" ]] || fatal "repository guides path must be a physical directory"

@@ -114,3 +114,46 @@ func TestFinalizeNonconvergedReport(t *testing.T) {
 		})
 	}
 }
+
+// Successful worker shutdown without a candidate is a host failure, not success.
+func TestFinalizeCompletedWithoutCandidate(t *testing.T) {
+	home, _, out := exportFixture(t)
+	private := filepath.Dir(home)
+	os.Chmod(private, 0700)
+	os.Mkdir(private+"/host", 0700)
+	result := private + "/host/result.json"
+	os.WriteFile(result, []byte(`{"version":1,"run_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","termination":"completed","exit_code":0,"container_removed":true}`), 0600)
+	if err := Finalize(private, result, filepath.Dir(out), nil); err != nil {
+		t.Fatal(err)
+	}
+	report, err := os.ReadFile(filepath.Dir(out) + "/run-report.json")
+	if err != nil || string(report) != string(failedReport) {
+		t.Fatal("fixed fallback lost")
+	}
+	data, err := os.ReadFile(filepath.Dir(out) + "/session-transcript.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var transcript struct {
+		Files []readableFile `json:"files"`
+	}
+	if err := json.Unmarshal(data, &transcript); err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range transcript.Files {
+		if f.Name == "run-report.json" {
+			t.Fatal("host fallback embedded as candidate")
+		}
+	}
+	data, err = os.ReadFile(filepath.Dir(out) + "/finalization.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var state finalization
+	if err := json.Unmarshal(data, &state); err != nil {
+		t.Fatal(err)
+	}
+	if state.Primary != "failed" || state.PublicationReady || state.Readable != "ready" {
+		t.Fatal("missing candidate became publishable")
+	}
+}
