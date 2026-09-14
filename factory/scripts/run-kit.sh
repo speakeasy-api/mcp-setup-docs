@@ -19,6 +19,7 @@ supervisor = None
 private = None
 supervised = False
 exit_code = 1
+supervisor_status = None
 run_id = os.environ.get('FACTORY_HOST_RUN_ID') or secrets.token_hex(16)
 os.environ['FACTORY_HOST_RUN_ID'] = run_id
 docker = os.environ.get('FACTORY_DOCKER', 'docker')
@@ -169,6 +170,7 @@ try:
         supervisor = subprocess.Popen([native, '--container-id', container, '--control-dir', private+'/control', '--run-id', run_id, '--result', result, '--finalizer', private+'/host/finalize-factory', '--export-dir', export], stdout=out, stderr=err)
         supervised = True
         exit_code = supervisor.wait(timeout=3030)
+        supervisor_status = exit_code
     supervisor = None
     # Reports live directly in the host export directory even on nonzero status.
     # Host readiness includes current validation and frozen output; Task 5 upload
@@ -193,10 +195,15 @@ finally:
         except subprocess.TimeoutExpired:
             supervisor.kill()
             supervisor.wait(timeout=5)
+    # Preserve Python's raw negative signal status; never reinterpret it as success.
+    if supervisor is not None and supervisor.returncode is not None:
+        supervisor_status = supervisor.returncode
     if private and not supervised and not cleanup_owned():
         print('factory: cleanup failed; private state withheld', file=sys.stderr)
     # Once supervised, do not grant another cleanup/finalization budget here.
     # The deadline-owning supervisor/finalizer removes only owned home/workspace.
     # Abrupt supervisor loss may leave private state withheld for host recovery.
+    if supervisor_status is not None:
+        print('FACTORY_SUPERVISOR_STATUS=%d' % supervisor_status)
 sys.exit(0 if exit_code == 0 else 1)
 PY
