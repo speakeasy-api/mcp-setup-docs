@@ -245,6 +245,26 @@ func decodeSession(source []byte) (decodedSession, error) {
 				}
 				for kind, body := range part {
 					event := decodedEvent{Role: role, Part: kind, Replacement: hasReplacement}
+					// Actual Kit 61708db background completions use Notification
+					// + Structured(ToolResult), agentkit 8e4ee26 loop:3307-3348.
+					// Accept only this envelope, then reuse the tool-result boundary.
+					if kind == "Structured" {
+						fields, err := object(body, "value", "schema", "metadata")
+						if err != nil || role != "Notification" || len(fields) != 3 || fields["schema"] != nil {
+							return fail()
+						}
+						if _, ok := fields["metadata"].(map[string]any); !ok {
+							return fail()
+						}
+						result, err := object(fields["value"], "call_id", "output", "is_error", "metadata")
+						if err != nil || len(result) != 4 {
+							return fail()
+						}
+						if _, ok := result["metadata"].(map[string]any); !ok {
+							return fail()
+						}
+						kind, body = "ToolResult", result
+					}
 					switch kind {
 					case "Text":
 						fields, err := object(body, "text", "metadata")
