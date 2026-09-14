@@ -201,6 +201,41 @@ func TestCanonicalCoordinatorPrompts(t *testing.T) {
 }
 
 // No provider calls: protect the source-level dependency contract for Task 3.
+// Text contracts, not a runtime classifier or proof of model behavior.
+func TestResearchRepairPolicy(t *testing.T) {
+	d, h := document(t)
+	for _, name := range []string{"topic-1", "topic-2", "topic-3", "topic-4", "topic-5", "follow-up-1", "follow-up-2"} {
+		t.Run(name, func(t *testing.T) {
+			kind := "initial"
+			if strings.HasPrefix(name, "follow-up-") {
+				kind = "follow-up"
+			}
+			got, err := Assemble(d, h, kind, fixture(t, name))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if kind == "follow-up" {
+				if !bytes.Contains(got, []byte("Use the original common instructions")) {
+					t.Fatal("follow-up lost shared policy")
+				}
+				got = append(got, exact(d, "## Common instructions for every research subagent")...)
+			}
+			for _, phrase := range []string{
+				"ordinary research: successful harness-healed allowed read-only execution => accept under the same operation/result/evidence criteria as unrepaired execution",
+				"ordinary research: unresolved Runlet compile failure => fatal; never repair and resubmit",
+				"mandatory canonical dispatch/context/report program: any repair or byte mismatch => fatal trusted-literal corruption",
+				"ordinary research: healed execution with uncertain writes or unknown partial effects => unsafe; inspect/reconcile, never replay",
+				"failed recovery attempt, including a different error class => fatal",
+				"Do not re-execute solely because of a repair warning",
+			} {
+				if !bytes.Contains(got, []byte(phrase)) {
+					t.Errorf("missing policy: %s", phrase)
+				}
+			}
+		})
+	}
+}
+
 func TestDispatchContract(t *testing.T) {
 	b, e := os.ReadFile("../../../factory/tests/fixtures/research/dispatch.runlet")
 	if e != nil {

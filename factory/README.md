@@ -9,7 +9,7 @@ only when the simple original attempt preceded any mutation and is known to
 have no partial side effects. Prefer installed shell/curl/jq/rg, never knowingly
 invoke absent Python, and install nothing. Record the original failure and
 fallback outcome in existing private research evidence; introduce no new logs.
-Mandatory helpers, other nonzero failures, ambiguous writes, malformed Runlet,
+Mandatory helpers, other nonzero failures, ambiguous writes, unresolved Runlet compile failures,
 and failed fallback execution remain fatal. Parent audit applies the same
 classification. All deadlines, validation, filesystem/privacy, native-handle,
 report/export and publication gates are unchanged. This is a later approved
@@ -25,14 +25,14 @@ correction OR one simpler already available alternative per failed research
 operation. This single shared budget never resets on a different error class or
 by treating a recovery attempt as a new operation; failed recovery is fatal.
 Both attempts must have no mutation or uncertain partial side effects. A malformed
-shell sed expression is distinct from malformed Runlet, which remains fatal.
+shell sed expression is distinct from unresolved Runlet compile failure, which remains fatal. Successful harness-healed ordinary research is governed by the later adjustment below.
 A curl 23 downstream-pipe failure qualifies only with positive read-only evidence;
 the exit code alone is insufficient. Transient HTTP retries use this same budget,
 not an open-ended allowance. HTTP failures provide no invented source evidence
 and cannot bypass the Topic 5 endpoint gate.
 
 Mandatory helpers, validation, reporting, privacy, native handles, publication,
-deadlines, ambiguous writes and malformed dispatch retain their fatal gates.
+deadlines, ambiguous writes and corrupted mandatory canonical programs retain their fatal gates.
 No automatic service-write retries, installs, known-absent Python invocation, or
 broader authentication/access/bypass changes are allowed. Shared child instructions
 cover every topic and assembled follow-up; parent audit uses the same policy.
@@ -44,6 +44,30 @@ claim. This later policy does not rewrite the earlier approval or historical fac
 Prompt-text tests are not a runtime classifier or proof of model compliance.
 Independent review and fresh approval are required before any further live run.
 No runtime image or dependency change is part of this adjustment.
+
+## Later approved automatic syntax-repair policy correction
+
+For model-generated ordinary research only, successful harness-healed execution
+is not fatal solely because `compose_warnings.auto_repaired` reports minor syntax
+repair. Child instructions and parent audit assess the resulting execution using
+the same allowed-operation, result and evidence criteria as unrepaired research.
+A warning proves neither failure nor zero effects. Do not replay solely for the
+warning or require proof of zero dispatch to accept already-executed allowed research.
+Actual errors retain the existing one-recovery, positively read-only/no-ambiguity
+eligibility rules; failed recovery and unresolved compile failures remain fatal.
+Unknown/partial mutative effects require existing-policy inspection/reconciliation,
+not replay. Exact-byte mandatory canonical dispatch/context/report programs still
+reject any healing or improvisation as trusted-literal corruption; ordinary child
+research is not a mandatory literal. Canonical program bytes are unchanged.
+Validation, privacy, evidence, native handles, endpoint gates, authentication scope,
+deadlines and publication safeguards are unchanged, with no new logging policy.
+
+The certified private `okta-live-1e59e9a.0VACCD` report recorded an automatic
+missing-separator repair warning. Local source suggests execution precedes the
+warning, but exact release linkage and live effects are unknown: this is not a
+runtime reproduction claim. These are prompt-text contracts and assembly parity,
+not a runtime classifier or proof of model compliance. Independent review follows;
+no live/provider execution is authorized or performed by this correction.
 
 ## Host lifecycle integration — Tasks 1–5 approved; Task 6 acceptance pending
 

@@ -86,6 +86,29 @@ Use these owners for cross-topic dependencies:
   terms, grant access, create credentials, or collect secrets.
 
 
+### Harness-healed ordinary research
+
+For model-generated ordinary research programs, assess the resulting execution,
+not the minor automatic syntax repair. A repair warning alone is neither execution failure nor evidence of zero effects.
+Do not re-execute solely because of a repair warning. A successful harness-healed
+execution is evaluated under the same allowed-operation, result and evidence
+criteria as an unrepaired execution; the warning alone is not fatal.
+Do not require proof of zero tool dispatch to accept already-executed allowed research.
+This is acceptance of an executed result, not a recovery attempt. Actual execution
+errors still use only the bounded optional research fallback below: positive
+read-only/no-ambiguity eligibility, one shared recovery budget, failed recovery fatal.
+Unknown or partial mutative effects are unsafe: stop and inspect/reconcile under
+existing policy, never replay. Preserve existing evidence and reporting rules.
+Exact-byte mandatory canonical dispatch/context/report programs remain strict:
+no healing or improvisation is accepted, even on apparent success. This is
+trusted-literal corruption, not ordinary research; do not classify child-generated
+ordinary research as mandatory merely because it uses Runlet.
+
+- ordinary research: successful harness-healed allowed read-only execution => accept under the same operation/result/evidence criteria as unrepaired execution
+- ordinary research: unresolved Runlet compile failure => fatal; never repair and resubmit
+- mandatory canonical dispatch/context/report program: any repair or byte mismatch => fatal trusted-literal corruption
+- ordinary research: healed execution with uncertain writes or unknown partial effects => unsafe; inspect/reconcile, never replay
+
 ### Bounded optional research fallback
 
 Prefer installed shell/curl/jq/rg; do not knowingly invoke absent Python.
@@ -102,13 +125,13 @@ Check and classify every caught error and nonzero shell result before continuing
 - failed recovery attempt, including a different error class => fatal
 - mandatory validator: command-not-found (127) or any nonzero => fatal
 - ambiguous write or unknown partial side effects => fatal
-- malformed Runlet/dispatch => fatal; never repair and resubmit
+- unresolved Runlet compile failure or repaired/mismatched mandatory canonical program => fatal; never repair and resubmit
 
 A compound shell exit 127 cannot establish that earlier commands had no side effects.
 The exception requires positive knowledge that the simple attempt was read-only
 and had no partial side effects; uncertainty is fatal. Mandatory context, prompt
 assembly, validation, reporting, and lifecycle helpers are never optional.
-A shell sed expression error is not malformed Runlet grammar; the latter remains fatal.
+A shell sed expression error is not unresolved Runlet compile failure; successful harness-healed ordinary research is assessed above.
 Exit codes alone (including curl 23) do not establish read-only/no-side-effects eligibility.
 Other nonzero or caught execution errors remain fatal, including fallback failure.
 One shared recovery budget per failed research operation; changing error class or treating the next attempt as a new operation never resets it.

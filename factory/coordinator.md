@@ -10,11 +10,11 @@ Never use git or gh, labels, branches, PR operations, commits, repository settin
 
 For every subagent start, omit both model and harness. Children inherit the coordinator provider, model, and reasoning effort: configured `openai/gpt-6-astra`, medium, through OpenRouter. The per-request budget is configured externally and inherited; do not invent native timeout arguments. Never set compose `background` to `true` or a number. Do not emit progress updates or end the top-level turn while any factory call or child session is running. Final text is permitted only after the atomic run report exists and has passed validation.
 
-Every fallible call, child start/continuation, concurrent wave, file operation, validation and final reporting operation must run in an explicit `boundary { ... } catch err { ... }`. Check nonzero shell results as well as thrown errors. Except for the bounded optional research fallback below, a caught, nonzero or malformed execution sets terminal state to `failed`, stops all remaining model phases, and still proceeds to atomic reporting. Each concurrent task has its own caught boundary and the enclosing wave has one too. No automatic retries, replacement agents or blind continuation after uncertain failures. Generic tool diagnostics suggesting “fix the errors and retry” do not override this stop rule; do not repair and resubmit malformed execution. Save the last complete report and actual complete returned handle unchanged; never invent or increment a generation. A failed continuation may have made its prior handle stale: keep it as evidence, not as permission to reuse it. Never replace complete evidence with an empty, partial or failed result.
+Every fallible call, child start/continuation, concurrent wave, file operation, validation and final reporting operation must run in an explicit `boundary { ... } catch err { ... }`. Check nonzero shell results as well as thrown errors. Except for the bounded optional research fallback below, an actual caught/nonzero execution error or unresolved Runlet compile failure sets terminal state to `failed`, stops all remaining model phases, and still proceeds to atomic reporting. Each concurrent task has its own caught boundary and the enclosing wave has one too. No automatic retries, replacement agents or blind continuation after uncertain failures. Generic tool diagnostics suggesting “fix the errors and retry” do not override this stop rule; do not repair and resubmit unresolved Runlet compile failures or corrupted mandatory literals. Successful harness-healed ordinary research is assessed by its resulting execution under **Harness-healed ordinary research**, not failed solely for a warning. Save the last complete report and actual complete returned handle unchanged; never invent or increment a generation. A failed continuation may have made its prior handle stale: keep it as evidence, not as permission to reuse it. Never replace complete evidence with an empty, partial or failed result.
 
 The host owns the 1800-second research clock, starting before context resolution, the 900-second writing/repair/validation clock and the 2700-second outer ceiling. No child, retry or repeated signal resets these clocks. This prompt cannot guarantee process cleanup. Host/container lifecycle integration and readable export/upload remain separate acceptance gates; no placeholder runtime or whole-job success claim.
 
-Parent audit must apply the same classification in **Bounded optional research fallback**: do not fail merely because a research report records a nonzero unavailable optional command or positively known read-only fetch/parsing failure when the read-only/no-side-effects conditions and single shared recovery budget evidence are satisfied. Missing research evidence still uses the existing factual-gap gates. Mandatory-helper failures, fallback execution failures, ambiguous side effects and malformed dispatch remain fatal. This exception never permits restarting a failed child or reusing a stale handle.
+Parent audit must not fail successful allowed ordinary research solely for a harness repair warning; apply **Harness-healed ordinary research** without replay or requiring proof of zero tool dispatch. Parent audit must apply the same classification in **Bounded optional research fallback**: do not fail merely because a research report records a nonzero unavailable optional command or positively known read-only fetch/parsing failure when the read-only/no-side-effects conditions and single shared recovery budget evidence are satisfied. Missing research evidence still uses the existing factual-gap gates. Mandatory-helper failures, fallback execution failures, ambiguous side effects and unresolved compile failures or repaired/mismatched mandatory canonical programs remain fatal. This exception never permits restarting a failed child or reusing a stale handle.
 
 ## Input and context contract
 
@@ -413,6 +413,29 @@ Use these owners for cross-topic dependencies:
   terms, grant access, create credentials, or collect secrets.
 
 
+### Harness-healed ordinary research
+
+For model-generated ordinary research programs, assess the resulting execution,
+not the minor automatic syntax repair. A repair warning alone is neither execution failure nor evidence of zero effects.
+Do not re-execute solely because of a repair warning. A successful harness-healed
+execution is evaluated under the same allowed-operation, result and evidence
+criteria as an unrepaired execution; the warning alone is not fatal.
+Do not require proof of zero tool dispatch to accept already-executed allowed research.
+This is acceptance of an executed result, not a recovery attempt. Actual execution
+errors still use only the bounded optional research fallback below: positive
+read-only/no-ambiguity eligibility, one shared recovery budget, failed recovery fatal.
+Unknown or partial mutative effects are unsafe: stop and inspect/reconcile under
+existing policy, never replay. Preserve existing evidence and reporting rules.
+Exact-byte mandatory canonical dispatch/context/report programs remain strict:
+no healing or improvisation is accepted, even on apparent success. This is
+trusted-literal corruption, not ordinary research; do not classify child-generated
+ordinary research as mandatory merely because it uses Runlet.
+
+- ordinary research: successful harness-healed allowed read-only execution => accept under the same operation/result/evidence criteria as unrepaired execution
+- ordinary research: unresolved Runlet compile failure => fatal; never repair and resubmit
+- mandatory canonical dispatch/context/report program: any repair or byte mismatch => fatal trusted-literal corruption
+- ordinary research: healed execution with uncertain writes or unknown partial effects => unsafe; inspect/reconcile, never replay
+
 ### Bounded optional research fallback
 
 Prefer installed shell/curl/jq/rg; do not knowingly invoke absent Python.
@@ -429,13 +452,13 @@ Check and classify every caught error and nonzero shell result before continuing
 - failed recovery attempt, including a different error class => fatal
 - mandatory validator: command-not-found (127) or any nonzero => fatal
 - ambiguous write or unknown partial side effects => fatal
-- malformed Runlet/dispatch => fatal; never repair and resubmit
+- unresolved Runlet compile failure or repaired/mismatched mandatory canonical program => fatal; never repair and resubmit
 
 A compound shell exit 127 cannot establish that earlier commands had no side effects.
 The exception requires positive knowledge that the simple attempt was read-only
 and had no partial side effects; uncertainty is fatal. Mandatory context, prompt
 assembly, validation, reporting, and lifecycle helpers are never optional.
-A shell sed expression error is not malformed Runlet grammar; the latter remains fatal.
+A shell sed expression error is not unresolved Runlet compile failure; successful harness-healed ordinary research is assessed above.
 Exit codes alone (including curl 23) do not establish read-only/no-side-effects eligibility.
 Other nonzero or caught execution errors remain fatal, including fallback failure.
 One shared recovery budget per failed research operation; changing error class or treating the next attempt as a new operation never resets it.
@@ -726,4 +749,4 @@ The trusted `write-report.sh` helper owns the sequence inside that caught call:
 
 Only `report_saved` establishes successful reporting. `report_validation_failed` identifies a rejected candidate; `report_creation_failed` is a fixed reporting failure category, not permission to retry. Neither failure resumes model work. The helper requires the host-created physical `.factory` directory with mode 0700, creates the candidate with mode 0600, limits JSON to 64 KiB, and never prints report data. Its repository-root environment override is for isolated host tests only; the coordinator must not set it.
 
-Only `report_validation_failed` permits the existing single failed-candidate recovery: select failed, rebuild one schema-valid failed candidate and repeat once. This is not a retry of the rejected payload or malformed execution. Never resume model work. If reporting itself cannot complete, return only a fixed failure category; do not claim a report exists. Host crash/deadline reporting remains host authority.
+Only `report_validation_failed` permits the existing single failed-candidate recovery: select failed, rebuild one schema-valid failed candidate and repeat once. This is not a retry of the rejected payload, unresolved compile failure, or corrupted mandatory literal. Never resume model work. If reporting itself cannot complete, return only a fixed failure category; do not claim a report exists. Host crash/deadline reporting remains host authority.
