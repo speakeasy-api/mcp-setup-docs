@@ -78,6 +78,8 @@ try:
         row=tmp/mode; row.mkdir(mode=0o700); (row/'private').mkdir(mode=0o700)
         repo=row/'repo'; (repo/'guides').mkdir(parents=True); (repo/'guides/.keep').touch()
         call(['git','init','-q',str(repo)])
+        # Match checkout's trusted remote; the git shim below still intercepts pushes.
+        call(['git','remote','add','origin','https://github.com/acme/docs.git'],cwd=repo)
         call(['git','config','user.name','Fixture'],cwd=repo); call(['git','config','user.email','fixture@example.invalid'],cwd=repo)
         call(['git','add','.'],cwd=repo); call(['git','commit','-qm','fixture'],cwd=repo)
         (row/'bin').mkdir(); shutil.copy(root/'factory/tests/fixtures/lifecycle/gh',row/'bin/gh')
