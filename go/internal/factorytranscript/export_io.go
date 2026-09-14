@@ -402,6 +402,17 @@ func sanitizeDecoded(s *Sanitizer, text string, depth int) (string, error) {
 	}
 	if parseErr == nil {
 		if _, e := d.Token(); e != io.EOF {
+			// HTTP status messages and numbered prose can start with a JSON
+			// number without being JSON. Only scan unescaped prose: embedded
+			// JSON escapes could otherwise conceal a known secret. Keep
+			// trailing data after structured/quoted JSON fail-closed.
+			if _, numeric := value.(json.Number); numeric {
+				if strings.ContainsRune(text, '\\') {
+					return "", errUnsafe
+				}
+				clean, err := s.Sanitize([]byte(text))
+				return string(clean), err
+			}
 			return "", errUnsafe
 		}
 		var walk func(any) (any, error)
