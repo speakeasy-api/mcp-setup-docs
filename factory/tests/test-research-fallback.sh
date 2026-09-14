@@ -9,6 +9,10 @@ for document in factory/coordinator.md docs/research-prompt-draft.md; do
     [[ $common == *"$fixture"* ]] || fail "$document missing failure-policy fixture: $fixture"
   done <<'FIXTURES'
 optional fetch-helper: command-not-found (127), simple known read-only attempt before any mutation => use an already available read-only alternative
+required research question: failed read-only source attempt => correct or change approach, not mandatory-helper failure
+read-only rg: exit 1 => no match, a negative finding, not an execution error or incompatibility
+read-only rg: exit 2 => execution error; correct only with positively known read-only effects
+source unavailable or no match => unanswered compatibility check, not invented incompatibility
 optional read-only sed extraction: malformed shell sed expression => correct or use a simpler available read-only alternative
 optional read-only curl pipeline: downstream parser closes pipe, curl exits 23, no file/service mutation or uncertain side effects => correct or use a simpler available read-only alternative
 repeated read-only failures => change approach within the existing 1800-second research deadline or report the blocker
@@ -43,4 +47,22 @@ for document in factory/coordinator.md docs/research-prompt-draft.md factory/REA
     fail "$document retains blanket malformed-Runlet stop"
   fi
 done
+# Central source instructions must stay outside assembled child content.
+central=$(sed -n '/^### Resolve the run context$/,/^### Resolve the destination$/p' "$ROOT/factory/coordinator.md")
+while IFS= read -r fixture; do
+  [[ $central == *"$fixture"* ]] || fail "missing central source policy: $fixture"
+  for document in factory/coordinator.md docs/research-prompt-draft.md; do
+    common=$(sed -n '/^## Common instructions for every research subagent$/,/^## Return format$/p' "$ROOT/$document")
+    [[ $common != *"$fixture"* ]] || fail "$document central source policy leaked into child: $fixture"
+  done
+done <<'FIXTURES'
+This is a required research question, not a mandatory execution helper.
+Establish required compatibility evidence before writing.
+Use already available read-only source tools; this does not authorize git,
+gh, git clone, installation, or arbitrary repository exploration.
+Follow a necessary dependency only at the version pinned by the applicable
+lockfile or dependency manifest, using its official source.
+Check the actual default and negotiated-version allowlist on that path;
+a version string alone does not establish protocol support.
+FIXTURES
 printf 'PASS: static optional research fallback policy (model compliance unproven)\n'

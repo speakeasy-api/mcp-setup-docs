@@ -114,13 +114,19 @@ ordinary research as mandatory merely because it uses Runlet.
 Prefer installed shell/curl/jq/rg; do not knowingly invoke absent Python.
 Never install Python, dependencies, or new tools. This policy covers an
 unavailable optional exploratory research command or positively known read-only
-fetch/parsing failure, not a mandatory helper. Read-only fetch, parsing, quoting, and tool-selection errors may be corrected
+fetch/parsing failure, including source inspection for a required research
+question, not a mandatory execution helper. The required evidence does not make
+each exploratory command mandatory. Read-only fetch, parsing, quoting, and tool-selection errors may be corrected
 using already available tools for the same permitted public-source read.
 Check and classify every caught error and nonzero shell result before continuing.
 There is no fixed research failure or recovery count; the existing deadline and risk/evidence gates bound correction.
 Repeated identical no-progress failures must stop that approach; try a different approach or report the blocker.
 
 - optional fetch-helper: command-not-found (127), simple known read-only attempt before any mutation => use an already available read-only alternative
+- required research question: failed read-only source attempt => correct or change approach, not mandatory-helper failure
+- read-only rg: exit 1 => no match, a negative finding, not an execution error or incompatibility
+- read-only rg: exit 2 => execution error; correct only with positively known read-only effects
+- source unavailable or no match => unanswered compatibility check, not invented incompatibility
 - optional read-only sed extraction: malformed shell sed expression => correct or use a simpler available read-only alternative
 - optional read-only curl pipeline: downstream parser closes pipe, curl exits 23, no file/service mutation or uncertain side effects => correct or use a simpler available read-only alternative
 - repeated read-only failures => change approach within the existing 1800-second research deadline or report the blocker

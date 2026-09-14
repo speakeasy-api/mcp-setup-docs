@@ -14,7 +14,7 @@ Every fallible call, child start/continuation, concurrent wave, file operation, 
 
 The host owns the 1800-second research clock, starting before context resolution, the 900-second writing/repair/validation clock and the 2700-second outer ceiling. No child, retry or repeated signal resets these clocks. This prompt cannot guarantee process cleanup. Host/container lifecycle integration and readable export/upload remain separate acceptance gates; no placeholder runtime or whole-job success claim.
 
-Parent audit must not fail successful allowed ordinary research solely for a harness repair warning; apply **Harness-healed ordinary research** without replay or requiring proof of zero tool dispatch. Parent audit must apply the same classification in **Ordinary read-only research correction**: do not fail merely because a research report records a nonzero unavailable optional command or positively known read-only fetch/parsing failure when the read-only/no-side-effects, progress, deadline and evidence conditions are satisfied. Missing research evidence still uses the existing factual-gap gates. Mandatory-helper failures retain their existing closed gates and only already-authorized workflow correction. Ambiguous side effects, unresolved compile failures without authoritative zero-dispatch evidence, and repaired/mismatched mandatory canonical programs remain fatal. This exception never permits restarting a failed child or reusing a stale handle.
+Parent audit must not fail successful allowed ordinary research solely for a harness repair warning; apply **Harness-healed ordinary research** without replay or requiring proof of zero tool dispatch. Parent audit must apply the same classification in **Ordinary read-only research correction**: do not fail merely because a research report records a nonzero unavailable optional command or positively known read-only fetch/parsing failure when the read-only/no-side-effects, progress, deadline and evidence conditions are satisfied. Centrally required client-source inspection is ordinary research under the same policy, not a mandatory execution helper. Missing research evidence still uses the existing factual-gap gates. Mandatory-helper failures retain their existing closed gates and only already-authorized workflow correction. Ambiguous side effects, unresolved compile failures without authoritative zero-dispatch evidence, and repaired/mismatched mandatory canonical programs remain fatal. This exception never permits restarting a failed child or reusing a stale handle.
 
 ## Input and context contract
 
@@ -91,8 +91,19 @@ to each agent. Agents must not make independent destination or identity choices.
   from provider capabilities.
   When the supplied documentation does not establish client behavior that the
   provider requires, use the official `speakeasy-api/gram` repository as a
-  fallback source: https://github.com/speakeasy-api/gram. Trace the applicable
-  implementation path and relevant tests. Distinguish upstream from downstream
+  fallback source: https://github.com/speakeasy-api/gram.
+  This is a required research question, not a mandatory execution helper.
+  Establish required compatibility evidence before writing.
+  A failed read-only attempt may be corrected or replaced under the ordinary
+  research policy, within its existing 1800-second deadline and progress bounds.
+  Use already available read-only source tools; this does not authorize git,
+  gh, git clone, installation, or arbitrary repository exploration.
+  Read commit-pinned official files.
+  Follow a necessary dependency only at the version pinned by the applicable
+  lockfile or dependency manifest, using its official source.
+  Check the actual default and negotiated-version allowlist on that path;
+  a version string alone does not establish protocol support.
+  Trace the applicable implementation path and relevant tests. Distinguish upstream from downstream
   behavior and manual registration from other client modes. Cite commit-pinned
   file locations, short code excerpts, and observation dates. Record conditions
   or feature flags that affect applicability. Do not treat documentation silence
@@ -441,13 +452,19 @@ ordinary research as mandatory merely because it uses Runlet.
 Prefer installed shell/curl/jq/rg; do not knowingly invoke absent Python.
 Never install Python, dependencies, or new tools. This policy covers an
 unavailable optional exploratory research command or positively known read-only
-fetch/parsing failure, not a mandatory helper. Read-only fetch, parsing, quoting, and tool-selection errors may be corrected
+fetch/parsing failure, including source inspection for a required research
+question, not a mandatory execution helper. The required evidence does not make
+each exploratory command mandatory. Read-only fetch, parsing, quoting, and tool-selection errors may be corrected
 using already available tools for the same permitted public-source read.
 Check and classify every caught error and nonzero shell result before continuing.
 There is no fixed research failure or recovery count; the existing deadline and risk/evidence gates bound correction.
 Repeated identical no-progress failures must stop that approach; try a different approach or report the blocker.
 
 - optional fetch-helper: command-not-found (127), simple known read-only attempt before any mutation => use an already available read-only alternative
+- required research question: failed read-only source attempt => correct or change approach, not mandatory-helper failure
+- read-only rg: exit 1 => no match, a negative finding, not an execution error or incompatibility
+- read-only rg: exit 2 => execution error; correct only with positively known read-only effects
+- source unavailable or no match => unanswered compatibility check, not invented incompatibility
 - optional read-only sed extraction: malformed shell sed expression => correct or use a simpler available read-only alternative
 - optional read-only curl pipeline: downstream parser closes pipe, curl exits 23, no file/service mutation or uncertain side effects => correct or use a simpler available read-only alternative
 - repeated read-only failures => change approach within the existing 1800-second research deadline or report the blocker
