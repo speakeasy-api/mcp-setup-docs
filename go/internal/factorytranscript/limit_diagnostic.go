@@ -95,7 +95,7 @@ func ReadLimitDiagnostic(host *os.Root, runID string) *LimitDiagnostic {
 	if json.Unmarshal(data, &d) != nil || d.Version != 1 || d.RunID != runID {
 		return nil
 	}
-	caps := map[string]int64{"source_bytes": 1 << 20, "total_bytes": 8 << 20, "entries": 4096, "session_dirs": 64, "session_files": 64, "events": 4096, "assembled_bytes": 2 << 20}
+	caps := map[string]int64{"source_bytes": 2 << 20, "total_bytes": 8 << 20, "entries": 4096, "session_dirs": 64, "session_files": 64, "events": 4096, "assembled_bytes": 2 << 20}
 	cap, ok := caps[d.Category]
 	// Safe integer ceiling prevents downstream rounding; larger observations are
 	// omitted, not truncated or used to change the worker's result.

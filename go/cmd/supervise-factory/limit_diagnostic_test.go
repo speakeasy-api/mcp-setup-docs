@@ -33,7 +33,7 @@ func TestRealWorkerLimitPersistence(t *testing.T) {
 			if err := os.WriteFile(o.finalizer, data, 0700); err != nil {
 				t.Fatal(err)
 			}
-			if err := os.WriteFile(dir+"/home/.kit/sessions/w-test/RAW_CANARY.jsonl", []byte(strings.Repeat("x", 1<<20+1)), 0600); err != nil {
+			if err := os.WriteFile(dir+"/home/.kit/sessions/w-test/RAW_CANARY.jsonl", []byte(strings.Repeat("x", 2<<20+1)), 0600); err != nil {
 				t.Fatal(err)
 			}
 			if supervise(context.Background(), o, s) != 1 {
@@ -54,7 +54,7 @@ func TestRealWorkerLimitPersistence(t *testing.T) {
 					Allowed  int64  `json:"allowed"`
 				} `json:"limit"`
 			}
-			if json.Unmarshal(data, &got) != nil || got.RunID != o.runID || got.HostReason != "worker_limits_failed" || got.Limit.Category != "source_bytes" || got.Limit.Observed != 1<<20+1 || got.Limit.Allowed != 1<<20 {
+			if json.Unmarshal(data, &got) != nil || got.RunID != o.runID || got.HostReason != "worker_limits_failed" || got.Limit.Category != "source_bytes" || got.Limit.Observed != 2<<20+1 || got.Limit.Allowed != 2<<20 {
 				t.Fatalf("missing bound evidence: %s", data)
 			}
 			if got.Timings["research_ms"] <= 0 || got.Timings["finalization_ms"] <= 0 {

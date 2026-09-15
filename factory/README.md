@@ -293,11 +293,16 @@ full suite: helpers and configuration are baked into the image. The existing
 
 ### Bounded export-limit diagnostics (source verification only)
 
-Finalizer limit errors distinguish `source_bytes` (1 MiB), `total_bytes`
+Finalizer limit errors distinguish `source_bytes` (2 MiB), `total_bytes`
 (8 MiB), `entries` (4096), `session_dirs` (64), `session_files` (64),
 `events` (4096), and `assembled_bytes` (2 MiB). Each measurement contains
 only category, observed count, and allowed count; the first failing bound wins.
-Exit 48 and all existing caps remain unchanged. Counts are observations at the
+The exporter source reader and whole-session JSONL decoder both accept sources
+up to 2 MiB each; the decoded-text limit remains
+1 MiB, the aggregate source limit remains 8 MiB, and the final artifact remains
+limited to 2 MiB. This removes the source-size rejection for the observed
+1,522,551-byte file, but does not guarantee a successful whole export.
+Exit 48 and all other caps remain unchanged. Counts are observations at the
 check, not an inventory of deleted data.
 
 The worker atomically writes a private 0600 `host/worker-limit.json` sidecar.

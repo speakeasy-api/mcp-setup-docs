@@ -14,7 +14,7 @@ func TestLimitMeasurements(t *testing.T) {
 		size     int64
 		category string
 	}{
-		{"source", 0, 1<<20 + 1, "source_bytes"},
+		{"source", 0, 2<<20 + 1, "source_bytes"},
 		{"total", 8 << 20, 1, "total_bytes"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -28,7 +28,11 @@ func TestLimitMeasurements(t *testing.T) {
 			root, _ := os.OpenRoot(dir)
 			defer root.Close()
 			b := &sourceBoundary{bytes: tc.prior}
-			_, err = b.read(root, "RAW_CANARY")
+			content, readErr := b.read(root, "RAW_CANARY")
+			err = readErr
+			if content != nil || b.bytes != tc.prior || len(b.checks) != 0 {
+				t.Fatal("rejected source returned data or changed read accounting")
+			}
 			if WorkerExitCode(err) != 48 {
 				t.Fatalf("code: %v", err)
 			}
@@ -37,7 +41,7 @@ func TestLimitMeasurements(t *testing.T) {
 			if e := json.Unmarshal(data, &got); e != nil {
 				t.Fatal(e)
 			}
-			allowed := int64(1 << 20)
+			allowed := int64(2 << 20)
 			if tc.name == "total" {
 				allowed = 8 << 20
 			}
@@ -57,7 +61,7 @@ func TestLimitMeasurements(t *testing.T) {
 
 func TestUntrustedLimitDiagnostic(t *testing.T) {
 	id := strings.Repeat("a", 32)
-	valid := `{"version":1,"run_id":"` + id + `","category":"source_bytes","observed":1048577,"allowed":1048576}`
+	valid := `{"version":1,"run_id":"` + id + `","category":"source_bytes","observed":2097153,"allowed":2097152}`
 	for _, kind := range []string{"valid", "identity", "extra", "duplicate", "fraction", "negative", "cap", "category", "trailing", "oversize", "symlink", "hardlink", "mode", "parent"} {
 		t.Run(kind, func(t *testing.T) {
 			dir := t.TempDir()
@@ -71,11 +75,11 @@ func TestUntrustedLimitDiagnostic(t *testing.T) {
 			case "duplicate":
 				data = strings.Replace(data, `"version":1`, `"version":1,"version":1`, 1)
 			case "fraction":
-				data = strings.Replace(data, "1048577", "1048577.0", 1)
+				data = strings.Replace(data, "2097153", "2097153.0", 1)
 			case "negative":
-				data = strings.Replace(data, "1048577", "-1", 1)
+				data = strings.Replace(data, "2097153", "-1", 1)
 			case "cap":
-				data = strings.Replace(data, "1048576", "1048575", 1)
+				data = strings.Replace(data, "2097152", "2097151", 1)
 			case "category":
 				data = strings.Replace(data, "source_bytes", "RAW_CANARY", 1)
 			case "trailing":
@@ -105,5 +109,66 @@ func TestUntrustedLimitDiagnostic(t *testing.T) {
 				t.Fatalf("unsafe acceptance: %+v", got)
 			}
 		})
+	}
+}
+
+// Synthetic files exercise only the bounded read, not whole-export acceptance.
+func TestSourceBoundaryAcceptedSizes(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		size int
+	}{
+		{"exact-two-MiB", 2 << 20}, {"measured-live-file-size", 1522551},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			want := strings.Repeat("x", tc.size)
+			if err := os.WriteFile(dir+"/source", []byte(want), 0600); err != nil {
+				t.Fatal(err)
+			}
+			root, err := os.OpenRoot(dir)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer root.Close()
+			b := &sourceBoundary{}
+			got, err := b.read(root, "source")
+			if err != nil || string(got) != want || b.bytes != tc.size {
+				t.Fatalf("bounded read: size=%d err=%v bytes=%d", tc.size, err, b.bytes)
+			}
+		})
+	}
+}
+
+func TestSourceBoundaryAggregateUnchanged(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(dir+"/source", []byte(strings.Repeat("x", 2<<20)), 0600); err != nil {
+		t.Fatal(err)
+	}
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+	b := &sourceBoundary{}
+	for i := 0; i < 4; i++ {
+		if _, err := b.read(root, "source"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if b.bytes != 8<<20 {
+		t.Fatal("aggregate cap changed")
+	}
+	data, err := b.read(root, "source")
+	if data != nil || WorkerExitCode(err) != 48 || b.bytes != 8<<20 {
+		t.Fatal("aggregate overflow accepted", err)
+	}
+}
+
+func TestDecodedFieldLimitUnchanged(t *testing.T) {
+	// Oversize is rejected before invoking the sanitizer.
+	got, err := sanitizeDecoded(nil, strings.Repeat("x", (1<<20)+1), 0)
+	if got != "" || err != errUnsafe {
+		t.Fatal("decoded field above 1 MiB accepted")
 	}
 }

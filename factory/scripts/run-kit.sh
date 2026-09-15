@@ -88,7 +88,7 @@ def local_evidence(host_path, expected_id):
             result['timings'] = timings
         if 'limit' in data:
             limit = data['limit']
-            caps = dict(source_bytes=1048576, total_bytes=8388608, entries=4096, session_dirs=64, session_files=64, events=4096, assembled_bytes=2097152)
+            caps = dict(source_bytes=2097152, total_bytes=8388608, entries=4096, session_dirs=64, session_files=64, events=4096, assembled_bytes=2097152)
             if type(limit) is not dict or set(limit) != {'category', 'observed', 'allowed'} or type(limit['category']) is not str:
                 return None
             cap = caps.get(limit['category'])

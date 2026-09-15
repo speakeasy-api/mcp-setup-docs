@@ -2,7 +2,9 @@ package factorytranscript
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/praetorian-inc/titus/pkg/types"
 	"os"
 	"path/filepath"
@@ -71,7 +73,7 @@ func TestExportUnsafePaths(t *testing.T) {
 			case "hardlink":
 				os.Link(file, work+"/alias")
 			case "oversize":
-				os.WriteFile(file, []byte(strings.Repeat("x", (1<<20)+1)), 0600)
+				os.WriteFile(file, []byte(strings.Repeat("x", (2<<20)+1)), 0600)
 			case "output-alias":
 				os.Link(file, out)
 			case "directory":
@@ -198,5 +200,52 @@ func TestExportFinalSizeLimit(t *testing.T) {
 	}
 	if _, err := os.Lstat(out); !os.IsNotExist(err) {
 		t.Fatal("oversized output exists")
+	}
+}
+
+func TestExportWholeSessionSourceCap(t *testing.T) {
+	for _, size := range []int{1522551, 2 << 20} {
+		t.Run(fmt.Sprint(size), func(t *testing.T) {
+			home, work, out := exportFixture(t)
+			source := sizedNativeSession(size)
+			if len(source) != size {
+				t.Fatal("incorrect source size")
+			}
+			if err := os.WriteFile(home+"/.kit/sessions/w-test/child.jsonl", source, 0600); err != nil {
+				t.Fatal(err)
+			}
+			// Export constructs the real Titus sanitizer; no scanner stub.
+			if err := Export(home, work, out, []string{"synthetic-key-never-real"}); err != nil {
+				t.Fatal(err)
+			}
+			artifact, err := os.ReadFile(out)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !json.Valid(artifact) || len(artifact) >= 2<<20 || !bytes.Contains(artifact, []byte("public finding")) || bytes.Contains(artifact, []byte("synthetic-key-never-real")) {
+				t.Fatal("unsafe or oversized assembled export")
+			}
+		})
+	}
+}
+
+func TestExportDecodedFieldCapUnchanged(t *testing.T) {
+	home, work, out := exportFixture(t)
+	text := strings.Repeat("x", (1<<20)+1)
+	source := fixtureRecord(`{"Text":{"text":"` + text + `"}}`)
+	if len(source) >= 2<<20 {
+		t.Fatal("fixture exceeds whole-source limit")
+	}
+	if err := os.WriteFile(home+"/.kit/sessions/w-test/child.jsonl", source, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := Export(home, work, out, nil); err == nil {
+		t.Fatal("oversized decoded field accepted")
+	}
+	if _, err := os.Lstat(out); !os.IsNotExist(err) {
+		t.Fatal("oversized field emitted output")
+	}
+	if got, err := projectToolText(text, 0); err != errUnsafe || got != nil {
+		t.Fatal("tool text field cap changed")
 	}
 }

@@ -42,7 +42,8 @@ func TestWorkerObservedDecodeAndLimits(t *testing.T) {
 		code int
 	}{
 		{"decode", []byte("malformed\n"), 42},
-		{"limit", make([]byte, (1<<20)+1), 48},
+		{"decode-above-old-source-cap", make([]byte, (1<<20)+1), 42},
+		{"limit", make([]byte, (2<<20)+1), 48},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			home, work, out := exportFixture(t)
@@ -91,7 +92,7 @@ func TestWorkerSelectedFileLimits(t *testing.T) {
 					}
 				}
 				if selected != "unsafe" {
-					if err := os.WriteFile(path, bytes.Repeat([]byte("x"), (1<<20)+1), 0600); err != nil {
+					if err := os.WriteFile(path, bytes.Repeat([]byte("x"), (2<<20)+1), 0600); err != nil {
 						t.Fatal(err)
 					}
 				}

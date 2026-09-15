@@ -3,6 +3,7 @@ package factorytranscript
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -43,7 +44,7 @@ func TestDecodeSessionFailClosed(t *testing.T) {
 		"missing text":        fixtureRecord(`{"Text":{}}`),
 		"duplicate key":       fixtureRecord(`{"Text":{"text":"one","text":"two"}}`),
 		"multiple variants":   fixtureRecord(`{"Text":{"text":"public"},"Structured":{"value":{}}}`),
-		"oversize":            bytes.Repeat([]byte("x"), (1<<20)+1),
+		"oversize":            bytes.Repeat([]byte("x"), (2<<20)+1),
 		"both modes":          bytes.Replace(good, []byte(`"generation":1`), []byte(`"generation":1,"replacement":[]`), 1),
 		"changed identity":    append(bytes.Clone(good), bytes.Replace(good, []byte("private-id"), []byte("different"), 1)...),
 		"repeated generation": append(bytes.Clone(good), good...),
@@ -111,5 +112,41 @@ func TestNestedToolProjection(t *testing.T) {
 		if !bytes.Contains(b, []byte("public nested output")) || bytes.Contains(b, []byte("private-handle")) || bytes.Contains(b, []byte("PRIVATE-UNKNOWN")) {
 			t.Fatal("incorrect nested tool projection")
 		}
+	}
+}
+
+// Native JSONL records have small decoded fields; legal whitespace pads the
+// source independently of the assembled output and per-field limits.
+func sizedNativeSession(size int) []byte {
+	var source []byte
+	for i := 1; i <= 64; i++ {
+		record := []byte(fmt.Sprintf(`{"schema_version":3,"session_id":"private-id","generation":%d,"item":{"kind":"Assistant","parts":[{"Text":{"text":"public finding synthetic-key-never-real"}}]}}`, i))
+		lineSize := size / 64
+		if i == 64 {
+			lineSize += size % 64
+		}
+		source = append(source, record...)
+		source = append(source, bytes.Repeat([]byte(" "), lineSize-len(record)-1)...)
+		source = append(source, '\n')
+	}
+	return source
+}
+
+func TestDecodeWholeSessionSourceCap(t *testing.T) {
+	for _, size := range []int{16 << 10, 1522551, 2 << 20, (2 << 20) + 1} {
+		t.Run(fmt.Sprint(size), func(t *testing.T) {
+			source := sizedNativeSession(size)
+			if len(source) != size {
+				t.Fatal("incorrect source size")
+			}
+			got, err := decodeSession(source)
+			if size > 2<<20 {
+				if err == nil || len(got.Events) != 0 {
+					t.Fatal("oversized source accepted")
+				}
+			} else if err != nil || len(got.Events) != 64 {
+				t.Fatalf("valid native session rejected: %v events=%d", err, len(got.Events))
+			}
+		})
 	}
 }

@@ -118,7 +118,7 @@ func stringField(m map[string]any, k string) (string, error) {
 // discard preceding observations. Source reads/traversal belong to the caller.
 func decodeSession(source []byte) (decodedSession, error) {
 	fail := func() (decodedSession, error) { return decodedSession{}, errUnsafe }
-	if len(source) > 1<<20 {
+	if len(source) > 2<<20 {
 		return fail()
 	}
 	out := decodedSession{Events: []decodedEvent{}, Omissions: []string{}}

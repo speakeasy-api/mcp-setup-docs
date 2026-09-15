@@ -100,8 +100,8 @@ func (b *sourceBoundary) read(root *os.Root, name string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if before.Size() > 1<<20 {
-		return nil, limitError("source_bytes", before.Size(), 1<<20)
+	if before.Size() > 2<<20 {
+		return nil, limitError("source_bytes", before.Size(), 2<<20)
 	}
 	if b.bytes+int(before.Size()) > 8<<20 {
 		return nil, limitError("total_bytes", int64(b.bytes)+before.Size(), 8<<20)
@@ -118,8 +118,8 @@ func (b *sourceBoundary) read(root *os.Root, name string) ([]byte, error) {
 	if err != nil || !unchanged(before, actual) {
 		return nil, errUnsafe
 	}
-	data, err := io.ReadAll(io.LimitReader(file, (1<<20)+1))
-	if err != nil || len(data) > 1<<20 {
+	data, err := io.ReadAll(io.LimitReader(file, (2<<20)+1))
+	if err != nil || len(data) > 2<<20 {
 		return nil, errUnsafe
 	}
 	after, err := file.Stat()
