@@ -1,6 +1,9 @@
 package factorytranscript
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+)
 
 // Worker codes 40–48 are a stable host/worker protocol, below signal exits.
 // Stages describe observed boundaries, never model-authored explanations.
@@ -17,8 +20,9 @@ const (
 )
 
 type workerStageError struct {
-	code int
-	err  error
+	code  int
+	err   error
+	limit *LimitDiagnostic
 }
 
 func (e *workerStageError) Error() string { return WorkerHostReason(e.code) }
@@ -31,7 +35,7 @@ func stageError(code int, err error) error {
 	if errors.As(err, &prior) {
 		return err
 	}
-	return &workerStageError{code, err}
+	return &workerStageError{code: code, err: err}
 }
 
 // WorkerExitCode preserves the conventional exit 1 for unspecified errors.
@@ -69,3 +73,16 @@ func WorkerHostReason(code int) string {
 		return "worker_failed"
 	}
 }
+
+// LimitDiagnostic contains source-defined measurements only, never source names
+// or error text. It does not establish publication eligibility.
+type LimitDiagnostic struct {
+	Category string `json:"category"`
+	Observed int64  `json:"observed"`
+	Allowed  int64  `json:"allowed"`
+}
+
+func limitError(category string, observed, allowed int64) error {
+	return &workerStageError{code: workerLimits, err: errUnsafe, limit: &LimitDiagnostic{category, observed, allowed}}
+}
+func (e *workerStageError) MarshalJSON() ([]byte, error) { return json.Marshal(e.limit) }

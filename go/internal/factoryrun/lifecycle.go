@@ -17,13 +17,14 @@ import (
 )
 
 type Deadlines struct {
+	started, begunAt         time.Time
 	Research, Writing, Outer time.Time
 	Begun, Failed            bool
 	failure                  string
 }
 
 func Start(now time.Time) Deadlines {
-	return Deadlines{Research: now.Add(1800 * time.Second), Outer: now.Add(2700 * time.Second)}
+	return Deadlines{started: now, Research: now.Add(1800 * time.Second), Outer: now.Add(2700 * time.Second)}
 }
 func (d *Deadlines) Check(now time.Time) string {
 	if d.Failed {
@@ -45,6 +46,7 @@ func (d *Deadlines) Begin(now time.Time) string {
 	}
 	if !d.Begun {
 		d.Begun = true
+		d.begunAt = now
 		d.Writing = now.Add(900 * time.Second)
 		if d.Writing.After(d.Outer) {
 			d.Writing = d.Outer
@@ -249,4 +251,37 @@ func (c *Control) Publish() error {
 		return ErrSignal
 	}
 	return nil
+}
+
+// ObservedMilliseconds accepts only host monotonic observations. Zero is an
+// omission sentinel, never serialized as a measured duration. The one-hour
+// diagnostic ceiling does not participate in any lifecycle deadline.
+func ObservedMilliseconds(start, end time.Time) int64 {
+	if start.IsZero() || end.IsZero() || start == start.Round(0) || end == end.Round(0) {
+		return 0
+	}
+	elapsed := end.Sub(start)
+	if elapsed < time.Millisecond || elapsed > time.Hour {
+		return 0
+	}
+	return elapsed.Milliseconds()
+}
+
+// Durations observes without altering arbitration or extending a timer.
+func (d *Deadlines) Durations(end time.Time) map[string]int64 {
+	out := map[string]int64{}
+	researchEnd := end
+	if d.Begun {
+		if d.begunAt.After(end) {
+			return out
+		}
+		researchEnd = d.begunAt
+		if ms := ObservedMilliseconds(d.begunAt, end); ms > 0 {
+			out["writing_ms"] = ms
+		}
+	}
+	if ms := ObservedMilliseconds(d.started, researchEnd); ms > 0 {
+		out["research_ms"] = ms
+	}
+	return out
 }

@@ -124,7 +124,21 @@ for phase in validation fallback; do
   while IFS= read -r diagnostic; do
     jq -e --slurpfile result "$(dirname "$diagnostic")/result.json" '
       (.host_reason as $reason | ["none","prerequisite_failed","worker_failed", "worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed","context_deadline","context_cancelled"] | index($reason) != null)
-      and . == ($result[0] + {host_reason: .host_reason})' "$diagnostic" >/dev/null
+      ' "$diagnostic" >/dev/null
+    python3 -B - "$diagnostic" "$(dirname "$diagnostic")/result.json" <<'PY_ASSERT'
+import json, sys
+with open(sys.argv[1]) as file: diagnostic = json.load(file)
+with open(sys.argv[2]) as file: result = json.load(file)
+initial_timings, observed_timings = result.get('timings', {}), diagnostic.get('timings', {})
+assert type(initial_timings) is dict and set(initial_timings) <= {'research_ms', 'writing_ms'}
+assert type(observed_timings) is dict and set(observed_timings) <= {'research_ms', 'writing_ms', 'finalization_ms'}
+assert all(type(value) is int and 1 <= value <= 3600000 for timings in (initial_timings, observed_timings) for value in timings.values())
+canonical = lambda value: json.dumps(value, sort_keys=True, separators=(',', ':'))
+assert canonical({k: v for k, v in observed_timings.items() if k != 'finalization_ms'}) == canonical(initial_timings)
+if 'finalization_ms' in observed_timings:
+    assert type(observed_timings['finalization_ms']) is int and 1 <= observed_timings['finalization_ms'] <= 3600000
+assert canonical({k: v for k, v in diagnostic.items() if k != 'timings'}) == canonical({k: v for k, v in dict(result, host_reason=diagnostic['host_reason']).items() if k != 'timings'})
+PY_ASSERT
   done < <(find "$tmp/private" -type f -name host-reason.json)
   jq -e '.host_reason as $reason | ["none","unknown","worker_failed", "worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed","cleanup_failed","context_deadline","context_cancelled","stage_missing_or_invalid","export_validation_failed"] | index($reason) != null' "$tmp/$phase/finalization.json" >/dev/null
 done

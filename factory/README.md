@@ -290,3 +290,52 @@ executes the release-locked native fixture.
 Build the new `mcp-setup-docs-kit:0.2.2` image before image-dependent tests or the
 full suite: helpers and configuration are baked into the image. The existing
 `0.1.134` Docker image/tag remains untouched and is not evidence for this release.
+
+### Bounded export-limit diagnostics (source verification only)
+
+Finalizer limit errors distinguish `source_bytes` (1 MiB), `total_bytes`
+(8 MiB), `entries` (4096), `session_dirs` (64), `session_files` (64),
+`events` (4096), and `assembled_bytes` (2 MiB). Each measurement contains
+only category, observed count, and allowed count; the first failing bound wins.
+Exit 48 and all existing caps remain unchanged. Counts are observations at the
+check, not an inventory of deleted data.
+
+The worker atomically writes a private 0600 `host/worker-limit.json` sidecar.
+Before `CompleteHost` deletes that sidecar, the supervisor validates its physical
+file, private ownership/mode, 512-byte bound, exact fields, current run ID,
+category, cap, and integer range, then adds only the measurement to retained
+`host/host-reason.json`. Missing or invalid evidence is omitted; it cannot replace
+termination, extend a deadline, or grant publication readiness. Observations
+above the safe integer ceiling (2^53−1) are omitted rather than rounded.
+
+The launcher prints `FACTORY_HOST_RUN_ID=<32-hex-id>` at invocation startup and,
+when a valid matching host record is available, a bounded
+`FACTORY_HOST_DIAGNOSTIC=<JSON>` line containing version, run ID, host reason,
+termination, optional limit, and optional timings. Retain these lines in a **private local log**;
+they contain no source filenames, session IDs, raw exceptions, or model text.
+`local-draft.sh` generates a fresh host ID and passes that same ID to this
+launcher. A startup ID without a matching final record is not completion proof.
+
+Optional `timings` contains only integer milliseconds:
+
+- `research_ms`: host deadline initialization (before Docker start) to the first
+  accepted begin-writing signal, or terminal observation if writing never began.
+- `writing_ms`: first accepted begin-writing signal to host terminal observation.
+  Duplicate begin signals cannot reset either duration or any deadline.
+- `finalization_ms`: immediately before container removal, after model supervision
+  returns, to the pre-cleanup host-record path. Includes container removal and
+  worker processing where reached; excludes prior log/wait teardown, sidecar
+  validation, record persistence, and **all `CompleteHost` cleanup/promotion**.
+
+Durations use host monotonic observations, not model timestamps. Terminal means
+host receipt of the container wait result, or host observation of timeout/error;
+therefore observed timeout durations can exceed the timer budget slightly.
+Milliseconds are truncated. Absent, non-monotonic, reversed, sub-millisecond, or
+above-one-hour observations are omitted, never replaced by zero. The one-hour
+range is only a diagnostic validation ceiling, not a timeout setting. Invalid
+local timing shapes/ranges suppress the optional diagnostic line, not run status.
+
+Production research/writing/finalization budgets remain 1800/900/300 seconds,
+with outer budget 2700 seconds and request budget 300 seconds. These offline
+source checks are not current-image acceptance or proof that historical unlinked
+worker and timeout records belonged to the same invocation.

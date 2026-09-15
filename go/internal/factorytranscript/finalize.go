@@ -163,6 +163,7 @@ func Finalize(private, result, export string, known []string) (ret error) {
 	if json.Unmarshal(data, &lifecycle) != nil || lifecycle.Version != 1 || !state.validIdentity() || lifecycle.RunID != state.HostRunID || !lifecycle.Removed {
 		return errUnsafe
 	}
+	defer func() { writeLimitDiagnostic(host, state.HostRunID, ret) }()
 	// Only this proven removal branch may touch or delete private model mounts.
 	// os.Root.RemoveAll does not follow symlinks; never delete source/input/host.
 	defer func() {

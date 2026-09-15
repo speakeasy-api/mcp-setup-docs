@@ -100,8 +100,11 @@ func (b *sourceBoundary) read(root *os.Root, name string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if before.Size() > 1<<20 || b.bytes+int(before.Size()) > 8<<20 {
-		return nil, stageError(workerLimits, errUnsafe)
+	if before.Size() > 1<<20 {
+		return nil, limitError("source_bytes", before.Size(), 1<<20)
+	}
+	if b.bytes+int(before.Size()) > 8<<20 {
+		return nil, limitError("total_bytes", int64(b.bytes)+before.Size(), 8<<20)
 	}
 	if !singleRegular(before) {
 		return nil, errUnsafe
@@ -141,7 +144,7 @@ func (b *sourceBoundary) names(root *os.Root) ([]string, error) {
 	}
 	b.entries += len(entries)
 	if b.entries > 4096 {
-		return nil, stageError(workerLimits, errUnsafe)
+		return nil, limitError("entries", int64(b.entries), 4096)
 	}
 	names := make([]string, 0, len(entries))
 	for _, e := range entries {
@@ -216,7 +219,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 		}
 		count++
 		if count > 64 {
-			return stageError(workerLimits, errUnsafe)
+			return limitError("session_dirs", int64(count), 64)
 		}
 		root, err := boundary.directory(sessions, dir)
 		if err != nil {
@@ -232,7 +235,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 			}
 			boundary.sessions++
 			if boundary.sessions > 64 {
-				return stageError(workerLimits, errUnsafe)
+				return limitError("session_files", int64(boundary.sessions), 64)
 			}
 			data, err := boundary.read(root, name)
 			if err != nil {
@@ -244,7 +247,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 			}
 			boundary.events += len(session.Events)
 			if boundary.events > 4096 {
-				return stageError(workerLimits, errUnsafe)
+				return limitError("events", int64(boundary.events), 4096)
 			}
 			reference := fmt.Sprintf("session-%d", len(doc.Sessions)+1)
 			for i := range session.Events {
@@ -331,7 +334,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	}
 	data, err := json.MarshalIndent(doc, "", "  ")
 	if len(data) > 2<<20 {
-		return stageError(workerLimits, errUnsafe)
+		return limitError("assembled_bytes", int64(len(data)), 2<<20)
 	}
 	if err != nil {
 		return errUnsafe

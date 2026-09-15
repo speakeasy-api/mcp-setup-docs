@@ -35,6 +35,70 @@ def safe_path(path, directory=False):
         raise ValueError('unsafe mount path')
     return str(p)
 
+def local_evidence(host_path, expected_id):
+    # Re-project only bounded host observations for retention in a local log.
+    # Neither arbitrary JSON keys nor worker strings are ever printed.
+    def unique(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError('duplicate')
+            result[key] = value
+        return result
+    try:
+        if len(expected_id) != 32 or any(c not in '0123456789abcdef' for c in expected_id):
+            return None
+        path = pathlib.Path(host_path)
+        if not path.is_absolute() or path.resolve(strict=True) != path:
+            return None
+        fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            parent = os.fstat(fd)
+            if parent.st_uid != os.geteuid() or stat.S_IMODE(parent.st_mode) != 0o700:
+                return None
+            file = os.open('host-reason.json', os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
+            try:
+                before = os.fstat(file)
+                if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or before.st_uid != os.geteuid() or stat.S_IMODE(before.st_mode) != 0o600 or not 0 < before.st_size <= 2048:
+                    return None
+                raw = os.read(file, 2049)
+                after = os.fstat(file)
+                named = os.stat('host-reason.json', dir_fd=fd, follow_symlinks=False)
+                identity = lambda st: (st.st_dev, st.st_ino, st.st_mode, st.st_uid, st.st_nlink, st.st_size, st.st_mtime_ns, st.st_ctime_ns)
+                if identity(before) != identity(after) or identity(before) != identity(named) or len(raw) != before.st_size:
+                    return None
+            finally:
+                os.close(file)
+        finally:
+            os.close(fd)
+        data = json.loads(raw, object_pairs_hook=unique)
+        if type(data) is not dict or type(data.get('version')) is not int or data['version'] != 1 or data.get('run_id') != expected_id:
+            return None
+        reasons = ('none', 'prerequisite_failed', 'worker_failed', 'worker_input_failed', 'worker_store_failed', 'worker_decode_failed', 'worker_export_failed', 'worker_guide_failed', 'worker_metadata_failed', 'worker_cleanup_failed', 'worker_state_failed', 'worker_limits_failed', 'context_deadline', 'context_cancelled')
+        terms = ('completed', 'research_timeout', 'writing_timeout', 'provider_exit', 'lifecycle_invalid', 'cleanup_failed')
+        if data.get('host_reason') not in reasons or data.get('termination') not in terms:
+            return None
+        result = dict(version=1, run_id=expected_id, host_reason=data['host_reason'], termination=data['termination'])
+        if 'timings' in data:
+            timings = data['timings']
+            if type(timings) is not dict or not timings or not set(timings) <= {'research_ms', 'writing_ms', 'finalization_ms'}:
+                return None
+            if any(type(value) is not int or not 1 <= value <= 3600000 for value in timings.values()):
+                return None
+            result['timings'] = timings
+        if 'limit' in data:
+            limit = data['limit']
+            caps = dict(source_bytes=1048576, total_bytes=8388608, entries=4096, session_dirs=64, session_files=64, events=4096, assembled_bytes=2097152)
+            if type(limit) is not dict or set(limit) != {'category', 'observed', 'allowed'} or type(limit['category']) is not str:
+                return None
+            cap = caps.get(limit['category'])
+            if cap is None or type(limit['allowed']) is not int or type(limit['observed']) is not int or limit['allowed'] != cap or not cap < limit['observed'] <= 2**53-1:
+                return None
+            result['limit'] = limit
+        return result
+    except (OSError, ValueError, TypeError, KeyError):
+        return None
+
 def command(args, timeout=30, capture=False):
     with open(private + '/host/commands.stderr', 'ab') as err:
         if capture:
@@ -84,6 +148,9 @@ def interrupted(signum, frame):
 signal.signal(signal.SIGINT, interrupted)
 signal.signal(signal.SIGTERM, interrupted)
 try:
+    if len(run_id) != 32 or any(c not in '0123456789abcdef' for c in run_id):
+        raise ValueError('invalid invocation identity')
+    print('FACTORY_HOST_RUN_ID=' + run_id, flush=True)
     issue, catalog = safe_path(issue), safe_path(catalog)
     parent = os.environ.get('FACTORY_PRIVATE_ROOT')
     if parent:
@@ -171,14 +238,10 @@ try:
         supervised = True
         exit_code = supervisor.wait(timeout=3030)
         supervisor_status = exit_code
-    # Only fixed host-authored status; raw worker output stays private.
-    try:
-        with open(private + '/host/host-reason.json') as diagnostic:
-            reason = json.load(diagnostic).get('host_reason')
-        if reason in ('none', 'prerequisite_failed', 'worker_failed', 'worker_input_failed', 'worker_store_failed', 'worker_decode_failed', 'worker_export_failed', 'worker_guide_failed', 'worker_metadata_failed', 'worker_cleanup_failed', 'worker_state_failed', 'worker_limits_failed', 'context_deadline', 'context_cancelled'):
-            print('FACTORY_HOST_REASON=' + reason)
-    except Exception:
-        pass
+    evidence = local_evidence(private + '/host', run_id)
+    if evidence is not None:
+        print('FACTORY_HOST_REASON=' + evidence['host_reason'])
+        print('FACTORY_HOST_DIAGNOSTIC=' + json.dumps(evidence, separators=(',', ':')))
     supervisor = None
     # Reports live directly in the host export directory even on nonzero status.
     # Host readiness includes current validation and frozen output; Task 5 upload

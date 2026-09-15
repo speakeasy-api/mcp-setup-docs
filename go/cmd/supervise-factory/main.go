@@ -37,14 +37,16 @@ func production() settings {
 }
 
 type result struct {
-	HostReason       string `json:"host_reason,omitempty"`
-	Version          int    `json:"version"`
-	RunID            string `json:"run_id"`
-	Termination      string `json:"termination"`
-	ExitCode         int    `json:"exit_code"`
-	ContainerRemoved bool   `json:"container_removed"`
-	ModelTermination string `json:"model_termination"`
-	ModelExitCode    int    `json:"model_exit_code"`
+	Timings          map[string]int64                   `json:"timings,omitempty"`
+	Limit            *factorytranscript.LimitDiagnostic `json:"limit,omitempty"`
+	HostReason       string                             `json:"host_reason,omitempty"`
+	Version          int                                `json:"version"`
+	RunID            string                             `json:"run_id"`
+	Termination      string                             `json:"termination"`
+	ExitCode         int                                `json:"exit_code"`
+	ContainerRemoved bool                               `json:"container_removed"`
+	ModelTermination string                             `json:"model_termination"`
+	ModelExitCode    int                                `json:"model_exit_code"`
 }
 type limitedBuffer struct{ bytes.Buffer }
 
@@ -166,7 +168,10 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 		budget = 300 * time.Second
 	}
 	deadline := time.Time{}
-	ended := func(at time.Time) {
+	ended := func(at time.Time, timings map[string]int64) {
+		if timings != nil {
+			r.Timings = timings
+		}
 		if deadline.IsZero() {
 			deadline = at.Add(budget)
 		}
@@ -174,10 +179,11 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 	if pathErr == nil {
 		r.Termination, r.ExitCode = runContainerEnded(ctx, o, s, root, ended)
 	}
-	ended(time.Now()) // only for failure before model startup
+	ended(time.Now(), nil) // only for failure before model startup
 	finalContext, cancelFinal := context.WithDeadline(context.Background(), deadline)
 	defer cancelFinal()
 	r.ModelTermination, r.ModelExitCode = r.Termination, r.ExitCode
+	finalizationStarted := time.Now()
 	r.ContainerRemoved = cleanupUntil(finalContext, s, o.containerID)
 	if !r.ContainerRemoved {
 		r.Termination = "cleanup_failed"
@@ -190,8 +196,17 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 	// option checks. Refusing a foreign stage never skips owned private cleanup.
 	if r.ContainerRemoved && o.finalizer != "" {
 		defer func() {
+			if ms := factoryrun.ObservedMilliseconds(finalizationStarted, time.Now()); ms > 0 {
+				if r.Timings == nil {
+					r.Timings = map[string]int64{}
+				}
+				r.Timings["finalization_ms"] = ms
+			}
 			// Persist fixed host observations before private cleanup discards logs.
 			if root != nil {
+				if workerCode == 48 {
+					r.Limit = factorytranscript.ReadLimitDiagnostic(root, o.runID)
+				}
 				_ = saveResult(root, "host-reason.json", r)
 			}
 			cleanupContext, cancel := context.WithDeadline(context.Background(), deadline.Add(-budget/100))
@@ -265,9 +280,9 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 	return 1
 }
 func runContainer(ctx context.Context, o options, s settings, root *os.Root) (string, int) {
-	return runContainerEnded(ctx, o, s, root, func(time.Time) {})
+	return runContainerEnded(ctx, o, s, root, func(time.Time, map[string]int64) {})
 }
-func runContainerEnded(ctx context.Context, o options, s settings, root *os.Root, ended func(time.Time)) (string, int) {
+func runContainerEnded(ctx context.Context, o options, s settings, root *os.Root, ended func(time.Time, map[string]int64)) (string, int) {
 	var phases *factoryrun.Deadlines
 	var terminalObserved time.Time
 	finish := func(reason string, code int) (string, int) {
@@ -284,7 +299,15 @@ func runContainerEnded(ctx context.Context, o options, s settings, root *os.Root
 				at = phases.Outer
 			}
 		}
-		ended(at) // MUST happen before any deferred log/wait/descriptor teardown.
+		var timings map[string]int64
+		if phases != nil {
+			observed := time.Now()
+			if !terminalObserved.IsZero() {
+				observed = terminalObserved
+			}
+			timings = phases.Durations(observed)
+		}
+		ended(at, timings) // MUST happen before any deferred log/wait/descriptor teardown.
 		return reason, code
 	}
 	control, err := factoryrun.OpenControl(o.controlDir, o.runID)

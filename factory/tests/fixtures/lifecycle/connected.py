@@ -105,7 +105,15 @@ try:
         assert {p for p in run.rglob('*') if p.is_file()}=={run/'host/result.json', run/'host/host-reason.json'}
         diagnostic=json.loads((run/'host/host-reason.json').read_text())
         assert diagnostic['host_reason'] in ('none','prerequisite_failed','worker_failed', 'worker_input_failed', 'worker_store_failed', 'worker_decode_failed', 'worker_export_failed', 'worker_guide_failed', 'worker_metadata_failed', 'worker_cleanup_failed', 'worker_state_failed', 'worker_limits_failed','context_deadline','context_cancelled')
-        assert diagnostic == dict(result, host_reason=diagnostic['host_reason'])
+        initial_timings, observed_timings = result.get('timings', {}), diagnostic.get('timings', {})
+        assert type(initial_timings) is dict and set(initial_timings) <= {'research_ms', 'writing_ms'}
+        assert type(observed_timings) is dict and set(observed_timings) <= {'research_ms', 'writing_ms', 'finalization_ms'}
+        assert all(type(value) is int and 1 <= value <= 3600000 for timings in (initial_timings, observed_timings) for value in timings.values())
+        canonical = lambda value: json.dumps(value, sort_keys=True, separators=(',', ':'))
+        assert canonical({k: v for k, v in observed_timings.items() if k != 'finalization_ms'}) == canonical(initial_timings)
+        if 'finalization_ms' in observed_timings:
+            assert type(observed_timings['finalization_ms']) is int and 1 <= observed_timings['finalization_ms'] <= 3600000
+        assert canonical({k: v for k, v in diagnostic.items() if k != 'timings'}) == canonical({k: v for k, v in dict(result, host_reason=diagnostic['host_reason']).items() if k != 'timings'})
         assert state['host_reason'] in ('none','unknown','worker_failed', 'worker_input_failed', 'worker_store_failed', 'worker_decode_failed', 'worker_export_failed', 'worker_guide_failed', 'worker_metadata_failed', 'worker_cleanup_failed', 'worker_state_failed', 'worker_limits_failed','cleanup_failed','context_deadline','context_cancelled','stage_missing_or_invalid','export_validation_failed')
         assert not (run/'workspace/canary').exists()
         if mode=='timeout': assert (row/'timing.group').read_text()=='proven'
