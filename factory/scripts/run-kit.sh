@@ -35,6 +35,20 @@ def safe_path(path, directory=False):
         raise ValueError('unsafe mount path')
     return str(p)
 
+def local_provider(env, repo):
+    credential = env.get('FACTORY_LOCAL_OPENAI_CREDENTIAL_FILE')
+    if not credential:
+        return 'openrouter', None
+    if env.get('FACTORY_LOCAL_RUN') != '1' or env.get('GITHUB_ACTIONS') == 'true' or env.get('GITHUB_RUN_ID'):
+        raise ValueError('subscription override is local-only')
+    credential = safe_path(credential)
+    info = os.stat(credential)
+    if info.st_uid != os.getuid() or info.st_nlink != 1 or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 65536:
+        raise ValueError('unsafe subscription credential')
+    if pathlib.Path(credential).is_relative_to(pathlib.Path(repo).resolve()):
+        raise ValueError('credential must be outside the source snapshot')
+    return 'openai-subscription', credential
+
 def local_evidence(host_path, expected_id):
     # Re-project only bounded host observations for retention in a local log.
     # Neither arbitrary JSON keys nor worker strings are ever printed.
@@ -198,8 +212,12 @@ try:
                 raise ValueError('unsafe stale export')
     finally:
         os.close(fd)
-    if not os.environ.get('OPENROUTER_API_KEY'):
+    provider, subscription_credential = local_provider(os.environ, root)
+    if provider == 'openrouter' and not os.environ.get('OPENROUTER_API_KEY'):
         raise ValueError('provider configuration missing')
+    if subscription_credential:
+        os.environ.pop('OPENROUTER_API_KEY', None)
+        os.environ['KIT_MODEL'] = 'gpt-6-astra'
     # Inputs are copied before any model starts; private input/source mounts are RO.
     shutil.copyfile(issue, private + '/input/issue.json')
     shutil.copyfile(catalog, private + '/input/catalog.json')
@@ -238,7 +256,13 @@ try:
     args = [docker, 'create', '--user', str(os.getuid())+':'+str(os.getgid()), '--name', 'factory-'+run_id, '--label', 'factory.run-id='+run_id]
     for key in ('OPENROUTER_API_KEY', 'KIT_MODEL', 'KIT_REASONING_EFFORT', 'KIT_REQUEST_BUDGET_SECONDS'):
         args += ['--env', key]
-    args += ['--env', 'FACTORY_RUN_ID='+run_id]
+    args += ['--env', 'FACTORY_RUN_ID='+run_id, '--env', 'FACTORY_PROVIDER='+provider]
+    if subscription_credential:
+        # Mount only the native OpenAI namespace, never the shared store. Read-only
+        # access cannot rotate or overwrite the host login; refresh fails visibly.
+        credential_name = 'f42626ae04d6584b4719115112ed485634365c4c8400d6bb1f98a3369a2ddec8.json'
+        args += ['--tmpfs', '/subscription:rw,noexec,nosuid,size=1m,mode=0700,uid='+str(os.getuid())+',gid='+str(os.getgid())]
+        args += ['--mount', 'type=bind,src='+subscription_credential+',dst=/subscription/'+credential_name+',readonly']
     for source, target, readonly in [('source','/repo',True),('input','/input',True),('home','/kit-home',False),('workspace','/workspace',False),('control','/control',False)]:
         path = safe_path(private+'/'+source, True)
         args += ['--mount', 'type=bind,src='+path+',dst='+target+(',readonly' if readonly else '')]

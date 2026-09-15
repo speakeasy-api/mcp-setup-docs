@@ -360,3 +360,20 @@ Production research/writing/finalization budgets remain 1800/900/300 seconds,
 with outer budget 2700 seconds and request budget 300 seconds. These offline
 source checks are not current-image acceptance or proof that historical unlinked
 worker and timeout records belonged to the same invocation.
+
+### Local ChatGPT subscription trials
+
+Set `FACTORY_LOCAL_OPENAI_CREDENTIAL_FILE` to the existing private OpenAI
+subscription credential file when invoking `local-draft.sh`. The launcher
+selects `openai-subscription` with `gpt-6-astra` for that invocation only;
+production's OpenRouter configuration is unchanged. GitHub Actions invocation
+is rejected. The file must be owned by the current user, mode 0600, single-link,
+physical, and outside the source snapshot.
+
+Only that credential file is mounted read-only into a private tmpfs directory;
+no credential bytes are copied into the repository, image, workspace, or logs.
+The shared credential directory is never mounted. The filename at the container
+mount is Kit 0.2.2's BLAKE3 namespace key for `openai-subscription` / `subscription`.
+Read-only access does not support token refresh: an expired credential must be
+refreshed by the host Kit login before retrying. Do not claim this uses the
+OpenRouter model identifier or bypasses subscription usage limits.

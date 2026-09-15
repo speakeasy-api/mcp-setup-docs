@@ -32,9 +32,16 @@ cp -a "$REPO_ROOT/." "$WORKSPACE_ROOT/"
 secure_private
 export HOME="$KIT_HOME"
 KIT_BIN=${KIT_BIN:-kit}
+provider=${FACTORY_PROVIDER:-openrouter}
+provider_args=(--provider "$provider")
+case "$provider" in
+  openrouter) ;;
+  openai-subscription) provider_args+=(--credential-store file --credential-dir /subscription) ;;
+  *) printf 'factory: unsupported provider\n' >&2; exit 1 ;;
+esac
 exec "$KIT_BIN" prompt \
   --root "$WORKSPACE_ROOT" \
-  --provider openrouter \
+  "${provider_args[@]}" \
   --model "$KIT_MODEL" \
   --reasoning-effort "$KIT_REASONING_EFFORT" \
   --request-budget-seconds "${KIT_REQUEST_BUDGET_SECONDS:-300}" \

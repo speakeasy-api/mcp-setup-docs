@@ -103,7 +103,7 @@ fi
   unset SSH_AUTH_SOCK SSH_AGENT_PID
   unset GITHUB_RUN_ID GITHUB_RUN_ATTEMPT GITHUB_OUTPUT GITHUB_ENV
   unset READABLE_UPLOAD_OUTCOME READABLE_ARTIFACT_URL READABLE_LOG_STATUS
-  export FACTORY_HOST_RUN_ID
+  export FACTORY_HOST_RUN_ID FACTORY_LOCAL_RUN=1
   FACTORY_HOST_RUN_ID=$(python3 -c 'import secrets; print(secrets.token_hex(16))')
   "$run_kit" "$issue_json" "$catalog_json" "$export_dir"
   [[ -f "$export_dir/run-report.json" ]] || { printf 'local-draft: Kit did not export run-report.json\n' >&2; exit 1; }
