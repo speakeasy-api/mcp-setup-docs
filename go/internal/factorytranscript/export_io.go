@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,6 +14,10 @@ import (
 	"strings"
 	"syscall"
 )
+
+// Source caps include complete JSONL files, not just their selected fields.
+const maxSourceBytes = 16 << 20
+const maxTotalSourceBytes = 64 << 20
 
 type readableSession struct {
 	Ref string `json:"session_ref"`
@@ -100,11 +105,11 @@ func (b *sourceBoundary) read(root *os.Root, name string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if before.Size() > 2<<20 {
-		return nil, limitError("source_bytes", before.Size(), 2<<20)
+	if before.Size() > maxSourceBytes {
+		return nil, limitError("source_bytes", before.Size(), maxSourceBytes)
 	}
-	if b.bytes+int(before.Size()) > 8<<20 {
-		return nil, limitError("total_bytes", int64(b.bytes)+before.Size(), 8<<20)
+	if b.bytes+int(before.Size()) > maxTotalSourceBytes {
+		return nil, limitError("total_bytes", int64(b.bytes)+before.Size(), maxTotalSourceBytes)
 	}
 	if !singleRegular(before) {
 		return nil, errUnsafe
@@ -118,8 +123,8 @@ func (b *sourceBoundary) read(root *os.Root, name string) ([]byte, error) {
 	if err != nil || !unchanged(before, actual) {
 		return nil, errUnsafe
 	}
-	data, err := io.ReadAll(io.LimitReader(file, (2<<20)+1))
-	if err != nil || len(data) > 2<<20 {
+	data, err := io.ReadAll(io.LimitReader(file, maxSourceBytes+1))
+	if err != nil || len(data) > maxSourceBytes {
 		return nil, errUnsafe
 	}
 	after, err := file.Stat()
@@ -309,6 +314,20 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 			_ = sanitizer.Close()
 		}
 	}()
+	// Only selected-text decoding failures are recoverable. Scanner failures
+	// remain fatal, including when they originate inside nested JSON.
+	omitted := false
+	sanitizeField := func(text string) (string, error) {
+		if text == omittedText {
+			omitted = true
+		}
+		clean, err := sanitizeDecoded(sanitizer, text, 0)
+		if errors.Is(err, errTextOmitted) {
+			omitted = true
+			return omittedText, nil
+		}
+		return clean, err
+	}
 	// Scan decoded strings twice with ONE instance: discoveries in later fields
 	// must redact earlier fields before the final serialized document is scanned.
 	for pass := 0; pass < 2; pass++ {
@@ -316,7 +335,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 			for j := range doc.Sessions[i].Events {
 				e := &doc.Sessions[i].Events[j]
 				for k, text := range e.Text {
-					clean, e2 := sanitizeDecoded(sanitizer, text, 0)
+					clean, e2 := sanitizeField(text)
 					if e2 != nil {
 						return e2
 					}
@@ -325,12 +344,16 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 			}
 		}
 		for i := range doc.Files {
-			clean, e := sanitizeDecoded(sanitizer, doc.Files[i].Text, 0)
+			clean, e := sanitizeField(doc.Files[i].Text)
 			if e != nil {
 				return e
 			}
 			doc.Files[i].Text = clean
 		}
+	}
+	if omitted {
+		doc.Limited = true
+		doc.Omissions = append(doc.Omissions, "unsafe_text_omitted")
 	}
 	data, err := json.MarshalIndent(doc, "", "  ")
 	if len(data) > 2<<20 {
@@ -391,17 +414,22 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	return nil
 }
 
+// errTextOmitted is confined to selected prose, never native records or Titus.
+var errTextOmitted = errors.New("selected text omitted")
+
+const omittedText = "[unsafe_text omitted]"
+
 // Decode nested JSON strings before secret matching, including escaped keys.
 // This operates only on already-selected text; it does not select more sources.
 func sanitizeDecoded(s *Sanitizer, text string, depth int) (string, error) {
 	if depth > 32 || len(text) > 1<<20 {
-		return "", errUnsafe
+		return "", errTextOmitted
 	}
 	d := json.NewDecoder(strings.NewReader(text))
 	d.UseNumber()
 	value, parseErr := readValue(d, depth)
-	if json.Valid([]byte(text)) && parseErr != nil {
-		return "", errUnsafe
+	if parseErr != nil && (json.Valid([]byte(text)) || strings.ContainsRune(text, '\\')) {
+		return "", errTextOmitted
 	}
 	if parseErr == nil {
 		if _, e := d.Token(); e != io.EOF {
@@ -411,12 +439,12 @@ func sanitizeDecoded(s *Sanitizer, text string, depth int) (string, error) {
 			// trailing data after structured/quoted JSON fail-closed.
 			if _, numeric := value.(json.Number); numeric {
 				if strings.ContainsRune(text, '\\') {
-					return "", errUnsafe
+					return "", errTextOmitted
 				}
 				clean, err := s.Sanitize([]byte(text))
 				return string(clean), err
 			}
-			return "", errUnsafe
+			return "", errTextOmitted
 		}
 		var walk func(any) (any, error)
 		walk = func(v any) (any, error) {
@@ -441,19 +469,19 @@ func sanitizeDecoded(s *Sanitizer, text string, depth int) (string, error) {
 				if hasID && hasGeneration && hasOutput {
 					id, ok := x["id"].(string)
 					if !ok || id == "" {
-						return nil, errUnsafe
+						return nil, errTextOmitted
 					}
 					generation, ok := x["generation"].(json.Number)
 					if !ok {
-						return nil, errUnsafe
+						return nil, errTextOmitted
 					}
 					n, e := generation.Int64()
 					if e != nil || n < 1 {
-						return nil, errUnsafe
+						return nil, errTextOmitted
 					}
 					selected, e := projectToolText(output, depth+1)
 					if e != nil {
-						return nil, errUnsafe
+						return nil, errTextOmitted
 					}
 					values := make([]any, len(selected))
 					for i, text := range selected {
@@ -468,7 +496,7 @@ func sanitizeDecoded(s *Sanitizer, text string, depth int) (string, error) {
 						return nil, e
 					}
 					if _, exists := out[key]; exists {
-						return nil, errUnsafe
+						return nil, errTextOmitted
 					}
 					clean, e := walk(v)
 					if e != nil {
@@ -483,11 +511,11 @@ func sanitizeDecoded(s *Sanitizer, text string, depth int) (string, error) {
 		}
 		clean, e := walk(value)
 		if e != nil {
-			return "", errUnsafe
+			return "", e
 		}
 		b, e := json.Marshal(clean)
 		if e != nil {
-			return "", errUnsafe
+			return "", errTextOmitted
 		}
 		text = string(b)
 	}

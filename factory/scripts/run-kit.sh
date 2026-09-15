@@ -88,13 +88,30 @@ def local_evidence(host_path, expected_id):
             result['timings'] = timings
         if 'limit' in data:
             limit = data['limit']
-            caps = dict(source_bytes=2097152, total_bytes=8388608, entries=4096, session_dirs=64, session_files=64, events=4096, assembled_bytes=2097152)
+            caps = dict(source_bytes=16777216, total_bytes=67108864, entries=4096, session_dirs=64, session_files=64, events=4096, assembled_bytes=2097152)
             if type(limit) is not dict or set(limit) != {'category', 'observed', 'allowed'} or type(limit['category']) is not str:
                 return None
             cap = caps.get(limit['category'])
             if cap is None or type(limit['allowed']) is not int or type(limit['observed']) is not int or limit['allowed'] != cap or not cap < limit['observed'] <= 2**53-1:
                 return None
             result['limit'] = limit
+        if 'native_fatal' in data:
+            fatal = data['native_fatal']
+            if type(fatal) is not dict:
+                return None
+            if fatal == {'status': 'unavailable'}:
+                result['native_fatal'] = fatal
+            else:
+                if set(fatal) != {'status', 'evidence', 'kind', 'code'} or any(type(v) is not str for v in fatal.values()):
+                    return None
+                codes = {
+                    'provider': ('stream_transport', 'request_transport', 'stream_idle_timeout', 'stream_closed', 'authentication', 'retry_exhausted', 'response_transient', 'response_failed', 'protocol_error', 'credential_error', 'http_error', 'provider_error'),
+                    'tool': ('tool_error',),
+                    'runtime': ('mutator_error', 'invalid_state', 'unsupported', 'session_open', 'compactor_build', 'subagent_restore', 'agent_build'),
+                }
+                if fatal['status'] != 'classified' or fatal['evidence'] != 'native_reported' or fatal['code'] not in codes.get(fatal['kind'], ()):
+                    return None
+                result['native_fatal'] = fatal
         return result
     except (OSError, ValueError, TypeError, KeyError):
         return None

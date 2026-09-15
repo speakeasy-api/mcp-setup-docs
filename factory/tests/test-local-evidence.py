@@ -25,7 +25,7 @@ class EvidenceTest(unittest.TestCase):
             directory = str(pathlib.Path(directory).resolve())
             os.chmod(directory, 0o700)
             run_id = 'a' * 32
-            record = dict(version=1, run_id=run_id, host_reason='worker_limits_failed', termination='writing_timeout', limit=dict(category='source_bytes', observed=2097153, allowed=2097152))
+            record = dict(version=1, run_id=run_id, host_reason='worker_limits_failed', termination='writing_timeout', limit=dict(category='source_bytes', observed=16777217, allowed=16777216))
             record['timings'] = dict(research_ms=100, writing_ms=900000, finalization_ms=200)
             path = pathlib.Path(directory) / 'host-reason.json'
             for kind in ('valid', 'identity', 'canary', 'fraction', 'mode', 'symlink', 'timing_unknown', 'timing_bool', 'timing_fraction', 'timing_negative', 'timing_large', 'timing_empty', 'timing_zero', 'unknown_root', 'timing_absent', 'limit_nan', 'limit_infinity', 'limit_hugeint', 'timing_nan', 'timing_infinity', 'timing_hugeint', 'category_list', 'category_dict', 'duplicate_root', 'duplicate_limit', 'hardlink', 'replacement'):
@@ -33,7 +33,7 @@ class EvidenceTest(unittest.TestCase):
                     data = json.loads(json.dumps(record))
                     if kind == 'identity': data['run_id'] = 'b' * 32
                     if kind == 'canary': data['limit']['category'] = 'RAW_CANARY'
-                    if kind == 'fraction': data['limit']['observed'] = 2097153.0
+                    if kind == 'fraction': data['limit']['observed'] = 16777217.0
                     if kind == 'timing_unknown': data['timings']['RAW_CANARY'] = 1
                     if kind == 'timing_bool': data['timings']['research_ms'] = True
                     if kind == 'timing_fraction': data['timings']['research_ms'] = 1.5
@@ -51,7 +51,7 @@ class EvidenceTest(unittest.TestCase):
                     if kind == 'category_dict': data['limit']['category'] = {}
                     raw = json.dumps(data)
                     if kind == 'duplicate_root': raw = raw.replace('"version": 1', '"version": 1, "version": 1', 1)
-                    if kind == 'duplicate_limit': raw = raw.replace('"observed": 2097153', '"observed": 2097153, "observed": 2097153', 1)
+                    if kind == 'duplicate_limit': raw = raw.replace('"observed": 16777217', '"observed": 16777217, "observed": 16777217', 1)
                     path.unlink(missing_ok=True)
                     path.write_text(raw); path.chmod(0o600)
                     if kind == 'mode': path.chmod(0o644)
@@ -78,5 +78,26 @@ class EvidenceTest(unittest.TestCase):
                         self.assertNotIn('RAW_CANARY', json.dumps(got))
                         self.assertLess(len(json.dumps(got)), 512)
                     else: self.assertIsNone(got)
+
+    def test_native_fatal_projection(self):
+        scope = dict(json=json, os=os, pathlib=pathlib, stat=stat)
+        exec(compile(ast.Module(body=functions, type_ignores=[]), '<projection>', 'exec'), scope)
+        with tempfile.TemporaryDirectory() as directory:
+            directory = str(pathlib.Path(directory).resolve())
+            run_id = 'a' * 32
+            path = pathlib.Path(directory) / 'host-reason.json'
+            valid = dict(status='classified', evidence='native_reported', kind='provider', code='retry_exhausted')
+            cases = [valid, dict(status='unavailable'), dict(valid, message='RAW_CANARY'), dict(valid, code='RAW_CANARY'), dict(valid, kind=[]), dict(valid, evidence='trusted'), dict(status=True)]
+            for i, fatal in enumerate(cases):
+                with self.subTest(case=i):
+                    record = dict(version=1, run_id=run_id, host_reason='worker_export_failed', termination='provider_exit', native_fatal=fatal)
+                    path.write_text(json.dumps(record))
+                    path.chmod(0o600)
+                    got = scope['local_evidence'](directory, run_id)
+                    if i < 2:
+                        self.assertEqual(got['native_fatal'], fatal)
+                        self.assertNotIn('RAW_CANARY', json.dumps(got))
+                    else:
+                        self.assertIsNone(got)
 
 if __name__ == '__main__': unittest.main()

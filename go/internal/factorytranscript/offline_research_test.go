@@ -154,11 +154,12 @@ func TestExportNumericProseWithholdsEscapes(t *testing.T) {
 					if err := os.WriteFile(home+"/.kit/sessions/w-test/parent.jsonl", fixtureRecord(string(b)), 0600); err != nil {
 						t.Fatal(err)
 					}
-					if err := Export(home, work, out, []string{"synthetic-offline-value"}); err == nil {
-						t.Error("ambiguous escaped prose accepted")
+					if err := Export(home, work, out, []string{"synthetic-offline-value"}); err != nil {
+						t.Fatal(err)
 					}
-					if _, err := os.Stat(out); !os.IsNotExist(err) {
-						t.Error("output was not withheld")
+					b, err = os.ReadFile(out)
+					if err != nil || !json.Valid(b) || !bytes.Contains(b, []byte(omittedText)) || bytes.Contains(b, []byte("u0073ynthetic")) || bytes.Contains(b, []byte("plain"+`\backslash`)) {
+						t.Fatal("affected prose was not omitted", err)
 					}
 				})
 			}

@@ -73,7 +73,7 @@ func TestExportUnsafePaths(t *testing.T) {
 			case "hardlink":
 				os.Link(file, work+"/alias")
 			case "oversize":
-				os.WriteFile(file, []byte(strings.Repeat("x", (2<<20)+1)), 0600)
+				os.WriteFile(file, []byte(strings.Repeat("x", (16<<20)+1)), 0600)
 			case "output-alias":
 				os.Link(file, out)
 			case "directory":
@@ -204,7 +204,7 @@ func TestExportFinalSizeLimit(t *testing.T) {
 }
 
 func TestExportWholeSessionSourceCap(t *testing.T) {
-	for _, size := range []int{1522551, 2 << 20} {
+	for _, size := range []int{1522551, 2 << 20, 16 << 20} {
 		t.Run(fmt.Sprint(size), func(t *testing.T) {
 			home, work, out := exportFixture(t)
 			source := sizedNativeSession(size)
@@ -239,13 +239,14 @@ func TestExportDecodedFieldCapUnchanged(t *testing.T) {
 	if err := os.WriteFile(home+"/.kit/sessions/w-test/child.jsonl", source, 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := Export(home, work, out, nil); err == nil {
-		t.Fatal("oversized decoded field accepted")
+	if err := Export(home, work, out, nil); err != nil {
+		t.Fatal(err)
 	}
-	if _, err := os.Lstat(out); !os.IsNotExist(err) {
-		t.Fatal("oversized field emitted output")
+	b, err := os.ReadFile(out)
+	if err != nil || !json.Valid(b) || !bytes.Contains(b, []byte(omittedText)) || bytes.Contains(b, []byte(strings.Repeat("x", 100))) {
+		t.Fatal("oversized field not omitted", err)
 	}
-	if got, err := projectToolText(text, 0); err != errUnsafe || got != nil {
-		t.Fatal("tool text field cap changed")
+	if got, err := projectToolText(text, 0); err != nil || len(got) != 1 || got[0] != omittedText {
+		t.Fatal("oversized tool text was not omitted")
 	}
 }

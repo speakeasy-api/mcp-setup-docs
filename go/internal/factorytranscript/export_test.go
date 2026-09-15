@@ -44,7 +44,7 @@ func TestDecodeSessionFailClosed(t *testing.T) {
 		"missing text":        fixtureRecord(`{"Text":{}}`),
 		"duplicate key":       fixtureRecord(`{"Text":{"text":"one","text":"two"}}`),
 		"multiple variants":   fixtureRecord(`{"Text":{"text":"public"},"Structured":{"value":{}}}`),
-		"oversize":            bytes.Repeat([]byte("x"), (2<<20)+1),
+		"oversize":            bytes.Repeat([]byte("x"), (16<<20)+1),
 		"both modes":          bytes.Replace(good, []byte(`"generation":1`), []byte(`"generation":1,"replacement":[]`), 1),
 		"changed identity":    append(bytes.Clone(good), bytes.Replace(good, []byte("private-id"), []byte("different"), 1)...),
 		"repeated generation": append(bytes.Clone(good), good...),
@@ -133,14 +133,14 @@ func sizedNativeSession(size int) []byte {
 }
 
 func TestDecodeWholeSessionSourceCap(t *testing.T) {
-	for _, size := range []int{16 << 10, 1522551, 2 << 20, (2 << 20) + 1} {
+	for _, size := range []int{16 << 10, 1522551, 2 << 20, 16 << 20, (16 << 20) + 1} {
 		t.Run(fmt.Sprint(size), func(t *testing.T) {
 			source := sizedNativeSession(size)
 			if len(source) != size {
 				t.Fatal("incorrect source size")
 			}
 			got, err := decodeSession(source)
-			if size > 2<<20 {
+			if size > 16<<20 {
 				if err == nil || len(got.Events) != 0 {
 					t.Fatal("oversized source accepted")
 				}

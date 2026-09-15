@@ -14,8 +14,8 @@ func TestLimitMeasurements(t *testing.T) {
 		size     int64
 		category string
 	}{
-		{"source", 0, 2<<20 + 1, "source_bytes"},
-		{"total", 8 << 20, 1, "total_bytes"},
+		{"source", 0, 16<<20 + 1, "source_bytes"},
+		{"total", 64 << 20, 1, "total_bytes"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			dir := t.TempDir()
@@ -41,9 +41,9 @@ func TestLimitMeasurements(t *testing.T) {
 			if e := json.Unmarshal(data, &got); e != nil {
 				t.Fatal(e)
 			}
-			allowed := int64(2 << 20)
+			allowed := int64(16 << 20)
 			if tc.name == "total" {
-				allowed = 8 << 20
+				allowed = 64 << 20
 			}
 			if got.Observed != int64(tc.prior)+tc.size || got.Allowed != allowed {
 				t.Fatalf("incorrect measurement: %+v", got)
@@ -61,7 +61,7 @@ func TestLimitMeasurements(t *testing.T) {
 
 func TestUntrustedLimitDiagnostic(t *testing.T) {
 	id := strings.Repeat("a", 32)
-	valid := `{"version":1,"run_id":"` + id + `","category":"source_bytes","observed":2097153,"allowed":2097152}`
+	valid := `{"version":1,"run_id":"` + id + `","category":"source_bytes","observed":16777217,"allowed":16777216}`
 	for _, kind := range []string{"valid", "identity", "extra", "duplicate", "fraction", "negative", "cap", "category", "trailing", "oversize", "symlink", "hardlink", "mode", "parent"} {
 		t.Run(kind, func(t *testing.T) {
 			dir := t.TempDir()
@@ -75,11 +75,11 @@ func TestUntrustedLimitDiagnostic(t *testing.T) {
 			case "duplicate":
 				data = strings.Replace(data, `"version":1`, `"version":1,"version":1`, 1)
 			case "fraction":
-				data = strings.Replace(data, "2097153", "2097153.0", 1)
+				data = strings.Replace(data, "16777217", "16777217.0", 1)
 			case "negative":
-				data = strings.Replace(data, "2097153", "-1", 1)
+				data = strings.Replace(data, "16777217", "-1", 1)
 			case "cap":
-				data = strings.Replace(data, "2097152", "2097151", 1)
+				data = strings.Replace(data, "16777216", "16777215", 1)
 			case "category":
 				data = strings.Replace(data, "source_bytes", "RAW_CANARY", 1)
 			case "trailing":
@@ -118,7 +118,7 @@ func TestSourceBoundaryAcceptedSizes(t *testing.T) {
 		name string
 		size int
 	}{
-		{"exact-two-MiB", 2 << 20}, {"measured-live-file-size", 1522551},
+		{"exact-sixteen-MiB", 16 << 20}, {"measured-live-file-size", 1522551},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			dir := t.TempDir()
@@ -140,9 +140,9 @@ func TestSourceBoundaryAcceptedSizes(t *testing.T) {
 	}
 }
 
-func TestSourceBoundaryAggregateUnchanged(t *testing.T) {
+func TestSourceBoundaryAggregateCap(t *testing.T) {
 	dir := t.TempDir()
-	if err := os.WriteFile(dir+"/source", []byte(strings.Repeat("x", 2<<20)), 0600); err != nil {
+	if err := os.WriteFile(dir+"/source", []byte(strings.Repeat("x", 16<<20)), 0600); err != nil {
 		t.Fatal(err)
 	}
 	root, err := os.OpenRoot(dir)
@@ -156,11 +156,11 @@ func TestSourceBoundaryAggregateUnchanged(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if b.bytes != 8<<20 {
+	if b.bytes != 64<<20 {
 		t.Fatal("aggregate cap changed")
 	}
 	data, err := b.read(root, "source")
-	if data != nil || WorkerExitCode(err) != 48 || b.bytes != 8<<20 {
+	if data != nil || WorkerExitCode(err) != 48 || b.bytes != 64<<20 {
 		t.Fatal("aggregate overflow accepted", err)
 	}
 }
@@ -168,7 +168,7 @@ func TestSourceBoundaryAggregateUnchanged(t *testing.T) {
 func TestDecodedFieldLimitUnchanged(t *testing.T) {
 	// Oversize is rejected before invoking the sanitizer.
 	got, err := sanitizeDecoded(nil, strings.Repeat("x", (1<<20)+1), 0)
-	if got != "" || err != errUnsafe {
+	if got != "" || err != errTextOmitted {
 		t.Fatal("decoded field above 1 MiB accepted")
 	}
 }

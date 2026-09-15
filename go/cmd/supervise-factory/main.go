@@ -37,6 +37,7 @@ func production() settings {
 }
 
 type result struct {
+	Fatal            factorytranscript.FatalDiagnostic  `json:"native_fatal"`
 	Timings          map[string]int64                   `json:"timings,omitempty"`
 	Limit            *factorytranscript.LimitDiagnostic `json:"limit,omitempty"`
 	HostReason       string                             `json:"host_reason,omitempty"`
@@ -153,7 +154,7 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 	if root != nil {
 		defer root.Close()
 	}
-	r := result{Version: 1, RunID: o.runID, Termination: "lifecycle_invalid", ExitCode: 1}
+	r := result{Version: 1, RunID: o.runID, Termination: "lifecycle_invalid", ExitCode: 1, Fatal: factorytranscript.FatalDiagnostic{Status: "unavailable"}}
 	owner, err := command(context.Background(), s, s.commandLimit, "inspect", "--format", `{{index .Config.Labels "factory.run-id"}}`, o.containerID)
 	if err != nil || owner != o.runID {
 		r.Termination = "cleanup_failed" // ownership unproven: never remove this container
@@ -207,6 +208,7 @@ func supervise(ctx context.Context, o options, s settings) (status int) {
 				if workerCode == 48 {
 					r.Limit = factorytranscript.ReadLimitDiagnostic(root, o.runID)
 				}
+				r.Fatal = factorytranscript.ReadFatalDiagnostic(root, o.runID)
 				_ = saveResult(root, "host-reason.json", r)
 			}
 			cleanupContext, cancel := context.WithDeadline(context.Background(), deadline.Add(-budget/100))

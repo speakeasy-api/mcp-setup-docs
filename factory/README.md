@@ -291,17 +291,33 @@ Build the new `mcp-setup-docs-kit:0.2.2` image before image-dependent tests or t
 full suite: helpers and configuration are baked into the image. The existing
 `0.1.134` Docker image/tag remains untouched and is not evidence for this release.
 
+### Selected prose omissions (fixture verification only)
+
+Selected transcript/research prose is not a machine protocol. Ambiguous nested
+JSON, trailing quoted/JSON-like prose, escaped unparseable prose, selected-text
+key collisions or invalid handle-like structures, and fields over 1 MiB are
+replaced as whole fields with `[unsafe_text omitted]`; no original bytes from
+that field are retained. The artifact records `unsafe_text_omitted` and remains
+limited. Ordinary public prose in other fields remains readable. Titus errors
+and warnings still fail the export closed; native record/host protocol checks,
+the final assembled scan, and the 2 MiB artifact cap remain mandatory.
+These fixtures do not establish the cause of the previous live exit 43.
+Source headroom is 16 MiB per file (including complete JSONL files) and 64 MiB
+aggregate; retained handles remain capped at 1 MiB. Count limits are unchanged.
+
 ### Bounded export-limit diagnostics (source verification only)
 
-Finalizer limit errors distinguish `source_bytes` (2 MiB), `total_bytes`
-(8 MiB), `entries` (4096), `session_dirs` (64), `session_files` (64),
+Finalizer limit errors distinguish `source_bytes` (16 MiB), `total_bytes`
+(64 MiB), `entries` (4096), `session_dirs` (64), `session_files` (64),
 `events` (4096), and `assembled_bytes` (2 MiB). Each measurement contains
 only category, observed count, and allowed count; the first failing bound wins.
 The exporter source reader and whole-session JSONL decoder both accept sources
-up to 2 MiB each; the decoded-text limit remains
-1 MiB, the aggregate source limit remains 8 MiB, and the final artifact remains
+up to 16 MiB each; the decoded-text limit remains
+1 MiB, the aggregate source limit is 64 MiB, and the final artifact remains
 limited to 2 MiB. This removes the source-size rejection for the observed
-1,522,551-byte file, but does not guarantee a successful whole export.
+1,522,551-byte file, but does not guarantee a successful whole export. A real
+Titus export fixture accepts a 16 MiB whitespace-padded JSONL file with 64 small
+text records; this is boundary coverage, not a worst-case memory/time claim.
 Exit 48 and all other caps remain unchanged. Counts are observations at the
 check, not an inventory of deleted data.
 

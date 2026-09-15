@@ -118,7 +118,7 @@ func stringField(m map[string]any, k string) (string, error) {
 // discard preceding observations. Source reads/traversal belong to the caller.
 func decodeSession(source []byte) (decodedSession, error) {
 	fail := func() (decodedSession, error) { return decodedSession{}, errUnsafe }
-	if len(source) > 2<<20 {
+	if len(source) > maxSourceBytes {
 		return fail()
 	}
 	out := decodedSession{Events: []decodedEvent{}, Omissions: []string{}}
@@ -376,7 +376,7 @@ func projectToolText(value any, depth int) ([]string, error) {
 	switch x := value.(type) {
 	case string:
 		if len(x) > 1<<20 {
-			return nil, errUnsafe
+			return []string{omittedText}, nil
 		}
 		if confidentialText(x, 0) {
 			return []string{"[confidential_content omitted]"}, nil
