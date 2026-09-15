@@ -292,8 +292,46 @@ fn report_contract(root: &str) {
         "PASS: Runlet 0.6 reporting success/nonzero/throw/one invocation/hostile JSON quoting"
     );
 }
+fn dossier_contract(root: &str) {
+    let source = fs::read_to_string(format!("{root}/factory/tests/fixtures/research/dossier.runlet")).unwrap();
+    let document = fs::read_to_string(format!("{root}/factory/coordinator.md")).unwrap();
+    assert!(document.contains(&format!("```runlet\n{source}```")), "canonical dossier literal missing");
+    for case in ["success", "check_failed", "edit_failed", "gate_failed", "empty"] {
+        let text = if case == "empty" { "" } else { "quotes ' \" \\n $(touch BAD) `id`\n雪\n" };
+        let mut registry = ToolRegistry::default();
+        for name in ["shell", "edit"] {
+            registry.register(ToolDescriptor { name:name.into(), summary:String::new(), input:CallSchema::positional(vec![Schema::Any]), output:Schema::Any, execution:ExecutionPolicy::Unsafe, schema_version:"1".into() }).unwrap();
+        }
+        let calls = Arc::new(Mutex::new(Vec::<String>::new()));
+        let shell_calls = calls.clone();
+        let edit_calls = calls.clone();
+        let runtime = Runtime::builder().registry(registry).with_prelude()
+            .input("input", Schema::Any, cv(json!({"dossier":text})))
+            .tool("shell", move |args,_| {
+                let arg=j(&args[0]); let cmd=arg["command"].as_str().unwrap();
+                let gate=cmd.starts_with("/usr/local/bin/begin-writing ");
+                let mut seen=shell_calls.lock().unwrap();
+                if gate { assert_eq!(seen.as_slice(), ["check", "edit"]); }
+                else { assert!(seen.is_empty()); assert!(cmd.starts_with("test -d /workspace/.factory/research")); }
+                seen.push(if gate {"gate"} else {"check"}.into());
+                Ok(cv(json!({"success": !(case=="check_failed" && !gate || case=="gate_failed" && gate)})))
+            })
+            .tool("edit", move |args,_| {
+                let mut seen=edit_calls.lock().unwrap(); assert_eq!(seen.as_slice(), ["check"]); seen.push("edit".into());
+                assert_eq!(j(&args[0]),json!({"op":"add","path":"/workspace/.factory/research/dossier.md","content":text}));
+                if case=="edit_failed" { return Err(ToolError::new("TEST","synthetic")); }
+                Ok(cv(json!({"status":"added"})))
+            }).build().unwrap();
+        let program=runtime.compile(&source).unwrap_or_else(|d|panic!("dossier compile: {d:?}"));
+        let result=j(&runtime.run(&program).unwrap().value);
+        assert_eq!(result,json!({"status":if case=="success" {"writing_ready"} else {"failed"}}));
+        assert_eq!(calls.lock().unwrap().len(),match case {"empty"=>0,"check_failed"=>1,"edit_failed"=>2,_=>3});
+    }
+    println!("PASS: dossier bytes, ordered write/gate, failure stops, no replay");
+}
 fn main() {
     let a: Vec<String> = std::env::args().collect();
+    dossier_contract(&a[1]);
     context_contract(&a[1]);
     report_contract(&a[1]);
     if a.get(2).map(String::as_str) == Some("--context") {

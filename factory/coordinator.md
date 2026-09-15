@@ -203,7 +203,7 @@ controls the dossier and guide files.
    incomplete research as complete. Stop before writing if missing or
    conflicting facts prevent a supported setup path.
 7. Use the output directory and create/update mode resolved before research.
-   Save the completed dossier privately at `/workspace/.factory/research/dossier.md`. Only after all gates pass, invoke `/usr/local/bin/begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"` in a caught shell boundary. Failure selects `failed`; do not start the writer. This interface is implemented by Task 3, not by a placeholder here. Then start exactly one writer. Supply the exact
+   Use the exact dossier handoff program below. Pass the complete dossier only as compose `input.dossier`; never interpolate it into Runlet source or a shell command. Failure selects `failed`; do not start the writer or replay a partial handoff. Only `writing_ready` permits exactly one writer. Supply the exact
    output directory, mode, dossier, existing writing instructions, guide
    format, persona, and STE requirement. Save
    `research.md`, `external.md`, `speakeasy.md`, and `meta.yaml` in that
@@ -450,6 +450,36 @@ ordinary research as mandatory merely because it uses Runlet.
 - ordinary research: pre-execution rejection with authoritative zero-dispatch evidence => may correct the read-only program; otherwise stop
 - mandatory canonical dispatch/context/report program: any repair or byte mismatch => fatal trusted-literal corruption
 - ordinary research: healed execution with uncertain writes or unknown partial effects => unsafe; inspect/reconcile, never replay
+
+### Canonical dossier-to-writing handoff
+
+After research reconciliation and the final authority audit succeed, execute this
+program unchanged, with the dossier in `input.dossier`. Quotes, backslashes,
+newlines, and source excerpts are data, never program literals. Do not generate
+heredocs, shell quoting, or another Runlet program for this transition. The
+private research directory was established by canonical research dispatch.
+The fixed shell command is `/usr/local/bin/begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"`.
+The write must finish before the writing gate is invoked; a failed gate does
+not authorize starting a writer. This handoff does not restart any deadline.
+
+```runlet
+attempt = boundary {
+  assert(text.length(input.dossier) > 0, "empty dossier")
+  checked = shell({command: "test -d /workspace/.factory/research && test ! -L /workspace/.factory && test ! -L /workspace/.factory/research && test ! -e /workspace/.factory/research/dossier.md && test ! -L /workspace/.factory/research/dossier.md"})
+  assert(checked.success, "unsafe or existing dossier destination")
+  saved = after checked {
+    return edit({op:"add", path:"/workspace/.factory/research/dossier.md", content:input.dossier})
+  }
+  begun = after saved {
+    return shell({command: "/usr/local/bin/begin-writing --control-dir /control --run-id \"$FACTORY_RUN_ID\""})
+  }
+  assert(begun.success, "writing gate rejected")
+  return {status:"writing_ready"}
+} catch err {
+  return {status:"failed"}
+}
+return attempt
+```
 
 ### Ordinary read-only research correction
 
