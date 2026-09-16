@@ -6,6 +6,21 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-09-16 — dispatch failure categories and coordinator-only handoff scope
+
+Files: `factory/coordinator.md` and its canonical dispatch fixture.
+
+Preserve fixed, allowlisted dispatch failure categories in report blockers,
+without raw error text or retries. Evidence: local Okta trial at `8c2e5d5`
+returned four indistinguishable dispatch failures; retained evidence could not
+identify the failing stage. Release-locked Runlet 0.6.0 synthetic execution
+verified success and failure ordering for the proposed stage boundaries.
+
+Move the dossier-to-writing handoff outside the common research instructions.
+Evidence: `TestCanonicalCoordinatorPrompts` exposed the coordinator-only block
+being copied into every initial research prompt. Restore the approved research
+instruction bytes without changing the reference or weakening the comparison.
+
 ## 2026-09-15 — preserve the legacy OAuth redirect exception
 
 Files: `doctrine/ai-control-plane-oauth.md`.

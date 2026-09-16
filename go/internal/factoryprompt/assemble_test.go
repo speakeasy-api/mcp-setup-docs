@@ -247,12 +247,12 @@ func TestDispatchContract(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	for _, required := range []string{`return shell({command: "/usr/local/bin/prepare-research-prompt --document /workspace/factory/coordinator.md --sha256 " + input.documentHash`, `assert(prepared.success, "research prompt assembly failed")`, `subagent({prompt: prepared.stdout})`, `prompt({subagent: input.existingHandle, prompt: prepared.stdout})`} {
+	for _, required := range []string{`return shell({command: "/usr/local/bin/prepare-research-prompt --document /workspace/factory/coordinator.md --sha256 " + input.documentHash`, `_ = fail("native_dispatch_helper_nonzero", "dispatch failed") if not prepared.success`, `subagent({prompt: prepared.stdout})`, `bash /workspace/factory/scripts/read-research-handle.sh `, `prompt({subagent: prior, prompt: prepared.stdout})`, `savedReport = after validatedChild`} {
 		if !bytes.Contains(b, []byte(required)) {
 			t.Fatalf("missing dependency %s", required)
 		}
 	}
-	for _, forbidden := range []string{"model:", "harness:"} {
+	for _, forbidden := range []string{"model:", "harness:", "input.existingHandle"} {
 		if bytes.Contains(b, []byte(forbidden)) {
 			t.Fatal("dispatch override")
 		}

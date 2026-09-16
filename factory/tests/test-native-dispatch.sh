@@ -4,6 +4,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # Static contract only: no provider, native runtime, persistence or cleanup proof.
 # shellcheck disable=SC1091
 source "$ROOT/factory/tests/test-helper.sh"
+cd "$ROOT"
 fixture="$ROOT/factory/tests/fixtures/research/dispatch.runlet"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
@@ -15,10 +16,10 @@ for phrase in \
   'assignment.follow_up_index == input.index' \
   'after checked' 'after savedInput' 'after savedPrompt' \
   'subagent({prompt: prepared.stdout})' \
-  'prompt({subagent: json.parse(handleRead.stdout), prompt: prepared.stdout})' \
+  'prompt({subagent: prior, prompt: prepared.stdout})' \
   'path:base + ".report.md", content:child.output' \
   'path:base + ".handle.json", content:json.encode(child)' \
-  'after savedReport' 'after savedHandle' \
+  'validatedChild = after child' 'savedReport = after validatedChild' 'savedHandle = after savedReport' 'after savedHandle' \
   'status:"failed"' 'test ! -L'; do
   grep -Fq "$phrase" "$fixture" || fail "missing dispatch dependency: $phrase"
 done
@@ -31,9 +32,11 @@ printf 'PASS: static exact dispatch contract (not native execution proof)\n'
 if [[ ${1:-} == --execute ]]; then
   : "${FACTORY_PROMPT_ASSEMBLER:?set the prebuilt prepare-research-prompt path}"
   bash "$ROOT/factory/tests/build-native-dispatch.sh" "$tmp/build"
+  "$tmp/build/target/debug/dispatch-diagnostics" "$fixture"
   "$tmp/build/target/debug/native-dispatch" "$ROOT" "$FACTORY_PROMPT_ASSEMBLER" "$tmp"
 elif [[ ${1:-} == --execute-context ]]; then
   bash "$ROOT/factory/tests/build-native-dispatch.sh" "$tmp/build"
+  "$tmp/build/target/debug/dispatch-diagnostics" "$fixture"
   "$tmp/build/target/debug/native-dispatch" "$ROOT" --context
 elif [[ $# -ne 0 ]]; then
   fail 'usage: test-native-dispatch.sh [--execute|--execute-context]'

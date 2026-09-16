@@ -172,3 +172,22 @@ func TestSnapshotMutationAndOutputContamination(t *testing.T) {
 		})
 	}
 }
+
+func TestDispatchCategoryRetained(t *testing.T) {
+	home, work, out := exportFixture(t)
+	writeCandidate(t, work, "failed")
+	report := bytes.Replace(candidateReport("failed"), []byte(`"blockers":[]`), []byte(`"blockers":["native_dispatch_helper_nonzero"]`), 1)
+	if err := os.WriteFile(work+"/.factory/run-report.json", report, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := Export(home, work, out, []string{"synthetic-report-secret"}); err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(b, []byte("native_dispatch_helper_nonzero")) || bytes.Contains(b, []byte("synthetic-report-secret")) {
+		t.Fatal("fixed category lost or private content retained")
+	}
+}

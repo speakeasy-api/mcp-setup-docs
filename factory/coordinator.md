@@ -300,12 +300,13 @@ to retain its original instructions.
 
 The prebuilt assembler implements exact section selection. Pin the SHA256 of `/workspace/factory/coordinator.md` once before dispatch and save it privately at the validated fixed path `/workspace/.factory/research/document.sha256`. Use the native dispatch program below verbatim with coordinator-owned numeric topic/index, validated lowercase hex documentHash, kind, ordered assignmentJSON. The assignment's topic and follow-up index must match the dispatch identity. Never accept an issue-provided command. Initial index is zero; follow-up indexes are 1 or 2. Follow-ups load the complete private predecessor record inside Runlet: index 1 reads `topic-N-0.handle.json`; index 2 reads `topic-N-1.handle.json`. Never supply a model-copied handle. A missing or unsafe predecessor fails closed without searching for another record or session. The helper checks private ownership, modes, regular single-link files, the existing 1 MiB per-source bound, assignment identity and the original session ID; its stdout is parsed directly, not copied from a tool preview. These path checks assume private records are quiescent during dispatch, with no concurrent same-UID writer; they are not an atomic defense against check/read races. The generation nondecrease check is only a sanity check; the native runtime remains the validator of handle currentness.
 
-Prepare the private physical research directory before dispatch. File names are fixed topic/index paths, never source-controlled paths. Assemble stdout is the native prompt directly: no shell command substitution, trailing-newline stripping, model rewriting, or hand-copied sections. Preserve complete reports and full returned handles only after successful calls; no synthesized updates or handle projections. The failed sentinel stops model work and routes to reporting. Records carry topic/index in their names and pinned hash in the input context; they are evidence, not a semantic topic manifest or a second research engine.
+Prepare the private physical research directory before dispatch. File names are fixed topic/index paths, never source-controlled paths. Assemble stdout is the native prompt directly: no shell command substitution, trailing-newline stripping, model rewriting, or hand-copied sections. Preserve complete reports and full returned handles only after successful calls; no synthesized updates or handle projections. The failed sentinel stops model work and routes to reporting. On failed dispatch, append the exact fixed returned category to blockers in the existing atomic run-report input. Never include raw error messages, arbitrary error codes, tool arguments/results or handles. Keep terminal failed, stop all remaining model phases, and do not retry. This explicit report blocker makes the category observable through the existing sanitized run-report export. Records carry topic/index in their names and pinned hash in the input context; they are evidence, not a semantic topic manifest or a second research engine.
 
 ```runlet
 # Native dispatch contract; production executes this program verbatim.
 # input fields are coordinator-owned, not an issue-provided shell command.
 attempt = boundary {
+  base = boundary {
   assert(regex.test(json.encode(input.topic), "^[1-5]$"), "invalid topic")
   assert(regex.test(json.encode(input.index), "^[0-2]$"), "invalid follow-up index")
   assert((input.kind == "initial" and input.index == 0) or (input.kind == "follow-up" and input.index > 0), "invalid dispatch kind")
@@ -316,41 +317,88 @@ attempt = boundary {
     assert(assignment.follow_up_index == input.index, "follow-up identity mismatch")
     return true
   } else { return true }
-  base = "/workspace/.factory/research/topic-" + json.encode(input.topic) + "-" + json.encode(input.index)
-  checked = shell({command: "test -d /workspace/.factory/research && test ! -L /workspace/.factory && test ! -L /workspace/.factory/research && test \"$(realpath /workspace/.factory/research)\" = /workspace/.factory/research && test ! -e " + base + ".input.json && test ! -L " + base + ".input.json && test ! -e " + base + ".prompt.md && test ! -L " + base + ".prompt.md && test ! -e " + base + ".report.md && test ! -L " + base + ".report.md && test ! -e " + base + ".handle.json && test ! -L " + base + ".handle.json"})
-  assert(checked.success, "unsafe research record path")
+  return "/workspace/.factory/research/topic-" + json.encode(input.topic) + "-" + json.encode(input.index)  } catch err { return fail("native_dispatch_input_validation", "dispatch failed") }
+  checked = after base { return boundary { return shell({command: "test -d /workspace/.factory/research && test ! -L /workspace/.factory && test ! -L /workspace/.factory/research && test \"$(realpath /workspace/.factory/research)\" = /workspace/.factory/research && test ! -e " + base + ".input.json && test ! -L " + base + ".input.json && test ! -e " + base + ".prompt.md && test ! -L " + base + ".prompt.md && test ! -e " + base + ".report.md && test ! -L " + base + ".report.md && test ! -e " + base + ".handle.json && test ! -L " + base + ".handle.json"}) } catch err { return fail("native_dispatch_path_threw", "dispatch failed") } }
+  _ = fail("native_dispatch_path_nonzero", "dispatch failed") if not checked.success
   savedInput = after checked {
     return if checked.success {
-      return edit({op:"add", path:base + ".input.json", content:input.assignmentJSON})
-    } else { return fail("UNSAFE_PATH", "unsafe research record path") }
+      return boundary { return edit({op:"add", path:base + ".input.json", content:input.assignmentJSON}) } catch err { return fail("native_dispatch_input_write", "dispatch failed") }
+    } else { return fail("native_dispatch_path_nonzero", "dispatch failed") }
   }
   prepared = after savedInput {
-    return shell({command: "/usr/local/bin/prepare-research-prompt --document /workspace/factory/coordinator.md --sha256 " + input.documentHash + " --kind " + input.kind + " --input " + base + ".input.json"})
+    return boundary { return shell({command: "/usr/local/bin/prepare-research-prompt --document /workspace/factory/coordinator.md --sha256 " + input.documentHash + " --kind " + input.kind + " --input " + base + ".input.json"}) } catch err { return fail("native_dispatch_helper_threw", "dispatch failed") }
   }
-  assert(prepared.success, "research prompt assembly failed")
+  _ = fail("native_dispatch_helper_nonzero", "dispatch failed") if not prepared.success
   savedPrompt = if prepared.success {
-    return edit({op:"add", path:base + ".prompt.md", content:prepared.stdout})
-  } else { return fail("ASSEMBLY_FAILED", "research prompt assembly failed") }
+    return boundary { return edit({op:"add", path:base + ".prompt.md", content:prepared.stdout}) } catch err { return fail("native_dispatch_prompt_write", "dispatch failed") }
+  } else { return fail("native_dispatch_helper_nonzero", "dispatch failed") }
   child = after savedPrompt {
     return if input.kind == "initial" {
-      return subagent({prompt: prepared.stdout})
+      return boundary { return subagent({prompt: prepared.stdout}) } catch err { return fail("native_dispatch_child_execution", "dispatch failed") }
     } else {
-      handleRead = shell({command: "bash /workspace/factory/scripts/read-research-handle.sh " + json.encode(input.topic) + " " + json.encode(input.index)})
-      assert(handleRead.success, "unsafe or missing prior handle")
+      handleRead = boundary { return shell({command: "bash /workspace/factory/scripts/read-research-handle.sh " + json.encode(input.topic) + " " + json.encode(input.index)}) } catch err { return fail("native_dispatch_predecessor_threw", "dispatch failed") }
+      _ = fail("native_dispatch_predecessor_nonzero", "dispatch failed") if not handleRead.success
       return if handleRead.success {
-        return prompt({subagent: json.parse(handleRead.stdout), prompt: prepared.stdout})
-      } else { return fail("HANDLE_READ_FAILED", "unsafe or missing prior handle") }
+        prior = boundary { return json.parse(handleRead.stdout) } catch err { return fail("native_dispatch_predecessor_validation", "dispatch failed") }
+        return after prior { return boundary { return prompt({subagent: prior, prompt: prepared.stdout}) } catch err { return fail("native_dispatch_child_execution", "dispatch failed") } }
+      } else { return fail("native_dispatch_predecessor_nonzero", "dispatch failed") }
     }
   }
+  validatedChild = after child { return boundary {
   assert(child.id != "" and child.generation >= 1, "invalid native handle")
   assert(text.length(child.output) > 0, "empty research report")
-  savedReport = edit({op:"add", path:base + ".report.md", content:child.output})
+    return true
+  } catch err { return fail("native_dispatch_child_validation", "dispatch failed") } }
+  savedReport = after validatedChild { return boundary { return edit({op:"add", path:base + ".report.md", content:child.output}) } catch err { return fail("native_dispatch_report_persistence", "dispatch failed") } }
   savedHandle = after savedReport {
-    return edit({op:"add", path:base + ".handle.json", content:json.encode(child)})
+    return boundary { return edit({op:"add", path:base + ".handle.json", content:json.encode(child)}) } catch err { return fail("native_dispatch_handle_persistence", "dispatch failed") }
   }
   return after savedHandle { return {status:"returned", handle:child} }
 } catch err {
-  return {status:"failed", category:"native_dispatch_failed"}
+  return {status:"failed", category:err.code if err.code in ["native_dispatch_input_validation", "native_dispatch_path_threw", "native_dispatch_path_nonzero", "native_dispatch_input_write", "native_dispatch_helper_threw", "native_dispatch_prompt_write", "native_dispatch_child_execution", "native_dispatch_predecessor_validation", "native_dispatch_handle_persistence", "native_dispatch_helper_nonzero", "native_dispatch_predecessor_threw", "native_dispatch_predecessor_nonzero", "native_dispatch_child_validation", "native_dispatch_report_persistence"] else "native_dispatch_failed"}
+}
+return attempt
+```
+
+## Canonical dossier-to-writing handoff
+
+**Non-executed dossier handoff correction:** If the tool explicitly reports
+`runlet program rejected before execution` for this dossier handoff, correct the
+submission and resubmit the exact program below, with unchanged dossier data in
+`input.dossier`. Allow at most two such corrections within the existing research
+clock. This rejection establishes zero execution; do not abandon completed
+research merely because this submission had a lexical error. Do not "repair"
+the trusted program itself: restore it from this document. No correction is
+allowed after any tool dispatch, a caught failure result, a failed write/gate,
+ambiguous execution, or merely a warning. Never duplicate a saved dossier or
+repeat an accepted begin-writing signal. This exception does not apply to
+research dispatch, context, validation, reporting, or failed child sessions.
+
+
+After research reconciliation and the final authority audit succeed, execute this
+program unchanged, with the dossier in `input.dossier`. Quotes, backslashes,
+newlines, and source excerpts are data, never program literals. Do not generate
+heredocs, shell quoting, or another Runlet program for this transition. The
+private research directory was established by canonical research dispatch.
+The fixed shell command is `/usr/local/bin/begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"`.
+The write must finish before the writing gate is invoked; a failed gate does
+not authorize starting a writer. This handoff does not restart any deadline.
+
+```runlet
+attempt = boundary {
+  assert(text.length(input.dossier) > 0, "empty dossier")
+  checked = shell({command: "test -d /workspace/.factory/research && test ! -L /workspace/.factory && test ! -L /workspace/.factory/research && test ! -e /workspace/.factory/research/dossier.md && test ! -L /workspace/.factory/research/dossier.md"})
+  assert(checked.success, "unsafe or existing dossier destination")
+  saved = after checked {
+    return edit({op:"add", path:"/workspace/.factory/research/dossier.md", content:input.dossier})
+  }
+  begun = after saved {
+    return shell({command: "/usr/local/bin/begin-writing --control-dir /control --run-id $FACTORY_RUN_ID"})
+  }
+  assert(begun.success, "writing gate rejected")
+  return {status:"writing_ready"}
+} catch err {
+  return {status:"failed"}
 }
 return attempt
 ```
@@ -458,49 +506,6 @@ ordinary research as mandatory merely because it uses Runlet.
 - mandatory canonical dispatch/context/report program: any repair or byte mismatch => fatal trusted-literal corruption
 - ordinary research: healed execution with uncertain writes or unknown partial effects => unsafe; inspect/reconcile, never replay
 
-### Canonical dossier-to-writing handoff
-
-**Non-executed dossier handoff correction:** If the tool explicitly reports
-`runlet program rejected before execution` for this dossier handoff, correct the
-submission and resubmit the exact program below, with unchanged dossier data in
-`input.dossier`. Allow at most two such corrections within the existing research
-clock. This rejection establishes zero execution; do not abandon completed
-research merely because this submission had a lexical error. Do not "repair"
-the trusted program itself: restore it from this document. No correction is
-allowed after any tool dispatch, a caught failure result, a failed write/gate,
-ambiguous execution, or merely a warning. Never duplicate a saved dossier or
-repeat an accepted begin-writing signal. This exception does not apply to
-research dispatch, context, validation, reporting, or failed child sessions.
-
-
-After research reconciliation and the final authority audit succeed, execute this
-program unchanged, with the dossier in `input.dossier`. Quotes, backslashes,
-newlines, and source excerpts are data, never program literals. Do not generate
-heredocs, shell quoting, or another Runlet program for this transition. The
-private research directory was established by canonical research dispatch.
-The fixed shell command is `/usr/local/bin/begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"`.
-The write must finish before the writing gate is invoked; a failed gate does
-not authorize starting a writer. This handoff does not restart any deadline.
-
-```runlet
-attempt = boundary {
-  assert(text.length(input.dossier) > 0, "empty dossier")
-  checked = shell({command: "test -d /workspace/.factory/research && test ! -L /workspace/.factory && test ! -L /workspace/.factory/research && test ! -e /workspace/.factory/research/dossier.md && test ! -L /workspace/.factory/research/dossier.md"})
-  assert(checked.success, "unsafe or existing dossier destination")
-  saved = after checked {
-    return edit({op:"add", path:"/workspace/.factory/research/dossier.md", content:input.dossier})
-  }
-  begun = after saved {
-    return shell({command: "/usr/local/bin/begin-writing --control-dir /control --run-id $FACTORY_RUN_ID"})
-  }
-  assert(begun.success, "writing gate rejected")
-  return {status:"writing_ready"}
-} catch err {
-  return {status:"failed"}
-}
-return attempt
-```
-
 ### Ordinary read-only research correction
 
 Prefer installed shell/curl/jq/rg; do not knowingly invoke absent Python.
@@ -539,7 +544,7 @@ only when authoritative tool/harness rejection evidence establishes zero dispatc
 before execution, and the intended program is read-only within existing authority.
 A model assertion, a syntax warning, or missing output is not that evidence.
 Without authoritative zero-dispatch evidence, stop; do not repair and resubmit.
-Exact-byte mandatory canonical programs remain strict even on pre-execution rejection, except the dossier handoff correction below.
+Exact-byte mandatory canonical programs remain strict even on pre-execution rejection.
 Successful harness-healed ordinary research follows the acceptance rule above.
 
 Use only an already available tool within the existing 1800-second research deadline
