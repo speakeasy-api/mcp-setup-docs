@@ -430,3 +430,28 @@ one writer session, converged candidate, unchanged four fixture artifacts. Nativ
 sanitized export and real frozen acceptance passed. All 13 baseline containers
 preserved with no additions. These remain offline fixture results, not live Okta
 acceptance. Private evidence: `.superpowers/sdd/decision-evidence-transport/`.
+
+### Bounded-read correction after bee67fb
+
+Local Okta trial `bee67fb.l6kgNH` completed with `research_blocked` after a
+reconciliation and Topic 5 follow-up. The next decision verified snapshot size/hash
+but reported truncated read output. Sanitized evidence does not retain the tool
+arguments, so the exact attempted read commands are not recoverable. Do not claim
+the earlier synthetic bulk-read smoke proved complete model-visible evidence.
+
+Within the approved read-only chunk permission, host file references now include
+an exact ordered manifest of byte ranges, hashes and literal read-only commands.
+Each range is at most 4096 bytes and ends on a UTF-8 boundary. Instructions require
+separate tool results, no aggregation, and continued reading until all ranges are
+received; inability to retrieve a bounded chunk still blocks. Same file identity,
+contents, size/hash checks and deadlines remain authoritative. This does not add
+permissions or authorize retries of model decisions. Real shell chunk tests prove
+complete reconstruction, UTF-8 validity, range sizes and hashes. Controller tests
+and vet pass; pinned Kit chunked smoke and full Go regressions are pending.
+
+Bounded-read verification completed: full Go suite and retained-Okta replay pass.
+Pinned Kit connected smoke performed 55 separate chunk reads; a second run asserted
+no truncation/spill indicators in any provider-visible tool result. Both converged
+with unchanged fixture artifacts and baseline 13/13, no additions. Native sanitized
+export and real frozen-guide acceptance passed on the first chunked run. Private
+reproducible evidence: `.superpowers/sdd/evidence-chunk-transport/`.
