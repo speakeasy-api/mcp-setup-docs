@@ -315,3 +315,62 @@ runtime. Oversized complete prompts fail before launch, never silently truncate
 source evidence. This is a transport limit, not permission to discard material
 facts; a future observed oversized use case needs a reviewed input transport
 change rather than relaxing source or privacy gates.
+
+## Milestone 5: top-level runner and CLI, before entrypoint activation
+
+Files `factorycontroller/controller.go`, `controller_test.go`,
+`go/cmd/guide-factory/main.go`, `main_test.go`.
+`ControllerConfig` contains Workspace/InputRoot/ControlDir/RunID and trusted
+BeginBinary/LintBinary/GenerateBinary plus the bound `Turn` function.
+`RunController(ctx,config) error` resolves context, opens private evidence, loads
+approved prompt assets, hashes the coordinator template, runs research and writing,
+and always attempts the existing atomic candidate report helper once. No model
+writes the workflow report. Return an error if the report cannot be written;
+a persisted failed/blocked report is a completed controller invocation, not guide
+success. Success is determined only by the validated report and trusted host gates.
+
+Start a parent-bounded 2700-second controller context and 1800-second research
+context before resolution. Supply the fixed research deadline to the backend.
+After research, retain the parent context for the writing sequence; never carry
+the expiring research context into writing. Outer supervisor remains authoritative.
+Pass actual trusted authority text to decision prompts and separate host context
+JSON (identity, persona, mode, host UTC date, catalog facts) from research snapshots.
+Endpoint/reconciliation/finalization may not rediscover context. Never include
+legacy executable coordinator instructions in decision prompts.
+
+Code owns the exact run-report fields: schema_version 1, outcome, nullable identity,
+summary, open_questions, blockers, nits [], review_rounds 0, artifacts (four names
+only for convergence). Strip persona path to its validated name. Report fixed phase
+failure categories, never raw error text or private paths. Identity ambiguity stays
+all-null blocked. Use actual existing write-report/validate-report scripts via argv,
+no report shell interpolation, no report retries, no report-size truncation.
+
+CLI flags configure trusted paths and existing provider/model/reasoning/request
+budget. Preserve subscription file credentials at /subscription and existing Exa
+MCP config. Use Transport with the existing isolated HOME; allow only configured
+openrouter/openai-subscription providers. Print fixed errors only. No new runtime
+dependencies, no provider fallback, no publication code. Container entrypoint and
+Dockerfile activation are a separate concrete approval diff.
+
+Tests use real prompt assembly/private records/report helper, scripted fake turns,
+fake gate/lint/generator, and temporary trusted repositories. Prove full convergence,
+blocked context/endpoint, malformed decision, research/validation failure, one repair,
+and scope questions with exact report outcomes and no later forbidden effects.
+Test CLI configuration without real provider calls. Reuse existing fixtures rather
+than copying a second schema/validation framework.
+
+### Milestone 5 verification and review
+
+Implemented runner/CLI without production activation. Full offline Go module suite
+passed, including lifecycle and transcript packages. Controller/prompt/CLI suites
+and vet passed. Integration fixtures now read actual `factory/coordinator.md`, not
+the research draft. Review confirmed current host finalization separately gates
+converged outcomes and does not mistake exit zero for success.
+
+Review corrections: candidate report creation now shares the controller context
+and parent cancellation; it cannot consume the host's separate finalization
+allowance. Preserve the trusted `KIT_BIN` environment override (explicit flag
+wins). Both regression tests failed before the corrections, then complete
+controller/CLI suites and vet passed. Keep the existing private entrypoint setup
+when proposing activation. Production image wiring, connected offline acceptance,
+full shell regression suite, and real local Okta acceptance remain outstanding.
