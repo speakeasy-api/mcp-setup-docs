@@ -231,3 +231,87 @@ func RunWriting(context.Context, WritingBackend, ResearchResult) (WritingResult,
 Concrete filesystem snapshot validation, context resolution, approved prompts,
 atomic candidate reporting and container entrypoint remain subsequent integration
 work; this milestone does not pretend those helpers are wired.
+
+## Milestone 4b: context and deterministic validation adapters
+
+Approved five prompt assets are now in `factory/prompts/`; their approval does
+not itself activate a new container entrypoint. No new provider calls in tests.
+
+### Context adapter
+
+Files `context.go`, `context_test.go` in factorycontroller.
+`ContextConfig{Workspace,InputRoot string; Turn func(context.Context,string,string)(TurnResult,error)}`;
+`ResolveContext(ctx,config) (ResolvedContext,error)`.
+`ResolvedContext` includes `Research ResearchContext`, `Paths []string`,
+`Catalog json.RawMessage`, `Authority string`, `Blockers []string`.
+
+Invoke fixed `inspect-inputs.sh` with fixed input issue/catalog paths via argv;
+its bounded JSON is runtime data for approved resolve-context prompt. Include
+trusted constitution/shared/context-resolution rules separately in prompt.
+Strictly parse exact provider/slug/persona/mcp_server/documentation_urls/blockers,
+nullable identities only when blocked, all provider/slug/persona null on blocked
+identity. Valid nonblocked provider/slug/persona required, optional MCP server.
+Validate slug kebab-case <=96, persona exact membership in inspected personas,
+mode from actual guide directories, then call inspect-guide-context helper.
+Validate its manifest exact keys, unique sorted safe relative paths, required
+authority/schema/role paths and bounded counts. Read only approved physical
+regular context files using bounded reads; reject links and special files.
+Build research context and authority from trusted snapshot docs, not model text.
+Populate capabilities from checked-in client reference and its source references.
+Do not ask models to re-read raw issue/catalog or discover files. Catalog retained
+exactly from inspector, unknown lookup never becomes absence. Blocked identity
+returns blockers without research dispatch. Model identity resolution remains
+semantic judgment, not independent code proof of provider identity.
+
+### Validation adapter
+
+Files `validation.go`, `validation_test.go` in factorycontroller.
+`ValidationConfig{Workspace,Slug,LintBinary,GenerateBinary string}`;
+`ValidateDraft(ctx,config,repair bool) (ValidationResult,error)`.
+Production passes `/usr/local/bin/lint-guide` and `/usr/local/bin/factory-generate`;
+tests use local fake binaries, never shell command strings from model output.
+
+Create fresh private phase-specific snapshots under `.factory`, refuse preexisting
+or unsafe paths. Copy only four target artifacts for inspect-guide-artifacts;
+preserve unrelated target files without allowing them into the inspection subset.
+Run existing artifact helper with root override; strictly validate returned slug,
+stage writer/revision, sorted exact four basenames. Then run lint-guide --json and
+strictly parse its actual Finding fields; exit2+blockers means repairable findings,
+execution/malformed results fail. No direct model invocation of validators.
+
+Make fresh validation snapshot containing full guides/schema plus go/go.mod and
+go/published_server_refs.txt. Reject symlinks/special files in all copied trees;
+never mutate source/generated directories. Run generator from snapshot/go, so
+full-repository and append-only ID checks remain active. Enforce target artifacts
+nonempty <=512KiB each, generated files <=512KiB each and <=5MiB total, and whitespace
+checks. Safely expose bounded validation defects only to the writer, not raw errors
+in public reports. Cancellation/error stops later commands. Snapshot names differ
+for first validation and repair; no reuse of partial failed snapshots.
+
+Both adapters use stdlib direct argv processes and caller context, bounded output,
+fixed errors, no retries or new phase clocks. Temporary process helpers may be
+file-local to avoid introducing a generic execution framework. Production wiring
+must retain the isolated environment and outer supervisor cancellation/cleanup.
+Tests prove helper contracts, hostile inputs as data, mode/persona/path checks,
+malformed outputs, snapshot safety, generator isolation and repair stage naming.
+
+### Concrete writer adapter
+
+`writer_backend.go`/tests implement existing `WritingBackend` using
+`WriterBackendConfig{Workspace,ControlDir,RunID,BeginBinary,LintBinary,GenerateBinary
+string; Context ResolvedContext; Evidence *Evidence; Turn func(context.Context,
+string,string)(TurnResult,error)}` and `NewKitWritingBackend`.
+Persist the dossier through the existing private exclusive evidence writer at
+fixed `dossier.md`; invoke begin-writing with literal argv and host identity;
+assemble the approved writer prompt with trusted role context and a separate JSON
+projection of dossier/audited selection/destination/persona/catalog/approved paths.
+Do not duplicate full research reports or private session maps in writer input.
+Delegate validation to `ValidateDraft`, use caller context, and never retry gates
+or turns. Fake-turn and real-private-record tests cover quoting, immutable context,
+original writer continuation and overwrite refusal; no live provider.
+
+Prompt transport is bounded at 120 KiB per CLI argument on the supported Linux
+runtime. Oversized complete prompts fail before launch, never silently truncate
+source evidence. This is a transport limit, not permission to discard material
+facts; a future observed oversized use case needs a reviewed input transport
+change rather than relaxing source or privacy gates.

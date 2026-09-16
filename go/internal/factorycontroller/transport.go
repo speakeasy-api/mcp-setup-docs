@@ -35,12 +35,20 @@ type TurnResult struct {
 	Answer    string
 }
 
+// maximumPromptBytes is the supported single-argv prompt bound, below Linux
+// MAX_ARG_STRLEN on 4 KiB-page systems (including its terminating NUL).
+// This is an execution bound, not permission to relax content limits.
+const maximumPromptBytes = 120 << 10
+
 var sessionIdentity = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_-]{0,255}$`)
 
 // Turn never retries an ambiguous turn or returns an identity from failed output.
 // Error messages deliberately omit prompts, argv, output, and filesystem paths.
 func (t *Transport) Turn(ctx context.Context, sessionID, prompt string) (TurnResult, error) {
 	failure := func(message string) (TurnResult, error) { return TurnResult{}, errors.New(message) }
+	if len(prompt) > maximumPromptBytes || strings.ContainsRune(prompt, 0) {
+		return failure("invalid transport prompt")
+	}
 	if sessionID != "" && !sessionIdentity.MatchString(sessionID) {
 		return failure("invalid session identity")
 	}

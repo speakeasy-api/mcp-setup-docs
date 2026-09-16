@@ -217,3 +217,29 @@ func TestTransportSessionQueue(t *testing.T) {
 		t.Fatal("overlapping executable invocations")
 	}
 }
+
+func TestTransportRejectsUnsupportedPromptBeforeProcess(t *testing.T) {
+	for _, prompt := range []string{strings.Repeat("x", (120<<10)+1), "private\x00prompt"} {
+		tr := fakeTransport(t, "touch child-started\n")
+		result, err := tr.Turn(context.Background(), "", prompt)
+		if err == nil || err.Error() != "invalid transport prompt" || result != (TurnResult{}) {
+			t.Fatalf("unexpected rejection: %v, %v", result, err)
+		}
+		if _, err = os.Stat(filepath.Join(tr.Workspace, "child-started")); !os.IsNotExist(err) {
+			t.Fatal("invalid prompt started a child")
+		}
+	}
+}
+
+func TestTransportAcceptsMaximumPromptWithoutTruncation(t *testing.T) {
+	tr := fakeTransport(t, `for arg do last=$arg; done
+ test "${#last}" -eq 122880 || exit 14
+ case "$last" in *END) ;; *) exit 15;; esac
+ printf 'answer\nsession_id: abc\n'
+`)
+	prompt := strings.Repeat("x", maximumPromptBytes-3) + "END"
+	got, err := tr.Turn(context.Background(), "", prompt)
+	if err != nil || got.SessionID != "abc" {
+		t.Fatalf("supported boundary rejected: %v", err)
+	}
+}

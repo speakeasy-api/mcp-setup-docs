@@ -6,6 +6,16 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## Proposed, unapplied — host-owned guide factory prompt assets
+
+Planned files: factory/prompts/{resolve-context,endpoint,reconcile,finalize-research,writer}.md.
+
+Propose five bounded prompt assets for a code-owned workflow. They replace model orchestration only when a later runner explicitly wires them in. The host owns inspection, identity/mode/path validation, scheduling, same-session follow-ups and writer repair, audit reservation, deadlines, gates, validation, reporting, and terminal outcomes. No coordinator or assembler changes are proposed here: existing research instructions remain assembled unchanged.
+
+Evidence: local inspection of factory/coordinator.md, doctrine/shared.md, doctrine/roles/{technical-research,writer}.md, and go/internal/factorycontroller/{decisions,research,backend}.go. Endpoint/reconcile/finalization outputs match the inspected strict decoder field names and types. ResearchSnapshot and nested input objects use their current explicit lower snake_case JSON tags. Writer completion preserves exactly completed (boolean) and open_questions (array of nonblank strings). Blocked identity resolution leaves provider, slug, and persona all null. Resolve-context remains a proposed contract, not a claim of an existing decoder. This is static proposal review, not a provider trial or production validation.
+
+Prompt prohibitions are behavioral instructions, not a technical sandbox. Later host wiring must enforce capabilities, path boundaries, exact decoding, immutable audited selection, and budgets independently. Decision prompts require host-supplied authoritative instruction context alongside, but separate from, JSON task data before execution; they cannot fetch doctrine. This requirement is not a claim that backend context wiring already exists. Writer local file access is intentionally distinct from tool-free decision turns.
+
 ## 2026-09-16 — dispatch failure categories and coordinator-only handoff scope
 
 Files: `factory/coordinator.md` and its canonical dispatch fixture.
