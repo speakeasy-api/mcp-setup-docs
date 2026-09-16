@@ -150,3 +150,26 @@ func TestDecodeWholeSessionSourceCap(t *testing.T) {
 		})
 	}
 }
+
+func TestEventTimestamps(t *testing.T) {
+	for _, tc := range []struct{ value, want string }{
+		{`1789071280273`, `1789071280273`}, {`0`, `0`},
+		{`null`, ``}, {`"private text"`, ``}, {`-1`, ``}, {`1.5`, ``},
+		{`18446744073709551615`, ``}, {`{}`, ``},
+	} {
+		t.Run(tc.value, func(t *testing.T) {
+			b := fixtureRecord(`{"Text":{"text":"public","metadata":{}}}`)
+			b = bytes.Replace(b, []byte(`"kind":"Assistant"`), []byte(`"created_at":`+tc.value+`,"kind":"Assistant"`), 1)
+			got, err := decodeSession(b)
+			if err != nil || len(got.Events) != 1 {
+				t.Fatalf("timestamp disrupted transcript: %v", err)
+			}
+			encoded, _ := json.Marshal(got.Events[0])
+			var event map[string]json.RawMessage
+			json.Unmarshal(encoded, &event)
+			if string(event["created_at_unix_ms"]) != tc.want {
+				t.Fatalf("timestamp = %s, want %s", event["created_at_unix_ms"], tc.want)
+			}
+		})
+	}
+}

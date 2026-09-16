@@ -21,11 +21,12 @@ type decodedSession struct {
 	Omissions []string       `json:"omissions"`
 }
 type decodedEvent struct {
-	Role        string   `json:"role"`
-	Part        string   `json:"part"`
-	Text        []string `json:"text,omitempty"`
-	CallRef     string   `json:"call_ref,omitempty"`
-	Replacement bool     `json:"replacement,omitempty"`
+	CreatedAtUnixMS *int64   `json:"created_at_unix_ms,omitempty"`
+	Role            string   `json:"role"`
+	Part            string   `json:"part"`
+	Text            []string `json:"text,omitempty"`
+	CallRef         string   `json:"call_ref,omitempty"`
+	Replacement     bool     `json:"replacement,omitempty"`
 }
 
 // readValue rejects duplicate keys and bounds recursive JSON before projection.
@@ -236,6 +237,14 @@ func decodeSession(source []byte) (decodedSession, error) {
 			if !ok {
 				return fail()
 			}
+			// Native item timestamps are Unix milliseconds, not tool durations.
+			// Keep only numeric calendar timestamps; never copy arbitrary metadata.
+			var createdAt *int64
+			if n, ok := item["created_at"].(json.Number); ok {
+				if ms, err := n.Int64(); err == nil && ms >= 0 && ms <= 253402300799999 {
+					createdAt = &ms
+				}
+			}
 			for _, rawPart := range parts {
 				if len(out.Events) >= 4096 {
 					return fail()
@@ -245,7 +254,7 @@ func decodeSession(source []byte) (decodedSession, error) {
 					return fail()
 				}
 				for kind, body := range part {
-					event := decodedEvent{Role: role, Part: kind, Replacement: hasReplacement}
+					event := decodedEvent{Role: role, Part: kind, Replacement: hasReplacement, CreatedAtUnixMS: createdAt}
 					// Actual Kit 61708db background completions use Notification
 					// + Structured(ToolResult), agentkit 8e4ee26 loop:3307-3348.
 					// Accept only this envelope, then reuse the tool-result boundary.

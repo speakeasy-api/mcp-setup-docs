@@ -6,6 +6,19 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-09-15 — shared upstream OAuth client capability evidence
+
+Files: `doctrine/ai-control-plane-oauth.md`, `factory/coordinator.md`,
+`factory/scripts/inspect-guide-context.sh`, and its contract test.
+
+Supply pinned AI Control Plane client capabilities once to all research topics
+and the writer, rather than repeatedly researching Gram. Evidence: the local
+Okta trial at guide-factory revision `05864bb` exhausted its research deadline
+while reconciling authentication/client compatibility; source inspection of
+Gram `4e1fef388aa0f5b498f5d35400780ff2b99815e4` establishes the capabilities
+and limitations cited in the new reference. Provider requirements still need
+independent evidence; unknown capabilities retain targeted source fallback.
+
 ## 2026-08-05 — long values get code blocks, opened URLs get links
 
 Files: `doctrine/personas/it-admin.md`, `doctrine/roles/writer.md`,

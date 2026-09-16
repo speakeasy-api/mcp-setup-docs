@@ -38,7 +38,7 @@ return if context_attempt.caught {
 }
 ```
 
-If the program returns `factory_status`, set terminal state to `failed`, record the fixed blocker `Phase 1 guide-context inspection failed.`, set `stop_model_phases = true`, skip every remaining model phase, and continue to atomic report creation. Otherwise the program must return the successful shell result object unchanged; do not parse, project, or reshape it inside compose. Its stdout is a bounded manifest of approved repository paths and character counts and must never return raw context file contents. Accept only exact top-level keys `slug` and `files`, the resolved slug, and a sorted unique array of 1 through 40 objects with exact keys `path` and `characters`; paths must match the repository context allowlist and character counts must be nonnegative integers. Manifest validation must require every mandatory authority, default-persona, role, and output-schema path: the four fixed doctrine files, `schema/guide.v1.schema.json`, `doctrine/personas/it-admin.md`, the technical-research, writer, fidelity, and review role files, and the research-status, review-findings, and run-report schema files. Any malformed or incomplete manifest selects `failed`.
+If the program returns `factory_status`, set terminal state to `failed`, record the fixed blocker `Phase 1 guide-context inspection failed.`, set `stop_model_phases = true`, skip every remaining model phase, and continue to atomic report creation. Otherwise the program must return the successful shell result object unchanged; do not parse, project, or reshape it inside compose. Its stdout is a bounded manifest of approved repository paths and character counts and must never return raw context file contents. Accept only exact top-level keys `slug` and `files`, the resolved slug, and a sorted unique array of 1 through 40 objects with exact keys `path` and `characters`; paths must match the repository context allowlist and character counts must be nonnegative integers. Manifest validation must require every mandatory authority, default-persona, role, and output-schema path: the four existing fixed doctrine files plus `doctrine/ai-control-plane-oauth.md`, `schema/guide.v1.schema.json`, `doctrine/personas/it-admin.md`, the technical-research, writer, fidelity, and review role files, and the research-status, review-findings, and run-report schema files. Any malformed or incomplete manifest selects `failed`.
 
 `inspect-guide-context.sh` is the deterministic manifest constructor and validator for the requirements above. Do not generate a separate context-validation Runlet program. Use the exact inspection program above and its unchanged successful shell result; the helper validates the repository inputs before emitting the manifest. This does not authorize accepting malformed or incomplete output: if observed, select `failed`, stop model phases, and proceed to reporting.
 
@@ -86,8 +86,15 @@ to each agent. Agents must not make independent destination or identity choices.
 - **Reader:** use `doctrine/personas/it-admin.md` unless the ticket explicitly
   requests another supported persona.
 - **Client:** use the Speakeasy AI Control Plane. Load its documented setup
-  paths from `doctrine/speakeasy-setup.md`. Supply relevant client features and
-  their source references to research agents. Do not infer client capabilities
+  paths from `doctrine/speakeasy-setup.md` and read the maintained client contract
+  `doctrine/ai-control-plane-oauth.md` once before Topic 5. Populate
+  `client_capabilities` and `client_source_references` with relevant verified
+  claims, their conditions, and pinned links for every initial research dispatch.
+  Preserve them in the dossier and include the contract in the writer's approved
+  context paths. Do not send only a filename to research agents.
+  Do not re-research covered client capabilities or dispatch follow-ups merely
+  to reconfirm them. A required capability missing from the contract or concrete
+  contradictory evidence may trigger the targeted fallback below. Do not infer client capabilities
   from provider capabilities.
   When the supplied documentation does not establish client behavior that the
   provider requires, use the official `speakeasy-api/gram` repository as a
