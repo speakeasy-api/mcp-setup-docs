@@ -7,7 +7,9 @@ TMP=$(cd "$TMP" && pwd -P)
 mkdir -m 700 "$TMP/.factory" "$TMP/helpers"
 cp "$ROOT/factory/scripts/"{write-report.sh,validate-report.sh} "$TMP/helpers/"
 export FACTORY_REPO_ROOT="$TMP"
-report='{"schema_version":1,"outcome":"failed","provider":null,"slug":null,"persona":null,"summary":"quotes '\'' \" $(printf PWNED) 雪","open_questions":[],"blockers":["stopped"],"nits":[],"review_rounds":0,"artifacts":[]}'
+# Keep the command-substitution probe literal without disabling ShellCheck.
+literal_command="\$(printf PWNED)"
+report='{"schema_version":1,"outcome":"failed","provider":null,"slug":null,"persona":null,"summary":"quotes '\'' \" '"$literal_command"' 雪","open_questions":[],"blockers":["stopped"],"nits":[],"review_rounds":0,"artifacts":[]}'
 write() { bash "$TMP/helpers/write-report.sh" "$1"; }
 write "$report"
 [[ $(cat "$TMP/.factory/run-report.json") == "$report" ]] || fail 'changed report bytes'

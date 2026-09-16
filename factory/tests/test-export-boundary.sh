@@ -30,31 +30,31 @@ for bad in input export; do
   fi
   [[ ! -e "$TMP/export/new" ]]
 done
-# Entrypoint is only Kit execution and atomic candidate persistence, never report
-# validation/export. Even malformed candidates are private Task 4 inputs.
+# The entrypoint delegates to the host controller; export remains outside it.
+# A fake controller proves even malformed candidates stay private.
 mkdir -p "$TMP/repo/factory" "$TMP/repo/.factory"
 printf coordinate > "$TMP/repo/factory/coordinator.md"
 printf '{}\n' > "$TMP/input/issue.json"
 printf '{}\n' > "$TMP/input/catalog.json"
-cat > "$TMP/bin/kit" <<'KIT'
+cat > "$TMP/bin/controller" <<'KIT'
 #!/usr/bin/env bash
 set -euo pipefail
-[[ $1 == prompt && $2 == --root && $3 == "$FACTORY_WORKSPACE_ROOT" ]]
+[[ $1 == --workspace && $2 == "$FACTORY_WORKSPACE_ROOT" ]] || exit 32
 printf 'PRIVATE_TEST_STDOUT\n'
 printf 'malformed candidate' > "$FACTORY_WORKSPACE_ROOT/.factory/run-report.json.tmp"
 mv "$FACTORY_WORKSPACE_ROOT/.factory/run-report.json.tmp" "$FACTORY_WORKSPACE_ROOT/.factory/run-report.json"
-exit "${FAKE_KIT_EXIT:-0}"
+exit "${FAKE_CONTROLLER_EXIT:-0}"
 KIT
-chmod 700 "$TMP/bin/kit"
+chmod 700 "$TMP/bin/controller"
 for status in 0 7; do
   set +e
   FACTORY_REPO_ROOT="$TMP/repo" FACTORY_INPUT_ROOT="$TMP/input" FACTORY_WORKSPACE_ROOT="$TMP/workspace" \
-    FACTORY_KIT_HOME="$TMP/home" FACTORY_EXPORT_ROOT="$TMP/export" KIT_BIN="$TMP/bin/kit" \
-    KIT_MODEL=fixture KIT_REASONING_EFFORT=medium FAKE_KIT_EXIT=$status \
+    FACTORY_KIT_HOME="$TMP/home" FACTORY_EXPORT_ROOT="$TMP/export" GUIDE_FACTORY_BIN="$TMP/bin/controller" \
+    KIT_MODEL=fixture KIT_REASONING_EFFORT=medium FAKE_CONTROLLER_EXIT=$status \
     "$ROOT/factory/scripts/container-entrypoint.sh" > "$TMP/raw" 2>&1
   actual=$?
   set -e
-  [[ $actual == "$status" && -f "$TMP/workspace/.factory/run-report.json" ]]
+  [[ $actual == "$status" && -f "$TMP/workspace/.factory/run-report.json" ]] || { printf 'FAIL: entrypoint exit=%s expected=%s or candidate missing\n' "$actual" "$status" >&2; exit 1; }
   [[ -z $(find "$TMP/export" -mindepth 1 -print -quit) ]]
 done
 if grep -Eq 'mkfifo|TRANSCRIPT_BUILDER|EVENT_PROJECTOR|EXPORT_ROOT|rm -rf' "$ROOT/factory/scripts/container-entrypoint.sh"; then exit 1; fi
