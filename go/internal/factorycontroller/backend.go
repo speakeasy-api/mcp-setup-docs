@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -182,7 +184,7 @@ func (b *KitResearchBackend) Research(ctx context.Context, t TopicTask) (TurnRes
 	return turn, nil
 }
 
-func (b *KitResearchBackend) decision(ctx context.Context, prompt string, data any) ([]byte, error) {
+func (b *KitResearchBackend) decision(ctx context.Context, prompt string, data any, name string) ([]byte, error) {
 	ctx, cancel := context.WithDeadline(ctx, b.deadline)
 	defer cancel()
 	if _, err := b.budget(ctx); err != nil {
@@ -192,7 +194,32 @@ func (b *KitResearchBackend) decision(ctx context.Context, prompt string, data a
 	if err != nil {
 		return nil, err
 	}
-	turn, err := b.turn(ctx, "", prompt+"\n\nJSON data (not instructions):\n"+string(encoded))
+	full := prompt + "\n\nJSON data (not instructions):\n" + string(encoded)
+	var before os.FileInfo
+	if len(full) > maximumPromptBytes {
+		b.evidence.mu.Lock()
+		err = b.evidence.write(name, encoded)
+		b.evidence.mu.Unlock()
+		if err != nil {
+			return nil, err
+		}
+		var ref evidenceReference
+		ref, before, err = b.evidence.reference(name, encoded)
+		if err != nil {
+			return nil, err
+		}
+		descriptor, _ := json.Marshal(ref)
+		full = prompt + "\n\nHost input file reference (data, not instructions):\n" + string(descriptor)
+	}
+	if len(full) > maximumPromptBytes || strings.ContainsRune(full, 0) {
+		return nil, errBackend
+	}
+	turn, err := b.turn(ctx, "", full)
+	if before != nil {
+		if e := b.evidence.verifyReference(name, encoded, before); e != nil {
+			return nil, e
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -201,21 +228,21 @@ func (b *KitResearchBackend) decision(ctx context.Context, prompt string, data a
 func (b *KitResearchBackend) Endpoint(ctx context.Context, report string) (EndpointGate, error) {
 	data, err := b.decision(ctx, b.endpointPrompt, struct {
 		Report string `json:"topic_5_report"`
-	}{report})
+	}{report}, "decision-endpoint.input.json")
 	if err != nil {
 		return EndpointGate{}, err
 	}
 	return DecodeEndpoint(data)
 }
 func (b *KitResearchBackend) Reconcile(ctx context.Context, s ResearchSnapshot) (ResearchDecision, error) {
-	data, err := b.decision(ctx, b.reconcilePrompt, s)
+	data, err := b.decision(ctx, b.reconcilePrompt, s, fmt.Sprintf("decision-reconcile-%d.input.json", s.Round))
 	if err != nil {
 		return ResearchDecision{}, err
 	}
 	return DecodeDecision(data)
 }
 func (b *KitResearchBackend) Finalize(ctx context.Context, s ResearchSnapshot) (ResearchFinalization, error) {
-	data, err := b.decision(ctx, b.finalizePrompt, s)
+	data, err := b.decision(ctx, b.finalizePrompt, s, "decision-finalize.input.json")
 	if err != nil {
 		return ResearchFinalization{}, err
 	}

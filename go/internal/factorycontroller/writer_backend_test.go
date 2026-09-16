@@ -89,7 +89,7 @@ func TestWriterBackendDataAndGate(t *testing.T) {
 		if err = json.Unmarshal([]byte(strings.TrimPrefix(p, b.prompt)), &req); err != nil {
 			t.Fatal(err)
 		}
-		if req.Dossier != dossier || req.ClientSourceReferences[0] != "client-ref" || req.HostResearchedAt != time.Now().UTC().Format("2006-01-02") {
+		if req.Dossier.Bytes != len(dossier) || req.ClientSourceReferences[0] != "client-ref" || req.HostResearchedAt != time.Now().UTC().Format("2006-01-02") {
 			t.Fatal("lost data")
 		}
 		for _, path := range []string{"doctrine/roles/writer.md", "schema/guide.v1.schema.json", "doctrine/personas/it-admin.md"} {
@@ -171,6 +171,9 @@ func TestWriterBackendPromptSize(t *testing.T) {
 	if len(task.Research.Dossier) < 40<<10 {
 		t.Fatal("fixture too small")
 	}
+	if err = small.SaveDossier(context.Background(), task.Research.Dossier); err != nil {
+		t.Fatal(err)
+	}
 	for _, b := range []*KitWritingBackend{small, large} {
 		if _, err = b.Write(context.Background(), task); err != nil {
 			t.Fatal(err)
@@ -186,7 +189,7 @@ func TestWriterBackendPromptSize(t *testing.T) {
 	if err = json.Unmarshal([]byte(strings.TrimPrefix(prompts[1], large.prompt)), &req); err != nil {
 		t.Fatal(err)
 	}
-	if req.Dossier != task.Research.Dossier || !slices.Contains(req.ApprovedPaths, guide) || slices.Contains(req.RequiredPaths, guide) {
+	if req.Dossier.Bytes != len(task.Research.Dossier) || !slices.Contains(req.ApprovedPaths, guide) || slices.Contains(req.RequiredPaths, guide) {
 		t.Fatal("truncated dossier or changed guide permission")
 	}
 	for _, marker := range []string{"large-guide-marker", "authority-marker", "client-document-marker", "unauthorized"} {
@@ -196,7 +199,7 @@ func TestWriterBackendPromptSize(t *testing.T) {
 	}
 	// Oversized real task data fails before even an injected Turn can run.
 	prompts = nil
-	task.Research.Dossier = strings.Repeat("documented fact ", maximumPromptBytes/10)
+	task.Findings = []string{strings.Repeat("finding ", maximumPromptBytes)}
 	if _, err = large.Write(context.Background(), task); !errors.Is(err, errWriterBackend) || len(prompts) != 0 {
 		t.Fatalf("oversize reached turn: %v, calls=%d", err, len(prompts))
 	}
@@ -207,5 +210,50 @@ func TestWriterBackendRejectsOversizedAsset(t *testing.T) {
 	contextWrite(t, c.Workspace, "factory/prompts/writer.md", strings.Repeat("x", maximumPromptBytes+1))
 	if _, err := NewKitWritingBackend(c); !errors.Is(err, errWriterBackend) {
 		t.Fatal("oversized trusted prefix accepted")
+	}
+}
+
+func TestWriterBackendLargeDossierFile(t *testing.T) {
+	for _, mode := range []string{"large", "tampered", "replaced", "before"} {
+		t.Run(mode, func(t *testing.T) {
+			c := writerBackendFixture(t)
+			dossier := strings.Repeat("documented fact\n", 32000)
+			calls := 0
+			path := filepath.Join(c.Workspace, ".factory/research/dossier.md")
+			c.Turn = func(_ context.Context, id, p string) (TurnResult, error) {
+				calls++
+				if len(p) > maximumPromptBytes || strings.Contains(p, "documented fact") {
+					t.Fatal("inline dossier")
+				}
+				if !strings.Contains(p, ".factory/research/dossier.md") {
+					t.Fatal("missing reference")
+				}
+				if mode == "tampered" {
+					os.WriteFile(path, []byte("changed"), 0600)
+				}
+				if mode == "replaced" {
+					os.Rename(path, path+".old")
+					os.WriteFile(path, []byte(dossier), 0600)
+				}
+				return TurnResult{SessionID: "writer-1"}, nil
+			}
+			b, e := NewKitWritingBackend(c)
+			if e != nil {
+				t.Fatal(e)
+			}
+			if e = b.SaveDossier(context.Background(), dossier); e != nil {
+				t.Fatal(e)
+			}
+			if mode == "before" {
+				os.WriteFile(path, []byte("changed"), 0600)
+			}
+			_, e = b.Write(context.Background(), WriterTask{Research: ResearchResult{Dossier: dossier, Authentication: "token", Actions: []SetupAction{{Description: "action", Sources: []string{"source"}}}}})
+			if (e == nil) != (mode == "large") {
+				t.Fatalf("%s: %v", mode, e)
+			}
+			if mode == "before" && calls != 0 {
+				t.Fatal("changed evidence launched writer")
+			}
+		})
 	}
 }

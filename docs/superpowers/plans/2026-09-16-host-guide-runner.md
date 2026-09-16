@@ -401,3 +401,32 @@ all four byte-identical sanitized guide files with real lint/generation. Baselin
 Full Go module suite and controller/CLI vet passed after activation. These are
 synthetic offline results, not Okta acceptance; complete shell rerun and clean
 local subscription acceptance remain next.
+
+## Milestone 7: approved evidence transport correction
+
+User approved the concrete decision-file prompt amendment and the additional
+writer dossier-reference correction. No evidence or doctrine is shortened.
+Oversized decision JSON is persisted exclusively under `.factory/research/` with
+one fixed phase/round filename, within the existing 1 MiB evidence cap. Authority
+stays inline. Supply only the exact path, byte length, and SHA-256; verify private
+regular-file identity and complete bytes before and after the turn. A collision,
+mutation, replacement, incomplete read or remaining oversized prompt fails closed;
+no retry or overwrite. Inline decisions remain unchanged when they fit.
+
+Writer/repair uses the existing persisted dossier by verified reference, with
+exact read permission, instead of repeating its contents in argv. Audited selection,
+required doctrine paths and all other constraints remain present. No expanded
+research permission or new dependencies. Existing 120 KiB prompt, evidence,
+validation and lifecycle deadlines remain unchanged. Tests demonstrate large
+inputs and no calls for invalid inputs; same-byte file replacement is rejected.
+
+Milestone 7 verification: failing regressions demonstrated pre-fix decision argv
+overflow and large-dossier writer rejection. Corrected tests pass, including
+before/during-turn tampering and same-byte replacement. An overlay replay preserves
+all five retained Okta reports byte-for-byte through reconciliation and finalization
+file inputs. Connected official-image smoke used oversized synthetic reports and
+real pinned Kit tool calls: three evidence-file reads (reconcile, finalize, writer),
+one writer session, converged candidate, unchanged four fixture artifacts. Native
+sanitized export and real frozen acceptance passed. All 13 baseline containers
+preserved with no additions. These remain offline fixture results, not live Okta
+acceptance. Private evidence: `.superpowers/sdd/decision-evidence-transport/`.

@@ -6,6 +6,23 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## Bounded decision evidence file transport
+
+Files: `factory/prompts/{endpoint,reconcile,finalize-research}.md`.
+
+Permit only read-only retrieval of one host-written decision JSON input when the
+complete inline prompt exceeds the existing 120 KiB single-argument bound. Keep
+all authoritative doctrine inline. Do not truncate evidence, extend deadlines,
+allow new research, or retry a decision after ambiguous execution. The host writes
+an exclusive private snapshot before the turn, supplies its exact path/size/hash,
+and checks its identity and bytes afterward. Incomplete reads must block.
+
+Evidence: local Okta trial `4d3bed4.N5UUM7` retained all five initial topic reports
+but stopped before reconciliation with `research_failed`. Reconstruction from
+sanitized reports, actual doctrine and decision JSON is at least 131,513 bytes,
+above 122,880. Pinned Kit 0.2.2 `prompt --help` exposes one positional prompt and no
+stdin/file-input flag. This change addresses input transport, not research facts.
+
 ## Host-owned guide factory execution
 
 Files: `factory/Dockerfile`, `factory/scripts/container-entrypoint.sh`.
@@ -1275,3 +1292,10 @@ review, constitution), `docs/personas/it-admin.md`,
 Initial pipeline design. Evidence: none (no runs yet) — built from
 `docs/agents/drafting.md` (the pre-pipeline drafting reference) and
 operator direction.
+
+Writer transport implementation note for the approved evidence-size correction:
+writer/repair now receives the already-persisted dossier as an exact authorized
+local reference with byte length and SHA-256, rather than duplicate inline text.
+Host checks private file identity and full bytes before/after each turn. The
+existing writer local-read permission and fact ceiling remain unchanged. Evidence:
+large-dossier regression failed before this correction and passed afterward.
