@@ -6,6 +6,16 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-09-15 — preserve the legacy OAuth redirect exception
+
+Files: `doctrine/ai-control-plane-oauth.md`.
+
+Human-approved review correction: distinguish the non-legacy remote-session
+callback from clients marked `LegacyCallbackUrl`. Evidence: independent Kit
+review, verified against Gram `4e1fef388aa0f5b498f5d35400780ff2b99815e4`,
+`server/internal/remotesessions/challenge.go:666–677`. Legacy clients retain
+`/oauth/callback` in the outbound request for provider strict matching.
+
 ## 2026-09-15 — shared upstream OAuth client capability evidence
 
 Files: `doctrine/ai-control-plane-oauth.md`, `factory/coordinator.md`,
