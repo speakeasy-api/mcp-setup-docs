@@ -455,3 +455,27 @@ no truncation/spill indicators in any provider-visible tool result. Both converg
 with unchanged fixture artifacts and baseline 13/13, no additions. Native sanitized
 export and real frozen-guide acceptance passed on the first chunked run. Private
 reproducible evidence: `.superpowers/sdd/evidence-chunk-transport/`.
+
+## Local Okta acceptance achieved
+
+Trial at `b7aa263`, private evidence
+`.superpowers/sdd/okta-subscription-b7aa263.2iPJYS/`, completed with validated outcome
+`converged`, no blockers/open questions, matching host diagnostic identity and
+finalization `publication_ready: true`, `host_reason: none`. This flag is a frozen
+acceptance result, not a publication action. No pushes, PRs, Actions triggers,
+uploads or merges were performed.
+
+Exactly four files were installed under `guides/okta/`: research.md, meta.yaml,
+external.md and speakeasy.md. Each installed file matches the retained sanitized
+guide snapshot byte-for-byte. Fresh installed-guide linter output is `[]`, exit 0.
+The readable export contains 11 sessions, 784073 bytes; it is explicitly partial
+because metadata/unselected files and unsafe selected text were omitted under the
+existing policy. No guide artifact was silently redacted or rewritten.
+
+Original clocks preserved: research 1736497 ms (<1800000), writing 377860 ms
+(<900000), finalization 8488 ms (<300000). All 13 baseline services preserved,
+zero added containers. The only trial worktree change was untracked `guides/okta/`;
+leave these generated artifacts for local review. Factory implementation is
+committed through `b7aa263`; earlier complete shell suite passed 33/33 and the
+latest full Go suite plus controller vet and connected chunk/export/frozen checks
+passed. Successful local-only Okta acceptance is now demonstrated.
