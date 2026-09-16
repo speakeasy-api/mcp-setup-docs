@@ -4,14 +4,25 @@ setup_version: 1
 
 # Google Calendar setup
 
-Use a Google Cloud project where you can enable services, grant project roles, configure **Google Auth platform**, and create OAuth credentials. Enabling services requires `serviceusage.services.enable`, normally provided by **Service Usage Admin** or **Owner**; another predefined or custom role can provide it. Google's IAM procedure names **Project IAM Admin** for granting project roles. Each connecting user must have access to the calendars and events they will use.
+The Calendar MCP server is in the Google Workspace Developer Preview Program. Use a Google Workspace account that can be added to Google Groups and a Google Cloud project that your organization can register in the program. Under the Developer Preview Program Terms, each connecting user must belong to the applicant's domain or company unless Google permits otherwise. You need permission to enable services, grant project roles, configure **Google Auth Platform**, and create OAuth credentials. Enabling services requires `serviceusage.services.enable`, normally provided by **Service Usage Admin** or **Owner**. Google's IAM procedure uses **Project IAM Admin** for granting project roles. Each connecting user must have `mcp.tools.call` on the project and access to the calendars and events they will use. **MCP Tool User** (`roles/mcp.toolUser`) is the normal predefined grant, but another predefined or custom role is sufficient if it contains `mcp.tools.call`. If Calendar is **Restricted** or the new app requires approval, you also need a Google Workspace administrator with the **Service Settings** privilege.
 
-Before you begin, have the application or security owner configure prompt and response screening for malicious content or prompt injection.
+Before you begin, have the application or security owner configure prompt and response screening for malicious content or prompt injection. If the organization does not use Google Model Armor, document the alternative screening and the accepted risk. You will open the Google Cloud console after Google confirms project registration.
 
-1. Sign in at [console.cloud.google.com](https://console.cloud.google.com).
-2. In the console toolbar, use the resource selector to select the project that will own this configuration.
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+1. Open [developers.google.com/workspace/preview](https://developers.google.com/workspace/preview).
+2. Review the **Developer Preview Program Terms** with the application or security owner.
+3. Click **Apply to join the Developer Preview Program**.
+4. In the current application form, enter the requested Google Workspace account and Google Cloud project information.
+5. Agree to the terms only with organizational approval.
+6. Submit the form with the visible or equivalent submission control. Google verifies the Workspace account, adds it to the program group, and then registers the Cloud project; no post-submission Google Groups acceptance action is documented.
+7. Wait for the final project-registration confirmation at the submitted email address. Google says this should complete within a couple of days.
+8. After confirmation, open the [Google Cloud console](https://console.cloud.google.com/) and sign in.
+9. In the toolbar resource selector, select the registered project.
 
 Keep that project selected throughout the Google Cloud steps.
+
+<!-- screenshot: the program page with Calendar MCP server listed under Latest features -->
 
 ### Enable the Google Calendar APIs {#enable-google-calendar-apis}
 
@@ -20,34 +31,33 @@ Keep that project selected throughout the Google Cloud steps.
 3. Open **Google Calendar API**.
 4. Click **Enable**. If the API is already enabled, continue.
 5. Reopen **APIs & Services** > **API Library**.
-6. In **Search for APIs & Services**, search for `Google Calendar MCP API`.
-7. Open **Google Calendar MCP API**.
+6. In **Search for APIs & Services**, search for `Calendar MCP API`.
+7. Open **Calendar MCP API**.
 8. Click **Enable**. If the API is already enabled, continue.
-9. Open the project's **IAM** page.
+9. Open [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam) for the project's **IAM** page.
 
-<!-- screenshot: Google Calendar MCP API showing its enabled state -->
+<!-- screenshot: Calendar MCP API showing its enabled state -->
 
 ### Grant MCP Tool User access {#grant-mcp-tool-user}
 
-1. Go to [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam).
-2. Confirm that the same project is selected.
-3. Click **Grant access**.
-4. In **New principals**, enter a connecting user's Google Account email.
-5. Click **Select a role**.
-6. Search for `MCP Tool User`.
-7. Select **MCP Tool User**.
-8. Click **Save**.
-9. Repeat these steps for each connecting user.
+1. On the project's **IAM** page, confirm that the same project is selected.
+2. Click **Grant access**.
+3. In **New principals**, enter a connecting user's Google Account email.
+4. Click **Select a role**.
+5. Search for `MCP Tool User`.
+6. Select **MCP Tool User**.
+7. Click **Save**.
+8. Repeat these steps for each connecting user.
 
-<!-- screenshot: Grant access with the principal and role visible -->
+<!-- screenshot: Grant access with a non-sensitive test principal and the role visible -->
 
 ### Configure the OAuth consent screen {#configure-oauth-consent}
 
-Google says an OAuth consent screen cannot be removed after you configure it. Obtain approval from the application or security owner before accepting the user data policy.
+Obtain approval from the application or security owner before accepting the user data policy.
 
-1. Open **Google Auth platform** > **Branding**.
+1. Open **Google Auth Platform** > **Branding**.
 2. If you see **Google Auth platform not configured yet**, click **Get Started**. Otherwise, retain the approved **Branding** and **Audience**, then continue at **Data Access** below.
-3. Under **App Information**, enter `Calendar MCP Server` in **App name**.
+3. Under **App Information**, enter a recognizable app name, such as `Calendar MCP Server`, in **App name**.
 4. In **User support email**, choose a monitored address.
 5. Click **Next**.
 6. Under **Audience**, select **Internal** if every connecting user belongs to the project's organization. Otherwise, select **External**.
@@ -72,21 +82,21 @@ Google says an OAuth consent screen cannot be removed after you configure it. Ob
 18. Click **Update**.
 19. Click **Save**.
 
-If you selected **External** and the app is in **Testing**, add every connecting account:
+If you selected **External** and the app is in **Testing**, add each eligible connecting account. Do not add a user outside the Developer Preview applicant's domain or company unless Google has permitted that access:
 
 1. Open **Audience**.
 2. Under **Test users**, click **Add users**.
 3. Enter each connecting user's email.
 4. Click **Save**.
 
-**Testing** permits at most 100 test users. Each authorization expires seven days after consent; when it expires, the user must complete browser authorization again.
+Each **Testing** authorization expires seven days after consent. When it expires, the user must complete browser authorization again.
 
 <!-- screenshot: Data Access with all three scopes selected -->
 
 ### Create the OAuth client {#create-oauth-client}
 
-1. Open **Google Auth platform** > **Clients**.
-2. Click **Create client**.
+1. Open **Google Auth Platform** > **Clients**.
+2. Click **Create Client**.
 3. In **Application type**, select **Web application**.
 4. In **Name**, enter a recognizable name such as `Speakeasy AI Control Plane`.
 5. Under **Authorized redirect URIs**, click **+ Add URI**.
@@ -96,55 +106,43 @@ If you selected **External** and the app is in **Testing**, add every connecting
    {{ gram.oauth.callback_url }}
    ```
 
-Prepare an approved secret store before the next step. The dialog that opens after you create the client permits the client secret to be copied only once.
+Prepare an approved secret store before the next step. Google shows the client secret after creation and does not make it accessible again.
 
 7. Click **Create**.
 
 This opens **OAuth 2.0 client created**.
 
-<!-- screenshot: Create client with the callback template populated -->
+<!-- screenshot: Create Client immediately before creation with the callback template populated -->
 
 ### Copy the OAuth credentials {#copy-oauth-credentials}
 
-1. In **OAuth 2.0 client created**, copy **Client ID** to the approved secret store.
-2. Under **Client secrets**, copy **Client secret** to the same store.
+1. In **OAuth 2.0 client created**, copy **Client ID** to the approved credential handoff or password manager.
+2. Copy **Client Secret** to the approved secret store before closing the dialog.
 
 Keep both values for [connecting your credentials](speakeasy.md#connect-speakeasy-credentials).
 
-If you miss the one-time secret:
+If you close the dialog before storing the secret, return to **Google Auth Platform** > **Clients** and repeat [Create the OAuth client](#create-oauth-client) to create a new web client with the same callback URL. Store and use the new **Client ID** and newly shown **Client Secret**; Google will not make the original secret accessible again. If Workspace app approval is required, approve the new Client ID in the next step.
 
-1. Reopen **Google Auth platform** > **Clients**.
-2. Confirm that the same project is selected.
-3. Under **OAuth 2.0 Client IDs**, click the client you created.
-4. Under **Client secrets**, find the missed secret.
-5. Click **Disable**.
-6. Click the delete button next to the disabled secret.
-
-Prepare the approved secret store before the next action. The new secret is visible only when it is created.
-
-7. Click **Add Secret**.
-8. Immediately copy the new secret to the approved secret store.
-
-<!-- screenshot-exception: do not capture a one-time secret -->
+<!-- screenshot: the client list with identifiers redacted; do not capture the secret-bearing dialog -->
 
 ### Permit the OAuth app under Workspace policy if required {#permit-workspace-app}
 
-Confirm the applicable Calendar app-access policy with the Workspace security owner. Complete this step only if the policy restricts Google Calendar access for unconfigured or limited apps.
+Before skipping this step, confirm with the Workspace security owner whether Calendar is **Restricted** or the new app requires approval. To complete it, you need the Google Workspace **Service Settings** administrator privilege.
 
-1. Sign in at `https://admin.google.com` with the **Service Settings administrator** privilege.
+1. Open [admin.google.com](https://admin.google.com/) and sign in to the Google Admin console.
 2. Open **Security** > **Access and data control** > **API controls**.
 3. Click **Manage App Access**.
 4. Under **Configured apps**, click **Configure new app**.
 5. Enter the **Client ID** you copied in [Copy the OAuth credentials](#copy-oauth-credentials).
 6. Click **Search**.
-7. Select the matching app.
-8. Select the organizational units whose users will connect.
+7. Select the matching OAuth app.
+8. Select the organizational units that contain the connecting users.
 9. Click **Continue**.
-10. Under **Access to Google data**, have the application or security owner choose **Trusted** or **Specific Google data**.
+10. Under **Access to Google data**, have the application or security owner choose **Trusted**. Do not choose **Limited** for restricted Calendar access.
 11. Click **Continue**.
 12. Review the settings.
 13. Click **Finish**.
 
 Return to the Speakeasy AI Control Plane.
 
-<!-- screenshot: the review screen without credential values -->
+<!-- screenshot: the review screen with identifiers and user data redacted -->
