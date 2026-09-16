@@ -17,7 +17,7 @@ chmod 700 "$TMP/supervisor"
 cat > "$TMP/build/kit" <<'KIT'
 #!/bin/bash
 set -euo pipefail
-[[ $1 == prompt && $2 == --root && $3 == /workspace ]] || exit 32
+[[ $1 == --workspace && $2 == /workspace && $3 == --input-root && $4 == /input ]] || exit 32
 [[ $* == *'--request-budget-seconds 300'* ]] || exit 33
 [[ $HOME == /kit-home && ! -e /export && ! -e /var/run/docker.sock ]] || exit 34
 test ! -e /workspace/.git
@@ -38,7 +38,7 @@ begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"
 sleep 1 # Host fixture records safe boundary evidence before private cleanup.
 KIT
 chmod 755 "$TMP/build/kit"
-printf 'FROM %s\nCOPY kit /usr/local/bin/kit\n' "$BASE" > "$TMP/build/Dockerfile"
+printf 'FROM %s\nCOPY kit /usr/local/bin/guide-factory\n' "$BASE" > "$TMP/build/Dockerfile"
 image="factory-boundary-$(basename "$TMP" | tr '[:upper:]' '[:lower:]')"
 docker build --platform linux/amd64 --tag "$image" "$TMP/build" > "$TMP/build.log" 2>&1
 printf '{}\n' > "$TMP/catalog.json"

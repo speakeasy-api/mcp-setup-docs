@@ -6,6 +6,23 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## Host-owned guide factory execution
+
+Files: `factory/Dockerfile`, `factory/scripts/container-entrypoint.sh`.
+
+Activate the tested `guide-factory` executable in place of the model coordinator.
+Retain the existing private snapshot, umask, HOME and directory checks. The CLI
+owns provider/credential arguments; the controller owns research sequencing,
+dossier persistence, the writing gate, one writer/repair, validation and candidate
+reporting. The outer supervisor and sanitized frozen-export/publication gates are
+unchanged. Existing research sections remain assembled from `factory/coordinator.md`.
+
+Evidence: local commits `18f4b7f` and `dbb135a`; passing offline controller, prompt,
+CLI, lifecycle and transcript tests, plus review regressions for report cancellation
+and executable overrides. These checks do not establish live Okta acceptance.
+Activation must pass connected offline image and lifecycle checks before any
+subscription trial. No publication or deadline extensions are authorized.
+
 ## Proposed, unapplied — host-owned guide factory prompt assets
 
 Planned files: factory/prompts/{resolve-context,endpoint,reconcile,finalize-research,writer}.md.

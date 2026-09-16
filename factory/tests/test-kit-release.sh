@@ -18,7 +18,7 @@ grep -Fq -- '--request-budget-seconds "${KIT_REQUEST_BUDGET_SECONDS:-300}"' "$RO
 grep -Fq "'KIT_REQUEST_BUDGET_SECONDS')" "$ROOT/factory/scripts/run-kit.sh"
 grep -Fq "args += ['--env', key]" "$ROOT/factory/scripts/run-kit.sh"
 grep -Fq 'export KIT_IMAGE KIT_VERSION KIT_SHA256 KIT_MODEL KIT_REASONING_EFFORT KIT_REQUEST_BUDGET_SECONDS' "$ROOT/factory/scripts/run-kit.sh"
-for binary in prepare-research-prompt factory-generate; do
+for binary in prepare-research-prompt factory-generate guide-factory; do
   grep -Fq "/usr/local/bin/$binary" "$ROOT/factory/Dockerfile"
 done
 fixture="$ROOT/factory/tests/fixtures/kit-v0.1.134"

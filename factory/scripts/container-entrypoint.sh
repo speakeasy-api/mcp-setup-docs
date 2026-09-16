@@ -3,8 +3,8 @@ set -euo pipefail
 # Kit/native descendants must create private records as 0600 and directories
 # as 0700 from the outset. cp -a below preserves snapshot/helper modes.
 umask 077
-# The host owns deadlines, logs, cleanup and later finalization. The model writes
-# only its atomic candidate report in /workspace/.factory; it cannot export.
+# The host owns deadlines, logs, cleanup and later finalization. The controller
+# writes its atomic candidate report in /workspace/.factory; it cannot export.
 REPO_ROOT=${FACTORY_REPO_ROOT:-/repo}
 INPUT_ROOT=${FACTORY_INPUT_ROOT:-/input}
 WORKSPACE_ROOT=${FACTORY_WORKSPACE_ROOT:-/workspace}
@@ -31,19 +31,15 @@ cp -a "$REPO_ROOT/." "$WORKSPACE_ROOT/"
 # cp -a can restore snapshot directory permissions; establish the guard again.
 secure_private
 export HOME="$KIT_HOME"
-KIT_BIN=${KIT_BIN:-kit}
-provider=${FACTORY_PROVIDER:-openrouter}
-provider_args=(--provider "$provider")
-case "$provider" in
-  openrouter) ;;
-  openai-subscription) provider_args+=(--credential-store file --credential-dir /subscription) ;;
-  *) printf 'factory: unsupported provider\n' >&2; exit 1 ;;
-esac
-exec "$KIT_BIN" prompt \
-  --root "$WORKSPACE_ROOT" \
-  "${provider_args[@]}" \
+KIT_BIN=${KIT_BIN:-/usr/local/bin/kit}
+# Trusted host controller owns scheduling and the candidate report; the outer
+# supervisor still owns lifecycle termination and frozen export acceptance.
+exec "${GUIDE_FACTORY_BIN:-/usr/local/bin/guide-factory}" \
+  --workspace "$WORKSPACE_ROOT" \
+  --input-root "$INPUT_ROOT" \
+  --home "$KIT_HOME" \
+  --kit-binary "$KIT_BIN" \
+  --provider "${FACTORY_PROVIDER:-openrouter}" \
   --model "$KIT_MODEL" \
   --reasoning-effort "$KIT_REASONING_EFFORT" \
-  --request-budget-seconds "${KIT_REQUEST_BUDGET_SECONDS:-300}" \
-  --mcp-config "$WORKSPACE_ROOT/factory/mcp/exa.json" \
-  "$(cat "$WORKSPACE_ROOT/factory/coordinator.md")"
+  --request-budget-seconds "${KIT_REQUEST_BUDGET_SECONDS:-300}"

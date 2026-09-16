@@ -15,7 +15,7 @@ func TestConfiguration(t *testing.T) {
 			t.Fatal(c, tr, err)
 		}
 		args := strings.Join(tr.Args, " ")
-		if !strings.Contains(args, "--mcp-config /workspace/factory/mcp/exa.json") || strings.Contains(args, "--credential-dir /subscription") != (provider == "openai-subscription") {
+		if !strings.Contains(args, "--mcp-config /workspace/factory/mcp/exa.json") || strings.Contains(args, "--credential-store file") != (provider == "openai-subscription") || strings.Contains(args, "--credential-dir /subscription") != (provider == "openai-subscription") {
 			t.Fatal(args)
 		}
 	}

@@ -374,3 +374,30 @@ wins). Both regression tests failed before the corrections, then complete
 controller/CLI suites and vet passed. Keep the existing private entrypoint setup
 when proposing activation. Production image wiring, connected offline acceptance,
 full shell regression suite, and real local Okta acceptance remain outstanding.
+
+## Milestone 6: approved activation and offline evidence
+
+User approved `.superpowers/sdd/controller-activation/proposal.patch`; applied its
+Dockerfile, entrypoint and changelog changes. Entrypoint retains private snapshot
+setup and invokes the controller; publication/lifecycle code is unchanged.
+Provider forwarding, CLI credential flags, private permissions, symlink rejection,
+image binary inclusion, and old lifecycle fixtures now target the controller.
+Two lifecycle failures were traced to fixtures replacing `/usr/local/bin/kit`
+instead of `/usr/local/bin/guide-factory`; assertions were retained at the correct
+boundary. No validation or timeout policy was weakened.
+
+Built official pinned image with `guide-factory` and Kit 0.2.2. Connected offline
+smoke used its actual entrypoint, native Kit processes, a local synthetic provider,
+real begin-writing/linter/generator and unchanged Box fixture files. Observed one
+context turn, six research turns, endpoint/reconciliation/dossier decisions and
+exactly one writer; candidate converged. Export contained ten native sessions and
+18 selected files (223126 bytes); selected unsafe text was omitted under existing
+policy. The first export attempt correctly rejected an ancestor output directory;
+a disjoint private export directory succeeded. Real `validateFrozen` then accepted
+all four byte-identical sanitized guide files with real lint/generation. Baseline
+13 containers preserved, zero additions. Private reproducible fixtures/evidence:
+`.superpowers/sdd/controller-activation/`.
+
+Full Go module suite and controller/CLI vet passed after activation. These are
+synthetic offline results, not Okta acceptance; complete shell rerun and clean
+local subscription acceptance remain next.

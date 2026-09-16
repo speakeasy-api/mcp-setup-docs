@@ -45,19 +45,20 @@ mkdir -p "$TMP/repo/factory" "$TMP/input" "$TMP/workspace"
 printf 'fixture prompt' > "$TMP/repo/factory/coordinator.md"
 printf '{}' > "$TMP/input/issue.json"
 printf '{}' > "$TMP/input/catalog.json"
-cat > "$TMP/mock-kit" <<'MOCK'
+cat > "$TMP/mock-controller" <<'MOCK'
 #!/usr/bin/env python3
 import os,sys
 args=sys.argv[1:]
-assert args[args.index('--provider')+1] == os.environ['EXPECTED_PROVIDER']
-if os.environ['EXPECTED_PROVIDER'] == 'openai-subscription':
-    assert args[args.index('--credential-store')+1] == 'file'
-    assert args[args.index('--credential-dir')+1] == '/subscription'
-else:
-    assert '--credential-dir' not in args
+expected={'--provider':os.environ['EXPECTED_PROVIDER'],'--workspace':os.environ['FACTORY_WORKSPACE_ROOT'],
+          '--input-root':os.environ['FACTORY_INPUT_ROOT'],'--home':os.environ['FACTORY_KIT_HOME'],
+          '--kit-binary':'/trusted/kit','--model':'fixture','--reasoning-effort':'medium','--request-budget-seconds':'300'}
+assert len(args)==len(expected)*2
+assert dict(zip(args[::2],args[1::2]))==expected
 MOCK
-chmod 700 "$TMP/mock-kit"
+chmod 700 "$TMP/mock-controller"
 for provider in openrouter openai-subscription; do
-  FACTORY_REPO_ROOT="$TMP/repo" FACTORY_INPUT_ROOT="$TMP/input" FACTORY_WORKSPACE_ROOT="$TMP/workspace" FACTORY_KIT_HOME="$TMP/home" KIT_BIN="$TMP/mock-kit" KIT_MODEL=fixture KIT_REASONING_EFFORT=medium FACTORY_PROVIDER="$provider" EXPECTED_PROVIDER="$provider" bash "$ROOT/factory/scripts/container-entrypoint.sh"
+  FACTORY_REPO_ROOT="$TMP/repo" FACTORY_INPUT_ROOT="$TMP/input" FACTORY_WORKSPACE_ROOT="$TMP/workspace" FACTORY_KIT_HOME="$TMP/home" GUIDE_FACTORY_BIN="$TMP/mock-controller" KIT_BIN=/trusted/kit KIT_MODEL=fixture KIT_REASONING_EFFORT=medium FACTORY_PROVIDER="$provider" EXPECTED_PROVIDER="$provider" bash "$ROOT/factory/scripts/container-entrypoint.sh"
 done
-printf 'PASS: real entrypoint preserves default and subscription arguments\n'
+# Actual controller configuration owns the credential flags, not the shell.
+(cd "$ROOT/go" && go test ./cmd/guide-factory -run '^TestConfiguration' -count=1)
+printf 'PASS: entrypoint forwarding and actual controller provider configuration\n'

@@ -30,7 +30,7 @@ chmod 755 "$TMP/writer"
 run_entrypoint() {
   FACTORY_REPO_ROOT="$TMP/repo" FACTORY_INPUT_ROOT="$TMP/input" \
     FACTORY_WORKSPACE_ROOT="$TMP/workspace" FACTORY_KIT_HOME="$TMP/home" \
-    KIT_BIN="$TMP/writer" KIT_MODEL=fixture KIT_REASONING_EFFORT=medium bash "$entrypoint"
+    GUIDE_FACTORY_BIN="$TMP/writer" KIT_MODEL=fixture KIT_REASONING_EFFORT=medium bash "$entrypoint"
 }
 for scenario in fresh snapshot755; do
   if [[ $scenario == snapshot755 ]]; then mkdir -m 755 "$TMP/repo/.factory"; fi

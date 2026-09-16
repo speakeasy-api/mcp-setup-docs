@@ -36,6 +36,8 @@ test_dockerfile_builds_static_linter_without_go_in_final_image() {
   assert_contains "./cmd/lint-guide" "$dockerfile"
   assert_contains "./cmd/begin-writing" "$dockerfile"
   assert_contains "./cmd/supervise-factory" "$dockerfile"
+  assert_contains "./cmd/guide-factory" "$dockerfile"
+  assert_contains "COPY --from=lint-builder /out/guide-factory /usr/local/bin/guide-factory" "$dockerfile"
   assert_contains "COPY --from=lint-builder /out/begin-writing /usr/local/bin/begin-writing" "$dockerfile"
   assert_contains "COPY --from=lint-builder /out/supervise-factory /usr/local/bin/supervise-factory" "$dockerfile"
   assert_contains "COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide" "$dockerfile"
@@ -267,7 +269,7 @@ test_opt_in_final_image() {
     -v "$ROOT:/fixture:ro" -w /fixture "$image" -c \
     'set -eu
      if command -v go; then exit 1; fi
-     for binary in lint-guide prepare-research-prompt factory-generate; do
+     for binary in lint-guide prepare-research-prompt factory-generate guide-factory; do
        test -x "/usr/local/bin/$binary"
        ldd "/usr/local/bin/$binary" 2>&1 | grep -q "not a dynamic executable"
      done
