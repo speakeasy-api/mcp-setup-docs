@@ -209,3 +209,16 @@ func TestDecodeFinalization(t *testing.T) {
 		}
 	}
 }
+
+func TestDecodeWriter(t *testing.T) {
+	for _, s := range []string{writerOK, `{"completed":false,"open_questions":["scope?"]}`} {
+		if _, err := DecodeWriter([]byte(s)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, s := range []string{"", "null", "[]", writerOK + "{}", writerOK + " prose", `{"completed":null,"open_questions":[]}`, `{"completed":true,"open_questions":null}`, `{"completed":true,"open_questions":[" "]}`, `{"completed":true,"open_questions":[],"extra":0}`, `{"completed":true,"completed":false,"open_questions":[]}`, `{"Completed":true,"open_questions":[]}`, `{"completed":true}`, `{"completed":"true","open_questions":[]}`, strings.Repeat(" ", decisionInputLimit) + writerOK, `{"completed":true,"open_questions":["` + strings.Repeat("x", decisionStringLimit+1) + `"]}`} {
+		if _, err := DecodeWriter([]byte(s)); err == nil {
+			t.Errorf("accepted %.90s", s)
+		}
+	}
+}

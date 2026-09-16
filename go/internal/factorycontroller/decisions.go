@@ -209,3 +209,27 @@ func DecodeFinalization(data []byte) (ResearchFinalization, error) {
 	}
 	return out, nil
 }
+
+// WriterDecision is the only accepted writer handback; it is not a run report.
+type WriterDecision struct {
+	Completed     bool     `json:"completed"`
+	OpenQuestions []string `json:"open_questions"`
+}
+
+func DecodeWriter(data []byte) (WriterDecision, error) {
+	if len(data) > decisionInputLimit || !utf8.Valid(data) {
+		return WriterDecision{}, errInvalidDecision
+	}
+	fields, err := decisionObject(data, "completed", "open_questions")
+	if err != nil {
+		return WriterDecision{}, errInvalidDecision
+	}
+	if !bytes.Equal(fields["completed"], []byte("true")) && !bytes.Equal(fields["completed"], []byte("false")) {
+		return WriterDecision{}, errInvalidDecision
+	}
+	questions, err := decisionStrings(fields["open_questions"], false)
+	if err != nil {
+		return WriterDecision{}, errInvalidDecision
+	}
+	return WriterDecision{Completed: bytes.Equal(fields["completed"], []byte("true")), OpenQuestions: questions}, nil
+}

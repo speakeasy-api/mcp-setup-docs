@@ -184,3 +184,50 @@ ordered input/hash fidelity, endpoint/audit evidence, exact original continuatio
 expired budget causes zero turns, malformed decisions terminal, persistence failure
 never invokes a replacement, and hostile quotes/newlines remain data. Use real
 prompt assembler and private temp evidence directories. No provider calls.
+
+## Milestone 4a: deterministic writing sequence (no production wiring)
+
+Files `factorycontroller/writing.go`, `writing_test.go`; add `DecodeWriter` and
+its tests to existing decision decoder. Exact output is `{completed:boolean,
+open_questions:string[]}` with strict keys, nonblank bounded questions and the
+same 1 MiB input bound. No prose handback or model-authored run report.
+
+```go
+type WriterTask struct {
+ SessionID string
+ Repair bool
+ Findings []string
+ Research ResearchResult
+}
+type ValidationResult struct { Valid bool; Findings []string }
+type WritingBackend interface {
+ SaveDossier(context.Context, string) error
+ BeginWriting(context.Context) error
+ Write(context.Context, WriterTask) (TurnResult, error)
+ Validate(context.Context, bool) (ValidationResult, error) // bool is repair stage
+}
+type WritingResult struct { Outcome, SessionID string; OpenQuestions []string }
+func RunWriting(context.Context, WritingBackend, ResearchResult) (WritingResult,error)
+```
+
+- Reject blocked/incomplete research before effects. Persist dossier successfully
+  before exactly one gate call, then launch the one writer. Writing deadline is
+  900 seconds from just before gate invocation, bounded by parent context; host
+  remains authoritative and no turn/repair resets it.
+- Require runtime identity and strictly decoded completion. Operator questions
+  return awaiting_scope (never converged); incomplete output without questions
+  is failure. No validation on malformed/failed writer output.
+- Validate under controller ownership. Valid with no findings returns converged.
+  Invalid must include actionable nonblank findings. Allow exactly one repair on
+  the original writer ID, passing only validation findings and unchanged research.
+  Revalidate once. Invalid again fails; no new writer/research/reviewer.
+- Deep-copy authoritative research/actions at backend boundaries. Error or
+  cancellation at any step stops later calls; preserve returned writer identity
+  for diagnostics, never resume automatically after a failed turn.
+- Fake-backend tests assert exact operation prefixes for every failure, one gate,
+  one writer/one repair, original IDs, questions, malformed/null/extra outputs,
+  unchanged research despite backend mutation, and shared writing deadline.
+
+Concrete filesystem snapshot validation, context resolution, approved prompts,
+atomic candidate reporting and container entrypoint remain subsequent integration
+work; this milestone does not pretend those helpers are wired.
