@@ -3,8 +3,8 @@
 The factory turns a freeform GitHub issue into the four files under
 `guides/<slug>/`: `research.md`, `meta.yaml`, `external.md`, and
 `speakeasy.md`. GitHub Actions owns repository and GitHub lifecycle work, small
-deterministic shell scripts own validation and publication, and one Kit
-coordinator owns research, drafting, review, and revision.
+deterministic shell scripts own validation and publication, and a deterministic Go
+controller orchestrates Kit sessions for research, drafting, review, and revision.
 
 Every trigger reruns the whole guide. There is no phase-level skip state:
 existing guide files and issue discussion are inputs, not a checkpoint.
@@ -13,7 +13,7 @@ existing guide files and issue discussion are inputs, not a checkpoint.
 
 Add `OPENROUTER_API_KEY` as an Actions repository secret. Create it at
 [OpenRouter Keys](https://openrouter.ai/settings/keys). The factory pins Kit
-**0.1.98**, selects **GPT-5.6 Sol** as `openai/gpt-5.6-sol` through OpenRouter,
+**0.2.2**, selects **GPT-6 Astra** as `openai/gpt-6-astra` through OpenRouter,
 and keeps both selections in [`factory/config.env`](factory/config.env).
 
 Optional Pulse credentials may be configured for the host-side catalog
@@ -51,10 +51,9 @@ scope question or correcting a failure.
 
 Only technical research may use Exa, and it should prefer primary provider
 sources. Writers and reviewers receive the completed dossier and must not do
-external research. Built-in Kit agents inherit one coordinator session's MCP
-configuration, so this is a coordinator policy rather than a hard per-agent
-capability boundary. That single-session limitation is why container, path, and
-credential boundaries remain mandatory.
+external research. The Go controller owns session dispatch and verified dossier
+handoffs. Prompt policy is not a substitute for capability isolation; container,
+path, and credential boundaries remain mandatory.
 
 ### Outcomes
 
@@ -81,21 +80,23 @@ container receives only:
 
 - the gitless repository snapshot, read-only;
 - normalized issue and catalog JSON, read-only;
-- one writable export directory; and
+- private writable home, workspace, and control directories; and
 - `OPENROUTER_API_KEY`.
 
 It receives no GitHub token, Pulse secret, SSH material, Docker socket, host
-home, or unrelated Actions secret. Kit works in an ephemeral copy. The
-entrypoint validates the report-selected slug and exports only
-`run-report.json` plus that one selected guide when the outcome permits it.
-Session data, MCP state, temporary files, and edits to other paths are not
-exported.
+home, or unrelated Actions secret. Kit works in an ephemeral copy; the public
+export directory is not mounted into the container. The host supervisor removes
+the container before host-side finalization sanitizes readable session evidence,
+validates the selected guide, and freezes the public export. Raw session data,
+MCP state, temporary files, and edits to other paths are not published.
 
-After Kit exits, host-side validation checks report/outcome consistency, exact
-artifacts, metadata, lint, and that changed paths are confined to the selected
-guide. Only then do deterministic host scripts receive GitHub credentials to
-commit, push, manage labels, and create or update the PR. Issue text and
-researched pages are untrusted data and are never evaluated as shell code.
+Host-side validation checks report/outcome consistency, exact artifacts,
+metadata, lint, and that changed paths are confined to the selected guide.
+Publication additionally requires the validated frozen export and successful
+readable-artifact upload. Only deterministic host scripts receive GitHub
+credentials to commit, push, manage labels, and create or update the PR. Issue
+text and researched pages are untrusted data and are never evaluated as shell
+code.
 
 ## Local dry run
 

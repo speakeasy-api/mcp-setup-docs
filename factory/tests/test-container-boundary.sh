@@ -61,7 +61,9 @@ for mode in timeout normal cancel; do
   {
     # The child creates groups before the parent emits its marker. Synchronize
     # with host log capture, not merely child startup, to record evidence before cleanup.
-    for ((i=0;i<100;i++)); do
+    # Cold CI builds the host tools before starting the container. This wait
+    # covers startup only; supervisor deadlines and the canary stay unchanged.
+    for ((i=0;i<2400;i++)); do
       run=$(find "$TMP/runs/$mode" -mindepth 1 -maxdepth 1 -type d)
       if [[ -n $run && -f $run/workspace/groups ]] &&
         grep -q PRIVATE_RAW_CANARY "$run/host/container.stdout" 2>/dev/null; then
