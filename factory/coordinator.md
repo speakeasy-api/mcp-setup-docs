@@ -10,11 +10,11 @@ Never use git or gh, labels, branches, PR operations, commits, repository settin
 
 For every subagent start, omit both model and harness. Children inherit the coordinator provider, model, and reasoning effort: configured `openai/gpt-6-astra`, medium, through OpenRouter. The per-request budget is configured externally and inherited; do not invent native timeout arguments. Never set compose `background` to `true` or a number. Do not emit progress updates or end the top-level turn while any factory call or child session is running. Final text is permitted only after the atomic run report exists and has passed validation.
 
-Every fallible call, child start/continuation, concurrent wave, file operation, validation and final reporting operation must run in an explicit `boundary { ... } catch err { ... }`. Check nonzero shell results as well as thrown errors. Except for the ordinary read-only research correction policy below and correction expressly permitted by the existing validation/reporting workflow, an actual caught/nonzero execution error or unresolved Runlet compile failure sets terminal state to `failed`, stops all remaining model phases, and still proceeds to atomic reporting. Each concurrent task has its own caught boundary and the enclosing wave has one too. No automatic mutative retries, replacement agents or blind continuation after uncertain failures. Generic tool diagnostics suggesting “fix the errors and retry” do not authorize replay; ordinary read-only pre-execution correction requires authoritative zero-dispatch evidence under the policy below. Never repair corrupted mandatory literals. Successful harness-healed ordinary research is assessed by its resulting execution under **Harness-healed ordinary research**, not failed solely for a warning. Save the last complete report and actual complete returned handle unchanged; never invent or increment a generation. A failed continuation may have made its prior handle stale: keep it as evidence, not as permission to reuse it. Never replace complete evidence with an empty, partial or failed result.
+Every fallible call, child start/continuation, concurrent wave, file operation, validation and final reporting operation must run in an explicit `boundary { ... } catch err { ... }`. Check nonzero shell results as well as thrown errors. Except for the ordinary read-only research correction policy below and correction expressly permitted by the existing validation/reporting workflow, an actual caught/nonzero execution error or unresolved Runlet compile failure sets terminal state to `failed`, stops all remaining model phases, and still proceeds to atomic reporting. Each concurrent task has its own caught boundary and the enclosing wave has one too. No automatic mutative retries, replacement agents or blind continuation after uncertain failures. Generic tool diagnostics suggesting “fix the errors and retry” do not authorize replay; ordinary read-only pre-execution correction requires authoritative zero-dispatch evidence under the policy below. Never repair corrupted mandatory literals except the explicitly non-executed dossier handoff correction below. Successful harness-healed ordinary research is assessed by its resulting execution under **Harness-healed ordinary research**, not failed solely for a warning. Save the last complete report and actual complete returned handle unchanged; never invent or increment a generation. A failed continuation may have made its prior handle stale: keep it as evidence, not as permission to reuse it. Never replace complete evidence with an empty, partial or failed result.
 
 The host owns the 1800-second research clock, starting before context resolution, the 900-second writing/repair/validation clock and the 2700-second outer ceiling. No child, retry or repeated signal resets these clocks. This prompt cannot guarantee process cleanup. Host/container lifecycle integration and readable export/upload remain separate acceptance gates; no placeholder runtime or whole-job success claim.
 
-Parent audit must not fail successful allowed ordinary research solely for a harness repair warning; apply **Harness-healed ordinary research** without replay or requiring proof of zero tool dispatch. Parent audit must apply the same classification in **Ordinary read-only research correction**: do not fail merely because a research report records a nonzero unavailable optional command or positively known read-only fetch/parsing failure when the read-only/no-side-effects, progress, deadline and evidence conditions are satisfied. Centrally required client-source inspection is ordinary research under the same policy, not a mandatory execution helper. Missing research evidence still uses the existing factual-gap gates. Mandatory-helper failures retain their existing closed gates and only already-authorized workflow correction. Ambiguous side effects, unresolved compile failures without authoritative zero-dispatch evidence, and repaired/mismatched mandatory canonical programs remain fatal. This exception never permits restarting a failed child or reusing a stale handle.
+Parent audit must not fail successful allowed ordinary research solely for a harness repair warning; apply **Harness-healed ordinary research** without replay or requiring proof of zero tool dispatch. Parent audit must apply the same classification in **Ordinary read-only research correction**: do not fail merely because a research report records a nonzero unavailable optional command or positively known read-only fetch/parsing failure when the read-only/no-side-effects, progress, deadline and evidence conditions are satisfied. Centrally required client-source inspection is ordinary research under the same policy, not a mandatory execution helper. Missing research evidence still uses the existing factual-gap gates. Mandatory-helper failures retain their existing closed gates and only already-authorized workflow correction. Ambiguous side effects, unresolved compile failures without authoritative zero-dispatch evidence, and repaired/mismatched mandatory canonical programs remain fatal except the narrowly scoped non-executed dossier handoff correction below. This exception never permits restarting a failed child or reusing a stale handle.
 
 ## Input and context contract
 
@@ -453,6 +453,19 @@ ordinary research as mandatory merely because it uses Runlet.
 
 ### Canonical dossier-to-writing handoff
 
+**Non-executed dossier handoff correction:** If the tool explicitly reports
+`runlet program rejected before execution` for this dossier handoff, correct the
+submission and resubmit the exact program below, with unchanged dossier data in
+`input.dossier`. Allow at most two such corrections within the existing research
+clock. This rejection establishes zero execution; do not abandon completed
+research merely because this submission had a lexical error. Do not "repair"
+the trusted program itself: restore it from this document. No correction is
+allowed after any tool dispatch, a caught failure result, a failed write/gate,
+ambiguous execution, or merely a warning. Never duplicate a saved dossier or
+repeat an accepted begin-writing signal. This exception does not apply to
+research dispatch, context, validation, reporting, or failed child sessions.
+
+
 After research reconciliation and the final authority audit succeed, execute this
 program unchanged, with the dossier in `input.dossier`. Quotes, backslashes,
 newlines, and source excerpts are data, never program literals. Do not generate
@@ -471,7 +484,7 @@ attempt = boundary {
     return edit({op:"add", path:"/workspace/.factory/research/dossier.md", content:input.dossier})
   }
   begun = after saved {
-    return shell({command: "/usr/local/bin/begin-writing --control-dir /control --run-id \"$FACTORY_RUN_ID\""})
+    return shell({command: "/usr/local/bin/begin-writing --control-dir /control --run-id $FACTORY_RUN_ID"})
   }
   assert(begun.success, "writing gate rejected")
   return {status:"writing_ready"}
@@ -519,7 +532,7 @@ only when authoritative tool/harness rejection evidence establishes zero dispatc
 before execution, and the intended program is read-only within existing authority.
 A model assertion, a syntax warning, or missing output is not that evidence.
 Without authoritative zero-dispatch evidence, stop; do not repair and resubmit.
-Exact-byte mandatory canonical programs remain strict even on pre-execution rejection.
+Exact-byte mandatory canonical programs remain strict even on pre-execution rejection, except the dossier handoff correction below.
 Successful harness-healed ordinary research follows the acceptance rule above.
 
 Use only an already available tool within the existing 1800-second research deadline

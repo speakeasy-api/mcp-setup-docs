@@ -6,7 +6,7 @@ attempt = boundary {
     return edit({op:"add", path:"/workspace/.factory/research/dossier.md", content:input.dossier})
   }
   begun = after saved {
-    return shell({command: "/usr/local/bin/begin-writing --control-dir /control --run-id \"$FACTORY_RUN_ID\""})
+    return shell({command: "/usr/local/bin/begin-writing --control-dir /control --run-id $FACTORY_RUN_ID"})
   }
   assert(begun.success, "writing gate rejected")
   return {status:"writing_ready"}
