@@ -80,16 +80,16 @@ bash "$ROOT/factory/scripts/validate-report.sh" "$tmp/export/run-report.json"
 jq -e '.outcome == "failed" and .artifacts == []' "$tmp/export/run-report.json" >/dev/null
 jq -e '.host_run_id=="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" and .workflow_run_id=="9001" and .workflow_run_attempt==1' "$tmp/export/finalization.json" >/dev/null
 jq -e '.primary_outcome == "failed" and .readable_export == "ready" and .publication_ready == false' "$tmp/export/finalization.json" >/dev/null
-[[ ! -e "$tmp/export/guide" ]]
+[[ ! -e "$tmp/export/guide" ]] || exit 1
 if grep -R -q -E 'synthetic-provider-key|PRIVATE RAW FIXTURE' "$tmp/export"; then exit 1; fi
 bash "$ROOT/factory/scripts/validate-diagnostics.sh" "$tmp/export/factory-diagnostics.json"
 grep -qx 'outside sentinel' "$tmp/outside"
 run=$(find "$tmp/private" -mindepth 1 -maxdepth 1 -type d)
-[[ -n $run && ! -e "$run/home" && ! -e "$run/workspace" ]]
-[[ -z $(find "$run" -type f ! -path "$run/host/result.json" -print -quit) ]]
-[[ ! -e "$tmp/export/.finalizing" ]]
-[[ ! -e "$run/host/container.stdout" && ! -e "$run/host/container.stderr" && ! -e "$run/host/commands.stdout" && ! -e "$run/host/commands.stderr" ]]
-[[ ! -e "$run/source" && ! -e "$run/input" ]]
+[[ -n $run && ! -e "$run/home" && ! -e "$run/workspace" ]] || exit 1
+[[ -z $(find "$run" -type f ! -path "$run/host/result.json" ! -path "$run/host/host-reason.json" -print -quit) ]] || exit 1
+[[ ! -e "$tmp/export/.finalizing" ]] || exit 1
+[[ ! -e "$run/host/container.stdout" && ! -e "$run/host/container.stderr" && ! -e "$run/host/commands.stdout" && ! -e "$run/host/commands.stderr" ]] || exit 1
+[[ ! -e "$run/source" && ! -e "$run/input" ]] || exit 1
 if [[ -e "$run/host/container.stdout" || -e "$run/source" ]]; then printf "FAIL: raw private records retained\n" >&2; exit 1; fi
 printf 'actual host wrapper offline finalization checks passed\n'
 
@@ -107,7 +107,7 @@ for bad in guide transcript lint generator size total-size whitespace remote-id;
   jq -e '.primary_outcome == "converged" and .publication_ready == false' "$tmp/$bad/finalization.json" >/dev/null
   bash "$ROOT/factory/scripts/validate-report.sh" "$tmp/$bad/run-report.json"
   bash "$ROOT/factory/scripts/validate-diagnostics.sh" "$tmp/$bad/factory-diagnostics.json"
-  [[ ! -e "$tmp/$bad/guide" ]]
+  [[ ! -e "$tmp/$bad/guide" ]] || exit 1
 done
 printf 'PASS: host lint/generator/size/whitespace/remote-ID and readable failures remain ineligible\n'
 

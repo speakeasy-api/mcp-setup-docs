@@ -97,13 +97,13 @@ for mode in timeout normal cancel; do
     jq -e '.version==1 and .phase=="writing" and (.run_id|length)==32' "$TMP/$mode.phase.json" >/dev/null
   fi
   sleep 4.5
-  [[ ! -e "$run/workspace/canary" ]]
-  [[ -z $(docker ps --all --filter "label=factory.run-id=$(jq -r .run_id "$run/host/result.json")" --format '{{.ID}}') ]]
+  [[ ! -e "$run/workspace/canary" ]] || exit 1
+  [[ -z $(docker ps --all --filter "label=factory.run-id=$(jq -r .run_id "$run/host/result.json")" --format '{{.ID}}') ]] || exit 1
   bash "$ROOT/factory/scripts/validate-report.sh" "$TMP/export-$mode/run-report.json"
   jq -e '.outcome == "failed" and .artifacts == []' "$TMP/export-$mode/run-report.json" >/dev/null
   jq -e '.publication_ready == false' "$TMP/export-$mode/finalization.json" >/dev/null
-  [[ ! -e "$TMP/export-$mode/guide" ]]
-  [[ -z $(find "$run" -type f ! -path "$run/host/result.json" -print -quit) ]]
+  [[ ! -e "$TMP/export-$mode/guide" ]] || exit 1
+  [[ -z $(find "$run" -type f ! -path "$run/host/result.json" ! -path "$run/host/host-reason.json" -print -quit) ]] || exit 1
   if grep -q PRIVATE_RAW_CANARY "$TMP/$mode.stdout" "$TMP/$mode.stderr"; then exit 1; fi
 done
 printf '%s\n' 'PASS: actual run-kit timeout, normal-exit and TERM separate-group boundary; failed report and private cleanup'

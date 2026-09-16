@@ -19,7 +19,7 @@ SH
 cat > "$TMP/bin/validate" <<'SH'
 #!/bin/bash
 set -euo pipefail
-[[ $1 == --local && $4 =~ ^[a-f0-9]{32}$ ]]
+[[ $1 == --local && $4 =~ ^[a-f0-9]{32}$ ]] || exit 1
 exec bash "$FIXTURE_ROOT/factory/scripts/validate.sh" "$1" "$2" "$FIXTURE_REPO" "$4"
 SH
 cat > "$TMP/bin/run-kit" <<'PY'
@@ -47,8 +47,9 @@ if mode=='changed': (guide/'research.md').write_text('Changed after freeze')
 if mode!='missing': (out/'finalization.json').write_text(json.dumps(state))
 if mode=='success':
     # Publication remains forbidden even when local installation is eligible.
+    # Isolate the publication gate from the workflow-only label cleanup hook.
     import subprocess
-    env=dict(os.environ,RUNNER_TEMP=str(out.parent),GITHUB_RUN_ID='9001',GITHUB_RUN_ATTEMPT='1',GH_REPO='acme/docs',ISSUE_NUMBER='42',FACTORY_PUBLICATION_RECEIPT=str(out.parent/'guide-factory-publication/publication-receipt.json'))
+    env=dict(os.environ,CLEANUP_LABELS='false',RUNNER_TEMP=str(out.parent),GITHUB_RUN_ID='9001',GITHUB_RUN_ATTEMPT='1',GH_REPO='acme/docs',ISSUE_NUMBER='42',FACTORY_PUBLICATION_RECEIPT=str(out.parent/'guide-factory-publication/publication-receipt.json'))
     publication=dict(state,workflow_run_id='9001',workflow_run_attempt=1)
     (out/'finalization.json').write_text(json.dumps(publication))
     result=subprocess.run(['python3',os.environ['FIXTURE_ROOT']+'/factory/scripts/publication-state.py','gate',str(out/'run-report.json')],env=env,capture_output=True)
@@ -72,10 +73,10 @@ for mode in success failed host-failed stale changed report-changed workflow mis
     [[ $code == 0 ]] || { printf 'FAIL: local success rejected\n' >&2; exit 1; }
     cmp "$ROOT/guides/asana/research.md" "$TMP/repo/guides/asana/research.md"
   else
-    [[ $code != 0 && ! -e "$TMP/repo/guides/asana" ]]
+    [[ $code != 0 && ! -e "$TMP/repo/guides/asana" ]] || exit 1
   fi
-  [[ ! -e "$FIXTURE_LOG" ]]
-  [[ -z $(find "$TMP/runs" -mindepth 1 -print -quit) ]]
+  [[ ! -e "$FIXTURE_LOG" ]] || exit 1
+  [[ -z $(find "$TMP/runs" -mindepth 1 -print -quit) ]] || exit 1
   printf 'PASS: local lifecycle %s; no GitHub calls\n' "$mode"
 done
 
