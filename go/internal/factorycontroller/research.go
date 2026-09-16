@@ -9,46 +9,48 @@ import (
 )
 
 type TopicTask struct {
-	Endpoint        EndpointGate
-	EndpointReport  string
-	Topic, FollowUp int
-	SessionID       string
-	Checks          []string
-	FinalAudit      bool
-	Authentication  string
-	Actions         []SetupAction
+	Endpoint       EndpointGate  `json:"endpoint"`
+	EndpointReport string        `json:"endpoint_report"`
+	Topic          int           `json:"topic"`
+	FollowUp       int           `json:"follow_up"`
+	SessionID      string        `json:"session_id"`
+	Checks         []string      `json:"checks"`
+	FinalAudit     bool          `json:"final_audit"`
+	Authentication string        `json:"authentication"`
+	Actions        []SetupAction `json:"actions"`
 }
 type SetupAction struct {
-	Description string
-	Sources     []string
+	Description string   `json:"description"`
+	Sources     []string `json:"sources"`
 }
 type EndpointGate struct {
-	Established       bool
-	Endpoint          string
-	Sources, Blockers []string
+	Established bool     `json:"established"`
+	Endpoint    string   `json:"endpoint"`
+	Sources     []string `json:"sources"`
+	Blockers    []string `json:"blockers"`
 }
 type FollowUpRequest struct {
-	Topic  int
-	Checks []string
+	Topic  int      `json:"topic"`
+	Checks []string `json:"checks"`
 }
 type ResearchDecision struct {
-	Authentication string
-	Actions        []SetupAction
-	FollowUps      []FollowUpRequest
-	Blockers       []string
-	Dossier        string
+	Authentication string            `json:"authentication"`
+	Actions        []SetupAction     `json:"actions"`
+	FollowUps      []FollowUpRequest `json:"follow_ups"`
+	Blockers       []string          `json:"blockers"`
+	Dossier        string            `json:"dossier"`
 }
 type ResearchSnapshot struct {
-	Reports        map[int]string
-	Endpoint       EndpointGate
-	Round          int
-	FinalAudit     bool
-	Authentication string
-	Actions        []SetupAction
+	Reports        map[int]string `json:"reports"`
+	Endpoint       EndpointGate   `json:"endpoint"`
+	Round          int            `json:"round"`
+	FinalAudit     bool           `json:"final_audit"`
+	Authentication string         `json:"authentication"`
+	Actions        []SetupAction  `json:"actions"`
 }
 type ResearchFinalization struct {
-	Dossier  string
-	Blockers []string
+	Dossier  string   `json:"dossier"`
+	Blockers []string `json:"blockers"`
 }
 
 type ResearchBackend interface {
@@ -58,12 +60,12 @@ type ResearchBackend interface {
 	Reconcile(context.Context, ResearchSnapshot) (ResearchDecision, error)
 }
 type ResearchResult struct {
-	Authentication string
-	Actions        []SetupAction
-	Dossier        string
-	Reports        map[int]string
-	Sessions       map[int]string
-	Blockers       []string
+	Authentication string         `json:"authentication"`
+	Actions        []SetupAction  `json:"actions"`
+	Dossier        string         `json:"dossier"`
+	Reports        map[int]string `json:"reports"`
+	Sessions       map[int]string `json:"sessions"`
+	Blockers       []string       `json:"blockers"`
 }
 
 // RunResearch owns scheduling and session identities. The backend must return
