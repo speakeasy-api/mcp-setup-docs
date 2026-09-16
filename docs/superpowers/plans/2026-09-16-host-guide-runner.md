@@ -52,3 +52,135 @@ The controller runs Topic 5 first, then Topics 1–4 concurrently. Structured mo
 5. Commit a clean local checkpoint and run one subscription-backed Okta acceptance. Require validated converged report, four installed guide artifacts, readable sanitized evidence and preserved baseline services. A candidate convergence or shell exit zero is insufficient.
 
 This document deliberately commits implementation only for the transport milestone. Later implementation tasks and concrete workflow changes follow its executable evidence rather than assumptions about session transport.
+
+## Milestone 1 evidence
+
+Committed transport `71e5a2d`: fake-executable tests and vet pass, including queued cancellation, same-session exclusion, bounded output, explicit root and descendant cleanup. Real pinned Kit offline smoke: four concurrent sessions in one physical workspace/HOME, one continuation each, distinct initial IDs, original resumed IDs, isolated histories, four native sessions exported successfully. Private evidence: `.superpowers/sdd/host-controller-smoke/shared-workspace/`. This does not prove live acceptance or real-provider cancellation.
+
+## Milestone 2: research sequence with fake backends, no production wiring
+
+**Files:** `go/internal/factorycontroller/research.go`, `research_test.go`.
+
+**Interfaces:** Concrete workflow data and one small backend interface:
+
+```go
+type TopicTask struct {
+ Topic, FollowUp int // FollowUp 0 is initial, then exact 1/2 predecessor sequence.
+ SessionID string // Empty only for initial; runner-owned, never model-supplied.
+ Checks []string
+ FinalAudit bool
+ Authentication string
+ Actions []SetupAction
+ Endpoint EndpointGate
+ EndpointReport string
+}
+type SetupAction struct { Description string; Sources []string }
+type EndpointGate struct { Established bool; Endpoint string; Sources, Blockers []string }
+type FollowUpRequest struct { Topic int; Checks []string }
+type ResearchDecision struct {
+ Authentication string
+ Actions []SetupAction
+ FollowUps []FollowUpRequest
+ Blockers []string
+ Dossier string
+}
+type ResearchSnapshot struct {
+ Reports map[int]string
+ Endpoint EndpointGate
+ Round int
+ FinalAudit bool
+ Authentication string
+ Actions []SetupAction
+}
+type ResearchFinalization struct { Dossier string; Blockers []string }
+type ResearchBackend interface {
+ Research(context.Context, TopicTask) (TurnResult, error)
+ Endpoint(context.Context, string) (EndpointGate, error)
+ Reconcile(context.Context, ResearchSnapshot) (ResearchDecision, error)
+ Finalize(context.Context, ResearchSnapshot) (ResearchFinalization, error)
+}
+type ResearchResult struct {
+ Authentication string
+ Actions []SetupAction
+ Dossier string
+ Reports map[int]string
+ Sessions map[int]string
+ Blockers []string
+}
+func RunResearch(context.Context, ResearchBackend) (ResearchResult, error)
+```
+
+The backend performs model turns; the runner alone schedules them. Backend methods must obey context cancellation. Errors are terminal execution failure, not factual blocking. A result with blockers and nil error is a factual block, never successful research. No writer/persistence responsibility in this milestone.
+
+- [ ] Write fake-backend tests recording operation order before implementation. Test Topic 5 exclusively precedes gate and initial Topics 1–4; gate blocked means no remaining topics. A channel barrier must prove 1–4 concurrency, not just goroutine creation.
+- [ ] Test three reconciliation opportunities: initial round 0, after round 1, after round 2. Reject duplicate/out-of-range topic requests, empty checks and requests after round 2. No automatic execution retries. Follow-up indices count completed turns per topic; original IDs must match on continuation.
+- [ ] Reserve Topic 1 final authority audit: at most one non-final Topic 1 follow-up; final audit uses its next index and only starts after authentication/actions are selected and all other requested checks finish. Round-2 factual checks may run first, with the authority audit as the final dependency in that bounded round. If selection cannot finish, return blocked before audit/dossier.
+- [ ] Require selected authentication and at least one nonempty action with nonempty source references before audit. These are structure checks, not proof of truth. Send exactly that selection/actions to Topic 1.
+- [ ] Finalize once after final audit with `FinalAudit=true`, returning only `ResearchFinalization`. Keep independent copies of the audited authentication/actions in the result; do not require a model echo. The finalizer cannot request follow-ups or replace structured selection. Factual problems requiring new selection return blockers. Require a nonempty dossier and no blockers. This does not establish prose fidelity by structural validation alone.
+- [ ] Validate nonempty research output and runtime session ID on each success. Store IDs only from initial runtime results and enforce exact same ID on all continuations. Initial IDs must be unique across topics. Partial reports remain in result on terminal error, but no further model phases start.
+- [ ] Cancellation or one concurrent task failure cancels sibling contexts and waits for started tasks to end. Already-completed reports survive in result. No unsynchronized map writes.
+- [ ] Implement one explicit sequence with a small concurrent-wave helper; no generic workflow DSL, transitions registry, event bus, retry framework or persistence layer.
+- [ ] Run `go test ./internal/factorycontroller -count=3` and vet with the established offline Go environment; independent review before next milestone.
+
+The concrete production prompts, JSON decoding/schema validation, persistence and entrypoint changes are deliberately outside this pure scheduling milestone. They must bind to these typed records rather than accept model-authored commands or session identities.
+
+### Review corrections before milestone 2 acceptance
+
+Carry an independent copy of the endpoint gate and Topic 5 report in every later TopicTask, including initial Topics 1–4; do not require hidden mutable backend context. Cap active research calls at four across every wave, including a five-topic follow-up wave. Test external cancellation during an active wave and deep-copy isolation for endpoint/action slices.
+
+Final decision JSON uses exactly `dossier` (string) and `blockers` (nonempty-string array); reject all selection/follow-up fields. Decode with the same bounded strict-key rules as endpoint/reconciliation JSON. Successful finalization requires nonempty dossier; blockers can accompany an empty dossier. Pre-audit `ResearchDecision.dossier` remains non-authoritative and is never installed.
+
+## Milestone 3: backend adapter and private records (still no production wiring)
+
+Two independent units, followed by combined tests:
+
+### Private evidence records
+
+Files `factorycontroller/evidence.go`, `evidence_test.go`. API:
+`OpenEvidence(workspace string) (*Evidence,error)`, `Close() error`,
+`SavePrompt(topic,index int, assignment,prompt []byte) error`,
+`SaveTurn(topic,index int, turn TurnResult) error`, and
+`Session(topic,index int) (string,error)`.
+
+Use fixed `.factory/research/topic-N-I.{input.json,prompt.md,report.md,session.json}`.
+The CLI identity record is `{version:1,topic:N,index:I,session_id:ID}`, not a
+fabricated native ACP handle. Export already selects prompt/report names and
+excludes input/identity records. Persist reports before identity records; require
+existing complete predecessor identity before continuation. Every write refuses
+existing entries, links or special files. Directories are physical owned 0700;
+files are owned single-link 0600, capped at 1 MiB per record. Bound reads and
+reject duplicate/extra/mismatched record fields. Use directory-rooted operations,
+not shell interpolation. Return fixed errors and never retry a completed turn.
+This preserves the existing same-UID private-record threat model, not a new
+sandbox against a concurrently malicious process with equivalent filesystem rights.
+Tests cover exact bytes, predecessor/topic/index, permissions, size, symlinks,
+hardlinks, preexisting paths and failed persistence without replay.
+
+### Production ResearchBackend adapter
+
+Files `factorycontroller/backend.go`, `backend_test.go`. Use concrete
+`KitResearchBackend` with a turn function matching `Transport.Turn` (production
+binds the actual method; tests supply a fake), Evidence, immutable ResearchContext,
+approved prompt strings, coordinator bytes/hash, and a fixed research deadline.
+ResearchContext contains provider, MCP server, task, slug, mode, persona path,
+client claims/source references and documentation URLs. Validate at construction.
+Never take these configuration values or filesystem paths from a decision result.
+
+`Research` constructs ordered structs matching `factoryprompt.Assemble`, uses
+remaining seconds from the supplied deadline (1–1800), saves input/prompt, verifies
+persisted predecessor against runner-owned ID, makes one turn and saves report/ID.
+Initial Topics 1–4 and subsequent checks receive endpoint evidence explicitly.
+Final audit receives selected authentication/actions via requested checks/evidence.
+No hidden mutable endpoint state. No scheduling, retries or new deadlines here.
+
+`Endpoint`, `Reconcile`, `Finalize` each make one data-only decision turn using
+caller-supplied approved prompt text, append a JSON data section, and use the
+strict decoder. Decisions do not supply commands/paths/IDs. Native Kit stores
+retain those decision sessions. Do not pass the entire coordinator as their prompt.
+No production prompt text or workflow change is authorized by this adapter milestone.
+
+Fake-turn tests capture prompts/argv-independent data: all five initial templates,
+ordered input/hash fidelity, endpoint/audit evidence, exact original continuation,
+expired budget causes zero turns, malformed decisions terminal, persistence failure
+never invokes a replacement, and hostile quotes/newlines remain data. Use real
+prompt assembler and private temp evidence directories. No provider calls.
