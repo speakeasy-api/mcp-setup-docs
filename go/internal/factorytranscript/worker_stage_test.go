@@ -13,7 +13,7 @@ import (
 )
 
 func TestWorkerStageCodes(t *testing.T) {
-	reasons := []string{"worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed"}
+	reasons := []string{"worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed", "worker_export_scanner_init_failed", "worker_export_fields_failed", "worker_export_final_scan_failed", "worker_export_scanner_close_failed", "worker_export_source_changed", "worker_export_write_failed", "worker_export_readback_failed"}
 	for i, reason := range reasons {
 		code := 40 + i
 		original := errors.New("private original")
@@ -25,7 +25,7 @@ func TestWorkerStageCodes(t *testing.T) {
 			t.Fatal("first failure overwritten")
 		}
 	}
-	for _, code := range []int{-1, 0, 1, 2, 7, 39, 49, 127, 130, 255} {
+	for _, code := range []int{-1, 0, 1, 2, 7, 39, 56, 127, 130, 255} {
 		if WorkerHostReason(code) != "worker_failed" {
 			t.Fatalf("unknown %d", code)
 		}

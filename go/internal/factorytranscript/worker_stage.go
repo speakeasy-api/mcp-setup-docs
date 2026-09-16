@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-// Worker codes 40–48 are a stable host/worker protocol, below signal exits.
+// Worker codes 40–55 are a stable host/worker protocol, below signal exits.
 // Stages describe observed boundaries, never model-authored explanations.
 const (
 	workerInput = 40 + iota
@@ -17,6 +17,13 @@ const (
 	workerCleanup
 	workerState
 	workerLimits
+	workerExportScannerInit
+	workerExportFields
+	workerExportFinalScan
+	workerExportScannerClose
+	workerExportSourceChanged
+	workerExportWrite
+	workerExportReadback
 )
 
 type workerStageError struct {
@@ -69,6 +76,20 @@ func WorkerHostReason(code int) string {
 		return "worker_state_failed"
 	case workerLimits:
 		return "worker_limits_failed"
+	case workerExportScannerInit:
+		return "worker_export_scanner_init_failed"
+	case workerExportFields:
+		return "worker_export_fields_failed"
+	case workerExportFinalScan:
+		return "worker_export_final_scan_failed"
+	case workerExportScannerClose:
+		return "worker_export_scanner_close_failed"
+	case workerExportSourceChanged:
+		return "worker_export_source_changed"
+	case workerExportWrite:
+		return "worker_export_write_failed"
+	case workerExportReadback:
+		return "worker_export_readback_failed"
 	default:
 		return "worker_failed"
 	}

@@ -303,7 +303,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 		doc.Omissions = append(doc.Omissions, "missing_candidate_report")
 	}
 	omitConfidential(&doc)
-	stage = workerExport
+	stage = workerExportScannerInit
 	sanitizer, err := newScanner(known)
 	if err != nil {
 		return err
@@ -316,6 +316,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	}()
 	// Only selected-text decoding failures are recoverable. Scanner failures
 	// remain fatal, including when they originate inside nested JSON.
+	stage = workerExportFields
 	omitted := false
 	sanitizeField := func(text string) (string, error) {
 		if text == omittedText {
@@ -362,6 +363,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	if err != nil {
 		return errUnsafe
 	}
+	stage = workerExportFinalScan
 	final, err := sanitizer.Sanitize(data)
 	if err != nil {
 		return err
@@ -369,6 +371,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	if !bytes.Equal(final, data) || !json.Valid(final) {
 		return errUnsafe
 	}
+	stage = workerExportScannerClose
 	err = sanitizer.Close()
 	closed = true
 	if err != nil {
@@ -376,9 +379,10 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	}
 	for _, check := range boundary.checks {
 		if !check() {
-			return errUnsafe
+			return stageError(workerExportSourceChanged, errUnsafe)
 		}
 	}
+	stage = workerExportWrite
 	nonce := make([]byte, 16)
 	if _, err = rand.Read(nonce); err != nil {
 		return errUnsafe
@@ -398,7 +402,7 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	}
 	for _, check := range boundary.checks {
 		if !check() {
-			return errUnsafe
+			return stageError(workerExportSourceChanged, errUnsafe)
 		}
 	}
 	if _, err = out.Lstat(name); !os.IsNotExist(err) {

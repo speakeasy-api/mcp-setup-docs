@@ -201,6 +201,7 @@ func Finalize(private, result, export string, known []string) (ret error) {
 	if err = Export(filepath.Join(private, "home"), filepath.Join(private, "workspace"), filepath.Join(export, "session-transcript.json"), known); err != nil {
 		return err
 	}
+	stage = workerExportReadback
 	f, err := out.OpenFile("session-transcript.json", os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
 	if err != nil {
 		return err

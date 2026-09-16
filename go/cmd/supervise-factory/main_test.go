@@ -468,7 +468,7 @@ func TestWorkerStageRetention(t *testing.T) {
 	if data, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("build: %v %s", err, data)
 	}
-	for _, code := range []int{40, 41, 42, 43, 44, 45, 46, 47, 48, 7, 130, 0} {
+	for _, code := range []int{40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 7, 130, 0} {
 		t.Run(fmt.Sprint(code), func(t *testing.T) {
 			o, s, dir := fixture(t, "normal")
 			s.finalization = 3 * time.Second
@@ -477,8 +477,8 @@ func TestWorkerStageRetention(t *testing.T) {
 			os.Chmod(o.exportDir, 0700)
 			worker := []byte(fmt.Sprintf("#!/bin/sh\nexit %d\n", code))
 			want := "worker_failed"
-			reasons := []string{"worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed"}
-			if code >= 40 && code <= 48 {
+			reasons := []string{"worker_input_failed", "worker_store_failed", "worker_decode_failed", "worker_export_failed", "worker_guide_failed", "worker_metadata_failed", "worker_cleanup_failed", "worker_state_failed", "worker_limits_failed", "worker_export_scanner_init_failed", "worker_export_fields_failed", "worker_export_final_scan_failed", "worker_export_scanner_close_failed", "worker_export_source_changed", "worker_export_write_failed", "worker_export_readback_failed"}
+			if code >= 40 && code <= 55 {
 				want = reasons[code-40]
 			}
 			if code == 0 { // Real CLI: fixture has no native store; cleanup must not hide it.

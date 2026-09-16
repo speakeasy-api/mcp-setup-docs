@@ -88,7 +88,7 @@ def local_evidence(host_path, expected_id):
         data = json.loads(raw, object_pairs_hook=unique)
         if type(data) is not dict or type(data.get('version')) is not int or data['version'] != 1 or data.get('run_id') != expected_id:
             return None
-        reasons = ('none', 'prerequisite_failed', 'worker_failed', 'worker_input_failed', 'worker_store_failed', 'worker_decode_failed', 'worker_export_failed', 'worker_guide_failed', 'worker_metadata_failed', 'worker_cleanup_failed', 'worker_state_failed', 'worker_limits_failed', 'context_deadline', 'context_cancelled')
+        reasons = ('none', 'prerequisite_failed', 'worker_failed', 'worker_input_failed', 'worker_store_failed', 'worker_decode_failed', 'worker_export_failed', 'worker_guide_failed', 'worker_metadata_failed', 'worker_cleanup_failed', 'worker_state_failed', 'worker_limits_failed', 'worker_export_scanner_init_failed', 'worker_export_fields_failed', 'worker_export_final_scan_failed', 'worker_export_scanner_close_failed', 'worker_export_source_changed', 'worker_export_write_failed', 'worker_export_readback_failed', 'context_deadline', 'context_cancelled')
         terms = ('completed', 'research_timeout', 'writing_timeout', 'provider_exit', 'lifecycle_invalid', 'cleanup_failed')
         if data.get('host_reason') not in reasons or data.get('termination') not in terms:
             return None

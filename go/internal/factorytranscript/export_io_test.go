@@ -132,8 +132,8 @@ func TestExportMutationWithholds(t *testing.T) {
 		os.WriteFile(file, fixtureRecord(`{"Text":{"text":"replaced"}}`), 0600)
 		return NewSanitizer(known)
 	}
-	if err := exportWithSanitizer(home, work, out, nil, factory); err == nil {
-		t.Fatal("source replacement accepted")
+	if err := exportWithSanitizer(home, work, out, nil, factory); WorkerExitCode(err) != 53 {
+		t.Fatal("source replacement classification")
 	}
 	if _, err := os.Lstat(out); !os.IsNotExist(err) {
 		t.Fatal("output after replacement")
@@ -176,8 +176,12 @@ func TestExportScannerFailures(t *testing.T) {
 				}
 				return s, nil
 			}
-			if err := exportWithSanitizer(home, work, out, nil, factory); err == nil {
-				t.Fatal("scanner failure accepted")
+			want := 52
+			if kind == "scan-warning" {
+				want = 50
+			}
+			if err := exportWithSanitizer(home, work, out, nil, factory); WorkerExitCode(err) != want {
+				t.Fatal("scanner failure classification")
 			}
 			if _, err := os.Lstat(out); !os.IsNotExist(err) {
 				t.Fatal("scanner failure emitted output")
@@ -248,5 +252,76 @@ func TestExportDecodedFieldCapUnchanged(t *testing.T) {
 	}
 	if got, err := projectToolText(text, 0); err != nil || len(got) != 1 || got[0] != omittedText {
 		t.Fatal("oversized tool text was not omitted")
+	}
+}
+
+// A synthetic scanner distinguishes assembled-document scanning from fields.
+// The changed case returns one match, then a clean rescan: Sanitize succeeds
+// with changed bytes, which Export must still reject.
+type exportDiagnosticScanner struct {
+	mode    string
+	changed bool
+}
+
+func (s *exportDiagnosticScanner) Match(b []byte) ([]*types.Match, error) {
+	final := bytes.Contains(b, []byte(`"kind": "guide_factory_readable_transcript"`))
+	if s.mode == "field" || (s.mode == "final-error" && final) {
+		return nil, errors.New("synthetic private scanner failure")
+	}
+	if s.mode == "final-changed" && final && !s.changed {
+		s.changed = true
+		at := bytes.Index(b, []byte("guide_factory_readable_transcript"))
+		return []*types.Match{{Location: types.Location{Offset: types.OffsetSpan{Start: int64(at), End: int64(at + len("guide_factory_readable_transcript"))}}}}, nil
+	}
+	return nil, nil
+}
+
+func (s *exportDiagnosticScanner) Close() error {
+	if s.mode == "close" {
+		return errors.New("synthetic private close failure")
+	}
+	return nil
+}
+
+func TestExportDiagnosticStages(t *testing.T) {
+	for _, tc := range []struct {
+		mode string
+		code int
+	}{
+		{"init", 49}, {"field", 50}, {"final-error", 51}, {"final-changed", 51}, {"close", 52}, {"limit", 48},
+	} {
+		t.Run(tc.mode, func(t *testing.T) {
+			home, work, out := exportFixture(t)
+			scanner := &exportDiagnosticScanner{mode: tc.mode}
+			factory := func([]string) (*Sanitizer, error) {
+				if tc.mode == "init" {
+					return nil, errors.New("synthetic private init failure")
+				}
+				if tc.mode == "limit" {
+					return nil, limitError("assembled_bytes", 3, 2)
+				}
+				return &Sanitizer{scanner: scanner, values: map[string]struct{}{}}, nil
+			}
+			err := exportWithSanitizer(home, work, out, nil, factory)
+			if WorkerExitCode(err) != tc.code || err.Error() != WorkerHostReason(tc.code) {
+				t.Fatalf("classification: got %d, want %d", WorkerExitCode(err), tc.code)
+			}
+			if tc.mode == "final-changed" && !scanner.changed {
+				t.Fatal("changed-byte branch not exercised")
+			}
+			if _, err := os.Lstat(out); !os.IsNotExist(err) {
+				t.Fatal("failure emitted output")
+			}
+		})
+	}
+}
+
+func TestExportDiagnosticChangedScanSucceeds(t *testing.T) {
+	s := &Sanitizer{scanner: &exportDiagnosticScanner{mode: "final-changed"}, values: map[string]struct{}{}}
+	defer s.Close()
+	data := []byte(`{"kind": "guide_factory_readable_transcript"}`)
+	clean, err := s.Sanitize(data)
+	if err != nil || bytes.Equal(clean, data) || !json.Valid(clean) {
+		t.Fatal("synthetic changed-byte scan must succeed with changed valid JSON")
 	}
 }
