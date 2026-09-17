@@ -235,6 +235,8 @@ func (b *KitResearchBackend) Endpoint(ctx context.Context, report string) (Endpo
 	return DecodeEndpoint(data)
 }
 func (b *KitResearchBackend) Reconcile(ctx context.Context, s ResearchSnapshot) (ResearchDecision, error) {
+	// Always use host-captured evidence, never a model/revision replacement.
+	s.RequestedTask = b.research.Task
 	data, err := b.decision(ctx, b.reconcilePrompt, s, fmt.Sprintf("decision-reconcile-%d.input.json", s.Round))
 	if err != nil {
 		return ResearchDecision{}, err
@@ -242,6 +244,8 @@ func (b *KitResearchBackend) Reconcile(ctx context.Context, s ResearchSnapshot) 
 	return DecodeDecision(data)
 }
 func (b *KitResearchBackend) Finalize(ctx context.Context, s ResearchSnapshot) (ResearchFinalization, error) {
+	// Always use host-captured evidence, never a model/revision replacement.
+	s.RequestedTask = b.research.Task
 	data, err := b.decision(ctx, b.finalizePrompt, s, "decision-finalize.input.json")
 	if err != nil {
 		return ResearchFinalization{}, err
