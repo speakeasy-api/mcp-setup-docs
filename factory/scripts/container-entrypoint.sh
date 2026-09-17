@@ -28,7 +28,9 @@ secure_private() {
 secure_private
 mkdir -p "$KIT_HOME"
 cp -a "$REPO_ROOT/." "$WORKSPACE_ROOT/"
-# cp -a can restore snapshot directory permissions; establish the guard again.
+# cp -a also copies the public snapshot root mode onto the private mount.
+# Restore both private directory boundaries before starting the controller.
+chmod 700 "$WORKSPACE_ROOT"
 secure_private
 export HOME="$KIT_HOME"
 KIT_BIN=${KIT_BIN:-/usr/local/bin/kit}

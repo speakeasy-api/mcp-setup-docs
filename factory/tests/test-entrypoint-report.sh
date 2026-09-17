@@ -6,6 +6,9 @@ TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 TMP=$(cd "$TMP" && pwd -P)
 entrypoint=${FACTORY_TEST_ENTRYPOINT:-$ROOT/factory/scripts/container-entrypoint.sh}
 mkdir -p "$TMP/repo/factory/scripts" "$TMP/input" "$TMP/home" "$TMP/workspace"
+# Match a public CI checkout copied into host-owned private mount roots.
+chmod 755 "$TMP/repo"
+chmod 700 "$TMP/home" "$TMP/workspace"
 cp "$ROOT/factory/coordinator.md" "$TMP/repo/factory/"
 cp "$ROOT/factory/scripts/"{write-report.sh,validate-report.sh} "$TMP/repo/factory/scripts/"
 chmod 755 "$TMP/repo/factory/scripts/"*.sh
@@ -35,6 +38,7 @@ run_entrypoint() {
 for scenario in fresh snapshot755; do
   if [[ $scenario == snapshot755 ]]; then mkdir -m 755 "$TMP/repo/.factory"; fi
   (umask 022; run_entrypoint)
+  [[ -n $(find "$TMP/workspace" -maxdepth 0 -type d -perm 0700 -print) ]] || { echo "FAIL: entrypoint workspace not 0700: $scenario" >&2; exit 1; }
   [[ -n $(find "$TMP/workspace/.factory" -maxdepth 0 -type d -perm 0700 -print) ]] || { echo "FAIL: entrypoint .factory not 0700: $scenario" >&2; exit 1; }
   [[ -n $(find "$TMP/workspace/.factory/research" -maxdepth 0 -type d -perm 0700 -print) ]] || { echo "FAIL: writer directory not 0700: $scenario" >&2; exit 1; }
   for file in "$TMP/workspace/.factory/research/"*; do
