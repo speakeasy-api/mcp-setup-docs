@@ -6,6 +6,88 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## Bounded decision evidence file transport
+
+Files: `factory/prompts/{endpoint,reconcile,finalize-research}.md`.
+
+Permit only read-only retrieval of one host-written decision JSON input when the
+complete inline prompt exceeds the existing 120 KiB single-argument bound. Keep
+all authoritative doctrine inline. Do not truncate evidence, extend deadlines,
+allow new research, or retry a decision after ambiguous execution. The host writes
+an exclusive private snapshot before the turn, supplies its exact path/size/hash,
+and checks its identity and bytes afterward. Incomplete reads must block.
+
+Evidence: local Okta trial `4d3bed4.N5UUM7` retained all five initial topic reports
+but stopped before reconciliation with `research_failed`. Reconstruction from
+sanitized reports, actual doctrine and decision JSON is at least 131,513 bytes,
+above 122,880. Pinned Kit 0.2.2 `prompt --help` exposes one positional prompt and no
+stdin/file-input flag. This change addresses input transport, not research facts.
+
+## Host-owned guide factory execution
+
+Files: `factory/Dockerfile`, `factory/scripts/container-entrypoint.sh`.
+
+Activate the tested `guide-factory` executable in place of the model coordinator.
+Retain the existing private snapshot, umask, HOME and directory checks. The CLI
+owns provider/credential arguments; the controller owns research sequencing,
+dossier persistence, the writing gate, one writer/repair, validation and candidate
+reporting. The outer supervisor and sanitized frozen-export/publication gates are
+unchanged. Existing research sections remain assembled from `factory/coordinator.md`.
+
+Evidence: local commits `18f4b7f` and `dbb135a`; passing offline controller, prompt,
+CLI, lifecycle and transcript tests, plus review regressions for report cancellation
+and executable overrides. These checks do not establish live Okta acceptance.
+Activation must pass connected offline image and lifecycle checks before any
+subscription trial. No publication or deadline extensions are authorized.
+
+## Proposed, unapplied — host-owned guide factory prompt assets
+
+Planned files: factory/prompts/{resolve-context,endpoint,reconcile,finalize-research,writer}.md.
+
+Propose five bounded prompt assets for a code-owned workflow. They replace model orchestration only when a later runner explicitly wires them in. The host owns inspection, identity/mode/path validation, scheduling, same-session follow-ups and writer repair, audit reservation, deadlines, gates, validation, reporting, and terminal outcomes. No coordinator or assembler changes are proposed here: existing research instructions remain assembled unchanged.
+
+Evidence: local inspection of factory/coordinator.md, doctrine/shared.md, doctrine/roles/{technical-research,writer}.md, and go/internal/factorycontroller/{decisions,research,backend}.go. Endpoint/reconcile/finalization outputs match the inspected strict decoder field names and types. ResearchSnapshot and nested input objects use their current explicit lower snake_case JSON tags. Writer completion preserves exactly completed (boolean) and open_questions (array of nonblank strings). Blocked identity resolution leaves provider, slug, and persona all null. Resolve-context remains a proposed contract, not a claim of an existing decoder. This is static proposal review, not a provider trial or production validation.
+
+Prompt prohibitions are behavioral instructions, not a technical sandbox. Later host wiring must enforce capabilities, path boundaries, exact decoding, immutable audited selection, and budgets independently. Decision prompts require host-supplied authoritative instruction context alongside, but separate from, JSON task data before execution; they cannot fetch doctrine. This requirement is not a claim that backend context wiring already exists. Writer local file access is intentionally distinct from tool-free decision turns.
+
+## 2026-09-16 — dispatch failure categories and coordinator-only handoff scope
+
+Files: `factory/coordinator.md` and its canonical dispatch fixture.
+
+Preserve fixed, allowlisted dispatch failure categories in report blockers,
+without raw error text or retries. Evidence: local Okta trial at `8c2e5d5`
+returned four indistinguishable dispatch failures; retained evidence could not
+identify the failing stage. Release-locked Runlet 0.6.0 synthetic execution
+verified success and failure ordering for the proposed stage boundaries.
+
+Move the dossier-to-writing handoff outside the common research instructions.
+Evidence: `TestCanonicalCoordinatorPrompts` exposed the coordinator-only block
+being copied into every initial research prompt. Restore the approved research
+instruction bytes without changing the reference or weakening the comparison.
+
+## 2026-09-15 — preserve the legacy OAuth redirect exception
+
+Files: `doctrine/ai-control-plane-oauth.md`.
+
+Human-approved review correction: distinguish the non-legacy remote-session
+callback from clients marked `LegacyCallbackUrl`. Evidence: independent Kit
+review, verified against Gram `4e1fef388aa0f5b498f5d35400780ff2b99815e4`,
+`server/internal/remotesessions/challenge.go:666–677`. Legacy clients retain
+`/oauth/callback` in the outbound request for provider strict matching.
+
+## 2026-09-15 — shared upstream OAuth client capability evidence
+
+Files: `doctrine/ai-control-plane-oauth.md`, `factory/coordinator.md`,
+`factory/scripts/inspect-guide-context.sh`, and its contract test.
+
+Supply pinned AI Control Plane client capabilities once to all research topics
+and the writer, rather than repeatedly researching Gram. Evidence: the local
+Okta trial at guide-factory revision `05864bb` exhausted its research deadline
+while reconciling authentication/client compatibility; source inspection of
+Gram `4e1fef388aa0f5b498f5d35400780ff2b99815e4` establishes the capabilities
+and limitations cited in the new reference. Provider requirements still need
+independent evidence; unknown capabilities retain targeted source fallback.
+
 ## 2026-08-05 — long values get code blocks, opened URLs get links
 
 Files: `doctrine/personas/it-admin.md`, `doctrine/roles/writer.md`,
@@ -1210,3 +1292,10 @@ review, constitution), `docs/personas/it-admin.md`,
 Initial pipeline design. Evidence: none (no runs yet) — built from
 `docs/agents/drafting.md` (the pre-pipeline drafting reference) and
 operator direction.
+
+Writer transport implementation note for the approved evidence-size correction:
+writer/repair now receives the already-persisted dossier as an exact authorized
+local reference with byte length and SHA-256, rather than duplicate inline text.
+Host checks private file identity and full bytes before/after each turn. The
+existing writer local-read permission and fact ceiling remain unchanged. Evidence:
+large-dossier regression failed before this correction and passed afterward.

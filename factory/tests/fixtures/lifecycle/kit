@@ -1,0 +1,38 @@
+#!/bin/bash
+set -euo pipefail
+[[ $1 == --workspace && $2 == /workspace && $HOME == /kit-home && ! -e /export ]]
+[[ $(id -u) == $(stat -c %u /workspace) ]]
+mode=$(jq -r .mode /input/issue.json)
+printf HOSTILE_PRIVATE_CANARY > /workspace/.env
+printf HOSTILE_PRIVATE_CANARY > /kit-home/.env
+mkdir -p "$HOME/.kit/sessions/w-fixture"
+store="$HOME/.kit/sessions/w-fixture/session.jsonl"
+printf '%s\n' '{"schema_version":3,"session_id":"fixture","generation":1,"item":{"kind":"Assistant","parts":[{"Text":{"text":"Offline finding","metadata":{}}}]}}' >"$store"
+outcome=converged
+[[ $mode != blocked ]] || outcome=blocked
+[[ $mode != awaiting_scope ]] || outcome=awaiting_scope
+jq -n --arg outcome "$outcome" '{schema_version:1,outcome:$outcome,provider:"Asana",slug:"asana",persona:"admin",summary:"Offline fixture",open_questions:(if $outcome=="awaiting_scope" then ["Which account should be configured?"] else [] end),blockers:(if $outcome=="blocked" then ["No supported endpoint found"] else [] end),nits:[],review_rounds:0,artifacts:(if $outcome=="converged" then ["research.md","meta.yaml","external.md","speakeasy.md"] else [] end)}' > /workspace/.factory/run-report.json
+if [[ $mode == timeout ]]; then
+  read -r _ _ _ _ parent _ < /proc/$$/stat
+  export parent
+  # shellcheck disable=SC2016
+  setsid bash -c 'read -r pid comm state ppid group session rest < /proc/$$/stat; [[ $parent != "$group" && $group == "$session" ]] || exit 1; echo SEPARATE_GROUP_PROVEN; sleep 6; echo escaped > /workspace/canary' &
+  exec sleep 30
+fi
+[[ $mode != crash ]] || exit 7
+[[ $mode != sanitizer ]] || printf '\nfixture-provider-key\n' >> /workspace/guides/asana/research.md
+[[ $mode != malformed ]] || printf 'malformed complete record\n' >"$store"
+[[ $mode != truncated ]] || printf '{"schema_version":' >>"$store"
+if [[ $mode == maximum ]]; then
+  # Exactly 8 MiB aggregate selected source, with seven 1 MiB records and
+  # one shortened record leaving room for the fixed report/four-guide snapshot.
+  size=$(wc -c <"$store")
+  head -c "$((1048576-size))" /dev/zero | tr '\0' ' ' >>"$store"
+  for n in 1 2 3 4 5 6; do cp "$store" "${store%.jsonl}-$n.jsonl"; done
+  bytes=0
+  for file in /workspace/.factory/run-report.json /workspace/guides/asana/{research.md,meta.yaml,external.md,speakeasy.md}; do
+    bytes=$((bytes + $(wc -c <"$file")))
+  done
+  head -c "$((1048576-bytes))" "$store" >"${store%.jsonl}-7.jsonl"
+fi
+begin-writing --control-dir /control --run-id "$FACTORY_RUN_ID"

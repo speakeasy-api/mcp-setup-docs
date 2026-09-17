@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+local_run_id=
+if [[ ${1:-} == --local ]]; then
+  [[ $# == 4 && $4 =~ ^[a-f0-9]{32}$ ]] || { printf 'usage: validate.sh --local <export-dir> <repo-root> <host-run-id>\n' >&2; exit 2; }
+  local_run_id=$4
+  set -- "$2" "$3"
+fi
 [[ $# -eq 2 ]] || { printf 'usage: validate.sh <export-dir> <repo-root>\n' >&2; exit 2; }
 script_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 export_dir="$(cd "$1" && pwd -P)"
@@ -11,11 +17,11 @@ guides_dir="$repo_root/guides"
 guides_physical=
 
 stage_dir=
+preserve_dir=
 backup_dir=
 diff_file=
 untracked_file=
 tree_file=
-lint_bin=
 anchor_active=false
 target_displaced=false
 new_installed=false
@@ -25,6 +31,14 @@ slug=
 fatal() {
   printf 'validate: %s\n' "$*" >&2
   exit 1
+}
+
+check_candidate() {
+  if [[ -n $local_run_id ]]; then
+    python3 "$script_root/factory/scripts/publication-state.py" local-gate "$export_dir" "$local_run_id" "$1"
+  else
+    python3 "$script_root/factory/scripts/publication-state.py" candidate "$report" "$1"
+  fi
 }
 
 verify_guides_dir() {
@@ -53,6 +67,7 @@ cleanup_transaction() {
       fi
     fi
   fi
+  [[ -z "$preserve_dir" ]] || rm -rf -- "$preserve_dir" || true
   [[ -z "$stage_dir" ]] || rm -rf -- "$stage_dir" || true
   if [[ "$target_displaced" != true && -n "$backup_dir" ]]; then
     rmdir -- "$backup_dir" 2>/dev/null || true
@@ -60,7 +75,6 @@ cleanup_transaction() {
   [[ -z "$diff_file" ]] || rm -f -- "$diff_file" || true
   [[ -z "$untracked_file" ]] || rm -f -- "$untracked_file" || true
   [[ -z "$tree_file" ]] || rm -f -- "$tree_file" || true
-  [[ -z "$lint_bin" ]] || rm -f -- "$lint_bin" || true
   exit "$status"
 }
 trap cleanup_transaction EXIT
@@ -160,9 +174,11 @@ validate_tree "$guide_dir"
 validate_artifacts "$guide_dir"
 
 [[ -d "$repo_root/.git" || -f "$repo_root/.git" ]] || fatal "repository root is not a Git worktree"
-if [[ -f "$guide_dir/meta.yaml" ]]; then
-  lint_bin=$(mktemp) || fatal "could not create guide lint executable"
-  (cd "$script_root/go" && go build -o "$lint_bin" ./cmd/lint-guide) || fatal "could not build guide linter"
+if [[ -n $local_run_id ]]; then
+  python3 "$script_root/factory/scripts/publication-state.py" local-gate "$export_dir" "$local_run_id" || fatal 'trusted local handoff rejected'
+elif [[ "$outcome" == converged ]]; then
+  [[ "$export_dir" == "${RUNNER_TEMP:?}/export" ]] || fatal 'export must be the fixed host export directory'
+  python3 "$script_root/factory/scripts/publication-state.py" gate "$report" || fatal 'trusted publication handoff rejected'
 fi
 
 [[ -d "$guides_dir" && ! -L "$guides_dir" ]] || fatal "repository guides path must be a physical directory"
@@ -172,7 +188,7 @@ anchor_active=true
 [[ "$guides_physical" == "$repo_root/guides" ]] || fatal "repository guides path resolved outside the repository"
 verify_guides_dir || fatal "repository guides directory changed"
 
-if [[ "$outcome" == failed || ("$outcome" == blocked && -z "$slug") ]]; then
+if [[ "$outcome" != converged ]]; then
   check_git_paths ""
   transaction_complete=true
   write_output outcome "$outcome"
@@ -187,12 +203,6 @@ if [[ "$outcome" == converged ]]; then
   for name in research.md meta.yaml external.md speakeasy.md; do
     [[ -f "$guide_dir/$name" ]] || fatal "converged export is missing $name"
   done
-elif [[ "$outcome" == awaiting_scope ]]; then
-  for name in research.md meta.yaml; do
-    [[ -f "$guide_dir/$name" ]] || fatal "awaiting_scope export is missing $name"
-  done
-elif [[ "$outcome" != blocked ]]; then
-  fatal "unsupported outcome: $outcome"
 fi
 
 verify_guides_dir || fatal "repository guides directory changed before staging"
@@ -204,12 +214,23 @@ cp -a "$guide_dir/." "$stage_dir/" || fatal "could not copy export to stage"
 validate_tree "$stage_dir"
 validate_artifacts "$stage_dir"
 
-if [[ -f "$stage_dir/meta.yaml" ]]; then
-  if [[ -f "$stage_dir/research.md" && -f "$stage_dir/external.md" && -f "$stage_dir/speakeasy.md" ]]; then
-    "$lint_bin" "$stage_dir" || fatal "guide lint failed"
-  else
-    "$lint_bin" --meta-only "$stage_dir" || fatal "guide metadata lint failed"
-  fi
+check_candidate "$PWD/${stage_dir#./}" || fatal 'staged candidate differs from host validation'
+
+# Preserve unrelated trusted bundle files. Only four host-validated files replace
+# existing content, and the original directory remains the rollback source.
+if [[ -e "$slug" || -L "$slug" ]]; then
+  [[ -d "$slug" && ! -L "$slug" ]] || fatal 'existing guide must be a physical directory'
+  preserve_dir=$(mktemp -d "./.factory-stage.XXXXXX") || fatal 'could not stage existing bundle'
+  cp -a "$slug/." "$preserve_dir/" || { rm -rf -- "$preserve_dir"; fatal 'could not preserve existing bundle'; }
+  for name in research.md meta.yaml external.md speakeasy.md; do
+    # Unlink first: copying must never follow an old guide-file symlink.
+    rm -f -- "$preserve_dir/$name" || { rm -rf -- "$preserve_dir"; fatal 'could not replace existing guide file'; }
+    cp -- "$stage_dir/$name" "$preserve_dir/$name" || { rm -rf -- "$preserve_dir"; fatal 'could not merge candidate'; }
+  done
+  rm -rf -- "$stage_dir"
+  stage_dir=$preserve_dir
+  preserve_dir=
+  check_candidate "$PWD/${stage_dir#./}" || fatal 'merged candidate differs from host validation'
 fi
 
 verify_guides_dir || fatal "repository guides directory changed before install"
@@ -224,6 +245,7 @@ stage_dir=
 verify_guides_dir || fatal "repository guides directory changed after install"
 check_git_paths "guides/$slug/"
 verify_guides_dir || fatal "repository guides directory changed after Git checks"
+check_candidate "$PWD/$slug" || fatal 'installed candidate differs from host validation'
 
 # The new guide is committed once validation, install, and Git checks pass.
 # Destructive old-backup collection cannot be rollback-safe if it partially fails.

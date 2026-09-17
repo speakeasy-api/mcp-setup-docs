@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# The helper owns validation; the coordinator must not invent another program.
+grep -Fq 'Do not generate a separate context-validation Runlet program.' "$ROOT/factory/coordinator.md" || { echo 'FAIL: context validation ownership is unspecified' >&2; exit 1; }
 # shellcheck disable=SC1091
 source "$ROOT/factory/tests/test-helper.sh"
 TMP="$(mktemp -d)"
@@ -18,6 +20,7 @@ jq -e '
     and (.path | type) == "string" and (.path | length) <= 120
     and (.characters | type) == "number" and (.characters | floor) == .characters and .characters >= 0)
   and ([.files[].path] | index("doctrine/constitution.md")) != null
+  and ([.files[].path] | index("doctrine/ai-control-plane-oauth.md")) != null
   and ([.files[].path] | index("doctrine/personas/it-admin.md")) != null
   and ([.files[].path] | index("doctrine/roles/technical-research.md")) != null
   and ([.files[].path] | index("factory/schemas/run-report.schema.json")) != null
@@ -50,7 +53,7 @@ jq -e '
 mkdir -p "$TMP/repo/guides" "$TMP/repo/doctrine/personas" "$TMP/repo/doctrine/roles" \
   "$TMP/repo/factory/schemas" "$TMP/repo/schema"
 for path in doctrine/constitution.md doctrine/shared.md doctrine/glossary.md \
-  doctrine/speakeasy-setup.md schema/guide.v1.schema.json; do
+  doctrine/speakeasy-setup.md doctrine/ai-control-plane-oauth.md schema/guide.v1.schema.json; do
   : >"$TMP/repo/$path"
 done
 ln -s "$ROOT/guides/box" "$TMP/repo/guides/box"
@@ -83,7 +86,7 @@ for directory in doctrine/personas doctrine/roles factory/schemas; do
   mv "$TMP/repo/${directory}.real" "$TMP/repo/$directory"
 done
 
-for required in doctrine/personas/it-admin.md doctrine/roles/writer.md \
+for required in doctrine/ai-control-plane-oauth.md doctrine/personas/it-admin.md doctrine/roles/writer.md \
   factory/schemas/run-report.schema.json; do
   rm "$TMP/repo/$required"
   if FACTORY_REPO_ROOT="$TMP/repo" bash "$ROOT/factory/scripts/inspect-guide-context.sh" box \

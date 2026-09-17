@@ -108,13 +108,18 @@
       },
       "then": {
         "properties": {
-          "artifacts": {
-            "allOf": [
-              {"contains": {"const": "research.md"}},
-              {"contains": {"const": "meta.yaml"}}
-            ]
-          }
+          "artifacts": {"maxItems": 0},
+          "open_questions": {"minItems": 1}
         }
+      }
+    },
+    {
+      "if": {
+        "properties": {"outcome": {"const": "blocked"}},
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {"artifacts": {"maxItems": 0}}
       }
     },
     {

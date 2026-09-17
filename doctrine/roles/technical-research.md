@@ -35,7 +35,12 @@ provenance.
    on those pages) are confirmed facts — record them; do not leave them
    for live console verification.
 4. Write the Dossier and the Metadata.
-5. Validate `meta.yaml` against `schema/guide.v1.schema.json` (draft-07)
+5. For the Kit factory, follow `factory/coordinator.md` instead of the
+   validation suggestions below: research children never validate or write
+   files; the coordinator uses mandatory prebuilt validators. Missing mandatory
+   helpers are fatal, not optional research-tool fallbacks. No Python or
+   dependency installation is permitted in the factory.
+   Outside the Kit factory, validate `meta.yaml` against `schema/guide.v1.schema.json` (draft-07)
    and fix until it conforms. Try
    `npx --yes ajv-cli validate -s schema/guide.v1.schema.json -d guides/<slug>/meta.yaml`
    or a Python `jsonschema` one-liner; if no validator will run, read the

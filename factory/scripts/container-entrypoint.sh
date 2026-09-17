@@ -1,134 +1,47 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
+# Kit/native descendants must create private records as 0600 and directories
+# as 0700 from the outset. cp -a below preserves snapshot/helper modes.
+umask 077
+# The host owns deadlines, logs, cleanup and later finalization. The controller
+# writes its atomic candidate report in /workspace/.factory; it cannot export.
 REPO_ROOT=${FACTORY_REPO_ROOT:-/repo}
 INPUT_ROOT=${FACTORY_INPUT_ROOT:-/input}
 WORKSPACE_ROOT=${FACTORY_WORKSPACE_ROOT:-/workspace}
-EXPORT_ROOT=${FACTORY_EXPORT_ROOT:-/export}
-KIT_HOME=${FACTORY_KIT_HOME:-/tmp/kit-home}
-REPORT_VALIDATOR=${FACTORY_REPORT_VALIDATOR:-/usr/local/bin/validate-report}
-EVENT_PROJECTOR=${FACTORY_EVENT_PROJECTOR:-/usr/local/bin/project-kit-events}
-TRANSCRIPT_BUILDER=${FACTORY_TRANSCRIPT_BUILDER:-/usr/local/bin/build-transcript}
-DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-/usr/local/bin/build-diagnostics}
-
-mkdir -p "$EXPORT_ROOT"
-rm -rf "$EXPORT_ROOT/guide" "$EXPORT_ROOT/run-report.json" \
-  "$EXPORT_ROOT/kit-error-summary.json" "$EXPORT_ROOT/factory-diagnostics.json" \
-  "$EXPORT_ROOT/execution-transcript.json"
+KIT_HOME=${FACTORY_KIT_HOME:-/kit-home}
 test -r "$INPUT_ROOT/issue.json"
 test -r "$INPUT_ROOT/catalog.json"
 test -r "$REPO_ROOT/factory/coordinator.md"
-rm -rf "$WORKSPACE_ROOT"
-mkdir -p "$WORKSPACE_ROOT/.factory" "$KIT_HOME"
-cp -a "$REPO_ROOT/." "$WORKSPACE_ROOT/"
-rm -rf "$WORKSPACE_ROOT/.git"
-export HOME="$KIT_HOME"
-KIT_BIN=${KIT_BIN:-kit}
-RUNTIME_DIR=$(mktemp -d "${TMPDIR:-/tmp}/factory-runtime.XXXXXX")
-RUNTIME_FIFO="$RUNTIME_DIR/kit-stderr"
-PROJECTED_EVENTS="$RUNTIME_DIR/events.json"
-MANIFEST_EVENTS="$RUNTIME_DIR/manifest-events.json"
-cleanup() {
-  rm -rf -- "$RUNTIME_DIR"
+# These are fresh mount roots. Never unlink or recursively remove a mount path.
+fail_private() { printf 'factory: unsafe private workspace directory\n' >&2; exit 1; }
+[[ -d "$WORKSPACE_ROOT" && "$(realpath "$WORKSPACE_ROOT")" == "$WORKSPACE_ROOT" ]] || fail_private
+# Reject a snapshot symlink/special entry before cp can touch the destination.
+if [[ -e "$REPO_ROOT/.factory" || -L "$REPO_ROOT/.factory" ]]; then
+  [[ -d "$REPO_ROOT/.factory" && ! -L "$REPO_ROOT/.factory" ]] || fail_private
+fi
+secure_private() {
+  local private="$WORKSPACE_ROOT/.factory"
+  if [[ ! -e "$private" && ! -L "$private" ]]; then mkdir -m 700 "$private"; fi
+  [[ -d "$private" && ! -L "$private" && "$(realpath "$private")" == "$private" ]] || fail_private
+  chmod 700 "$private"
 }
-trap cleanup EXIT
-mkfifo "$RUNTIME_FIFO"
-
-"$EVENT_PROJECTOR" "$PROJECTED_EVENTS" <"$RUNTIME_FIFO" &
-projector_pid=$!
-if KIT_RUNTIME_EVENTS=1 "$KIT_BIN" prompt \
-  --root "$WORKSPACE_ROOT" \
-  --provider openrouter \
+secure_private
+mkdir -p "$KIT_HOME"
+cp -a "$REPO_ROOT/." "$WORKSPACE_ROOT/"
+# cp -a also copies the public snapshot root mode onto the private mount.
+# Restore both private directory boundaries before starting the controller.
+chmod 700 "$WORKSPACE_ROOT"
+secure_private
+export HOME="$KIT_HOME"
+KIT_BIN=${KIT_BIN:-/usr/local/bin/kit}
+# Trusted host controller owns scheduling and the candidate report; the outer
+# supervisor still owns lifecycle termination and frozen export acceptance.
+exec "${GUIDE_FACTORY_BIN:-/usr/local/bin/guide-factory}" \
+  --workspace "$WORKSPACE_ROOT" \
+  --input-root "$INPUT_ROOT" \
+  --home "$KIT_HOME" \
+  --kit-binary "$KIT_BIN" \
+  --provider "${FACTORY_PROVIDER:-openrouter}" \
   --model "$KIT_MODEL" \
   --reasoning-effort "$KIT_REASONING_EFFORT" \
-  --mcp-config "$WORKSPACE_ROOT/factory/mcp/exa.json" \
-  "$(cat "$WORKSPACE_ROOT/factory/coordinator.md")" 2>"$RUNTIME_FIFO"; then
-  kit_status=0
-else
-  kit_status=$?
-fi
-# Persist safe session structure before consuming any projector/report results.
-if ! "$TRANSCRIPT_BUILDER" "$KIT_HOME" "$EXPORT_ROOT/execution-transcript.json" 2>/dev/null; then
-  rm -f -- "$EXPORT_ROOT/execution-transcript.json"
-  printf '%s\n' 'factory: sanitized transcript unavailable' >&2
-fi
-if wait "$projector_pid"; then
-  projector_status=0
-else
-  projector_status=$?
-fi
-rm -f -- "$RUNTIME_FIFO"
-
-if ((projector_status != 0)); then
-  # Discard rejected events, but retain independently validated failure metadata.
-  rm -f -- "$EXPORT_ROOT/factory-diagnostics.json"
-  printf '%s\n' '[]' >"$PROJECTED_EVENTS"
-fi
-
-jq --argjson success "$([[ $kit_status == 0 ]] && printf true || printf false)" '
-  [{sequence:1,call_ref:0,event:"started",tool:"kit_prompt",operation:"kit_prompt",success:null,duration_ms:null}]
-  + (map(.sequence += 1))
-  + [{sequence:(length + 2),call_ref:0,event:"finished",tool:"kit_prompt",operation:"kit_prompt",success:$success,duration_ms:0}]
-' "$PROJECTED_EVENTS" >"$MANIFEST_EVENTS"
-
-kit_errors_path=-
-if ((kit_status != 0)); then
-  error_files=()
-  while IFS= read -r error_file; do
-    error_files+=("$error_file")
-  done < <(find "$KIT_HOME/errors" -type f -name '*.json' -print 2>/dev/null || true)
-  if (( ${#error_files[@]} == 0 )); then
-    jq -n '{schema_version:1,records:[]}' >"$EXPORT_ROOT/kit-error-summary.json"
-  else
-    jq -s '
-      {schema_version:1,records:[.[] | {
-        schema_version,kind,code,
-        diagnostics:(if (.diagnostics | type) == "object" then {
-          stage:.diagnostics.stage,
-          retryable:.diagnostics.retryable,
-          attempt:.diagnostics.attempt,
-          response_request_id:(.diagnostics.response_request_id // null),
-          reqwest:{
-            timeout:.diagnostics.reqwest.timeout,
-            connect:.diagnostics.reqwest.connect,
-            request:.diagnostics.reqwest.request,
-            body:.diagnostics.reqwest.body,
-            decode:.diagnostics.reqwest.decode
-          },
-          source_chain_unknown:.diagnostics.source_chain_unknown,
-          source_chain_truncated:.diagnostics.source_chain_truncated
-        } else null end)
-      }]}
-    ' "${error_files[@]}" >"$EXPORT_ROOT/kit-error-summary.json"
-  fi
-  kit_errors_path="$EXPORT_ROOT/kit-error-summary.json"
-fi
-
-report="$WORKSPACE_ROOT/.factory/run-report.json"
-stage=
-if ((kit_status != 0)); then
-  stage=kit_prompt
-elif [[ ! -s $report ]] || ! "$REPORT_VALIDATOR" "$report" >/dev/null 2>&1; then
-  stage=report_validation
-elif [[ $(jq -r '.outcome' "$report") == failed ]]; then
-  stage=factory_outcome
-fi
-
-if [[ -n $stage ]]; then
-  "$DIAGNOSTICS_BUILDER" "$stage" "$kit_status" "$MANIFEST_EVENTS" \
-    "$report" "$kit_errors_path" "$EXPORT_ROOT/factory-diagnostics.json" || true
-  if [[ $stage == factory_outcome ]]; then
-    cp "$report" "$EXPORT_ROOT/run-report.json"
-    exit 0
-  fi
-  exit 1
-fi
-
-outcome="$(jq -r '.outcome' "$report")"
-slug="$(jq -r '.slug // empty' "$report")"
-if [[ -n "$slug" && "$outcome" != failed ]]; then
-  [[ "$slug" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]
-  test -d "$WORKSPACE_ROOT/guides/$slug"
-  cp -a "$WORKSPACE_ROOT/guides/$slug" "$EXPORT_ROOT/guide"
-fi
-cp "$report" "$EXPORT_ROOT/run-report.json"
+  --request-budget-seconds "${KIT_REQUEST_BUDGET_SECONDS:-300}"

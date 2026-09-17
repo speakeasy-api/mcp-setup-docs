@@ -100,3 +100,16 @@ with open(sys.argv[1], 'w') as f:
 PY
 bash "$BUILD" "$TMP/details" "$TMP/event-cap.json"
 jq -e '.limited and (.events | length) == 4096 and .events[-1].error_details[0].code == "RL6102"' "$TMP/event-cap.json" >/dev/null
+
+# Source-derived Kit 735409e schema-5 diagnostics: snapshots are observations;
+# child recovery and title_seed are private catalog context, not messages.
+printf '%s\n' \
+ '{"schema_version":5,"workspace_root":"/private","child":{"output":"PRIVATE_CHILD"}}' \
+ '{"schema_version":5,"workspace_root":"/private","snapshot":{"replacement":[{"kind":"Assistant","parts":[{"Text":{"text":"visible"}}]}],"children":[],"title_seed":[{"kind":"User","parts":[{"Text":{"text":"PRIVATE_TITLE"}}]}]}}' \
+ '{"schema_version":4,"workspace_root":"/private","snapshot":{"replacement":[]}}' \
+ '{"schema_version":5,"workspace_root":"/private","snapshot":{"replacement":[]}}' \
+ '{"schema_version":5,"workspace_root":"/private","item":{},"child":{}}' \
+ | jq -Rnc --argjson session 1 -f "$ROOT/factory/scripts/transcript.jq" > "$TMP/schema5.jsonl"
+jq -se 'length == 4 and .[0].role == "Assistant" and .[0].part == "Text" and all(.[1:][]; .part == "malformed")' "$TMP/schema5.jsonl" >/dev/null
+! grep -q PRIVATE "$TMP/schema5.jsonl" || fail 'schema-5 private metadata leaked'
+printf 'PASS schema-5 diagnostic observations\n'

@@ -13,7 +13,7 @@ cleanup_on_exit() {
   if ((${#TEMP_FILES[@]} != 0)); then
     rm -f "${TEMP_FILES[@]}" || temp_status=$?
   fi
-  (cleanup) || cleanup_status=$?
+  if [[ ${CLEANUP_LABELS:-true} == true ]]; then (cleanup) || cleanup_status=$?; fi
   ((original_status != 0)) && exit "$original_status"
   ((temp_status != 0)) && exit "$temp_status"
   exit "$cleanup_status"
@@ -104,14 +104,94 @@ refuse() {
   post_comment "$body"
 }
 
+# Only host environment values can supply artifact links. Never read report URLs.
+readable_context() {
+  READABLE_URL=''
+  READABLE_STATUS=unavailable
+  if [[ ${GITHUB_RUN_ID:-} =~ ^[1-9][0-9]*$ &&
+        ${READABLE_LOG_STATUS:-} =~ ^(complete|partial)$ &&
+        ${READABLE_ARTIFACT_URL:-} == "https://github.com/$GH_REPO/actions/runs/$GITHUB_RUN_ID/artifacts/"* ]]; then
+    local artifact_id=${READABLE_ARTIFACT_URL#"https://github.com/$GH_REPO/actions/runs/$GITHUB_RUN_ID/artifacts/"}
+    if [[ $artifact_id =~ ^[1-9][0-9]*$ ]]; then
+      READABLE_URL=$READABLE_ARTIFACT_URL
+      READABLE_STATUS=$READABLE_LOG_STATUS
+    fi
+  fi
+}
+
+notify_report() {
+  local report=$1 body comments comment_id payload viewer
+  local pr_url=${2:-} status=0
+  # This command never invokes git or a PR mutation, including on converged reports.
+  bash "$ROOT/factory/scripts/validate-report.sh" "$report" || die 'invalid notification report'
+  [[ ${GITHUB_RUN_ID:-} =~ ^[1-9][0-9]*$ && ${GITHUB_RUN_ATTEMPT:-} =~ ^[1-9][0-9]*$ ]] \
+    || die 'notify requires a valid run and attempt'
+  body=$(mktemp)
+  register_temp "$body"
+  render_report_comment "$report" "$pr_url" "${RESUME:-false}" "$body"
+  # Outcome-only notification means publication was withheld. Receipt repair
+  # already has a PR and must not reclassify it as blocked/unpublished.
+  if [[ -z $pr_url ]]; then add_label guide:blocked || status=$?; fi
+  # Label failure must not suppress the truthful outcome comment.
+
+  viewer=$(retry_gh api graphql -f query='{ viewer { login } }' --jq '.data.viewer.login') \
+    || die 'could not identify comment author'
+  [[ $viewer =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*(\[bot\])?$ ]] || die 'invalid comment author'
+  comments=$(retry_gh api "repos/$GH_REPO/issues/$ISSUE_NUMBER/comments" --paginate --slurp) \
+    || die 'could not inspect outcome comments'
+  comment_id=$(jq -er --arg viewer "$viewer" --arg marker "<!-- guide-factory-status:$GITHUB_RUN_ID:$GITHUB_RUN_ATTEMPT -->" '
+    if type != "array" or any(.[]; type != "array") then error("invalid comment pages") else add // [] end |
+    [.[] | select(.user.login == $viewer and (.body | type == "string") and
+      (.body | split("\n") | index($marker) != null))] |
+    if length == 0 then "" elif length == 1 and
+      (.[0].id | type == "number" and floor == . and . > 0) then .[0].id | tostring
+    else error("ambiguous outcome comment") end' <<<"$comments") || die 'invalid outcome comments'
+  if [[ -n $comment_id ]]; then
+    payload=$(mktemp)
+    register_temp "$payload"
+    jq -n --rawfile body "$body" '{body:$body}' >"$payload"
+    # Do not blindly retry a comment mutation after an ambiguous transport error.
+    gh api --method PATCH "repos/$GH_REPO/issues/comments/$comment_id" --input "$payload" >/dev/null || status=$?
+  else
+    gh issue comment "$ISSUE_NUMBER" --repo "$GH_REPO" --body-file "$body" >/dev/null || status=$?
+  fi
+  return "$status"
+}
+
+publication_state() {
+  python3 "$ROOT/factory/scripts/publication-state.py" "$@"
+}
+
+notify_publication() {
+  local report=$1 receipt=$2 pr_url status=0
+  pr_url=$(publication_state read "$receipt") || return 1
+  # Isolate die/exit in comment rendering so every notification failure is recorded.
+  (CLEANUP_LABELS=false; notify_report "$report" "$pr_url") || status=$?
+  if ((status == 0)); then
+    publication_state notification "$receipt" sent || return 1
+  else
+    publication_state notification "$receipt" failed || true
+    printf 'factory: PR published at %s; notification failed; repair comments only\n' "$pr_url" >&2
+  fi
+  return "$status"
+}
+
 render_report_comment() {
   local report=$1 pr_url=$2 resumed=$3 output=$4
-  local run_url=""
+  local primary=""
+  primary=$(publication_state primary 2>/dev/null) || primary=""
+  local run_url="" marker="<!-- guide-factory-status -->"
+  readable_context
+  if [[ ${GITHUB_RUN_ID:-} =~ ^[1-9][0-9]*$ && ${GITHUB_RUN_ATTEMPT:-} =~ ^[1-9][0-9]*$ ]]; then
+    marker="<!-- guide-factory-status:$GITHUB_RUN_ID:$GITHUB_RUN_ATTEMPT -->"
+  fi
   if [[ -n ${GITHUB_RUN_ID:-} ]]; then
     run_url="${GITHUB_SERVER_URL:-https://github.com}/$GH_REPO/actions/runs/$GITHUB_RUN_ID"
   fi
-  jq -r --arg pr_url "$pr_url" --arg resumed "$resumed" --arg run_url "$run_url" '
+  jq -r --arg pr_url "$pr_url" --arg resumed "$resumed" --arg run_url "$run_url" --arg marker "$marker" \
+    --arg readable_url "$READABLE_URL" --arg readable_status "$READABLE_STATUS" --arg primary "$primary" '
     def bound: tostring[0:1000];
+    def logging_failure: $primary == "converged" and .outcome == "failed" and $readable_status == "unavailable";
     def items($heading; $numbered):
       .[0:20] as $values | if ($values | length) == 0 then [] else
         [$heading, ""] + [range(0; $values|length) as $i |
@@ -119,19 +199,26 @@ render_report_comment() {
            else ("- " + ($values[$i]|bound)) end)] + [""] end;
     ([(if .outcome == "awaiting_scope" then "## Scope check"
        elif .outcome == "failed" then "## Guide factory failed"
-       else "## Pipeline review" end), "", "<!-- guide-factory-status -->", "",
+       else "## Pipeline review" end), "", $marker, "",
       "- **Outcome:** " + (.outcome|bound),
+      (if $primary == "" then empty else "- **Primary research outcome:** " + $primary end),
+      (if $primary == "converged" and .outcome == "failed" and $readable_status == "unavailable" then
+        "Research completed with a converged primary outcome, but required readable log export/upload failed; guide publication is withheld. No guide publication is claimed."
+       else empty end),
       "- **Provider:** " + ((.provider // "unresolved")|bound),
       "- **Slug:** " + ((.slug // "unresolved")|bound),
       "- **Persona:** " + ((.persona // "unresolved")|bound),
       "- **Run context:** " + (if $resumed == "true" then "resumed existing factory branch" else "new factory branch" end),
       (if $pr_url == "" then empty else "- **Pull request:** " + $pr_url end),
       (if $run_url == "" then empty else "- **Workflow run:** " + $run_url end),
-      "", "### Summary", "", (.summary|bound), ""]
+      "- **Readable chatlog:** " + (if $readable_url == "" then "unavailable; see the workflow run instead."
+        else $readable_url + " (" + $readable_status + "; expires after seven days; GitHub artifact access required)." end),
+      "", "### Summary", "", (if logging_failure then "Required readable logging did not complete. Guide publication remains withheld." else (.summary|bound) end), ""]
      + (if .outcome == "awaiting_scope" then (.open_questions|items("### Material decisions"; true)) else [] end)
-     + (.blockers|items("### Blockers"; false))
+     + (if logging_failure then [] else (.blockers|items("### Blockers"; false)) end)
      + (.nits|items("### Nits"; false))
-     + [if .outcome == "converged" then "Ready for review."
+     + [if .outcome == "converged" then (if $pr_url != "" then "Ready for review."
+          else "Research converged; guide publication is withheld until all validation and readable export/upload gates pass." end)
         elif .outcome == "awaiting_scope" then "Reply with the numbered decisions, then re-add `guide:draft`."
         elif .outcome == "failed" then "The automation did not complete; this is not a completed review requesting guide changes. Check the workflow logs and diagnostic artifact (if available) for the failure, then re-add `guide:draft` once it is resolved."
         else "Resolve the findings, then re-add `guide:draft`." end])
@@ -146,14 +233,16 @@ validate_pr_number() {
 FOUND_PR_NUMBER=''
 FOUND_PR_URL=''
 find_pr_for_head() {
-  local branch=$1 response count
+  local branch=$1 response count viewer
   FOUND_PR_NUMBER=''
   FOUND_PR_URL=''
-  response="$(retry_gh pr list --repo "$GH_REPO" --state open --head "$branch" --json number,url)" \
+  viewer=$(retry_gh api graphql -f query='{ viewer { login } }' --jq '.data.viewer.login') || die 'could not inspect publication author'
+  response="$(retry_gh pr list --repo "$GH_REPO" --state open --head "$branch" --json number,url,headRefName,headRepository,baseRefName,isCrossRepository,author,title,body)" \
     || die "failed to inspect pull requests for branch"
-  jq -e --arg repo "$GH_REPO" '
+  jq -e --arg repo "$GH_REPO" --arg branch "$branch" --arg viewer "$viewer" '
     type == "array" and length <= 1 and all(.[];
-      type == "object" and
+      type == "object" and .headRefName == $branch and .headRepository.nameWithOwner == $repo and
+      .baseRefName == "main" and .isCrossRepository == false and .author.login == $viewer and
       (.number | type) == "number" and (.number | floor) == .number and .number >= 1 and
       (.url | type) == "string" and
       .url == ("https://github.com/" + $repo + "/pull/" + (.number | tostring)))
@@ -167,7 +256,7 @@ find_pr_for_head() {
 
 publish_report() {
   local report=$1 outcome provider slug artifacts resumed branch title pr_body comment pr_number pr_url changed
-  local local_head remote_head push_needed=false
+  local local_head remote_head push_needed=false publication response mutation_status=0 staged push_url recorded=false
   [[ -f "$report" && ! -L "$report" ]] || die "publish requires a regular report file"
   outcome="$(jq -r '.outcome' "$report")"
   provider="$(jq -r '.provider // empty' "$report")"
@@ -179,13 +268,18 @@ publish_report() {
   register_temp "$pr_body"
   register_temp "$comment"
 
-  if [[ "$outcome" == failed || -z "$slug" || "$artifacts" -eq 0 ]]; then
+  if [[ "$outcome" != converged || -z "$slug" || "$artifacts" -eq 0 ]]; then
     render_report_comment "$report" '' "$resumed" "$comment"
     add_label guide:blocked
     post_comment "$comment"
     return 0
   fi
 
+  bash "$ROOT/factory/scripts/validate-report.sh" "$report" || die 'invalid publication report'
+  publication_state gate "$report" || die 'publication gates failed'
+  publication_state candidate "$report" "$PWD/guides/$slug" || die 'installed candidate differs from host validation'
+  staged=$(git diff --cached --name-only) || die 'could not inspect staging area'
+  [[ -z $staged ]] || die 'publication requires an initially clean staging area'
   if [[ "$resumed" == true ]]; then
     branch=${RESUME_BRANCH:-}
     [[ -n "$branch" ]] || branch="$(git branch --show-current)"
@@ -194,7 +288,22 @@ publish_report() {
     git checkout -b "$branch"
   fi
 
-  git add -- "guides/$slug"
+  [[ $branch == "guide/issue-$ISSUE_NUMBER-$slug" ]] || die 'unexpected factory branch'
+  # Resolve canonical existing PR linkage BEFORE any remote branch mutation.
+  pr_number=${RESUME_PR_NUMBER:-}
+  [[ -z $pr_number ]] || validate_pr_number "$pr_number"
+  pr_url=''
+  if find_pr_for_head "$branch"; then
+    [[ -z $pr_number || $pr_number == "$FOUND_PR_NUMBER" ]] || die 'resume PR does not match trusted branch lookup'
+    pr_number=$FOUND_PR_NUMBER
+    pr_url=$FOUND_PR_URL
+    publication=updated
+  else
+    [[ -z $pr_number ]] || die 'resume PR not found on exact factory branch'
+    publication=created
+  fi
+
+  git add -- "guides/$slug/research.md" "guides/$slug/meta.yaml" "guides/$slug/external.md" "guides/$slug/speakeasy.md"
   changed=true
   if git diff --cached --quiet -- "guides/$slug"; then changed=false; fi
   if [[ "$changed" == true ]]; then
@@ -210,53 +319,92 @@ publish_report() {
     push_needed=true
   fi
   if [[ "$push_needed" == true ]]; then
-    git push --set-upstream origin "$branch"
+    local_head=$(git rev-parse --verify HEAD) || die 'could not resolve publication commit'
+    [[ $local_head =~ ^[a-f0-9]{40}$ || $local_head =~ ^[a-f0-9]{64}$ ]] || die 'invalid publication commit'
+    push_url=$(git remote get-url --push origin) || die 'could not inspect publication remote'
+    case "$push_url" in
+      "https://github.com/$GH_REPO"|"https://github.com/$GH_REPO.git"|"git@github.com:$GH_REPO.git") ;;
+      *) die 'publication remote does not match trusted repository' ;;
+    esac
+  fi
+  # One exclusive reservation precedes EVERY remote mutation, including a push
+  # that already publishes guide contents on an existing PR.
+  publication_state begin || die 'could not reserve publication'
+  CLEANUP_LABELS=false
+  if [[ "$push_needed" == true ]]; then
+    if ! git push "$push_url" "$local_head:refs/heads/$branch" >/dev/null 2>&1; then
+      response=$(git ls-remote --exit-code "$push_url" "refs/heads/$branch" 2>/dev/null) \
+        || die 'push status indeterminate; preserve reservation and reconcile read-only'
+      [[ $response == "$local_head"$'\t'"refs/heads/$branch" ]] \
+        || die 'push target unconfirmed; preserve reservation and reconcile read-only'
+    fi
+    if [[ -n $pr_url ]]; then
+      publication_state record "$pr_url" updated || {
+        printf 'factory: PR published at %s; branch advanced but receipt persistence failed; do not republish\n' "$pr_url" >&2
+        return 1
+      }
+      recorded=true
+    fi
   fi
 
   title="$(jq -r '(.provider // "guide")[0:249] | "guide: " + .' "$report")"
   printf 'Closes #%s\n' "$ISSUE_NUMBER" >"$pr_body"
-  pr_number=${RESUME_PR_NUMBER:-}
-  pr_url=''
-  if [[ -n "$pr_number" ]]; then
-    validate_pr_number "$pr_number"
-    pr_url="https://github.com/$GH_REPO/pull/$pr_number"
-    retry_gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null
-  elif find_pr_for_head "$branch"; then
-    pr_number=$FOUND_PR_NUMBER
-    pr_url=$FOUND_PR_URL
-    retry_gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null
-  else
-    if [[ "$outcome" == converged ]]; then
-      retry_gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" >/dev/null || true
-    else
-      retry_gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" --draft >/dev/null || true
+  if [[ -n $pr_url ]]; then
+    gh pr edit "$pr_number" --repo "$GH_REPO" --title "$title" --body-file "$pr_body" >/dev/null 2>&1 || mutation_status=$?
+    if ((mutation_status != 0)); then
+      # A failed edit may have applied. Observe only, retain the known PR, and
+      # require explicit operator reconciliation rather than repeating the edit.
+      find_pr_for_head "$branch" || die 'publication uncertain; reconcile existing PR read-only'
+      printf 'factory: existing PR %s; edit status uncertain; explicit reconciliation required\n' "$pr_url" >&2
+      return 1
     fi
-    find_pr_for_head "$branch" || die "pull request creation did not produce a discoverable pull request"
-    pr_number=$FOUND_PR_NUMBER
-    pr_url=$FOUND_PR_URL
-  fi
-  validate_pr_number "$pr_number"
-
-  if [[ "$outcome" == converged ]]; then
-    retry_gh pr ready "$pr_number" --repo "$GH_REPO" >/dev/null
-    remove_label guide:blocked
   else
-    retry_gh pr ready "$pr_number" --repo "$GH_REPO" --undo >/dev/null
-    add_label guide:blocked
+    response=$(gh pr create --repo "$GH_REPO" --base main --head "$branch" --title "$title" --body-file "$pr_body" 2>/dev/null) || mutation_status=$?
+    pr_url=$response
+    if ((mutation_status != 0)) || [[ $pr_url != "https://github.com/$GH_REPO/pull/"* || ! ${pr_url#"https://github.com/$GH_REPO/pull/"} =~ ^[1-9][0-9]*$ ]]; then
+      find_pr_for_head "$branch" || die 'publication status uncertain; reconcile read-only before explicit retry'
+      pr_url=$FOUND_PR_URL
+    fi
   fi
-  render_report_comment "$report" "$pr_url" "$resumed" "$comment"
-  post_comment "$comment"
+  # Persist known publication BEFORE labels, readiness, or issue comments.
+  if [[ $recorded == false ]]; then
+    publication_state record "$pr_url" "$publication" || {
+      printf 'factory: PR published at %s; receipt persistence failed; do not republish\n' "$pr_url" >&2
+      return 1
+    }
+  fi
+  CLEANUP_LABELS=true
+  notify_publication "$report" "$FACTORY_PUBLICATION_RECEIPT" || return $?
+  # Non-draft creation is already ready. Existing draft promotion is separate
+  # from notification repair and never performed by notify-publication.
+  pr_number=${pr_url##*/}
+  gh pr ready "$pr_number" --repo "$GH_REPO" >/dev/null
+  remove_label guide:blocked
+
 }
 
 fail_run() {
   local reason_file=$1 body reason run_url status=0
+  if [[ -n ${FACTORY_PUBLICATION_RECEIPT:-} && ( -e $FACTORY_PUBLICATION_RECEIPT || -L $FACTORY_PUBLICATION_RECEIPT ) ]]; then
+    notify_publication "$RUNNER_TEMP/run-report.json" "$FACTORY_PUBLICATION_RECEIPT"
+    return $?
+  fi
+  # shellcheck disable=SC2016
+  local publication_uncertain=false recovery='Re-add `guide:draft` to retry after correcting the failure.'
+  if [[ -n ${RUNNER_TEMP:-} && -e $RUNNER_TEMP/guide-factory-publication/publication-started.json ]]; then
+    publication_uncertain=true
+  fi
   [[ -f "$reason_file" && ! -L "$reason_file" ]] || die "fail requires a regular reason file"
   body="$(mktemp)"
   register_temp "$body"
   reason="$(jq -Rs -r '.[0:1000]' "$reason_file")"
+  if [[ $publication_uncertain == true ]]; then
+    recovery='Do not repeat publication until read-only reconciliation establishes what happened.'
+    reason='A PR mutation was attempted; publication or receipt persistence could not be confirmed here. A PR may already exist. Inspect the trusted workflow diagnostics and reconcile the exact factory branch read-only before any explicit retry. Do not republish to repair notifications.'
+  fi
   run_url="https://github.com/$GH_REPO/actions/runs/${GITHUB_RUN_ID:-}"
   printf '%s\n' '## Guide factory failed' '' '<!-- guide-factory-status -->' '' "$reason" '' "**Workflow run:** $run_url" '' \
-    "Re-add \`guide:draft\` to retry after correcting the failure." >"$body"
+    "Readable chatlog unavailable; see the workflow run." "$recovery" >"$body"
   remove_label guide:draft || status=$?
   remove_label guide:in-progress || status=$?
   add_label guide:blocked || status=$?
@@ -270,8 +418,10 @@ case "$command" in
   ensure-labels) [[ $# -eq 1 ]] || die 'usage: publish.sh ensure-labels'; ensure_labels ;;
   transition) [[ $# -eq 1 ]] || die 'usage: publish.sh transition'; transition ;;
   refuse) [[ $# -le 2 ]] || die 'usage: publish.sh refuse [pr-url]'; refuse "${2:-}" ;;
+  notify-publication) [[ $# -eq 3 ]] || die 'usage: publish.sh notify-publication <report> <publication-receipt>'; notify_publication "$2" "$3" ;;
+  notify) [[ $# -eq 2 ]] || die 'usage: publish.sh notify <report>'; notify_report "$2" ;;
   publish) [[ $# -eq 2 ]] || die 'usage: publish.sh publish <report>'; publish_report "$2" ;;
   fail) [[ $# -eq 2 ]] || die 'usage: publish.sh fail <reason-file>'; fail_run "$2" ;;
   cleanup) [[ $# -eq 1 ]] || die 'usage: publish.sh cleanup'; cleanup ;;
-  *) die 'usage: publish.sh {ensure-labels|transition|refuse|publish <report>|fail <reason-file>|cleanup}' ;;
+  *) die 'usage: publish.sh {ensure-labels|transition|refuse|publish <report>|notify <report>|fail <reason-file>|cleanup}' ;;
 esac

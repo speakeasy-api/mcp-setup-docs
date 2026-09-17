@@ -49,6 +49,19 @@ def subagent_results:
      else {} end)][0:16];
 def parts:
   if type != "object" then {role:"unknown",part:"malformed"}
+  # Diagnostic projection only; the Go exporter remains the validation boundary.
+  # Kit 735409e schema 5 recovery records never expose child or title metadata.
+  elif .schema_version == 5 then
+    if (.workspace_root | type) != "string" or
+       (keys - ["schema_version","session_id","generation","workspace_root","child","snapshot"] | length) != 0 or
+       (has("child") == has("snapshot")) then {role:"unknown",part:"malformed"}
+    elif has("child") and (.child | type) == "object" then empty
+    elif has("snapshot") and (.snapshot | type) == "object" and
+         (.snapshot | keys - ["replacement","children","title_seed"] | length) == 0 and
+         (.snapshot.replacement | type) == "array" and (.snapshot.replacement | length) > 0 and
+         (.snapshot.children | type) == "array" then
+      {schema_version:3,replacement:.snapshot.replacement} | parts
+    else {role:"unknown",part:"malformed"} end
   elif (.schema_version | IN(1,2,3)) and
        ((.item | type) == "object" or (.replacement | type) == "array") then
     (if .item != null then [.item] else .replacement end)[] |

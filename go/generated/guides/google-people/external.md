@@ -4,7 +4,7 @@ setup_version: 1
 
 # Set up Google People
 
-You need a Google Cloud project and access to the [Google Cloud console](https://console.cloud.google.com). To enable the People API, you need `serviceusage.services.enable`, normally through **Service Usage Admin** or **Owner**. To grant project roles, you need **Project IAM Admin**. Before you begin, have the application or security owner configure prompt and response screening for malicious content or prompt injection; Model Armor is one option.
+You need a Google Cloud project and access to the [Google Cloud console](https://console.cloud.google.com). To enable the People API, you need `serviceusage.services.enable`, normally through **Service Usage Admin** or **Owner**. To grant project roles, you need **Project IAM Admin**. Each connecting user must already have access to the intended Google profile, contacts, and directory data. Google documents that application developers are responsible for screening prompts and responses for malicious content or prompt injection; Model Armor is one documented option.
 
 ### Enable the People API {#enable-people-api}
 
@@ -38,10 +38,13 @@ Google does not allow an OAuth consent screen to be removed after it is configur
 
 1. Open **Google Auth platform** > **Branding**.
 2. If the page shows **Google Auth platform not configured yet**, click **Get Started**.
+
+If Google Auth platform was already configured, retain its approved **Branding**. Retain its **Audience** only if it covers every intended connecting account. **Internal** qualifies only when all those accounts are in the Google Cloud organization associated with the project; otherwise use an approved **External** configuration. Then continue at step 14. Otherwise, complete the first-time wizard:
+
 3. Under **App Information**, enter `People API MCP Server` in **App name**.
 4. Select a monitored **User support email**.
 5. Click **Next**.
-6. Under **Audience**, select **Internal**. If **Internal** is unavailable, select **External**.
+6. Under **Audience**, select **Internal** only if every intended connecting account is in the Google Cloud organization associated with the project. Otherwise, use an approved **External** configuration.
 7. Click **Next**.
 8. Under **Contact Information**, enter a monitored **Email address**.
 9. Click **Next**.
@@ -49,8 +52,6 @@ Google does not allow an OAuth consent screen to be removed after it is configur
 11. With their approval, select **I agree to the Google API Services: User Data Policy**.
 12. Click **Continue**.
 13. Click **Create**.
-
-If Google Auth platform was already configured, retain its approved **Branding** and **Audience**.
 
 14. Open **Data Access**.
 15. Click **Add or Remove Scopes**.
@@ -66,7 +67,7 @@ If Google Auth platform was already configured, retain its approved **Branding**
 18. Click **Update**.
 19. Click **Save**.
 
-If you selected **External** and the app is in **Testing**, add every connecting account:
+An **External** app in **Testing** supports no more than 100 test users. Use this branch only when every intended connecting account fits within that ceiling:
 
 20. Open **Audience**.
 21. Under **Test users**, click **Add users**.
@@ -101,6 +102,6 @@ Prepare an approved secret store before the next step. The next dialog allows th
 3. Keep both values for [connecting your credentials](speakeasy.md#connect-speakeasy-credentials).
 4. Return to the Speakeasy AI Control Plane.
 
-If you miss the one-time secret, delete it and create a new one before continuing.
+If you miss the one-time secret, return to **Google Auth platform** > **Clients**. Delete the affected OAuth client using its visible or equivalent delete control. Repeat [Create the OAuth client](#create-oauth-client) and this credential-copy section before continuing.
 
 <!-- screenshot-exception: do not capture a dialog containing a one-time secret -->

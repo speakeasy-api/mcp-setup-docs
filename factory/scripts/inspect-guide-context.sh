@@ -30,7 +30,7 @@ printf '[]\n' >"$manifest"
 
 printf '%s\n' \
   doctrine/constitution.md doctrine/shared.md doctrine/glossary.md \
-  doctrine/speakeasy-setup.md schema/guide.v1.schema.json >>"$paths"
+  doctrine/speakeasy-setup.md doctrine/ai-control-plane-oauth.md schema/guide.v1.schema.json >>"$paths"
 for directory in doctrine/personas doctrine/roles factory/schemas; do
   resolved_directory="$(realpath "$ROOT/$directory" 2>/dev/null)" \
     || die "invalid guide context directory"
@@ -89,7 +89,7 @@ count="$(wc -l <"$sorted" | tr -d ' ')"
 [[ "$count" =~ ^[1-9][0-9]*$ && "$count" -le 40 ]] || die "invalid guide context manifest"
 while IFS= read -r path; do
   [[ ${#path} -le 120 ]] || die "invalid guide context manifest"
-  [[ "$path" =~ ^(doctrine/(constitution|shared|glossary|speakeasy-setup)\.md|doctrine/(personas|roles)/[A-Za-z0-9._-]+\.md|factory/schemas/[A-Za-z0-9._-]+\.json|schema/guide\.v1\.schema\.json|guides/[a-z0-9]+(-[a-z0-9]+)*/(research\.md|meta\.yaml|external\.md|speakeasy\.md))$ ]] \
+  [[ "$path" =~ ^(doctrine/(constitution|shared|glossary|speakeasy-setup|ai-control-plane-oauth)\.md|doctrine/(personas|roles)/[A-Za-z0-9._-]+\.md|factory/schemas/[A-Za-z0-9._-]+\.json|schema/guide\.v1\.schema\.json|guides/[a-z0-9]+(-[a-z0-9]+)*/(research\.md|meta\.yaml|external\.md|speakeasy\.md))$ ]] \
     || die "invalid guide context manifest"
   resolved_path="$(realpath "$ROOT/$path" 2>/dev/null)" || die "invalid guide context file"
   [[ -f "$ROOT/$path" && ! -L "$ROOT/$path" && "$resolved_path" == "$ROOT/$path" ]] \
