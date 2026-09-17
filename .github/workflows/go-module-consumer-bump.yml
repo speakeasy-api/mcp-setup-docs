@@ -1,7 +1,7 @@
 name: Go module consumer bump
 
 # After a go/vX.Y.Z tag lands, open (or refresh) a PR on the consumer repo that
-# pins the new module version in its go.mod. The bump branch on the consumer is
+# pins the new module version in go.mod and its setup corpus citation. The branch is
 # machine-owned: every release rebuilds it from the consumer default branch and
 # force-pushes, so a single PR always shows the newest version.
 on:
@@ -117,15 +117,33 @@ jobs:
             sleep 20
           done
 
+          # Gram's citations must name the same export as go.mod.
+          python3 - "$VERSION" <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          path = pathlib.Path("server/internal/platformmcp/setupcorpus/corpus.go")
+          source, count = re.subn(
+              r'(?m)^(\s*PinnedVersion\s*=\s*)"[^"]*"',
+              lambda match: match[1] + '"' + sys.argv[1] + '"',
+              path.read_text(),
+          )
+          if count != 1:
+              sys.exit("expected exactly one setupcorpus.PinnedVersion declaration")
+          path.write_text(source)
+          PY
+
           # The consumer CI runs `go mod tidy` and fails on a dirty tree.
           go mod tidy
+          go test ./server/internal/platformmcp/setupcorpus -run '^TestPinnedVersionMatchesGoMod$' -count=1
 
           if [ -z "$(git status --porcelain -- go.mod go.sum)" ]; then
             echo "go get produced no change; nothing to open."
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if [ -n "$(git status --porcelain | grep -v -E '^ M go\.(mod|sum)$' || true)" ]; then
+          if [ -n "$(git status --porcelain | grep -v -E '^ M (go\.(mod|sum)|server/internal/platformmcp/setupcorpus/corpus\.go)$' || true)" ]; then
             echo "unexpected files changed; refusing to open a PR:"
             git status --porcelain
             exit 1
@@ -162,7 +180,7 @@ jobs:
 
           title="chore(deps): bump ${MODULE_PATH} from ${PREVIOUS} to ${VERSION}"
           git checkout -B "$BUMP_BRANCH"
-          git add -- go.mod go.sum
+          git add -- go.mod go.sum server/internal/platformmcp/setupcorpus/corpus.go
           git commit -m "$title"
           # Machine-owned branch: the lease fails loudly if the remote moved.
           git fetch --depth=1 origin "+refs/heads/${BUMP_BRANCH}:refs/remotes/origin/${BUMP_BRANCH}" 2>/dev/null || true
@@ -173,6 +191,7 @@ jobs:
           {
             echo "## Summary"
             echo "- Pin \`${MODULE_PATH}\` to \`${VERSION}\` (was \`${PREVIOUS}\`)"
+            echo "- Update setupcorpus.PinnedVersion so guide citations match the pinned module"
             echo "- Opened by \`go-module-consumer-bump\` in ${GITHUB_REPOSITORY} after the \`${TAG}\` release"
             echo "- Branch is machine-owned — the next release force-pushes over it"
             echo "- If this bump breaks CI, branch off \`${BUMP_BRANCH}\`, fix it there, and close this PR."
