@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: slack
+title: Slack
+summary: Connect the Speakeasy AI Control Plane to Slack's hosted MCP server using an internal Slack app and user-scoped OAuth.
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: internal-app-oauth
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#copy-client-credentials
+        - id: client-secret
+          label: Client Secret
+          setup:
+            - external.md#copy-client-credentials
+  requirements:
+    - id: internal-slack-app
+      description: An internal Slack app in the target workspace, permission to manage its settings, and any required workspace-admin approval
+    - id: user-access
+      description: Each connecting user authorizes access to Slack with their own account
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: hosted
+    url: https://mcp.slack.com/mcp
+    transport: streamable-http
+    authentication:
+      - internal-app-oauth
+    tenanted: false
+    provenance:
+      - source: provider-documentation
+        locator: https://docs.slack.dev/ai/slack-mcp-server/
+        classification: official
+        observed_at: "2026-09-17T00:05:11Z"
+provenance:
+  - source: provider-documentation
+    locator: https://docs.slack.dev/ai/slack-mcp-server/
+    name: Slack MCP server overview
+    classification: official
+    observed_at: "2026-09-17T00:05:11Z"
+  - source: provider-documentation
+    locator: https://docs.slack.dev/ai/slack-mcp-server/developing/
+    name: Developing a sample app with the Slack MCP Server
+    classification: official
+    observed_at: "2026-09-17T00:05:11Z"
+  - source: endpoint-observation
+    locator: https://mcp.slack.com/.well-known/oauth-authorization-server
+    classification: official
+    observed_at: "2026-09-17T00:05:11Z"
