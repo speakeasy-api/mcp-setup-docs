@@ -1,11 +1,15 @@
 # Speakeasy setup
 
+**Method 1 — Speakeasy application:** after [installing the application](external.md#install-speakeasy-application), you must [contact Speakeasy support to finish OAuth](external.md#contact-speakeasy-support). Coordinate server activation and the add-server step below with support. Do not use the manual credential instructions for this method.
+
+**Method 2 — Your own External Client App:** after creating the app and enabling the selected server, follow both steps below.
+
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
 2. Select **Add Source**.
 3. Choose **Custom remote server**.
-4. On the **Add a custom remote MCP server** page, paste the URL recorded in [Enable the selected SObject server](external.md#enable-sobject-server) into **Remote MCP server URL**.
+4. On the **Add a custom remote MCP server** page, paste the URL recorded in [Enable the selected MCP server](external.md#enable-sobject-server) into **Remote MCP server URL**.
 5. Select **Add server**.
 
 This creates the hosted MCP server and opens its **Overview** page.
@@ -13,6 +17,10 @@ This creates the hosted MCP server and opens its **Overview** page.
 <!-- screenshot: the Add Source menu open on the Sources page with Custom remote server visible -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
+
+**Method 1 — Speakeasy application:** finish OAuth through the mandatory [Speakeasy support handoff](external.md#contact-speakeasy-support), not the fields below.
+
+**Method 2 — Your own External Client App only:**
 
 1. From the server's **Overview**, open **Settings**.
 2. Under **Authentication**, select **Configure Manually**.

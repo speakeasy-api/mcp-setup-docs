@@ -1,18 +1,21 @@
 ---
 research_version: 1
 slug: salesforce
-researched_at: 2026-08-06T23:23:14Z
+researched_at: 2026-09-17T16:15:46Z
 ---
 
 # Salesforce — Research Dossier
 
 ## Server facts
 
-- **Guide scope:** Salesforce publishes several Hosted MCP Servers. This Guide
-  covers the four standard SObject servers because they share one documented
-  browser setup and have fixed, fully documented URLs. Product-specific and
-  custom servers are not interchangeable with these URLs and can carry product
-  licenses or org-specific names.
+- **Guide scope:** two alternative OAuth setup methods: install Speakeasy's
+  Salesforce application and contact Speakeasy support, or create your own
+  External Client App. Cover all four standard SObject endpoints plus the
+  currently cataloged Data 360, Headless 360 (Beta), and Tableau Next endpoints.
+  Select the endpoint and org type explicitly; SObject Reads is not a universal
+  URL. Custom servers and legacy product endpoints are outside this refresh.
+  Sources: operator instruction and current `servers-reference.html`, observed
+  on the refresh date recorded below.
 - **Production MCP Servers:**
   - SObject Reads:
     `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads`
@@ -31,7 +34,7 @@ researched_at: 2026-08-06T23:23:14Z
 - **Transport:** `streamable-http`. Salesforce's Postman setup explicitly
   selects **HTTP**, not STDIO, for these remote URLs. The endpoint implements
   protected-resource discovery and returns `401 Unauthorized` without OAuth.
-- **Authentication:** per-user OAuth 2.0 Authorization Code with PKCE. An
+- **Authentication:** per-user OAuth 2.0 Authorization Code with PKCE. For the self-created method, an
   administrator manually registers an **External Client App** and the MCP
   client uses its **Consumer Key** as the client ID. Salesforce says Connected
   Apps are not supported for Hosted MCP authentication. The documented public
@@ -77,13 +80,44 @@ researched_at: 2026-08-06T23:23:14Z
   installing that package in the scratch org, but the Hosted MCP documentation
   does not provide an executable browser workflow for those packaging steps.
 
+## Current endpoint catalog and setup gates
+
+Sources observed on the refresh date: `servers-reference.html`, the three
+product reference pages listed under Refresh provenance, and `postman.html`.
+The four SObject URLs above are retained from the earlier endpoint-specific
+research; the current catalog reconfirms all four server identities and access
+boundaries, and Postman reconfirms the platform production/sandbox form.
+
+| Server | Production URL | Sandbox URL | Setup-relevant boundary / gate |
+| --- | --- | --- | --- |
+| Data 360 | `https://api.salesforce.com/platform/mcp/v1/data/data360` | `https://api.salesforce.com/platform/mcp/v1/data/sandbox/data360` | Data 360 license; API v66.0+; `Manage Data 360` for configuration, `View Data 360` for read-only operations. Can change customer-data configuration, not merely query SQL. Calls count against underlying Connect API limits and Flex Credit usage. |
+| Headless 360 (Beta) | `https://api.salesforce.com/platform/mcp/v1/platform/headless-360` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/headless-360` | Beta, available starting July 2026 under Beta Services Terms; API v67.0+; ECA with `mcp_api` and OAuth client. Broad Setup/platform operations, not a read-only records endpoint. |
+| Tableau Next | `https://api.salesforce.com/platform/mcp/v1/analytics/tableau-next` | `https://api.salesforce.com/platform/mcp/v1/sandbox/analytics/tableau-next` | Semantic-model and analytics access. The reference does not specify a license SKU or named permission set; do not invent one or promise access without the org's Tableau Next capabilities. |
+
+Data 360's documented sandbox position is **after `/data`**, unlike the
+platform and analytics endpoints. Preserve each literal URL; do not normalize
+it using the generic Postman template. Product references also label these
+sandbox URLs for scratch orgs, but this guide retains its production/sandbox
+scope because scratch-org app creation needs a separate packaging workflow.
+Data 360's page says it replaces a previous server, now called Data 360 Legacy;
+that legacy endpoint is not researched or offered here. The current general
+catalog describes Data 360 narrowly as querying data; prefer the dedicated
+reference's broader capability and permission requirements.
+
+All standard servers enforce user-level field security, object permissions,
+and sharing. Choose only approved capabilities. System Administrator or
+equivalent permission is needed to create an ECA (`setup-overview.html`);
+server activation requires an administrator (`activate-mcp-servers.html`).
+These are not grants of data access to every connecting user.
+
 ## Credential flow
 
-Who acts: a Salesforce System Administrator. Salesforce's Hosted MCP docs
+Who acts: a Salesforce System Administrator (or equivalent permissions for
+creating the ECA, per the current setup overview). Salesforce's Hosted MCP docs
 require an administrator to enable servers, and Salesforce's External Client
 App documentation states that a Salesforce administrator creates the app.
 
-What gets created: one local **External Client App** with OAuth enabled. The
+For method 2, what gets created: one local **External Client App** with OAuth enabled. The
 candidate Speakeasy configuration uses the generated **Consumer Key** as
 **Client ID** and leaves **Client Secret (optional)** empty. Salesforce
 documents that Consumer Key-only PKCE configuration for Postman and Cursor,
@@ -108,7 +142,46 @@ authorization, the user should log out of other Salesforce orgs, sign in to the
 target org in the default browser, and keep that browser open. This is a
 connection-time user action, not an administrator credential-creation step.
 
+### Setup-method decision
+
+**Method 1 — Speakeasy application:** follow {#install-speakeasy-application}
+then {#contact-speakeasy-support}. This method ends in a mandatory support
+handoff; do not tell the admin to create another app, copy an unknown client
+ID/secret, or apply the self-created app's security settings to this package.
+
+**Method 2 — Your own External Client App:** follow the existing Setup,
+app-creation, OAuth, and Consumer Key steps below. Both methods require an
+approved endpoint and administrator activation of the selected server.
+The package method's exact activation/OAuth sequencing is not supplied;
+coordinate it with support rather than inventing a completed connection.
+
+Operator provenance for method 1: explicit task instruction, observed on the
+refresh date; installer locator below. This is not independently verified
+package contents, installation UI, org compatibility, or OAuth behavior.
+
 ## Console walkthrough
+
+### Install Speakeasy's Salesforce application {#install-speakeasy-application}
+
+- Method 1 only: as an administrator, install Speakeasy's Salesforce application
+  into the intended org using the operator-supplied URL:
+  `https://login.salesforce.com/packaging/installPackage.apexp?p0=04tdM000000cNGXQA2`.
+- The operator supplied this exact URL; no sandbox installer alternative,
+  installation audience, approval sequence, package password, or package
+  contents were supplied or independently verified. Do not invent them.
+- Values copied: none specified.
+- Screenshot exception: no verified installation screen is available; use the
+  exact installation link rather than a fabricated UI description.
+
+### Contact Speakeasy support to finish OAuth {#contact-speakeasy-support}
+
+- After installation, administrators **must contact Speakeasy support to finish
+  OAuth setup**. Installation alone does not complete OAuth setup.
+- No support URL, channel, credential exchange, SLA, or follow-up console steps
+  were supplied. State the mandatory handoff plainly; do not invent them and
+  do not request or publish secret values.
+- Screenshot exception: this is a support handoff, not a documented console UI.
+- Provenance for both method-1 steps: operator instruction, refresh date.
 
 ### Open Salesforce Setup {#open-salesforce-setup}
 
@@ -125,6 +198,8 @@ connection-time user action, not an administrator credential-creation step.
   **Setup** visible.
 
 ### Start an External Client App {#start-external-client-app}
+
+- Method 2 only; do not repeat this flow after installing the Speakeasy app.
 
 - From **Setup**, enter `external client` in **Quick Find**, then select
   **External Client App Manager**.
@@ -193,7 +268,7 @@ connection-time user action, not an administrator credential-creation step.
 - Screenshot exception: the credential is sensitive and the screen adds no
   setup information beyond the exact label. Do not capture the key.
 
-### Enable the selected SObject server {#enable-sobject-server}
+### Enable the selected MCP server {#enable-sobject-server}
 
 - Return to **Setup**. In **Quick Find**, enter `MCP Servers`, then select
   **MCP Servers** under **API Catalog**.
@@ -201,35 +276,52 @@ connection-time user action, not an administrator credential-creation step.
   Salesforce's current activation page says to toggle needed servers on, but
   does not publish the exact list-row names or the toggle's label or state.
   Use the selected server's confirmed API ID to distinguish among
-  `sobject-reads`, `sobject-mutations`, `sobject-deletes`, and `sobject-all`;
+  `sobject-reads`, `sobject-mutations`, `sobject-deletes`, `sobject-all`,
+  `data360`, `platform/headless-360`, and `analytics/tableau-next`;
   do not infer additional UI labels from those IDs.
-- If the ticket does not specify the team's approved read, write, or delete
-  requirements, obtain the server choice from the application or cloud
+- If the ticket does not specify the team's approved records, data-platform,
+  admin, or analytics requirements, obtain the server choice from the application or cloud
   security owner before enabling one.
-- Match the selected server to the remote URL in **Server facts**, and match
+- Match the selected server to the remote URL in **Server facts** or **Current endpoint catalog and setup gates**, and match
   the URL variant to the org type (production versus sandbox).
 - Wait up to two minutes for the server to become active.
 - Recovery: if the client returns a connection failure with valid OAuth,
   confirm that the exact server is enabled and that the URL uses the correct
   production or sandbox form. Also confirm the org has API access.
 - Screenshot note: **MCP Servers** under **API Catalog**, showing the available
-  server list and the control used to enable the chosen SObject server. The
+  server list and the control used to enable the chosen MCP server. The
   capture pass must record the rendered row and control labels rather than
   assuming labels from the server API IDs.
 
+For Headless 360, the dedicated reference supplies a more specific activation
+transition: **Setup** > **Quick Find**: `MCP Servers` > **MCP Servers** > find
+`headless-360` > **Activate**. Other standard servers use the general activation
+page's toggle instructions. The existing {#enable-sobject-server} anchor is
+retained for the shared endpoint-selection/activation step, even when the
+chosen server is not an SObject server. Source: Headless 360 reference and
+activation page, refresh date.
+
 ## Speakeasy setup
+
+The manual credential-entry skeleton below applies to **method 2 only**.
+For method 1, the administrator must contact Speakeasy support to finish OAuth;
+no public self-service credential-entry procedure is established for this
+package. Metadata models its OAuth registration as manual (not DCR), with no
+invented credential fields. Do not derive a package Client ID or secret from
+the self-created-app instructions.
+
 
 Per-guide values rendered into the canonical
 `doctrine/speakeasy-setup.md` skeleton:
 
 - Provider: Salesforce.
-- Remote URL: the one production or sandbox SObject URL selected in
-  {#enable-sobject-server}; all eight supported choices are in Metadata.
+- Remote URL: the production or sandbox URL selected in
+  {#enable-sobject-server}; all fourteen cataloged choices are in Metadata.
 - Transport: `streamable-http`; the **Transport** field is read-only.
 - Add-server path: use **Custom remote server** only. The operator forced
   `speakeasy_add_server: custom-remote` because the catalog mapping is
-  unreliable or unsuitable for this Guide's selection among eight distinct
-  production and sandbox SObject URLs. Pasting the selected URL preserves the
+  unreliable or unsuitable for this Guide's selection among distinct
+  production and sandbox URLs. Pasting the selected URL preserves the
   server and org-type choice made in {#enable-sobject-server}. Do not render a
   catalog path or a catalog-presence open question.
 - Authentication Option: OAuth with a manually registered client.
@@ -256,7 +348,7 @@ In the Speakeasy AI Control Plane sidebar, under **Connect**, select
 **Sources**, then click **Add Source**.
 
 Choose **Custom remote server**. On the **Add a custom remote MCP server**
-page, paste the selected SObject URL into **Remote MCP server URL** and click
+page, paste the selected MCP URL into **Remote MCP server URL** and click
 **Add server**.
 
 This creates the hosted MCP server and opens its **Overview** page.
@@ -287,6 +379,34 @@ the Client ID.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
 limits — see [Salesforce's MCP documentation](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html).
+
+## Research limitations
+
+- This refresh read ten unique public primary pages, starting with the supplied
+  setup overview and necessary setup/client/catalog references. No authenticated
+  org, app installation, OAuth exchange, or compatibility test was performed.
+- Tableau Next entitlement details are absent from the fetched reference;
+  Data 360 Legacy and custom-server creation are outside this bounded research.
+  Endpoint listings document provider URLs, not tested Speakeasy compatibility
+  or availability in the Speakeasy MCP Catalog.
+- The operator resolved the setup-method scope: publish both alternatives.
+  Missing package internals are not a reason to block the explicitly authorized
+  install-plus-support route; its mandatory handoff is the documented outcome.
+- OAuth details for method 2: Postman documents production authorization/token
+  URLs `https://login.salesforce.com/services/oauth2/authorize` and
+  `https://login.salesforce.com/services/oauth2/token`; sandbox uses
+  `https://test.salesforce.com/services/oauth2/authorize` and
+  `https://test.salesforce.com/services/oauth2/token`. It uses Authorization
+  Code with PKCE, SHA-256, scopes `mcp_api refresh_token`, Consumer Key as
+  Client ID, and blank Client Secret. These are provider reference facts, not
+  additional verified Speakeasy input fields (source: `postman.html`, refresh date).
+- The current ECA page separately offers optional production hardening:
+  requiring a secret for web-based clients, permission-set preauthorization,
+  IP restrictions, and token/session policies. Do not silently enable these or
+  claim the baseline secretless flow satisfies every organization's policies.
+  Policy-specific Speakeasy compatibility is untested. The setup overview's
+  broad PKCE instruction does not override the ECA page's precise baseline
+  Security checkbox instructions retained above.
 
 ## Open questions
 
@@ -330,12 +450,16 @@ limits — see [Salesforce's MCP documentation](https://developer.salesforce.com
 - **Machine-readable indexes:** prior research successfully reached
   `https://developer.salesforce.com/docs/llms.txt` and its linked Hosted MCP
   index at `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt`;
-  they enumerated the guide and reference pages used below. During this
-  refresh, the developer documentation and index requests returned HTTP 403,
-  so sound prior findings were retained rather than re-inferred from snippets.
+  they enumerated the guide and reference pages used below. During the August
+  research, developer documentation and index requests returned HTTP 403.
+  The September refresh successfully read the ten primary pages listed below;
+  older facts not revisited retain their original observation date.
   `https://help.salesforce.com/llms.txt` had previously timed out.
 
-Provenance records below use `2026-08-06T23:23:14Z` for this refresh.
+### Retained August provenance
+
+Records below retain observation date `2026-08-06T23:23:14Z`; endpoint
+observations are historical, not tests rerun in September.
 
 - `https://developer.salesforce.com/docs/llms-hosted-mcp-servers.txt`
   — machine-readable Hosted MCP source inventory; backs documentation-property
@@ -399,7 +523,7 @@ Provenance records below use `2026-08-06T23:23:14Z` for this refresh.
   — live endpoint observation; backs protected resource URL and advertised
   `mcp_api` / `refresh_token` scopes.
 - All eight URLs in **Server facts** — live unauthenticated endpoint
-  observations returned HTTP 401 on this refresh, backing the URLs' existence
+  observations returned HTTP 401 in the August research, backing the URLs' existence
   and OAuth protection. The protected-resource metadata request for production
   SObject Reads returned HTTP 200 and advertised `mcp_api` and `refresh_token`.
 - `doctrine/speakeasy-setup.md` — observed `2026-08-06T23:23:14Z`; backs the
@@ -409,3 +533,25 @@ Provenance records below use `2026-08-06T23:23:14Z` for this refresh.
   `salesforce` — observed `2026-08-06T23:23:14Z`; backs the decision not to
   render or investigate a catalog path because the Guide-level
   `speakeasy_add_server: custom-remote` override controls path selection.
+
+### Refresh provenance
+
+Observed at `2026-09-17T16:15:46Z` (current system date, 2026-09-17). Every
+new or revalidated fact above cites these locators by page name; retained
+August-only facts and probes keep their earlier provenance.
+
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/setup-overview.html` — Set Up Your Org; backs setup prerequisites, ECA, scopes, PKCE/JWT overview.
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/create-external-client-app.html` — Create an External Client App; backs baseline OAuth settings, creation flow, propagation and optional production hardening.
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html` — Salesforce Hosted MCP Servers; backs per-user OAuth and platform/product scope.
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/client-connection-overview.html` — Connecting an MCP Client; backs ECA requirement, no Connected Apps, tested-client list excluding Speakeasy.
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/servers-reference.html` — Standard MCP Servers Reference; backs seven current standard server families and user permissions.
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/activate-mcp-servers.html` — Activate MCP Servers; backs administrator activation navigation, default disabled, two-minute wait.
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/references/reference/data360-mcp.html` — Data 360 MCP Server; backs exact URL forms, license/API/permission gates, broader capabilities and usage accounting.
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/references/reference/headless-360-mcp.html` — Headless 360 MCP Server (Beta); backs exact URL forms, beta/API prerequisites and Activate action.
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/references/reference/tableau-next.html` — Tableau Next; backs exact URL forms, semantic analytics scope and absence of entitlement details.
+- `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/postman.html` — Configure Postman; backs HTTP transport, platform URL forms, authorization/token URLs, PKCE and credential mapping.
+- Operator instruction in this delegated task — backs the two-method scope,
+  Speakeasy application identity, exact installation locator
+  `https://login.salesforce.com/packaging/installPackage.apexp?p0=04tdM000000cNGXQA2`,
+  and mandatory contact with Speakeasy support to finish OAuth. Not a claim
+  that the package installation or OAuth flow was independently tested.
