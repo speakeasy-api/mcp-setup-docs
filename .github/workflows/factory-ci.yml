@@ -13,6 +13,8 @@ on:
       - 'go/internal/factoryprompt/**'
       - 'go/internal/factorytranscript/**'
       - 'go/internal/factoryrun/**'
+      - 'go/internal/factorycontroller/**'
+      - 'go/cmd/guide-factory/**'
       - 'go/cmd/export-transcript/**'
       - 'go/cmd/supervise-factory/**'
       - 'go/cmd/begin-writing/**'
@@ -35,6 +37,8 @@ on:
       - 'go/internal/factoryprompt/**'
       - 'go/internal/factorytranscript/**'
       - 'go/internal/factoryrun/**'
+      - 'go/internal/factorycontroller/**'
+      - 'go/cmd/guide-factory/**'
       - 'go/cmd/export-transcript/**'
       - 'go/cmd/supervise-factory/**'
       - 'go/cmd/begin-writing/**'
@@ -86,4 +90,4 @@ jobs:
 
       - name: Factory Go tests
         working-directory: go
-        run: go test ./internal/factoryprompt ./cmd/prepare-research-prompt ./internal/factorytranscript ./cmd/export-transcript ./internal/factoryrun ./cmd/supervise-factory ./cmd/begin-writing ./cmd/finalize-factory
+        run: go test ./internal/factorycontroller ./cmd/guide-factory ./internal/factoryprompt ./cmd/prepare-research-prompt ./internal/factorytranscript ./cmd/export-transcript ./internal/factoryrun ./cmd/supervise-factory ./cmd/begin-writing ./cmd/finalize-factory
