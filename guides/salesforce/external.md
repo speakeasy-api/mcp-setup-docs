@@ -4,7 +4,7 @@ setup_version: 1
 
 # Connect Salesforce to the Speakeasy AI Control Plane
 
-Use Salesforce System Administrator credentials for an API-enabled production or sandbox org where Hosted MCP Servers are available. Salesforce documents availability for Enterprise Edition and above. You need authority to install the Speakeasy application or create an **External Client App**, and enable Hosted MCP Servers.
+Use Salesforce System Administrator credentials for an API-enabled production org where Hosted MCP Servers are available. Salesforce documents availability for Enterprise Edition and above. You need authority to install the Speakeasy application or create an **External Client App**, and enable Hosted MCP Servers.
 
 Sign in to the Salesforce org you want to connect. Install or create the app in that same org. This guide does not cover scratch orgs. For a lower-edition org, confirm Hosted MCP availability in [Salesforce Setup](#open-salesforce-setup) before starting either path.
 
@@ -37,7 +37,7 @@ https://login.salesforce.com/packaging/installPackage.apexp?p0=04tdM000000cNGXQA
 
 ### Contact Speakeasy support to finish OAuth {#contact-speakeasy-support}
 
-After installation, **contact Speakeasy support to finish OAuth setup**. Installation alone does not complete OAuth. Coordinate your production or sandbox endpoint and [server activation](#enable-sobject-server) with support. Your next step is with support—not the app-creation walkthrough below.
+After installation, **contact Speakeasy support to finish OAuth setup**. Installation alone does not complete OAuth. Coordinate your selected endpoint and [server activation](#enable-sobject-server) with support. Your next step is with support—not the app-creation walkthrough below.
 
 <!-- screenshot-exception: this is a support handoff, not a documented console UI -->
 
@@ -109,7 +109,7 @@ Choose the least-privileged server that meets your team's needs using the endpoi
 3. Select **MCP Servers** under **API Catalog**.
 4. Find the server whose API ID matches the approved choice.
 5. Use the available control to enable that server. For Headless 360, find `headless-360` and select **Activate**.
-6. Record its URL from the endpoint reference below, using the production or sandbox form that matches the org.
+6. Record its URL from the endpoint reference below.
 7. Wait up to two minutes for the server to become active.
 
 <!-- screenshot: MCP Servers under API Catalog, showing the available server list and the control used to enable the chosen MCP server; record the rendered row and control labels -->
@@ -118,118 +118,62 @@ If you created your own app, continue to [Speakeasy setup](speakeasy.md#add-serv
 
 ## Endpoint reference
 
-Use the exact URL for your server and org type. Data 360 places `/sandbox` after `/data`; the other servers place it after `/v1`.
+The following endpoints are for production orgs. Copy the URL for your selected server.
 
 **SObject Reads (sobject-reads)**
 
 Discovery, query, search, and relationship traversal; no record changes.
 
-Production:
-
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads
-```
-
-Sandbox:
-
-```
-https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads
 ```
 
 **SObject Mutations (sobject-mutations)**
 
 Read, create, and update records; no deletes.
 
-Production:
-
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/sobject-mutations
-```
-
-Sandbox:
-
-```
-https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations
 ```
 
 **SObject Deletes (sobject-deletes)**
 
 Identify and delete records; no creates or updates.
 
-Production:
-
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes
-```
-
-Sandbox:
-
-```
-https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes
 ```
 
 **SObject All (sobject-all)**
 
 Create, read, update, delete, query, and search records.
 
-Production:
-
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/sobject-all
-```
-
-Sandbox:
-
-```
-https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all
 ```
 
 **Data 360 (data360)**
 
 Query data and change customer-data configuration. Requires a Data 360 license, API v66.0+, and **Manage Data 360** for configuration or **View Data 360** for read-only operations.
 
-Production:
-
 ```
 https://api.salesforce.com/platform/mcp/v1/data/data360
-```
-
-Sandbox:
-
-```
-https://api.salesforce.com/platform/mcp/v1/data/sandbox/data360
 ```
 
 **Headless 360 (Beta) (platform/headless-360)**
 
 Broad Setup and platform operations, not read-only record access. Available starting July 2026 under Beta Services Terms. Requires API v67.0+, an External Client App with `mcp_api`, and an OAuth client.
 
-Production:
-
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/headless-360
-```
-
-Sandbox:
-
-```
-https://api.salesforce.com/platform/mcp/v1/sandbox/platform/headless-360
 ```
 
 **Tableau Next (analytics/tableau-next)**
 
 Semantic-model and analytics access. Confirm the org has the required Tableau Next capabilities.
 
-Production:
-
 ```
 https://api.salesforce.com/platform/mcp/v1/analytics/tableau-next
 ```
 
-Sandbox:
-
-```
-https://api.salesforce.com/platform/mcp/v1/sandbox/analytics/tableau-next
-```
-
-Calls remain subject to the signed-in user's field-level security, object permissions, and sharing rules. If the connection fails with valid credentials, confirm that the selected server is enabled, the URL matches the server and org type, and the org has API access.
+Calls remain subject to the signed-in user's field-level security, object permissions, and sharing rules. If the connection fails with valid credentials, confirm that the selected server is enabled, the URL matches the selected server, and the org has API access.
