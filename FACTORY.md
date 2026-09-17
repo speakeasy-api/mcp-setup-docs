@@ -169,3 +169,6 @@ did not regenerate it.
 
 See [`factory/coordinator.md`](factory/coordinator.md) for the orchestration
 contract and [`doctrine/shared.md`](doctrine/shared.md) for authoring rules.
+
+See [the migration decision and acceptance record](docs/factory-migration.md) for
+current architecture, security constraints and local acceptance limits.
