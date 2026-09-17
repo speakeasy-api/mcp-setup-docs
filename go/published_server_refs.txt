@@ -18,6 +18,10 @@ hubspot/hosted
 intercom/eu
 intercom/us
 netsuite/mcp-standard-tools
+salesforce/data360-production
+salesforce/data360-sandbox
+salesforce/headless-360-production
+salesforce/headless-360-sandbox
 salesforce/sobject-all-production
 salesforce/sobject-all-sandbox
 salesforce/sobject-deletes-production
@@ -26,6 +30,8 @@ salesforce/sobject-mutations-production
 salesforce/sobject-mutations-sandbox
 salesforce/sobject-reads-production
 salesforce/sobject-reads-sandbox
+salesforce/tableau-next-production
+salesforce/tableau-next-sandbox
 slack/hosted
 snowflake/cortex-agent-mcp
 x-docs/docs
