@@ -6,6 +6,28 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-09-17 — align in-app setup steps with current Control Plane UI
+
+Files: `doctrine/speakeasy-setup.md`, `guides/*/speakeasy.md`,
+`go/generated/**`.
+
+Evidence: the human reported that **Configure Manually** was absent in
+their setup experience and approved the concrete correction scope and
+copy in this conversation. Source audit against `speakeasy-api/gram`
+main `8fa18729608e34de305e789b53f36eb2c6c853c9` found state-dependent
+authentication controls and stale navigation/creation instructions.
+
+- Use MCP Gateway → MCP → Add new; distinguish catalog installation's
+  Configure MCP settings action from custom-remote Verify connectivity → Save.
+- Handle configured authentication, existing providers/clients, and new
+  issuer setup explicitly; do not globally replace Configure Manually.
+- Treat discovery as automatic when seeded; check the redirect URI before
+  attachment closes the sheet. Preserve provider-specific credentials.
+- Refresh the authored guides and regenerate their embedded copies.
+
+Verification is source-level plus repository validation; this entry does
+not claim a production-browser walkthrough. I8: human-approved correction.
+
 ## Bounded decision evidence file transport
 
 Files: `factory/prompts/{endpoint,reconcile,finalize-research}.md`.

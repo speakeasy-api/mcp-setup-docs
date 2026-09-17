@@ -12,18 +12,19 @@ Consumers may omit this file when Speakeasy setup is already in context
 `external.md`).
 
 UI facts below are drawn from the product source
-(`speakeasy-api/gram`, `client/dashboard`, branch `main`): add-server and
-Manual OAuth / Upstream Headers labels from commit `96f7f73` (observed
-2026-07-23); Dynamic Client Registration (DCR) attach-sheet labels from
-commit `f1d60da` (observed 2026-07-27). Labels are verbatim code-level
-strings; a rendered-UI spot check on first use is still worthwhile. No
-role may invent a label this file does not carry.
+(`speakeasy-api/gram`, `client/dashboard`, branch `main`), commit
+`8fa18729608e34de305e789b53f36eb2c6c853c9` (observed 2026-09-17).
+Navigation and creation: `pages/mcp/MCP.tsx`, `pages/mcp/add/AddMcpServer.tsx`,
+`pages/sources/remote-mcp/CreateRemoteMcp.tsx`, and `pages/catalog/`.
+Authentication: `pages/mcp/x/tabs/settings/sections/authentication/`.
+Labels are code-level strings; a rendered-UI spot check is still worthwhile.
+Controls depend on configuration state and write permission. No role may
+invent a label this file does not carry.
 
 ## Per-guide values (recorded in the Dossier's Speakeasy setup section)
 
-- `<remote URL>` — from `meta.yaml` `remotes`. (The Control Plane
-  proxies remote servers over streamable-http; the add form's
-  **Transport** field is read-only.) Mark each remote
+- `<remote URL>` — from `meta.yaml` `remotes`. The Control Plane
+  proxies remote servers over streamable-http. Mark each remote
   `tenanted: true` when the reader must paste a region, instance, or
   org-specific URL rather than a single shared public endpoint. When the
   URL is shared but the guide must still skip the catalog (unreliable
@@ -34,9 +35,12 @@ role may invent a label this file does not carry.
   `custom-remote`.
 - The Authentication Option the guide documents, which External-setup
   step produced each credential field, and — for OAuth options — any
-  scopes the provider requires. For DCR, also record the **Issuer URL**
-  (often the remote origin) when the Control Plane cannot discover it
-  from protected-resource metadata alone.
+  scopes the provider requires. For every OAuth option, record the
+  **Issuer URL**, discovery support, and documented authorization/token
+  endpoints when discovery is unavailable; DCR also needs a registration
+  endpoint. Do not assume the remote MCP URL is the OAuth issuer. Missing
+  provider-specific issuer/endpoint evidence is an open question, not a
+  value the Writer may invent.
 - `<further-reading URL>` — the provider's primary MCP documentation
   page, for the closing pointer.
 
@@ -52,7 +56,7 @@ override applies.
    - `custom-remote` → Custom remote only
    - `catalog` → catalog only
    - `auto` / omitted → Pulse catalog presence in operator notes:
-     - **present** → catalog (3rd-party server) only
+     - **present** → catalog (**From the catalog**) only
      - **absent** → Custom remote only
      - **ambiguous** / **skipped** / no lookup → both bullets + soft
        catalog-presence open question
@@ -70,91 +74,112 @@ when presence is known.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**.
 
 **Catalog path** (Pulse **present** with `auto`, or
 `speakeasy_add_server: catalog`; never when tenanted or
-`custom-remote`): choose **3rd-party server**. On the **MCP Catalog**
-page, find <Provider> (the search box reads **Search MCP servers...**),
-open its entry with **View**, and click **Add**. In the **Add to
-Project** dialog, click **Add to Project**.
+`custom-remote`): choose **From the catalog**. On the **MCP Catalog**
+page, find <Provider> using **Search MCP servers...**, open its catalog
+entry, and click **Add**. In the **Add to Project** dialog, click
+**Add to Project**. Wait for installation to complete, then click
+**Configure MCP settings** to open the created server.
 
 **Custom remote path** (tenanted, `speakeasy_add_server: custom-remote`,
-or Pulse **absent**): choose **Custom remote server**. On the **Add a
-custom remote MCP server** page, paste `<remote URL>` into **Remote MCP
-server URL** and click **Add server**.
+or Pulse **absent**): choose **Hosted remotely**. On **New remote MCP
+server**, paste `<remote URL>` into **MCP server URL**. Optionally enter
+**Display name (optional)**. Click **Verify connectivity**, then, after
+verification succeeds, click **Save**. This creates the hosted MCP server
+and opens its **Overview** page.
 
 **Dual conditional** (Pulse **ambiguous** / **skipped** only, `auto`,
 and not tenanted / not forced) — keep both as bullets:
 
-- If <Provider> is in the catalog: choose **3rd-party server**. On the
-  **MCP Catalog** page, find <Provider> (the search box reads
-  **Search MCP servers...**), open its entry with **View**, and click
-  **Add**. In the **Add to Project** dialog, click **Add to Project**.
-- If it is not: choose **Custom remote server**. On the
-  **Add a custom remote MCP server** page, paste `<remote URL>` into
-  **Remote MCP server URL** and click **Add server**.
+- If <Provider> is in the catalog: choose **From the catalog**. Find
+  <Provider> using **Search MCP servers...**, open its catalog entry,
+  and click **Add**. In **Add to Project**, click **Add to Project**.
+  After installation, click **Configure MCP settings**.
+- If it is not: choose **Hosted remotely**. On **New remote MCP server**,
+  paste `<remote URL>` into **MCP server URL**. Click **Verify
+  connectivity**, then **Save** after verification succeeds. This opens
+  the server's **Overview** page.
 
-Either resolved path (or either dual branch) creates the hosted MCP
-server and opens its **Overview** page. When only one path is emitted,
-close with: This creates the hosted MCP server and opens its
-**Overview** page.
+Do not describe catalog installation as automatically opening Overview.
 
-<!-- screenshot: the Add Source menu open on the Sources page, or the provider's catalog entry -->
+<!-- screenshot: Add MCP server choices, or the provider's catalog entry -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. The Writer renders
-only the variant matching the guide's Authentication Option, names the
-guide's actual fields, and cross-links each value to the External-setup
-step that produced it (or, for DCR with no External credentials, to the
-step that produced the issuer / region URL).
+Open the server's **Settings**. The Writer renders only the variant
+matching the guide's Authentication Option, names the guide's actual
+fields, and cross-links each value to the External-setup step that
+produced it. Include provider-specific issuer and endpoint values from
+the Dossier where needed, rather than making readers guess.
 
-- OAuth with a pre-registered client: under **Authentication**, click
-  **Configure Manually** (or **Use Discovered** when offered — the
-  Dossier records whether the provider publishes discoverable OAuth
-  metadata). In the **Attach Remote Identity Provider** sheet, set
-  **Client Type** to **Manual**. The sheet shows the **Redirect URI**
-  with a copy button — the callback URL the guide had the reader
-  register in External setup (`{{ gram.oauth.callback_url }}`).
-  <!-- verify(operator): the template key substitutes this same Redirect URI value -->
-  Paste the **Client ID** and **Client Secret (optional)** from
-  External setup, then click **Attach Identity Provider**. Confirm the
-  sheet's **Redirect URI** matches the `{{ gram.oauth.callback_url }}`
-  value registered under the provider's redirect/callback field in
-  External setup — readers paste that template key directly there; they
-  do not visit this sheet mid–External-setup only to copy the URI.
-- OAuth with Dynamic Client Registration (DCR): under **Authentication**,
-  click **Configure Manually** (or **Use Discovered** when offered — the
-  Dossier records whether protected-resource metadata makes discovery
-  available without a pasted issuer). In the **Attach Remote Identity
-  Provider** sheet, when the issuer is not already known, paste the
-  provider **Issuer URL** from External setup (typically the remote MCP
-  origin). Keep the auto-derived **Slug** and **Display name (optional)**
-  unless the Dossier records a project naming requirement. Under
-  **Endpoints**, click **Discover** so authorization, token, and
-  registration endpoints fill from the provider's authorization-server
-  metadata. Under **Session Client**, keep **Client Type** set to
-  **Dynamic Client Registration (DCR)** (the default when a registration
-  endpoint is discovered). Keep **Token Endpoint Auth Method** at the
+For OAuth, under **Authentication**:
+
+- If authentication is not configured, choose **Use Discovered** when
+  available; otherwise choose **Configure Manually**.
+- If authentication is already configured, find **Connected services**.
+  If no provider is attached, click **Add provider**. If the intended
+  provider is already attached, review its existing configuration instead
+  of attaching it again. Adding another provider is not available for
+  every server type. Changes require write permission.
+
+In **Attach Remote Identity Provider**, choose **Select existing** to
+reuse the intended project provider, or **Add new** to configure one.
+The selector appears when existing providers are available; otherwise
+the new-provider form is shown directly. For a new provider, enter the
+provider's **Issuer URL** when not already populated, retain the derived
+**Slug**, and optionally set **Display name (optional)**. A discovered
+issuer starts endpoint discovery automatically. Verify the populated
+endpoints; if entering or changing the issuer manually, click **Discover**
+under **Endpoints** when available. If discovery is unavailable, use the
+documented authorization and token endpoints (and registration endpoint
+for DCR).
+
+Under **Session Client**, reuse the intended existing client with
+**Select existing**, or choose **Add new** when that selector is shown.
+Reusing a client uses its stored credentials, scopes, and audience; do
+not instruct readers to re-enter new-client fields in this branch.
+Confirm its read-only configuration matches the guide. If it does not,
+choose **Add new** rather than implying the attach sheet can edit a reused
+client. For a pre-registered client, check the provider's registered
+callback against `{{ gram.oauth.callback_url }}` before attachment;
+**Redirect URI** is not displayed when selecting an existing client. Then click **Attach Identity Provider**. The
+following credential variants apply to a **new** session client:
+
+- OAuth with a pre-registered client: set **Client Type** to **Manual**.
+  Paste the **Client ID** and **Client Secret (optional)** from External
+  setup, and any provider-required overrides. **Scope (override)** takes
+  comma-separated scopes. The label does not make a
+  secret optional when the provider requires it. Before clicking
+  **Attach Identity Provider**, confirm the displayed **Redirect URI**
+  matches the callback URL registered during External setup
+  (`{{ gram.oauth.callback_url }}`). Readers receive the rendered callback
+  URL, not the literal template key. Successful attachment closes the
+  sheet, so do not put this check after attachment.
+- OAuth with Dynamic Client Registration (DCR): verify the registration
+  endpoint is populated, then set **Client Type** to **Dynamic Client
+  Registration (DCR)**. Keep **Token Endpoint Auth Method** at the
   discovered default unless the Dossier records a required override.
   Leave **Scope (override)** and **Audience (optional)** empty unless
-  the Dossier records values to enter. Click **Attach Identity
-  Provider**. The Control Plane registers the OAuth client at the
-  provider's registration endpoint — there is no **Client ID** or
-  **Client Secret** to paste, and readers do not register
-  `{{ gram.oauth.callback_url }}` on the provider for this path. When a
-  client first needs provider access, complete the provider's on-screen
-  browser authorization prompts with the intended account (exact prompt
-  labels are provider-specific; do not invent them).
-- API key / token: under **Upstream Headers**, click **Add header**,
-  enter the **Header name** (for example `Authorization`), leave
-  **Value source** as **Static value**, paste the value from External
-  setup, check **Secret**, and click **Save**. (Catalog installs may
-  collect the same headers earlier, in the **Add to Project** dialog's
-  **Upstream headers** section.)
-<!-- screenshot: the Attach Remote Identity Provider sheet (Manual with Redirect URI, or DCR after Discover with Client Type Dynamic Client Registration), or the Upstream Headers editor; values redacted -->
+  the Dossier records values to enter. Click **Attach Identity Provider**.
+  The Control Plane registers the OAuth client at the provider's
+  registration endpoint — there is no **Client ID** or **Client Secret**
+  to paste, and readers do not register `{{ gram.oauth.callback_url }}`
+  on the provider for this path. When a client first needs provider
+  access, complete the provider's browser authorization prompts with the
+  intended account (exact prompt labels are provider-specific).
+
+For an API key / token, under **Upstream Headers**, click **Add header**,
+enter the **Header name** (for example `Authorization`), leave **Value
+source** as **Static value**, paste the value from External setup, check
+**Secret**, and click **Save**. Catalog installs may collect these headers
+earlier in **Add to Project** under **Upstream headers**; do not add them
+a second time.
+
+<!-- screenshot: Attach Remote Identity Provider with new/existing selection and Manual or discovered DCR fields, or Upstream Headers; values redacted -->
 
 ## The closing pointer
 
