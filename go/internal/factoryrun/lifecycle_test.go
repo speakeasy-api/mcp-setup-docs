@@ -1,6 +1,7 @@
 package factoryrun
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -119,6 +120,68 @@ func TestSignal(t *testing.T) {
 		t.Fatal("accepted phase replacement")
 	}
 }
+
+// A replacement can happen entirely between polls: observing deletion is not
+// required before the host must reject a different phase object.
+func TestSignalReplacementBetweenReads(t *testing.T) {
+	c, err := OpenControl(controlDir(t), strings.Repeat("a", 32))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	if err := c.Publish(); err != nil {
+		t.Fatal(err)
+	}
+	if yes, err := c.Read(); !yes || err != nil {
+		t.Fatal(yes, err)
+	}
+	if err := c.root.Remove("phase.json"); err != nil {
+		t.Fatal(err)
+	}
+	if err := c.Publish(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := c.Read(); err != ErrSignal {
+		t.Fatal("accepted phase replacement between polls", err)
+	}
+}
+
+func TestSignalHandleLifetime(t *testing.T) {
+	c, err := OpenControl(controlDir(t), strings.Repeat("a", 32))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	if err := c.Publish(); err != nil {
+		t.Fatal(err)
+	}
+	if c.seenFile != nil {
+		t.Fatal("publisher changed host identity")
+	}
+	if yes, err := c.Read(); !yes || err != nil {
+		t.Fatal(yes, err)
+	}
+	anchor := c.seenFile
+	if anchor == nil {
+		t.Fatal("validated phase inode is not pinned")
+	}
+	if yes, err := c.Read(); !yes || err != nil || c.seenFile != anchor {
+		t.Fatal("repeated read changed the retained handle", yes, err)
+	}
+	if err := c.root.Remove("phase.json"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := anchor.Stat(); err != nil {
+		t.Fatal("unlinked phase inode is no longer pinned", err)
+	}
+	if err := c.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := anchor.Stat(); !errors.Is(err, os.ErrClosed) {
+		t.Fatal("control close did not release the phase handle", err)
+	}
+}
+
 func TestUnsafeSignal(t *testing.T) {
 	for name, body := range map[string]string{"malformed": "{", "foreign": `{"version":1,"run_id":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","phase":"writing"}`, "oversize": strings.Repeat("x", 257), "unknown": `{"version":1,"run_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","phase":"writing","extra":1}`, "duplicate-key": `{"version":1,"version":1,"run_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","phase":"writing"}`} {
 		t.Run(name, func(t *testing.T) {

@@ -93,9 +93,10 @@ func validRunID(id string) bool {
 }
 
 type Control struct {
-	root  *os.Root
-	runID string
-	seen  os.FileInfo
+	root     *os.Root
+	runID    string
+	seen     os.FileInfo
+	seenFile *os.File
 }
 
 // OpenControl anchors each non-symlink directory by its verified identity, as
@@ -134,7 +135,13 @@ func OpenControl(path, runID string) (*Control, error) {
 	}
 	return &Control{root: root, runID: runID}, nil
 }
-func (c *Control) Close() error { return c.root.Close() }
+func (c *Control) Close() error {
+	var err error
+	if c.seenFile != nil {
+		err = c.seenFile.Close()
+	}
+	return errors.Join(err, c.root.Close())
+}
 
 type phase struct {
 	Version int    `json:"version"`
@@ -155,7 +162,11 @@ func (c *Control) Read() (bool, error) {
 	if err != nil {
 		return false, ErrSignal
 	}
-	defer f.Close()
+	defer func() {
+		if f != c.seenFile {
+			f.Close()
+		}
+	}()
 	actual, err := f.Stat()
 	if err != nil || !actual.Mode().IsRegular() || !os.SameFile(expected, actual) || (c.seen != nil && !os.SameFile(c.seen, actual)) {
 		return false, ErrSignal
@@ -206,7 +217,11 @@ func (c *Control) Read() (bool, error) {
 	if err != nil || !os.SameFile(actual, final) {
 		return false, ErrSignal
 	}
-	c.seen = actual
+	if c.seen == nil {
+		// Metadata alone cannot identify an unlinked file: its inode may be
+		// recycled between polls. Keep the validated object alive until Close.
+		c.seen, c.seenFile = actual, f
+	}
 	return true, nil
 }
 
@@ -215,6 +230,12 @@ func (c *Control) Read() (bool, error) {
 func (c *Control) Publish() error {
 	// Use a separate reader: publishing must not change the host's seen identity.
 	reader := Control{root: c.root, runID: c.runID}
+	defer func() {
+		// This reader borrows the root; close only its own phase handle.
+		if reader.seenFile != nil {
+			reader.seenFile.Close()
+		}
+	}()
 	if yes, err := reader.Read(); err != nil || yes {
 		return err
 	}
