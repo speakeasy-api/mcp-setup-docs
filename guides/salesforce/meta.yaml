@@ -2,11 +2,15 @@
 schema_version: 1
 slug: salesforce
 title: Salesforce
-summary: Connect to Salesforce records through hosted SObject MCP servers with selectable read, write, and delete boundaries.
+summary: Connect to Salesforce hosted MCP servers using the Speakeasy application with a required support handoff or your own External Client App, selecting the appropriate endpoint and org type.
 aliases:
   - com.pulsemcp.mirror/gram-salesforce
 credential_setup:
   options:
+    - id: speakeasy-application
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
     - id: oauth-client
       kind: oauth
       client_registration: manual
@@ -18,7 +22,7 @@ credential_setup:
             - external.md#copy-consumer-key
   requirements:
     - id: salesforce-admin
-      description: Salesforce System Administrator access to an API-enabled org where Hosted MCP Servers are available, with authority to create an External Client App and enable servers
+      description: Salesforce System Administrator access to an API-enabled org where Hosted MCP Servers are available, with authority to install the Speakeasy application or create an External Client App, and enable the selected servers
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -29,41 +33,85 @@ remotes:
     transport: streamable-http
     authentication:
       - oauth-client
+      - speakeasy-application
   - id: sobject-reads-sandbox
     url: https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads
     transport: streamable-http
     authentication:
       - oauth-client
+      - speakeasy-application
   - id: sobject-mutations-production
     url: https://api.salesforce.com/platform/mcp/v1/platform/sobject-mutations
     transport: streamable-http
     authentication:
       - oauth-client
+      - speakeasy-application
   - id: sobject-mutations-sandbox
     url: https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations
     transport: streamable-http
     authentication:
       - oauth-client
+      - speakeasy-application
   - id: sobject-deletes-production
     url: https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes
     transport: streamable-http
     authentication:
       - oauth-client
+      - speakeasy-application
   - id: sobject-deletes-sandbox
     url: https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes
     transport: streamable-http
     authentication:
       - oauth-client
+      - speakeasy-application
   - id: sobject-all-production
     url: https://api.salesforce.com/platform/mcp/v1/platform/sobject-all
     transport: streamable-http
     authentication:
       - oauth-client
+      - speakeasy-application
   - id: sobject-all-sandbox
     url: https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all
     transport: streamable-http
     authentication:
       - oauth-client
+      - speakeasy-application
+  - id: data360-production
+    url: https://api.salesforce.com/platform/mcp/v1/data/data360
+    transport: streamable-http
+    authentication:
+      - oauth-client
+      - speakeasy-application
+  - id: data360-sandbox
+    url: https://api.salesforce.com/platform/mcp/v1/data/sandbox/data360
+    transport: streamable-http
+    authentication:
+      - oauth-client
+      - speakeasy-application
+  - id: headless-360-production
+    url: https://api.salesforce.com/platform/mcp/v1/platform/headless-360
+    transport: streamable-http
+    authentication:
+      - oauth-client
+      - speakeasy-application
+  - id: headless-360-sandbox
+    url: https://api.salesforce.com/platform/mcp/v1/sandbox/platform/headless-360
+    transport: streamable-http
+    authentication:
+      - oauth-client
+      - speakeasy-application
+  - id: tableau-next-production
+    url: https://api.salesforce.com/platform/mcp/v1/analytics/tableau-next
+    transport: streamable-http
+    authentication:
+      - oauth-client
+      - speakeasy-application
+  - id: tableau-next-sandbox
+    url: https://api.salesforce.com/platform/mcp/v1/sandbox/analytics/tableau-next
+    transport: streamable-http
+    authentication:
+      - oauth-client
+      - speakeasy-application
 provenance:
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html
@@ -175,3 +223,57 @@ provenance:
     name: Speakeasy setup canonical section
     classification: official
     observed_at: "2026-08-06T23:23:14Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/setup-overview.html
+    name: Set Up Your Org
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/create-external-client-app.html
+    name: Create an External Client App
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html
+    name: Salesforce Hosted MCP Servers
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/client-connection-overview.html
+    name: Connecting an MCP Client
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/servers-reference.html
+    name: Standard MCP Servers Reference
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/activate-mcp-servers.html
+    name: Activate MCP Servers
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/references/reference/data360-mcp.html
+    name: Data 360 MCP Server
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/references/reference/headless-360-mcp.html
+    name: Headless 360 MCP Server (Beta)
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/references/reference/tableau-next.html
+    name: Tableau Next
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: provider-documentation
+    locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/postman.html
+    name: Configure Postman
+    classification: official
+    observed_at: "2026-09-17T16:15:46Z"
+  - source: operator-instruction
+    locator: https://login.salesforce.com/packaging/installPackage.apexp?p0=04tdM000000cNGXQA2
+    name: Speakeasy Salesforce application installation and mandatory support OAuth handoff
+    observed_at: "2026-09-17T16:15:46Z"
