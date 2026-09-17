@@ -117,7 +117,12 @@ See [FACTORY.md](../FACTORY.md) for operation and troubleshooting.
   Nil scan error alone is insufficient; matcher warnings/timeouts fail closed.
 - Reuse the sanitizer across fields and rescan final serialized output. Bound
   sources to 1 MiB and final readable output to 2 MiB with a process deadline.
-  Findings, warnings, errors or incomplete scans withhold readable output.
+  Detected secrets in selected text are redacted. Findings first discovered in
+  the final scan may update only those existing text values, followed by one
+  bounded sanitize/serialize/rescan retry. Schema, identities, filenames and
+  other metadata must remain unchanged. Unresolved findings, matcher warnings,
+  errors or incomplete scans still withhold readable output. Generated-guide
+  byte-equality validation is unchanged; redacted guides are not installed.
 - Sanitized readable success/failure transcripts have seven-day Actions
   retention. Label partial exports. Metadata-only transcripts and safe
   diagnostics are fallbacks; raw logs are never a fallback.

@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 	"syscall"
@@ -329,28 +330,34 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 		}
 		return clean, err
 	}
-	// Scan decoded strings twice with ONE instance: discoveries in later fields
-	// must redact earlier fields before the final serialized document is scanned.
-	for pass := 0; pass < 2; pass++ {
-		for i := range doc.Sessions {
-			for j := range doc.Sessions[i].Events {
-				e := &doc.Sessions[i].Events[j]
-				for k, text := range e.Text {
-					clean, e2 := sanitizeField(text)
-					if e2 != nil {
-						return e2
+	sanitizeFields := func() error {
+		// Scan decoded strings twice with ONE instance: discoveries in later fields
+		// must redact earlier fields before the final serialized document is scanned.
+		for pass := 0; pass < 2; pass++ {
+			for i := range doc.Sessions {
+				for j := range doc.Sessions[i].Events {
+					e := &doc.Sessions[i].Events[j]
+					for k, text := range e.Text {
+						clean, e2 := sanitizeField(text)
+						if e2 != nil {
+							return e2
+						}
+						e.Text[k] = clean
 					}
-					e.Text[k] = clean
 				}
 			}
-		}
-		for i := range doc.Files {
-			clean, e := sanitizeField(doc.Files[i].Text)
-			if e != nil {
-				return e
+			for i := range doc.Files {
+				clean, e := sanitizeField(doc.Files[i].Text)
+				if e != nil {
+					return e
+				}
+				doc.Files[i].Text = clean
 			}
-			doc.Files[i].Text = clean
 		}
+		return nil
+	}
+	if err := sanitizeFields(); err != nil {
+		return err
 	}
 	if omitted {
 		doc.Limited = true
@@ -367,6 +374,32 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	final, err := sanitizer.Sanitize(data)
 	if err != nil {
 		return err
+	}
+	if !bytes.Equal(final, data) {
+		// Findings are recoverable only in existing selected text. Never install
+		// a raw JSON rewrite or change identities, filenames, or schema fields.
+		if err := applyFinalTextRedactions(&doc, final); err != nil {
+			return err
+		}
+		hadOmissions := omitted
+		if err := sanitizeFields(); err != nil {
+			return err
+		}
+		if omitted && !hadOmissions {
+			return errUnsafe // retry must not require new omission metadata
+		}
+		data, err = json.MarshalIndent(doc, "", "  ")
+		if err != nil {
+			return errUnsafe
+		}
+		if len(data) > 2<<20 {
+			return limitError("assembled_bytes", int64(len(data)), 2<<20)
+		}
+		// Exactly one retry, using the same scanner and original outer deadline.
+		final, err = sanitizer.Sanitize(data)
+		if err != nil {
+			return err
+		}
 	}
 	if !bytes.Equal(final, data) || !json.Valid(final) {
 		return errUnsafe
@@ -414,6 +447,69 @@ func exportWithSanitizer(home, workspace, output string, known []string, newScan
 	}
 	if err = out.Rename(tmp, name); err != nil {
 		return errUnsafe
+	}
+	return nil
+}
+
+// applyFinalTextRedactions admits only canonical JSON with the identical
+// envelope. Copy selected text only, after validating the entire candidate.
+func applyFinalTextRedactions(doc *readableArtifact, data []byte) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	if _, err := readValue(dec, 0); err != nil {
+		return errUnsafe
+	}
+	if _, err := dec.Token(); err != io.EOF {
+		return errUnsafe
+	}
+	var candidate readableArtifact
+	if json.Unmarshal(data, &candidate) != nil {
+		return errUnsafe
+	}
+	canonical, err := json.MarshalIndent(candidate, "", "  ")
+	if err != nil || !bytes.Equal(canonical, data) {
+		return errUnsafe // reject unknown, missing, case-aliased or defaulted fields
+	}
+	if len(candidate.Sessions) != len(doc.Sessions) || (candidate.Sessions == nil) != (doc.Sessions == nil) ||
+		len(candidate.Files) != len(doc.Files) || (candidate.Files == nil) != (doc.Files == nil) {
+		return errUnsafe
+	}
+	envelope := candidate
+	envelope.Sessions, envelope.Files = doc.Sessions, doc.Files
+	if !reflect.DeepEqual(envelope, *doc) {
+		return errUnsafe
+	}
+	for i, session := range candidate.Sessions {
+		original := doc.Sessions[i]
+		if len(session.Events) != len(original.Events) || (session.Events == nil) != (original.Events == nil) {
+			return errUnsafe
+		}
+		for j, event := range session.Events {
+			before := original.Events[j]
+			if len(event.Text) != len(before.Text) {
+				return errUnsafe
+			}
+			event.Text = before.Text
+			if !reflect.DeepEqual(event, before) {
+				return errUnsafe
+			}
+		}
+		session.Events = original.Events
+		if !reflect.DeepEqual(session, original) {
+			return errUnsafe
+		}
+	}
+	for i, file := range candidate.Files {
+		if file.Name != doc.Files[i].Name {
+			return errUnsafe
+		}
+	}
+	for i, session := range candidate.Sessions {
+		for j, event := range session.Events {
+			copy(doc.Sessions[i].Events[j].Text, event.Text)
+		}
+	}
+	for i, file := range candidate.Files {
+		doc.Files[i].Text = file.Text
 	}
 	return nil
 }
