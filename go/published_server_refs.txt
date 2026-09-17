@@ -26,6 +26,7 @@ salesforce/sobject-mutations-production
 salesforce/sobject-mutations-sandbox
 salesforce/sobject-reads-production
 salesforce/sobject-reads-sandbox
+slack/hosted
 snowflake/cortex-agent-mcp
 x-docs/docs
 x/hosted

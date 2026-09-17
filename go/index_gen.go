@@ -23,6 +23,7 @@ var generatedSlugs = []GuideSlug{
 	"intercom",
 	"netsuite",
 	"salesforce",
+	"slack",
 	"snowflake",
 	"x",
 	"x-docs",
@@ -302,6 +303,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 			{ID: "oauth-client", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
 		},
 	},
+	"slack": {
+		Slug:               "slack",
+		Title:              "Slack",
+		Summary:            "Connect the Speakeasy AI Control Plane to Slack's hosted MCP server using an internal Slack app and user-scoped OAuth.",
+		SpeakeasyAddServer: "custom-remote",
+		SetupRequired:      true,
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://mcp.slack.com/mcp", Transport: "streamable-http", Tenanted: false},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "internal-app-oauth", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
 	"snowflake": {
 		Slug:               "snowflake",
 		Title:              "Snowflake",
@@ -444,6 +459,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	},
 	"https://mcp.intercom.com/mcp": {
 		{Guide: "intercom", Remote: "us"},
+	},
+	"https://mcp.slack.com/mcp": {
+		{Guide: "slack", Remote: "hosted"},
 	},
 	"https://mcp.zapier.com/api/v1/connect": {
 		{Guide: "zapier", Remote: "hosted"},
@@ -751,6 +769,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Developer updates for June 2026": {
 		{Guide: "hubspot", Remote: "hosted"},
+	},
+	"Developing a sample app with the Slack MCP Server": {
+		{Guide: "slack", Remote: "hosted"},
 	},
 	"Drive MCP file eligibility": {
 		{Guide: "google-drive", Remote: "hosted"},
@@ -1193,6 +1214,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Share your app": {
 		{Guide: "asana", Remote: "hosted"},
+	},
+	"Slack MCP server overview": {
+		{Guide: "slack", Remote: "hosted"},
 	},
 	"Snowflake Cortex documentation index": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
