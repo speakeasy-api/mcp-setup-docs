@@ -21,7 +21,7 @@ credential_setup:
             - external.md#copy-client-credentials
   requirements:
     - id: internal-slack-app
-      description: An internal Slack app in the target workspace, permission to manage its settings, and any required workspace-admin approval
+      description: Permission to create or manage an internal Slack app in the target workspace, and any required workspace-admin approval
     - id: user-access
       description: Each connecting user authorizes access to Slack with their own account
 documentation:
@@ -54,3 +54,7 @@ provenance:
     locator: https://mcp.slack.com/.well-known/oauth-authorization-server
     classification: official
     observed_at: "2026-09-17T00:05:11Z"
+  - source: provider-documentation
+    locator: https://docs.slack.dev/reference/app-manifest/
+    classification: official
+    observed_at: "2026-09-17T01:37:05Z"

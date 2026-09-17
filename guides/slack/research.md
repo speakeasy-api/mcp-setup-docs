@@ -12,11 +12,18 @@ Official Slack documentation is authoritative for provider requirements. Public
 pages and metadata were read on 2026-09-16; no authenticated workspace or consent
 flow was exercised. The sample app's Bolt, OpenAI, event subscription, and local
 server instructions are not prerequisites for a hosted remote MCP connection.
-This guide starts with an existing internal app managed by the reader or their
-app owner, rather than asking an IT administrator to paste a sample manifest
-containing unrelated bot features.
+This guide supports either an existing internal app or creation from a minimal
+JSON manifest. The manifest excludes unrelated sample-app bot features. The
+operator explicitly requested this copy-paste configuration alternative.
 
 ### Sources
+
+- **Manifest reference:** https://docs.slack.dev/reference/app-manifest/ —
+  `display_information.name` (required, maximum 35 characters),
+  `oauth_config.redirect_urls`, `oauth_config.scopes.user`, and the boolean
+  `settings.is_mcp_enabled` (supported in manifest v1 and v2). Observed 2026-09-17.
+  The separate `mcp_servers` field declares servers consumed by an app and is
+  not needed to enable this app for Slack's hosted MCP server.
 
 - **Overview:** https://docs.slack.dev/ai/slack-mcp-server/ — endpoint, transport,
   eligibility, app identity, confidential OAuth, user-token endpoints, scope table,
@@ -94,6 +101,26 @@ a live acceptance test. This is unverified integration behavior, not evidence of
 an unsupported client feature.
 
 ## Provider anchor contract
+
+### Create an app from JSON {#create-app-from-manifest}
+
+Optional alternative to configuring an existing internal app. In Slack app
+settings choose **From a manifest**, **Continue**, replace the JSON, select
+the workspace, then **Next** and **Create**. This order and these labels come
+from Developing. The manifest sets `display_information.name` to the example
+name `Slack MCP Control Plane`, `oauth_config.redirect_urls` to an array
+containing `{{ gram.oauth.callback_url }}`, `oauth_config.scopes.user` to the
+four channel-listing scopes, and `settings.is_mcp_enabled` to `true`.
+[Manifest reference; Developing; Overview; Client setup]
+
+The manifest replaces the manual MCP-enable, scope, and callback steps for a
+new app. Continue to `copy-client-credentials` after creation. It does not
+contain credentials, bypass approval, or grant user consent. Keep the app
+internal. Existing-app readers skip this section and use the original manual
+steps. No bot, events, Socket Mode, or token-rotation settings are needed for
+this path. No live Slack manifest creation test has been performed.
+
+Screenshot: Slack's manifest editor with JSON selected, before app creation.
 
 ### Enable MCP access {#enable-mcp-access}
 
