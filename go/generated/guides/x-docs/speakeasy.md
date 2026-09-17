@@ -2,15 +2,15 @@
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-1. In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**.
-2. Click **Add Source**.
-3. Choose **3rd-party server**.
+1. In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**.
+2. Click **Add new** to open the **Add MCP server** page.
+3. Choose **From the catalog**.
 4. On the **MCP Catalog** page, enter `X Docs` in **Search MCP servers...**.
-5. Open the **X Docs** entry with **View**.
+5. Open the **X Docs** entry.
 6. Click **Add**.
 7. In the **Add to Project** dialog, click **Add to Project**.
 
-This creates the hosted MCP server and opens its **Overview** page.
+After installation, select **Configure MCP settings** on the completion screen to open the server, then open **Settings**.
 
 <!-- screenshot: the X Docs catalog entry or the Add to Project dialog; no credential values need redaction -->
 
