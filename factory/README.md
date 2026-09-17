@@ -200,6 +200,13 @@ it with the current ticket to research, reconciliation, and finalization. The
 finalization audit checks for omissions against that unchanged evidence, not
 just whatever survives in the new draft. No separate reviewer loop is added.
 
+Large research inputs (including the prior dossier) use a private, host-owned
+JSON evidence file when the assembled prompt exceeds the 120 KiB transport
+limit. Pinned instructions remain inline; the prompt supplies byte length,
+SHA-256, and bounded UTF-8 read commands. The host rejects modified or replaced
+input after the turn. Inputs beyond existing evidence limits fail closed, never
+truncate facts. File transport avoids the argv limit, not model context costs.
+
 The factory tests check prompt contracts and note ingestion, not guaranteed
 model compliance; generated PRs still require review. The existing issue snapshot
 includes the latest 100 comments, so keep essential notes in the issue body on
