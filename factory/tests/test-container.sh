@@ -14,32 +14,37 @@ trap 'rm -rf "$TMP"; exit 130' INT TERM
 test_config_is_pinned() {
   # shellcheck disable=SC1091
   source "$ROOT/factory/config.env"
-  assert_eq "0.1.130" "$KIT_VERSION"
-  assert_eq "openai/gpt-5.6-sol" "$KIT_MODEL"
-  assert_eq "high" "$KIT_REASONING_EFFORT"
-  assert_eq "232bbbf2958e9b83aba352ecfc7195768868f630cbf5fcdcdeb45b2ed12f5ecd" "$KIT_SHA256"
+  assert_eq "0.2.2" "$KIT_VERSION"
+  assert_eq "openai/gpt-6-astra" "$KIT_MODEL"
+  assert_eq "medium" "$KIT_REASONING_EFFORT"
+  assert_eq "1371a3d708ed5a897d15bbe3a76fb92c9ee20d69eeb5bb7d6626fee1e914310f" "$KIT_SHA256"
+}
+
+test_go_toolchain_is_pinned() {
+  grep -Fxq 'go 1.27.0' "$ROOT/go/go.mod" || fail 'module must require Go 1.27.0'
+  grep -Fxq 'go = "1.27.0"' "$ROOT/mise.toml" || fail 'mise must pin Go 1.27.0'
 }
 
 test_dockerfile_builds_static_linter_without_go_in_final_image() {
   local dockerfile
   dockerfile="$(cat "$ROOT/factory/Dockerfile")"
-  assert_contains "FROM golang:1.22.12-bookworm@sha256:3d699e4d15d0f8f13c9195c0632a16702b8cbdece2955af1c23b37ae5d55a253 AS lint-builder" "$dockerfile"
+  assert_contains "FROM golang:1.27.0-bookworm@sha256:ded31c68586d2e49e760acc2e65a884b23d032e9bbbed0ae0c55abd3fcaf4452 AS lint-builder" "$dockerfile"
   assert_contains "AS lint-builder" "$dockerfile"
   assert_contains "FROM debian:trixie-slim@sha256:d7e12182ce18b85b93007c1dedf31f2d29e01ccf3182cc4017c709b6259bc132" "$dockerfile"
   assert_contains "CGO_ENABLED=0" "$dockerfile"
   assert_contains "go build" "$dockerfile"
   assert_contains "./cmd/lint-guide" "$dockerfile"
+  assert_contains "./cmd/begin-writing" "$dockerfile"
+  assert_contains "./cmd/supervise-factory" "$dockerfile"
+  assert_contains "./cmd/guide-factory" "$dockerfile"
+  assert_contains "COPY --from=lint-builder /out/guide-factory /usr/local/bin/guide-factory" "$dockerfile"
+  assert_contains "COPY --from=lint-builder /out/begin-writing /usr/local/bin/begin-writing" "$dockerfile"
+  assert_contains "COPY --from=lint-builder /out/supervise-factory /usr/local/bin/supervise-factory" "$dockerfile"
   assert_contains "COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide" "$dockerfile"
   assert_contains "COPY factory/scripts/validate-report.sh /usr/local/bin/validate-report" "$dockerfile"
   assert_contains "COPY factory/scripts/project-kit-events.sh /usr/local/bin/project-kit-events" "$dockerfile"
   assert_contains "COPY factory/scripts/build-diagnostics.sh /usr/local/bin/build-diagnostics" "$dockerfile"
   assert_contains "COPY factory/scripts/validate-diagnostics.sh /usr/local/bin/validate-diagnostics" "$dockerfile"
-  # shellcheck disable=SC2016
-  grep -Fq 'EVENT_PROJECTOR=${FACTORY_EVENT_PROJECTOR:-/usr/local/bin/project-kit-events}' \
-    "$ROOT/factory/scripts/container-entrypoint.sh" || fail 'entrypoint does not default to installed projector'
-  # shellcheck disable=SC2016
-  grep -Fq 'DIAGNOSTICS_BUILDER=${FACTORY_DIAGNOSTICS_BUILDER:-/usr/local/bin/build-diagnostics}' \
-    "$ROOT/factory/scripts/container-entrypoint.sh" || fail 'entrypoint does not default to installed builder'
   [[ "$(grep -c '^FROM ' "$ROOT/factory/Dockerfile")" -eq 2 ]] || fail "expected a two-stage image"
   local image_bin="$TMP/image-helper-bin"
   mkdir -p "$image_bin"
@@ -81,6 +86,25 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs() {
     "$ROOT/factory/scripts/build-diagnostics.sh" \
     "$ROOT/factory/scripts/validate-diagnostics.sh" \
     "$ROOT/factory/scripts/container-entrypoint.sh" "$context/factory/scripts/"
+  # Fake-only private canaries: both archive mechanisms must omit these exact
+  # local evidence/session/credential paths, without excluding reviewed fixtures.
+  local -a private_files=(
+    .superpowers/sdd/trial/private.log nested/.superpowers/sdd/private.log
+    .kit/sessions/w-private/session.jsonl nested/.kit/sessions/private.jsonl
+    nested/.env nested/.env.local nested/mise.local.toml
+    nested/.worktrees/private/token nested/.claude/worktrees/private/token
+    nested/.tmp-trial/private.log .mcp.json nested/.mcp.json
+    .claude/settings.local.json nested/.claude/settings.local.json
+    local/ssl/private.key nested/local/ssl/private.key
+  )
+  local path
+  for path in "${private_files[@]}"; do
+    mkdir -p "$(dirname "$context/$path")"
+    printf '%s\n' FAKE_PRIVATE_CANARY > "$context/$path"
+  done
+  mkdir -p "$context/factory/tests/fixtures/kit-v0.1.134"
+  printf '%s\n' REVIEWED_FIXTURE > "$context/factory/tests/fixtures/kit-v0.1.134/session.jsonl"
+  cp "$ignore" "$context/.dockerignore"
   tar -cf "$archive" --exclude-from="$ignore" -C "$context" .
   listing="$(tar -tf "$archive")"
   for excluded in .git nested/.git .worktrees .claude/worktrees mise.local.toml \
@@ -89,15 +113,42 @@ test_docker_context_excludes_credentials_and_keeps_build_inputs() {
       fail "Docker context contains local-only path: $excluded"
     fi
   done
-  for required in go/go.mod go/go.sum go/cmd/ go/internal/ factory/Dockerfile \
+  for required in go/go.mod go/go.sum go/cmd/ go/internal/ \
+    go/cmd/begin-writing/main.go go/cmd/supervise-factory/main.go factory/Dockerfile \
     factory/config.env factory/scripts/validate-report.sh factory/scripts/project-kit-events.sh \
     factory/scripts/build-diagnostics.sh factory/scripts/validate-diagnostics.sh \
     factory/scripts/container-entrypoint.sh; do
     grep -Fq "$required" <<<"$listing" || fail "Docker context excludes required input: $required"
   done
+  for path in "${private_files[@]}"; do
+    if grep -Fxq "./$path" <<<"$listing"; then
+      fail "source archive contains fake private canary: $path"
+    fi
+  done
+  grep -Fq 'factory/tests/fixtures/kit-v0.1.134/session.jsonl' <<<"$listing" \
+    || fail 'source archive excluded reviewed session fixture'
+  # Exercise Docker's ignore parser too, rather than assuming tar and Docker
+  # assign identical meaning to patterns. Scratch build never runs a container.
+  printf 'FROM scratch\nCOPY . /snapshot\n' > "$TMP/context.Dockerfile"
+  if ! docker build --file "$TMP/context.Dockerfile" \
+    --output "type=local,dest=$TMP/docker-output" "$context" > "$TMP/context-build.log" 2>&1; then
+    fail 'Docker context exclusion test requires available Docker/BuildKit'
+  fi
+  for path in "${private_files[@]}" .git nested/.git/config .env .env.local mise.local.toml \
+    .worktrees/private/token .claude/worktrees/private/token .tmp-run/token \
+    pulse-catalog.json tools/pulse-catalog/pulse-catalog.json; do
+    [[ ! -e "$TMP/docker-output/snapshot/$path" ]] || fail "Docker context leaked fake private path: $path"
+  done
+  for path in go/go.mod go/go.sum go/cmd/begin-writing/main.go \
+    go/cmd/supervise-factory/main.go factory/scripts/container-entrypoint.sh \
+    factory/tests/fixtures/kit-v0.1.134/session.jsonl; do
+    [[ -f "$TMP/docker-output/snapshot/$path" ]] || fail "Docker context excluded required source: $path"
+  done
+  grep -Fq "'--exclude-from='+root+'/.dockerignore'" "$ROOT/factory/scripts/run-kit.sh" \
+    || fail 'source snapshot does not use the tested shared exclusion file'
   # Literal shell source is the build-interface contract under test.
   # shellcheck disable=SC2016
-  grep -Fq '"$FACTORY_DOCKER" build' "$ROOT/factory/scripts/run-kit.sh" \
+  grep -Fq "[docker, 'build'," "$ROOT/factory/scripts/run-kit.sh" \
     || fail "run-kit no longer builds the factory image"
 }
 
@@ -115,594 +166,13 @@ test_release_archive_layout_and_checksum() {
   fi
   printf '%s  %s\n' "$KIT_SHA256" "$archive" | sha256sum -c - >/dev/null
   entries="$(tar -tzf "$archive")"
-  assert_eq "kit" "$entries"
-}
-
-test_startup_failures_remove_stale_diagnostics() {
-  local host_export host_status container_export container_status repo input
-  host_export="$TMP/stale-host-export"
-  mkdir -p "$host_export"
-  printf '%s\n' 'SECRET_STALE_HOST_DIAGNOSTIC' >"$host_export/factory-diagnostics.json"
-  touch "$host_export/execution-transcript.json"
-
-  host_status=0
-  OPENROUTER_API_KEY=or-test "$ROOT/factory/scripts/run-kit.sh" \
-    "$TMP/missing-issue.json" "$TMP/missing-catalog.json" "$host_export" \
-    >/dev/null 2>&1 || host_status=$?
-  assert_eq 2 "$host_status"
-  test ! -e "$host_export/factory-diagnostics.json" \
-    || fail 'run-kit retained stale diagnostics after startup failure'
-  test ! -e "$host_export/execution-transcript.json" || fail 'stale host transcript'
-
-  repo="$TMP/stale-container-repo"
-  input="$TMP/stale-container-input"
-  container_export="$TMP/stale-container-export"
-  mkdir -p "$repo/factory" "$input" "$container_export"
-  printf 'assignment\n' >"$repo/factory/coordinator.md"
-  printf '%s\n' 'SECRET_STALE_CONTAINER_DIAGNOSTIC' \
-    >"$container_export/factory-diagnostics.json"
-  touch "$container_export/execution-transcript.json"
-
-  container_status=0
-  FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
-    FACTORY_WORKSPACE_ROOT="$TMP/stale-container-workspace" \
-    FACTORY_EXPORT_ROOT="$container_export" \
-    FACTORY_KIT_HOME="$TMP/stale-container-home" \
-    "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>&1 \
-    || container_status=$?
-  assert_eq 1 "$container_status"
-  test ! -e "$container_export/execution-transcript.json" || fail 'stale container transcript'
-  test ! -e "$container_export/factory-diagnostics.json" \
-    || fail 'entrypoint retained stale diagnostics after startup failure'
-}
-
-test_run_kit_does_not_forward_github_credentials() {
-  export OPENROUTER_API_KEY=or-test GH_TOKEN=forbidden SSH_AUTH_SOCK=/forbidden
-  export FACTORY_DOCKER="$TMP/bin/docker"
-  # shellcheck disable=SC2016
-  make_fake docker 'printf "%s\n" "$@" >"$TMP/docker.args"'
-  printf '{}\n' >"$TMP/issue.json"
-  printf '{}\n' >"$TMP/catalog.json"
-  "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$TMP/export"
-  local args
-  args="$(cat "$TMP/docker.args")"
-  assert_contains "OPENROUTER_API_KEY" "$args"
-  ! grep -qE 'GH_TOKEN|SSH_AUTH_SOCK' "$TMP/docker.args"
-}
-
-test_run_kit_reports_safe_failure_diagnostics() {
-  export OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$TMP/bin/docker"
-  local export_dir
-  export_dir="$TMP/error-run-export"
-  printf '{}\n' >"$TMP/issue.json"; printf '{}\n' >"$TMP/catalog.json"
-  mkdir -p "$export_dir"
-
-  cat >"$TMP/valid-container-diagnostics.json" <<'JSON'
-{"schema_version":1,"kind":"guide_factory_diagnostics","status":"failed","stage":"kit_prompt","classification":"kit_prompt_failed","report":{"exists":false,"valid":false,"outcome":null,"review_rounds":null},"events":[{"sequence":1,"call_ref":0,"event":"started","tool":"kit_prompt","operation":"kit_prompt","success":null,"duration_ms":null},{"sequence":2,"call_ref":0,"event":"finished","tool":"kit_prompt","operation":"kit_prompt","success":false,"duration_ms":0}],"kit_errors":{"schema_version":1,"records":[]}}
-JSON
-  # shellcheck disable=SC2016
-  make_fake docker '[[ "${1:-}" == build ]] && exit 0; cp "$TMP/valid-container-diagnostics.json" "$TMP/error-run-export/factory-diagnostics.json"; exit 1'
-  if "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$export_dir" \
-    >"$TMP/out" 2>"$TMP/err"; then
-    fail 'run-kit accepted failed container'
-  fi
-  assert_eq 'factory: diagnostics: stage=kit_prompt classification=kit_prompt_failed events=2' "$(cat "$TMP/err")"
-  cmp -s "$TMP/valid-container-diagnostics.json" "$export_dir/factory-diagnostics.json" \
-    || fail 'run-kit did not preserve valid diagnostics'
-
-  printf '%s\n' '{"prompt":"SECRET_INVALID_DIAGNOSTIC"}' >"$TMP/invalid-container-diagnostics.json"
-  # shellcheck disable=SC2016
-  make_fake docker '[[ "${1:-}" == build ]] && exit 0; cp "$TMP/invalid-container-diagnostics.json" "$TMP/error-run-export/factory-diagnostics.json"; exit 0'
-  if ! "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$export_dir" \
-    >"$TMP/out" 2>"$TMP/err"; then
-    fail 'run-kit rejected successful container with invalid diagnostics'
-  fi
-  test ! -e "$export_dir/factory-diagnostics.json" || fail 'run-kit retained invalid diagnostics'
-  ! grep -q 'SECRET_INVALID_DIAGNOSTIC' "$TMP/err" || fail 'run-kit logged invalid diagnostics'
-
-  printf '%s\n' 'SECRET_STALE_DIAGNOSTIC' >"$export_dir/factory-diagnostics.json"
-  make_fake docker 'exit 73'
-  if "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$export_dir" \
-    >"$TMP/out" 2>"$TMP/err"; then
-    fail 'run-kit accepted failed build'
-  fi
-  jq -e '.stage == "docker_build" and .classification == "docker_build_failed" and .events == [] and .kit_errors.records == []' \
-    "$export_dir/factory-diagnostics.json" >/dev/null || fail 'run-kit did not synthesize minimal build diagnostics'
-  assert_eq 'factory: diagnostics: stage=docker_build classification=docker_build_failed events=0' "$(cat "$TMP/err")"
-  ! grep -q 'SECRET_STALE_DIAGNOSTIC' "$TMP/err" || fail 'run-kit logged stale diagnostics'
-}
-
-test_run_kit_preserves_primary_status_when_diagnostics_fail() {
-  local bin export_dir status mode builder validator diagnostics_jq
-  bin="$TMP/diagnostics-failure-bin"; export_dir="$TMP/diagnostics-failure-export"
-  mkdir -p "$bin" "$export_dir"
-  printf '{}\n' >"$TMP/helper-issue.json"; printf '{}\n' >"$TMP/helper-catalog.json"
-  cat >"$TMP/helper-valid-diagnostics.json" <<'JSON'
-{"schema_version":1,"kind":"guide_factory_diagnostics","status":"failed","stage":"container_run","classification":"container_run_failed","report":{"exists":false,"valid":false,"outcome":null,"review_rounds":null},"events":[],"kit_errors":{"schema_version":1,"records":[]}}
-JSON
-  cat >"$bin/fail-builder" <<'MOCK'
-#!/usr/bin/env bash
-printf '%s\n' '{"raw":"SECRET_HELPER_CANARY"}' >"${6:?}"
-printf '%s\n' 'SECRET_HELPER_CANARY' >&2
-exit 88
-MOCK
-  cat >"$bin/fail-validator" <<'MOCK'
-#!/usr/bin/env bash
-printf '%s\n' 'SECRET_HELPER_CANARY' >&2
-exit 89
-MOCK
-  cat >"$bin/fail-jq" <<'MOCK'
-#!/usr/bin/env bash
-printf '%s\n' 'SECRET_HELPER_CANARY' >&2
-exit 90
-MOCK
-  chmod +x "$bin/fail-builder" "$bin/fail-validator" "$bin/fail-jq"
-
-  for mode in builder validator summary; do
-    if [[ $mode == builder ]]; then
-      make_fake docker 'exit 73'
-      builder="$bin/fail-builder"; validator="$ROOT/factory/scripts/validate-diagnostics.sh"; diagnostics_jq=jq
-    else
-      # shellcheck disable=SC2016
-      make_fake docker '[[ "${1:-}" == build ]] && exit 0; cp "$TMP/helper-valid-diagnostics.json" "$TMP/diagnostics-failure-export/factory-diagnostics.json"; exit 73'
-      builder="$ROOT/factory/scripts/build-diagnostics.sh"
-      if [[ $mode == validator ]]; then
-        validator="$bin/fail-validator"; diagnostics_jq=jq
-      else
-        validator="$ROOT/factory/scripts/validate-diagnostics.sh"; diagnostics_jq="$bin/fail-jq"
-      fi
-    fi
-    if OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$TMP/bin/docker" \
-      FACTORY_DIAGNOSTICS_BUILDER="$builder" FACTORY_DIAGNOSTICS_VALIDATOR="$validator" \
-      FACTORY_DIAGNOSTICS_JQ="$diagnostics_jq" TMPDIR="$TMP" \
-      "$ROOT/factory/scripts/run-kit.sh" "$TMP/helper-issue.json" "$TMP/helper-catalog.json" \
-      "$export_dir" >"$TMP/helper-$mode.out" 2>"$TMP/helper-$mode.err"; then
-      fail "run-kit accepted $mode helper failure"
-    else
-      status=$?
-    fi
-    assert_eq 73 "$status"
-    test ! -e "$export_dir/factory-diagnostics.json" || fail "run-kit retained $mode helper output"
-    if grep -q 'SECRET_HELPER_CANARY' "$TMP/helper-$mode.out" "$TMP/helper-$mode.err"; then
-      fail "run-kit logged unsafe $mode helper output"
-    fi
-    [[ -z "$(find "$TMP" -maxdepth 1 -type d -name 'mcp-setup-docs-source.*' -print -quit)" ]] \
-      || fail "run-kit leaked snapshot after $mode helper failure"
+  # v0.2.2 also ships required license notices. Reject unexpected paths.
+  for required in kit LICENSE THIRD_PARTY_NOTICES.md third_party/licenses/; do
+    grep -Fxq "$required" <<<"$entries" || fail "archive missing $required"
   done
-}
-
-test_run_kit_synthesizes_setup_failure_diagnostics() {
-  local bin export_dir mode status expected real_realpath
-  bin="$TMP/setup-failure-bin"; export_dir="$TMP/setup-failure-export"
-  mkdir -p "$bin" "$export_dir"
-  printf '{}\n' >"$TMP/setup-issue.json"; printf '{}\n' >"$TMP/setup-catalog.json"
-  cat >"$bin/mktemp" <<'MOCK'
-#!/usr/bin/env bash
-if [[ "${SETUP_FAILURE_MODE:-}" == create && "$*" == *mcp-setup-docs-source* ]]; then exit 73; fi
-exec /usr/bin/mktemp "$@"
-MOCK
-  cat >"$bin/realpath" <<'MOCK'
-#!/usr/bin/env bash
-if [[ "${SETUP_FAILURE_MODE:-}" == normalize && "${1:-}" == *mcp-setup-docs-source* ]]; then exit 74; fi
-exec "$REAL_REALPATH" "$@"
-MOCK
-  chmod +x "$bin/mktemp" "$bin/realpath"
-  real_realpath=$(command -v realpath)
-  # shellcheck disable=SC2016
-  make_fake docker 'printf "%s\n" invoked >"$TMP/setup-docker-invoked"'
-
-  for mode in create normalize; do
-    expected=73; [[ $mode == normalize ]] && expected=74
-    rm -f "$TMP/setup-docker-invoked"
-    if OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$TMP/bin/docker" \
-      SETUP_FAILURE_MODE="$mode" REAL_REALPATH="$real_realpath" PATH="$bin:$PATH" TMPDIR="$TMP" \
-      "$ROOT/factory/scripts/run-kit.sh" "$TMP/setup-issue.json" "$TMP/setup-catalog.json" \
-      "$export_dir" >"$TMP/setup-$mode.out" 2>"$TMP/setup-$mode.err"; then
-      fail "run-kit accepted snapshot $mode failure"
-    else
-      status=$?
-    fi
-    assert_eq "$expected" "$status"
-    test ! -e "$TMP/setup-docker-invoked" || fail "run-kit invoked Docker after snapshot $mode failure"
-    "$ROOT/factory/scripts/validate-diagnostics.sh" "$export_dir/factory-diagnostics.json" >/dev/null \
-      || fail "run-kit did not validate snapshot $mode diagnostics"
-    jq -e '.stage == "docker_build" and .classification == "docker_build_failed" and .events == []' \
-      "$export_dir/factory-diagnostics.json" >/dev/null || fail "wrong snapshot $mode diagnostics"
-    [[ -z "$(find "$TMP" -maxdepth 1 -type d -name 'mcp-setup-docs-source.*' -print -quit)" ]] \
-      || fail "run-kit leaked snapshot after $mode failure"
-  done
-}
-
-  export OPENROUTER_API_KEY=or-test
-test_run_kit_uses_only_allowed_mounts() {
-  export FACTORY_DOCKER="$TMP/bin/docker"
-  # shellcheck disable=SC2016
-  make_fake docker 'printf "%s\n" "$@" >"$TMP/docker.args"'
-  printf '{}\n' >"$TMP/issue.json"
-  printf '{}\n' >"$TMP/catalog.json"
-  "$ROOT/factory/scripts/run-kit.sh" "$TMP/issue.json" "$TMP/catalog.json" "$TMP/export"
-  local args
-  args="$(cat "$TMP/docker.args")"
-  assert_contains "/repo:ro" "$args"
-  assert_contains "$TMP/issue.json:/input/issue.json:ro" "$args"
-  assert_contains "$TMP/catalog.json:/input/catalog.json:ro" "$args"
-  assert_contains "$TMP/export:/export" "$args"
-  if grep -Fq "$ROOT:/repo:ro" "$TMP/docker.args"; then
-    fail "repository root was mounted directly"
+  if grep -Ev '^(kit|LICENSE|THIRD_PARTY_NOTICES\.md|third_party/licenses/([A-Za-z0-9_.-]+\.(txt|md))?)$' <<<"$entries"; then
+    fail 'unexpected release archive path'
   fi
-  ! grep -qE '/var/run/docker.sock|/[.]git|/[.]ssh|:/root|:/home' "$TMP/docker.args"
-}
-
-test_run_kit_source_snapshot_applies_dockerignore() {
-  local repo bin recorded snapshot excluded status
-  repo="$TMP/snapshot-repo"
-  bin="$TMP/snapshot-bin"
-  recorded="$TMP/source-volume"
-  mkdir -p "$repo/factory/scripts" "$repo/nested/.git" \
-    "$repo/tools/pulse-catalog" "$repo/.tmp-run" \
-    "$repo/.worktrees/private" "$repo/.claude/worktrees/private" "$bin"
-  cp "$ROOT/.dockerignore" "$repo/.dockerignore"
-  cp "$ROOT/factory/config.env" "$repo/factory/config.env"
-  cp "$ROOT/factory/Dockerfile" "$repo/factory/Dockerfile"
-  cp "$ROOT/factory/scripts/run-kit.sh" "$repo/factory/scripts/run-kit.sh"
-  mkdir -p "$repo/factory/schemas"
-  cp "$ROOT/factory/scripts/build-diagnostics.sh" \
-    "$ROOT/factory/scripts/validate-diagnostics.sh" \
-    "$ROOT/factory/scripts/validate-report.sh" "$repo/factory/scripts/"
-  cp "$ROOT/factory/schemas/factory-diagnostics.schema.json" "$repo/factory/schemas/"
-  printf '%s\n' modified-working-source >"$repo/working-change.txt"
-  printf '%s\n' gitdir-private >"$repo/.git"
-  printf '%s\n' nested-git-private >"$repo/nested/.git/config"
-  for excluded in .env .env.local mise.local.toml pulse-catalog.json; do
-    printf '%s\n' private >"$repo/$excluded"
-  done
-  printf '%s\n' private >"$repo/tools/pulse-catalog/pulse-catalog.json"
-  printf '%s\n' private >"$repo/.tmp-run/value"
-  printf '%s\n' private >"$repo/.worktrees/private/value"
-  printf '%s\n' private >"$repo/.claude/worktrees/private/value"
-  ln -s working-change.txt "$repo/kept-link"
-  ln -s working-change.txt "$repo/.env.link"
-
-  cat >"$bin/docker" <<'MOCK'
-#!/usr/bin/env bash
-set -euo pipefail
-[[ "$1" == build ]] && exit 0
-[[ "$1" == run ]] || exit 91
-shift
-source_volume=
-while [[ $# -gt 0 ]]; do
-  if [[ "$1" == --volume && "$2" == *:/repo:ro ]]; then
-    source_volume=${2%:/repo:ro}
-    break
-  fi
-  shift
-done
-[[ -n "$source_volume" && "$source_volume" != "$SNAPSHOT_REPO" ]] || exit 92
-printf '%s\n' "$source_volume" >"$SNAPSHOT_RECORDED"
-for path in .git nested/.git .env .env.local .env.link mise.local.toml \
-  pulse-catalog.json tools/pulse-catalog/pulse-catalog.json .tmp-run \
-  .worktrees .claude/worktrees; do
-  [[ ! -e "$source_volume/$path" && ! -L "$source_volume/$path" ]] || exit 93
-done
-[[ -f "$source_volume/working-change.txt" ]] || exit 94
-grep -Fqx modified-working-source "$source_volume/working-change.txt" || exit 95
-[[ -f "$source_volume/factory/scripts/run-kit.sh" ]] || exit 96
-[[ -L "$source_volume/kept-link" ]] || exit 97
-[[ "$(readlink "$source_volume/kept-link")" == working-change.txt ]] || exit 98
-MOCK
-  chmod +x "$bin/docker"
-  printf '{}\n' >"$TMP/snapshot-issue.json"
-  printf '{}\n' >"$TMP/snapshot-catalog.json"
-  OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$bin/docker" \
-    SNAPSHOT_REPO="$repo" SNAPSHOT_RECORDED="$recorded" \
-    TMPDIR="$TMP" "$repo/factory/scripts/run-kit.sh" \
-    "$TMP/snapshot-issue.json" "$TMP/snapshot-catalog.json" "$TMP/snapshot-export"
-  snapshot="$(cat "$recorded")"
-  [[ ! -e "$snapshot" ]] || fail 'run-kit leaked its source snapshot'
-
-  cat >"$bin/tar" <<'MOCK'
-#!/usr/bin/env bash
-exit 73
-MOCK
-  chmod +x "$bin/tar"
-  rm -f "$recorded"
-  if OPENROUTER_API_KEY=or-test FACTORY_DOCKER="$bin/docker" \
-    SNAPSHOT_REPO="$repo" SNAPSHOT_RECORDED="$recorded" \
-    PATH="$bin:$PATH" TMPDIR="$TMP" "$repo/factory/scripts/run-kit.sh" \
-    "$TMP/snapshot-issue.json" "$TMP/snapshot-catalog.json" \
-    "$TMP/snapshot-export" >"$TMP/tar-failure.out" 2>"$TMP/tar-failure.err"; then
-    fail 'run-kit continued after source archive failure'
-  else
-    status=$?
-  fi
-  assert_eq 73 "$status"
-  "$repo/factory/scripts/validate-diagnostics.sh" "$TMP/snapshot-export/factory-diagnostics.json" >/dev/null \
-    || fail 'run-kit did not export valid source archive diagnostics'
-  jq -e '.stage == "docker_build" and .classification == "docker_build_failed" and .events == []' \
-    "$TMP/snapshot-export/factory-diagnostics.json" >/dev/null || fail 'wrong source archive diagnostics'
-  [[ ! -e "$recorded" ]] || fail 'run-kit invoked Docker after source archive failure'
-  [[ -z "$(find "$TMP" -maxdepth 1 -type d -name 'mcp-setup-docs-source.*' -print -quit)" ]] \
-    || fail 'run-kit leaked a failed source snapshot'
-}
-
-test_entrypoint_exports_only_selected_guide_with_mocked_kit() {
-  grep -Fq "KIT_BIN=\${KIT_BIN:-kit}" "$ROOT/factory/scripts/container-entrypoint.sh" || fail "KIT_BIN does not default to kit"
-  local repo input workspace export_root fake_kit
-  repo="$TMP/mock-repo"
-  input="$TMP/mock-input"
-  workspace="$TMP/mock-workspace"
-  export_root="$TMP/mock-export"
-  fake_kit="$TMP/bin/fake-kit"
-  mkdir -p "$repo/factory" "$input" "$TMP/bin"
-  printf 'assignment\n' >"$repo/factory/coordinator.md"
-  printf '{}\n' >"$input/issue.json"
-  printf '{}\n' >"$input/catalog.json"
-  cat >"$fake_kit" <<'MOCK'
-#!/usr/bin/env bash
-set -euo pipefail
-[[ "$1" == prompt ]]
-mkdir -p "$HOME/.kit/sessions/w-success"
-printf '%s\n' '{"schema_version":3,"item":{"kind":"Assistant","parts":[{"Text":{"text":"SECRET_SUCCESS"}}]}}' >"$HOME/.kit/sessions/w-success/test.jsonl"
-mkdir -p "$FACTORY_WORKSPACE_ROOT/guides/acme"
-printf 'guide\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/research.md"
-printf 'ignore\n' >"$FACTORY_WORKSPACE_ROOT/not-exported.txt"
-cat >"$FACTORY_WORKSPACE_ROOT/.factory/run-report.json" <<'JSON'
-{"schema_version":1,"outcome":"awaiting_scope","provider":"Acme","slug":"acme","persona":"it-admin","summary":"Needs scope","open_questions":["Which auth path?"],"blockers":[],"nits":[],"review_rounds":0,"artifacts":["research.md","meta.yaml"]}
-JSON
-printf 'metadata\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/meta.yaml"
-MOCK
-  chmod +x "$fake_kit"
-
-  FACTORY_REPO_ROOT="$repo" \
-    FACTORY_INPUT_ROOT="$input" \
-    FACTORY_WORKSPACE_ROOT="$workspace" \
-    FACTORY_EXPORT_ROOT="$export_root" \
-    FACTORY_KIT_HOME="$TMP/kit-home" \
-    KIT_BIN="$fake_kit" \
-    FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol \
-    KIT_REASONING_EFFORT=high \
-    "$ROOT/factory/scripts/container-entrypoint.sh"
-
-  "$ROOT/factory/scripts/validate-report.sh" "$workspace/.factory/run-report.json"
-  test -f "$export_root/guide/research.md"
-  test -f "$export_root/guide/meta.yaml"
-  test -f "$export_root/run-report.json"
-  test ! -e "$export_root/not-exported.txt"
-  jq -e '.sessions == 1 and .events[0].part == "Text"' "$export_root/execution-transcript.json" >/dev/null || fail 'successful Kit lost transcript'
-  ! grep -q SECRET "$export_root/execution-transcript.json" || fail 'successful transcript leaked text'
-  assert_eq "4" "$(find "$export_root" -type f | wc -l | tr -d ' ')"
-}
-
-test_entrypoint_rejects_invalid_report() {
-  local repo input workspace export_root fake_kit
-  repo="$TMP/invalid-repo"; input="$TMP/invalid-input"
-  workspace="$TMP/invalid-workspace"; export_root="$TMP/invalid-export"
-  fake_kit="$TMP/bin/invalid-kit"
-  mkdir -p "$repo/factory" "$input" "$TMP/bin"
-  printf 'assignment\n' >"$repo/factory/coordinator.md"
-  printf '{}\n' >"$input/issue.json"; printf '{}\n' >"$input/catalog.json"
-  cat >"$fake_kit" <<'MOCK'
-#!/usr/bin/env bash
-mkdir -p "$FACTORY_WORKSPACE_ROOT/.factory"
-case "$MOCK_REPORT_KIND" in
-  missing) printf '%s\n' '{"outcome":"converged","slug":"acme"}' ;;
-  cross-field) printf '%s\n' '{"schema_version":1,"outcome":"converged","provider":"Acme","slug":"acme","persona":"it-admin","summary":"invalid","open_questions":[],"blockers":["still blocked"],"nits":[],"review_rounds":1,"artifacts":["research.md","meta.yaml","external.md","speakeasy.md"]}' ;;
-esac >"$FACTORY_WORKSPACE_ROOT/.factory/run-report.json"
-MOCK
-  chmod +x "$fake_kit"
-  local kind
-  for kind in missing cross-field; do
-    if MOCK_REPORT_KIND="$kind" FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
-      FACTORY_WORKSPACE_ROOT="$workspace-$kind" FACTORY_EXPORT_ROOT="$export_root-$kind" \
-      FACTORY_KIT_HOME="$TMP/invalid-home-$kind" KIT_BIN="$fake_kit" \
-      FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
-      KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
-      "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>&1; then
-      fail "entrypoint accepted invalid report: $kind"
-    fi
-    test ! -e "$export_root-$kind/run-report.json"
-  done
-}
-
-test_entrypoint_exports_safe_kit_failure_diagnostics() {
-  local repo input workspace export_root fake_kit
-  repo="$TMP/error-repo"; input="$TMP/error-input"
-  workspace="$TMP/error-workspace"; export_root="$TMP/error-export"
-  fake_kit="$TMP/bin/error-kit"
-  mkdir -p "$repo/factory" "$input" "$TMP/bin"
-  printf 'assignment\n' >"$repo/factory/coordinator.md"
-  printf '{}\n' >"$input/issue.json"; printf '{}\n' >"$input/catalog.json"
-  cat >"$fake_kit" <<'MOCK'
-#!/usr/bin/env bash
-marker=$(printf '\001kit-runtime\001')
-printf '%s\n' 'ordinary Kit diagnostic' >&2
-printf '%s%s\n' "$marker" '{"event":"storage_status","pending":true,"exhausted":false}' >&2
-printf '%s%s\n' "$marker" '{"event":"child_started","call":"SECRET_RAW_CALL","tool":"shell","summary":"printf SECRET_RUNTIME_SUMMARY","at":8}' >&2
-printf '%s%s\n' "$marker" '{"event":"child_finished","call":"SECRET_RAW_CALL","tool":"shell","ok":false,"summary":"SECRET_RUNTIME_RESULT","millis":42}' >&2
-mkdir -p "$HOME/.kit/sessions/w-test"
-cat >"$HOME/.kit/sessions/w-test/failure.jsonl" <<'JSON'
-{"schema_version":3,"item":{"kind":"Tool","parts":[{"ToolResult":{"call_id":"SECRET_CALL","is_error":true,"output":{"Text":"tool execution failed: RL6103: TOOL_OUTPUT_SCHEMA_MISMATCH\n  at 4..9: `SECRET_SOURCE`"}}}]}}
-JSON
-mkdir -p "$HOME/errors/s-test"
-cat >"$HOME/errors/s-test/e-test.json" <<'JSON'
-{"schema_version":2,"event_id":"e-test","occurred_at_ms":1,"kit_version":"0.1.130","session_id":"s-test","surface":"prompt","kind":"provider","code":"provider_error","message":"sensitive-provider-body","prompt":{"code":"sensitive-code","provider":"sensitive-provider"},"url":"https://sensitive.example","diagnostics":null}
-JSON
-cat >"$HOME/errors/s-test/e-transport.json" <<'JSON'
-{"schema_version":2,"event_id":"e-transport","occurred_at_ms":2,"kit_version":"0.1.130","session_id":"s-test","surface":"prompt","kind":"provider","code":"request_transport","message":"sensitive-transport-message","diagnostics":{"stage":"request","retryable":true,"attempt":2,"response_request_id":"req_safe-123","reqwest":{"timeout":false,"connect":true,"request":true,"body":false,"decode":false},"source_chain":[{"code":"sensitive-source-code","provider":"sensitive-source-provider"}],"source_chain_unknown":true,"source_chain_truncated":false}}
-JSON
-exit 1
-MOCK
-  chmod +x "$fake_kit"
-  if FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
-    FACTORY_WORKSPACE_ROOT="$workspace" FACTORY_EXPORT_ROOT="$export_root" \
-    FACTORY_KIT_HOME="$TMP/error-home" KIT_BIN="$fake_kit" \
-    FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
-    FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
-    FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
-    "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/entrypoint.err"; then
-    fail 'entrypoint accepted failed Kit process'
-  fi
-  jq -e '
-    (.records | length) == 2
-    and any(.records[]; .kind == "provider" and .code == "provider_error" and .diagnostics == null)
-    and any(.records[];
-      .code == "request_transport"
-      and .diagnostics == {stage:"request",retryable:true,attempt:2,response_request_id:"req_safe-123",reqwest:{timeout:false,connect:true,request:true,body:false,decode:false},source_chain_unknown:true,source_chain_truncated:false})
-  ' "$export_root/kit-error-summary.json" >/dev/null
-  if grep -Eq 'sensitive-provider-body|sensitive-code|sensitive-provider|sensitive-transport-message|sensitive-source|sensitive\.example' "$export_root/kit-error-summary.json"; then
-    fail 'Kit failure diagnostics leaked unsafe fields'
-  fi
-  jq -e 'any(.events[]; .error_details[0].category == "tool_output_schema")' "$export_root/execution-transcript.json" >/dev/null
-  ! grep -q SECRET "$export_root/execution-transcript.json" || fail 'entrypoint transcript leaked error details'
-  assert_contains 'ordinary Kit diagnostic' "$(cat "$TMP/entrypoint.err")"
-  if grep -Eq 'SECRET_RAW_CALL|SECRET_RUNTIME_SUMMARY|SECRET_RUNTIME_RESULT' "$TMP/entrypoint.err" "$export_root/factory-diagnostics.json"; then
-    fail 'entrypoint exposed raw runtime event data'
-  fi
-  jq -e '
-    .stage == "kit_prompt" and .classification == "kit_fatal"
-    and (.events | length) == 4
-    and .events[0] == {sequence:1,call_ref:0,event:"started",tool:"kit_prompt",operation:"kit_prompt",success:null,duration_ms:null}
-    and .events[1].operation == "unrecognized"
-    and .events[2].success == false and .events[2].duration_ms == 42
-    and .events[3] == {sequence:4,call_ref:0,event:"finished",tool:"kit_prompt",operation:"kit_prompt",success:false,duration_ms:0}
-    and (.kit_errors.records | length) == 2
-  ' "$export_root/factory-diagnostics.json" >/dev/null || fail 'entrypoint did not export safe failure diagnostics'
-}
-
-test_entrypoint_handles_invalid_projection_and_missing_report() {
-  local repo input fake_kit kind workspace export_root
-  repo="$TMP/runtime-repo"; input="$TMP/runtime-input"; fake_kit="$TMP/bin/runtime-kit"
-  mkdir -p "$repo/factory" "$input" "$TMP/bin"
-  printf 'assignment\n' >"$repo/factory/coordinator.md"
-  printf '{}\n' >"$input/issue.json"; printf '{}\n' >"$input/catalog.json"
-
-  for kind in malformed unknown; do
-    workspace="$TMP/runtime-workspace-$kind"; export_root="$TMP/runtime-export-$kind"
-    cat >"$fake_kit" <<'MOCK'
-#!/usr/bin/env bash
-mkdir -p "$HOME/.kit/sessions/w-test"
-printf '%s\n' '{"schema_version":3,"session_id":"SECRET_SESSION","generation":1,"item":{"kind":"Assistant","parts":[{"Text":{"text":"SECRET_TEXT"}}]}}' >"$HOME/.kit/sessions/w-test/session.jsonl"
-marker=$(printf '\001kit-runtime\001')
-printf '%s%s\n' "$marker" "${RUNTIME_BAD_LINE}" >&2
-printf '%s\n' 'ordinary diagnostic after bad event' >&2
-exit 1
-MOCK
-    chmod +x "$fake_kit"
-    if [[ $kind == malformed ]]; then
-      bad_line='{not-json SECRET_MALFORMED_CANARY'
-    else
-      bad_line='{"event":"future_event","summary":"SECRET_UNKNOWN_CANARY"}'
-    fi
-    if RUNTIME_BAD_LINE="$bad_line" FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
-      FACTORY_WORKSPACE_ROOT="$workspace" FACTORY_EXPORT_ROOT="$export_root" \
-      FACTORY_KIT_HOME="$TMP/runtime-home-$kind" KIT_BIN="$fake_kit" \
-      FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
-      FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
-      FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-      KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
-      "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/runtime-$kind.err"; then
-      fail "entrypoint accepted $kind runtime event"
-    fi
-    jq -e '.sessions == 1 and .events[0].part == "Text"' "$export_root/execution-transcript.json" >/dev/null || fail 'parser failure lost transcript'
-    ! grep -q SECRET "$export_root/execution-transcript.json" || fail 'container transcript leaked secret'
-    "$ROOT/factory/scripts/validate-diagnostics.sh" "$export_root/factory-diagnostics.json" >/dev/null \
-      || fail "entrypoint lost safe fallback for $kind runtime event"
-    jq -e '.stage == "kit_prompt" and (.events | length) == 2 and all(.events[]; .tool == "kit_prompt")' \
-      "$export_root/factory-diagnostics.json" >/dev/null || fail "fallback retained rejected events"
-    if grep -Eq 'SECRET_|ordinary diagnostic' "$export_root/factory-diagnostics.json"; then
-      fail "fallback leaked raw runtime input"
-    fi
-    assert_contains 'ordinary diagnostic after bad event' "$(cat "$TMP/runtime-$kind.err")"
-    assert_contains 'factory: invalid Kit runtime event' "$(cat "$TMP/runtime-$kind.err")"
-    if grep -Eq 'SECRET_MALFORMED_CANARY|SECRET_UNKNOWN_CANARY' "$TMP/runtime-$kind.err"; then
-      fail "entrypoint logged $kind marked runtime input"
-    fi
-  done
-
-  # A valid failed report exits zero, but still needs diagnostics after parser rejection.
-  workspace="$TMP/runtime-workspace-failed"; export_root="$TMP/runtime-export-failed"
-  cat >"$fake_kit" <<'MOCK'
-#!/usr/bin/env bash
-set -euo pipefail
-printf '\001kit-runtime\001%s\n' '{"event":"future_event","summary":"SECRET_FAILED_CANARY"}' >&2
-cat >"$FACTORY_WORKSPACE_ROOT/.factory/run-report.json" <<'JSON'
-{"schema_version":1,"outcome":"failed","provider":"Acme","slug":"acme","persona":"it-admin","summary":"SECRET_REPORT_CANARY","open_questions":[],"blockers":["Review wave failed"],"nits":[],"review_rounds":1,"artifacts":[]}
-JSON
-MOCK
-  chmod +x "$fake_kit"
-  FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
-    FACTORY_WORKSPACE_ROOT="$workspace" FACTORY_EXPORT_ROOT="$export_root" \
-    FACTORY_KIT_HOME="$TMP/runtime-home-failed" KIT_BIN="$fake_kit" \
-    FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
-    FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
-    FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
-    "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/runtime-failed.err"
-  "$ROOT/factory/scripts/validate-diagnostics.sh" "$export_root/factory-diagnostics.json" >/dev/null
-  jq -e '.stage == "factory_outcome" and .classification == "factory_reported_failure" and .report.outcome == "failed" and (.events | length) == 2' \
-    "$export_root/factory-diagnostics.json" >/dev/null || fail 'lost failed-report fallback'
-  test -r "$export_root/execution-transcript.json" || fail 'factory failure lost transcript'
-  test -f "$export_root/run-report.json" || fail 'lost failed report'
-  test ! -e "$export_root/guide" || fail 'exported failed guide'
-  if grep -q 'SECRET_' "$export_root/factory-diagnostics.json"; then
-    fail 'failed-report fallback leaked raw content'
-  fi
-
-  workspace="$TMP/runtime-workspace-valid"; export_root="$TMP/runtime-export-valid"
-  cat >"$fake_kit" <<'MOCK'
-#!/usr/bin/env bash
-set -euo pipefail
-marker=$(printf '\001kit-runtime\001')
-printf '%s%s\n' "$marker" '{"event":"future_event","summary":"SECRET_VALID_REPORT_CANARY"}' >&2
-printf '%s\n' 'ordinary diagnostic after rejected projection' >&2
-mkdir -p "$FACTORY_WORKSPACE_ROOT/.factory" "$FACTORY_WORKSPACE_ROOT/guides/acme"
-printf 'research\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/research.md"
-printf 'metadata\n' >"$FACTORY_WORKSPACE_ROOT/guides/acme/meta.yaml"
-cat >"$FACTORY_WORKSPACE_ROOT/.factory/run-report.json" <<'JSON'
-{"schema_version":1,"outcome":"awaiting_scope","provider":"Acme","slug":"acme","persona":"it-admin","summary":"Needs scope","open_questions":["Which auth path?"],"blockers":[],"nits":[],"review_rounds":0,"artifacts":["research.md","meta.yaml"]}
-JSON
-MOCK
-  chmod +x "$fake_kit"
-  if ! FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
-    FACTORY_WORKSPACE_ROOT="$workspace" FACTORY_EXPORT_ROOT="$export_root" \
-    FACTORY_KIT_HOME="$TMP/runtime-home-valid" KIT_BIN="$fake_kit" \
-    FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
-    FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
-    FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
-    "$ROOT/factory/scripts/container-entrypoint.sh" >"$TMP/runtime-valid.out" 2>"$TMP/runtime-valid.err"; then
-    fail 'entrypoint let rejected diagnostics replace a valid Kit report'
-  fi
-  test -f "$export_root/run-report.json" || fail 'entrypoint lost valid report after rejected diagnostics'
-  test -f "$export_root/guide/research.md" || fail 'entrypoint lost valid guide after rejected diagnostics'
-  test ! -e "$export_root/factory-diagnostics.json" || fail 'entrypoint retained rejected diagnostics for valid report'
-  assert_contains 'ordinary diagnostic after rejected projection' "$(cat "$TMP/runtime-valid.err")"
-  assert_contains 'factory: invalid Kit runtime event' "$(cat "$TMP/runtime-valid.err")"
-  if grep -Rq 'SECRET_VALID_REPORT_CANARY' "$TMP/runtime-valid.err" "$export_root"; then
-    fail 'entrypoint exposed rejected marked runtime input for valid report'
-  fi
-
-  cat >"$fake_kit" <<'MOCK'
-#!/usr/bin/env bash
-[[ "${KIT_RUNTIME_EVENTS:-}" == 1 ]] || exit 91
-exit 0
-MOCK
-  chmod +x "$fake_kit"
-  export_root="$TMP/runtime-export-missing"; workspace="$TMP/runtime-workspace-missing"
-  if FACTORY_REPO_ROOT="$repo" FACTORY_INPUT_ROOT="$input" \
-    FACTORY_WORKSPACE_ROOT="$workspace" FACTORY_EXPORT_ROOT="$export_root" \
-    FACTORY_KIT_HOME="$TMP/runtime-home-missing" KIT_BIN="$fake_kit" \
-    FACTORY_REPORT_VALIDATOR="$ROOT/factory/scripts/validate-report.sh" \
-    FACTORY_EVENT_PROJECTOR="$ROOT/factory/scripts/project-kit-events.sh" \
-    FACTORY_DIAGNOSTICS_BUILDER="$ROOT/factory/scripts/build-diagnostics.sh" \
-    KIT_MODEL=openai/gpt-5.6-sol KIT_REASONING_EFFORT=high \
-    "$ROOT/factory/scripts/container-entrypoint.sh" >/dev/null 2>"$TMP/runtime-missing.err"; then
-    fail 'entrypoint accepted zero-exit Kit without a report'
-  fi
-  jq -e '.stage == "report_validation" and .classification == "missing_run_report" and .events[-1].success == true' \
-    "$export_root/factory-diagnostics.json" >/dev/null || fail 'entrypoint lost missing-report classification'
 }
 
 test_local_draft_parsing_and_secret_boundary() {
@@ -727,8 +197,9 @@ MOCK
   cat >"$bin/validate" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
-printf 'validate\nexport=%s\nroot=%s\n' "$1" "$2" >>"$LOCAL_TEST_LOG"
-[[ -f "$1/run-report.json" && -d "$1/guide" ]]
+[[ $1 == --local && $4 =~ ^[a-f0-9]{32}$ ]]
+printf 'validate\nexport=%s\nroot=%s\n' "$2" "$3" >>"$LOCAL_TEST_LOG"
+[[ -f "$2/run-report.json" && -d "$2/guide" ]]
 MOCK
   chmod +x "$bin/run-kit" "$bin/validate"
 
@@ -790,31 +261,40 @@ test_opt_in_final_image() {
   [[ "${FACTORY_TEST_IMAGE:-0}" == 1 ]] || return 0
   # shellcheck disable=SC1091
   source "$ROOT/factory/config.env"
-  local image="mcp-setup-docs-kit:test"
+  local image="$KIT_IMAGE"
   docker build --platform linux/amd64 -f "$ROOT/factory/Dockerfile" \
     --build-arg "KIT_VERSION=$KIT_VERSION" --build-arg "KIT_SHA256=$KIT_SHA256" \
     -t "$image" "$ROOT" >/dev/null
   docker run --rm --platform linux/amd64 --entrypoint /bin/sh \
     -v "$ROOT:/fixture:ro" -w /fixture "$image" -c \
-    '! command -v go && test -x /usr/local/bin/lint-guide && test -x /usr/local/bin/project-kit-events && test -x /usr/local/bin/build-diagnostics && test -x /usr/local/bin/validate-diagnostics && ldd /usr/local/bin/lint-guide 2>&1 | grep -q "not a dynamic executable" && /usr/local/bin/lint-guide guides/asana'
+    'set -eu
+     if command -v go; then exit 1; fi
+     for binary in lint-guide factory-generate guide-factory; do
+       test -x "/usr/local/bin/$binary"
+       ldd "/usr/local/bin/$binary" 2>&1 | grep -q "not a dynamic executable"
+     done
+     for binary in project-kit-events build-diagnostics validate-diagnostics gofmt; do
+       test -x "/usr/local/bin/$binary"
+     done
+     lint-guide guides/asana
+     kit --version | grep -Fx "kit 0.2.2"
+     kit prompt --help | grep -q -- --request-budget-seconds
+     mkdir -p /tmp/generate/go
+     cp -a guides /tmp/generate/
+     cp go/go.mod go/published_server_refs.txt /tmp/generate/go/
+     cd /tmp/generate/go
+     factory-generate'
 }
 
+# Task 3 moves export/diagnostic authority out of the container. Old successful
+# in-container publication assertions are replaced, not treated as valid gates.
 test_config_is_pinned
+test_go_toolchain_is_pinned
 test_dockerfile_builds_static_linter_without_go_in_final_image
 test_docker_context_excludes_credentials_and_keeps_build_inputs
 test_release_archive_layout_and_checksum
-test_startup_failures_remove_stale_diagnostics
-test_run_kit_does_not_forward_github_credentials
-test_run_kit_reports_safe_failure_diagnostics
-test_run_kit_preserves_primary_status_when_diagnostics_fail
-test_run_kit_synthesizes_setup_failure_diagnostics
-test_run_kit_uses_only_allowed_mounts
-test_run_kit_source_snapshot_applies_dockerignore
-test_entrypoint_exports_only_selected_guide_with_mocked_kit
-test_entrypoint_rejects_invalid_report
-test_entrypoint_exports_safe_kit_failure_diagnostics
-test_entrypoint_handles_invalid_projection_and_missing_report
 test_local_draft_parsing_and_secret_boundary
 test_local_draft_rejects_invalid_arguments_and_slug_mismatch
 test_opt_in_final_image
+bash "$ROOT/factory/tests/test-export-boundary.sh"
 rm -rf "$TMP"

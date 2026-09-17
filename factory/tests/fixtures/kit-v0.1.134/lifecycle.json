@@ -1,0 +1,1 @@
+{"event":"subagent_state_changed","id":"synthetic-child","name":"Synthetic researcher","status":"idle","outcome":"success","generation":1,"task":"Synthetic task","parent_id":"synthetic-parent","parent_name":"Synthetic parent","harness":"acp.kit","model":null,"created_at_unix_ms":10,"generation_started_at_unix_ms":20,"generation_finished_at_unix_ms":30}

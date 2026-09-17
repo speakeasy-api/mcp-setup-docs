@@ -25,11 +25,10 @@ credential_setup:
       description: A Google Cloud project where an administrator can enable the People API, grant project IAM roles, configure Google Auth platform, and create OAuth credentials
     - id: connecting-user-access
       description: Each connecting user has MCP Tool User on the project and access to the intended Google profile, contacts, and directory data
-    - id: prompt-injection-screening
-      description: An application or security owner has configured prompt and response screening for malicious content or prompt injection
 documentation:
   external: external.md
   speakeasy: speakeasy.md
+speakeasy_add_server: auto
 remotes:
   - id: hosted
     url: https://people.googleapis.com/mcp/v1
@@ -41,102 +40,90 @@ remotes:
         locator: https://developers.google.com/people/v1/configure-mcp-server
         name: Configure the People API MCP server
         classification: official
-        observed_at: "2026-07-29T21:55:51Z"
-      - source: endpoint-observation
-        locator: https://people.googleapis.com/mcp/v1
-        name: Google People API MCP endpoint
-        classification: official
-        observed_at: "2026-07-29T21:55:51Z"
+        observed_at: "2026-08-29T15:13:24Z"
       - source: endpoint-observation
         locator: https://people.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
         name: Google People API MCP protected-resource metadata
         classification: official
-        observed_at: "2026-07-29T21:55:51Z"
+        observed_at: "2026-08-29T15:13:24Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.google.com/people/v1/configure-mcp-server
     name: Configure the People API MCP server
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://developers.google.com/people/api/mcp
     name: People API MCP reference
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/enable-apis
     name: Enable Google Workspace APIs
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-oauth-consent
     name: Configure the OAuth consent screen and choose scopes
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/create-credentials
     name: Create access credentials
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-mcp-security
     name: Configure security for Google Workspace MCP servers
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/supported-products
     name: Google and Google Cloud products with MCP support
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
     name: Set up authentication to Google and Google Cloud MCP servers
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://cloud.google.com/service-usage/docs/enable-disable
     name: Enable and disable services
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/iam/docs/grant-role-console
     name: Grant an IAM role by using the Google Cloud console
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549945
     name: Manage App Audience
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549135
     name: Manage App Data Access
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: provider-documentation
     locator: https://support.google.com/a/answer/7281227
     name: Control which apps access Google Workspace data
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
-  - source: endpoint-observation
-    locator: https://people.googleapis.com/mcp/v1
-    name: Google People API MCP endpoint
-    classification: official
-    status: MCP initialize returned HTTP 200
-    version: "2025-03-26"
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: endpoint-observation
     locator: https://people.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
     name: Google People API MCP protected-resource metadata
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: endpoint-observation
     locator: https://accounts.google.com/.well-known/oauth-authorization-server
     name: Google authorization-server metadata
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-29T21:55:51Z"
+    observed_at: "2026-08-29T15:13:24Z"

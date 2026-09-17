@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck disable=SC1091
 source "$ROOT/factory/tests/test-helper.sh"
 TMP="$(mktemp -d)"
+TMP="$(cd "$TMP" && pwd -P)"
 trap 'rm -rf "$TMP"' EXIT
 
 RUN_SCHEMA="$ROOT/factory/schemas/run-report.schema.json"
@@ -19,6 +20,24 @@ for path in sys.argv[1:]:
     with open(path, encoding="utf-8") as handle:
         json.load(handle)
 PY
+
+# New reports never expose partial installable artifacts, even with identity resolved.
+for outcome in blocked awaiting_scope failed; do
+  report="$TMP/nonconverged-$outcome.json"
+  jq -n --arg outcome "$outcome" '{schema_version:1,outcome:$outcome,
+    provider:"Fixture",slug:"fixture",persona:"it-admin",summary:"Incomplete",
+    open_questions:["Which authorized tenant?"],blockers:[],nits:[],
+    review_rounds:0,artifacts:[]}' >"$report"
+  "$ROOT/factory/scripts/validate-report.sh" "$report" || fail "empty $outcome rejected"
+  jq '.artifacts = ["research.md"]' "$report" >"$report.partial"
+  if "$ROOT/factory/scripts/validate-report.sh" "$report.partial" >/dev/null 2>&1; then
+    fail "identity-resolved $outcome accepted partial artifacts"
+  fi
+  jq -e --arg outcome "$outcome" '
+    any(.allOf[]; .if.properties.outcome.const == $outcome and
+      .if.required == ["outcome"] and .then.properties.artifacts.maxItems == 0)
+  ' "$RUN_SCHEMA" >/dev/null || fail "schema permits $outcome artifacts"
+done
 
 jq -e '
   def durable: ["research.md","meta.yaml","external.md","speakeasy.md"];
@@ -42,7 +61,7 @@ jq -e '
     .properties.blockers.maxItems == 0 and
     ([.properties.artifacts.allOf[].contains.const] | sort) == (durable | sort)) and
   (outcome_rule("awaiting_scope") |
-    ([.properties.artifacts.allOf[].contains.const] | sort) == (["research.md","meta.yaml"] | sort)) and
+     .properties.artifacts.maxItems == 0 and .properties.open_questions.minItems == 1) and
   (outcome_rule("failed") | .properties.artifacts.maxItems == 0)
 ' "$RUN_SCHEMA" >/dev/null
 
@@ -87,9 +106,9 @@ validate_report() {
        (.blockers | length) == 0 and (durable - .artifacts | length) == 0
      else true end) and
     (if .outcome == "awaiting_scope" then
-       (["research.md","meta.yaml"] - .artifacts | length) == 0
+       (.artifacts | length) == 0 and (.open_questions | length) > 0
      else true end) and
-    (if .outcome == "failed" then (.artifacts | length) == 0 else true end)
+    (if .outcome != "converged" then (.artifacts | length) == 0 else true end)
   ' "$1" >/dev/null
 }
 
@@ -115,7 +134,7 @@ cat >"$TMP/converged.json" <<'JSON'
 }
 JSON
 cat >"$TMP/awaiting_scope.json" <<'JSON'
-{"schema_version":1,"outcome":"awaiting_scope","provider":"Asana","slug":"asana","persona":"it-admin","summary":"Research needs a scope decision.","open_questions":["Which deployment model?"],"blockers":[],"nits":[],"review_rounds":0,"artifacts":["research.md","meta.yaml"]}
+{"schema_version":1,"outcome":"awaiting_scope","provider":"Asana","slug":"asana","persona":"it-admin","summary":"Research needs a scope decision.","open_questions":["Which deployment model?"],"blockers":[],"nits":[],"review_rounds":0,"artifacts":[]}
 JSON
 cat >"$TMP/blocked.json" <<'JSON'
 {"schema_version":1,"outcome":"blocked","provider":null,"slug":null,"persona":null,"summary":"Provider could not be identified.","open_questions":[],"blockers":["Missing provider."],"nits":[],"review_rounds":0,"artifacts":[]}
@@ -182,6 +201,12 @@ reset_validation_fixture() {
   git -C "$REPO" add .
   git -C "$REPO" commit -qm baseline
   mkdir -p "$VALIDATE_TMP/bin"
+  export FACTORY_HOST_RUN_ID=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  export RUNNER_TEMP="$VALIDATE_TMP" GH_REPO=acme/docs GITHUB_RUN_ID=9001 GITHUB_RUN_ATTEMPT=1
+  export FACTORY_PUBLICATION_RECEIPT="$VALIDATE_TMP/guide-factory-publication/publication-receipt.json"
+  export READABLE_UPLOAD_OUTCOME=success READABLE_LOG_STATUS=complete
+  export READABLE_ARTIFACT_URL=https://github.com/acme/docs/actions/runs/9001/artifacts/123
+  printf '%s' '{"version":1,"host_run_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","workflow_run_id":"9001","workflow_run_attempt":1,"primary_outcome":"converged","readable_export":"ready","partial":false,"publication_ready":true}' >"$EXPORT/finalization.json"
 }
 
 make_validation_fake() {
@@ -201,7 +226,7 @@ run_validator() {
 
 make_export_report() {
   local outcome=$1 slug=${2-github} artifacts=${3-'["research.md","meta.yaml","external.md","speakeasy.md"]'}
-  jq -n --arg outcome "$outcome" --arg slug "$slug" --argjson artifacts "$artifacts" '{schema_version:1,outcome:$outcome,provider:"GitHub",slug:(if $slug == "NULL" then null else $slug end),persona:"developer",summary:"test",open_questions:[],blockers:(if $outcome == "blocked" then ["blocked"] else [] end),nits:[],review_rounds:0,artifacts:$artifacts}' >"$EXPORT/run-report.json"
+  jq -n --arg outcome "$outcome" --arg slug "$slug" --argjson artifacts "$artifacts" '{schema_version:1,outcome:$outcome,provider:"GitHub",slug:(if $slug == "NULL" then null else $slug end),persona:"developer",summary:"test",open_questions:(if $outcome == "awaiting_scope" then ["Which authorized tenant?"] else [] end),blockers:(if $outcome == "blocked" then ["blocked"] else [] end),nits:[],review_rounds:0,artifacts:$artifacts}' >"$EXPORT/run-report.json"
 }
 
 copy_valid_guide() {
@@ -209,6 +234,12 @@ copy_valid_guide() {
   for name in research.md meta.yaml external.md speakeasy.md; do
     cp "$ROOT/guides/github/$name" "$EXPORT/guide/"
   done
+  python3 - "$EXPORT" <<'PYFIX'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+names = ['run-report.json'] + ['guide/' + n for n in ('research.md', 'meta.yaml', 'external.md', 'speakeasy.md')]
+(root / 'session-transcript.json').write_text(json.dumps(dict(schema_version=1, kind='guide_factory_readable_transcript', files=[dict(name=n, text=(root/n).read_text()) for n in names])))
+PYFIX
 }
 
 expect_validation_failure() {
@@ -280,32 +311,29 @@ test_validation_preserves_stale_target_until_success() {
 
   cp "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/meta.yaml"
   GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
-  [[ ! -e "$REPO/guides/github/stale.txt" ]] || fail "successful install retained stale target"
+  [[ -f "$REPO/guides/github/stale.txt" ]] || fail "successful install deleted unrelated bundle file"
   cmp "$EXPORT/guide/meta.yaml" "$REPO/guides/github/meta.yaml"
   grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "missing safe GitHub output"
 }
 
 test_validation_validates_awaiting_scope_metadata() {
   reset_validation_fixture
-  make_export_report awaiting_scope github '["research.md","meta.yaml"]'
-  cp "$ROOT/guides/github/research.md" "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/"
+  make_export_report awaiting_scope github '[]'
   GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
-  [[ -f "$REPO/guides/github/meta.yaml" ]] || fail "awaiting-scope metadata was not installed"
+  [[ ! -e "$REPO/guides/github" ]] || fail "scope report installed a guide"
 
   reset_validation_fixture
   make_export_report awaiting_scope github '["research.md","meta.yaml"]'
-  cp "$ROOT/guides/github/research.md" "$EXPORT/guide/"
-  printf 'schema_version: [
-' >"$EXPORT/guide/meta.yaml"
-  expect_validation_failure "awaiting-scope invalid metadata"
+  cp "$ROOT/guides/github/research.md" "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/"
+  expect_validation_failure "historical partial scope artifacts rejected"
 }
 
-test_validation_installs_safe_blocked_partial_only() {
+test_validation_never_installs_blocked_partial() {
   reset_validation_fixture
   make_export_report blocked github '["research.md"]'
   cp "$ROOT/guides/github/research.md" "$EXPORT/guide/"
-  GITHUB_OUTPUT="$VALIDATE_TMP/outputs" "$VALIDATOR" "$EXPORT" "$REPO"
-  [[ -f "$REPO/guides/github/research.md" ]] || fail "safe blocked artifact was not installed"
+  expect_validation_failure "identity-resolved blocked partial artifacts"
+  [[ ! -e "$REPO/guides/github/research.md" ]] || fail "blocked artifact was installed"
 
   reset_validation_fixture
   make_export_report blocked NULL '[]'
@@ -376,21 +404,21 @@ test_validation_rejects_no_install_guide_symlink() {
   expect_validation_failure "failed export guide symlink"
 }
 
-test_validation_blocked_full_lint_requires_research() {
+test_validation_nonconverged_no_install_and_converged_full_lint() {
   reset_validation_fixture
   make_export_report blocked github '["meta.yaml","external.md","speakeasy.md"]'
   cp "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/"
   printf 'invalid setup\n' >"$EXPORT/guide/external.md"
   printf 'invalid setup\n' >"$EXPORT/guide/speakeasy.md"
-  run_validator
-  [[ -f "$REPO/guides/github/meta.yaml" ]] || fail "blocked metadata-only validation did not install"
+  expect_validation_failure "blocked metadata/setup partial artifacts"
+  [[ ! -e "$REPO/guides/github/meta.yaml" ]] || fail "blocked metadata-only validation installed"
 
   reset_validation_fixture
-  make_export_report blocked github '["research.md","meta.yaml","external.md","speakeasy.md"]'
+  make_export_report converged github '["research.md","meta.yaml","external.md","speakeasy.md"]'
   cp "$ROOT/guides/github/research.md" "$ROOT/guides/github/meta.yaml" "$EXPORT/guide/"
   printf 'invalid setup\n' >"$EXPORT/guide/external.md"
   printf 'invalid setup\n' >"$EXPORT/guide/speakeasy.md"
-  expect_validation_failure "blocked complete guide skipped full lint"
+  expect_validation_failure "converged complete guide skipped full lint"
 }
 
 test_validation_rejects_ls_files_failure_and_restores_target() {
@@ -463,7 +491,7 @@ test_validation_backup_cleanup_failure_warns_after_commit() {
   make_validation_fake rm 'if [[ "$*" == *".factory-backup."* ]]; then exit 74; fi; exec "$REAL_RM" "$@"'
   output=$(run_validator 2>&1) || fail "pre-deletion backup cleanup failure rejected a committed guide"
   assert_contains "warning: committed guide; leftover backup: ./.factory-backup." "$output"
-  [[ -f "$REPO/guides/github/meta.yaml" && ! -e "$REPO/guides/github/stale.txt" ]] || fail "valid new guide was rolled back after backup cleanup failure"
+  [[ -f "$REPO/guides/github/meta.yaml" && -e "$REPO/guides/github/stale.txt" ]] || fail "valid new guide was rolled back after backup cleanup failure"
   grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "cleanup warning suppressed GitHub outputs"
   find "$REPO/guides" -maxdepth 1 -type d -name '.factory-backup.*' -print -quit | grep -q . || fail "warning did not name a leftover backup"
 }
@@ -483,7 +511,7 @@ test_validation_partial_backup_cleanup_failure_keeps_commit() {
   for name in research.md meta.yaml external.md speakeasy.md; do
     cmp "$EXPORT/guide/$name" "$REPO/guides/github/$name" || fail "partial cleanup damaged installed $name"
   done
-  [[ ! -e "$REPO/guides/github/stale.txt" && ! -e "$REPO/guides/github/preserve.txt" ]] || fail "old guide was spuriously restored"
+  [[ -e "$REPO/guides/github/stale.txt" && -e "$REPO/guides/github/preserve.txt" ]] || fail "unrelated bundle files were lost"
   grep -q '^outcome<<' "$VALIDATE_TMP/outputs" || fail "partial cleanup warning suppressed GitHub outputs"
 }
 
@@ -497,18 +525,28 @@ test_validation_rejects_preexisting_out_of_scope_diff() {
   [[ ! -e "$REPO/guides/github" ]] || fail "diff guard left an installed guide"
 }
 
+test_validation_rejects_late_clean_candidate_change() {
+  reset_validation_fixture
+  make_export_report converged
+  copy_valid_guide
+  printf '\nUnvalidated change\n' >>"$EXPORT/guide/research.md"
+  expect_validation_failure 'candidate differs from host-validated readable snapshot'
+  [[ ! -e "$REPO/guides/github" ]] || fail 'late candidate installed'
+}
+
+test_validation_rejects_late_clean_candidate_change
 test_validation_rejects_malformed_and_traversal_reports
 test_validation_requires_outcome_files_and_exact_artifacts
 test_validation_rejects_symlinks_and_unexpected_files
 test_validation_preserves_stale_target_until_success
 test_validation_validates_awaiting_scope_metadata
-test_validation_installs_safe_blocked_partial_only
+test_validation_never_installs_blocked_partial
 test_validation_rejects_git_failure_and_restores_target
 test_validation_restores_after_install_move_failure
 test_validation_rejects_tracked_guides_symlink_escape
 test_validation_revalidates_staged_snapshot
 test_validation_rejects_no_install_guide_symlink
-test_validation_blocked_full_lint_requires_research
+test_validation_nonconverged_no_install_and_converged_full_lint
 test_validation_rejects_ls_files_failure_and_restores_target
 test_validation_rolls_back_in_anchored_guides_after_path_swap
 test_validation_rejects_staged_nested_and_nonregular_entries

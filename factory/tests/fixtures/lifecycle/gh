@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+import json, os, pathlib, sys
+p=pathlib.Path(os.environ['FAKE_GH']); a=sys.argv[1:]
+s=json.loads(p.read_text())
+if a[:2]==['api','graphql']: print('factory-agent')
+elif a[:2]==['pr','list']: print('[]')
+elif a[:2]==['pr','create']:
+    s['prs']+=1; print('https://github.com/acme/docs/pull/77')
+elif a[:2]==['issue','view']: print('{"labels":[]}')
+elif a[:2]==['issue','comment']:
+    if os.environ.get('FAIL_COMMENT')=='1': sys.exit(1)
+    body=pathlib.Path(a[a.index('--body-file')+1]).read_text()
+    s['comments'].append(dict(id=1,user=dict(login='factory-agent'),body=body))
+elif a[:2]==['api','repos/acme/docs/issues/42/comments']: print(json.dumps([s['comments']]))
+elif a[:3]==['api','--method','PATCH']:
+    body=json.loads(pathlib.Path(a[a.index('--input')+1]).read_text())['body']
+    s['comments'][0]['body']=body
+p.write_text(json.dumps(s))

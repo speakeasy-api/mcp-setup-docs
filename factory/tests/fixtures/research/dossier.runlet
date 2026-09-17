@@ -1,0 +1,16 @@
+attempt = boundary {
+  assert(text.length(input.dossier) > 0, "empty dossier")
+  checked = shell({command: "test -d /workspace/.factory/research && test ! -L /workspace/.factory && test ! -L /workspace/.factory/research && test ! -e /workspace/.factory/research/dossier.md && test ! -L /workspace/.factory/research/dossier.md"})
+  assert(checked.success, "unsafe or existing dossier destination")
+  saved = after checked {
+    return edit({op:"add", path:"/workspace/.factory/research/dossier.md", content:input.dossier})
+  }
+  begun = after saved {
+    return shell({command: "/usr/local/bin/begin-writing --control-dir /control --run-id $FACTORY_RUN_ID"})
+  }
+  assert(begun.success, "writing gate rejected")
+  return {status:"writing_ready"}
+} catch err {
+  return {status:"failed"}
+}
+return attempt

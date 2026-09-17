@@ -1,0 +1,13 @@
+report_attempt = boundary {
+  result = shell({command: "bash /workspace/factory/scripts/write-report.sh '" + text.replace(json.encode(input.report), "'", "'\"'\"'") + "'"})
+  return if result.success {
+    return {factory_status: "report_saved"}
+  } else if result.exit_code == 2 {
+    return {factory_status: "report_validation_failed"}
+  } else {
+    return {factory_status: "report_creation_failed"}
+  }
+} catch err {
+  return {factory_status: "report_creation_failed"}
+}
+return report_attempt

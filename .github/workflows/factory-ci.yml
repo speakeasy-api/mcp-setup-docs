@@ -9,6 +9,18 @@ on:
       - '.github/workflows/factory-ci.yml'
       - 'go/internal/guidecheck/**'
       - 'go/cmd/lint-guide/**'
+      - 'go/internal/factoryprompt/**'
+      - 'go/internal/factorytranscript/**'
+      - 'go/internal/factoryrun/**'
+      - 'go/internal/factorycontroller/**'
+      - 'go/cmd/guide-factory/**'
+      - 'go/cmd/export-transcript/**'
+      - 'go/cmd/supervise-factory/**'
+      - 'go/cmd/begin-writing/**'
+      - 'go/cmd/finalize-factory/**'
+      - 'go/internal/gen/**'
+      - 'go/go.mod'
+      - 'go/go.sum'
       - 'FACTORY.md'
       - 'mise.toml'
   push:
@@ -20,6 +32,18 @@ on:
       - '.github/workflows/factory-ci.yml'
       - 'go/internal/guidecheck/**'
       - 'go/cmd/lint-guide/**'
+      - 'go/internal/factoryprompt/**'
+      - 'go/internal/factorytranscript/**'
+      - 'go/internal/factoryrun/**'
+      - 'go/internal/factorycontroller/**'
+      - 'go/cmd/guide-factory/**'
+      - 'go/cmd/export-transcript/**'
+      - 'go/cmd/supervise-factory/**'
+      - 'go/cmd/begin-writing/**'
+      - 'go/cmd/finalize-factory/**'
+      - 'go/internal/gen/**'
+      - 'go/go.mod'
+      - 'go/go.sum'
       - 'FACTORY.md'
       - 'mise.toml'
 
@@ -29,6 +53,8 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: '0'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,18 +65,26 @@ jobs:
         with:
           go-version-file: go/go.mod
 
+      - name: Build and smoke-test factory image
+        timeout-minutes: 10
+        run: FACTORY_TEST_IMAGE=1 bash factory/tests/test-container.sh
+
+      - name: Execute release-locked context/report/dossier safety fixture
+        timeout-minutes: 8
+        run: |
+          rustup toolchain install 1.94.0 --profile minimal
+          bash factory/tests/test-native-dispatch.sh --execute
+
       - name: Factory tests
         run: bash factory/tests/run.sh
 
       - name: Shellcheck
-        run: shellcheck factory/scripts/*.sh factory/tests/*.sh
+        run: shellcheck factory/scripts/*.sh factory/tests/*.sh factory/tests/fixtures/lifecycle/kit
 
       - name: Guidecheck tests
         working-directory: go
         run: go test ./internal/guidecheck ./cmd/lint-guide
 
-      - name: Build factory image
-        run: |
-          docker build --build-arg KIT_VERSION=0.1.130 \
-            --build-arg KIT_SHA256=232bbbf2958e9b83aba352ecfc7195768868f630cbf5fcdcdeb45b2ed12f5ecd \
-            -f factory/Dockerfile .
+      - name: Factory Go tests
+        working-directory: go
+        run: go test ./internal/factorycontroller ./cmd/guide-factory ./internal/factoryprompt ./internal/factorytranscript ./cmd/export-transcript ./internal/factoryrun ./cmd/supervise-factory ./cmd/begin-writing ./cmd/finalize-factory
