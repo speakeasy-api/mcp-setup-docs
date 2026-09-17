@@ -48,7 +48,6 @@ for obsolete in 'REVIEWER 1/3' '## Phase 4' 'research-task run' 'openai/gpt-5.6-
 done
 bash "$ROOT/factory/tests/test-native-dispatch.sh"
 bash "$ROOT/factory/tests/test-write-report.sh"
-bash "$ROOT/factory/tests/test-read-research-handle.sh"
 bash "$ROOT/factory/tests/test-entrypoint-report.sh"
 
 context_boundary=$(cat <<'RUNLET'

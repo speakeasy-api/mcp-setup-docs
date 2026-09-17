@@ -39,7 +39,7 @@ warning or require proof of zero dispatch to accept already-executed allowed res
 Actual errors use the ordinary read-only correction policy above; acceptance of
 a successful healed result is unchanged and is not a recovery attempt.
 Unknown/partial mutative effects require existing-policy inspection/reconciliation,
-not replay. Exact-byte mandatory canonical dispatch/context/report programs still
+not replay. Exact-byte mandatory canonical context/report/dossier programs still
 reject any healing or improvisation as trusted-literal corruption; ordinary child
 research is not a mandatory literal. Canonical program bytes are unchanged.
 Validation, privacy, evidence, native handles, endpoint gates, authentication scope,
@@ -121,10 +121,10 @@ export behavior; those are not all connected rows. Release cache-assisted builds
 are valid release checks; cold-image timing is optional rollout-capacity evidence.
 
 Factory CI builds the configured release tag before image-requiring tests and
-runs the affected Go packages with CGO disabled. The default native-dispatch test
-is explicitly static-only. Its optional executor currently requires Runlet 0.5
-and matching serde_json rlibs; no cached-library execution is silently claimed.
-Reproducible executor pinning remains an acceptance gate.
+runs the affected Go packages with CGO disabled. The historical native-dispatch
+test filename now covers retained context/report/dossier safety contracts: default
+shell checks are static, and CI executes the release-locked Runlet 0.6.0 fixture.
+Research dispatch and prompt assembly run in the Go controller and library.
 No live provider or issue-to-PR acceptance is authorized by offline checks.
 
 ### Cleanup replacement evidence
@@ -150,9 +150,9 @@ short deadlines only in a compiled test supervisor, and covers timeout, normal
 parent exit with orphan, and direct wrapper TERM. It confirms removal, waits beyond
 the canary delay, rejects installable success, checks private/readonly mounts and
 credential absence, and invokes the real begin-writing CLI twice. Docker/image
-absence is a hard failure, never a skip. Exact native dispatch/report persistence
-coverage remains in the independently approved native-dispatch fixture tests; the
-obsolete CLI is not used as an alternate coordinator.
+absence is a hard failure, never a skip. Exact legacy context/report/dossier contract coverage remains in the
+release-locked native fixture tests; research dispatch is covered by Go controller
+tests, not an alternate model coordinator.
 
 ## Failed Kit diagnostics
 

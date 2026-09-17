@@ -9,7 +9,6 @@ on:
       - '.github/workflows/factory-ci.yml'
       - 'go/internal/guidecheck/**'
       - 'go/cmd/lint-guide/**'
-      - 'go/cmd/prepare-research-prompt/**'
       - 'go/internal/factoryprompt/**'
       - 'go/internal/factorytranscript/**'
       - 'go/internal/factoryrun/**'
@@ -33,7 +32,6 @@ on:
       - '.github/workflows/factory-ci.yml'
       - 'go/internal/guidecheck/**'
       - 'go/cmd/lint-guide/**'
-      - 'go/cmd/prepare-research-prompt/**'
       - 'go/internal/factoryprompt/**'
       - 'go/internal/factorytranscript/**'
       - 'go/internal/factoryrun/**'
@@ -71,12 +69,11 @@ jobs:
         timeout-minutes: 10
         run: FACTORY_TEST_IMAGE=1 bash factory/tests/test-container.sh
 
-      - name: Execute release-locked native dispatch fixture
+      - name: Execute release-locked context/report/dossier safety fixture
         timeout-minutes: 8
         run: |
           rustup toolchain install 1.94.0 --profile minimal
-          (cd go && go build -o "$RUNNER_TEMP/prepare-research-prompt" ./cmd/prepare-research-prompt)
-          FACTORY_PROMPT_ASSEMBLER="$RUNNER_TEMP/prepare-research-prompt" bash factory/tests/test-native-dispatch.sh --execute
+          bash factory/tests/test-native-dispatch.sh --execute
 
       - name: Factory tests
         run: bash factory/tests/run.sh
@@ -90,4 +87,4 @@ jobs:
 
       - name: Factory Go tests
         working-directory: go
-        run: go test ./internal/factorycontroller ./cmd/guide-factory ./internal/factoryprompt ./cmd/prepare-research-prompt ./internal/factorytranscript ./cmd/export-transcript ./internal/factoryrun ./cmd/supervise-factory ./cmd/begin-writing ./cmd/finalize-factory
+        run: go test ./internal/factorycontroller ./cmd/guide-factory ./internal/factoryprompt ./internal/factorytranscript ./cmd/export-transcript ./internal/factoryrun ./cmd/supervise-factory ./cmd/begin-writing ./cmd/finalize-factory

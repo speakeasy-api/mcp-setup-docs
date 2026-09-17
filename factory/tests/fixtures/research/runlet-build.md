@@ -1,10 +1,10 @@
-# Canonical dispatch executor (test only)
+# Native safety executor (test only)
 
-Run `FACTORY_PROMPT_ASSEMBLER=/absolute/path/to/prepare-research-prompt bash
-factory/tests/test-native-dispatch.sh --execute` from the repository root (join
-these two lines). Build the assembler with `go build` in `go/cmd/prepare-research-prompt`.
-The default shell invocation remains explicitly static; CI additionally requires
-execution. Missing compiler, download, checksum, build or runtime errors fail CI.
+Run `bash factory/tests/test-native-dispatch.sh --execute` from the repository
+root. The historical harness and binary filenames are retained to minimize churn;
+research dispatch is now owned by the Go controller. The default shell invocation
+checks retirement and retained entrypoints statically; CI requires execution.
+Missing compiler, download, checksum, build or runtime errors fail CI.
 
 ## Immutable release provenance
 
@@ -32,72 +32,21 @@ context, runs `cargo +1.94.0 build --locked`, and uses a fresh Cargo home. Thus
 Cargo downloads and checksum-verifies archives rather than trusting existing
 extracted source directories or arbitrary precompiled workstation libraries.
 Requires rustup with Rust 1.94.0, a system linker, registry network access and
-the real Go assembler; no Kit audio/native dependencies or production Rust
+Bash and the repository context helper; no Kit audio/native dependencies or production Rust
 module are needed. CI bounds installation/build/execution to eight minutes.
 
-The adapter uses actual Runlet Runtime APIs to compile and execute the canonical
-production-matched dispatch. Only native tools and private filesystem persistence
-are fake. Assertions cover exact assembler stdout including its trailing newline,
-distinct topic handles, complete same-session continuation handles, prior evidence
-preservation after an uncertain failure without retry, empty-output rejection,
-and hostile issue data kept out of shell command syntax. This is not live native
-agent/provider or whole-factory acceptance.
+The adapter uses actual Runlet Runtime APIs to compile and execute the retained
+canonical context, report, and dossier literals. All three contracts run in both
+`--execute` and the compatibility alias `--execute-context` modes.
 
-## Focused coordinator context regression
+Context checks use real helper stdout and assert exact complete result bytes,
+nonzero and thrown failures, one call without retry, and no tool calls for a
+synthetic malformed program. Report checks require the exact embedded literal,
+verify hostile JSON remains one Bash argument, and exercise success, validation
+rejection, other nonzero exits and throws. Dossier checks preserve exact data
+bytes, require persistence before the writing gate, and stop on write/gate failure
+without replay. Tool outcomes are simulated: this is not live provider acceptance.
 
-`bash factory/tests/test-native-dispatch.sh --execute-context` uses the same
-fresh, release-locked build without requiring the research assembler. It extracts
-the first Runlet literal directly from the coordinator, replaces only the slug,
-and exercises success (real helper stdout, exact bytes and complete shell result),
-nonzero shell exit, and thrown tool failure. It asserts exactly one shell call,
-the fixed failure sentinel, and zero dispatch for a synthetic malformed program.
-The normal `--execute` path runs these checks too. Tool execution is simulated;
-this is not evidence about the omitted live-trial literals or model compliance.
-
-The same focused and normal executor modes also execute `report.runlet`, requiring
-an exact fenced copy in the coordinator. Actual Bash argument parsing verifies
-hostile JSON remains one unchanged data argument. Simulated shell success,
-validation rejection, other nonzero exits and throws each dispatch once, without
-retry. `bash factory/tests/test-write-report.sh` separately runs the real writer
-and validator, checking exact persisted bytes, private permissions, rejection of
-unsafe entries and preservation of the previous final on validator failure.
-The production helper uses existing Bash/coreutils/jq only (no Python runtime).
-These tests do not reproduce the omitted live-trial programs or prove model compliance.
-
-## Private predecessor handles
-
-Follow-ups no longer accept `existingHandle` input. The canonical program calls
-`read-research-handle.sh` with validated numeric topic/index and passes
-`json.parse(handleRead.stdout)` directly to native `prompt`. The helper reads only
-the exact predecessor, validates its assignment and original session ID, and
-returns every byte without projecting output or updates. Missing predecessors
-(including failed prior attempts) fail closed; no arbitrary latest-file search.
-The return contract still includes the complete native handle.
-
-`test-read-research-handle.sh` covers byte-exact reads above 64 KiB at both
-predecessor indexes with growing opaque updates, plus malformed/missing records,
-foreign identity, changed paths, permissions, symlinks and hardlinks. Records
-above the existing 1 MiB per-source budget are rejected with empty stdout, never
-truncated. This replaces the arbitrary 64 KiB handle ceiling; the inspected Kit
-9829cc2 shell has a separate 64 MiB internal output limit, and model-facing
-artifact preview limits do not constrain direct Runlet values. The Runlet
-executor fixture invokes the actual helper for large persisted handles and
-checks exact stdout bytes and complete parsed continuation-handle equality,
-including generation and opaque updates, without field projection.
-
-Filesystem checks assume private records are quiescent during dispatch and no
-concurrent same-UID writer. They are not TOCTOU-atomic protection against path
-replacement between checks and reads. The generation nondecrease check is a
-sanity check, not proof of currentness; native runtime validation is authoritative.
-
-Local synthetic native verification used the existing
-`.tmp-kit-dev-9829cc2-a1128c8/latestE-native/{repro.py,verify.py}` harness, with the
-canonical script unchanged, no handle inputs and production `umask 077`. Four
-concurrent original sessions completed initial dispatch plus two follow-ups
-(generations 1, 2, 3; 12 successful dispatches). Verification checked exact prompt
-bytes, complete persisted handle/report equality, durable idle generations, and
-model-facing artifact wrappers. The first mock run omitted the production umask;
-its 0644 records were correctly rejected. This is a local mock-provider result,
-not live provider acceptance or proof of the original failure's cause. It removes
-the fragile model-copy boundary; it does not establish that boundary caused the
-original failure. Release pins and privacy/frozen-export rules are unchanged.
+The former dispatch program, assembler CLI, predecessor reader, and dispatch
+adapter/diagnostics have been retired. The assembler library and its seven input
+fixtures remain covered by Go prompt-byte and controller tests.

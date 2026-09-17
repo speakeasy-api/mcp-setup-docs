@@ -269,7 +269,7 @@ test_opt_in_final_image() {
     -v "$ROOT:/fixture:ro" -w /fixture "$image" -c \
     'set -eu
      if command -v go; then exit 1; fi
-     for binary in lint-guide prepare-research-prompt factory-generate guide-factory; do
+     for binary in lint-guide factory-generate guide-factory; do
        test -x "/usr/local/bin/$binary"
        ldd "/usr/local/bin/$binary" 2>&1 | grep -q "not a dynamic executable"
      done

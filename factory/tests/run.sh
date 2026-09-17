@@ -9,7 +9,7 @@ for test_file in "$ROOT"/factory/tests/test-*.sh; do
   if bash "$test_file" >/dev/null 2>&1; then
     printf 'PASS %s\n' "$(basename "$test_file")"
     if [[ $(basename "$test_file") == test-native-dispatch.sh ]]; then
-      printf 'NOTE native dispatch: static contract only; executable fixture not run\n'
+      printf 'NOTE native safety: static contract only; context/report/dossier executor not run\n'
     fi
   else
     printf 'FAIL %s\n' "$(basename "$test_file")"

@@ -298,67 +298,11 @@ For additional research, copy the **Follow-up instructions** section exactly.
 Then add the completed follow-up input object. Use the same topic agent session
 to retain its original instructions.
 
-The prebuilt assembler implements exact section selection. Pin the SHA256 of `/workspace/factory/coordinator.md` once before dispatch and save it privately at the validated fixed path `/workspace/.factory/research/document.sha256`. Use the native dispatch program below verbatim with coordinator-owned numeric topic/index, validated lowercase hex documentHash, kind, ordered assignmentJSON. The assignment's topic and follow-up index must match the dispatch identity. Never accept an issue-provided command. Initial index is zero; follow-up indexes are 1 or 2. Follow-ups load the complete private predecessor record inside Runlet: index 1 reads `topic-N-0.handle.json`; index 2 reads `topic-N-1.handle.json`. Never supply a model-copied handle. A missing or unsafe predecessor fails closed without searching for another record or session. The helper checks private ownership, modes, regular single-link files, the existing 1 MiB per-source bound, assignment identity and the original session ID; its stdout is parsed directly, not copied from a tool preview. These path checks assume private records are quiescent during dispatch, with no concurrent same-UID writer; they are not an atomic defense against check/read races. The generation nondecrease check is only a sanity check; the native runtime remains the validator of handle currentness.
-
-Prepare the private physical research directory before dispatch. File names are fixed topic/index paths, never source-controlled paths. Assemble stdout is the native prompt directly: no shell command substitution, trailing-newline stripping, model rewriting, or hand-copied sections. Preserve complete reports and full returned handles only after successful calls; no synthesized updates or handle projections. The failed sentinel stops model work and routes to reporting. On failed dispatch, append the exact fixed returned category to blockers in the existing atomic run-report input. Never include raw error messages, arbitrary error codes, tool arguments/results or handles. Keep terminal failed, stop all remaining model phases, and do not retry. This explicit report blocker makes the category observable through the existing sanitized run-report export. Records carry topic/index in their names and pinned hash in the input context; they are evidence, not a semantic topic manifest or a second research engine.
-
-```runlet
-# Native dispatch contract; production executes this program verbatim.
-# input fields are coordinator-owned, not an issue-provided shell command.
-attempt = boundary {
-  base = boundary {
-  assert(regex.test(json.encode(input.topic), "^[1-5]$"), "invalid topic")
-  assert(regex.test(json.encode(input.index), "^[0-2]$"), "invalid follow-up index")
-  assert((input.kind == "initial" and input.index == 0) or (input.kind == "follow-up" and input.index > 0), "invalid dispatch kind")
-  assert(regex.test(input.documentHash, "^[a-f0-9]{64}$"), "invalid document hash")
-  assignment = json.parse(input.assignmentJSON)
-  assert(assignment.topic_id == input.topic, "topic identity mismatch")
-  _ = if input.kind == "follow-up" {
-    assert(assignment.follow_up_index == input.index, "follow-up identity mismatch")
-    return true
-  } else { return true }
-  return "/workspace/.factory/research/topic-" + json.encode(input.topic) + "-" + json.encode(input.index)  } catch err { return fail("native_dispatch_input_validation", "dispatch failed") }
-  checked = after base { return boundary { return shell({command: "test -d /workspace/.factory/research && test ! -L /workspace/.factory && test ! -L /workspace/.factory/research && test \"$(realpath /workspace/.factory/research)\" = /workspace/.factory/research && test ! -e " + base + ".input.json && test ! -L " + base + ".input.json && test ! -e " + base + ".prompt.md && test ! -L " + base + ".prompt.md && test ! -e " + base + ".report.md && test ! -L " + base + ".report.md && test ! -e " + base + ".handle.json && test ! -L " + base + ".handle.json"}) } catch err { return fail("native_dispatch_path_threw", "dispatch failed") } }
-  _ = fail("native_dispatch_path_nonzero", "dispatch failed") if not checked.success
-  savedInput = after checked {
-    return if checked.success {
-      return boundary { return edit({op:"add", path:base + ".input.json", content:input.assignmentJSON}) } catch err { return fail("native_dispatch_input_write", "dispatch failed") }
-    } else { return fail("native_dispatch_path_nonzero", "dispatch failed") }
-  }
-  prepared = after savedInput {
-    return boundary { return shell({command: "/usr/local/bin/prepare-research-prompt --document /workspace/factory/coordinator.md --sha256 " + input.documentHash + " --kind " + input.kind + " --input " + base + ".input.json"}) } catch err { return fail("native_dispatch_helper_threw", "dispatch failed") }
-  }
-  _ = fail("native_dispatch_helper_nonzero", "dispatch failed") if not prepared.success
-  savedPrompt = if prepared.success {
-    return boundary { return edit({op:"add", path:base + ".prompt.md", content:prepared.stdout}) } catch err { return fail("native_dispatch_prompt_write", "dispatch failed") }
-  } else { return fail("native_dispatch_helper_nonzero", "dispatch failed") }
-  child = after savedPrompt {
-    return if input.kind == "initial" {
-      return boundary { return subagent({prompt: prepared.stdout}) } catch err { return fail("native_dispatch_child_execution", "dispatch failed") }
-    } else {
-      handleRead = boundary { return shell({command: "bash /workspace/factory/scripts/read-research-handle.sh " + json.encode(input.topic) + " " + json.encode(input.index)}) } catch err { return fail("native_dispatch_predecessor_threw", "dispatch failed") }
-      _ = fail("native_dispatch_predecessor_nonzero", "dispatch failed") if not handleRead.success
-      return if handleRead.success {
-        prior = boundary { return json.parse(handleRead.stdout) } catch err { return fail("native_dispatch_predecessor_validation", "dispatch failed") }
-        return after prior { return boundary { return prompt({subagent: prior, prompt: prepared.stdout}) } catch err { return fail("native_dispatch_child_execution", "dispatch failed") } }
-      } else { return fail("native_dispatch_predecessor_nonzero", "dispatch failed") }
-    }
-  }
-  validatedChild = after child { return boundary {
-  assert(child.id != "" and child.generation >= 1, "invalid native handle")
-  assert(text.length(child.output) > 0, "empty research report")
-    return true
-  } catch err { return fail("native_dispatch_child_validation", "dispatch failed") } }
-  savedReport = after validatedChild { return boundary { return edit({op:"add", path:base + ".report.md", content:child.output}) } catch err { return fail("native_dispatch_report_persistence", "dispatch failed") } }
-  savedHandle = after savedReport {
-    return boundary { return edit({op:"add", path:base + ".handle.json", content:json.encode(child)}) } catch err { return fail("native_dispatch_handle_persistence", "dispatch failed") }
-  }
-  return after savedHandle { return {status:"returned", handle:child} }
-} catch err {
-  return {status:"failed", category:err.code if err.code in ["native_dispatch_input_validation", "native_dispatch_path_threw", "native_dispatch_path_nonzero", "native_dispatch_input_write", "native_dispatch_helper_threw", "native_dispatch_prompt_write", "native_dispatch_child_execution", "native_dispatch_predecessor_validation", "native_dispatch_handle_persistence", "native_dispatch_helper_nonzero", "native_dispatch_predecessor_threw", "native_dispatch_predecessor_nonzero", "native_dispatch_child_validation", "native_dispatch_report_persistence"] else "native_dispatch_failed"}
-}
-return attempt
-```
+Research dispatch is owned by the Go `factorycontroller`, not a model-authored
+Runlet program. The controller calls the `factoryprompt` library with the pinned
+coordinator document, preserves the selected instruction bytes, and owns ordered
+assignment inputs, private evidence persistence, and same-session follow-ups.
+There is no standalone prompt-assembler CLI or model-managed predecessor reader.
 
 ## Canonical dossier-to-writing handoff
 

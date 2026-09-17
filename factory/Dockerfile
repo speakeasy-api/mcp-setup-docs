@@ -9,8 +9,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath -ldflags='-s -w' -o /out/lint-guide ./cmd/lint-guide
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -trimpath -ldflags='-s -w' -o /out/prepare-research-prompt ./cmd/prepare-research-prompt
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath -ldflags='-s -w' -o /out/begin-writing ./cmd/begin-writing
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath -ldflags='-s -w' -o /out/supervise-factory ./cmd/supervise-factory
@@ -33,7 +31,6 @@ RUN file=kit-v${KIT_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
  && kit --version \
  && rm /tmp/kit.tgz
 COPY --from=lint-builder /out/lint-guide /usr/local/bin/lint-guide
-COPY --from=lint-builder /out/prepare-research-prompt /usr/local/bin/prepare-research-prompt
 COPY --from=lint-builder /out/begin-writing /usr/local/bin/begin-writing
 COPY --from=lint-builder /out/supervise-factory /usr/local/bin/supervise-factory
 COPY --from=lint-builder /out/guide-factory /usr/local/bin/guide-factory
