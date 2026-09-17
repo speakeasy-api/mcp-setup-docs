@@ -2,33 +2,80 @@
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**, then click **Add new** to open **Add MCP server**.
 
-Choose **3rd-party server**. On the **MCP Catalog** page, search for `Google Compute Engine` in **Search MCP servers...**, open the matched entry with **View**, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
+Choose **From the catalog**. On the **MCP Catalog** page, search for `Google Compute Engine` in **Search MCP servers...**, open the matched entry, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
 
-This creates the hosted MCP server and opens its **Overview** page.
+After the server is added, click **Configure MCP settings** on the completion screen to open the server, then open **Settings**.
 
-<!-- screenshot: the Add Source menu open on the Sources page, or the Google Compute Engine catalog entry -->
+<!-- screenshot: the Add MCP server page, or the Google Compute Engine catalog entry -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-1. From the server's **Overview** page, open **Settings**.
-2. Under **Authentication**, click **Configure Manually**. If
-   **Use Discovered** is offered, choose **Configure Manually** anyway —
-   manual configuration matches the client you created in
-   [Create the OAuth client](external.md#create-oauth-client). This opens the
-   **Attach Remote Identity Provider** sheet.
-3. Set **Client Type** to **Manual**.
-4. Confirm the **Redirect URI** the sheet shows matches the URL you
-   entered under **Authorized redirect URIs** in
-   [Create the OAuth client](external.md#create-oauth-client).
-5. Paste the client ID from
+Open the server's **Settings** (from **Overview** for a hosted remote server, or **Configure MCP settings** after a catalog addition).
+
+#### Choose an authentication provider
+
+- If **Authentication** is unconfigured, choose **Use Discovered** when available; otherwise choose **Configure Manually**.
+- If authentication is configured but no provider is attached, use **Connected services** > **Add provider**.
+- If the intended provider is already attached, use its existing controls. Do not attach a duplicate; check its client against the requirements below and skip **Verify and attach**.
+
+In **Attach Remote Identity Provider**, the provider selector defaults to **Select existing** when the project has issuers. Select the appropriate existing Google provider and skip new-provider setup.
+
+#### New provider only
+
+1. Choose **Add new** and enter **Issuer URL**:
+
+   ```text
+   https://accounts.google.com/
+   ```
+
+2. Confirm the auto-derived **Slug** is unique in the project.
+3. Discovery runs automatically for a seeded issuer URL. After typing or changing the URL, click **Discover** only if offered.
+4. Review the endpoints, or enter these Google OAuth values if discovery does not populate them.
+
+   Authorization endpoint:
+
+   ```text
+   https://accounts.google.com/o/oauth2/v2/auth
+   ```
+
+   Token endpoint:
+
+   ```text
+   https://oauth2.googleapis.com/token
+   ```
+
+#### Choose a session client
+
+- **Reuse:** Under **Session Client**, choose **Select existing** when available and select the appropriate Google OAuth client. Skip credential entry; continue to **Check client requirements**.
+- **Create:** Choose **Add new** when available and set **Client Type** to **Manual**. For a new provider, complete the new-client form below.
+
+#### New session client only
+
+1. Paste the client ID from
    [Copy the client credentials](external.md#copy-client-credentials) into
    **Client ID**.
-6. Paste the client secret into **Client Secret (optional)** — despite
+1. Paste the client secret into **Client Secret (optional)** — despite
    the label, Google requires the secret, so treat the field as
    required.
-7. Click **Attach Identity Provider**.
+
+#### Check client requirements
+
+For both new and reused clients, verify the Google app's approved audience and publishing status. An **External** app in **Testing** must list each connecting account under **Test users**. Reusing a client does not require entering its credentials again.
+
+Verify the new or reused Google client has these required scopes, matching the Google app's **Data Access** configuration:
+
+```text
+https://www.googleapis.com/auth/compute
+```
+
+#### Verify and attach
+
+1. Confirm that the callback URL registered with the provider is `{{ gram.oauth.callback_url }}`. For a new manual client, also compare it with the sheet's displayed **Redirect URI**. The existing-client selection does not display that field; check the registered callback in the provider's app settings instead.
+2. Click **Attach Identity Provider**.
+
+For the provider-side callback setting, see [Create the OAuth client](external.md#create-oauth-client).
 
 <!-- screenshot: the Attach Remote Identity Provider sheet showing the Redirect URI and credential fields, values redacted -->
 

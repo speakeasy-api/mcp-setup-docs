@@ -2,17 +2,17 @@
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**, then click **Add new** to open the **Add MCP server** page.
 
-Choose **3rd-party server**. On the **MCP Catalog** page, enter `X` in **Search MCP servers...**, open the X result with **View**, and click **Add**. If the **Add to Project** dialog requests headers during installation, configure its **Upstream headers** section before continuing — follow steps 3–6 under [Connect your credentials](#connect-speakeasy-credentials). In the **Add to Project** dialog, click **Add to Project**.
+Choose **From the catalog**. On the **MCP Catalog** page, enter `X` in **Search MCP servers...**, open the X result, and click **Add**. If the **Add to Project** dialog requests headers during installation, enter `Bearer ` followed by your saved [**Bearer Token**](external.md#copy-bearer-token) in the provided `Authorization` value field under **Upstream headers**. The dialog supplies the header name and secret handling; it does not show the Settings editor's controls. If no header field is offered, follow [Connect your credentials](#connect-speakeasy-credentials) after installation. In the **Add to Project** dialog, click **Add to Project**.
 
-This creates the hosted MCP Server and opens its **Overview** page.
+After installation, select **Configure MCP settings** on the completion screen to open the server, then open **Settings**.
 
-<!-- screenshot: the X catalog entry with View and Add visible, without credentials -->
+<!-- screenshot: the X catalog entry with Add visible, without credentials -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-If you configured headers in the **Add to Project** dialog, skip this section. Otherwise, from the server's **Overview** page:
+If you configured headers in the **Add to Project** dialog, skip this section. Otherwise, select **Configure MCP settings** on the completion screen:
 
 1. Open **Settings**.
 2. Under **Upstream Headers**, select **Add header**.
