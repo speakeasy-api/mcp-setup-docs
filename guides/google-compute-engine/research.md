@@ -1,768 +1,1201 @@
----
-research_version: 1
-slug: google-compute-engine
-researched_at: 2026-07-31T19:17:08Z
----
+# Google Compute Engine research dossier
 
-# Google Compute Engine — Research Dossier
+Status: complete for the selected draft path. Reconciliation completed on 2026-09-11 during recovery. The first run completed all five topic reports, Topic 4 scope follow-up 1, and Topic 1 final authority audit. Recovery completed the coordinator-owned manual client configuration check. No research report was inferred complete from file existence alone.
 
-Authoritative source ruling for this guide: Google Cloud's documentation
-property `docs.cloud.google.com` is the source of truth for both product
-facts and console UI facts. Two page families matter: the
-Compute-Engine-specific MCP page ("Use the Compute Engine MCP server",
-`/compute/docs/use-compute-engine-mcp`) and the shared Google Cloud MCP
-docs set (`/mcp/*` — overview, supported products, authentication,
-release notes, quotas). The OAuth consent-screen walkthrough lives on a
-third property, `developers.google.com` (the Google Auth platform is
-shared across Google products). `cloud.google.com` paths 301-redirect to
-`docs.cloud.google.com` (redirect observed this run). The sound prior source sweep and click-through research were retained. This
-run reverified the primary Compute Engine MCP page, the shared authentication
-page, and the protected-resource metadata endpoint; all remained publicly
-reachable and consistent with the recorded server URL, manual OAuth model,
-and endpoint-advertised scope.
+## Run context and identity
 
-## Server facts
+- Provider: Google Cloud. Service: Compute Engine remote MCP server.
+- Task: recover and finish the local draft-prompt trial.
+- Slug: `google-compute-engine`. Mode: `update`. Output: `guides/google-compute-engine/`.
+- Exactly one matching metadata identity was found. Its alias is `com.googleapis.compute/mcp`. The slug meets the required pattern. No alias guide is created.
+- Persona: `doctrine/personas/it-admin.md`. Client: Speakeasy AI Control Plane.
+- Existing guide instructions are not research evidence. Only the interrupted trial's sourced reports and the recovery client evidence support this dossier.
+- Use ASD-STE100 Simplified Technical English. Preserve source procedure detail. Presentation gaps do not prevent a draft.
 
-- **Remote URL**: `https://compute.googleapis.com/mcp`. Compute MCP page,
-  "Configure an MCP client" section, verbatim: "**Server URL or
-  Endpoint:** `https://compute.googleapis.com/mcp`". The MCP reference
-  states "The Compute Engine API MCP server has the following global MCP
-  endpoint: `https://compute.googleapis.com/mcp`" (global only — no
-  regional endpoints are listed, unlike some other Google Cloud servers).
-  Same URL in the Supported products table and the Pulse mirror.
-  Corroborated by direct observation this run: a JSON-RPC `tools/list`
-  POST to the URL returns HTTP 200 with the tool list.
-- **Transport**: `streamable-http`. The compute MCP page's client
-  configuration lists "**Transport:** HTTP"; the MCP reference's example
-  request is a JSON POST with `accept: application/json,
-  text/event-stream` (the streamable-HTTP content negotiation); the
-  Pulse mirror records remote type `streamable-http`; and the direct
-  observation this run (JSON-RPC POST answered with a JSON body over
-  plain HTTPS) matches streamable-http.
-- **Protocol version**: the MCP overview states "Our MCP servers support
-  version 2025-11-25 of MCP", and the authentication concept page states
-  the servers "implement the requirements of the MCP authorization
-  specification version 2025-11-25 for HTTP-based transports."
-- **Enablement**: no separate MCP switch. Compute MCP page, verbatim:
-  "The Compute Engine remote MCP server is enabled when you enable the
-  Compute Engine API." Release notes (March 17, 2026), verbatim:
-  "Starting March 17, 2026, you no longer need to separately enable
-  Model Context Protocol (MCP) servers. Remote MCP endpoints are
-  available by default when you enable a supported product in your
-  project."
-- **Launch stage**: generally available. Release notes (May 1, 2026):
-  "Google and Google Cloud remote MCP servers are generally available
-  (GA). Individual MCP servers might be in Preview or GA—to check the
-  launch status of a product, search for the product in Supported
-  products." The Compute Engine row in Supported products carries no
-  "(Preview)" marker (checked explicitly this run; many sibling rows do),
-  and the compute MCP page shows no Preview badge. The Pulse mirror
-  records the server as official, version 1.0.0, first published
-  2026-04-21, record last updated 2026-07-17.
-- **Authentication**: OAuth 2.0 with IAM. Compute MCP page, verbatim:
-  "Compute Engine MCP servers use the OAuth 2.0 protocol with Identity
-  and Access Management (IAM) for authentication and authorization. All
-  Google Cloud identities are supported for authentication to MCP
-  servers."
-  - **Client registration is manual.** Both the authentication concept
-    page and the setup page state, verbatim: "Google and Google Cloud
-    remote MCP servers don't support Dynamic Client Registration or
-    OAuth Client ID Metadata Documents." Corroborated this run: the
-    authorization-server metadata at
-    `https://accounts.google.com/.well-known/oauth-authorization-server`
-    advertises no `registration_endpoint`. This backs
-    `client_registration: manual` in the Metadata; an OAuth client must
-    be created in the Google Cloud console (see credential flow).
-  - **Discoverable OAuth metadata is published.** Live
-    protected-resource metadata (observed this run) at
-    `https://compute.googleapis.com/.well-known/oauth-protected-resource/mcp`:
-    resource `https://compute.googleapis.com/mcp`, authorization servers
-    `["https://accounts.google.com/"]`, bearer methods `["header"]`,
-    `scopes_supported:
-    ["https://www.googleapis.com/auth/compute"]`. (The path without the
-    `/mcp` suffix returns 404.) Live authorization-server metadata at
-    accounts.google.com (observed this run): authorization endpoint
-    `https://accounts.google.com/o/oauth2/v2/auth`, token endpoint
-    `https://oauth2.googleapis.com/token`,
-    `token_endpoint_auth_methods_supported: ["client_secret_post",
-    "client_secret_basic"]`, `code_challenge_methods_supported` present.
-  - **Anonymous discovery, authenticated calls.** Compute MCP page,
-    verbatim: "The tools/list method doesn't require authentication."
-    Observed this run: unauthenticated `tools/list` returns HTTP 200;
-    an unauthenticated `tools/call` returns HTTP 401 with "Request is
-    missing required authentication credential. Expected OAuth 2 access
-    token, login cookie or other valid authentication credential."
-  - **Excluded alternatives** (recorded so the guide documents one
-    Authentication Option deliberately): the setup page's other methods
-    are an `Authorization` header carrying a gcloud-minted bearer token
-    — "By default, bearer tokens expire after 1 hour. You can extend
-    the lifetime of a token up to 12 hours" — which cannot serve as a
-    static header value; and API keys, which do not apply because
-    "Services that require a principal for Identity and Access
-    Management (IAM) don't support Standard API key credentials for
-    authentication" (Compute Engine uses IAM). ADC applies to
-    Google-owned or locally running applications, not a hosted control
-    plane. The OAuth 2.0 client ID and secret method is the documented
-    fit: "Connecting from a Google-owned or third-party application."
-- **OAuth scopes — recorded conflict.** The compute MCP page's
-  "Compute Engine MCP OAuth scopes" table (column header "Scope URI for
-  gcloud CLI") lists exactly two scopes, verbatim:
-  - `https://www.googleapis.com/auth/compute.read-only` — "Only allows
-    access to read data."
-  - `https://www.googleapis.com/auth/compute.read-write` — "Allows
-    access to read and modify data."
-  The live protected-resource metadata (observed this run) instead
-  advertises `scopes_supported:
-  ["https://www.googleapis.com/auth/compute"]` — the classic Compute
-  Engine scope, matching the pattern where BigQuery's MCP page and live
-  metadata agree on `https://www.googleapis.com/auth/bigquery`. The
-  documented `.read-only`/`.read-write` strings appear nowhere else in
-  the fetched sources. The guide should use
-  `https://www.googleapis.com/auth/compute` (the endpoint-advertised
-  scope; read-write, covering the server's write tools) — flagged
-  decision, see open questions. The page adds: "Additional scopes might
-  be required on the resources accessed during a tool call."
-- **IAM requirements**: two layers, both on the Google Cloud project.
-  - MCP layer, compute MCP page verbatim: "Make MCP tool calls: MCP
-    Tool User (`roles/mcp.toolUser`)", containing the `mcp.tools.call`
-    permission. Same role stated on the setup page.
-  - Product layer, compute MCP page verbatim: "You also need the roles
-    and permissions required to perform the Compute Engine operations.
-    For more information, see Compute Engine roles and permissions."
-    The page's own "Before you begin" tells the admin: "Make sure that
-    you have the following role or roles on the project: Compute
-    Instance Admin (v1), Compute Security Admin, Service Account User,
-    Service Usage Admin." The Compute Engine IAM page supplies the role
-    IDs and pairing rule: Compute Instance Admin (v1) is
-    `roles/compute.instanceAdmin.v1` ("Full control of Compute Engine
-    instances, instance groups, disks, snapshots, and images"), and
-    "granting `roles/iam.serviceAccountUser` and
-    `roles/compute.instanceAdmin.v1` together gives members permission
-    to ... Create an instance that runs as a service account" — the
-    Service Account User role is what lets a user manage VMs that run
-    as a service account. Compute Security Admin is
-    `roles/compute.securityAdmin` (per the same IAM page).
-  - Access is capped per user: the authentication concept page states
-    "the MCP client has the same permissions as you do on Google and
-    Google Cloud resources, and actions taken by the MCP client are
-    attributed to you." Google recommends a separate agent identity for
-    production ("We recommend that you create a separate identity for
-    agents that are using MCP tools so that access to resources can be
-    controlled and monitored") — recorded as context; the guide's OAuth
-    flow authenticates each connecting user as themselves.
-- **Billing**: the "Before you begin" flow requires "Verify that
-  billing is enabled for your Google Cloud project." Resources managed
-  through the server are ordinary Compute Engine resources billed to
-  the project; the `create_instance` tool provisions real VMs and
-  "If machine_type is not provided, it defaults to `e2-medium`. If
-  image_project and image_family are not provided, it defaults to
-  `debian-12` image from `debian-cloud` project" (MCP reference tool
-  description — named here because silent defaults on a billable
-  create are setup-relevant). No MCP-specific charge is documented.
-- **Quotas**: the shared quotas page states, verbatim: "There are no
-  quotas or system limits associated with Google Cloud MCP servers.
-  Quotas and system limits might apply to Google or Google Cloud
-  products you use through Google Cloud MCP servers."
-- **Regional routing**: compute MCP page note, verbatim: "The
-  Compute Engine remote MCP server doesn't support full regional
-  isolation and it might route calls to MCP tools through any region."
-  Relevant to admins with data-residency constraints.
-- **Write tools exist**: the server's tool list includes
-  create/delete/start/stop/reset instance and set-machine-type
-  operations alongside read-only listings (MCP reference; corroborated
-  by the live `tools/list`, where `create_instance` carries
-  `destructiveHint: true`). Recorded because it makes the read-write
-  scope and role choices consequential; the inventory itself is
-  runtime truth and is not cataloged here.
-- **Optional org-level controls** (context, not guide steps): IAM deny
-  policies can block MCP tool access — since July 2, 2026 "You can use
-  the tool.name attribute to control access to specific MCP tools in
-  your Identity and Access Management (IAM) allow and deny policies" —
-  and Model Armor can screen MCP calls after enabling the Model Armor
-  API (compute MCP page, "Optional security and safety configurations").
-  Toolsets (per-toolset endpoints) exist for "some" servers per the MCP
-  overview; the Compute Engine MCP reference lists only the single
-  global endpoint and no toolsets.
+## Endpoint gate
 
-## Credential flow
+Topic 5 passed before the original Topics 1-4 dispatch. The service-specific setup page documents `https://compute.googleapis.com/mcp` and HTTP. The MCP reference identifies it as a global endpoint. No local process or tenant substitution is required for this path. The endpoint does not provide full regional isolation. Other Google Cloud product servers are outside the Compute Engine service identity; the user does not need to connect them.
 
-Who acts: a Google Cloud project administrator. The tasks below need,
-on the project: permission to enable APIs (the Service Usage Admin
-role, `roles/serviceusage.serviceUsageAdmin`, per the Service Usage
-doc's "Required roles"), permission to grant IAM roles, and access to
-the Google Auth platform pages to configure the consent screen and
-create the OAuth client. Project Owner covers all of these — flagged
-inference from the compute MCP page's role note pattern ("If you
-created the project, then you likely already have this permission
-through the Owner role (`roles/owner`)", stated there for API
-enablement) and the bigquery guide precedent; no single page states
-Owner suffices for the full set.
+Primary source: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp, **Configure an MCP client to use the Compute Engine MCP server**, observed 2026-09-11: “Server URL or Endpoint: https://compute.googleapis.com/mcp”. Reference: https://docs.cloud.google.com/compute/docs/reference/mcp, **Server Endpoints**: “The Compute Engine API MCP server has the following global MCP endpoint:”. See T5-01 to T5-04 below.
 
-What gets created: one OAuth 2.0 **Web application** client in the
-project's Google Auth platform. Google generates a **Client ID** and a
-**Client secret** for it. The secret is shown once, in the
-**OAuth 2.0 client created** dialog — setup page, verbatim: "In the
-Client secrets section, copy the Client secret and save it in a secure
-place. You can only copy it once. If you lose it, delete the secret
-and create a new one." and "treat client secrets like passwords and
-store them in a secure place."
+## Selected authentication and access
 
-Values the Speakeasy AI Control Plane needs, and where they come from:
+Use manual Web OAuth with refresh tokens. Use an existing project with billing enabled. Select read-only Compute Engine resource access. Use both exact scopes:
 
-| Value | Origin |
-| --- | --- |
-| OAuth client ID | Generated by Google; shown in the **OAuth 2.0 client created** dialog ({#copy-client-credentials}) |
-| OAuth client secret | Same dialog, **Client secrets** section — copyable once ({#copy-client-credentials}) |
-| Scopes | `https://www.googleapis.com/auth/compute` (endpoint-advertised; see the scope conflict in Server facts) |
+```text
+https://www.googleapis.com/auth/compute.read-only
+https://www.googleapis.com/auth/compute.readonly
+```
 
-Where `{{ gram.oauth.callback_url }}` gets pasted: into the
-**Authorized redirect URIs** field of the **Create client** page
-({#create-oauth-client}). The compute MCP page's "Redirect URIs"
-section: "For web-based applications, and some desktop applications,
-you must allowlist a redirect URI when you create a client ID and
-secret for authentication. Redirect URIs are used by the authorization
-server to send tokens to your application. Your application's
-documentation should specify the redirect URI that you must use.
-Custom redirect URIs aren't supported." (Here "custom" means
-non-HTTPS custom URI schemes — the June 15, 2026 release note about
-Cursor's `cursor://` callback is the documented example; a normal
-HTTPS callback URL is the supported case.)
+The first is the MCP tool scope. The second is the resource API scope. Topic 4 follow-up 1 resolved these layers. The client code check establishes manual scope input, offline access, consent, and refresh. Do not add automatic behavior as a setup action. Google does not support DCR for this path. Static bearer tokens, ADC, service-account credentials, new-project creation, billing changes, and public production app verification are not selected.
 
-After setup, each end user connecting from the Speakeasy AI Control
-Plane signs in through Google's OAuth flow with their own Google
-account. For them to succeed: the account must hold **MCP Tool User**
-plus the Compute Engine roles on the project ({#grant-iam-roles}),
-and — while an External-audience consent screen is in **Testing**
-status — the account must be listed as a test user
-({#consent-screen}).
+Use Internal audience when the project has a Google Cloud organization and users belong to that organization. Otherwise use External with Testing status and named test users. Testing permits up to 100 listed users. For these scopes, authorization and refresh tokens expire after seven days in Testing. Other Google token or session limits can require another sign-in. Do not include renewal or rotation procedures.
 
-## Console walkthrough
+## Canonical setup actions and authority audit
 
-Primary sources: the compute MCP page (roles, IAM steps, redirect-URI
-rule), the Service Usage doc (API enablement steps), the Workspace
-consent-screen guide (Google Auth platform wizard, verbatim labels),
-and the MCP authentication setup page (client creation, verbatim
-labels). Flow: enable the API → grant roles → configure consent →
-create the client → copy the credentials. The consent-before-client
-order is documented: the consent guide ends "Next step: Create access
-credentials for your app", and its own flow notes the **Get Started**
-gate ("If you see a message that says Google Auth platform not
-configured yet, click Get Started").
+The table combines repeated actions. Requirement IDs identify the complete reports below. The final Topic 1 audit applies to these actions. Recovery did not change the provider actions or actor assignments.
 
-Entry into the console: sign in at
-[console.cloud.google.com](https://console.cloud.google.com) and pick
-the project — "In the Google Cloud console, on the project selector
-page, select or create a Google Cloud project" and "Verify that
-billing is enabled for your Google Cloud project" (compute MCP page,
-Before you begin). The project selector sits on the console toolbar;
-all steps below happen inside this one project.
+| Action and anchor | Requirements | Actor, access recipient, and scope | Required action |
+| --- | --- | --- | --- |
+| A1 `enable-compute-api` | T2-01 to T2-03; T5-03; T1-01, T1-04 to T1-06 | Service Usage Admin enables the API on the existing project. | Select the resource project. Confirm that billing is already enabled. Enable the Compute Engine API if absent. MCP is enabled with the API. |
+| A2 `grant-user-access` | T3-01 to T3-04; T1-03, T1-06 | Project IAM Admin grants roles to the intended connecting identity on the resource project. | Grant MCP Tool User and Compute Viewer. Keep setup-helper privileges separate. |
+| A3 `configure-oauth-consent` | T2-05; T4-06, T4-08; T1-02, T1-07, T1-08 | OAuth Config Editor (Beta) configures the application. An authorized organization representative approves policy acceptance. | Configure Branding, Audience, contact details and consent. Add the two selected scopes in Data Access when the documented external-app condition applies. |
+| A4 `assign-test-users` | T2-06; T3-06, T3-07; T4-06; T1-08 | OAuth Config Editor adds eligible users to the External test application. | Audience > Test users > Add users; enter intended user email addresses; Save. For Internal, confirm membership instead. |
+| A5 `create-oauth-client` | T2-04; T4-02 to T4-05; T1-02 | OAuth Config Editor creates a Web application client in the selected project. The client receives the registration. | Use Google Auth platform > Clients > Create client. Supply Name and the exact callback under Authorized redirect URIs. |
+| A6 `copy-client-credentials` | T2-04; T4-02; T1-02 | OAuth Config Editor gives the client ID and secret to the authorized Speakeasy operator. | Save the ID and one-time secret securely for the manual connection. Do not save secrets in this bundle. |
+| A7 `add-server-in-speakeasy` | T5-01, T5-02; C3; setup doctrine | Speakeasy operator acts in the intended project. | Add the shared endpoint as a Custom remote server. |
+| A8 `connect-speakeasy-credentials` | T4-04, T4-05, T4-08; T1-09; C1-C3 | Speakeasy operator with project write access attaches the manual client. Intended read-only Google user grants consent. | Use Google discovery, Manual client, ID and secret, matching callback, and both read-only scopes. |
 
-### Enable the Compute Engine API {#enable-compute-engine-api}
+The service setup page separately lists Compute Instance Admin (v1), Compute Security Admin, Service Account User, and Service Usage Admin for its setup identity. Preserve these on the setup helper. Do not require them for every later read-only user. Service Usage Admin is sufficient for the specific API enablement action. Project IAM Admin grants missing project access. OAuth Config Editor does not grant IAM management or policy acceptance authority. The full final authority report and its source quotations follow below.
 
-- Navigation (Service Usage doc, "Enable a service > Console"): "In
-  the Google Cloud console, go to the **APIs & Services** > **API
-  Library** page." The doc names the path as a group > page pair
-  without spelling out how to reach it; reading it as the console
-  navigation-menu path **APIs & Services** > **API Library** is a
-  flagged inference matching the IAM-path pattern below — see open
-  questions. Then "Select a recent project or use the resource
-  selector on the console toolbar to select the Google Cloud project
-  where you want to enable an API", "Click the API you want to enable
-  or search for it using the **Search for APIs & Services** box", and
-  "Click **Enable**." The API to enable is the **Compute Engine API**
-  (`compute.googleapis.com` — service name per the shared quotas page's
-  example: "the service name for Compute Engine is
-  compute.googleapis.com"). The compute MCP page's own "Enable the
-  Compute Engine API" button deep-links to the API's console overview
-  page (`https://console.cloud.google.com/apis/api/compute.googleapis.com/overview`,
-  link target observed this run), which shows the same Enable control.
-- Role gate recorded in this step: enabling needs the Service Usage
-  Admin role (`roles/serviceusage.serviceUsageAdmin`) or equivalent
-  (Service Usage doc, Required roles; project creators have it via
-  Owner).
-- The MCP server comes with the API: "The Compute Engine remote MCP
-  server is enabled when you enable the Compute Engine API." There is
-  no separate MCP toggle to hunt for (release note, March 17, 2026).
-- Values entered: the search term `Compute Engine API`. Values copied:
-  none.
-- Screenshot note: the API Library page showing the **Compute Engine
-  API** entry with the **Enable** button visible (or the API's overview
-  page showing it already enabled).
-- Recovery: none — if the page shows the API as already enabled,
-  there is nothing to do; enabling is idempotent.
+## Anchors and screenshot plan
 
-### Grant IAM roles {#grant-iam-roles}
+These provider anchors are minted for this recovered dossier. Each must appear once in `external.md`:
 
-- Do this for every user who will connect from the Speakeasy AI
-  Control Plane (each end user authorizes as themselves; their IAM
-  roles cap what the server will do for them).
-- Navigation: the compute MCP page links "go to the **IAM** page"
-  (console target `iam-admin/iam`, link observed this run — the
-  navigation-menu path **IAM & Admin** > **IAM** is a flagged
-  inference from that URL and the sibling quotas page's spelled-out
-  "IAM & Admin > Quotas & System Limits" pattern; see open questions).
-  Then "Select the project."
-- Steps (compute MCP page, "Grant the roles", verbatim): "Click
-  person_add **Grant access**." — "In the **New principals** field,
-  enter your user identifier. This is typically the email address for
-  a Google Account." — "Click **Select a role**, then search for the
-  role." — "To grant additional roles, click add **Add another role**
-  and add each additional role." — "Click **Save**."
-- Roles to grant, with sources:
-  - **MCP Tool User** (`roles/mcp.toolUser`) — required to "Make MCP
-    tool calls" (compute MCP page, Required roles).
-  - **Compute Instance Admin (v1)** (`roles/compute.instanceAdmin.v1`)
-    — "Full control of Compute Engine instances, instance groups,
-    disks, snapshots, and images" (Compute Engine IAM page); the
-    server's tools operate on exactly these resource types.
-  - **Service Account User** (`roles/iam.serviceAccountUser`) — needed
-    together with Instance Admin to "Create an instance that runs as a
-    service account" (Compute Engine IAM page); most projects' default
-    VM setup attaches a service account, so omitting this breaks VM
-    creation. The IAM page recommends granting it on a specific
-    service account rather than project-wide ("Recommended. Grant the
-    role to a member on a specific service account.").
-  - The compute MCP page's fuller admin list adds **Compute Security
-    Admin** (`roles/compute.securityAdmin`) and **Service Usage
-    Admin**; these serve the admin running the whole setup, not every
-    connecting user. Narrower or broader Compute role sets are
-    legitimate — the docs' rule is "the roles and permissions required
-    to perform the Compute Engine operations" (see open questions).
-- Values entered: each connecting user's Google Account email; role
-  names into the role search. Values copied: none.
-- Screenshot note: the **Grant access** panel with a principal entered
-  and **MCP Tool User** plus **Compute Instance Admin (v1)** visible in
-  the role list.
-- Recovery: nothing bites — roles can be re-edited from the same IAM
-  page at any time.
+### Enable the Compute Engine API {#enable-compute-api}
 
-### Configure the consent screen {#consent-screen}
+Action A1. Screenshot: selected project and API status.
 
-- One-way door recorded up front (consent guide, verbatim): "For
-  security reasons, you can't remove the OAuth 2.0 consent screen
-  after you've configured it." Nothing else here is destructive.
-- Navigation (consent guide, verbatim): "In the Google API Console, go
-  to Menu menu > **Google Auth platform** > **Branding**." (The same
-  Google Auth platform section is reachable in the Google Cloud
-  console; the MCP setup page uses the spelling "Google Auth Platform"
-  for the sibling Clients page — recorded verbatim per source.)
-- First-time gate: "If you see a message that says **Google Auth
-  platform not configured yet**, click **Get Started**."
-  Already-configured state (consent guide, verbatim): "If you have already
-  configured the Google Auth platform, you can configure the following
-  OAuth Consent Screen settings in Branding, Audience, and Data
-  Access." — the wizard only runs behind **Get Started**; a project
-  whose platform is already configured (no not-configured message)
-  goes straight to the **Data Access** scope step. Before deciding whether
-  to add test users, direct the admin to **Audience** to check the configured
-  audience and publishing status; publishing status is documented on that
-  page, while the exact user-type display is not. If either value is not
-  evident, the admin should obtain it from the application or cloud security
-  owner. The wizard runs as follows
-  (consent guide, verbatim labels):
-  - "Under **App Information**, in **App name**, enter an App name" —
-    a recognizable name such as `Speakeasy AI Control Plane`; "In
-    **User support email**, choose a support email address"; "Click
-    **Next**."
-  - "Under **Audience**, select the user type for your app": choose
-    **Internal** if every connecting user belongs to your Google
-    Workspace organization; **External** otherwise. "Click **Next**."
-  - "Under **Contact Information**, enter an **Email address**";
-    "Click **Next**."
-  - "Under **Finish**, review the Google API Services User Data Policy
-    and if you agree, select **I agree to the Google API Services:
-    User Data Policy**. Click **Continue**. Click **Create**."
-- Scopes: "click **Data Access** > **Add or Remove Scopes**", select
-  or manually add the scope, then "click **Save**." The support KB's
-  Data Access page names the panel's controls: for an unlisted scope,
-  "use the text box in the **Manually add scopes** section of the
-  page to add a new unlisted scope", and click the **Update** button
-  after selecting all scopes to add (Manage App Data Access; the KB
-  prints console button labels in styled caps — "ADD OR REMOVE
-  SCOPES", "UPDATE" — where the consent guide prints "Add or Remove
-  Scopes"; same controls, and the guide follows the consent guide's
-  mixed-case rendering). So both branches have named controls:
-  select from the list, or type into **Manually add scopes**; then
-  **Update** (panel), then **Save** (page). The scope to add is
-  `https://www.googleapis.com/auth/compute` (the
-  endpoint-advertised scope — see the recorded conflict in Server
-  facts; whether it appears in the picker list or needs the
-  **Manually add scopes** box is unverified, see open questions). The
-  consent guide
-  frames explicit scope listing as needed "for use outside of your
-  Google Workspace organization"; recorded as documented — the guide
-  should include the step unconditionally, matching the shipped
-  BigQuery guide's pattern (drafting decision, flagged).
-- Test users (External only): "If you selected External for user type,
-  add test users: Click **Audience**. Under **Test users**, click
-  **Add users**. Enter your email address and any other authorized
-  test users, then click **Save**." Every Google account that will
-  connect from the Speakeasy AI Control Plane must be listed while the
-  app's publishing status is Testing.
-- Caveat recorded in the step it bites (Google OAuth 2.0 policy doc,
-  verbatim): "A Google Cloud Platform project with an OAuth consent
-  screen configured for an external user type and a publishing status
-  of 'Testing' is issued a refresh token expiring in 7 days" — an
-  External app left in Testing drops every connection weekly; publish
-  the app to production for persistent connections. Also relevant at
-  scale: "There is currently a limit of 100 refresh tokens per Google
-  Account per OAuth 2.0 client ID."
-- Publish to production — the remedy's console surface (support KB):
-  the publishing status is managed on the **Audience** page — "Manage
-  your app publishing status in the Audience page of the Google Auth
-  Platform" (Manage OAuth App Branding) — and the control is the
-  **Publish app** button: "A project's publishing status is
-  considered **In production** after selecting the **Publish app**
-  button" (Manage App Audience). The same page corroborates the
-  Testing expiry ("Authorizations by a test user will expire seven
-  days from the time of consent") and caps Testing at 100 test
-  users ("Projects configured with a publishing status of **Testing**
-  are limited to up to 100 test users listed in the OAuth consent
-  screen"). Verification caveat, verbatim: "Your project's
-  configuration may be subject to verification before its name and
-  logo are displayed on an authorization screen or before it may
-  request authorization of sensitive or restricted scopes" — see the
-  scope-classification open question.
-- Values entered: App name, support email, audience choice, contact
-  email, the compute scope, test-user emails. Values copied: none.
-- Screenshot note: the **Data Access** page with the Compute Engine
-  scope present in the selected-scopes table.
+### Grant access to the connecting user {#grant-user-access}
 
-### Create the OAuth client {#create-oauth-client}
+Action A2. Screenshot: IAM role grants; redact identities.
 
-- Navigation (MCP setup page, verbatim): "In the Google Cloud console,
-  go to **Google Auth Platform** > **Clients** > **Create client**."
-  ("You are prompted to create a project if you don't have one
-  selected.")
-- Steps (MCP setup page, verbatim labels):
-  - "In the **Application type** list, select **Web application**."
-    (The Desktop-app variant is for applications running on a local
-    machine; the Control Plane is web-based — the page's rule: "If you
-    access your application through the internet, then select Web.")
-  - "In the **Name** field, enter a name for your application."
-  - "In the **Authorized redirect URIs** section, click **+ Add URI**,
-    and then enter" the callback URL — paste
-    `{{ gram.oauth.callback_url }}` (copied from the Speakeasy
-    **Attach Remote Identity Provider** sheet, see Speakeasy setup).
-  - The page also documents an "**Authorized JavaScript origins**"
-    section for "Applications that use client-side JavaScript to
-    access Google's APIs" — not this flow; leave it empty (flagged
-    decision: the docs assign it to client-side-JS apps only).
-  - "Click **Create**. The client is created. The **OAuth 2.0 client
-    created** dialog opens."
-- Warning that belongs in the step above the click: the next dialog
-  shows the client secret exactly once — have a secure place ready
-  before clicking **Create**.
-- Values entered: client name, `{{ gram.oauth.callback_url }}`.
-  Values copied: none yet (the dialog is the next step).
-- Screenshot note: the **Create client** form with **Web application**
-  selected and one **Authorized redirect URIs** entry filled.
+### Configure the OAuth application {#configure-oauth-consent}
 
-### Copy the client credentials {#copy-client-credentials}
+Action A3. Screenshot: Branding, Audience and Data Access; redact addresses.
 
-- Source (MCP setup page, verbatim): "In the **Client secrets**
-  section, copy the **Client secret** and save it in a secure place.
-  You can only copy it once. If you lose it, delete the secret and
-  create a new one." Caution, verbatim: "treat client secrets like
-  passwords and store them in a secure place."
-- Copy the **Client ID** and the **Client secret** from the
-  **OAuth 2.0 client created** dialog into the matching Speakeasy AI
-  Control Plane fields ({#connect-speakeasy-credentials}).
-- Values copied: Client ID and Client secret → Speakeasy AI Control
-  Plane credential fields.
-- Screenshot exception: the credential values are plain text fields
-  whose appearance adds nothing beyond the copied values.
-- Recovery: the Client ID remains visible on the client's page
-  afterward; the secret does not. If the secret is lost, follow the
-  documented recovery — delete the secret and create a new one. The
-  docs do not name the exact surface for that action; it is on the
-  client's detail page in the Clients list (flagged inference — needs
-  console verification at capture time; see open questions).
+### Confirm user eligibility {#assign-test-users}
 
-## Speakeasy setup
+Action A4. Screenshot: Audience and test users; redact identities.
 
-Transcluded from `doctrine/speakeasy-setup.md` (canonical Speakeasy-side
-flow; anchors `{#add-server-in-speakeasy}` and
-`{#connect-speakeasy-credentials}` are fixed there and carried
-verbatim — never re-minted). Provenance for the transcluded facts:
-`doctrine/speakeasy-setup.md` (product source `speakeasy-api/gram`,
-`client/dashboard`, `main` @ `96f7f73` for add-server and manual OAuth
-labels), observed this run (2026-07-31T19:17:08Z). Per-guide values the
-skeleton renders with:
+### Create the Web OAuth client {#create-oauth-client}
 
-- **Add-server path**: catalog only. The Speakeasy MCP Catalog lookup is
-  present, matched registry name `com.googleapis.compute/mcp`, title
-  **Google Compute Engine**. In **Sources**, click **Add Source**, choose
-  **3rd-party server**, search for `Google Compute Engine` on the **MCP
-  Catalog** page using **Search MCP servers...**, open the matched entry
-  with **View**, click **Add**, and then click **Add to Project** in the
-  **Add to Project** dialog. This creates the hosted MCP server and opens
-  its **Overview** page. Do not render the Custom remote server path.
-- **Remote URL**: `https://compute.googleapis.com/mcp` (catalog-backed
-  server fact; the Control Plane proxies remote servers over
-  streamable-http, matching this server's transport).
-- **Authentication Option**: `oauth-client` (OAuth with a
-  pre-registered client; `client_registration: manual`). The provider
-  publishes discoverable OAuth metadata (protected-resource and
-  authorization-server metadata, observed this run — so **Use
-  Discovered** may be offered), but Dynamic Client Registration is
-  unsupported, so a manually created client is required either way;
-  the manual path (**Configure Manually**, **Client Type** →
-  **Manual**) is the documented fit.
-- The **Redirect URI** shown later in the **Attach Remote Identity
-  Provider** sheet is the same callback represented by
-  `{{ gram.oauth.callback_url }}`. In {#create-oauth-client}, the reader
-  pastes that template key directly into **Authorized redirect URIs**;
-  do not send the reader into Speakeasy mid-way through External setup.
-- Credential fields and their producing steps:
-  - **Client ID** ← {#copy-client-credentials}.
-  - **Client Secret (optional)** ← {#copy-client-credentials} — for
-    Google web-application clients the secret is required at token
-    exchange (the authorization server supports `client_secret_post` /
-    `client_secret_basic`; observed AS metadata), so the guide treats
-    the field as required despite its "(optional)" label.
-  - Scopes the provider requires:
-    `https://www.googleapis.com/auth/compute` (see the scope conflict
-    in Server facts and open questions).
-- **Further-reading URL** for the closing pointer:
-  `https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp`
-  (the provider's primary MCP documentation page).
+Action A5. Screenshot: Web client type and callback field; redact environment-specific values.
 
-## Open questions
+### Save the client credentials {#copy-client-credentials}
 
-- **Which scope string the flow accepts.** The compute MCP page
-  documents `https://www.googleapis.com/auth/compute.read-only` and
-  `.../auth/compute.read-write` as the server's "MCP tool OAuth
-  scopes", but the live protected-resource metadata advertises only
-  the classic `https://www.googleapis.com/auth/compute` — and the
-  documented strings appear in no other fetched source (BigQuery's
-  equivalent table and metadata agree with each other, making the
-  compute table the outlier). The Dossier directs the guide to the
-  endpoint-advertised `auth/compute`. Whether Google's consent screen
-  scope picker and authorization endpoint also accept the
-  `.read-only`/`.read-write` strings — and whether a read-only-scoped
-  connection is possible through them — needs console verification at
-  capture time.
-- **Whether the Data access scope declaration is required for this
-  flow.** The consent guide frames the **Add or Remove Scopes** step
-  as for apps "for use outside of your Google Workspace organization";
-  for Internal apps, scopes "aren't listed on the consent screen". No
-  source states whether the Control Plane's authorization request
-  fails if the compute scope is not declared in **Data Access**. The
-  drafting decision (matching the shipped BigQuery guide) is to
-  include the step unconditionally — harmless if redundant.
-- **Navigation-menu paths to the API Library and IAM pages.** The
-  Service Usage doc says "go to the **APIs & Services** > **API
-  Library** page" and the compute MCP page says "go to the IAM page"
-  with a deep link (`.../iam-admin/iam`); neither spells out the
-  console navigation menu. The spelled-out menu paths (**APIs &
-  Services** > **API Library**; **IAM & Admin** > **IAM**) are
-  inferred from those wordings, the deep-link URL, and the sibling
-  quotas page's "IAM & Admin > Quotas & System Limits" pattern. Need
-  console verification at capture time.
-- **Where Google Auth platform sits in the console navigation — and
-  how its internal navigation works.** The docs reach **Branding**,
-  **Data Access**, **Audience**, and **Clients** through direct
-  "Go to" links and a "Menu menu >" prefix; none of the fetched pages
-  spells out the navigation-menu group the Google Auth platform entry
-  lives under, where within the section the **Branding** /
-  **Audience** / **Data Access** / **Clients** controls sit (so
-  capture-time verification can anchor clicks like "Click **Data
-  Access**" to their surface), which page the wizard's final
-  **Create** click lands the admin on, or where an already-configured
-  app's user type is displayed (the **Audience** page is the presumed
-  surface, per the Manage App Audience KB). Needs console verification
-  at capture time.
-- **Sensitive/restricted classification of the compute scope.** The
-  consent guide describes non-sensitive / sensitive / restricted scope
-  categories with escalating review requirements for External apps,
-  but no fetched source classifies
-  `https://www.googleapis.com/auth/compute`. An External app
-  publishing to production may face verification (the Manage App
-  Audience caveat, recorded in the consent-screen step); whether this
-  scope triggers it is undocumented.
-- **Minimal Compute role set for read-only use.** The docs' rule is
-  the open-ended "roles and permissions required to perform the
-  Compute Engine operations". The Dossier records the documented
-  admin set and the Instance Admin + Service Account User pairing;
-  whether e.g. Compute Viewer alone suffices for the list/get tools is
-  not stated anywhere fetched.
-- **Client-secret recovery surface.** "Delete the secret and create a
-  new one" is documented, but no fetched page names the console
-  surface (the client's detail page is the presumed location). Needs
-  console verification at capture time.
+Action A6. Screenshot: client details; redact ID and secret.
 
-## Provenance
+The two fixed Speakeasy anchors are `add-server-in-speakeasy` and `connect-speakeasy-credentials`. Use screenshot placeholders for the add-source form and manual identity provider sheet. No screenshots were captured. No screenshot detail is a blocker.
 
-Source inventory from the retained sweep. Google's documentation spans three
-properties; the primary product and authentication pages were rechecked this
-run:
+## Speakeasy setup values and documented procedure
 
-- **Product/developer docs — docs.cloud.google.com** (source of truth
-  for this guide): the Compute Engine MCP page and reference, the
-  shared `/mcp/*` set (overview, supported products, authenticate,
-  set-up-authentication, release notes, quotas), the Service Usage
-  doc, and the Compute Engine IAM doc. `cloud.google.com` 301-redirects
-  here (observed this run). No machine-readable index —
-  `docs.cloud.google.com/llms.txt` returns 404 (observed this run).
-- **Google identity/Workspace developer docs — developers.google.com**:
-  the OAuth consent-screen guide (the Google Auth platform is
-  documented here, not on the Cloud property) and the OAuth 2.0 policy
-  page (refresh-token expiry rules). Drawn from for those two pages.
-- **Support KB — support.google.com/cloud** ("Google Cloud Platform
-  Console Help"): documents the Google Auth platform console surfaces
-  page by page (Branding, Audience, Data Access, Clients). Drawn from
-  for the publish-to-production control and the **Manually add
-  scopes** panel. (The initial sweep recorded this property as absent;
-  corrected in revision round 1 — the MCP and Compute product docs
-  live on docs.cloud.google.com, but the console-surface KB is real
-  and separate.)
-- Also in the sweep, not drawn from: the Google Cloud MCP GitHub
-  repository (local stdio servers — different product family, linked
-  from Supported products), and the `/mcp` product landing page
-  (marketing shell over the doc links above).
+Source: `doctrine/speakeasy-setup.md`, read on 2026-09-11. It cites official dashboard commits `96f7f73` and `f1d60da`. Use `speakeasy_add_server: custom-remote`. Catalog identity was not revalidated; this explicit choice avoids an unverified catalog mapping. The endpoint remains `tenanted: false`.
 
-One entry per source drawn from. The complete sweep below was performed in
-the prior run; this run re-fetched the primary Compute MCP page, shared MCP
-authentication setup page, and live protected-resource metadata. Metadata
-provenance uses this run's workflow timestamp, `2026-07-31T19:17:08Z`:
+The metadata transport `streamable-http` records the documented Speakeasy connection setting. Provider evidence names HTTP; the endpoint gate does not require proof of a more specific transport.
 
-- `https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp`
-  ("Use the Compute Engine MCP server"; page footer "Last updated
-  2026-07-20 UTC") — backs: endpoint URL and "Transport: HTTP",
-  server-enabled-with-API, no-regional-isolation note, Before-you-begin
-  (project selector, billing check, admin role list "Compute Instance
-  Admin (v1), Compute Security Admin, Service Account User, Service
-  Usage Admin", "Enable the Compute Engine API" deep link), Required
-  roles ("MCP Tool User (roles/mcp.toolUser)", `mcp.tools.call`,
-  "roles and permissions required to perform the Compute Engine
-  operations"), Grant-the-roles console steps (Grant access / New
-  principals / Select a role / Add another role / Save), OAuth-with-IAM
-  authentication statement, the MCP scopes table
-  (`compute.read-only` / `compute.read-write`), "Additional scopes
-  might be required", Redirect URIs section ("Custom redirect URIs
-  aren't supported"), unauthenticated `tools/list`, Model Armor and
-  IAM-deny-policy sections. Checked explicitly this run: no Preview
-  badge on the page.
-- `https://docs.cloud.google.com/compute/docs/reference/mcp`
-  ("Compute Engine MCP reference") — backs: "global MCP endpoint"
-  `https://compute.googleapis.com/mcp`, the example `tools/list` curl
-  with `accept: application/json, text/event-stream`, the tool list
-  including write tools, `create_instance` defaults (`e2-medium`,
-  `debian-12` from `debian-cloud`), no toolsets listed.
-- `https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers`
-  ("Set up authentication for Google and Google Cloud MCP servers";
-  footer "Last updated 2026-07-17 UTC") — backs: DCR/Client-ID-
-  Metadata-Documents limitation, MCP Tool User requirement, the
-  authentication-methods table, full Web-application client creation
-  steps ("Google Auth Platform > Clients > Create client",
-  **Application type** / **Web application**, **Name**, **Authorized
-  JavaScript origins**, **Authorized redirect URIs**, **+ Add URI**,
-  **Create**, "OAuth 2.0 client created" dialog, **Client secrets**
-  one-time copy and delete-and-recreate recovery, treat-like-passwords
-  caution), Desktop-vs-Web selection rule, bearer-token lifetime
-  (1 hour default, 12-hour max), API-key inapplicability to IAM
-  services.
-- `https://docs.cloud.google.com/mcp/authenticate-mcp` ("Authenticate
-  to Google and Google Cloud MCP servers") — backs: MCP authorization
-  spec version 2025-11-25, same-permissions-as-you and attribution
-  statement, separate-agent-identity recommendation, DCR limitation
-  (restated), OAuth client ID concept ("within the scopes that the
-  user has authorized ... actual user credentials are never shared
-  with or stored in the AI application").
-- `https://docs.cloud.google.com/mcp/overview` ("Google Cloud MCP
-  servers overview") — backs: MCP version 2025-11-25, toolsets
-  concept, MCP-authorization compliance, feature list.
-- `https://docs.cloud.google.com/mcp/supported-products` ("Supported
-  products") — backs: Compute Engine row (endpoint, reference and
-  guide links) with no "(Preview)" marker; the sibling-row Preview
-  markers that make that absence meaningful.
-- `https://docs.cloud.google.com/mcp/release-notes` ("Google Cloud MCP
-  servers release notes"; footer "Last updated 2026-07-22 UTC") —
-  backs: GA announcement (May 1, 2026), automatic enablement with the
-  product API (Feb 17 / Mar 17, 2026), IAM `tool.name` control
-  (July 2, 2026), the Cursor custom-URI-scheme redirect issue and fix
-  (June 15 / July 22, 2026), Preview launch (Dec 10, 2025).
-- `https://docs.cloud.google.com/mcp/quotas` ("Quotas and system
-  limits") — backs: no MCP-specific quotas; product quotas apply;
-  Compute service name `compute.googleapis.com` example.
-- `https://docs.cloud.google.com/service-usage/docs/enable-disable`
-  ("Enable and disable services") — backs: API Library console steps
-  ("APIs & Services > API Library", resource selector, "Search for
-  APIs & Services" box, "Click Enable"), Service Usage Admin
-  requirement (`roles/serviceusage.serviceUsageAdmin`).
-- `https://docs.cloud.google.com/compute/docs/access/iam` ("Compute
-  Engine IAM roles and permissions") — backs: role IDs
-  `roles/compute.instanceAdmin.v1` (with "Full control of Compute
-  Engine instances, instance groups, disks, snapshots, and images"),
-  `roles/compute.securityAdmin`, `roles/iam.serviceAccountUser`, the
-  Instance Admin + Service Account User pairing for VMs that run as a
-  service account, and the grant-on-specific-service-account
-  recommendation.
-- `https://developers.google.com/workspace/guides/configure-oauth-consent`
-  ("Configure the OAuth consent screen and choose scopes"; footer
-  "Last updated 2026-04-20 UTC") — backs: the full Google Auth
-  platform wizard (Branding entry, "Google Auth platform not
-  configured yet" / **Get Started**, App Information / Audience /
-  Contact Information / Finish labels and clicks), the
-  already-configured statement ("If you have already configured the
-  Google Auth platform..."), **Data Access** >
-  **Add or Remove Scopes** > **Save**, External test-user steps,
-  consent-screen irrevocability, scope categories
-  (non-sensitive/sensitive/restricted), external-apps-only framing of
-  scope listing, "Next step: Create access credentials".
-- `https://developers.google.com/identity/protocols/oauth2` ("Using
-  OAuth 2.0 to Access Google APIs") — backs: 7-day refresh-token
-  expiry for External apps in Testing, 100-refresh-tokens-per-account
-  limit, other refresh-token invalidation causes.
-- `https://support.google.com/cloud/answer/15549945` ("Manage App
-  Audience"; fetched live this run, revision round 1) — backs: the
-  **Publish app** button and the **Testing** / **In production**
-  publishing statuses ("A project's publishing status is considered
-  **In production** after selecting the **Publish app** button"), the
-  100-test-user cap in Testing, the 7-day test-user authorization
-  expiry, and the may-be-subject-to-verification caveat.
-- `https://support.google.com/cloud/answer/15549049` ("Manage OAuth
-  App Branding"; fetched live this run, revision round 1) — backs:
-  publishing status is managed on the **Audience** page ("Manage your
-  app publishing status in the Audience page of the Google Auth
-  Platform").
-- `https://support.google.com/cloud/answer/15549135` ("Manage App
-  Data Access"; fetched live this run, revision round 1) — backs: the
-  **Manually add scopes** text box for unlisted scopes and the
-  **Update** button on the scopes panel, and the KB's styled-caps
-  printing of those button labels.
-- Speakeasy MCP Catalog lookup, matched registry name
-  `com.googleapis.compute/mcp`, title **Google Compute Engine**, observed
-  2026-07-31T19:17:08Z (`source: pulsemcp`) — backs the catalog-only
-  add-server path. The prior mirror record also backs the remote URL and
-  `streamable-http` transport.
-- `https://compute.googleapis.com/mcp` — prior direct endpoint observation
-  (2026-07-23T15:24Z): unauthenticated `tools/list` → HTTP
-  200 with tool list (`create_instance` carrying
-  `destructiveHint: true`); unauthenticated `tools/call` → HTTP 401
-  "Request is missing required authentication credential. Expected
-  OAuth 2 access token, login cookie or other valid authentication
-  credential."
-- `https://compute.googleapis.com/.well-known/oauth-protected-resource/mcp`
-  — direct observation this run: resource
-  `https://compute.googleapis.com/mcp`, authorization servers
-  `["https://accounts.google.com/"]`, `bearer_methods_supported:
-  ["header"]`, `scopes_supported:
-  ["https://www.googleapis.com/auth/compute"]`. (Path without `/mcp`
-  → 404, observed.)
-- `https://accounts.google.com/.well-known/oauth-authorization-server`
-  — direct observation this run: authorization endpoint
-  `https://accounts.google.com/o/oauth2/v2/auth`, token endpoint
-  `https://oauth2.googleapis.com/token`, `client_secret_post` /
-  `client_secret_basic`, no `registration_endpoint`.
-- `https://bigquery.googleapis.com/.well-known/oauth-protected-resource/mcp`
-  + `https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp` —
-  fetched this run solely as the comparison point for the scope
-  conflict (BigQuery's documented scope table and live metadata agree
-  on `https://www.googleapis.com/auth/bigquery`); no Compute facts
-  drawn from them.
-- `doctrine/speakeasy-setup.md` (repo-canonical Speakeasy-side flow;
-  product source `speakeasy-api/gram` `client/dashboard` `main` @
-  `96f7f73`) — backs every Speakeasy-side label transcluded above;
-  observed this run.
+### Add the server in Speakeasy {#add-server-in-speakeasy}
+
+In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then **Add Source**. Choose **Custom remote server**. On **Add a custom remote MCP server**, enter the shared URL in **Remote MCP server URL**, then select **Add server**. This creates the hosted MCP server and opens **Overview**.
+
+<!-- screenshot: the custom remote source form with the Compute Engine endpoint -->
+
+### Connect your credentials {#connect-speakeasy-credentials}
+
+From **Overview**, open **Settings**. Under **Authentication**, select **Configure Manually**, or **Use Discovered** when offered. In **Attach Remote Identity Provider**, use issuer `https://accounts.google.com` if it is not already known. Use **Endpoints > Discover** to obtain the Google authorization and token endpoints. Keep **Client Type** as **Manual**. Set **Client ID** and **Client Secret (optional)** to the credentials from A6. Google requires the secret for this selected Web client even though the generic field label says optional.
+
+Use **Scope (override)** with this comma-separated value:
+
+```text
+https://www.googleapis.com/auth/compute.read-only, https://www.googleapis.com/auth/compute.readonly
+```
+
+Leave **Audience (optional)** empty for this selected path. No audience override is established as necessary. Confirm that **Redirect URI** matches the value registered using `{{ gram.oauth.callback_url }}`. Select **Attach Identity Provider**. When the application requests Google access, sign in as the intended read-only user and grant consent. Do not authorize with the more privileged setup helper identity.
+
+The common scope field and discovery controls also apply to Manual in the inspected implementation. C1-C3 establish applicability. If a reused issuer has an administrator scope override, the Speakeasy administrator must confirm that it uses the selected read-only scopes. An issuer override takes precedence over client scopes.
+
+<!-- screenshot: the Manual identity provider sheet with values redacted -->
+
+Closing pointer: This guide covers setup only. For billing, tool behavior, and limits, see [Google's Compute Engine MCP documentation](https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp).
+
+## Research status and remaining limitations
+
+- Blocking research gaps: none for the selected setup path.
+- The provider reports and final audit were completed in the interrupted run. Topic 4 used factual follow-up 1; Topic 1 used follow-up 1 for the final authority audit. Recovery used no additional topic follow-up.
+- The original trial had provider credit dispatch failures. Actual errors remain in `.factory/dispatch-errors.jsonl`. Infrastructure failures are not successful research checks.
+- Client unit and end-to-end tests were inspected, not executed. No authenticated Google connection or live console check was performed. This is a supported documented path, not a live connection certification.
+- Release-note confirmation remains unavailable. Maintained setup pages had no replacement notice. This is non-blocking.
+- Organization restrictions and the person authorized to accept policy are environment-specific. The guide preserves the approval boundary. It does not direct users to weaken controls.
+- The callback template must render to the displayed Redirect URI, as required by the setup doctrine. The guide includes the equality check. No concrete deployed release mismatch was found.
+- No Git checkout is available in this snapshot. Run the available deterministic lint. Git-based drift checks and normal human PR review remain for an authorized repository workflow. Do not publish, commit, or open a PR in this trial.
+- No research subagent was started in recovery. Old handles were not resumed. No automated reviewer agent or review-driven loop was run.
+
+## Source reports
+
+The following reports preserve each topic's source quotations, dates, conditions, recipients and permission checks. Canonical setup actions above control the selected path. Unselected alternatives remain research evidence only. The original client-evidence warning is superseded by the completed recovery check that follows these reports.
+
+## Topic 1 — preserved complete report
+
+## Topic and status
+
+**Topic 1 — complete.** The authority check covers the selected existing-project, manual Web OAuth path. Official sources establish authority for API enablement, OAuth configuration, test-user changes, project IAM grants, and policy acceptance.
+
+Preserve the service page’s broad setup prerequisites. Do not assign that broad role set to every later read-only user. Use an authorized setup helper where needed.
+
+**Observation date for all sources: 2026-09-11.** No provider settings or local files were changed.
+
+### Corrections and updates
+
+- **T1-02 corrected:** Authorized JavaScript origins apply when client-side JavaScript accesses Google APIs. They are not a universal Web client requirement.
+- **T1-06 clarified:** The broad service setup roles remain a documented prerequisite for the setup identity. The later connecting read-only user has a separate permission selection.
+- **T1-07 added:** Policy acceptance requires authority to act for the organization. OAuth Config Editor alone does not establish that authority.
+- **T1-08 added:** The authority check now covers branding, audience, scope configuration, and External test-user assignment.
+- **T1-09 added:** The authority boundary for the final client connection and user consent is explicit.
+- **T1-04 and T1-05 retained:** Project creation and billing changes are outside the selected path.
+
+## Findings
+
+### T1-01 — Enable the Compute Engine API
+
+- **Status:** Conditional. Required if the API is not enabled.
+- **Who acts:** A person with **Service Usage Admin** (`roles/serviceusage.serviceUsageAdmin`) on the selected project, or equivalent permission.
+- **Recipient and scope:** The selected project receives access to the Compute Engine API.
+- **Action and values:** Select the existing project. Enable the **Compute Engine API**. Obtain the project from the resource owner.
+- **Authority:** `serviceusage.services.enable`.
+
+**Source statement:**
+
+> “To enable APIs, you need the Service Usage Admin IAM role (roles/serviceusage.serviceUsageAdmin), which contains the serviceusage.services.enable permission.”
+
+Source: https://docs.cloud.google.com/mcp/enable-disable-mcp-servers\
+Location: **Enable a supported product → Roles required to enable APIs**.
+
+**Source statement:**
+
+> “The Compute Engine remote MCP server is enabled when you enable the Compute Engine API.”
+
+Source: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+Location: Introduction.
+
+**Interpretation:** Service Usage Admin is the applicable role for the API enablement action. If the reader lacks this authority, an authorized helper can perform the action. The documented procedure does not add a separate MCP deployment.
+
+### T1-02 — Create and configure the Web OAuth client
+
+- **Status:** Required for the selected manual OAuth path if a suitable client does not exist. Changes are conditional for an existing client.
+- **Who acts:** An application administrator with **OAuth Config Editor** (`roles/oauthconfig.editor`) on the OAuth project.
+- **Recipient and scope:** The AI application receives an OAuth client ID and secret from that project.
+- **Documented action:**
+  - Open **Google Auth Platform > Clients > Create client**.
+  - Select **Web application**.
+  - Enter the application name.
+  - Register the exact client-provided URL under **Authorized redirect URIs**.
+  - Select **Create**.
+  - Copy the client ID and the one-time client secret. Keep the secret in secure storage.
+- **Value sources:** The application owner supplies the name. The client supplies the resolved callback URL from `{{ gram.oauth.callback_url }}`. The coordinator checks that value.
+- **Conditional field:** Configure **Authorized JavaScript origins** only when the documented JavaScript condition applies.
+
+**Source statement:**
+
+> “OAuth Config Editor”\
+> “Beta”\
+> “Read/write access to OAuth config resources”
+
+The role includes:
+
+> `clientauthconfig.clients.create`\
+> `clientauthconfig.clients.createSecret`\
+> `clientauthconfig.clients.getWithSecret`\
+> `clientauthconfig.clients.update`
+
+Source: https://docs.cloud.google.com/iam/docs/roles-permissions/oauthconfig\
+Location: **OAuthConfig roles → OAuth Config Editor**.
+
+**Source statements:**
+
+> “If you access your application through the internet, then select Web.”
+
+> “Applications that use client-side JavaScript to access Google's APIs must specify the authorized JavaScript Origins.”
+
+> “You can only copy it once. If you lose it, delete the secret and create a new one.”
+
+Source: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+Location: **Authenticate with an OAuth 2.0 client ID and secret → Create an OAuth 2.0 client ID and secret → Web**.
+
+**Interpretation:** OAuth Config Editor supports client creation, callback changes, and secret management. The role is marked **Beta**. It does not grant API enablement, project IAM management, or organization approval authority.
+
+**Correction:** The earlier report presented JavaScript origins as an unconditional field. The provider makes this requirement conditional. The coordinator’s client check determines whether it applies.
+
+### T1-03 — Grant project IAM access
+
+- **Status:** Conditional. Applies when required grants are missing.
+- **Who acts:** A project IAM administrator with **Project IAM Admin** (`roles/resourcemanager.projectIamAdmin`), or equivalent permissions.
+- **Recipients and scope:** The setup helper or connecting identity receives the applicable roles on the selected project.
+- **Documented action:** Open **IAM**. Select the project. Select **Grant access**. Enter the identity in **New principals**. Select each required role. Select **Save**.
+- **Selected connecting-user values:** **MCP Tool User** and **Compute Viewer**.
+- **Value sources:** Obtain the project and Google Account email address from the resource owner.
+
+**Source statement:**
+
+> “To manage access to a project: Project IAM Admin (roles/resourcemanager.projectIamAdmin)”
+
+The source lists:
+
+> `resourcemanager.projects.getIamPolicy`\
+> `resourcemanager.projects.setIamPolicy`
+
+Source: https://docs.cloud.google.com/iam/docs/granting-changing-revoking-access\
+Location: **Required roles → Required permissions**.
+
+**Source statement:**
+
+> “In the New principals field, enter your user identifier. This is typically the email address for a Google Account.”
+
+Source: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+Location: **Before you begin → Grant the roles**.
+
+**Interpretation:** The reader does not need Project IAM Admin if an authorized administrator performs the grants. OAuth Config Editor does not establish authority to grant these roles.
+
+### T1-04 — Select an existing project; create a project only on another path
+
+- **Status:** Required to select a project. Project creation is conditional and is **not selected**.
+- **Who acts:** The setup person selects an existing project. A person with **Project Creator** creates a project if another path requires it.
+- **Recipient and scope:** Setup applies to the selected project.
+- **Action and values:** Use the project selector. Select the project supplied by the cloud resource owner.
+
+**Source statements:**
+
+> “Selecting a project doesn't require a specific IAM role—you can select any project that you've been granted a role on.”
+
+> “To create a project, you need the Project Creator role (roles/resourcemanager.projectCreator), which contains the resourcemanager.projects.create permission.”
+
+Source: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+Location: **Before you begin → Roles required to select or create a project**.
+
+**Interpretation:** Do not request Project Creator for the selected existing-project path. Project selection does not grant authority for later actions.
+
+### T1-05 — Billing changes require separate authority
+
+- **Status:** Conditional. Applies if billing needs to be enabled. This action is **not selected** because billing is already enabled.
+- **Who acts:** A person with the required project and billing-account permissions.
+- **Recipient and scope:** The selected project is linked to an active billing account.
+- **Documented limited-role option:**
+  - Project: **Project Billing Manager**, **Project Browser**, and **Service Usage Viewer**.
+  - Target billing account: **Billing Account User** and **Billing Account Viewer**.
+- **Action and values:** In **Manage billing accounts > My projects**, find the project. Use **Actions > Change billing**. Select the billing account supplied by the billing owner.
+
+**Source statement:**
+
+> “Verify that billing is enabled for your Google Cloud project.”
+
+Source: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+Location: **Before you begin**.
+
+**Source statements:**
+
+> “You need both project permissions and billing account permissions.”
+
+> “Project Billing Manager + Project Browser + Service Usage Viewer”
+
+> “Billing Account User + Billing Account Viewer”
+
+Source: https://docs.cloud.google.com/billing/docs/how-to/modify-project\
+Location: **Enable billing for an existing project → Permissions required for this task**.
+
+**Interpretation:** Do not request billing-change roles for this path. Service Usage Admin alone does not establish billing authority.
+
+### T1-06 — Preserve setup prerequisites and separate read-only user access
+
+- **Status:** Required for the documented service setup procedure and authenticated server use, with different recipients.
+- **Setup actor and scope:** The service setup identity has the following roles on the selected project:
+  - **Compute Instance Admin (v1)**
+  - **Compute Security Admin**
+  - **Service Account User**
+  - **Service Usage Admin**
+- **Connecting-user recipient and scope:** The selected read-only user receives:
+  - **MCP Tool User** (`roles/mcp.toolUser`)
+  - **Compute Viewer** (`roles/compute.viewer`)
+- **Action:** An authorized project IAM administrator grants missing roles. Use the broad setup identity or helper for the documented setup procedure. Use the intended read-only identity for authorization and the inventory check.
+
+**Source statement:**
+
+> “Make sure that you have the following role or roles on the project: Compute Instance Admin (v1), Compute Security Admin, Service Account User, Service Usage Admin”
+
+Source: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+Location: **Before you begin**.
+
+**Separate server-use statements:**
+
+> “Make MCP tool calls: MCP Tool User (roles/mcp.toolUser)”
+
+> “You also need the roles and permissions required to perform the Compute Engine operations.”
+
+Source: Same page.\
+Location: **Required roles** and the text after **Required permissions**.
+
+**Read-only role statement:**
+
+> “Read-only access to get and list Compute Engine resources, without being able to read the data stored on them.”
+
+Source: https://docs.cloud.google.com/compute/docs/access/iam\
+Location: **Compute Viewer**.
+
+**Interpretation:** The broad setup prerequisite must not be silently replaced with Compute Viewer. However, the separate server-use rule supports MCP Tool User plus Compute Viewer for the selected inventory operation. Compute Viewer does not permit writes or access to stored disk data.
+
+The applicable narrower authority for API enablement remains Service Usage Admin. Preserve the other source-required setup roles on the setup helper rather than transferring them to every later user. The documentation does not state that every later user needs the full setup role set.
+
+### T1-07 — Accept the User Data Policy with organization authority
+
+- **Status:** Conditional. Applies when Google Auth platform initialization shows the agreement.
+- **Who acts:** A person authorized to accept the applicable terms for the organization. The person who makes the configuration change also needs OAuth configuration access.
+- **Recipient and scope:** Acceptance applies to the organization’s use of Google API Services and the application configuration.
+- **Documented action:** Under **Finish**, review the policy. If authorized and in agreement, select **I agree to the Google API Services: User Data Policy**. Select **Continue**, then **Create**.
+- **Value source:** Obtain approval authority from the organization’s responsible business or legal owner.
+
+**Source statement:**
+
+> “Under Finish, review the Google API Services User Data Policy and if you agree, select I agree to the Google API Services: User Data Policy.”
+
+Source: https://developers.google.com/workspace/guides/configure-oauth-consent\
+Location: **Configure OAuth consent**.
+
+**Source statement:**
+
+> “The policy below, as well as the Google APIs Terms of Service, govern the use of Google API Services when you request access to Google user data.”
+
+Source: https://developers.google.com/terms/api-services-user-data-policy\
+Location: Introduction.
+
+**Source statement:**
+
+> “If you are using the APIs on behalf of an entity, you represent and warrant that you have authority to bind that entity to the Terms”
+
+Source: https://developers.google.com/terms\
+Location: **1. Account and Registration → b. Entity Level Acceptance**.
+
+**Interpretation:** Technical permission to configure OAuth is not proof of authority to accept terms for the organization. If the reader lacks that authority, involve an authorized person before acceptance. Google does not name a separate IAM role for this business authority.
+
+### T1-08 — Configure branding, audience, scopes, and test users
+
+- **Status:** Required where configuration is missing. Test-user assignment is conditional on the **External / Testing** path.
+- **Who acts:** An application administrator with **OAuth Config Editor** on the OAuth project. Policy acceptance also follows T1-07.
+- **Recipients and scope:** The OAuth application receives its branding, audience, and declared scopes. Named users receive test eligibility.
+- **Documented actions and values:**
+  - Open **Google Auth platform > Branding**.
+  - If prompted, select **Get Started**.
+  - Supply **App name**, **User support email**, and contact **Email address** from the application owner.
+  - Select **Internal** only when the project and intended users meet the organization condition.
+  - Otherwise select the approved **External / Testing** path.
+  - Configure applicable scope declarations through **Data Access > Add or Remove Scopes**, then **Save**.
+  - For External testing, open **Audience > Test users > Add users**. Enter each approved Google Account email address. Select **Save**.
+- **Selected client scope values:** Topic 4 supplies:
+  - `https://www.googleapis.com/auth/compute.read-only`
+  - `https://www.googleapis.com/auth/compute.readonly`
+
+**Authority statements:**
+
+> “Read/write access to OAuth config resources”
+
+The role includes:
+
+> `clientauthconfig.brands.create`\
+> `clientauthconfig.brands.update`\
+> `oauthconfig.*`\
+> `oauthconfig.testusers.update`
+
+Source: https://docs.cloud.google.com/iam/docs/roles-permissions/oauthconfig\
+Location: **OAuth Config Editor**.
+
+**Procedure statements:**
+
+> “If you have already configured the Google Auth platform, you can configure the following OAuth Consent Screen settings in Branding, Audience, and Data Access.”
+
+> “Enter your email address and any other authorized test users, then click Save.”
+
+Source: https://developers.google.com/workspace/guides/configure-oauth-consent\
+Location: **Configure OAuth consent**.
+
+**Audience and expiry statements:**
+
+> “Projects associated with a Google Cloud Organization can configure Internal users to limit authorization requests to members of the organization.”
+
+> “Authorizations by a test user will expire seven days from the time of consent.”
+
+> “If your OAuth client requests an offline access type and receives a refresh token, that token will also expire.”
+
+Source: https://support.google.com/cloud/answer/15549945\
+Location: **Internal** and **Publishing status → Testing**.
+
+**Interpretation:** OAuth Config Editor supplies the applicable application configuration authority. Adding a test user does not grant IAM access. Keep the seven-day warning for the External test path. Configuring requested scopes does not itself grant those scopes on behalf of a user.
+
+### T1-09 — Connect the client and authorize the intended account
+
+- **Status:** Required.
+- **Who acts:** The authorized Speakeasy operator configures the remote connection. The intended Google user authorizes application access.
+- **Recipients and scope:** Speakeasy receives the selected OAuth credentials and user authorization. Its resource access remains limited by that user’s IAM permissions and authorized scopes.
+- **Action and values:** Configure the manual OAuth connection using the selected client ID, secret, and exact callback. Use the fixed endpoint `https://compute.googleapis.com/mcp`. Authorize the intended read-only Google account.
+- **Client behavior:** Offline access, consent parameters, token storage, and refresh are coordinator-owned implementation checks, not additional Google administrator grants.
+
+**Source statement:**
+
+> “When configured, the AI application can access resources that the authenticated user has access to, within the scopes that the user has authorized.”
+
+Source: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+Location: **Authenticate with an OAuth 2.0 client ID and secret**.
+
+**Interpretation:** The user’s consent does not grant project IAM roles. The setup helper’s broader permissions do not transfer to the read-only identity. Google documentation does not establish Speakeasy’s internal role names; the coordinator owns that client authority check.
+
+## Unresolved questions
+
+### Blocking
+
+**None for the selected provider-side setup actions.**
+
+### Non-blocking
+
+- **Broad setup role purpose:** The service page requires the broad setup role set but does not map each role to a specific connection action. Preserve that prerequisite on the setup identity or helper. Do not infer that all later read-only users need it.
+- **Organization-specific approval:** Public documentation cannot identify the person authorized to bind this organization to terms. T1-07 supplies a concrete approval boundary; the responsible organization owner must supply the authorized person.
+- **Existing restrictions:** The OAuth audience source warns that account restrictions can prevent authorization. No such problem was supplied. Do not add organization-policy changes or Workspace approval steps without an applicable restriction.
+- **Speakeasy authority:** The exact client role required to add a source and attach an identity provider remains coordinator-owned. This report does not infer it from Google IAM roles.
+- **Unselected actions:** New-project creation, billing changes, service-account creation, ADC, bearer tokens, and DCR are outside this path. Their additional authority is not needed for the selected actions.
+- **Release-note confirmation:** Release notes were not confirmed. No replacement notice was found in the inspected maintained setup content.
+
+## Cross-topic dependencies
+
+- **Topic 2:** Use T1-01, T1-02, T1-07, and T1-08 for API, OAuth initialization, policy acceptance, and application settings. No billing-change or project-creation action is selected.
+- **Topic 3:** Preserve the broad setup prerequisite on the setup identity. Use **MCP Tool User + Compute Viewer** for the selected later read-only user. Apply Internal membership or External test-user conditions.
+- **Topic 4:** Use OAuth Config Editor for provider-side configuration. Keep user consent separate from scope declaration and IAM grants. Retain the seven-day External testing warning.
+- **Topic 5:** Keep the fixed global endpoint. No separate MCP deployment authority is required by the documented enablement action.
+- **Coordinator:** Use separate helpers where needed. Do not default to full administrator access. Confirm the Speakeasy operator’s client access and complete the client implementation check. Do not authorize the broad setup identity when the intended connection is the read-only user.
+## Topic 2 — preserved complete report
+
+## Topic and status
+
+**Topic 2 — complete.** The current instructions establish project selection, billing, Compute Engine API activation, and OAuth application creation. No blocking organization setup gap was found. The coordinator must still select and check the client authentication path.
+
+All sources below were observed on **2026-09-11**. No provider settings or local files were changed.
+
+## Findings
+
+### T2-01 — Select or create a Google Cloud project
+
+- **Status:** Required.
+- **Actor and scope:** The setup administrator acts in a Google Cloud project.
+- **Action and values:** Sign in to Google Cloud. Open the [project selector](https://console.cloud.google.com/projectselector2/home/dashboard). Select the project that will contain the required Compute Engine resources, or create a project. Obtain the project choice from the cloud administrator.
+- **Authority:** Selection is available for a project on which the administrator has a role. Project creation requires the Project Creator role.
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  Location: **Before you begin → Roles required to select or create a project**.
+- **Exact quotations:**
+  > “In the Google Cloud console, on the project selector page, select or create a Google Cloud project.”
+
+  > “Selecting a project doesn't require a specific IAM role—you can select any project that you've been granted a role on.”
+
+  > “To create a project, you need the Project Creator role (`roles/resourcemanager.projectCreator`), which contains the `resourcemanager.projects.create` permission.”
+- **Interpretation:** An existing project is a documented choice. A separate project for MCP is not a stated requirement.
+
+### T2-02 — Enable billing for the project
+
+- **Status:** Required.
+- **Actor and scope:** The project and billing administrators act on the selected project and its Cloud Billing account.
+- **Action and values:** Verify that billing is enabled for the selected project. The project must be linked to an active Cloud Billing account in good standing. Obtain the billing account choice from the billing administrator.
+- **Source 1:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  Location: **Before you begin**.
+- **Exact quotation:**
+  > “Verify that billing is enabled for your Google Cloud project.”
+- **Source 2:** https://docs.cloud.google.com/billing/docs/how-to/verify-billing-enabled\
+  Location: **Check if billing is enabled on a project**.
+- **Exact quotations:**
+  > “The project is linked to a Cloud Billing account.”
+
+  > “The linked Cloud Billing account is active and in good standing—that is, the billing account isn't closed or suspended.”
+- **Interpretation:** Project existence alone does not satisfy this prerequisite. Topic 1 must verify authority if the project needs a billing change.
+
+### T2-03 — Enable the Compute Engine API
+
+- **Status:** Required.
+- **Actor and scope:** An administrator with API activation authority acts in the selected project.
+- **Action and values:** Use **Enable the Compute Engine API** in the service-specific setup page. Enable that API for the selected project.
+- **Authority:** The Service Usage Admin role includes the required API activation permission.
+- **Source 1:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  Locations: introduction and **Before you begin**.
+- **Exact quotations:**
+  > “The Compute Engine remote MCP server is enabled when you enable the Compute Engine API.”
+
+  > “Enable the Compute Engine API.”
+- **Source 2:** https://docs.cloud.google.com/mcp/enable-disable-mcp-servers\
+  Location: **Enable a supported product**.
+- **Exact quotations:**
+  > “To connect to a supported product through MCP, enable the product API.”
+
+  > “To enable APIs, you need the Service Usage Admin IAM role (`roles/serviceusage.serviceUsageAdmin`), which contains the `serviceusage.services.enable` permission.”
+- **Interpretation:** The current activation action is product API activation. These instructions do not direct the administrator to create an MCP deployment or perform a separate MCP activation command.
+
+### T2-04 — Create an OAuth client for the manual OAuth path
+
+- **Status:** Conditional. Applies when the coordinator selects authentication with an OAuth client ID and secret.
+- **Actor and scope:** The application administrator creates an OAuth client in a Google Cloud project. The AI application uses that client. The connecting user supplies the user authorization.
+- **Documented action:**
+  1. Open **Google Auth Platform > Clients > Create client** at https://console.cloud.google.com/auth/clients/create.
+  2. Select **Web application** in **Application type** for an application accessed through the internet.
+  3. Enter an application name in **Name**.
+  4. In **Authorized JavaScript origins**, use **+ Add URI** and enter the applicable origin in **URIs** when the application uses client-side JavaScript to access Google APIs.
+  5. In **Authorized redirect URIs**, use **+ Add URI** and enter the application-provided redirect URL in **URIs**.
+  6. Click **Create**.
+  7. In **OAuth 2.0 client created**, copy the **Client secret** from **Client secrets** and keep it in secure storage.
+- **Value sources:** The administrator supplies the application name. The client documentation supplies the redirect URL. The application owner supplies any required JavaScript origin. The coordinator must confirm the use of `{{ gram.oauth.callback_url }}` for this client.
+- **Source:** https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+  Locations: **Authenticate with an OAuth 2.0 client ID and secret → Create an OAuth 2.0 client ID and secret → Web**.
+- **Exact quotations:**
+  > “If you access your application through the internet, then select Web.”
+
+  > “Your application's documentation should provide the redirect URL. Custom redirect URLs aren't supported.”
+
+  > “Applications that use client-side JavaScript to access Google's APIs must specify the authorized JavaScript Origins.”
+
+  > “In the Application type list, select Web application.”
+
+  > “In the Client secrets section, copy the Client secret and save it in a secure place. You can only copy it once. If you lose it, delete the secret and create a new one.”
+- **Interpretation:** A web OAuth client is the documented choice for an internet-accessed application. Do not substitute a desktop client without a client-specific reason. Do not invent a JavaScript origin.
+- **Authority:** The inspected procedure explains client creation but does not establish the administrator role. Topic 1 must verify that authority.
+
+### T2-05 — Configure the Google Auth platform and consent settings
+
+- **Status:** Conditional. Applies to a project used for the OAuth client path, if its Google Auth platform is not configured. Later changes apply when the application audience or scopes change.
+- **Actor and scope:** The application administrator configures the OAuth application in its Google Cloud project.
+- **Documented action and values:**
+  - Open **Google Auth platform > Branding**.
+  - If **Google Auth platform not configured yet** appears, click **Get Started**.
+  - Under **App Information**, enter **App name** and choose **User support email**. Click **Next**.
+  - Under **Audience**, select the user type. Click **Next**.
+  - Under **Contact Information**, enter an **Email address**. Click **Next**.
+  - Under **Finish**, review the policy. If approved by the responsible administrator, select **I agree to the Google API Services: User Data Policy**. Click **Continue**, then **Create**.
+  - Existing configurations are managed in **Branding**, **Audience**, and **Data Access**.
+  - For an application used outside the Google Workspace organization, the source directs the administrator to **Data Access > Add or Remove Scopes**, select the required scopes, and click **Save**.
+- **Value sources:** Obtain the application name, support address, contact address, and audience choice from the application owner. Topic 4 must supply the selected Compute Engine scopes.
+- **Source:** https://developers.google.com/workspace/guides/configure-oauth-consent\
+  Location: **Configure OAuth consent**. This is shared Google OAuth configuration documentation, not a Compute Engine-specific scope list.
+- **Exact quotations:**
+  > “If you have already configured the Google Auth platform, you can configure the following OAuth Consent Screen settings in Branding, Audience, and Data Access.”
+
+  > “If you see a message that says Google Auth platform not configured yet, click Get Started.”
+
+  > “Under Audience, select the user type for your app.”
+
+  > “If you're creating an app for use outside of your Google Workspace organization, click Data Access > Add or Remove Scopes.”
+
+  > “After selecting the scopes required by your app, click Save.”
+- **Interpretation:** These are project-level application settings. They do not grant Compute Engine IAM permissions.
+- **Authority:** Topic 1 must verify authority for application configuration and policy acceptance.
+
+### T2-06 — Add users for an External test application
+
+- **Status:** Conditional. Applies to the External test configuration described in the consent setup procedure.
+- **Actor and scope:** The application administrator adds users to the OAuth application's test user list.
+- **Action:** Open **Audience**. Under **Test users**, click **Add users**. Enter the authorized test users' email addresses. Click **Save**.
+- **Source:** https://developers.google.com/workspace/guides/configure-oauth-consent\
+  Location: **Configure OAuth consent**.
+- **Exact quotation:**
+  > “If you selected External for user type, add test users.”
+
+  > “Enter your email address and any other authorized test users, then click Save.”
+- **Interpretation:** This is an individual user access condition, although an administrator performs the action. Topic 3 owns the final eligibility finding. Topic 4 owns any testing-state effect on tokens.
+
+### T2-07 — Additional MCP security configuration is optional
+
+- **Status:** Explicitly not required as an additional configuration task by the shared activation page. Existing organization restrictions can still apply.
+- **Actor and scope:** The security administrator can configure controls for the organization or project.
+- **Action:** Review the linked security guidance if the organization requires additional controls. Do not add a security product deployment as a universal activation step.
+- **Source:** https://docs.cloud.google.com/mcp/enable-disable-mcp-servers\
+  Location: **Optional security and safety configurations**.
+- **Exact quotation:**
+  > “Google Cloud offers defaults and customizable policies to control the use of MCP tools in your Google Cloud organization or project.”
+- **Interpretation:** The section identifies additional configuration as optional. It does not establish that every existing organization policy permits this connection.
+
+## Unresolved questions
+
+- **Non-blocking — Preview or early-access enrollment.** The current Compute Engine setup page and shared API activation page give a concrete activation procedure without an enrollment step. No enrollment requirement was found. This does not prove that all access-program restrictions are absent.
+- **Non-blocking — Existing organization restrictions.** The inspected security pages do not establish the settings of the user's organization. No specific restriction was supplied in the run input. Do not direct the administrator to weaken a policy without a documented need.
+- **Non-blocking — OAuth application authority.** The OAuth procedure is concrete, but the inspected source does not name the required administrator role. Topic 1 must verify it.
+- **Non-blocking — Application audience and verification.** The run input does not identify an Internal application, an External test application, or a public production application. The coordinator must select the applicable path with Topics 3 and 4. Do not assume that public application verification is required for this trial.
+- **Non-blocking for Topic 2 — Client callback and JavaScript origin.** Provider-side fields and value sources are documented. The coordinator owns the required client implementation checks.
+- **Non-blocking — Release-note confirmation.** The live setup pages were checked. No replacement notice was found in the inspected content. Release notes were not confirmed within the research time limit.
+
+## Cross-topic dependencies
+
+- **Topic 1:** Verify authority for project creation, billing changes, API activation, OAuth application configuration, and policy acceptance. Use T2-01 and T2-03 for the documented project and API roles.
+- **Topic 3:** Use T2-06 for External test user assignment. Separately check `roles/mcp.toolUser` and the IAM permissions for the required Compute Engine operations. OAuth application configuration does not grant those permissions.
+- **Topic 4:** Use T2-04 and T2-05 for OAuth client creation and consent settings. Confirm exact scopes, token settings, and testing-state limits.
+- **Topic 5:** Use T2-03. Current Compute Engine MCP activation follows Compute Engine API activation.
+- **Coordinator:** Select the authentication and audience path. Check the application-provided callback and whether JavaScript origins apply. Do not infer automatic OAuth behavior from the provider's client creation procedure.
+## Topic 3 — preserved complete report
+
+## Topic and status
+
+**Topic 3 — complete.** The current Google instructions establish the connecting user's MCP permission, Compute Engine resource permissions, and conditional OAuth application access. No blocking gap was found.
+
+**Observation date for all sources: 2026-09-11.** Public pages only were checked. No provider settings or local files were changed.
+
+## Findings
+
+### T3-01 — Permission to call MCP tools
+
+- **Status:** Required.
+- **Actor and scope:** An IAM administrator grants access to the connecting identity on the Google Cloud project.
+- **Requirement:** The identity needs `mcp.tools.call`. Google specifies **MCP Tool User** (`roles/mcp.toolUser`). A custom role or another predefined role can also supply the permission.
+- **Documented action:** In the Google Cloud console, open **IAM** and select the project. Select **Grant access**. In **New principals**, enter the connecting identity's identifier, usually its Google Account email address. Use **Select a role** to select **MCP Tool User**, then select **Save**. Obtain the project and identity from the cloud resource owner.
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp
+  - **Location:** **Required roles** and **Required permissions**.
+  - **Quotation:** “Make MCP tool calls: MCP Tool User (`roles/mcp.toolUser`)”
+  - **Quotation:** “Make MCP tool calls: `mcp.tools.call`”
+  - **Quotation:** “You might also be able to get these permissions with custom roles or other predefined roles.”
+  - **Location:** **Before you begin → Grant the roles**.
+  - **Quotation:** “In the New principals field, enter your user identifier. This is typically the email address for a Google Account.”
+- **Interpretation:** Resource permissions alone do not satisfy the documented permission to call MCP tools.
+
+### T3-02 — Permission to use the underlying Compute Engine resources
+
+- **Status:** Required. The necessary permissions depend on the requested operations.
+- **Actor and scope:** An IAM administrator grants the connecting identity access to the applicable project or resources.
+- **Requirement:** The identity also needs the Compute Engine permissions for each operation.
+- **Documented action and values:** Use the linked Compute Engine role reference to select roles for the approved operations. Obtain the project, resources, and approved operations from the resource owner.
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp
+  - **Location:** **Required roles**, after **Required permissions**.
+  - **Quotation:** “You also need the roles and permissions required to perform the Compute Engine operations.”
+- **Source:** https://docs.cloud.google.com/compute/docs/access/iam
+  - **Location:** **Compute Viewer** (`roles/compute.viewer`).
+  - **Quotation:** “Read-only access to get and list Compute Engine resources, without being able to read the data stored on them.”
+- **Interpretation:** Compute Viewer is a documented role for resource inventory. It does not grant access to disk contents. It is not sufficient for write operations. This report does not select a final resource role because the input does not specify the required operations.
+
+### T3-03 — Broad role set in the service setup procedure
+
+- **Status:** Required for the documented service setup procedure.
+- **Actor and scope:** The setup identity must have these roles on the selected project. An authorized IAM administrator grants missing roles.
+- **Documented values:** **Compute Instance Admin (v1)**, **Compute Security Admin**, **Service Account User**, and **Service Usage Admin**.
+- **Documented check:** Open **IAM** and select the project. Find rows in the **Principal** column for the identity or its groups. Check the **Role** column. Contact the administrator to establish group membership.
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp
+  - **Location:** **Before you begin**.
+  - **Quotation:** “Make sure that you have the following role or roles on the project: Compute Instance Admin (v1), Compute Security Admin, Service Account User, Service Usage Admin”
+  - **Location:** **Check for the roles**.
+  - **Quotation:** “In the Principal column, find all rows that identify you or a group that you're included in.”
+- **Interpretation:** Preserve this role set as a setup prerequisite. Do not silently replace it with Compute Viewer. The separate **Required roles** section establishes MCP Tool User plus operation-specific permissions for server use. Topic 1 must distinguish the setup identity from each later connecting identity.
+
+### T3-04 — Authority to grant project IAM access
+
+- **Status:** Required when an administrator must add or change the project role grants.
+- **Actor and scope:** An administrator with project IAM management permission grants access to the connecting identity.
+- **Documented value:** **Project IAM Admin** (`roles/resourcemanager.projectIamAdmin`) is an applicable predefined role.
+- **Source:** https://docs.cloud.google.com/iam/docs/granting-changing-revoking-access
+  - **Location:** **Required roles**.
+  - **Quotation:** “To manage access to a project: Project IAM Admin (`roles/resourcemanager.projectIamAdmin`)”
+  - **Location:** **Required permissions**.
+  - **Quotation:** “To manage access to projects: `resourcemanager.projects.getIamPolicy` `resourcemanager.projects.setIamPolicy`”
+- **Interpretation:** A connecting user without this authority must ask an authorized administrator for the grants. Topic 1 must use this evidence for the grant action.
+
+### T3-05 — Eligible identity and limits of user-based access
+
+- **Status:** Required for authenticated resource access.
+- **Actor and scope:** The connecting identity must have access to the target Google Cloud resources.
+- **Documented action:** Select the intended Google Cloud identity and grant its permissions. Do not treat OAuth application access as a replacement for resource access.
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp
+  - **Location:** **Authentication and authorization**.
+  - **Quotation:** “All Google Cloud identities are supported for authentication to MCP servers.”
+- **Source:** https://docs.cloud.google.com/mcp/authenticate-mcp
+  - **Location:** **OAuth client ID**.
+  - **Quotation:** “When configured, the MCP client can access Google and Google Cloud resources that the authenticated user has access to, within the scopes that the user has authorized.”
+- **Interpretation:** IAM resource access and authorized OAuth scopes both limit user-based access. Token configuration belongs to Topic 4.
+
+### T3-06 — Test-user assignment for an OAuth application in Testing
+
+- **Status:** Conditional. Applies when the selected OAuth application has publishing status **Testing** and requests Compute Engine scopes.
+- **Actor and scope:** The person who manages the OAuth application adds each connecting user's email address to that application's test-user list.
+- **Documented action:** Open **Audience**. Under **Test users**, select **Add users**. Enter the authorized test users' email addresses, then select **Save**.
+- **Source:** https://support.google.com/cloud/answer/15549945
+  - **Location:** **Publishing status → Testing**.
+  - **Quotation:** “Projects configured with a publishing status of Testing are limited to up to 100 test users listed in the OAuth consent screen.”
+  - **Quotation:** “If your app requests any other OAuth scopes, then this exception does not apply.”
+  - **Context:** The exception covers the listed name, email, and profile scopes, not Compute Engine scopes.
+- **Source:** https://developers.google.com/workspace/guides/configure-oauth-consent
+  - **Location:** **Configure OAuth consent**, test-user steps.
+  - **Quotation:** “Under Test users, click Add users.”
+  - **Quotation:** “Enter your email address and any other authorized test users, then click Save.”
+- **Interpretation:** IAM access does not replace test-user assignment. Topic 1 must check the application manager's authority. Topic 2 must establish the selected application's audience and publishing status.
+
+### T3-07 — Organization membership for an Internal OAuth application
+
+- **Status:** Conditional. Applies when the OAuth application uses **Internal** users.
+- **Actor and scope:** The application owner selects the audience. The connecting user must be a member of the associated organization.
+- **Documented action:** Check that the intended connecting user belongs to the Google Cloud project's parent organization. Obtain the organization and membership information from its administrator.
+- **Source:** https://support.google.com/cloud/answer/15549945
+  - **Location:** **Internal**.
+  - **Quotation:** “Projects associated with a Google Cloud Organization can configure Internal users to limit authorization requests to members of the organization.”
+  - **Quotation:** “An org_internal authorization error is displayed when authorization is requested from users outside the Google Cloud project's parent.”
+- **Interpretation:** Project IAM access does not, by itself, establish eligibility for an Internal OAuth application.
+
+### T3-08 — Tool discovery does not require authentication
+
+- **Status:** Explicitly not required for `tools/list` only.
+- **Actor and scope:** The client can request the server's tool list without a connecting-user grant for authenticated resource access.
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp
+  - **Location:** **List tools**.
+  - **Quotation:** “The tools/list method doesn't require authentication.”
+- **Interpretation:** A successful tool list does not prove that the user can call resource tools.
+
+## Unresolved questions
+
+- **Non-blocking — Exact resource role selection.** The input does not specify read-only use or particular write operations. The service setup page and Compute Engine IAM reference establish the selection rule. The resource owner must supply the approved operations.
+- **Non-blocking — Broad setup roles for later users.** The setup page lists the broad prerequisite role set in T3-03. Its separate server-use section requires MCP Tool User and operation permissions. It does not clearly assign every prerequisite role to every later connecting user. Topic 1 must preserve this distinction.
+- **Non-blocking — Account restrictions.** The Google OAuth audience page states: “A test user may be unable to authorize scopes requested by your project's OAuth clients due to the availability of Google Services for the account or configured restrictions.” It also identifies Advanced Protection as a possible restriction. The input reports no such restriction. Do not add a universal allowlist action without applicable evidence.
+- **Non-blocking — Other licenses, assignments, or individual settings.** No additional requirement was established in the inspected service setup, IAM, authentication, and OAuth audience pages. This is not evidence that such requirements are absent in every organization.
+- **Non-blocking — Release-note confirmation.** Live maintained pages were read. No replacement notice was found in the inspected text. Release notes were not confirmed within the research period.
+- **Non-blocking — Initial authentication URL.** The supplied `set-up-authentication-mcp-servers` page did not provide usable evidence in these reads. The maintained `authenticate-mcp` page supplied the user-access statement in T3-05.
+
+## Cross-topic dependencies
+
+- **Topic 1:** Verify authority for the IAM grants in T3-01 to T3-04. Verify authority to add OAuth test users. Separate setup roles from later user permissions.
+- **Topic 2:** Establish OAuth audience and publishing status. Apply T3-06 or T3-07 as applicable.
+- **Topic 4:** Apply the user's IAM limits as well as OAuth scopes. The OAuth audience source states: “Authorizations by a test user will expire seven days from the time of consent.” It also states that an issued offline refresh token expires. Check this condition for the selected setup path.
+- **Topic 5:** Use T3-08 only for discovery. Resource tool calls still require authorized access.
+- **Coordinator:** Obtain the intended operations before selecting resource roles. A successful connection or tool list is not a complete permission check. No client implementation conclusion is made in this report.
+## Topic 4 — preserved complete report
+
+## Topic and status
+
+**Topic 4 — complete for provider authentication research.** The current instructions support a concrete read-only scope configuration:
+
+- MCP scope: `https://www.googleapis.com/auth/compute.read-only`
+- Resource API scope: `https://www.googleapis.com/auth/compute.readonly`
+
+Use both scopes for a read-only connection that lists VM instances. This selection follows the provider's instructions for MCP scopes and additional resource scopes. It is a documented setup choice, not a tested connection.
+
+The coordinator still owns the required client implementation review. This report does not infer lack of client support from missing client evidence.
+
+**Observation date for all findings: 2026-09-11.**
+
+### Corrections to the previous report
+
+- **T4-08 is replaced.** Different MCP and API scope strings do not, by themselves, establish a conflict. The MCP page expressly allows additional resource scopes. The two read-only scopes give a concrete setup at the documented level of detail.
+- **The previous blocking scope question is closed.**
+- **The previous client-support question is transferred to the coordinator's compatibility review.** It is not a finding that the client lacks support.
+- T4-01 through T4-07, T4-09, and T4-10 retain their source facts. T4-11 adds a concrete read-only action.
+
+## Findings
+
+### T4-01 — OAuth authentication
+
+- **Status:** Required for authenticated Compute Engine resource access.
+- **Actor, recipient, and scope:** The client administrator configures OAuth. The connecting user grants access to the application. Access applies to resources that the user can access.
+- **Documented action:** Configure OAuth credentials and the required scopes in the MCP client.
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  **Location:** Authentication and authorization.
+- **Quotation:**
+  > “Compute Engine MCP servers use the OAuth 2.0 protocol with Identity and Access Management (IAM) for authentication and authorization.”
+- **Supporting source:** https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+  **Location:** Authenticate with an OAuth 2.0 client ID and secret.
+- **Quotation:**
+  > “When configured, the AI application can access resources that the authenticated user has access to, within the scopes that the user has authorized.”
+- **Interpretation:** OAuth consent does not replace IAM permissions.
+
+### T4-02 — Web application client registration
+
+- **Status:** Conditional. Applies to the manual OAuth path for the supplied web-based client.
+- **Actor, recipient, and scope:** An authorized application administrator creates the OAuth client in the selected Google Cloud project. The MCP client uses its credentials. Topic 1 supplies the authority finding.
+- **Documented action and values:**
+  - Open **Google Auth Platform > Clients > Create client**.
+  - Select **Web application** in **Application type**.
+  - Enter an application name in **Name**.
+  - Add the client-supplied callback URL under **Authorized redirect URIs**.
+  - Select **Create**.
+  - Copy the client secret from **Client secrets** in the **OAuth 2.0 client created** dialog. Store it securely.
+  - Use this registration's client ID and client secret in the MCP client.
+- **Source:** https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+  **Locations:** Authenticate with an OAuth 2.0 client ID and secret; Create a client ID for a web application.
+- **Quotations:**
+  > “If you access your application through the internet, then select Web.”
+  > “In the Authorized redirect URIs section, click + Add URI, and then enter REDIRECT_URL in the URIs field.”
+  > “You can only copy it once.”
+- **Interpretation:** This is the applicable provider registration type. Client behavior remains subject to the coordinator's review.
+
+### T4-03 — Callback URL and JavaScript origins
+
+- **Status:** Required for the callback URL. Conditional for JavaScript origins when client-side JavaScript accesses Google APIs.
+- **Actor, recipient, and scope:** The application administrator configures the OAuth registration. The coordinator supplies the client-specific values.
+- **Documented values:** Use the callback URL from the client documentation. The supplied client context gives `{{ gram.oauth.callback_url }}` as its template; use the resolved URL.
+- **Source:** https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+  **Location:** Create an OAuth 2.0 client ID and secret — Web.
+- **Quotations:**
+  > “Your application's documentation should provide the redirect URL. Custom redirect URLs aren't supported.”
+  > “Applications that use client-side JavaScript to access Google's APIs must specify the authorized JavaScript Origins.”
+- **Supporting source:** https://developers.google.com/identity/protocols/oauth2/web-server?hl=en\
+  **Location:** Step 1: Set authorization parameters — `redirect_uri`.
+- **Quotation:**
+  > “Note that the http or https scheme, case, and trailing slash ('/') must all match.”
+- **Interpretation:** Register the exact client callback URL. Do not invent a callback URL or JavaScript origin.
+
+### T4-04 — Offline access for refresh tokens
+
+- **Status:** Required for the preferred OAuth path with refresh tokens.
+- **Actor, recipient, and scope:** The client sends the authorization request. The user grants consent. The client receives the tokens.
+- **Required values:**
+  - Authorization endpoint: `https://accounts.google.com/o/oauth2/v2/auth`
+  - `response_type=code`
+  - `access_type=offline`
+  - Token endpoint: `https://oauth2.googleapis.com/token`
+  - Registered client ID, client secret, exact callback URL, and selected scopes.
+- **Source:** https://developers.google.com/identity/protocols/oauth2/web-server?hl=en\
+  **Locations:** Step 1: Set authorization parameters; Step 5: Exchange authorization code for refresh and access tokens.
+- **Quotations:**
+  > “Set the value to offline if your application needs to refresh access tokens when the user is not present at the browser.”
+  > “This value instructs the Google authorization server to return a refresh token and an access token the first time that your application exchanges an authorization code for tokens.”
+  > “Set the parameter value to code for web server applications.”
+- **Interpretation:** Request offline access through the documented authorization parameter. Do not substitute an assumed `offline_access` scope.
+
+### T4-05 — Initial consent and token storage
+
+- **Status:** Required to obtain and retain refresh-token access. The consent-prompt parameter is conditional when consent must be requested during the initial connection.
+- **Actor, recipient, and scope:** The user approves access. The client receives and securely stores the tokens.
+- **Documented action:** Request offline access. The optional `prompt=consent` value requests a consent prompt.
+- **Source:** https://developers.google.com/identity/protocols/oauth2/web-server?hl=en\
+  **Locations:** Step 1: Set authorization parameters; Step 3: Google prompts user for consent; token response.
+- **Quotations:**
+  > “The refresh_token is only returned on the first authorization.”
+  > “consent — Prompt the user for consent.”
+  > “Your application should store both tokens in a secure, long-lived location that is accessible between different invocations of your application.”
+- **Interpretation:** A successful sign-in alone does not establish that the client received and stored a refresh token. The coordinator must check initial token handling.
+
+### T4-06 — Testing status limits access
+
+- **Status:** Conditional. Applies to an external OAuth application with publishing status **Testing**.
+- **Actor, recipient, and scope:** The application administrator configures the audience and publishing status. The connecting account receives test access.
+- **Documented action:** Add the connecting account as a test user for a testing path. For a production path, assess the applicable publishing and verification requirements.
+- **Source:** https://support.google.com/cloud/answer/15549945?hl=en\
+  **Locations:** Publishing status — Testing; In Production.
+- **Quotations:**
+  > “Projects configured with a publishing status of Testing are limited to up to 100 test users listed in the OAuth consent screen.”
+  > “Authorizations by a test user will expire seven days from the time of consent.”
+  > “A project's publishing status is considered In production after selecting the Publish app button.”
+- **Supporting source:** https://developers.google.com/identity/protocols/oauth2?hl=en\
+  **Location:** Refresh token expiration.
+- **Quotation:**
+  > “A Google Cloud Platform project with an OAuth consent screen configured for an external user type and a publishing status of ‘Testing’ is issued a refresh token expiring in 7 days”
+- **Interpretation:** The exception for basic identity scopes does not cover Compute Engine access. Publishing can introduce verification requirements.
+- **Warning:** Testing access expires after seven days and requires another sign-in.
+
+### T4-07 — Refresh tokens can expire or stop working
+
+- **Status:** Conditional. Applies when token limits, user actions, or organization policies affect access.
+- **Actor, recipient, and scope:** The user, Google token service, or organization administrator can affect the application's continued access.
+- **Documented limits:** Six months without use, user revocation, time-based consent, and token-count limits can end access. Google Cloud session control can require another authentication session.
+- **Source:** https://developers.google.com/identity/protocols/oauth2?hl=en\
+  **Locations:** Refresh token expiration; Dealing with session control policies for Google Cloud Platform (GCP) organizations.
+- **Quotations:**
+  > “The refresh token has not been used for six months.”
+  > “There is currently a limit of 100 refresh tokens per Google Account per OAuth 2.0 client ID.”
+  > “The user granted time-based access to your app and the access expired.”
+  > “This policy impacts … any third party OAuth application that requires the Cloud Platform scope.”
+- **Supporting source:** https://developers.google.com/identity/protocols/oauth2/web-server?hl=en\
+  **Location:** Token response — `refresh_token_expires_in`.
+- **Quotation:**
+  > “This value is only set when the user grants time-based access.”
+- **Interpretation:** Refresh tokens do not guarantee permanent access. The cited session-control statement specifically includes applications that request the Cloud Platform scope; it does not establish the same result for every scope set.
+- **Warning:** User or organization policy can require another sign-in.
+
+### T4-08 — Read-only scope selection — replaced
+
+- **Status:** Required for the selected read-only setup.
+- **Actor, recipient, and scope:** The client administrator configures both scope values. The connecting user grants the application access.
+- **Selected values:**
+  ```text
+  https://www.googleapis.com/auth/compute.read-only
+  https://www.googleapis.com/auth/compute.readonly
+  ```
+- **Source 1:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  **Location:** Compute Engine MCP OAuth scopes.
+- **Quotations:**
+  > “Compute Engine has the following MCP tool OAuth scopes:”
+  > “https://www.googleapis.com/auth/compute.read-only”
+  > “Only allows access to read data.”
+  > “Additional scopes might be required on the resources accessed during a tool call.”
+  > “To view a list of scopes required for Compute Engine, see Compute Engine API.”
+- **Source 2:** https://developers.google.com/identity/protocols/oauth2/scopes?hl=en#compute\
+  **Location:** Compute Engine API, v1.
+- **Quotation:** The table associates `https://www.googleapis.com/auth/compute.readonly` with:
+  > “View your Google Compute Engine resources”
+- **Source 3:** https://docs.cloud.google.com/compute/docs/reference/rest/v1/instances/list\
+  **Location:** Authorization scopes.
+- **Quotation:**
+  > “Requires one of the following OAuth scopes:”
+
+  The list includes `https://www.googleapis.com/auth/compute.readonly`, `https://www.googleapis.com/auth/compute`, and `https://www.googleapis.com/auth/cloud-platform`.
+- **Source 4:** https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+  **Location:** Add the client ID to your MCP server configuration.
+- **Quotation:**
+  > “SCOPE_1, SCOPE_2: the scopes needed to use the MCP server.”
+- **Interpretation:** Keep the MCP scope as written. Add the documented read-only resource scope. This follows the two scope categories described by the provider. It does not require replacing either string or selecting a write-capable scope.
+- **Correction:** The previous report treated the different strings as an unresolved configuration conflict. That was too strict. The provider's instructions support this concrete selection without a combined example.
+
+### T4-09 — Static bearer-token alternative
+
+- **Status:** Conditional. Applies if the coordinator selects static upstream headers.
+- **Actor, recipient, and scope:** The connecting identity obtains a token. The client administrator adds the token and project ID to the connection.
+- **Documented action:** Obtain a token with `gcloud auth print-access-token`. Configure:
+  - `Authorization: Bearer TOKEN`
+  - `x-goog-user-project: PROJECT_ID`
+- **Source:** https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+  **Location:** Authenticate with a bearer token.
+- **Quotation:**
+  > “By default, bearer tokens expire after 1 hour.”
+- **Supporting source:** https://docs.cloud.google.com/sdk/gcloud/reference/auth/print-access-token\
+  **Location:** FLAGS — `--lifetime`.
+- **Quotations:**
+  > “This flag is for service account impersonation only”
+  > “The org policy constraint constraints/iam.allowServiceAccountCredentialLifetimeExtension must be set if you want to extend the lifetime beyond 3600 seconds.”
+- **Interpretation:** Static headers match a supplied client capability, but documented token creation requires a command-line tool. This is not the preferred browser-based setup.
+- **Warning:** A static access token normally stops working after one hour.
+
+### T4-10 — Other authentication methods
+
+- **Status:** Conditional for alternative-path selection.
+- **Actor, recipient, and scope:** The coordinator selects a method supported by both the provider and the client.
+- **Source:** https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers\
+  **Locations:** Authentication methods; Authenticate with an API Key; Limitations.
+- **Quotations:**
+  > “Standard API keys can only be used to authenticate to services that don't require a principal.”
+  > “Google and Google Cloud remote MCP servers don't support Dynamic Client Registration or OAuth Client ID Metadata Documents.”
+- **Supporting source:** https://docs.cloud.google.com/mcp/authenticate-mcp\
+  **Location:** ADC for MCP servers.
+- **Quotation:**
+  > “If you use an ADC generated bearer token for authentication, then you need to re-authenticate every hour”
+- **Interpretation:** Do not select DCR. A standard API key is not an established method for authenticated Compute Engine resource access. ADC compatibility remains a client question, not a finding of incompatibility.
+
+### T4-11 — Concrete read-only action — new
+
+- **Status:** Conditional. Applies when the setup check lists VM instances in a known project and zone.
+- **Actor, recipient, and scope:** The connecting user calls the MCP tool through the client. Access applies to the selected project's VM instances in the selected zone.
+- **Documented action and values:** Call `list_instances`. Supply:
+  - `project`: the Google Cloud project ID.
+  - `zone`: the zone that contains the instances.
+
+  Obtain these values from the resource owner or the selected Google Cloud environment.
+- **Source:** https://docs.cloud.google.com/compute/docs/reference/mcp/list_instances\
+  **Locations:** Tool: list_instances; Input Schema; Tool Annotations.
+- **Quotations:**
+  > “Lists Compute Engine virtual machine (VM) instances.”
+  > “Requires project and zone as input.”
+  > “Required. Project ID for this request.”
+  > “Required. The zone of the instances.”
+  > “Read Only Hint: ✅”
+- **Supporting source:** https://docs.cloud.google.com/compute/docs/reference/rest/v1/instances/list\
+  **Locations:** Authorization scopes; IAM Permissions.
+- **Quotations:**
+  > “Requires one of the following OAuth scopes:”
+  > “compute.instances.list”
+- **Interpretation:** T4-08 gives the MCP read scope and a documented read-only resource scope for this type of action. Topic 3 must provide the necessary IAM access. This research did not call the tool or test credentials.
+
+## Unresolved questions
+
+### Blocking
+
+**No blocking provider-authentication gap remains for the documented read-only scope setup.**
+
+### Non-blocking
+
+1. **Client implementation review — coordinator-owned.**\
+   The coordinator must use client evidence to check authorization parameters, callback handling, initial consent, secure token storage, and refresh-token use. This remains an explicit compatibility review, not proof of missing support. No client source was researched in this follow-up.
+
+2. **Combined scope example and runtime result.**\
+   The checked MCP setup page, MCP tool reference, OAuth scope catalog, and REST method reference do not show a worked authorization request with both selected scopes. They also do not prove a live token exchange. The documented scope categories are sufficient to specify the setup; the missing combined example does not block it.
+
+3. **Conditional JavaScript origin.**\
+   The supplied client context does not establish whether client-side JavaScript accesses Google APIs. The coordinator must determine whether the documented condition applies.
+
+4. **OAuth authority.**\
+   The follow-up reports that Topic 1 established OAuth Config Editor authority. The final report must use Topic 1's official source evidence. This topic does not independently extend that role to IAM grants or organization-policy changes.
+
+5. **Release-note confirmation.**\
+   No replacement notice was found in the inspected setup content. Release notes were not confirmed. The rechecked REST method page shows **Last updated 2026-09-07 UTC**; the MCP tool page shows **Last updated 2026-04-23 UTC**. The date difference does not prevent the documented action.
+
+## Cross-topic dependencies
+
+- **Topic 1:** Supply authority evidence for OAuth configuration. Keep IAM grants and organization-policy changes separate.
+- **Topic 2:** Use T4-02, T4-03, and T4-06 for registration, callback, audience, publishing, and verification.
+- **Topic 3:** Confirm MCP-call permission and resource permissions for `list_instances`. Check test-user eligibility and applicable account or organization restrictions.
+- **Topic 5:** Retain the confirmed endpoint. Use the documented project header if the bearer-token alternative is selected.
+- **Coordinator:** Use both exact scope strings in T4-08 for the read-only path. Do not replace them with write-capable scopes.
+- **Coordinator:** Complete the client implementation review with central evidence. Prefer OAuth with refresh tokens when the checks pass.
+- **Coordinator:** Use T4-11 as a concrete read-only connection check with an environment-specific project ID and zone.
+## Topic 5 — preserved complete report
+
+## Topic and status
+
+**Topic 5 — complete.** Google documents a remote Compute Engine MCP server at **`https://compute.googleapis.com/mcp`**. The client can connect directly to this URL. No blocking endpoint gap was found.
+
+Observation date for all sources: **2026-09-11**. The Compute Engine setup page shows **“Last updated 2026-09-03 UTC.”**
+
+## Findings
+
+### T5-01 — Remote server address
+
+- **Status:** Required.
+- **Actor and scope:** The client administrator configures the connection in the AI application.
+- **Documented values:**
+  - Server name: `Compute Engine MCP server`
+  - Server URL: `https://compute.googleapis.com/mcp`
+  - Transport: `HTTP`
+- **Source statement:** The setup page gives these values:
+  > “Server name: Compute Engine MCP server”\
+  > “Server URL or Endpoint: https://compute.googleapis.com/mcp”\
+  > “Transport: HTTP”
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  Section: **Configure an MCP client to use the Compute Engine MCP server**.
+- **Interpretation:** This is a documented remote MCP connection. A local process, proxy, or bridge is not part of this documented connection.
+
+### T5-02 — Shared global endpoint
+
+- **Status:** Required.
+- **Actor and scope:** The client administrator uses the fixed URL. The connection address applies to the Compute Engine service.
+- **Action and values:** Use the URL in T5-01 without a tenant, project, zone, or region substitution.
+- **Source statement:**
+  > “The Compute Engine API MCP server has the following global MCP endpoint:”\
+  > “https://compute.googleapis.com/mcp”
+- **Source:** https://docs.cloud.google.com/compute/docs/reference/mcp\
+  Section: **Server Endpoints**.
+- **Interpretation:** This is a shared global service address, not a customer-specific address.
+- **Related source statement:**
+  > “The Compute Engine remote MCP server doesn't support full regional isolation and it might route calls to MCP tools through any region.”
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  Location: note before **Before you begin**.
+- **Interpretation:** A resource zone is not a regional MCP connection address.
+
+### T5-03 — Endpoint availability depends on API enablement
+
+- **Status:** Required.
+- **Actor and scope:** An administrator with API enablement authority acts in the selected Google Cloud project.
+- **Action and values:** Enable the Compute Engine API. Topic 2 must supply the project setup procedure.
+- **Source statement:**
+  > “The Compute Engine remote MCP server is enabled when you enable the Compute Engine API.”
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  Location: introduction.
+- **Supporting source statement:**
+  > “To connect to a supported product through MCP, enable the product API.”
+  > “To enable APIs, you need the Service Usage Admin IAM role (roles/serviceusage.serviceUsageAdmin), which contains the serviceusage.services.enable permission.”
+- **Source:** https://docs.cloud.google.com/mcp/enable-disable-mcp-servers\
+  Section: **Enable a supported product**.
+- **Interpretation:** The current instructions use product API enablement. They do not tell the reader to create a separate Compute Engine MCP deployment.
+
+### T5-04 — Server purpose and applicable server selection
+
+- **Status:** Required.
+- **Actor and scope:** The coordinator selects the Compute Engine server for this request.
+- **Action:** Connect to the Compute Engine server for Compute Engine resource management.
+- **Source statement:** The setup page lists these capabilities:
+  > “Manage virtual machine (VM) instances.”\
+  > “Manage instance group managers and instance templates.”\
+  > “Manage disks and snapshots.”\
+  > “Retrieve information about reservations and commitments.”
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  Location: introduction.
+- **Multiple-server evidence:**
+  > “This page lists the Google and Google Cloud products and services you can access through remote MCP servers.”
+- **Source:** https://docs.cloud.google.com/mcp/supported-products\
+  Location: introduction and **Google Cloud MCP servers** table.
+- **Interpretation:** Google Cloud has separate MCP servers for other products. These are not tenant variants of Compute Engine. The Compute Engine setup page identifies one applicable server and one global address. It does not direct the reader to connect to another product server.
+
+### T5-05 — Authentication is part of the connection
+
+- **Status:** Required for authenticated resource access.
+- **Actor and scope:** The client administrator configures authentication. The connecting identity receives access through its scopes and IAM permissions.
+- **Source statement:**
+  > “Compute Engine MCP servers use the OAuth 2.0 protocol with Identity and Access Management (IAM) for authentication and authorization.”
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  Section: **Authentication and authorization**.
+- **Documented connection options:**
+  > “Depending on how you want to authenticate, you can enter your Google Cloud credentials, your OAuth Client ID and secret, or an agent identity and credentials.”
+- **Source:** Same page, **Configure an MCP client to use the Compute Engine MCP server**.
+- **Server-specific scope evidence:** The **Compute Engine MCP OAuth scopes** table lists:
+  - `https://www.googleapis.com/auth/compute.read-only` — “Only allows access to read data.”
+  - `https://www.googleapis.com/auth/compute.read-write` — “Allows access to read and modify data.”
+- **Interpretation:** Topic 4 must check these exact scope values against the linked API scope documentation before final selection. This report does not substitute another scope.
+
+### T5-06 — Dynamic client registration is not supported
+
+- **Status:** Conditional. Applies if the client setup would use dynamic client registration.
+- **Actor and scope:** The coordinator selects a different authentication setup path.
+- **Source statement:**
+  > “Google and Google Cloud remote MCP servers don't support Dynamic Client Registration or OAuth Client ID Metadata Documents.”
+- **Source:** https://docs.cloud.google.com/mcp/authenticate-mcp\
+  Section: **Limitations**.
+- **Interpretation:** Do not select the client's DCR alternative for this server.
+
+### T5-07 — Authentication is not required for tool discovery
+
+- **Status:** Explicitly not required for `tools/list` only.
+- **Actor and scope:** The client can discover the server's tools.
+- **Source statement:**
+  > “The tools/list method doesn't require authentication.”
+- **Source:** https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp\
+  Section: **List tools**.
+- **Documented request values:** `POST /mcp`, host `compute.googleapis.com`, and `Content-Type: application/json`.
+- **Interpretation:** An unauthenticated tool list does not establish permission to call resource tools.
+
+## Unresolved questions
+
+- **Non-blocking — Other connection headers or parameters.** The service-specific connection section does not specify an additional project header, tenant header, or URL parameter. This is not proof that such settings are unnecessary in every authentication path. Topic 4 must check its selected path.
+- **Non-blocking — Full provider server inventory.** The supported-products catalog lists many separate product servers. The time limit did not permit a full inventory of their purposes, endpoints, and authentication differences. No additional server was identified as required for this Compute Engine request.
+- **Non-blocking — Release-note confirmation.** Live maintained setup and reference pages were checked. No replacement notice was found in the inspected content. Release notes were not confirmed within the time limit.
+- **No blocking endpoint question.** The official global MCP URL is established.
+
+## Cross-topic dependencies
+
+- **Topic 1:** Use T5-03 to check authority for project API enablement.
+- **Topic 2:** Use the current API enablement rule in T5-03. Do not add separate MCP deployment creation without applicable evidence.
+- **Topic 3:** Check the connecting identity's IAM permissions for the required Compute Engine operations.
+- **Topic 4:** Check the exact scope values in T5-05, token setup, and any required headers. DCR is not supported.
+- **Coordinator:** Use `https://compute.googleapis.com/mcp` for the custom remote server field. Select only the Compute Engine server for this request unless another service is needed.
+- **Coordinator and Topic 4:** Check the callback setup. The setup page's **Redirect URIs** section says:
+  > “Your application's documentation should specify the redirect URI that you must use. Custom redirect URIs aren't supported.”
+
+  Use this statement in the client compatibility check. Do not infer that an arbitrary callback URL will work.
+## Completed coordinator client check
+
+# Manual OAuth compatibility check
+
+Status: complete. Observed: 2026-09-11. Owner: coordinator. This check completes the saved client gap. No topic action or provider actor changes. Topic 4 follow-up 1 and Topic 1 final authority audit remain applicable. No new factual follow-up round was used.
+
+All code links below use the official upstream commit `496e62ca5d5ebd99f0c189f2614fc9c707e44659`. Source prefix: https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/ . Local source copies are in this directory or its parent.
+
+## C1 — Manual client scope input
+
+Required for the selected read-only connection. The Speakeasy operator supplies both Topic 4 scope strings. The access recipient is the upstream Google OAuth client.
+
+- [Attach form](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/AttachRemoteIdentityProviderSheet.tsx#L344-L430): `const parsedScopes = parseScopes(scopeOverride)`; the manual branch uses the entered client ID and secret, then sends `scope: parsedScopes.length > 0 ? parsedScopes : undefined`. Lines 653-658 render the override fields for a new client.
+- [Field definition](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/IssuerFormFields.tsx#L397-L412): `Scope (override)`; `Comma-separated. When provided, the platform requests these scopes during the OAuth dance`.
+- [Parser](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/issuerFormUtils.ts#L55-L60): `.split(",")`, then trim and remove empty entries.
+- [Create handler](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/clienthandlers.go#L157-L221): requires `authz.ScopeProjectWrite`; stores `Scope: payload.Scope`. This establishes project write access, not a named user role.
+- [Storage](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/queries.sql#L525-L550): stores `scope` as a text array. [Runtime lookup](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/queries.sql#L1327-L1345) returns `c.scope AS client_scope` and the issuer endpoints.
+- [Authorization](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/challenge.go#L337-L360): `RequestedScopes` uses an issuer override first; otherwise it uses client scopes when supplied. It can add advertised standard identity scopes. Lines 403-405 load the stored values. Lines 780-793 write the scope parameter and apply the Google interceptor.
+- [Unit tests](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/challenge_scope_test.go#L9-L123) cover scope precedence. [End-to-end tests](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/challenge_scope_e2e_test.go#L26-L146) check stored client scopes in the authorization URL. Tests were read, not run.
+
+Interpretation: Use the documented attach procedure with a new Manual client. Enter the two scopes in the documented Scope (override) field. This field is described in the setup doctrine for DCR; the applicable implementation establishes that it also applies to Manual. Do not instruct the user to register a DCR client. If an existing issuer has an administrator scope override, it takes priority; ask the Speakeasy administrator to confirm the selected read-only scope values. This is a condition, not an extra task for a new issuer.
+
+## C2 — Callback, offline access, consent, and refresh
+
+- [Callback display](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/IssuerFormFields.tsx#L30-L57) displays the upstream `Redirect URI` for manual registration. Use the documented template `{{ gram.oauth.callback_url }}` for the user action. Do not hard-code an implementation callback URL.
+- [Google interceptor](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/interceptors/google.go#L26-L51): matches `accounts.google.com`, sets `access_type=offline`, and adds `prompt=consent`.
+- [Registration](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/impl.go#L261-L263): registers the interceptor without a feature flag at this location.
+- [Authorization and callback](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/challenge.go#L700-L795): the legacy callback condition changes only the redirect URL; it does not bypass the interceptor. Lines 957-961 encrypt the returned refresh token; line 1055 stores it.
+- [Refresh grant](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/tokenservice.go#L565-L635): decrypts the refresh token, uses the configured client secret, sends the refresh grant, and keeps the prior refresh token if no replacement is returned.
+- Relevant inspected tests: [Google interceptor](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/interceptors/google_test.go), [legacy callback](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/legacycallback_test.go#L16-L47), and [refresh session](https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/refreshsession_test.go). These tests were not executed.
+
+Interpretation: This is upstream behavior when Gram connects to Google, not downstream authorization for an AI client. The manual client does not depend on DCR. The backend performs authorization and token exchange. No client-side Google API JavaScript origin is required by this selected path. Offline access and refresh are automatic; do not add user steps for them.
+
+## C3 — Public discovery
+
+Public metadata was read on 2026-09-11, without credentials or an authenticated tool call.
+
+- https://compute.googleapis.com/.well-known/oauth-protected-resource/mcp, JSON root: `"resource":"https://compute.googleapis.com/mcp"`, `"authorization_servers":["https://accounts.google.com/"]`, `"scopes_supported":["https://www.googleapis.com/auth/compute"]`.
+- https://accounts.google.com/.well-known/oauth-authorization-server, JSON root: `"issuer": "https://accounts.google.com"`, `"authorization_endpoint": "https://accounts.google.com/o/oauth2/v2/auth"`, `"token_endpoint": "https://oauth2.googleapis.com/token"`. The token endpoint advertises `client_secret_post` and `client_secret_basic`.
+
+Interpretation: Discovery can fill the Google endpoints. The discovery scope is broad; replace it with the two documented read-only scopes. Do not use discovery as evidence that read-only scopes are unavailable. Topic 4 supplies the service and API scope evidence.
+
+## Applicability and limitations
+
+The current pinned implementation supports this setup. The doctrine-era attach form at commit `96f7f73` also sends manual client scope values and renders the same override component (lines 289, 361-370, 563-567). Thus the prior concern about a newer-only manual scope field is not established. The current callback implementation still supports the legacy callback path. No concrete deployed release mismatch was found. No live console or authenticated end-to-end connection was tested. Do not claim that the draft proves a deployed connection. The repository setup doctrine remains the source for the user procedure; the source trace establishes its applicability and the scope field behavior.
+
+## Final draft checks
+
+The four generated files are saved in `guides/google-compute-engine/`. Deterministic lint command: `lint-guide --json guides/google-compute-engine`.
+
+The first lint run returned exit code 2. It found six provider anchor declarations that were plain text instead of heading anchors in the dossier. The anchor IDs had already been selected; only their declaration syntax changed. The second run returned exit code 0, JSON `[]`, and empty stderr. No automated reviewer agent was used.
+
+Metadata source observations use `2026-09-11T00:00:00Z` to encode the reports' date-only observations. Midnight is a date normalization, not a claimed retrieval time. The source reports record the observation date; recovery progress records the available phase times.
+
+The full Git-based repository check requires a Git checkout and Go. Neither is available in this snapshot. This does not waive that check for a later authorized PR. No commit, publication, PR, or repository safeguard change was made.

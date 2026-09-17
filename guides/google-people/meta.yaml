@@ -2,7 +2,7 @@
 schema_version: 1
 slug: google-people
 title: Google People
-summary: Connect Google profile, contacts, and directory data through Google's hosted People API MCP server.
+summary: Connect Google profile, contacts, and directory data through the People API remote MCP server.
 credential_setup:
   options:
     - id: oauth-client
@@ -21,10 +21,14 @@ credential_setup:
             - external.md#create-oauth-client
             - external.md#copy-oauth-credentials
   requirements:
-    - id: google-cloud-project
-      description: A Google Cloud project where an administrator can enable the People API, grant project IAM roles, configure Google Auth platform, and create OAuth credentials
+    - id: registered-project
+      description: Use an existing Google Cloud project registered in the Workspace Developer Preview Program.
+    - id: setup-authority
+      description: Use Service Usage Admin for APIs, OAuth Config Editor for OAuth setup, and Model Armor Floor Setting Admin for screening settings. Obtain authorized approval for terms.
     - id: connecting-user-access
-      description: Each connecting user has MCP Tool User on the project and access to the intended Google profile, contacts, and directory data
+      description: Keep users within the permitted domain or company. Users need underlying data access, conditional Workspace app approval, and test-user assignment for External Testing.
+    - id: model-armor
+      description: Configure Model Armor for Google MCP Server. Obtain approval for cross-jurisdictional processing and any full-payload logging.
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -37,93 +41,63 @@ remotes:
       - oauth-client
     provenance:
       - source: provider-documentation
-        locator: https://developers.google.com/people/v1/configure-mcp-server
-        name: Configure the People API MCP server
+        locator: https://developers.google.com/people/v1/configure-mcp-server#configure-mcp-client
+        name: Configure the People API MCP server — Others
         classification: official
-        observed_at: "2026-08-29T15:13:24Z"
-      - source: endpoint-observation
-        locator: https://people.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-        name: Google People API MCP protected-resource metadata
-        classification: official
-        observed_at: "2026-08-29T15:13:24Z"
+        observed_at: "2026-09-11T00:00:00Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.google.com/people/v1/configure-mcp-server
     name: Configure the People API MCP server
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://developers.google.com/people/api/mcp
-    name: People API MCP reference
+    locator: https://developers.google.com/workspace/preview
+    name: Google Workspace Developer Preview Program
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/enable-apis
-    name: Enable Google Workspace APIs
-    classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-oauth-consent
-    name: Configure the OAuth consent screen and choose scopes
-    classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/create-credentials
-    name: Create access credentials
-    classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/guides/configure-mcp-security
-    name: Configure security for Google Workspace MCP servers
+    name: Configure security for Workspace MCP servers
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/supported-products
-    name: Google and Google Cloud products with MCP support
+    locator: https://docs.cloud.google.com/model-armor/configure-floor-settings
+    name: Configure Model Armor floor settings
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
-    name: Set up authentication to Google and Google Cloud MCP servers
+    locator: https://docs.cloud.google.com/mcp/model-armor-supported-products
+    name: Model Armor supported products
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://cloud.google.com/service-usage/docs/enable-disable
-    name: Enable and disable services
+    locator: https://developers.google.com/identity/protocols/oauth2/web-server
+    name: OAuth 2.0 for web server applications
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/iam/docs/grant-role-console
-    name: Grant an IAM role by using the Google Cloud console
-    classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549945
-    name: Manage App Audience
+    name: OAuth audience and publishing status
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549135
-    name: Manage App Data Access
+    locator: https://support.google.com/a/answer/7281227?hl=en
+    name: Control application access to Workspace data
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.google.com/a/answer/7281227
-    name: Control which apps access Google Workspace data
+    locator: https://knowledge.workspace.google.com/admin/users/let-third-party-apps-access-directory-data
+    name: Allow third-party apps to access directory data
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: endpoint-observation
-    locator: https://people.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-    name: Google People API MCP protected-resource metadata
+    observed_at: "2026-09-11T00:00:00Z"
+  - source: client-implementation
+    locator: https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/interceptors/google.go
+    name: Google upstream OAuth interceptor
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
-  - source: endpoint-observation
-    locator: https://accounts.google.com/.well-known/oauth-authorization-server
-    name: Google authorization-server metadata
-    classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
-    name: Speakeasy setup canonical section
+    name: Speakeasy setup paths
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-11T00:00:00Z"

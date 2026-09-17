@@ -3,6 +3,7 @@ schema_version: 1
 slug: google-sheets
 title: Google Sheets
 summary: Connect Google Sheets data through Google's hosted Sheets MCP server.
+speakeasy_add_server: auto
 credential_setup:
   options:
     - id: oauth-client
@@ -14,19 +15,23 @@ credential_setup:
           label: OAuth client ID
           setup:
             - external.md#create-oauth-client
-            - external.md#copy-oauth-credentials
         - id: client-secret
           label: OAuth client secret
           setup:
             - external.md#create-oauth-client
-            - external.md#copy-oauth-credentials
   requirements:
     - id: google-cloud-project
-      description: A Google Cloud project where an administrator can enable the Google Sheets API and Google Sheets MCP API, grant project IAM roles, configure Google Auth platform, and create OAuth credentials
+      description: Use a Google Cloud project registered for preview access. Service enablement requires Service Usage Admin or equivalent permission. OAuth setup requires OAuth Config Editor. Obtain Project IAM Admin help for role grants if needed. Project Creator is needed only to create a project.
+    - id: preview-access
+      description: Use an eligible individual Workspace account and the registered project. Accept applicable terms only with authority to bind the organization. Keep preview users within the organization. Government and regulatory entities other than educational institutions must use test or experimental data.
     - id: connecting-user-access
-      description: Each connecting user has MCP Tool User on the project and access to the intended Google Sheets files
+      description: Each connecting user needs spreadsheet access and must meet the OAuth audience and preview conditions. For External Testing, add eligible users to Test users. Authorization and refresh tokens expire seven days after consent.
+    - id: workspace-app-approval
+      description: If Workspace policy blocks access, an administrator with the Service Settings privilege must permit the application for the required scopes and organizational units.
     - id: prompt-injection-screening
-      description: An application or security owner has configured prompt and response screening for malicious content or prompt injection
+      description: Configure Model Armor project floor settings with MCP sanitization and Google MCP Server selected. The setup person needs Model Armor Floor Setting Admin. The security owner must approve filters and logging. Payload logs can expose sensitive data.
+    - id: speakeasy-access
+      description: Use a Speakeasy AI Control Plane account with access to Sources and Authentication.
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -34,104 +39,111 @@ remotes:
   - id: hosted
     url: https://sheetsmcp.googleapis.com/mcp/v1
     transport: streamable-http
+    tenanted: false
     authentication:
       - oauth-client
     provenance:
-      - source: provider-documentation
-        locator: https://developers.google.com/workspace/sheets/api/guides/configure-mcp-server
-        name: Configure the Sheets MCP server
-        classification: official
-        observed_at: "2026-07-29T20:37:05Z"
-      - source: endpoint-observation
-        locator: https://sheetsmcp.googleapis.com/mcp/v1
-        name: Google Sheets MCP endpoint
-        classification: official
-        observed_at: "2026-07-29T20:37:05Z"
-      - source: endpoint-observation
-        locator: https://sheetsmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-        name: Google Sheets MCP protected-resource metadata
-        classification: official
-        observed_at: "2026-07-29T20:37:05Z"
+      - source: saved-research
+        locator: research.md
+        scope: Topic 5 establishes the fixed remote URL. The transcluded client setup source establishes streamable-http for the Speakeasy connection. This is not an endpoint probe.
+        observed_at: "2026-09-11T19:07:42Z"
 provenance:
+  - source: saved-research
+    locator: research.md
+    scope: Completed dossier with final Topic 1 authority audit and final Topic 4 authentication report. The timestamp is the saved dossier completion time. Provider sources were observed on 2026-09-11.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/sheets/api/guides/configure-mcp-server
-    name: Configure the Sheets MCP server
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved dossier Topics 1 through 5. Recorded at dossier completion.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-mcp-servers
-    name: Configure the Google Workspace MCP servers
+    locator: https://developers.google.com/workspace/preview
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved dossier Topics 1 through 4. Preview registration and use conditions.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-oauth-consent
-    name: Configure the OAuth consent screen and choose scopes
+    locator: https://docs.google.com/forms/d/e/1FAIpQLSd7BiMXXHDlUDkF7G0TSY5zfJbQwFNH3m6K_ZYFi3vCHLFbng/viewform?resourcekey=0-1uHeVg8junj3PPTLNcn7WQ
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved dossier Topic 2. Individual account and project number requirements.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
-    locator: https://developers.google.com/workspace/guides/configure-mcp-security
-    name: Configure security for Google Workspace MCP servers
+    locator: https://developers.google.com/workspace/guides/create-project
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
-  - source: provider-documentation
-    locator: https://developers.google.com/workspace/release-notes
-    name: Google Workspace developer release notes
-    classification: official
-    observed_at: "2026-07-29T20:37:05Z"
-  - source: provider-documentation
-    locator: https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers
-    name: Set up authentication to Google and Google Cloud MCP servers
-    classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved dossier Topic 2. Browser project creation procedure.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
     locator: https://cloud.google.com/service-usage/docs/enable-disable
-    name: Enable and disable services
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved final Topic 1 report. Service enablement and project creation authority.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
-    locator: https://cloud.google.com/resource-manager/docs/creating-managing-projects
-    name: Create projects
+    locator: https://docs.cloud.google.com/iam/docs/granting-changing-revoking-access
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved final Topic 1 report. Conditional project access grants.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
-    locator: https://docs.cloud.google.com/iam/docs/grant-role-console
-    name: Grant an IAM role by using the Google Cloud console
+    locator: https://docs.cloud.google.com/iam/docs/roles-permissions/oauthconfig
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved final Topic 1 report. OAuth Config Editor authority.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549945
-    name: Manage App Audience
+    locator: https://developers.google.com/terms
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved final Topic 1 report. Authority to accept terms for an entity.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
-    locator: https://support.google.com/cloud/answer/15549135
-    name: Manage App Data Access
+    locator: https://developers.google.com/terms/api-services-user-data-policy
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved final Topic 1 report. Google API Services User Data Policy.
+    observed_at: "2026-09-11T19:07:42Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/workspace/guides/configure-mcp-security
+    classification: official
+    scope: Saved dossier Topics 1 and 2. Required screening and payload logging warning.
+    observed_at: "2026-09-11T19:07:42Z"
+  - source: provider-documentation
+    locator: https://docs.cloud.google.com/model-armor/configure-floor-settings
+    classification: official
+    scope: Saved dossier Topics 1 and 2. Selected Model Armor procedure and authority.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: provider-documentation
     locator: https://support.google.com/a/answer/7281227
-    name: Control which apps access Google Workspace data
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
-  - source: endpoint-observation
-    locator: https://sheetsmcp.googleapis.com/mcp/v1
-    name: Google Sheets MCP endpoint
+    scope: Saved dossier Topics 1 through 3. Conditional Workspace application approval.
+    observed_at: "2026-09-11T19:07:42Z"
+  - source: provider-documentation
+    locator: https://support.google.com/drive/answer/2494822?hl=en
     classification: official
-    status: MCP initialize returned HTTP 200
-    version: "2025-03-26"
-    observed_at: "2026-07-29T20:37:05Z"
-  - source: endpoint-observation
-    locator: https://sheetsmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
-    name: Google Sheets MCP protected-resource metadata
+    scope: Saved dossier Topics 1 and 3. Spreadsheet sharing authority and user access.
+    observed_at: "2026-09-11T19:07:42Z"
+  - source: provider-documentation
+    locator: https://support.google.com/cloud/answer/15549945
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
-  - source: endpoint-observation
-    locator: https://accounts.google.com/.well-known/oauth-authorization-server
-    name: Google authorization-server metadata
+    scope: Saved final Topic 4 report. Internal eligibility and External Testing limits.
+    observed_at: "2026-09-11T19:07:42Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/identity/protocols/oauth2/web-server
     classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Saved final Topic 4 report. Callback, offline access, consent, and identity endpoints.
+    observed_at: "2026-09-11T19:07:42Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/identity/protocols/oauth2
+    classification: official
+    scope: Saved final Topic 4 report. Refresh-token expiration.
+    observed_at: "2026-09-11T19:07:42Z"
+  - source: provider-metadata
+    locator: https://accounts.google.com/.well-known/openid-configuration
+    classification: official
+    scope: Saved final Topic 4 report. Google issuer and identity endpoints. No new endpoint probe was made for this draft.
+    observed_at: "2026-09-11T19:07:42Z"
+  - source: client-source
+    locator: https://github.com/speakeasy-api/gram/blob/496e62ca5d5ebd99f0c189f2614fc9c707e44659/server/internal/remotesessions/interceptors/google.go#L26-L52
+    classification: official
+    version: 496e62ca5d5ebd99f0c189f2614fc9c707e44659
+    scope: Saved central client evidence and final Topic 4 report establish automatic Google offline access and consent for manual clients.
+    observed_at: "2026-09-11T19:07:42Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
-    name: Speakeasy setup canonical section
-    classification: official
-    observed_at: "2026-07-29T20:37:05Z"
+    scope: Canonical client setup source saved in the dossier. Catalog presence is unresolved under auto. UI source dates are recorded in the transclusion.
+    observed_at: "2026-09-11T19:07:42Z"

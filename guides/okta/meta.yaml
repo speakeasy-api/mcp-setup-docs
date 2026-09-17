@@ -1,0 +1,35 @@
+schema_version: 1
+slug: okta
+title: Okta Managed MCP Server
+summary: Connect your organization's Okta Managed MCP Server to the Speakeasy AI Control Plane with Manual OAuth.
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: manual-oauth
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+  requirements:
+    - id: subscriptions
+      description: IT Products - Okta Managed MCP Server plus Core Identity, Identity Governance, or both, with the applicable underlying subscriptions.
+    - id: administrator-access
+      description: A Super Administrator enables features and grants API scopes; an Application Administrator with app access configures the Web app.
+    - id: user-access
+      description: Assign users or groups to the app and give users permission for the required Okta actions and resources.
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: okta-managed-mcp
+    url: https://{yourOktaDomain}/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - manual-oauth
+provenance:
+  - source: https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcp-client-configuration-overview.htm
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm
+    observed_at: '2026-09-11T00:00:00Z'
+  - source: https://developer.okta.com/docs/guides/refresh-tokens/main/
+    observed_at: '2026-09-11T00:00:00Z'
