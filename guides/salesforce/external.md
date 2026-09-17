@@ -27,7 +27,11 @@ Choose one path: **use Speakeasy's Salesforce app** and finish OAuth with suppor
 
 ### Install Speakeasy's Salesforce application {#install-speakeasy-application}
 
-Install Speakeasy's Salesforce application into the intended org using [the Speakeasy Salesforce app installation page](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tdM000000cNGXQA2).
+Open this installation URL to install Speakeasy's Salesforce application into the intended org:
+
+```
+https://login.salesforce.com/packaging/installPackage.apexp?p0=04tdM000000cNGXQA2
+```
 
 <!-- screenshot-exception: no verified installation screen is available; use the exact installation link rather than a fabricated UI description -->
 
@@ -116,14 +120,116 @@ If you created your own app, continue to [Speakeasy setup](speakeasy.md#add-serv
 
 Use the exact URL for your server and org type. Data 360 places `/sandbox` after `/data`; the other servers place it after `/v1`.
 
-| Server / API ID | Production URL | Sandbox URL | Access and prerequisites |
-| --- | --- | --- | --- |
-| SObject Reads (`sobject-reads`) | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads` | Discovery, query, search, and relationship traversal; no record changes. |
-| SObject Mutations (`sobject-mutations`) | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-mutations` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations` | Read, create, and update records; no deletes. |
-| SObject Deletes (`sobject-deletes`) | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes` | Identify and delete records; no creates or updates. |
-| SObject All (`sobject-all`) | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-all` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all` | Create, read, update, delete, query, and search records. |
-| Data 360 (`data360`) | `https://api.salesforce.com/platform/mcp/v1/data/data360` | `https://api.salesforce.com/platform/mcp/v1/data/sandbox/data360` | Query data and change customer-data configuration. Requires a Data 360 license, API v66.0+, and **Manage Data 360** for configuration or **View Data 360** for read-only operations. |
-| Headless 360 (Beta) (`platform/headless-360`) | `https://api.salesforce.com/platform/mcp/v1/platform/headless-360` | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/headless-360` | Broad Setup and platform operations, not read-only record access. Available starting July 2026 under Beta Services Terms. Requires API v67.0+, an External Client App with `mcp_api`, and an OAuth client. |
-| Tableau Next (`analytics/tableau-next`) | `https://api.salesforce.com/platform/mcp/v1/analytics/tableau-next` | `https://api.salesforce.com/platform/mcp/v1/sandbox/analytics/tableau-next` | Semantic-model and analytics access. Confirm the org has the required Tableau Next capabilities. |
+**SObject Reads (sobject-reads)**
+
+Discovery, query, search, and relationship traversal; no record changes.
+
+Production:
+
+```
+https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads
+```
+
+**SObject Mutations (sobject-mutations)**
+
+Read, create, and update records; no deletes.
+
+Production:
+
+```
+https://api.salesforce.com/platform/mcp/v1/platform/sobject-mutations
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations
+```
+
+**SObject Deletes (sobject-deletes)**
+
+Identify and delete records; no creates or updates.
+
+Production:
+
+```
+https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes
+```
+
+**SObject All (sobject-all)**
+
+Create, read, update, delete, query, and search records.
+
+Production:
+
+```
+https://api.salesforce.com/platform/mcp/v1/platform/sobject-all
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all
+```
+
+**Data 360 (data360)**
+
+Query data and change customer-data configuration. Requires a Data 360 license, API v66.0+, and **Manage Data 360** for configuration or **View Data 360** for read-only operations.
+
+Production:
+
+```
+https://api.salesforce.com/platform/mcp/v1/data/data360
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/data/sandbox/data360
+```
+
+**Headless 360 (Beta) (platform/headless-360)**
+
+Broad Setup and platform operations, not read-only record access. Available starting July 2026 under Beta Services Terms. Requires API v67.0+, an External Client App with `mcp_api`, and an OAuth client.
+
+Production:
+
+```
+https://api.salesforce.com/platform/mcp/v1/platform/headless-360
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/headless-360
+```
+
+**Tableau Next (analytics/tableau-next)**
+
+Semantic-model and analytics access. Confirm the org has the required Tableau Next capabilities.
+
+Production:
+
+```
+https://api.salesforce.com/platform/mcp/v1/analytics/tableau-next
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/analytics/tableau-next
+```
 
 Calls remain subject to the signed-in user's field-level security, object permissions, and sharing rules. If the connection fails with valid credentials, confirm that the selected server is enabled, the URL matches the server and org type, and the org has API access.
