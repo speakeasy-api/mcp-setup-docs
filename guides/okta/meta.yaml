@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: okta
+title: Okta
+summary: Draft setup for the Early Access Okta Managed MCP Server using a tenant-specific endpoint and a manually registered OAuth client with PKCE.
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: oauth-pkce
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#grant-scopes-copy-client-id
+  requirements:
+    - id: managed-mcp-access
+      description: An Okta org with access to the Early Access Okta Managed MCP Server
+    - id: app-administrator
+      description: Permission to create OIDC app integrations, assign users or groups, and grant the required Okta API scopes
+    - id: assigned-user
+      description: An account assigned to the app with permissions for the intended Okta operations
+    - id: compatible-client
+      description: An MCP client supporting protocol version 2025-11-25 and OAuth with PKCE; Speakeasy compatibility requires an operator test
+    - id: password-manager
+      description: Access to an approved password manager for storing the client ID
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: managed
+    url: https://{yourOktaDomain}/mcp
+    transport: streamable-http
+    authentication:
+      - oauth-pkce
+    tenanted: true
+    provenance:
+      - source: provider-documentation
+        locator: https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcp-client-configuration-overview.htm
+        classification: official
+        observed_at: "2026-09-25T16:23:01Z"
+      - source: provider-documentation
+        locator: https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-vscode-github-copilot.htm
+        classification: official
+        observed_at: "2026-09-25T16:23:01Z"
+provenance:
+  - source: provider-documentation
+    locator: https://help.okta.com/mcp/en-us/content/topics/mcpserver/mcpserver.htm
+    classification: official
+    observed_at: "2026-09-25T16:23:01Z"
+  - source: provider-documentation
+    locator: https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm
+    classification: official
+    observed_at: "2026-09-25T16:23:01Z"
+  - source: provider-documentation
+    locator: https://help.okta.com/mcp/en-us/content/topics/mcpserver/configure-vscode-github-copilot.htm
+    classification: official
+    observed_at: "2026-09-25T16:23:01Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    classification: official
+    observed_at: "2026-09-25T16:23:01Z"
