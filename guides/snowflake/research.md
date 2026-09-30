@@ -17,9 +17,13 @@ researched_at: 2026-08-11T18:36:01Z
   Snowflake constructs this account-specific endpoint from the account host
   and MCP server object names. It is a tenanted MCP Server URL: copy the
   account-specific URL produced by External setup into the Speakeasy AI
-  Control Plane's Custom remote server form.
+  Control Plane's **Hosted remotely** form.
 - **Transport:** remote HTTP (`streamable-http`). Snowflake documents MCP
-  JSON-RPC over HTTP `POST` and supports only non-streaming responses.
+  JSON-RPC over HTTP `POST`. Since 2026-08-20, `tools/call` responses are a
+  Server-Sent Events stream ending with `data: [DONE]`, and clients must send
+  `Accept: application/json, text/event-stream` (re-verified on
+  `cortex-agents-mcp`, 2026-09-30). The Speakeasy AI Control Plane proxies
+  remote servers over streamable-http, so no guide step changes.
 - **Authentication:** OAuth 2.0 using a manually registered, confidential
   custom Snowflake OAuth security integration. Snowflake recommends OAuth over
   hardcoded Programmatic Access Tokens and does not support Dynamic Client
@@ -339,52 +343,89 @@ Registration, so the manually registered client ID and secret are required.
 
 ## Speakeasy setup
 
-Per-guide values for `doctrine/speakeasy-setup.md`:
+Per-guide values rendered into the canonical `doctrine/speakeasy-setup.md`
+skeleton (doctrine pinned to gram `main` `68b3f78`, observed 2026-09-30):
 
 - Provider: Snowflake.
-- Remote URL fact: the account-specific Snowflake URL template in Server
-  facts and `meta.yaml`; External setup forms it at
-  {#create-cortex-agent-mcp-server}.
-- Transport: `streamable-http`.
-- Add-server path: Custom remote server only because the Snowflake MCP Server
-  URL is account-specific (`remotes[].tenanted: true`). The path is resolved;
-  do not render an alternate add-server path or presence question.
-- Authentication Option: manually registered confidential OAuth client.
-- OAuth metadata: Snowflake requires the security integration's client ID and
-  secret and does not support Dynamic Client Registration. Use
-  **Configure Manually**.
-- **Client ID** and **Client Secret**: values copied at
-  {#copy-oauth-credentials}.
-- Redirect URI: `{{ gram.oauth.callback_url }}` registered at
-  {#create-oauth-integration}.
+- Remote URL: the account-specific URL template in Server facts and
+  `meta.yaml`; External setup forms it at {#create-cortex-agent-mcp-server}.
+- Add-server path: **Custom remote path** only (**Hosted remotely**) because
+  the URL is account-specific (`remotes[].tenanted: true`). Do not render a
+  catalog path or a presence question.
+- Authentication Option: manually registered confidential Snowflake OAuth
+  security integration → **User Identity**.
+- Probe outcome: not probed live. No account is available, and unknown
+  account hosts return `404` HTML for the MCP path and every well-known path
+  (observed 2026-09-30 against placeholder hosts). Snowflake documents that a
+  connecting client receives `401` with a `WWW-Authenticate` header pointing
+  to Protected Resource Metadata, so the create form likely preselects
+  **User Identity**; the Writer says to select it if it is not already.
+- PRM: documented, not observed. By default (no External OAuth binding and no
+  `OAUTH_SCOPES_SUPPORTED`), MCP servers use Snowflake OAuth and advertise
+  `session:role:all` as the only supported scope. The PRM's
+  `authorization_servers` value and whether the account publishes RFC 8414 /
+  OpenID metadata are not documented.
+- CIMD/DCR: Snowflake states the managed MCP server does not support dynamic
+  client registration. CIMD is not documented. Automatic registration at
+  creation therefore fails and the server is kept **Disabled** (expected).
+- Registration choice: **Manual** with the integration's client ID and
+  secret. Lead with the picker's discovered provider; when no Snowflake
+  provider is offered (discovery unavailable), render the custom identity
+  provider route with **Issuer URL** `https://<account_url>`,
+  **Authorization Endpoint** `https://<account_url>/oauth/authorize`, and
+  **Token Endpoint** `https://<account_url>/oauth/token-request`
+  (`oauth-custom`, re-verified 2026-09-30). The issuer value is the account
+  URL by inference, not documentation.
+- Scope string for **Advanced > Scope**: `session:role:all`. Snowflake
+  documents that clients requesting it get a session in the user's
+  `DEFAULT_ROLE`, which this guide sets to `<mcp_access_role>`. Blank would
+  request every PRM scope, which grows if an administrator sets
+  `OAUTH_SCOPES_SUPPORTED`, so the Writer says not to leave it blank. In the
+  custom-provider route, **Scope (override)** takes the same single value.
+- **Client ID** and **Client secret**: `oauth_client_id` and
+  `oauth_client_secret` from {#copy-oauth-credentials}. The integration is
+  `CONFIDENTIAL`, so the secret is required despite the "Optional"
+  placeholder.
+- Redirect URI: `{{ gram.oauth.callback_url }}` registered as
+  `OAUTH_REDIRECT_URI` at {#create-oauth-integration}. The remote Identity
+  section does not display it; the custom-provider **Add Client** form does.
 - Further reading:
   `https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp`.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**. Choose **Hosted
+remotely**. On **New remote MCP server**, paste the account-specific URL
+retained at {#create-cortex-agent-mcp-server} into **MCP server URL**, leave
+**User session issuer** at its default, and click **Verify connectivity**.
+Under **Identity**, select **User Identity** if it is not preselected, then
+click **Save**. Automatic registration fails, so the server is kept
+**Disabled** and the result says to finish setup in **Settings > Identity**;
+this is expected.
 
-Choose **Custom remote server**. On the **Add a custom remote MCP server**
-page, paste the account-specific URL retained at
-{#create-cortex-agent-mcp-server} into **Remote MCP server URL**, then click
-**Add server**. This creates the hosted MCP server and opens its **Overview**
-page.
-
-Screenshot note: the Add Source menu open on the Sources page, or the
-provider's catalog entry.
+Screenshot note: **New remote MCP server** after **Verify connectivity**,
+with **User Identity** selected.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Authentication**,
-click **Configure Manually**. In the **Attach Remote Identity Provider**
-sheet, set **Client Type** to **Manual**. The sheet displays the
-**Redirect URI** with a copy button. Confirm that URI matches the callback
-registered in Snowflake. Paste the
-values from {#copy-oauth-credentials} into **Client ID** and
-**Client Secret (optional)**, then click **Attach Identity Provider**.
+Open the server's **Settings** and find **Identity**. Confirm **User
+Identity**. Under **Choose an identity provider**, confirm the preselected
+provider is on the Snowflake account hostname (**Will be created** is
+expected). Choose **Manual**, paste the values from {#copy-oauth-credentials}
+into **Client ID** and **Client secret**, enter `session:role:all` under
+**Advanced > Scope**, and click **Save** (**Save changes** if asked). When no
+Snowflake provider is offered, use **Create a custom identity provider** >
+**New Remote Identity Provider** with the issuer and endpoints above, then
+**Add Client** (**Client Type** **Manual**, **Client ID**, **Client Secret
+(optional)**, **Scope (override)** `session:role:all`, confirm **Redirect
+URI**), and select it on the server as **Existing client**. Finish with
+**Settings > Danger Zone > Server Availability**: turn on **Enable MCP
+server** so it shows **Enabled**.
 
-Screenshot note: the attachment sheet with labels visible and values redacted.
+Screenshot note: **Settings > Identity** with **User Identity**, the
+Snowflake provider, **Manual**, and **Advanced > Scope** filled; values
+redacted.
 
 When a client first requests Snowflake access, Snowflake's OAuth flow opens in
 a browser. The user signs in with their own Snowflake credentials and consents
@@ -392,8 +433,7 @@ to the non-privileged default role. The resulting session uses that user's
 `DEFAULT_ROLE`.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
-limits — see Snowflake's MCP documentation at
-`https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp`.
+limits — see [Snowflake's MCP documentation](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp).
 
 ## Open questions
 
@@ -401,6 +441,12 @@ limits — see Snowflake's MCP documentation at
   controls but does not publish a stable label or navigation path for the role
   selector. The walkthrough therefore refers conceptually to the workspace
   role context control rather than inventing a UI label.
+- No Snowflake account was available to probe the MCP URL. Unconfirmed: the
+  PRM's `authorization_servers` value, whether the account publishes
+  authorization-server metadata the dashboard can discover (which decides
+  whether the picker offers a Snowflake provider or the custom route is
+  needed), and that the issuer is `https://<account_url>`. Verify against a
+  live account before removing the custom-provider fallback.
 
 ## Provenance
 
@@ -460,5 +506,10 @@ pages and indexes remained reachable, and the setup facts above were unchanged.
   hostname formatting.
 - `https://quickstarts.snowflake.com/guide/getting-started-with-snowflake-mcp-server/index.html`
   — official managed MCP creation and endpoint example; PAT path not used.
-- `doctrine/speakeasy-setup.md` — canonical Speakeasy labels and fixed
-  anchors.
+- `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`, observed
+  2026-09-30) — canonical Speakeasy labels, Identity section, Manual and
+  custom-provider routes, Server Availability, and fixed anchors.
+- Re-observed 2026-09-30: `cortex-agents-mcp` (SSE `tools/call` since
+  2026-08-20, `Accept` header, no DCR, default PRM scope `session:role:all`,
+  `WWW-Authenticate` 401 behavior) and `oauth-custom` (authorize and
+  token-request endpoints, scope values).

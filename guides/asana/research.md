@@ -32,8 +32,8 @@ server is outside this guide.
   authorization-code and refresh-token grants, `client_secret_post` and
   `client_secret_basic`, and PKCE method `S256`; it has no dynamic
   registration endpoint.
-- **Scope:** do not configure a scope. The integration guide says MCP
-  apps do not require specific scopes: use `default` or omit `scope`.
+- **Scope:** only `default`. The integration guide says MCP apps do not
+  require specific scopes: use `default` or omit `scope`.
   Its Common issues section more narrowly says an explicit `scope`
   parameter can produce **Invalid scope(s) requested** and should be
   removed. The live resource metadata advertises `default`.
@@ -80,7 +80,7 @@ Values the Speakeasy AI Control Plane needs:
 Paste `{{ gram.oauth.callback_url }}` into the app's **Redirect URL**
 setting on the **OAuth** page ({#configure-oauth-redirect}). Asana requires
 the redirect URL in the app settings to match the URL in the authorization
-request exactly. No provider scope value is needed.
+request exactly. The only scope value is `default`.
 
 Before users connect, set the app's **Distribution method**. For an
 internal deployment, **Specific workspaces** limits authorization to the
@@ -176,51 +176,68 @@ The documented path is Asana main app > profile photo > **Settings** >
 
 ## Speakeasy setup
 
-Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-08-06T23:24:28Z`.
+Canonical source: `doctrine/speakeasy-setup.md` (gram main `68b3f78`),
+observed `2026-09-30T21:30:00Z`.
 
 Per-guide values:
 
-- Remote URL: `https://mcp.asana.com/v2/mcp`
-- Transport: `streamable-http` (the add form's **Transport** field is
-  read-only)
-- Authentication Option: OAuth with a manually pre-registered client;
-  Asana publishes discoverable OAuth metadata
-- **Client ID** and **Client secret**: produced in
-  {#create-mcp-app}
-- Redirect URI registered with Asana: `{{ gram.oauth.callback_url }}` in
-  {#configure-oauth-redirect}
-- Provider scopes: none to enter; Asana says omit `scope` for MCP apps
-- Further reading:
-  `https://developers.asana.com/docs/using-asanas-mcp-server`
+- Remote URL: `https://mcp.asana.com/v2/mcp` (shared, not tenanted)
+- Add-server path: catalog only (**From the catalog**), resolved by the
+  Speakeasy MCP Catalog record `com.pulsemcp.mirror/asana-mcp`.
+- Authentication Option: `oauth-mcp-app`, mapped to **User Identity**.
+  **Client ID** and **Client secret** come from {#create-mcp-app}; the
+  redirect `{{ gram.oauth.callback_url }}` is registered at
+  {#configure-oauth-redirect}.
+- Probe outcome (2026-09-30): an unauthenticated JSON-RPC `initialize` POST
+  returned 401 with `resource_metadata=
+  "https://mcp.asana.com/.well-known/oauth-protected-resource/v2"`.
+- PRM issuer: `https://app.asana.com`. PRM `scopes_supported`: `default`.
+- Issuer metadata: `https://app.asana.com/.well-known/oauth-authorization-server`
+  (issuer matches the PRM byte for byte) advertises no
+  `registration_endpoint` and no `client_id_metadata_document_supported`.
+  Neither CIMD nor DCR is available.
+- Registration choice: **Manual**. The dashboard defaults to **Manual** here
+  because nothing automatic is advertised. Creation with **User Identity**
+  cannot register a client, so the server is kept **Disabled** and the
+  result points to **Settings > Identity**; the guide says this is expected
+  and ends with **Server Availability**.
+- Scope string for **Advanced > Scope**: `default`. Asana's integration
+  guide says to use `default` or omit `scope`; its Common issues section
+  says other scope values produce "Invalid scope(s) requested". A blank
+  **Scope** would request the PRM list, which is also only `default`.
+- Further reading: `https://developers.asana.com/docs/using-asanas-mcp-server`
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**. Choose **From
+the catalog**. On the **MCP Catalog** page, find **Asana** using **Search
+MCP servers...**, open its catalog entry, and click **Add**. In **Add to
+Project**, select **User Identity** under **Identity** (the dialog
+preselects **No Identity** unless the entry supports client registration),
+then click **Add to Project**. Finish or **Skip for now** any
+**Guardrails** step. Because Asana needs a hand-registered client, the
+result says to finish setup in **Settings > Identity** and the server stays
+**Disabled**.
 
-Choose **3rd-party server**. On the **MCP Catalog** page, find **Asana**
-using **Search MCP servers...**, open it with **View**, and click **Add**.
-In the **Add to Project** dialog, click **Add to Project**. This creates
-the hosted MCP server and opens its **Overview** page.
-
-Screenshot note: capture the **Add Source** menu on **Sources**, or
-Asana's catalog entry.
+Screenshot note: Asana's catalog entry in **Add to Project** with **User
+Identity** selected.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under
-**Authentication**, use **Use Discovered** when the published Asana
-metadata is offered; otherwise click **Configure Manually**. In
-**Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-The sheet shows **Redirect URI** with a copy button. Its value must match the
-`{{ gram.oauth.callback_url }}` value entered in Asana at
-{#configure-oauth-redirect}. Paste the **Client ID** and **Client
-Secret (optional)** copied at {#create-mcp-app}, then click **Attach
-Identity Provider**.
+In the server's **Settings**, open the **Identity** section and select
+**User Identity**. In **Choose an identity provider**, confirm
+`https://app.asana.com` (badged **Will be created** when new), or choose it
+with **Search identity providers…**. Choose **Manual**, paste the **Client
+ID** and **Client secret** from {#create-mcp-app} (Asana requires the
+secret despite the "Optional" placeholder), enter `default` under
+**Advanced > Scope**, and click **Save**. This surface shows no redirect
+URI; {#configure-oauth-redirect} carries the callback check. Then open
+**Danger Zone > Server Availability** and turn on **Enable MCP server** so
+it shows **Enabled**.
 
-Screenshot note: capture **Attach Remote Identity Provider** with the
-Redirect URI and credential fields visible and all credential values
+Screenshot note: **Settings > Identity** with **User Identity**, the
+`app.asana.com` provider, and **Manual** selected; credential values
 redacted.
 
 Closing pointer: "This guide covers setup only. For anything beyond it —
@@ -235,7 +252,7 @@ https://developers.asana.com/docs/using-asanas-mcp-server."
   workspaces**.
 - The integration page documents protected-resource metadata at
   `https://mcp.asana.com/v2/.well-known/oauth-protected-resource`, which
-  returned 404 this run. The live MCP challenge points to
+  returned 404 this run and again on 2026-09-30. The live MCP challenge points to
   `https://mcp.asana.com/.well-known/oauth-protected-resource/v2`, which
   returned valid metadata naming the exact MCP resource. This discrepancy
   does not change the browser setup path and should be rechecked during
@@ -327,6 +344,11 @@ Sources drawn from:
   `com.pulsemcp.mirror/asana-mcp` (title **Asana**) — observed
   `2026-08-06T23:24:28Z`, `source: pulsemcp`. Backs catalog presence and
   the catalog-only add-server path.
-- `doctrine/speakeasy-setup.md` — observed `2026-08-06T23:24:28Z`. Backs the
-  transcluded Speakeasy-side flow, fixed anchors, exact product labels,
-  callback-template behavior, and closing-pointer form.
+- `doctrine/speakeasy-setup.md` — observed `2026-09-30T21:30:00Z` (gram
+  main `68b3f78`). Backs the transcluded Speakeasy-side flow, fixed
+  anchors, exact product labels, callback-template behavior, and
+  closing-pointer form.
+- Live re-probe on `2026-09-30T21:30:00Z` of `https://mcp.asana.com/v2/mcp`,
+  its PRM, and `https://app.asana.com/.well-known/oauth-authorization-server`
+  confirmed the 401 challenge, issuer, `default` scope, and absence of
+  registration and CIMD support recorded above.

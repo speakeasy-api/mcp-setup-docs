@@ -3,46 +3,64 @@
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 1. In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**.
-2. Click **Add new** to open the **Add MCP server** page.
+2. Click **Add new** to open **Add MCP server**.
 3. Choose **Hosted remotely**.
-4. On the **New remote MCP server** page, paste the account-specific URL retained in [Create the Cortex Agent MCP server](external.md#create-cortex-agent-mcp-server) into **MCP server URL**.
-5. Click **Verify connectivity**, then **Save**.
+4. On **New remote MCP server**, paste the account-specific URL retained in [Create the Cortex Agent MCP server](external.md#create-cortex-agent-mcp-server) into **MCP server URL**.
+5. Leave **User session issuer** at its default.
+6. Click **Verify connectivity**.
+7. Under **Identity**, select **User Identity** if it is not already selected.
+8. Click **Save**.
 
-This creates the hosted MCP server and opens its **Overview** page.
+Snowflake does not support automatic client registration, so Speakeasy keeps the server **Disabled** and says to finish setup in **Settings > Identity**. This is expected.
 
-<!-- screenshot: the Add MCP server page with Hosted remotely visible -->
+<!-- screenshot: New remote MCP server after Verify connectivity, with User Identity selected under Identity -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**.
+Open the server's **Settings** and find the **Identity** section.
 
-Under **Authentication**, if unconfigured, select **Use Discovered** when available; otherwise select **Configure Manually**. If configured but no provider is attached, use **Connected services > Add provider**. If the intended provider is already attached, use its existing controls and skip the provider/client creation and attachment steps below; do not add a duplicate.
+1. Confirm that **User Identity** is selected.
+2. Under **Choose an identity provider**, confirm the preselected provider is on your Snowflake account hostname (`<account_url>`). A provider badged **Will be created** is expected. If no Snowflake provider is offered, follow the custom provider steps below instead.
+3. Under the provider, choose **Manual**.
+4. Paste the [**Client ID**](external.md#copy-oauth-credentials) into **Client ID**.
+5. Paste the [**Client Secret**](external.md#copy-oauth-credentials) into **Client secret**. The secret is required even though the field says "Optional".
+6. Open **Advanced** and enter `session:role:all` in **Scope**. Do not leave it blank.
+7. Click **Save**. If asked to confirm, click **Save changes**.
 
-#### Select the identity provider
+If no Snowflake provider is offered, create one:
 
-In **Attach Remote Identity Provider**, **Identity Provider** defaults to **Select existing** when project issuers are available. Select the matching provider and skip the new-provider fields below. Otherwise choose **Add new** (or use the new-provider form shown when none exist).
+1. Open the picker and click **Create a custom identity provider**. This opens **Remote Identity Providers**.
+2. Click **New Remote Identity Provider**.
+3. Enter `https://<account_url>` in **Issuer URL**, using the public account hostname from [Create the Cortex Agent MCP server](external.md#create-cortex-agent-mcp-server).
+4. Under **Endpoints**, enter this value in **Authorization Endpoint**:
 
-For a new provider only, confirm **Issuer URL**, the auto-derived **Slug**, and **Endpoints**. Discovery runs automatically for a seeded issuer; after typing or changing the URL, select **Discover** only if offered.
+   ```
+   https://<account_url>/oauth/authorize
+   ```
 
-If no matching provider or complete discovered configuration is available, ask your administrator for the documented **Issuer URL** and authorization and token **Endpoints** before continuing. Do not infer them from the MCP server URL.
+5. Enter this value in **Token Endpoint**:
 
-#### Select the session client
+   ```
+   https://<account_url>/oauth/token-request
+   ```
 
-Under **Session Client**, choose **Select existing** only for a client whose saved credentials, scopes, and audience match the requirements below; otherwise choose **Add new**. When reusing a matching client, skip directly to **Verify the callback and attach** below. Do not create credentials or register the client again. Otherwise choose **Add new** (or use the new-client form shown when no clients exist) and complete these new-client-only steps:
+6. Keep the derived **Slug** and click **Create**.
+7. On the new provider, click **Add Client**.
+8. Set **Client Type** to **Manual**.
+9. Paste the **Client ID** into **Client ID** and the **Client Secret** into **Client Secret (optional)**.
+10. Enter `session:role:all` in **Scope (override)**.
+11. Confirm the displayed **Redirect URI** matches the `OAUTH_REDIRECT_URI` you set in [Create the OAuth integration](external.md#create-oauth-integration).
+12. Click **Create**.
+13. Return to the server's **Settings > Identity** and select that provider.
+14. Choose **Existing client**, pick the new client under **Client**, and click **Save**.
 
-1. In the **Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**.
-1. Paste the [**Client ID**](external.md#copy-oauth-credentials) into **Client ID**.
-1. Paste the [**Client Secret**](external.md#copy-oauth-credentials) into **Client Secret (optional)**.
+Turn the server on:
 
-#### Verify the callback and attach
+1. In **Settings > Danger Zone > Server Availability**, turn on **Enable MCP server**.
+2. Confirm it shows **Enabled**.
 
-1. Confirm that the callback URL registered with the provider is `{{ gram.oauth.callback_url }}`. For a new manual client, also compare it with the sheet's displayed **Redirect URI**. The existing-client selection does not display that field; check the registered callback in the provider's app settings instead.
-2. Click **Attach Identity Provider**.
+When a person first uses the server, Snowflake's OAuth flow opens in a browser. Each user signs in with their own Snowflake credentials and consents to the non-privileged default role. The resulting session uses that user's `DEFAULT_ROLE`.
 
-For the provider-side callback setting, see [Create the OAuth integration](external.md#create-oauth-integration).
-
-<!-- screenshot: the Attach Remote Identity Provider sheet with labels visible and values redacted -->
-
-When a client first requests Snowflake access, Snowflake's OAuth flow opens in a browser. Each user signs in with their own Snowflake credentials and consents to the non-privileged default role. The resulting session uses that user's `DEFAULT_ROLE`.
+<!-- screenshot: Settings > Identity with User Identity selected, the Snowflake provider, Manual, and Advanced > Scope filled; values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Snowflake's MCP documentation](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp).

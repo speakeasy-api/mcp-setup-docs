@@ -4,12 +4,26 @@ setup_version: 1
 
 # Set up Google Docs
 
-Sign in to [console.cloud.google.com](https://console.cloud.google.com) with an account that can select a Google Cloud project, enable APIs, configure the **Google Auth platform**, and create OAuth credentials. Google does not document a Google Docs MCP-specific paid plan or license requirement. Enabling APIs requires `serviceusage.services.enable`; **Service Usage Admin** provides this permission. Each account that will connect needs **MCP Tool User** (`roles/mcp.toolUser`) on the project and access to the Google Docs it will use. Obtain the approved support and contact addresses before you begin. If your organization restricts high-risk Drive and Docs scopes or unconfigured apps, you also need a Google Workspace administrator with the **Service Settings administrator** privilege.
+Sign in to [console.cloud.google.com](https://console.cloud.google.com) with an account that can select a Google Cloud project, enable APIs, configure the **Google Auth platform**, and create OAuth credentials. Google does not document a Google Docs MCP-specific paid plan or license requirement, but the Docs MCP server is available only through the Google Workspace Developer Preview Program, so the project must be registered in it. Enabling APIs requires `serviceusage.services.enable`; **Service Usage Admin** provides this permission. Granting **MCP Tool User** (`roles/mcp.toolUser`) requires IAM administration access on the project. Each account that will connect needs that role and access to the Google Docs it will use. Obtain the approved support and contact addresses before you begin. If your organization restricts high-risk Drive and Docs scopes or unconfigured apps, you also need a Google Workspace administrator with the **Service Settings administrator** privilege.
+
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+1. Open [developers.google.com/workspace/preview](https://developers.google.com/workspace/preview).
+2. Review the **Developer Preview Program Terms** with the application or security owner.
+3. Click **Apply to join the Developer Preview Program**.
+4. In the application form, enter the requested Google Workspace account and Google Cloud project information.
+5. Agree to the terms only with organizational approval.
+6. Submit the form with the visible or equivalent submission control.
+7. Wait for Google's project-registration confirmation at the submitted email address. Google says this should complete within a couple of days.
+
+Use the registered project for every Google Cloud step that follows.
+
+<!-- screenshot: the program page with Docs MCP server listed under Latest features -->
 
 ### Enable the Docs MCP APIs {#enable-docs-mcp-apis}
 
 1. In the toolbar, open the resource selector.
-2. Select the Google Cloud project that will own the credentials.
+2. Select the Google Cloud project registered in the Developer Preview Program.
 3. Open **APIs & Services** > **Library**.
 4. Open **Google Docs API**.
 5. Click **Enable**.
@@ -19,9 +33,23 @@ Sign in to [console.cloud.google.com](https://console.cloud.google.com) with an 
 
 If **Enable** is unavailable, ask the project administrator for `serviceusage.services.enable`.
 
+<!-- screenshot: Google Docs MCP API showing its enabled state -->
+
+### Grant the MCP Tool User role {#grant-mcp-tool-user}
+
+1. Open [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam).
+2. Select the same project.
+3. Click **Grant access**.
+4. In **New principals**, enter the Google Account email of a user who will connect from the Speakeasy AI Control Plane.
+5. Click **Select a role**.
+6. Search for `MCP Tool User`.
+7. Select **MCP Tool User**.
+8. Click **Save**.
+9. Repeat these steps for every connecting user.
+
 Open **Google Auth platform** > **Branding**.
 
-<!-- screenshot: Google Docs MCP API showing its enabled state -->
+<!-- screenshot: Grant access with the principal and MCP Tool User -->
 
 ### Configure the OAuth consent screen {#configure-oauth-consent}
 

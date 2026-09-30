@@ -10,11 +10,17 @@ researched_at: 2026-07-29T21:55:52Z
 
 - Remote URL: `https://slidesmcp.googleapis.com/mcp/v1`.
 - Transport: `streamable-http`. Google labels it **HTTP**. A direct MCP
-  `initialize` request over HTTPS POST returned HTTP 200 and protocol version
-  `2025-03-26` during this run.
+  `initialize` request over HTTPS POST (with
+  `Accept: application/json, text/event-stream`) returned HTTP 200
+  unauthenticated and protocol version `2025-06-18` on
+  `2026-09-30T21:25:42Z`.
 - Launch stage: Developer Preview, announced in Google's July 13, 2026
-  Workspace developer release notes. No separate preview enrollment is
-  documented.
+  Workspace developer release notes. Re-verified `2026-09-30`: the Slides
+  setup page's banner reads "Developer Preview: Available as part of the
+  Google Workspace Developer Preview Program" and its first prerequisite is
+  "Membership in the Google Workspace Developer Preview Program". The
+  earlier note that no enrollment was documented is superseded; see
+  {#join-developer-preview}.
 - Enable **Google Slides API** (`slides.googleapis.com`) and
   **Google Slides MCP API** (`slidesmcp.googleapis.com`) in one Google Cloud
   project.
@@ -46,8 +52,10 @@ researched_at: 2026-07-29T21:55:52Z
   organizational solution can satisfy this requirement.
 - No Google Slides MCP-specific paid plan or license gate is documented.
 - The Speakeasy MCP Catalog lookup was **absent** for `google-slides` and
-  `google slides`. Render only the **Custom remote server** path; the shared
-  URL is not tenanted.
+  `google slides` (re-checked `2026-09-30` with `Google Slides` and
+  `slides`; no Google Slides entry). `meta.yaml` sets
+  `speakeasy_add_server: custom-remote`. Render only the **Hosted remotely**
+  path; the shared URL is not tenanted.
 
 ## Credential flow
 
@@ -63,17 +71,42 @@ Create a **Web application** OAuth client. Enter
 | --- | --- |
 | Client ID | **OAuth 2.0 client created** in {#copy-oauth-credentials} |
 | Client Secret | **Client secrets** in {#copy-oauth-credentials}; copyable once |
-| Scope override | The four scopes configured in {#configure-oauth-consent}, comma-separated |
+| Scope | The four scopes configured in {#configure-oauth-consent}, space-separated on one line under **Advanced > Scope** |
 
-The callback template is the same **Redirect URI** later displayed in
-Speakeasy's **Attach Remote Identity Provider** sheet. Each connecting user
-then authorizes with the Google Account whose Slides permissions should apply.
+The Speakeasy **Identity** section does not display the redirect URI, so
+{#create-oauth-client} carries the callback check by entering
+`{{ gram.oauth.callback_url }}` directly. Each connecting user then authorizes
+with the Google Account whose Slides permissions should apply.
 
 ## Console walkthrough
 
-Sign in at `https://console.cloud.google.com`. Use the console toolbar's
-resource selector to select the project that will own this configuration, and
-keep it selected throughout the Google Cloud steps.
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+Source: `https://developers.google.com/workspace/preview` and the Slides setup
+page's Prerequisites, observed `2026-09-30T21:25:42Z`. Same flow as the
+Google Calendar guide's {#join-developer-preview}.
+
+- Skip when Google has already registered the project in the program.
+- Open Google's **Google Workspace Developer Preview Program** page and review
+  the **Developer Preview Program Terms** with the organization's application
+  or security owner.
+- Click **Apply to join the Developer Preview Program**. In the current
+  application form, provide the requested Google Workspace account and Google
+  Cloud project information, agree to the terms only with organizational
+  approval, and submit the form. Google does not publish the form's exact
+  field labels on the program page.
+- The submitted email must accept being added to Google Groups; Google adds
+  the verified account to the program's Google Group, then registers the Cloud
+  project.
+- Wait for the final confirmation at the registered email address. Google
+  says the process should be done within a couple of days.
+- Then sign in at `https://console.cloud.google.com` and use the console
+  toolbar's resource selector to select the registered project; keep it
+  selected throughout the Google Cloud steps.
+- Values entered: organization-specific Workspace account and Cloud project
+  information. Values copied: none.
+- Screenshot note: the program page with **Apply to join the Developer
+  Preview Program**.
 
 ### Enable the Google Slides APIs {#enable-google-slides-apis}
 
@@ -186,64 +219,64 @@ Slides scopes or block unconfigured apps.
 
 ## Speakeasy setup
 
-Transcluded from `doctrine/speakeasy-setup.md`, observed at
-`2026-07-29T21:55:52Z`. Fixed anchors are carried verbatim.
-
-The Speakeasy MCP Catalog lookup was **absent** for `google-slides` and
-`google slides`. Render only the Custom remote server path.
-
-### Add the server in Speakeasy {#add-server-in-speakeasy}
-
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
-
-Choose **Custom remote server**. On the
-**Add a custom remote MCP server** page, paste
-`https://slidesmcp.googleapis.com/mcp/v1` into
-**Remote MCP server URL** and click **Add server**.
-
-This creates the hosted MCP server and opens its **Overview** page.
-
-<!-- screenshot: the Add Source menu open on the Sources page -->
+Transcluded from `doctrine/speakeasy-setup.md` (product source
+`speakeasy-api/gram`, `client/dashboard`, `main` @ `68b3f78`), observed
+`2026-09-30T21:25:42Z`. Fixed anchors are carried verbatim.
 
 Per-guide values:
 
-- Remote URL: `https://slidesmcp.googleapis.com/mcp/v1`.
-- Transport: `streamable-http`; **Transport** is read-only.
-- Authentication Option: `oauth-client`, manually registered OAuth.
-- Catalog decision: absent; Custom remote server only.
+- Remote URL: `https://slidesmcp.googleapis.com/mcp/v1` (not tenanted).
+- Add-server path: `speakeasy_add_server: custom-remote`; catalog lookup
+  absent. Render only **Hosted remotely**.
+- Authentication Option: `oauth-client` → **User Identity**.
+- Probe outcome: `initialize` POST returned **200 unauthenticated**, so the
+  create form preselects **No Identity**; the reader must select
+  **User Identity**.
+- PRM: `https://slidesmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1`
+  names issuer `https://accounts.google.com/` and advertises
+  `drive.readonly`, `presentations.readonly`, `drive`, `drive.file`,
+  `presentations`.
+- Issuer metadata (`https://accounts.google.com/.well-known/oauth-authorization-server`):
+  issuer `https://accounts.google.com`, authorization endpoint
+  `https://accounts.google.com/o/oauth2/v2/auth`, token endpoint
+  `https://oauth2.googleapis.com/token`, no `registration_endpoint`, no
+  `client_id_metadata_document_supported`. Discovery works, so the provider
+  picker can preselect or create the Google provider; no custom provider
+  route is needed.
+- Registration choice: **Manual** (neither CIMD nor DCR advertised; the
+  dashboard default is also Manual unless the provider already has a
+  client). Creation with **User Identity** leaves the server **Disabled**
+  with a note to finish in **Settings > Identity**; this is expected, and
+  **Server Availability** must be turned on afterwards.
+- Credential fields: **Client ID** and **Client secret** from
+  {#copy-oauth-credentials}; Google requires the secret despite the
+  "Optional" placeholder.
+- Scope under **Advanced > Scope**, space-separated on one line:
+  `https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/presentations.readonly https://www.googleapis.com/auth/presentations`.
+  Blank is not safe: the PRM also advertises full
+  `https://www.googleapis.com/auth/drive`, which the consent screen does not
+  configure.
+- Redirect URI: not displayed on the Identity section; {#create-oauth-client}
+  registers `{{ gram.oauth.callback_url }}`.
+- First connection: an account with **MCP Tool User** ({#grant-mcp-tool-user})
+  and access to the presentations; an External app in **Testing** also needs
+  the account under **Test users**.
+- Screenshot notes: **New remote MCP server** after **Verify connectivity**
+  with **User Identity** selected; **Settings > Identity** with the Google
+  provider and **Manual**, credentials redacted.
+- Further-reading URL:
+  `https://developers.google.com/workspace/slides/api/guides/configure-mcp-server`.
+
+### Add the server in Speakeasy {#add-server-in-speakeasy}
+
+Hosted remotely path with **User Identity** selected at creation, per the
+values above.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Authentication**,
-click **Configure Manually**, or **Use Discovered** when offered. In the
-**Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**.
-
-Confirm the sheet's **Redirect URI** matches `{{ gram.oauth.callback_url }}`
-entered in {#create-oauth-client}. Paste the **Client ID** and
-**Client Secret (optional)** from {#copy-oauth-credentials}. Google requires
-the generated secret even though the Speakeasy label says optional.
-
-In **Scope (override)**, enter these comma-separated values:
-`https://www.googleapis.com/auth/drive.readonly`,
-`https://www.googleapis.com/auth/drive.file`,
-`https://www.googleapis.com/auth/presentations.readonly`,
-`https://www.googleapis.com/auth/presentations`. Click
-**Attach Identity Provider**.
-
-Complete Google's browser authorization with an account granted
-**MCP Tool User** in {#grant-mcp-tool-user} and access to the intended
-presentations. An External app in **Testing** also requires that account under
-**Test users**.
-
-Screenshot note: the manual identity-provider sheet with credentials redacted.
-
-Further-reading URL:
-`https://developers.google.com/workspace/slides/api/guides/configure-mcp-server`.
-
-This guide covers setup only. For anything beyond it — billing, tool behavior,
-limits — see Google's Slides MCP documentation at
-https://developers.google.com/workspace/slides/api/guides/configure-mcp-server.
+**Settings > Identity** > **User Identity** > Google provider > **Manual**
+with the values above, **Save**, then **Settings > Danger Zone > Server
+Availability** > **Enable MCP server**.
 
 ## Open questions
 
@@ -296,11 +329,24 @@ All sources were observed at `2026-07-29T21:55:52Z`:
 - `https://support.google.com/cloud/answer/15549135` — Data Access controls.
 - `https://support.google.com/a/answer/7281227?hl=en` — Workspace app controls,
   high-risk scopes, and allowlisting labels.
-- `https://slidesmcp.googleapis.com/mcp/v1` — MCP `initialize` returned HTTP
-  200 with protocol version `2025-03-26`.
-- `https://slidesmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1`
-  — authorization server, resource URL, and advertised scopes.
-- `https://accounts.google.com/.well-known/oauth-authorization-server` —
-  authorization/token endpoints and no registration endpoint.
-- `doctrine/speakeasy-setup.md` — Custom remote and Manual OAuth flow.
+
 - `doctrine/personas/it-admin.md` — browser-only achievability requirements.
+
+Re-observed at `2026-09-30T21:25:42Z`:
+
+- `https://developers.google.com/workspace/slides/api/guides/configure-mcp-server`
+  — Developer Preview Program membership prerequisite; endpoint, scopes, and
+  Web application client unchanged.
+- `https://developers.google.com/workspace/preview` — program terms,
+  application button, Google Groups requirement, and couple-of-days timing.
+- `https://slidesmcp.googleapis.com/mcp/v1` — MCP `initialize` returned HTTP
+  200 unauthenticated with protocol version `2025-06-18`.
+- `https://slidesmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1`
+  — authorization server `https://accounts.google.com/`, resource URL, and
+  five advertised scopes including full `drive`.
+- `https://accounts.google.com/.well-known/oauth-authorization-server` —
+  authorization/token endpoints; no registration endpoint and no CIMD.
+- Speakeasy MCP Catalog search (`Google Slides`, `slides`) — no Google Slides
+  entry.
+- `doctrine/speakeasy-setup.md` (gram `68b3f78`) — Hosted remotely, Identity
+  section, Manual registration, and Server Availability.

@@ -21,7 +21,7 @@ researched_at: 2026-08-20T19:49:41Z
 
 ## Credential flow
 
-An administrator enables the Gmail and Gmail MCP APIs in the allowlisted Google Cloud project, configures the project's Google Auth consent settings, and creates an OAuth client with **Application type** set to **Web application**. In that client, the administrator adds `{{ gram.oauth.callback_url }}` under **Authorized redirect URIs** by clicking **+ Add URI**. The resulting **Client ID** and **Client Secret** are pasted into the Speakeasy AI Control Plane's manual OAuth sheet.
+An administrator enables the Gmail and Gmail MCP APIs in the allowlisted Google Cloud project, configures the project's Google Auth consent settings, and creates an OAuth client with **Application type** set to **Web application**. In that client, the administrator adds `{{ gram.oauth.callback_url }}` under **Authorized redirect URIs** by clicking **+ Add URI**. The resulting **Client ID** and **Client Secret** are pasted into the **Manual** client fields of the server's **Identity** section in the Speakeasy AI Control Plane.
 
 Google's Gmail MCP page documents the same client-creation flow for other MCP hosts, each with that host's callback URI. The Speakeasy callback template is therefore the per-client value used in the documented **Authorized redirect URIs** field. Google Cloud's support documentation says the full client secret is visible and downloadable only at creation; store it securely before closing the dialog.
 
@@ -79,30 +79,36 @@ Start at the [Google Cloud console](https://console.cloud.google.com/) with the 
 
 ## Speakeasy setup
 
+Transcluded from `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`), observed 2026-09-30T21:25:46Z. Fixed anchors are carried verbatim.
+
 Per-guide values:
 
-- Remote URL: `https://gmailmcp.googleapis.com/mcp/v1`
-- Transport: `streamable-http` (the **Transport** field is read-only)
-- Add-server path: Custom remote server only because the operator set `speakeasy_add_server: custom-remote`; the catalog result is overridden because its mapping is unreliable or unsuitable for this guide.
-- Authentication Option: manual OAuth 2.0 (`gmail-oauth`); Google explicitly does not support DCR.
-- **Client ID**: produced by [Create the OAuth client](#create-oauth-client).
-- **Client Secret (optional)**: produced by [Create the OAuth client](#create-oauth-client); it is required for this documented Gmail flow even though the Speakeasy sheet's generic label says optional.
-- Registered callback: `{{ gram.oauth.callback_url }}` in the OAuth client's **Authorized redirect URIs** field.
-- Required allowed scopes: `https://www.googleapis.com/auth/gmail.readonly` and `https://www.googleapis.com/auth/gmail.compose`, configured in [Configure the OAuth consent screen](#configure-oauth-consent).
+- Remote URL: `https://gmailmcp.googleapis.com/mcp/v1`; `streamable-http`; shared, not tenanted.
+- Add-server path: **Hosted remotely** only, because the operator set `speakeasy_add_server: custom-remote` (catalog mapping unreliable or unsuitable).
+- Authentication Option: `gmail-oauth` (OAuth) → identity mode **User Identity**.
+- Probe outcome (2026-09-30T21:25:46Z): an unauthenticated JSON-RPC `initialize` POST with `Accept: application/json, text/event-stream` returns **200** with no challenge. The create form therefore preselects **No Identity**; the reader must select **User Identity**.
+- PRM: `https://gmailmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1` names issuer `https://accounts.google.com/` and advertises 11 scopes: `https://mail.google.com/`, `gmail.compose`, `gmail.drafts`, `gmail.drafts.create`, `gmail.drafts.readonly`, `gmail.labels`, `gmail.metadata`, `gmail.modify`, `gmail.readonly`, `gmail.send`, `gmail.settings.basic` (all under `https://www.googleapis.com/auth/` except the first).
+- Issuer metadata (`https://accounts.google.com/.well-known/oauth-authorization-server` and `/.well-known/openid-configuration`): no `registration_endpoint`, no `client_id_metadata_document_supported`; authorization endpoint `https://accounts.google.com/o/oauth2/v2/auth`, token endpoint `https://oauth2.googleapis.com/token`, `client_secret_post` and `client_secret_basic`. Google's MCP authentication docs also state DCR and CIMD are unsupported.
+- Creation result: automatic configuration cannot register a client, so the server is kept **Disabled** and the result points to **Settings > Identity**. Expected.
+- Provider picker: discovery is available (PRM is served), so the picker preselects the Google issuer, badged **Will be created** when no Google provider exists. No custom identity provider route is needed.
+- Registration choice: **Manual** (the dashboard default when no client exists and neither CIMD nor DCR is advertised).
+- **Client ID** and **Client secret**: produced by [Create the OAuth client](#create-oauth-client). The secret is required despite the "Optional" placeholder.
+- **Advanced > Scope** (space-separated, one line): `https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.compose`. Blank is not safe: it requests all 11 PRM scopes, including the restricted `https://mail.google.com/`, which the consent configuration does not grant.
+- Registered callback: `{{ gram.oauth.callback_url }}` under **Authorized redirect URIs**. The Identity section does not display a redirect URI, so External setup carries that check.
+- Server Availability: required after the Identity save (**Settings > Danger Zone > Server Availability**, **Enable MCP server**, **Enabled**).
 - Further reading: `https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server`
-- Provenance for the fixed Speakeasy UI flow: `doctrine/speakeasy-setup.md`, observed 2026-08-20T19:49:41Z.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select **Sources**, then click **Add Source**. Choose **Custom remote server**. On the **Add a custom remote MCP server** page, paste `https://gmailmcp.googleapis.com/mcp/v1` into **Remote MCP server URL** and click **Add server**. This creates the hosted MCP server and opens its **Overview** page.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**, then click **Add new** to open **Add MCP server**. Choose **Hosted remotely**. On **New remote MCP server**, paste `https://gmailmcp.googleapis.com/mcp/v1` into **MCP server URL**, leave **User session issuer** at its default, and click **Verify connectivity**. Under **Identity**, change the preselected **No Identity** to **User Identity**, leave **Guardrails** off, and click **Save**. The server is kept **Disabled** and the result says to finish setup in **Settings > Identity**; this is expected.
 
-<!-- screenshot: the Add Source menu open on the Sources page, or the provider's catalog entry -->
+Screenshot note: **New remote MCP server** after **Verify connectivity**, with **User Identity** selected.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Authentication**, click **Configure Manually**. In the **Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**. The sheet shows the **Redirect URI** with a copy button—the callback URL registered during External setup. Paste the **Client ID** and **Client Secret (optional)** from [Create the OAuth client](#create-oauth-client), then click **Attach Identity Provider**. Confirm the sheet's **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value registered under **Authorized redirect URIs**; the template value is entered directly during External setup, rather than copied from this sheet. The Gmail flow requires the client secret despite the sheet's generic optional label.
+Open the server's **Settings** > **Identity**. Select **User Identity**. In **Choose an identity provider**, confirm the preselected Google issuer `https://accounts.google.com/` (or choose it via **Search identity providers…**). Choose **Manual** (switch from **Existing client** if preselected). Paste **Client ID** and **Client secret** from [Create the OAuth client](#create-oauth-client). Under **Advanced > Scope**, enter the scope string above on one line and do not leave it blank. Click **Save** (**Save changes** if asked to confirm). Then open **Settings > Danger Zone > Server Availability** and turn on **Enable MCP server** so it shows **Enabled**.
 
-Screenshot note: capture the manual **Attach Remote Identity Provider** sheet with the **Redirect URI** visible and credentials redacted.
+Screenshot note: **Settings > Identity** with **User Identity**, the Google provider, and **Manual** selected; values redacted.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Gmail's MCP documentation](https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server).
 
@@ -120,12 +126,15 @@ None. The public documentation identifies the endpoint, manual OAuth model, requ
 
 ### Sources
 
-- `https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server` — observed 2026-08-20T19:49:41Z. Backs Developer Preview status; prerequisites; both required services; consent navigation, audience/test-user flow, exact scopes, and UI labels; web OAuth client creation; endpoint, HTTP transport description, OAuth authentication, client ID/secret flow, and primary further-reading URL. Page reported last updated 2026-08-19 UTC.
+- `https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server` — observed 2026-08-20T19:49:41Z; scopes, endpoint, and Developer Preview status re-verified 2026-09-30T21:25:46Z (page last updated 2026-09-18 UTC). Backs Developer Preview status; prerequisites; both required services; consent navigation, audience/test-user flow, exact scopes, and UI labels; web OAuth client creation; endpoint, HTTP transport description, OAuth authentication, client ID/secret flow, and primary further-reading URL. Page reported last updated 2026-08-19 UTC.
 - `https://developers.google.com/workspace/gmail/api/reference/mcp` — observed 2026-08-20T19:49:41Z. Backs the global Gmail MCP endpoint and its status as the Gmail API MCP server.
 - `https://developers.google.com/workspace/preview` — observed 2026-08-20T19:49:41Z. Backs Developer Preview enrollment requirements, the required Google Cloud project number, and the Google Workspace account / Google Cloud project verification and registration process.
 - `https://docs.cloud.google.com/mcp/authenticate-mcp` — observed 2026-08-20T19:49:41Z. Backs manual OAuth client ID and secret support and the explicit lack of Dynamic Client Registration and OAuth Client ID Metadata Documents.
 - `https://docs.cloud.google.com/service-usage/docs/enable-disable` — observed 2026-08-20T19:49:41Z. Backs **Service Usage Admin**, project selection, **APIs & Services** > **API Library**, **Search for APIs & Services**, API selection, and **Enable**.
 - `https://support.google.com/cloud/answer/15549257?hl=en` — observed 2026-08-20T19:49:41Z. Backs **Google Auth Platform** > **Clients**, **Create Client**, the warning that the full client secret is visible/downloadable only when created, and the client-detail controls for disabling, deleting, and replacing a missed secret.
 - `https://console.cloud.google.com/` — observed 2026-08-20T19:49:41Z. Official Google Cloud console entry URL.
-- `doctrine/speakeasy-setup.md` — observed 2026-08-20T19:49:41Z. Backs fixed Speakeasy add-server and manual OAuth UI labels, transitions, anchors, and closing-pointer format.
+- `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`) — observed 2026-09-30T21:25:46Z. Backs fixed Speakeasy add-server, Identity section, **Manual** client, **Advanced > Scope**, and **Server Availability** labels, transitions, anchors, and closing-pointer format.
+- `https://gmailmcp.googleapis.com/mcp/v1` — probed 2026-09-30T21:25:46Z; unauthenticated `initialize` returns 200.
+- `https://gmailmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1` — observed 2026-09-30T21:25:46Z. Backs the PRM issuer and the 11 advertised scopes.
+- `https://accounts.google.com/.well-known/oauth-authorization-server` — observed 2026-09-30T21:25:46Z. Backs the endpoints and the absence of `registration_endpoint` and CIMD support.
 - Operator note: Speakeasy MCP Catalog query `gmail` returned `overridden-custom-remote`; observed 2026-08-20T19:49:41Z. Backs the `speakeasy_add_server: custom-remote` override and Custom remote-only path because catalog mapping is unreliable or unsuitable.

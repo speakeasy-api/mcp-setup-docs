@@ -39,13 +39,17 @@ operator explicitly requested this copy-paste configuration alternative.
   OAuth installation, consent, and secure credential storage. Observed 2026-09-16.
 - **Authorization metadata:**
   https://mcp.slack.com/.well-known/oauth-authorization-server — fetched public
-  JSON on 2026-09-16. Issuer `https://mcp.slack.com`; authorization endpoint
+  JSON on 2026-09-16, re-fetched 2026-09-30 (unchanged). Issuer `https://mcp.slack.com`; authorization endpoint
   `https://slack.com/oauth/v2_user/authorize`; token endpoint
   `https://slack.com/api/oauth.v2.user.access`; token authentication
   `client_secret_post`; S256 PKCE; authorization-code and refresh-token grants.
   No registration endpoint. Scope list includes the four channel-list scopes.
-- **Client setup:** `doctrine/speakeasy-setup.md`, read 2026-09-16 — canonical
-  Control Plane UI, callback template, custom-remote route, and manual client.
+- **Client setup:** `doctrine/speakeasy-setup.md`, read 2026-09-30 — canonical
+  Control Plane UI, callback template, custom-remote route, and Identity
+  section.
+- **Protected-resource metadata:**
+  https://mcp.slack.com/.well-known/oauth-protected-resource — fetched
+  2026-09-30. Issuer `https://mcp.slack.com`; 30 advertised scopes.
 - **Client capabilities:** `doctrine/ai-control-plane-oauth.md`, read 2026-09-16,
   verified upstream revision `4e1fef388aa0f5b498f5d35400780ff2b99815e4` on
   2026-09-15 — source-inspected support, not a Slack acceptance test.
@@ -81,10 +85,9 @@ operator explicitly requested this copy-paste configuration alternative.
 
 The maintained capability reference establishes manual registration, S256 PKCE,
 `client_secret_post`, configurable scopes, discovery, and refresh-token grant
-support. Token authentication defaults to Basic when a secret is present and no
-recognized method is stored, so explicitly select Post; merely supplying the
-secret is not enough. A nonempty issuer scope override wins over client scopes;
-ensure it matches the selected Slack user scopes. Slack metadata does not
+support. On the current dashboard the token endpoint auth method is chosen
+automatically from the issuer metadata, which advertises only
+`client_secret_post`, so no reader action is needed. Slack metadata does not
 advertise OpenID scopes, so do not add `openid` or `offline_access` speculatively.
 
 Relevant pinned sources retained from the reference:
@@ -148,32 +151,69 @@ Screenshot: Credential labels with values redacted.
 
 ## Control Plane transclusion and anchor contract
 
-Use `speakeasy_add_server: custom-remote` to target the official endpoint
-unambiguously. Catalog presence was not checked, and no catalog absence is
-claimed. No Pulse alias is invented.
+Canonical source: `doctrine/speakeasy-setup.md` (gram `main` commit
+`68b3f78`), read 2026-09-30.
 
-- `{#add-server-in-speakeasy}`: **Connect** → **Sources** → **Add Source** →
-  **Custom remote server** → **Add a custom remote MCP server**. Enter the remote
-  in **Remote MCP server URL**, click **Add server**, arrive at **Overview**.
-  Screenshot: custom-remote form with the Slack URL.
-- `{#connect-speakeasy-credentials}`: **Overview** → **Settings** →
-  **Authentication** → **Configure Manually** or **Use Discovered**.
-  **Issuer URL** `https://mcp.slack.com`, **Endpoints** → **Discover** if needed;
-  **Attach Remote Identity Provider**, **Client Type** **Manual**, **Client ID**,
-  **Client Secret (optional)** (required by Slack), explicit `client_secret_post`,
-  selected scopes, **Attach Identity Provider**. Match the displayed **Redirect
-  URI** with the callback registered upstream. Screenshot: Manual, user-token
-  endpoints, Post authentication, all credentials redacted.
+Per-guide values:
+
+- Remote URL: `https://mcp.slack.com/mcp`, shared, not tenanted.
+- Add-server path: `speakeasy_add_server: custom-remote` targets the official
+  endpoint unambiguously. Catalog presence was not checked, and no catalog
+  absence is claimed. Render **Hosted remotely** only.
+- Authentication Option: `internal-app-oauth` → **User Identity**. **Client
+  ID** and **Client Secret** come from `copy-client-credentials`; scopes come
+  from `set-user-permissions`.
+- Probe outcome (2026-09-30): `initialize` POST with
+  `Accept: application/json, text/event-stream` returns 401 with
+  `WWW-Authenticate: Bearer resource_metadata="https://mcp.slack.com/.well-known/oauth-protected-resource"`.
+  The create form therefore preselects **User Identity**.
+- PRM issuer: `authorization_servers` is `https://mcp.slack.com`. The PRM
+  advertises 30 scopes (canvases, chat, files, history, search, users, and
+  more), far beyond the four the manifest grants.
+- Issuer metadata (`/.well-known/oauth-authorization-server`, 2026-09-30):
+  authorization `https://slack.com/oauth/v2_user/authorize`, token
+  `https://slack.com/api/oauth.v2.user.access`,
+  `token_endpoint_auth_methods_supported: ["client_secret_post"]`, S256 PKCE.
+  No `registration_endpoint` and no `client_id_metadata_document_supported`
+  (no DCR, no CIMD); Slack's overview also says DCR is unsupported.
+- Registration choice: **Manual**. Auto-registration at creation cannot
+  succeed, so the server is kept **Disabled** and the reader finishes in
+  **Settings > Identity**; the dashboard defaults to **Manual** because the
+  issuer advertises neither CIMD nor DCR. The token endpoint auth method is
+  chosen automatically from the issuer metadata (`client_secret_post`); there
+  is no control for it.
+- Scope string for **Advanced > Scope**: `channels:read groups:read im:read mpim:read`.
+  Blank is not safe: it requests all 30 PRM scopes, and Slack consent fails
+  for scopes the app does not grant.
+- Client secret: required by Slack, despite the field's "Optional" placeholder.
+- Server Availability: finish with **Settings > Danger Zone > Server
+  Availability** → **Enable MCP server**.
+- Further reading: `https://docs.slack.dev/ai/slack-mcp-server/`.
+
+Anchors:
+
+- `{#add-server-in-speakeasy}`: **MCP Gateway** → **MCP** → **Add new** →
+  **Hosted remotely** → **New remote MCP server**; paste the remote into **MCP
+  server URL**, leave **User session issuer** at its default, **Verify
+  connectivity**, keep **User Identity**, **Save**. Screenshot: the form with
+  Slack's endpoint and **User Identity** selected.
+- `{#connect-speakeasy-credentials}`: **Settings** → **Identity** → **User
+  Identity**; confirm the provider `https://mcp.slack.com` in **Choose an
+  identity provider** (badged **Will be created** when new); **Manual**;
+  **Client ID**, **Client secret**; **Advanced** → **Scope** with the string
+  above; **Save** (confirm with **Save changes** when asked); then **Server
+  Availability**. The Identity section shows no Redirect URI, so
+  `register-callback` carries the callback check. Screenshot: Identity with
+  User Identity, the Slack provider, and Manual; values redacted.
 - Preserve the canonical final pointer to Slack's MCP documentation. Setup ends
   after credentials; publishing and downstream-client distribution are out of
   scope. Explain user consent without inventing a dashboard test button.
 
 ## Research limitations and operator decisions
 
-- No screenshots or authenticated console inspection. Exact user-scope,
-  reveal-secret, token-authentication-method, and scope-control labels may vary;
-  use action-oriented wording without inventing a label. If the deployment
-  hides the latter controls, its administrator must configure the required values.
+- No screenshots or authenticated console inspection. Exact user-scope and
+  reveal-secret labels in Slack may vary; use action-oriented wording without
+  inventing a label.
 - No end-to-end Slack test, independent evidence of the current app's eligibility,
   or successful consent. Keep that limitation visible in the setup guide.
 - The organization supplies an internal app, its administrator approval, any

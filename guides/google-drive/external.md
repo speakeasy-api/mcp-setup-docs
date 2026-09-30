@@ -4,9 +4,23 @@ setup_version: 1
 
 # Set up Google Drive
 
-Use a Google Cloud project where you can enable services, configure the Google Auth platform, create credentials, and grant project roles. You need **Service Usage Admin** or **Owner** to enable the APIs and appropriate IAM administration access to grant **MCP Tool User**. Every connecting user needs a Google Account with access to the intended Drive files.
+The Drive MCP server is available only through the Google Workspace Developer Preview Program, so the Google Cloud project must be registered in it. Use a Google Cloud project where you can enable services, configure the Google Auth platform, create credentials, and grant project roles. You need **Service Usage Admin** or **Owner** to enable the APIs and appropriate IAM administration access to grant **MCP Tool User**. Every connecting user needs a Google Account with access to the intended Drive files.
 
-Sign in at [console.cloud.google.com](https://console.cloud.google.com) and select the project that will own the APIs and credentials. If your organization restricts high-risk Drive scopes, arrange access to a **Service Settings administrator** and obtain an approved app-access setting from the application or cloud security owner.
+Sign in at [console.cloud.google.com](https://console.cloud.google.com) and select the project registered in the Developer Preview Program. It owns the APIs and credentials. If your organization restricts high-risk Drive scopes, arrange access to a **Service Settings administrator** and obtain an approved app-access setting from the application or cloud security owner.
+
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+1. Open [developers.google.com/workspace/preview](https://developers.google.com/workspace/preview).
+2. Review the **Developer Preview Program Terms** with the application or security owner.
+3. Click **Apply to join the Developer Preview Program**.
+4. In the application form, enter the requested Google Workspace account and Google Cloud project information.
+5. Agree to the terms only with organizational approval.
+6. Submit the form with the visible or equivalent submission control.
+7. Wait for Google's project-registration confirmation at the submitted email address. Google says this should complete within a couple of days.
+
+Use the registered project for every Google Cloud step that follows.
+
+<!-- screenshot: the program page with Drive MCP server listed under Latest features -->
 
 ### Enable the Google Drive API {#enable-drive-api}
 
@@ -109,7 +123,7 @@ Do not add **Authorized JavaScript origins**. Before the next action, prepare an
 
 1. In **OAuth 2.0 client created**, copy the **Client ID** to your approved secret store.
 2. Under **Client secrets**, copy the **Client secret** to the same location.
-3. Keep both values ready for [Speakeasy setup](speakeasy.md#connect-speakeasy-credentials).
+3. Keep both values ready for [Speakeasy setup](speakeasy.md#add-server-in-speakeasy).
 
 If you lose the client secret before connecting, delete it and create a new one.
 

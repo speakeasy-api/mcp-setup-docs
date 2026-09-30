@@ -12,7 +12,13 @@ researched_at: 2026-08-29T15:13:24Z
 - Transport: `streamable-http`. Google's setup page labels the transport
   **HTTP**, and its MCP reference shows JSON-RPC requests sent to the HTTPS
   endpoint with both JSON and event-stream response types.
-- Launch stage: **Developer Preview** in Google's supported-products list.
+- Launch stage: **Developer Preview**. The People setup page (last updated
+  2026-09-18 UTC, re-verified 2026-09-30T21:25:46Z) lists **Membership in the
+  Google Workspace Developer Preview Program** as the first prerequisite, and
+  the program page lists **People MCP server** under **MCP SERVERS**. The
+  program requires an application, a Google Workspace account that can be
+  added to Google Groups, account verification, and Google Cloud project
+  registration before use.
 - Enable **People API** (`people.googleapis.com`) in a Google Cloud project.
   The product page calls this the API and MCP service; it documents no second
   MCP-specific service.
@@ -36,8 +42,12 @@ researched_at: 2026-08-29T15:13:24Z
 - The URL is a shared global endpoint, not a region-, instance-, or
   organization-specific endpoint, so the remote is not tenanted.
 - Speakeasy MCP Catalog presence is unknown: the coordinator's safe Pulse
-  inspection found no confident Google People match. With no tenanted remote
-  and no `speakeasy_add_server` override, preserve both add-server paths.
+  inspection found no confident Google People match. A reviewed-catalogue
+  search for `google people` on 2026-09-30 returned no candidates, but the
+  same tool was rate-limited before a control query could confirm it was
+  searching the full catalog, so presence stays unresolved. With no tenanted
+  remote and no `speakeasy_add_server` override, preserve both add-server
+  paths.
 
 ## Credential flow
 
@@ -65,9 +75,30 @@ expire seven days after consent.
 
 ## Console walkthrough
 
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+- Open `https://developers.google.com/workspace/preview` and review the
+  **Developer Preview Program Terms** with the organization's application or
+  security owner.
+- Confirm that the submitted Google Workspace account can be added to Google
+  Groups, as the program requires.
+- Click **Apply to join the Developer Preview Program**. In the current
+  application form, provide the requested Google Workspace account and Google
+  Cloud project information, agree to the terms only with organizational
+  approval, and submit. Google does not publish the form's field labels.
+- Google verifies the Workspace account, adds it to the program group, and
+  registers the Cloud project. Wait for the final confirmation at the
+  submitted email address; Google says this should take a couple of days.
+- Values entered: organization-specific account and project information.
+  Values copied: none.
+- Screenshot note: the program page with **People MCP server** listed under
+  **MCP SERVERS**; do not capture application-form data.
+- Source: `https://developers.google.com/workspace/preview` and the People
+  setup page's prerequisites, observed 2026-09-30T21:25:46Z.
+
 Sign in at `https://console.cloud.google.com`. In the toolbar resource
-selector, select the project that will own this configuration. Keep it
-selected throughout the Google steps.
+selector, select the project registered in the Developer Preview Program.
+Keep it selected throughout the Google steps.
 
 ### Enable the People API {#enable-people-api}
 
@@ -166,59 +197,89 @@ selected throughout the Google steps.
 
 ## Speakeasy setup
 
-Transcluded from `doctrine/speakeasy-setup.md`, observed at
-`2026-08-29T15:13:24Z`. These anchors are fixed and carried verbatim.
+Transcluded from `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`),
+observed at `2026-09-30T21:25:46Z`. These anchors are fixed and carried
+verbatim.
+
+Per-guide values:
+
+- Remote URL `https://people.googleapis.com/mcp/v1`; `streamable-http`;
+  shared, not tenanted; `speakeasy_add_server: auto`.
+- Add-server path: catalog presence unresolved, so both bullets (dual
+  conditional) remain.
+- Authentication Option `oauth-client` (OAuth) → **User Identity**.
+- Probe outcome (`2026-09-30T21:25:46Z`): an unauthenticated JSON-RPC
+  `initialize` POST with `Accept: application/json, text/event-stream`
+  returns **200** with no challenge, so the create form preselects **No
+  Identity**. A catalog entry would also preselect **No Identity** because
+  Google offers no client registration. The reader must select **User
+  Identity** on either path.
+- PRM `https://people.googleapis.com/.well-known/oauth-protected-resource/mcp/v1`
+  names issuer `https://accounts.google.com/` and advertises exactly the three
+  required scopes.
+- Issuer metadata (`https://accounts.google.com/.well-known/oauth-authorization-server`
+  and `/.well-known/openid-configuration`): no `registration_endpoint`, no
+  `client_id_metadata_document_supported`. Authorization endpoint
+  `https://accounts.google.com/o/oauth2/v2/auth`, token endpoint
+  `https://oauth2.googleapis.com/token`.
+- Creation result: automatic configuration cannot register a client, so the
+  server is kept **Disabled** and the result points to **Settings >
+  Identity**. Expected.
+- Provider picker: PRM is served, so the picker preselects the Google issuer
+  (badged **Will be created** when absent). No custom identity provider route.
+- Registration choice: **Manual**.
+- **Client ID** and **Client secret** from {#copy-oauth-credentials}; the
+  secret is required despite the "Optional" placeholder.
+- **Advanced > Scope**, space-separated on one line:
+  `https://www.googleapis.com/auth/directory.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/contacts.readonly`.
+  Because the PRM advertises only these three, a blank value would request the
+  same set; the guide still enters them explicitly.
+- Registered callback `{{ gram.oauth.callback_url }}` in {#create-oauth-client};
+  the Identity section does not display a redirect URI.
+- Server Availability: required after the Identity save.
+- Further reading: `https://developers.google.com/people/v1/configure-mcp-server`.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**.
 
-- If **Google People** is in the catalog, choose **3rd-party server**. On the
-  **MCP Catalog** page, search for Google People in **Search MCP servers...**,
-  open the matching entry with **View**, click **Add**, and then click **Add to
-  Project** in **Add to Project**.
-- If no matching catalog entry is available, choose **Custom remote server**.
-  On **Add a custom remote MCP server**, paste
-  `https://people.googleapis.com/mcp/v1` into **Remote MCP server URL** and
-  click **Add server**.
+- If **Google People** is in the catalog, choose **From the catalog**. On the
+  **MCP Catalog** page, find Google People using **Search MCP servers...**,
+  open its entry, and click **Add**. In **Add to Project**, select **User
+  Identity**, click **Add to Project** (click **Skip for now** if a
+  **Guardrails** step appears), then after **Server added successfully** click
+  **Configure MCP settings**.
+- If it is not, choose **Hosted remotely**. On **New remote MCP server**,
+  paste `https://people.googleapis.com/mcp/v1` into **MCP server URL**, leave
+  **User session issuer** at its default, click **Verify connectivity**,
+  change the preselected **No Identity** to **User Identity**, leave
+  **Guardrails** off, and click **Save**.
 
-Either path creates the hosted MCP server and opens its **Overview** page.
+Either way the server is kept **Disabled** and the result says to finish
+setup in **Settings > Identity**; this is expected.
 
-<!-- screenshot: the Add Source menu open on the Sources page, or the matching provider catalog entry -->
-
-Per-guide values: remote URL `https://people.googleapis.com/mcp/v1`;
-`streamable-http` transport with read-only **Transport**; manually registered
-`oauth-client`; shared non-tenanted endpoint; catalog presence unresolved, so
-both add-server paths remain available.
+<!-- screenshot: the Add MCP server page, or the matching provider catalog entry with User Identity selected -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From **Overview**, open **Settings**. Under **Authentication**, click
-**Configure Manually** or **Use Discovered** when offered. The endpoint
-publishes protected-resource metadata. In **Attach Remote Identity Provider**,
-set **Client Type** to **Manual**.
-
-Confirm **Redirect URI** matches `{{ gram.oauth.callback_url }}` entered in
-{#create-oauth-client}. Paste **Client ID** and **Client Secret (optional)**
-from {#copy-oauth-credentials}. Google's Web application flow requires the
-generated secret despite the optional Speakeasy label.
-
-In **Scope (override)**, enter all three scope identifiers from Server facts
-using the field's visible or equivalent multi-scope format, then click **Attach
-Identity Provider**. At first connection, authorize with an account granted
-**MCP Tool User** in {#grant-mcp-tool-user}.
+Open the server's **Settings** > **Identity** and select **User Identity**.
+In **Choose an identity provider**, confirm the preselected Google issuer
+`https://accounts.google.com/` (or choose it via **Search identity
+providers…**). Choose **Manual** (switch from **Existing client** if
+preselected). Paste **Client ID** and **Client secret** from
+{#copy-oauth-credentials}. Under **Advanced > Scope**, enter the scope string
+above on one line. Click **Save** (**Save changes** if asked to confirm).
+Open **Settings > Danger Zone > Server Availability** and turn on **Enable
+MCP server** so it shows **Enabled**. At first connection, authorize with an
+account granted **MCP Tool User** in {#grant-mcp-tool-user}.
 Provider-specific prompt labels are not documented.
 
-Screenshot note: **Attach Remote Identity Provider** showing Manual client
-type, redirect URI, credential labels, and scopes, with secrets redacted.
-
-Further-reading URL:
-`https://developers.google.com/people/v1/configure-mcp-server`.
+Screenshot note: **Settings > Identity** with **User Identity**, the Google
+provider, and **Manual** selected; values redacted.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
-limits — see Google's People API MCP documentation at
-https://developers.google.com/people/v1/configure-mcp-server.
+limits — see [Google's People API MCP documentation](https://developers.google.com/people/v1/configure-mcp-server).
 
 ## Research limitations
 
@@ -241,9 +302,6 @@ https://developers.google.com/people/v1/configure-mcp-server.
   provider-independent minimum or acceptance test. This dossier therefore does
   not claim that an independently verifiable screening prerequisite has been
   completed.
-- The dossier sources identify the three required scope identifiers but do not
-  prescribe a delimiter for Speakeasy's **Scope (override)** field. The guide
-  therefore directs the reader to the visible or equivalent multi-scope format.
 - Google's MCP authentication documentation identifies the OAuth client as the
   object to delete when its one-time secret was missed, but does not name the
   exact delete control. The guide uses a bounded visible-control hedge.
@@ -270,7 +328,9 @@ Documentation-property sweep:
   used because the People setup page prescribes no app-access control step.
 - `doctrine/speakeasy-setup.md` supplies Speakeasy labels and fixed anchors.
 
-All sources were observed at `2026-08-29T15:13:24Z`:
+All sources were observed at `2026-08-29T15:13:24Z` unless noted. The People
+setup page, PRM, and Google authorization-server metadata were re-verified at
+`2026-09-30T21:25:46Z`:
 
 - `https://developers.google.com/people/v1/configure-mcp-server` — endpoint,
   transport label, enablement, OAuth, consent values, scopes, client creation,
@@ -300,6 +360,14 @@ All sources were observed at `2026-08-29T15:13:24Z`:
   — authorization server, bearer method, resource URL, and scopes.
 - `https://accounts.google.com/.well-known/oauth-authorization-server` —
   OAuth endpoints and no registration endpoint.
-- `doctrine/speakeasy-setup.md` — unresolved-catalog dual add-server paths and
-  the Manual OAuth flow.
+- `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`, observed
+  2026-09-30T21:25:46Z) — unresolved-catalog dual add-server paths, Identity
+  section, **Manual** client, **Advanced > Scope**, and **Server
+  Availability**.
+- `https://developers.google.com/workspace/preview` — observed
+  2026-09-30T21:25:46Z; Developer Preview application, terms, Google Groups
+  requirement, verification and project-registration sequence, and **People
+  MCP server** listing.
+- `https://people.googleapis.com/mcp/v1` — probed 2026-09-30T21:25:46Z;
+  unauthenticated `initialize` returns 200.
 - `doctrine/personas/it-admin.md` — browser-only achievability requirements.

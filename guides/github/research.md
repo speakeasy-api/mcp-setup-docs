@@ -37,16 +37,23 @@ walkthrough.
   `https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/`.
   That document names `https://github.com/login/oauth` as the authorization
   server, lists supported scopes, and requires header bearer tokens. The
-  corresponding RFC authorization-server metadata URL returned 404 during
-  this run, so the server has protected-resource discovery but not a complete
-  discoverable authorization-server metadata chain.
+  RFC 8414 path-inserted metadata URL
+  `https://github.com/.well-known/oauth-authorization-server/login/oauth`
+  returned 200 on 2026-09-30 with issuer `https://github.com/login/oauth`,
+  authorization endpoint `https://github.com/login/oauth/authorize`, and
+  token endpoint `https://github.com/login/oauth/access_token`, with no
+  `registration_endpoint` and no CIMD support. (The earlier run probed the
+  suffix form `https://github.com/login/oauth/.well-known/oauth-authorization-server`,
+  which still returns 404.) Discovery is therefore complete.
 - **Scopes:** there is no single fixed scope set for setup. The remote server
   uses OAuth scope challenges and requests additional scopes when a selected
-  tool needs them. The protected-resource metadata advertises `repo`,
-  `read:org`, `read:user`, `user:email`, `read:packages`, `write:packages`,
-  `read:project`, `project`, `gist`, `notifications`, `workflow`, and
-  `codespace`. Do not pre-grant all of them merely because they are
-  advertised; users approve the scopes requested for their work.
+  tool needs them. On 2026-09-30 the protected-resource metadata advertised
+  `repo`, `read:org`, `read:user`, `user:email`, `read:packages`,
+  `write:packages`, `read:project`, `project`, `gist`, and `notifications`
+  (`workflow` and `codespace`, listed in the earlier run, are no longer
+  advertised). GitHub OAuth apps do not restrict which scopes they may
+  request, so every advertised scope is grantable; users approve the scopes
+  requested. GitHub's docs publish no minimal scope set for hosts.
 - **Authorization boundary:** GitHub's native permission model still applies.
   The server cannot access resources the signed-in user cannot normally
   access through GitHub's APIs.
@@ -142,7 +149,7 @@ is **New OAuth App** (or **Register a new application** when no app exists) >
   **Register application**, showing the field labels and the callback
   template but no organization-sensitive homepage value.
 - Organization caveat: if the target organization restricts OAuth apps,
-  complete the organization approval flow after attaching credentials at
+  complete the organization approval flow after saving credentials at
   {#connect-speakeasy-credentials}.
 
 ### Generate the OAuth credentials {#generate-oauth-credentials}
@@ -166,59 +173,73 @@ is **New OAuth App** (or **Register a new application** when no app exists) >
 
 ## Speakeasy setup
 
-Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-08-06T23:22:50Z`.
+Canonical source: `doctrine/speakeasy-setup.md` (gram main `68b3f78`),
+observed `2026-09-30T21:30:00Z`.
 
 Per-guide values:
 
-- Remote URL: `https://api.githubcopilot.com/mcp/`
-- Transport: `streamable-http` (the add form's **Transport** field is
-  read-only)
-- Authentication Option: OAuth with a manually pre-registered client
-- OAuth discovery: GitHub publishes protected-resource metadata, but its
-  advertised authorization-server metadata URL did not resolve this run;
-  use **Use Discovered** only when the Speakeasy AI Control Plane offers it,
-  otherwise use **Configure Manually**
-- **Client ID** and **Client secret**: produced at
-  {#generate-oauth-credentials}
-- Redirect URI registered with GitHub:
-  `{{ gram.oauth.callback_url }}` at {#register-oauth-app}
-- Provider scopes: no fixed upfront list; the server uses OAuth scope
-  challenges to request additional scopes as tools need them
+- Remote URL: `https://api.githubcopilot.com/mcp/` (shared, not tenanted)
+- Add-server path: catalog only (**From the catalog**), resolved by the
+  Speakeasy MCP Catalog record `io.github.github/github-mcp-server`, title
+  `GitHub`. Do not offer the Custom remote path.
+- Authentication Option: `oauth-app`, mapped to **User Identity**.
+  **Client ID** and client secret come from {#generate-oauth-credentials};
+  `{{ gram.oauth.callback_url }}` is registered as **Authorization callback
+  URL** at {#register-oauth-app}.
+- Probe outcome (2026-09-30): 401 with `resource_metadata=
+  "https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/"`.
+- PRM issuer: `https://github.com/login/oauth`; issuer metadata matches it
+  byte for byte, so the provider picker can create the provider from
+  metadata ("Will be created").
+- CIMD / DCR: neither advertised; GitHub's host-integration guide also says
+  DCR is not supported.
+- Registration choice: **Manual** (also the dashboard default here).
+  Creation with **User Identity** cannot register a client, so the server is
+  kept **Disabled** and the result points to **Settings > Identity**; the
+  guide says this is expected and ends with **Server Availability**.
+- Scope string for **Advanced > Scope**: the organization's approved subset
+  of the advertised list, space-separated on one line. The guide shows the
+  full advertised string
+  `repo read:org read:user user:email read:packages write:packages read:project project gist notifications`
+  and tells readers to delete what their organization does not allow. A
+  blank **Scope** requests that full list, including `repo`,
+  `write:packages`, and `gist`.
+- Fallback endpoints if discovery ever fails (custom identity provider
+  route): issuer `https://github.com/login/oauth`, authorization
+  `https://github.com/login/oauth/authorize`, token
+  `https://github.com/login/oauth/access_token`. Not rendered, because
+  discovery works.
 - Further reading:
   `https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md`
 
-Catalog selection is resolved by the Speakeasy MCP Catalog observation:
-`name="io.github.github/github-mcp-server"`, title `GitHub`. Render only the
-catalog path; do not offer the Custom remote path.
-
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**. Choose **3rd-party server**. On the
-**MCP Catalog** page, find GitHub using **Search MCP servers...**, open its
-entry with **View**, and click **Add**. In the **Add to Project** dialog,
-click **Add to Project**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**. Choose **From
+the catalog**. On the **MCP Catalog** page, find GitHub using **Search MCP
+servers...**, open its entry, and click **Add**. In **Add to Project**,
+select **User Identity** under **Identity**, then click **Add to Project**.
+Finish or **Skip for now** any **Guardrails** step. The result says to
+finish setup in **Settings > Identity** and the server stays **Disabled**.
 
-This creates the hosted MCP server and opens its **Overview** page.
-
-Screenshot note: capture GitHub's catalog entry with **View** and **Add**
-visible, excluding unrelated catalog results.
+Screenshot note: GitHub's catalog entry in **Add to Project** with **User
+Identity** selected.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under
-**Authentication**, click **Use Discovered** when offered; otherwise click
-**Configure Manually**. In **Attach Remote Identity Provider**, set
-**Client Type** to **Manual**. Paste the **Client ID** and **Client Secret
-(optional)** saved at {#generate-oauth-credentials}, then click
-**Attach Identity Provider**. Confirm the sheet's **Redirect URI** matches
-the `{{ gram.oauth.callback_url }}` value registered at
-{#register-oauth-app}.
+In the server's **Settings**, open the **Identity** section and select
+**User Identity**. In **Choose an identity provider**, confirm
+`https://github.com/login/oauth` (badged **Will be created** when new), or
+choose it with **Search identity providers…**. Choose **Manual**, paste the
+**Client ID** and client secret from {#generate-oauth-credentials} (GitHub
+requires the secret despite the "Optional" placeholder), enter the scope
+string above under **Advanced > Scope**, and click **Save**. This surface
+shows no redirect URI; {#register-oauth-app} carries the callback check.
+Then open **Danger Zone > Server Availability** and turn on **Enable MCP
+server** so it shows **Enabled**.
 
 If the target organization restricts OAuth apps, have a user authorize the
-connection after **Attach Identity Provider**, then complete the request and
-owner-approval flow:
+connection, then complete the request and owner-approval flow:
 
 - User request path: profile picture > **Settings** > **Applications** in the
   **Integrations** section of the sidebar > the **Authorized OAuth Apps** tab,
@@ -232,9 +253,9 @@ owner-approval flow:
 Flagged recovery inference: if the user's first authorization attempt was
 blocked before approval, retry authorization after the owner grants access.
 
-Screenshot note: capture **Attach Remote Identity Provider** with the
-Redirect URI and credential fields visible and all credential values
-redacted.
+Screenshot note: **Settings > Identity** with **User Identity**, the
+`github.com/login/oauth` provider, and **Manual** selected; credential
+values redacted.
 
 Closing pointer: "This guide covers setup only. For anything beyond it —
 billing, tool behavior, limits — see GitHub's MCP documentation at
@@ -243,18 +264,14 @@ https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md."
 ## Open questions
 
 - The exact Speakeasy control that launches GitHub user authorization after
-  **Attach Identity Provider** in {#connect-speakeasy-credentials}; name that
-  control in the restricted-organization branch once canonical doctrine or
-  Speakeasy docs confirm it.
-- GitHub's protected-resource metadata was live and pointed to
-  `https://github.com/login/oauth`, but the corresponding standard
-  authorization-server metadata request returned 404. Confirm during
-  fidelity review whether the Speakeasy AI Control Plane offers
-  **Use Discovered** for this endpoint or requires **Configure Manually**.
+  **Save** in {#connect-speakeasy-credentials}; name that control in the
+  restricted-organization branch once canonical doctrine or Speakeasy docs
+  confirm it.
 - GitHub documents on-demand OAuth scope challenges for the remote server.
   Public Speakeasy doctrine does not state whether post-connection scope
-  challenges are surfaced to users; validate this behavior before claiming
-  that every scope-gated tool can be authorized on demand.
+  challenges are surfaced to users, so a scope removed from **Advanced >
+  Scope** may not be requestable later. Validate this behavior before
+  claiming that every scope-gated tool can be authorized on demand.
 
 ## Provenance
 
@@ -349,16 +366,18 @@ Sources drawn from:
   at `2026-08-06T23:22:50Z`. Returned HTTP 401 with a Bearer challenge naming
   the protected-resource metadata URL.
 - `https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/`
-  — observed `2026-08-06T23:22:50Z`. Backs the exact MCP resource,
+  — observed `2026-08-06T23:22:50Z`, re-observed `2026-09-30T21:30:00Z`. Backs the exact MCP resource,
   authorization-server locator, supported scopes, header bearer method, and
   resource name.
-- `https://github.com/login/oauth/.well-known/oauth-authorization-server` —
-  observed `2026-08-06T23:22:50Z`. Returned HTTP 404; backs the discovery
-  caveat and open question.
+- `https://github.com/.well-known/oauth-authorization-server/login/oauth` —
+  observed `2026-09-30T21:30:00Z`. Returned 200 with issuer
+  `https://github.com/login/oauth`, authorization and token endpoints, no
+  `registration_endpoint`, and no CIMD support. The suffix-form URL probed
+  on 2026-08-06 still returns 404.
 - Speakeasy MCP Catalog record
   `io.github.github/github-mcp-server` (title `GitHub`; source: `pulsemcp`) —
   observed `2026-08-06T23:22:50Z`. Backs catalog presence and the catalog-only
   add-server path.
-- `doctrine/speakeasy-setup.md` — observed `2026-08-06T23:22:50Z`. Backs the
-  transcluded Speakeasy-side flow, fixed anchors, exact product labels,
+- `doctrine/speakeasy-setup.md` — observed `2026-09-30T21:30:00Z` (gram main
+  `68b3f78`). Backs the transcluded Speakeasy-side flow, fixed anchors, exact product labels,
   callback-template behavior, and closing-pointer form.

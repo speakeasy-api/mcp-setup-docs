@@ -47,7 +47,7 @@ researched_at: 2026-08-29T15:13:24Z
 - The coordinator's credential-free Pulse snapshot was `ready` at
   `2026-08-29T15:13:24Z` and contained no Google Calendar catalog entry. With
   the non-tenanted remote and `speakeasy_add_server: auto`, the snapshot
-  resolves the current guide to the **Custom remote server** path. This is
+  resolves the current guide to the **Hosted remotely** (custom remote) path. This is
   snapshot evidence, not a permanent claim that the catalog cannot gain an
   entry and not a reason to force `speakeasy_add_server: custom-remote`.
 
@@ -234,54 +234,77 @@ Cloud project's organization.
 
 ## Speakeasy setup
 
-Transcluded from `doctrine/speakeasy-setup.md`, observed at
-`2026-08-29T15:13:24Z`. Fixed anchors are carried verbatim.
+Transcluded from `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`),
+observed at `2026-09-30T21:25:46Z`. Fixed anchors are carried verbatim.
+
+Per-guide values:
+
+- Remote URL `https://calendarmcp.googleapis.com/mcp/v1`; `streamable-http`;
+  shared, not tenanted; `speakeasy_add_server: auto`.
+- Add-server path: **Hosted remotely** only. The coordinator's ready Pulse
+  snapshot at `2026-08-29T15:13:24Z` had no Google Calendar entry (absent).
+- Authentication Option `oauth-client` (OAuth) → **User Identity**.
+- Probe outcome (`2026-09-30T21:25:46Z`): an unauthenticated JSON-RPC
+  `initialize` POST with `Accept: application/json, text/event-stream`
+  returns **200** with no challenge, so the create form preselects **No
+  Identity**; the reader must select **User Identity**.
+- PRM `https://calendarmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1`
+  names issuer `https://accounts.google.com/` and advertises 12 scopes,
+  including full `https://www.googleapis.com/auth/calendar`,
+  `calendar.events`, `calendar.acls`, and `calendar.calendars`, well beyond
+  the three the setup procedure configures.
+- Issuer metadata (`https://accounts.google.com/.well-known/oauth-authorization-server`
+  and `/.well-known/openid-configuration`): no `registration_endpoint`, no
+  `client_id_metadata_document_supported`. Authorization endpoint
+  `https://accounts.google.com/o/oauth2/v2/auth`, token endpoint
+  `https://oauth2.googleapis.com/token`.
+- Creation result: automatic configuration cannot register a client, so the
+  server is kept **Disabled** and the result points to **Settings >
+  Identity**. Expected.
+- Provider picker: PRM is served, so the picker preselects the Google issuer
+  (badged **Will be created** when absent). No custom identity provider route.
+- Registration choice: **Manual**.
+- **Client ID** and **Client secret** from {#copy-oauth-credentials}; the
+  secret is required despite the "Optional" placeholder.
+- **Advanced > Scope**, space-separated on one line:
+  `https://www.googleapis.com/auth/calendar.calendarlist.readonly https://www.googleapis.com/auth/calendar.events.freebusy https://www.googleapis.com/auth/calendar.events.readonly`.
+  Blank is not safe: it requests all 12 PRM scopes.
+- Registered callback `{{ gram.oauth.callback_url }}` in {#create-oauth-client};
+  the Identity section does not display a redirect URI.
+- Server Availability: required after the Identity save.
+- Further reading:
+  `https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server`.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
-
-Choose **Custom remote server**. On the **Add a custom remote MCP server**
-page, paste the following value into **Remote MCP server URL**, then click
-**Add server**:
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**. Choose **Hosted
+remotely**. On **New remote MCP server**, paste the following value into
+**MCP server URL**, leave **User session issuer** at its default, and click
+**Verify connectivity**:
 
 ```text
 https://calendarmcp.googleapis.com/mcp/v1
 ```
 
-This creates the hosted MCP server and opens its Overview page.
+Under **Identity**, change the preselected **No Identity** to **User
+Identity**, leave **Guardrails** off, and click **Save**. The server is kept
+**Disabled** and the result says to finish setup in **Settings > Identity**;
+this is expected.
 
-<!-- screenshot: the Add Source menu open on the Sources page -->
-
-Per-guide values: remote URL
-`https://calendarmcp.googleapis.com/mcp/v1`; transport `streamable-http`;
-Authentication Option `oauth-client`; `speakeasy_add_server: auto`. The
-Custom remote path is resolved by the coordinator's ready Pulse snapshot with
-no Google Calendar entry, not by a tenanted remote or forced override.
+<!-- screenshot: New remote MCP server after Verify connectivity, with User Identity selected -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Authentication**,
-click **Configure Manually** (or **Use Discovered** when offered). Google
-publishes protected-resource and authorization-server metadata, but does not
-support dynamic client registration, so in **Attach Remote Identity Provider**
-set **Client Type** to **Manual**. The sheet shows **Redirect URI** with a copy
-button.
-
-Confirm **Redirect URI** matches the `{{ gram.oauth.callback_url }}` value
-entered in {#create-oauth-client}. Paste **Client ID** and **Client Secret
-(optional)** from {#copy-oauth-credentials}; despite the optional label in the
-Control Plane, this manual Google web client uses the generated secret.
-
-**Scope (override)** must contain these three provider-documented scopes.
-Speakeasy's public setup material does not document how the field separates
-multiple values, so follow the current field guidance rather than assuming a
-delimiter, then click **Attach Identity Provider**:
-
-- `https://www.googleapis.com/auth/calendar.calendarlist.readonly`
-- `https://www.googleapis.com/auth/calendar.events.freebusy`
-- `https://www.googleapis.com/auth/calendar.events.readonly`
+Open the server's **Settings** > **Identity** and select **User Identity**.
+In **Choose an identity provider**, confirm the preselected Google issuer
+`https://accounts.google.com/` (or choose it via **Search identity
+providers…**). Choose **Manual** (switch from **Existing client** if
+preselected). Paste **Client ID** and **Client secret** from
+{#copy-oauth-credentials}. Under **Advanced > Scope**, enter the scope string
+above on one line; do not leave it blank. Click **Save** (**Save changes** if
+asked to confirm). Open **Settings > Danger Zone > Server Availability** and
+turn on **Enable MCP server** so it shows **Enabled**.
 
 At first connection, authorize with an intended Google account that has
 `mcp.tools.call` on the project, access to the required calendars, applicable
@@ -290,7 +313,7 @@ normal predefined grant for `mcp.tools.call` is **MCP Tool User**. Google does n
 the exact Calendar authorization-prompt button labels, so the Writer must name
 the purpose and use the labels shown rather than inventing chrome.
 
-<!-- screenshot: the Attach Remote Identity Provider sheet with Client Type Manual and Redirect URI visible; values redacted -->
+<!-- screenshot: Settings > Identity with User Identity, the Google provider, and Manual selected; values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Google's MCP documentation](https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server).
 
@@ -310,15 +333,11 @@ This guide covers setup only. For anything beyond it — billing, tool behavior,
   three scopes in the product-specific setup procedure and do not promise write
   behavior.
 - Protected-resource metadata advertises a broader set of Calendar scopes than
-  the product-specific setup page. Use the product-specific three-scope set for
-  setup; do not guess that **Use Discovered** will narrow it.
+  the product-specific setup page. Use the product-specific three-scope set in
+  **Advanced > Scope**; a blank value requests the full PRM set.
 - Google does not publish the exact labels of the end-user Calendar OAuth
   authorization prompt. Use a resilient instruction to authorize the requested
   access with the intended account.
-- Speakeasy's public setup material names **Scope (override)** but does not
-  document the accepted syntax for multiple scope values. Present the required
-  values separately and direct the reader to use the current multi-value
-  control rather than inventing a delimiter.
 - The Pulse result proves only that the ready credential-free snapshot at
   `2026-08-29T15:13:24Z` had no Google Calendar entry. It does not establish
   permanent catalog absence; `auto` preserves future catalog resolution.
@@ -357,7 +376,10 @@ organizational knowledge.
 
 ### Sources
 
-All public sources below were observed at `2026-08-29T15:13:24Z`.
+All public sources below were observed at `2026-08-29T15:13:24Z`. The Calendar
+setup page (scopes, endpoint; last updated 2026-09-18 UTC), the Developer
+Preview page, the PRM, and the Google authorization-server metadata were
+re-verified at `2026-09-30T21:25:46Z`.
 
 - `https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server`
   — hosted endpoint; HTTP transport label; required services and scopes; exact
@@ -399,8 +421,11 @@ All public sources below were observed at `2026-08-29T15:13:24Z`.
   authorization and token endpoint metadata and supported client-secret token
   authentication methods.
 - `https://support.google.com/llms.txt` — broad Google Help source inventory.
-- `doctrine/speakeasy-setup.md` — observed 2026-08-29T15:13:24Z; fixed
-  Speakeasy anchors, Custom remote and manual-OAuth labels, transitions, and
-  closing-pointer contract.
+- `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`) — observed
+  2026-09-30T21:25:46Z; fixed Speakeasy anchors, **Hosted remotely**, Identity
+  section, **Manual** client, **Advanced > Scope**, and **Server
+  Availability** labels, transitions, and closing-pointer contract.
+- `https://calendarmcp.googleapis.com/mcp/v1` — probed 2026-09-30T21:25:46Z;
+  unauthenticated `initialize` returns 200.
 - Coordinator operator note — observed 2026-08-29T15:13:24Z; credential-free
   Pulse snapshot status `ready` with no Google Calendar catalog entry.

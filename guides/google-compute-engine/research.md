@@ -442,8 +442,9 @@ all steps below happen inside this one project.
   - "In the **Name** field, enter a name for your application."
   - "In the **Authorized redirect URIs** section, click **+ Add URI**,
     and then enter" the callback URL — paste
-    `{{ gram.oauth.callback_url }}` (copied from the Speakeasy
-    **Attach Remote Identity Provider** sheet, see Speakeasy setup).
+    `{{ gram.oauth.callback_url }}` directly. The Speakeasy
+    **Identity** section does not display the redirect URI, so this step
+    carries the callback check.
   - The page also documents an "**Authorized JavaScript origins**"
     section for "Applications that use client-side JavaScript to
     access Google's APIs" — not this flow; leave it empty (flagged
@@ -481,52 +482,63 @@ all steps below happen inside this one project.
 
 ## Speakeasy setup
 
-Transcluded from `doctrine/speakeasy-setup.md` (canonical Speakeasy-side
-flow; anchors `{#add-server-in-speakeasy}` and
-`{#connect-speakeasy-credentials}` are fixed there and carried
-verbatim — never re-minted). Provenance for the transcluded facts:
-`doctrine/speakeasy-setup.md` (product source `speakeasy-api/gram`,
-`client/dashboard`, `main` @ `96f7f73` for add-server and manual OAuth
-labels), observed this run (2026-07-31T19:17:08Z). Per-guide values the
-skeleton renders with:
+Transcluded from `doctrine/speakeasy-setup.md` (product source
+`speakeasy-api/gram`, `client/dashboard`, `main` @ `68b3f78`), observed
+`2026-09-30T21:25:43Z`. Anchors `{#add-server-in-speakeasy}` and
+`{#connect-speakeasy-credentials}` are fixed there and carried verbatim.
 
-- **Add-server path**: catalog only. The Speakeasy MCP Catalog lookup is
-  present, matched registry name `com.googleapis.compute/mcp`, title
-  **Google Compute Engine**. In **Sources**, click **Add Source**, choose
-  **3rd-party server**, search for `Google Compute Engine` on the **MCP
-  Catalog** page using **Search MCP servers...**, open the matched entry
-  with **View**, click **Add**, and then click **Add to Project** in the
-  **Add to Project** dialog. This creates the hosted MCP server and opens
-  its **Overview** page. Do not render the Custom remote server path.
-- **Remote URL**: `https://compute.googleapis.com/mcp` (catalog-backed
-  server fact; the Control Plane proxies remote servers over
-  streamable-http, matching this server's transport).
-- **Authentication Option**: `oauth-client` (OAuth with a
-  pre-registered client; `client_registration: manual`). The provider
-  publishes discoverable OAuth metadata (protected-resource and
-  authorization-server metadata, observed this run — so **Use
-  Discovered** may be offered), but Dynamic Client Registration is
-  unsupported, so a manually created client is required either way;
-  the manual path (**Configure Manually**, **Client Type** →
-  **Manual**) is the documented fit.
-- The **Redirect URI** shown later in the **Attach Remote Identity
-  Provider** sheet is the same callback represented by
-  `{{ gram.oauth.callback_url }}`. In {#create-oauth-client}, the reader
-  pastes that template key directly into **Authorized redirect URIs**;
-  do not send the reader into Speakeasy mid-way through External setup.
-- Credential fields and their producing steps:
-  - **Client ID** ← {#copy-client-credentials}.
-  - **Client Secret (optional)** ← {#copy-client-credentials} — for
-    Google web-application clients the secret is required at token
-    exchange (the authorization server supports `client_secret_post` /
-    `client_secret_basic`; observed AS metadata), so the guide treats
-    the field as required despite its "(optional)" label.
-  - Scopes the provider requires:
-    `https://www.googleapis.com/auth/compute` (see the scope conflict
-    in Server facts and open questions).
-- **Further-reading URL** for the closing pointer:
-  `https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp`
-  (the provider's primary MCP documentation page).
+Per-guide values:
+
+- Remote URL: `https://compute.googleapis.com/mcp` (not tenanted).
+- Add-server path: **From the catalog** only (`speakeasy_add_server:
+  catalog`). Speakeasy MCP Catalog search for `Compute Engine` on
+  `2026-09-30` returned **Google Compute Engine**
+  (`com.googleapis.compute/mcp`). Search term: `Google Compute Engine`.
+- Authentication Option: `oauth-client` → **User Identity**.
+- Probe outcome: `initialize` POST (with
+  `Accept: application/json, text/event-stream`) returned **200
+  unauthenticated**, protocol `2025-06-18`. The catalog entry has no OAuth
+  client registration, so **Add to Project** preselects **No Identity**; the
+  reader selects **User Identity**.
+- PRM: `https://compute.googleapis.com/.well-known/oauth-protected-resource/mcp`
+  names issuer `https://accounts.google.com/` and advertises only
+  `https://www.googleapis.com/auth/compute`.
+- Issuer metadata: `https://accounts.google.com` publishes authorization
+  endpoint `https://accounts.google.com/o/oauth2/v2/auth` and token endpoint
+  `https://oauth2.googleapis.com/token`; no `registration_endpoint` and no
+  `client_id_metadata_document_supported`. Discovery works; no custom
+  provider route is needed.
+- Registration choice: **Manual**. Creation with **User Identity** leaves the
+  server **Disabled** with a note to finish in **Settings > Identity**; this
+  is expected, and **Server Availability** must be turned on afterwards.
+- Credential fields: **Client ID** and **Client secret** from
+  {#copy-client-credentials}; Google requires the secret despite the
+  "Optional" placeholder (the issuer advertises only `client_secret_post`
+  and `client_secret_basic`).
+- Scope under **Advanced > Scope**: `https://www.googleapis.com/auth/compute`
+  (endpoint-advertised; see the open question on the documented
+  `.read-only`/`.read-write` strings, still present on the provider page on
+  `2026-09-30`). Do not leave it blank: the audit of this guide observed a
+  blank scope yielding a token without `compute`.
+- First connection: an account with the roles from {#grant-iam-roles}; an
+  External app in **Testing** also needs the account under **Test users**
+  ({#consent-screen}).
+- Screenshot notes: the **Add to Project** dialog with **User Identity**
+  selected; **Settings > Identity** with the Google provider and **Manual**,
+  credentials redacted.
+- Further-reading URL:
+  `https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp`.
+
+### Add the server in Speakeasy {#add-server-in-speakeasy}
+
+Catalog path with **User Identity** selected in **Add to Project**, per the
+values above.
+
+### Connect your credentials {#connect-speakeasy-credentials}
+
+**Settings > Identity** > **User Identity** > Google provider > **Manual**
+with the values above, **Save**, then **Settings > Danger Zone > Server
+Availability** > **Enable MCP server**.
 
 ## Open questions
 
@@ -764,5 +776,13 @@ provenance uses this run's workflow timestamp, `2026-07-31T19:17:08Z`:
   drawn from them.
 - `doctrine/speakeasy-setup.md` (repo-canonical Speakeasy-side flow;
   product source `speakeasy-api/gram` `client/dashboard` `main` @
-  `96f7f73`) — backs every Speakeasy-side label transcluded above;
-  observed this run.
+  `68b3f78`) — backs every Speakeasy-side label transcluded above;
+  observed `2026-09-30T21:25:43Z`.
+- Re-observed `2026-09-30T21:25:43Z`: `https://compute.googleapis.com/mcp`
+  (`initialize` 200 unauthenticated, protocol `2025-06-18`), its
+  protected-resource metadata (issuer `https://accounts.google.com/`, scope
+  `https://www.googleapis.com/auth/compute`), Google's authorization-server
+  metadata (no registration endpoint, no CIMD), the Compute Engine MCP page
+  (server URL and the `.read-only`/`.read-write` scope table unchanged), and
+  the Speakeasy MCP Catalog search for `Compute Engine` (entry
+  **Google Compute Engine**, `com.googleapis.compute/mcp`).

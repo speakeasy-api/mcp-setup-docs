@@ -60,7 +60,9 @@ The Speakeasy AI Control Plane can discover OAuth from the remote:
    `https://mcp.zapier.com/api/v1/oauth/register` as its DCR endpoint and
    advertises the `openid`, `profile`, and `email` scopes.
 4. The Speakeasy AI Control Plane registers and retains the resulting OAuth
-   client details. The reader does not paste `{{ gram.oauth.callback_url }}`
+   client details (**Auto-Configure**; the issuer advertises DCR only, no
+   CIMD). An anonymous DCR registration probe on `2026-09-30` returned HTTP
+   201 with a `client_id`. The reader does not paste `{{ gram.oauth.callback_url }}`
    into Zapier and does not handle the generated client ID or secret.
 5. When provider access is first requested, the intended user signs in to
    Zapier and completes Zapier's browser authorization prompts. Their own
@@ -76,7 +78,7 @@ Authentication Option selected for this catalog Guide.
 There is no provider-side console walkthrough before adding the catalog server.
 The selected DCR path creates no credential in `mcp.zapier.com`; provider
 sign-in and authorization happen on demand after the Speakeasy-side identity
-provider is attached. Consequently, there are no provider-step anchors or
+provider is configured. Consequently, there are no provider-step anchors or
 provider screenshots to mint. Screenshot exception: there is no provider
 console state in the pre-connection path.
 
@@ -87,55 +89,68 @@ MCP connection itself.
 
 ## Speakeasy setup
 
+Canonical source: `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`),
+observed `2026-09-30`.
+
 Per-guide values:
 
-- Remote URL: `https://mcp.zapier.com/api/v1/connect`
-- Transport: `streamable-http`
-- Authentication Option: OAuth with DCR (`oauth-dcr`)
+- Remote URL: `https://mcp.zapier.com/api/v1/connect` (shared, not tenanted)
+- `speakeasy_add_server`: `catalog`; catalog lookup present, matched
+  registry `com.pulsemcp.mirror/zapier`, title **Zapier**
+- Authentication Option: OAuth with DCR (`oauth-dcr`). Identity mode:
+  **User Identity**
 - External credential fields: none
-- OAuth discovery: available through protected-resource and authorization
-  server metadata; no Issuer URL needs to be pasted manually
-- Scopes: discovered as `openid`, `profile`, and `email`; no scope override
-  should be entered
-- Catalog lookup: present; matched registry
-  `com.pulsemcp.mirror/zapier`, title **Zapier**
-- Further reading:
-  `https://docs.zapier.com/mcp/get-started/connect`
+- Probe outcome (`2026-09-30`): JSON-RPC `initialize` POST returns 401 with
+  `WWW-Authenticate: Bearer
+  resource_metadata="https://mcp.zapier.com/.well-known/oauth-protected-resource/api/v1/connect"`
+- PRM issuer: `https://mcp.zapier.com`; PRM `scopes_supported`: `openid`,
+  `profile`, `email`
+- CIMD / DCR: no `client_id_metadata_document_supported`; registration
+  endpoint `https://mcp.zapier.com/api/v1/oauth/register`; anonymous DCR
+  returned 201
+- Registration choice: **Auto-Configure** (DCR, the only method offered).
+  The catalog entry supports client registration, so **Add to Project**
+  preselects **User Identity** and creation normally configures the
+  identity; the credential section is a confirmation plus the fallback
+- Scope: none entered; **Auto-Configure** has no **Scope** control
+- Server Availability: rendered as a conditional final step when creation
+  left the server **Disabled**
+- Further reading: `https://docs.zapier.com/mcp/get-started/connect`
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**. Choose **3rd-party server**. On the
-**MCP Catalog** page, find Zapier using **Search MCP servers...**, open its
-entry with **View**, and click **Add**. In the **Add to Project** dialog, click
-**Add to Project**. This creates the hosted MCP server and opens its
-**Overview** page.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**. Choose **From the
+catalog**. On the **MCP Catalog** page, find Zapier using **Search MCP
+servers...**, open its catalog entry, and click **Add**. In **Add to
+Project**, keep **User Identity**, then click **Add to Project** (click
+**Skip for now** if a **Guardrails** step appears). After **Server added
+successfully**, click **Configure MCP settings**.
 
-Screenshot note: capture the **Add Source** menu open on the **Sources** page,
-or the Zapier catalog entry.
+Speakeasy registers a client with Zapier automatically. There is no
+**Client ID** or secret to paste. If that cannot complete, the server is
+kept **Disabled** and the result says to finish setup in **Settings >
+Identity**.
+
+Screenshot note: the Zapier catalog entry with the **Identity** choice.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Authentication**,
-use **Use Discovered** when offered; otherwise click **Configure Manually**.
-In the **Attach Remote Identity Provider** sheet, Zapier's protected-resource
-metadata allows discovery without a pasted issuer. Keep the auto-derived
-**Slug** and **Display name (optional)**. Under **Endpoints**, click
-**Discover** so the authorization, token, and registration endpoints fill
-from Zapier's authorization-server metadata. Under **Session Client**, keep
-**Client Type** set to **Dynamic Client Registration (DCR)** and keep **Token
-Endpoint Auth Method** at its discovered default. Leave **Scope (override)**
-and **Audience (optional)** empty. Click **Attach Identity Provider**.
+Open the server's **Settings** and find the **Identity** section. Creation
+normally already shows **User Identity**, the `https://mcp.zapier.com`
+provider, and **Auto-Configure**; keep only the Server Availability step.
+Otherwise: select **User Identity**, confirm the preselected provider is
+`https://mcp.zapier.com` (a new one is badged **Will be created**), keep
+**Auto-Configure**, and click **Save**. If the server shows **Disabled**,
+open **Settings > Danger Zone > Server Availability** and turn on **Enable
+MCP server** so it shows **Enabled**.
 
-The Speakeasy AI Control Plane registers the OAuth client with Zapier. There is
-no **Client ID** or **Client Secret** for the reader to paste and no provider
-callback field to configure. When provider access is first needed, complete
-Zapier's on-screen browser sign-in and authorization prompts with the account
-whose app connections should be available.
+When provider access is first needed, complete Zapier's on-screen browser
+sign-in and authorization prompts with the account whose app connections
+should be available.
 
-Screenshot note: capture the **Attach Remote Identity Provider** sheet after
-discovery, showing **Dynamic Client Registration (DCR)** and the discovered
-endpoints, with any account-specific values redacted.
+Screenshot note: **Settings > Identity** with **User Identity** selected,
+the Zapier provider, and **Auto-Configure**; values redacted.
 
 The closing pointer is: This guide covers setup only. For anything beyond it —
 billing, tool behavior, limits — see Zapier's MCP documentation at
@@ -144,13 +159,17 @@ https://docs.zapier.com/mcp/get-started/connect.
 ## Open questions
 
 - Zapier's public documentation does not publish the exact labels or content
-  of the browser sign-in and authorization prompts presented after DCR. The
+  of the browser sign-in and authorization prompts presented after
+  registration. The
   Setup Guide should direct the reader to complete Zapier's on-screen prompts
   without inventing labels.
 - Zapier has not reconciled its direct-connect page with its server-creation
   quickstart and support pages. The direct DCR route is selected from live
-  discovery metadata, but it was not completed end to end because doing so
-  requires registering a client and authorizing a Zapier account.
+  discovery metadata. Anonymous registration succeeds (201 on
+  `2026-09-30`), but the browser authorization was not completed end to end
+  because that requires authorizing a Zapier account. As of `2026-09-30`
+  the connect page states "Zapier creates and configures the server during
+  that sign-in", which supports the direct path.
 
 ## Provenance
 
@@ -169,7 +188,8 @@ https://docs.zapier.com/mcp/get-started/connect.
   positioning.
 - Support knowledge base: `https://help.zapier.com/hc/en-us`. Used to compare
   the older server/token setup path and confirm plan availability.
-- Speakeasy setup doctrine: `doctrine/speakeasy-setup.md`. Used for the fixed
+- Speakeasy setup doctrine: `doctrine/speakeasy-setup.md` (gram `main`
+  `68b3f78`). Used for the fixed
   Speakeasy-side flow, labels, and anchors.
 
 ### Source records
@@ -178,8 +198,8 @@ https://docs.zapier.com/mcp/get-started/connect.
   `2026-08-11T18:36:07Z`; documentation-property sweep and current MCP page
   inventory.
 - `https://docs.zapier.com/mcp/get-started/connect` — observed
-  `2026-08-11T18:36:07Z`; shared remote URL, Streamable HTTP, no SSE,
-  direct OAuth connection, and no-server-setup statement.
+  `2026-09-30`; shared remote URL, Streamable HTTP, no SSE,
+  direct OAuth connection, and server created during sign-in.
 - `https://docs.zapier.com/mcp/get-started/authentication` — observed
   `2026-08-11T18:36:07Z`; documented authentication alternatives and the
   older connection-token path.
@@ -190,10 +210,10 @@ https://docs.zapier.com/mcp/get-started/connect.
   `2026-08-11T18:36:07Z`; dynamic discovery, OAuth auto-provisioning,
   ownership limitation for app connections, and manual-mode distinction.
 - `https://docs.zapier.com/mcp/features/usage` — observed
-  `2026-08-11T18:36:07Z`; task billing, non-billable setup/authentication,
+  `2026-09-30`; task billing, non-billable setup/authentication,
   and task-limit behavior.
 - `https://docs.zapier.com/mcp/manage/security` — observed
-  `2026-08-11T18:36:07Z`; default account enablement, workspace controls,
+  `2026-09-30`; default account enablement, workspace controls,
   user permissions, and account-level restrictions.
 - `https://zapier.com/llms.txt` — observed `2026-08-11T18:36:07Z`;
   product-property sweep and pointer to the developer documentation index.
@@ -203,16 +223,18 @@ https://docs.zapier.com/mcp/get-started/connect.
   — observed `2026-08-11T18:36:07Z`; support-site requirements, all-plan
   availability, and the older unlisted-client token flow.
 - `https://mcp.zapier.com/api/v1/connect` — observed
-  `2026-08-11T18:36:07Z`; live `401` response and RFC 9728
+  `2026-09-30`; live `401` response and RFC 9728
   `WWW-Authenticate` challenge.
 - `https://mcp.zapier.com/.well-known/oauth-protected-resource/api/v1/connect`
-  — observed `2026-08-11T18:36:07Z`; resource identifier, authorization
+  — observed `2026-09-30`; resource identifier, authorization
   server, and supported scopes.
 - `https://mcp.zapier.com/.well-known/oauth-authorization-server` — observed
-  `2026-08-11T18:36:07Z`; issuer, OAuth endpoints, DCR endpoint, grants,
-  token authentication methods, PKCE methods, and scopes.
+  `2026-09-30`; issuer, OAuth endpoints, DCR endpoint (anonymous
+  registration returned 201), no CIMD, grants, token authentication methods,
+  PKCE methods, and scopes.
 - Pulse MCP Catalog record `com.pulsemcp.mirror/zapier`, title `Zapier` —
   observed `2026-08-11T18:36:07Z`; catalog presence and catalog add-server
   path. Source: `pulsemcp`.
-- `doctrine/speakeasy-setup.md` — observed `2026-08-11T18:36:07Z`; fixed
-  Speakeasy-side flow, labels, screenshot notes, and anchors.
+- `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`) — observed
+  `2026-09-30`; fixed Speakeasy-side flow, **Identity** labels,
+  **Auto-Configure**, Server Availability, screenshot notes, and anchors.

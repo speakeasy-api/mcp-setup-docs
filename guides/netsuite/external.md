@@ -58,7 +58,7 @@ Sign in to the NetSuite application as an Administrator or delegated administrat
    ```
 
    For a sandbox or Release Preview account, replace underscores with hyphens and uppercase letters with lowercase letters. For example, `123456_SB1` becomes `123456-sb1`.
-4. Keep the completed endpoint for **Remote MCP server URL** in the Speakeasy AI Control Plane.
+4. Keep the completed endpoint for **MCP server URL** in the Speakeasy AI Control Plane.
 
 <!-- screenshot: Company Information > Company URLs with the account-specific SuiteTalk domain visible; redact unrelated URLs and account data. The final MCP path is assembled from Oracle's documented fixed suffix rather than copied from a named MCP row. -->
 
