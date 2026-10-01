@@ -4,7 +4,7 @@ setup_version: 1
 
 # Connect Salesforce to the Speakeasy AI Control Plane
 
-Use Salesforce System Administrator credentials for an API-enabled production org where Hosted MCP Servers are available. Salesforce documents availability for Enterprise Edition and above. You need authority to install the Speakeasy application or create an **External Client App**, and enable Hosted MCP Servers.
+Use Salesforce System Administrator credentials for an API-enabled production or sandbox org where Hosted MCP Servers are available. Salesforce documents availability for Enterprise Edition and above. You need authority to install the Speakeasy application or create an **External Client App**, and enable Hosted MCP Servers.
 
 Sign in to the Salesforce org you want to connect. Install or create the app in that same org. This guide does not cover scratch orgs. For a lower-edition org, confirm Hosted MCP availability in [Salesforce Setup](#open-salesforce-setup) before starting either path.
 
@@ -41,7 +41,7 @@ After installation, **contact Speakeasy support to finish OAuth setup**. Install
 
 <!-- screenshot-exception: this is a support handoff, not a documented console UI -->
 
-## Create your own Salesforce app
+## Create your own Salesforce app {#create-your-own-salesforce-app}
 
 Before creating the app, choose a server in the [endpoint reference](#endpoint-reference) and confirm its prerequisites. Then create an **External Client App** in the org you want to connect and enable that server.
 
@@ -85,7 +85,7 @@ This path uses the app's **Consumer Key** without a client secret. Salesforce do
 
 Select **Create**.
 
-The app can take up to 30 minutes to become operational. If attachment fails immediately, allow that window before retrying.
+The app can take up to 30 minutes to become operational. If sign-in fails immediately, allow that window before retrying.
 
 <!-- screenshot-exception: Create is a standard action with no distinct configuration state to capture -->
 
@@ -116,64 +116,120 @@ Choose the least-privileged server that meets your team's needs using the endpoi
 
 If you created your own app, continue to [Speakeasy setup](speakeasy.md#add-server-in-speakeasy) with your selected URL and **Consumer Key**. If you installed Speakeasy's app, continue with Speakeasy support.
 
-## Endpoint reference
+## Endpoint reference {#endpoint-reference}
 
-The following endpoints are for production orgs. Copy the URL for your selected server.
+Copy the production or sandbox URL for your selected server. It must match the org where you created the app and enabled the server.
 
 **SObject Reads (sobject-reads)**
 
 Discovery, query, search, and relationship traversal; no record changes.
 
+Production:
+
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-reads
 ```
 
 **SObject Mutations (sobject-mutations)**
 
 Read, create, and update records; no deletes.
 
+Production:
+
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/sobject-mutations
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-mutations
 ```
 
 **SObject Deletes (sobject-deletes)**
 
 Identify and delete records; no creates or updates.
 
+Production:
+
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/sobject-deletes
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-deletes
 ```
 
 **SObject All (sobject-all)**
 
 Create, read, update, delete, query, and search records.
 
+Production:
+
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/sobject-all
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all
 ```
 
 **Data 360 (data360)**
 
 Query data and change customer-data configuration. Requires a Data 360 license, API v66.0+, and **Manage Data 360** for configuration or **View Data 360** for read-only operations.
 
+Production:
+
 ```
 https://api.salesforce.com/platform/mcp/v1/data/data360
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/data/sandbox/data360
 ```
 
 **Headless 360 (Beta) (platform/headless-360)**
 
 Broad Setup and platform operations, not read-only record access. Available starting July 2026 under Beta Services Terms. Requires API v67.0+, an External Client App with `mcp_api`, and an OAuth client.
 
+Production:
+
 ```
 https://api.salesforce.com/platform/mcp/v1/platform/headless-360
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/platform/headless-360
 ```
 
 **Tableau Next (analytics/tableau-next)**
 
 Semantic-model and analytics access. Confirm the org has the required Tableau Next capabilities.
 
+Production:
+
 ```
 https://api.salesforce.com/platform/mcp/v1/analytics/tableau-next
+```
+
+Sandbox:
+
+```
+https://api.salesforce.com/platform/mcp/v1/sandbox/analytics/tableau-next
 ```
 
 Calls remain subject to the signed-in user's field-level security, object permissions, and sharing rules. If the connection fails with valid credentials, confirm that the selected server is enabled, the URL matches the selected server, and the org has API access.

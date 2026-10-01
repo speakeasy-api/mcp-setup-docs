@@ -38,22 +38,26 @@ remotes:
       - source: provider-documentation
         locator: https://docs.slack.dev/ai/slack-mcp-server/
         classification: official
-        observed_at: "2026-09-17T00:05:11Z"
+        observed_at: "2026-09-30T00:00:00Z"
 provenance:
   - source: provider-documentation
     locator: https://docs.slack.dev/ai/slack-mcp-server/
     name: Slack MCP server overview
     classification: official
-    observed_at: "2026-09-17T00:05:11Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
     locator: https://docs.slack.dev/ai/slack-mcp-server/developing/
     name: Developing a sample app with the Slack MCP Server
     classification: official
-    observed_at: "2026-09-17T00:05:11Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: endpoint-observation
     locator: https://mcp.slack.com/.well-known/oauth-authorization-server
     classification: official
-    observed_at: "2026-09-17T00:05:11Z"
+    observed_at: "2026-09-30T00:00:00Z"
+  - source: endpoint-observation
+    locator: https://mcp.slack.com/.well-known/oauth-protected-resource
+    classification: official
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
     locator: https://docs.slack.dev/reference/app-manifest/
     classification: official

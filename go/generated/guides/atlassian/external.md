@@ -17,14 +17,14 @@ You need no Atlassian-side configuration unless your organization restricts OAut
 5. Check whether the allowed domains cover this hosted OAuth callback:
 
    ```
-   https://app.getgram.ai/mcp/remote_login_callback
+   {{ gram.oauth.callback_url }}
    ```
 
 6. If it is not covered, select **Add domain**.
 7. Enter this exact custom domain pattern:
 
    ```
-   https://app.getgram.ai/mcp/remote_login_callback
+   {{ gram.oauth.callback_url }}
    ```
 
 8. Use the submission control shown in the console.

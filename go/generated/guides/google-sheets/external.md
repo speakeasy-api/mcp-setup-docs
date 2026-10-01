@@ -4,9 +4,23 @@ setup_version: 1
 
 # Set up Google Sheets
 
-Use a Google Cloud project where you can enable services, grant project IAM roles, configure the **Google Auth platform**, and create OAuth credentials. You normally need **Service Usage Admin** or **Owner** to enable the APIs and **Project IAM Admin** to grant access. Each person who will connect needs access to the intended spreadsheets. Before setup, have the application or security owner configure prompt and response screening for malicious content or prompt injection.
+The Sheets MCP server is available only through the Google Workspace Developer Preview Program, so the Google Cloud project must be registered in it. Use a Google Cloud project where you can enable services, grant project IAM roles, configure the **Google Auth platform**, and create OAuth credentials. You normally need **Service Usage Admin** or **Owner** to enable the APIs and **Project IAM Admin** to grant access. Each person who will connect needs access to the intended spreadsheets. Before setup, have the application or security owner configure prompt and response screening for malicious content or prompt injection.
 
-Sign in to the [Google Cloud console](https://console.cloud.google.com). In the console toolbar, use the resource selector to choose the project that will own this configuration. Keep the same project selected throughout setup.
+Sign in to the [Google Cloud console](https://console.cloud.google.com). In the console toolbar, use the resource selector to choose the project registered in the Developer Preview Program. Keep the same project selected throughout setup.
+
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+1. Open [developers.google.com/workspace/preview](https://developers.google.com/workspace/preview).
+2. Review the **Developer Preview Program Terms** with the application or security owner.
+3. Click **Apply to join the Developer Preview Program**.
+4. In the application form, enter the requested Google Workspace account and Google Cloud project information.
+5. Agree to the terms only with organizational approval.
+6. Submit the form with the visible or equivalent submission control.
+7. Wait for Google's project-registration confirmation at the submitted email address. Google says this should complete within a couple of days.
+
+Use the registered project for every Google Cloud step that follows.
+
+<!-- screenshot: the program page with Sheets MCP server listed under Latest features -->
 
 ### Enable the Google Sheets APIs {#enable-google-sheets-apis}
 
@@ -106,6 +120,6 @@ This opens **OAuth 2.0 client created**.
 
 If you miss the one-time **Client secret**, delete it and create a new one before continuing.
 
-Keep both values available, then [connect your credentials in the Speakeasy AI Control Plane](speakeasy.md#connect-speakeasy-credentials).
+Keep both values available, then [add the server in the Speakeasy AI Control Plane](speakeasy.md#add-server-in-speakeasy).
 
 <!-- screenshot-exception: do not capture a dialog containing a one-time secret -->

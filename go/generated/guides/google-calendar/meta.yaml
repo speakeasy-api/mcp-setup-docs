@@ -46,23 +46,23 @@ remotes:
         locator: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server
         name: Configure the Calendar MCP server
         classification: official
-        observed_at: "2026-08-29T15:13:24Z"
+        observed_at: "2026-09-30T21:25:46Z"
       - source: provider-metadata
         locator: https://calendarmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
         name: Google Calendar MCP protected-resource metadata
         classification: official
-        observed_at: "2026-08-29T15:13:24Z"
+        observed_at: "2026-09-30T21:25:46Z"
 provenance:
   - source: provider-documentation
     locator: https://developers.google.com/workspace/calendar/api/guides/configure-mcp-server
     name: Configure the Calendar MCP server
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-30T21:25:46Z"
   - source: provider-documentation
     locator: https://developers.google.com/workspace/preview
     name: Google Workspace Developer Preview Program
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-30T21:25:46Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/mcp/authenticate-mcp
     name: Authenticate to Google and Google Cloud MCP servers
@@ -107,16 +107,16 @@ provenance:
     locator: https://calendarmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
     name: Google Calendar MCP protected-resource metadata
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-30T21:25:46Z"
   - source: provider-metadata
     locator: https://accounts.google.com/.well-known/oauth-authorization-server
     name: Google OAuth authorization-server metadata
     classification: official
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-30T21:25:46Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical file
-    observed_at: "2026-08-29T15:13:24Z"
+    observed_at: "2026-09-30T21:25:46Z"
   - source: pulsemcp
     locator: credential-free Pulse snapshot for Google Calendar
     name: Google Calendar catalog lookup
