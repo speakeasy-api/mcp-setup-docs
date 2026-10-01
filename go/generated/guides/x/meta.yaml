@@ -35,18 +35,18 @@ remotes:
         locator: https://docs.x.com/tools/mcp.md
         name: MCP servers for the X API and X developer docs
         classification: official
-        observed_at: "2026-08-06T23:21:18Z"
+        observed_at: "2026-09-30T00:00:00Z"
 provenance:
   - source: provider-documentation
     locator: https://docs.x.com/tools/mcp.md
     name: MCP servers for the X API and X developer docs
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
     locator: https://docs.x.com/llms.txt
     name: X Developer Platform documentation index
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
     locator: https://docs.x.com/x-api/getting-started/getting-access.md
     name: Getting Access
@@ -91,9 +91,9 @@ provenance:
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: pulsemcp
     locator: com.pulsemcp.mirror/xdevplatform-xmcp
     name: X
     classification: mirror
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-09-30T00:00:00Z"

@@ -79,7 +79,7 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		SetupRequired:      true,
 		Aliases:            []string{},
 		Remotes: []generatedRemote{
-			{ID: "rovo", URL: "https://mcp.atlassian.com/v1/mcp/authv2", Transport: "streamable-http", Tenanted: false},
+			{ID: "rovo", URL: "https://mcp.atlassian.com/v2/mcp", Transport: "streamable-http", Tenanted: false},
 		},
 		CredentialOptions: []generatedCredentialOption{
 			{ID: "oauth-dcr", Kind: "oauth", ClientRegistration: "dynamic", UpstreamSetup: "provider-steps", SpeakeasySetup: "dcr"},
@@ -131,7 +131,7 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		Slug:               "google-big-query",
 		Title:              "Google BigQuery",
 		Summary:            "Query and manage BigQuery data through Google's hosted BigQuery MCP server.",
-		SpeakeasyAddServer: "",
+		SpeakeasyAddServer: "catalog",
 		SetupRequired:      true,
 		Aliases:            []string{"com.pulsemcp.mirror/google-bigquery"},
 		Remotes: []generatedRemote{
@@ -242,7 +242,7 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 	"hubspot": {
 		Slug:               "hubspot",
 		Title:              "HubSpot",
-		Summary:            "Connect HubSpot's hosted MCP server using an MCP auth app and OAuth.",
+		Summary:            "Connect HubSpot's hosted MCP server using an MCP connector and OAuth.",
 		SpeakeasyAddServer: "catalog",
 		SetupRequired:      true,
 		Aliases:            []string{"com.pulsemcp.mirror/hubspot"},
@@ -470,7 +470,7 @@ var generatedURLToRefs = map[string][]ServerRef{
 	"https://mcp.asana.com/v2/mcp": {
 		{Guide: "asana", Remote: "hosted"},
 	},
-	"https://mcp.atlassian.com/v1/mcp/authv2": {
+	"https://mcp.atlassian.com/v2/mcp": {
 		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"https://mcp.box.com": {
@@ -552,10 +552,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Atlassian Rovo MCP server": {
 		{Guide: "atlassian", Remote: "rovo"},
 	},
-	"Atlassian authorization-server metadata with DCR registration endpoint": {
+	"Atlassian base authorization-server metadata": {
 		{Guide: "atlassian", Remote: "rovo"},
 	},
-	"Atlassian base authorization-server metadata": {
+	"Atlassian path-issuer authorization-server metadata (https://auth.atlassian.com/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3)": {
 		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"Authenticate to Google and Google Cloud MCP servers": {
@@ -574,6 +574,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Authentication and authorization": {
 		{Guide: "atlassian", Remote: "rovo"},
 	},
+	"Authorize user": {
+		{Guide: "box", Remote: "hosted"},
+	},
 	"Authorizing OAuth apps": {
 		{Guide: "github", Remote: "hosted"},
 	},
@@ -589,7 +592,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"BigQuery MCP endpoint": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
-	"BigQuery MCP endpoint (tools/list 200 unauthenticated; tools/call 401)": {
+	"BigQuery MCP endpoint (initialize and tools/list 200 unauthenticated; tools/call 401)": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
 	"BigQuery MCP protected-resource metadata": {
@@ -605,6 +608,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "box", Remote: "hosted"},
 	},
 	"Box Model Context Protocol Server": {
+		{Guide: "box", Remote: "hosted"},
+	},
+	"Box authorization server metadata": {
 		{Guide: "box", Remote: "hosted"},
 	},
 	"Box docs index": {
@@ -637,7 +643,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Compute Engine IAM roles and permissions": {
 		{Guide: "google-compute-engine", Remote: "hosted"},
 	},
-	"Compute Engine MCP endpoint (tools/list 200 unauthenticated, tools/call 401)": {
+	"Compute Engine MCP endpoint (initialize and tools/list 200 unauthenticated, tools/call 401)": {
 		{Guide: "google-compute-engine", Remote: "hosted"},
 	},
 	"Compute Engine MCP protected-resource metadata": {
@@ -661,6 +667,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
+	},
+	"Configure NetSuite as OIDC Provider": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
+	"Configure OAuth 2.1": {
+		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"Configure Postman": {
 		{Guide: "salesforce", Remote: "data360-production"},
@@ -686,6 +698,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Configure an email channel for OAuth with Gmail": {
 		{Guide: "google-big-query", Remote: "hosted"},
+	},
+	"Configure authentication via API token": {
+		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"Configure security for Google Workspace MCP servers": {
 		{Guide: "google-docs", Remote: "hosted"},
@@ -727,12 +742,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Configuring Box AI": {
 		{Guide: "box", Remote: "hosted"},
-	},
-	"Configuring OAuth 2.1": {
-		{Guide: "atlassian", Remote: "rovo"},
-	},
-	"Configuring authentication via API token": {
-		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"Configuring the GitHub MCP Server for GitHub Enterprise": {
 		{Guide: "github", Remote: "hosted"},
@@ -882,6 +891,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Get Started with the NetSuite AI Connector Service": {
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
+	"Get started with the Atlassian MCP server": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Get started with the Google Auth Platform": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
@@ -890,9 +902,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Getting Started with Managed Snowflake MCP Server": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
-	},
-	"Getting started with the Atlassian Rovo MCP Server": {
-		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"GitHub MCP Server": {
 		{Guide: "github", Remote: "hosted"},
@@ -905,6 +914,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Giving an Employee Access to NetSuite": {
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
+	"Gmail MCP protected-resource metadata": {
+		{Guide: "gmail", Remote: "gmail"},
 	},
 	"Google Calendar MCP protected-resource metadata": {
 		{Guide: "google-calendar", Remote: "hosted"},
@@ -942,6 +954,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-drive", Remote: "hosted"},
 	},
 	"Google OAuth authorization-server metadata": {
+		{Guide: "gmail", Remote: "gmail"},
 		{Guide: "google-calendar", Remote: "hosted"},
 	},
 	"Google People API MCP protected-resource metadata": {
@@ -961,6 +974,11 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Google Workspace Developer Preview Program": {
 		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
+		{Guide: "google-drive", Remote: "hosted"},
+		{Guide: "google-people", Remote: "hosted"},
+		{Guide: "google-sheets", Remote: "hosted"},
+		{Guide: "google-slides", Remote: "hosted"},
 	},
 	"Google Workspace developer release notes": {
 		{Guide: "google-sheets", Remote: "hosted"},
@@ -981,6 +999,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Grant an IAM role by using the Google Cloud console": {
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
 		{Guide: "google-people", Remote: "hosted"},
 		{Guide: "google-sheets", Remote: "hosted"},
@@ -1324,6 +1343,54 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
 	},
+	"Salesforce anonymous dynamic client registration (401 invalid_client)": {
+		{Guide: "salesforce", Remote: "data360-production"},
+		{Guide: "salesforce", Remote: "data360-sandbox"},
+		{Guide: "salesforce", Remote: "headless-360-production"},
+		{Guide: "salesforce", Remote: "headless-360-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-all-production"},
+		{Guide: "salesforce", Remote: "sobject-all-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-deletes-production"},
+		{Guide: "salesforce", Remote: "sobject-deletes-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-mutations-production"},
+		{Guide: "salesforce", Remote: "sobject-mutations-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-reads-production"},
+		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
+		{Guide: "salesforce", Remote: "tableau-next-production"},
+		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
+	},
+	"Salesforce production OpenID configuration (registration endpoint, no CIMD)": {
+		{Guide: "salesforce", Remote: "data360-production"},
+		{Guide: "salesforce", Remote: "data360-sandbox"},
+		{Guide: "salesforce", Remote: "headless-360-production"},
+		{Guide: "salesforce", Remote: "headless-360-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-all-production"},
+		{Guide: "salesforce", Remote: "sobject-all-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-deletes-production"},
+		{Guide: "salesforce", Remote: "sobject-deletes-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-mutations-production"},
+		{Guide: "salesforce", Remote: "sobject-mutations-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-reads-production"},
+		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
+		{Guide: "salesforce", Remote: "tableau-next-production"},
+		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
+	},
+	"Salesforce sandbox protected-resource metadata (issuer test.salesforce.com)": {
+		{Guide: "salesforce", Remote: "data360-production"},
+		{Guide: "salesforce", Remote: "data360-sandbox"},
+		{Guide: "salesforce", Remote: "headless-360-production"},
+		{Guide: "salesforce", Remote: "headless-360-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-all-production"},
+		{Guide: "salesforce", Remote: "sobject-all-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-deletes-production"},
+		{Guide: "salesforce", Remote: "sobject-deletes-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-mutations-production"},
+		{Guide: "salesforce", Remote: "sobject-mutations-sandbox"},
+		{Guide: "salesforce", Remote: "sobject-reads-production"},
+		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
+		{Guide: "salesforce", Remote: "tableau-next-production"},
+		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
+	},
 	"Scope Filtering": {
 		{Guide: "github", Remote: "hosted"},
 	},
@@ -1380,15 +1447,15 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-sheets", Remote: "hosted"},
 		{Guide: "google-slides", Remote: "hosted"},
 	},
+	"Set up clients": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Set up the MCP server": {
 		{Guide: "box", Remote: "hosted"},
 	},
 	"Setting up OAuth": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
-	},
-	"Setting up clients": {
-		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"Setting up the GitHub MCP Server": {
 		{Guide: "github", Remote: "hosted"},
@@ -1430,10 +1497,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Speakeasy callback and catalog-path observations": {
 		{Guide: "atlassian", Remote: "rovo"},
 	},
-	"Speakeasy identity-provider attachment sheet": {
+	"Speakeasy catalog Add to Project dialog": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
-	"Speakeasy identity-provider form fields": {
+	"Speakeasy remote MCP Identity section": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
 	"Speakeasy setup canonical file": {
@@ -1445,6 +1512,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "atlassian", Remote: "rovo"},
 		{Guide: "github", Remote: "hosted"},
 		{Guide: "google-big-query", Remote: "hosted"},
+		{Guide: "google-compute-engine", Remote: "hosted"},
 		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
 		{Guide: "google-people", Remote: "hosted"},
@@ -1493,6 +1561,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
 	},
+	"Step One GET Request to the Authorization Endpoint": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
+	"Step Two POST Request to the Token Endpoint": {
+		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
 	"Submitting your app for verification": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
@@ -1520,7 +1594,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
 	},
-	"Troubleshooting and verifying your setup": {
+	"Troubleshoot and verify your setup": {
 		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"Try BigQuery using the sandbox": {
@@ -1545,6 +1619,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
 	},
+	"Use Atlassian Rovo MCP Server": {
+		{Guide: "atlassian", Remote: "rovo"},
+	},
 	"Use the BigQuery MCP server": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
@@ -1558,9 +1635,6 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
 		{Guide: "google-drive", Remote: "hosted"},
-	},
-	"Using with other supported MCP clients": {
-		{Guide: "atlassian", Remote: "rovo"},
 	},
 	"V2 MCP server now generally available": {
 		{Guide: "asana", Remote: "hosted"},

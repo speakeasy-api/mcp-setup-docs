@@ -40,7 +40,7 @@ remotes:
         locator: https://developers.intercom.com/docs/guides/mcp
         name: Model Context Protocol (MCP)
         classification: official
-        observed_at: "2026-07-29T15:06:51Z"
+        observed_at: "2026-09-30T00:00:00Z"
       - source: operator-validation
         locator: draft-guide operator notes for intercom
         status: manual OAuth validated
@@ -56,7 +56,7 @@ remotes:
         locator: https://developers.intercom.com/docs/guides/mcp
         name: Model Context Protocol (MCP)
         classification: official
-        observed_at: "2026-07-29T15:06:51Z"
+        observed_at: "2026-09-30T00:00:00Z"
       - source: operator-validation
         locator: draft-guide operator notes for intercom
         status: manual OAuth validated
@@ -66,7 +66,7 @@ provenance:
     locator: https://developers.intercom.com/docs/guides/mcp
     name: Model Context Protocol (MCP)
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/build-an-integration/getting-started
     name: Set up a Workspace
@@ -76,7 +76,7 @@ provenance:
     locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth
     name: Setting up OAuth
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
     locator: https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/oauth-scopes
     name: OAuth Scopes
@@ -105,7 +105,11 @@ provenance:
   - source: endpoint-observation
     locator: https://mcp.intercom.com/.well-known/oauth-authorization-server
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
+  - source: endpoint-observation
+    locator: https://mcp.eu.intercom.com/.well-known/oauth-authorization-server
+    classification: official
+    observed_at: "2026-09-30T00:00:00Z"
   - source: operator-validation
     locator: draft-guide operator notes for intercom
     status: manual OAuth recommended; DCR requires callback allowlisting
@@ -114,4 +118,4 @@ provenance:
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-29T15:06:51Z"
+    observed_at: "2026-09-30T00:00:00Z"

@@ -3,62 +3,38 @@
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 1. In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**.
-2. Select **Add new** to open the **Add MCP server** page.
+2. Click **Add new** to open **Add MCP server**.
 3. Choose **From the catalog**.
 4. On the **MCP Catalog** page, find **Asana** using **Search MCP servers...**.
-5. Open the **Asana** entry.
-6. Select **Add**.
-7. In **Add to Project**, select **Add to Project**.
+5. Open the **Asana** entry and click **Add**.
+6. In the **Add to Project** dialog, under **Identity**, select **User Identity**. The dialog may preselect **No Identity**.
+7. Click **Add to Project**. If the dialog offers a **Guardrails** step, finish it or click **Skip for now**.
 
-After installation, select **Configure MCP settings** on the completion screen to open the server, then open **Settings**.
+Asana needs a client registered by hand, so the result says to finish setup in **Settings > Identity**, and the server stays **Disabled** for now. This is expected. Click **Finish setup** on the server's result to open its **Settings**.
 
-<!-- screenshot: the Add MCP server page, or Asana's catalog entry -->
+<!-- screenshot: Asana's catalog entry in Add to Project with User Identity selected -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Select **Configure MCP settings** on the completion screen, then open the server’s **Settings**.
+In the server's **Settings**, find the **Identity** section.
 
-Under **Authentication**, if unconfigured, select **Use Discovered** when available; otherwise select **Configure Manually**. If configured but no provider is attached, use **Connected services > Add provider**. If the intended provider is already attached, use its existing controls and skip the provider/client creation and attachment steps below; do not add a duplicate.
+1. Select **User Identity**.
+2. In **Choose an identity provider**, confirm the provider is `https://app.asana.com`. It may be badged **Will be created**. If no provider or a different one is selected, open the picker, search for `app.asana.com` in **Search identity providers…**, and choose it.
+3. Under the provider, choose **Manual**.
+4. Paste the **Client ID** from [Create the MCP app](external.md#create-mcp-app) into **Client ID**.
+5. Paste the **Client secret** from [Create the MCP app](external.md#create-mcp-app) into **Client secret**. Asana requires it, even though the field shows "Optional".
+6. Open **Advanced** and enter `default` in **Scope**. Do not add other scopes; Asana rejects them with "Invalid scope(s) requested".
+7. Click **Save**.
 
-#### Select the identity provider
+This section does not show the redirect URI. Asana accepts the connection only if [Configure the OAuth redirect](external.md#configure-oauth-redirect) registered `{{ gram.oauth.callback_url }}`.
 
-In **Attach Remote Identity Provider**, **Identity Provider** defaults to **Select existing** when project issuers are available. Select the matching provider and skip the new-provider fields below. Otherwise choose **Add new** (or use the new-provider form shown when none exist).
+Then turn the server on:
 
-For a new provider only, confirm **Issuer URL**, the auto-derived **Slug**, and **Endpoints**. Discovery runs automatically for a seeded issuer; after typing or changing the URL, select **Discover** only if offered.
+1. In **Settings**, open **Danger Zone**.
+2. Under **Server Availability**, turn on **Enable MCP server** so it shows **Enabled**.
 
-For a new provider, enter **Issuer URL** `https://app.asana.com` and keep the auto-derived **Slug**. If discovery does not populate **Endpoints**, enter:
+Each user sees Asana's authorization prompt the first time they use the server.
 
-Authorization endpoint:
-
-```text
-https://app.asana.com/-/oauth_authorize
-```
-
-Token endpoint:
-
-```text
-https://app.asana.com/-/oauth_token
-```
-
-<!-- source: https://app.asana.com/.well-known/oauth-authorization-server; public metadata checked 2026-09-17 -->
-
-#### Select the session client
-
-Under **Session Client**, choose **Select existing** only for a client whose saved credentials, scopes, and audience match the requirements below; otherwise choose **Add new**. When reusing a matching client, skip directly to **Verify the callback and attach** below. Do not create credentials or register the client again. Otherwise choose **Add new** (or use the new-client form shown when no clients exist) and complete these new-client-only steps:
-
-Do not enter a scope during this setup.
-
-1. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-1. Paste the **Client ID** saved in [Create the MCP app](external.md#create-mcp-app) into **Client ID**.
-1. Paste the **Client secret** saved in [Create the MCP app](external.md#create-mcp-app) into **Client Secret (optional)**.
-
-#### Verify the callback and attach
-
-1. Confirm that the callback URL registered with the provider is `{{ gram.oauth.callback_url }}`. For a new manual client, also compare it with the sheet's displayed **Redirect URI**. The existing-client selection does not display that field; check the registered callback in the provider's app settings instead.
-2. Click **Attach Identity Provider**.
-
-For the provider-side callback setting, see [Configure the OAuth redirect](external.md#configure-oauth-redirect).
-
-<!-- screenshot: Attach Remote Identity Provider with the Redirect URI and credential fields visible and all credential values redacted -->
+<!-- screenshot: Settings > Identity with User Identity, the app.asana.com provider, and Manual selected; credential values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Asana's MCP documentation](https://developers.asana.com/docs/using-asanas-mcp-server).
