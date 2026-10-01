@@ -37,8 +37,12 @@ the labels. All public sources below were observed on
 - **OAuth endpoints:** authorization
   `https://account.box.com/api/oauth2/authorize`; token exchange
   `https://api.box.com/oauth2/token`. Box's protected-resource metadata names
-  `https://api.box.com/` as the authorization server and bearer headers as
-  supported. [Set up the MCP server; protected-resource metadata]
+  `https://api.box.com/` (with a trailing slash) as the authorization server
+  and bearer headers as supported. Box's RFC 8414 metadata at
+  `https://api.box.com/.well-known/oauth-authorization-server` names issuer
+  `https://api.box.com` (no trailing slash), the same two endpoints, and no
+  `registration_endpoint` or CIMD support (observed 2026-09-30). [Set up the
+  MCP server; protected-resource metadata; authorization-server metadata]
 - **OAuth scope strings:** `root_readwrite`, `ai.readwrite`, and
   `docgen.readwrite`. These are API-level strings; Box's product setup pages
   name the UI section **Access scopes** but do not publish checkbox-to-string
@@ -51,11 +55,10 @@ the labels. All public sources below were observed on
 - **Permissions:** scopes cap possible actions, while each user can access
   only content that their Box permissions permit. [Set up the MCP server;
   About Box MCP Server]
-- **Catalog path:** coordinator-supplied facts did not establish a
-  provider-specific Box mapping. Catalog presence is therefore unknown, not
-  absent. The shared remote is not tenanted and Metadata keeps
-  `speakeasy_add_server: auto`, so the canonical Speakeasy setup preserves both
-  safe add-server branches. [Canonical Speakeasy setup]
+- **Catalog path:** `meta.yaml` sets `speakeasy_add_server: catalog` and
+  records the Speakeasy MCP Catalog record `com.pulsemcp.mirror/box` as
+  present, so the guide renders only the catalog path. [Canonical Speakeasy
+  setup]
 
 ## Credential flow
 
@@ -70,9 +73,9 @@ Speakeasy AI Control Plane:
 | **Client Secret** | Generated in the same entry | `copy-client-credentials` |
 
 The admin enters `{{ gram.oauth.callback_url }}` directly in Box's
-**Redirect URIs** field at `set-redirect-uri`. The canonical Speakeasy attach
-sheet later shows the same **Redirect URI** for confirmation; the reader does
-not need a Speakeasy-first detour. Box's Claude Code localhost redirect is
+**Redirect URIs** field at `set-redirect-uri`. The Speakeasy **Add Client** form
+later shows the same **Redirect URI** for confirmation; the reader does not
+need a Speakeasy-first detour. Box's Claude Code localhost redirect is
 client-specific and must not be copied into this guide. [Claude Code;
 Anthropic Messages API; canonical Speakeasy setup]
 
@@ -265,45 +268,75 @@ tool inventory. [Manage tool access; Available tools; MCP FAQ]
 
 ## Speakeasy setup
 
-Canonical source: `doctrine/speakeasy-setup.md`, observed
-`2026-08-28T23:25:24Z`. Per-guide values are remote
-`https://mcp.box.com`, transport `streamable-http`, Authentication Option
-`oauth-integration`, credential sources `copy-client-credentials`, and further
-reading `https://docs.box.com/en/box-mcp/about-box-mcp-server`.
+Canonical source: `doctrine/speakeasy-setup.md` (gram main `68b3f78`),
+observed `2026-09-30T21:30:00Z`.
+
+Per-guide values:
+
+- Remote URL: `https://mcp.box.com` (shared, not tenanted)
+- Add-server path: catalog only (**From the catalog**), from
+  `speakeasy_add_server: catalog`.
+- Authentication Option: `oauth-integration`, mapped to **User Identity**.
+  **Client ID** and **Client Secret** come from `copy-client-credentials`;
+  `{{ gram.oauth.callback_url }}` is entered at `set-redirect-uri`.
+- Probe outcome (2026-09-30): an unauthenticated JSON-RPC `initialize` POST
+  returned 401 with `resource_metadata=
+  "https://mcp.box.com/.well-known/oauth-protected-resource"`.
+- PRM issuer: `https://api.box.com/`. PRM `scopes_supported`: none.
+- Issuer metadata: `https://api.box.com/.well-known/oauth-authorization-server`
+  names issuer `https://api.box.com`, which does not match the PRM value
+  byte for byte. The Control Plane's issuer-metadata fetch
+  (`server/internal/remotesessions/issuerhandlers.go`, gram `68b3f78`)
+  refuses a document whose issuer differs from the requested one,
+  "including its path and trailing slash", so the picker cannot create the
+  provider from the PRM. Discovery is treated as unavailable, and the guide
+  renders the custom identity provider route with **Issuer URL**
+  `https://api.box.com` (no trailing slash), which matches the metadata.
+- CIMD / DCR: neither advertised; Box's support article says DCR is not
+  supported.
+- Registration choice: **Manual**, through the custom provider's **Add
+  Client** (**Client Type** **Manual**), then **Existing client** on the
+  server. Creation with **User Identity** cannot configure the provider, so
+  the server is kept **Disabled** and the result points to **Settings >
+  Identity**; the guide says this is expected and ends with **Server
+  Availability**.
+- Scope: leave **Scope (override)** blank. Box's authorize reference says
+  an omitted `scope` "defaults to all the scopes configured for the
+  application", that is, the **Access scopes** chosen at
+  `check-access-scopes`; the PRM and issuer metadata advertise no scopes.
+- Further reading: `https://docs.box.com/en/box-mcp/about-box-mcp-server`
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-Catalog presence is unresolved and no override applies, so render both safe
-branches. In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**. Choose **From
+the catalog**. On the **MCP Catalog** page, find **Box** with **Search MCP
+servers...**, open its entry, and click **Add**. In **Add to Project**,
+select **User Identity** under **Identity**, then click **Add to Project**.
+Finish or **Skip for now** any **Guardrails** step. The result says to
+finish setup in **Settings > Identity** and the server stays **Disabled**.
 
-- If Box is in the catalog, choose **3rd-party server**. On the **MCP Catalog**
-  page, find Box (the search box reads **Search MCP servers...**), open its
-  entry with **View**, and click **Add**. In the **Add to Project** dialog,
-  click **Add to Project**.
-- If Box is not in the catalog, choose **Custom remote server**. On the **Add a
-  custom remote MCP server** page, paste `https://mcp.box.com` into **Remote MCP
-  server URL** and click **Add server**.
-
-Either branch creates the hosted MCP server and opens its **Overview** page.
-Catalog presence remains the soft research question recorded under **Research
-limitations**.
-
-<!-- screenshot: the Add Source menu open on the Sources page, or the Box catalog entry -->
+<!-- screenshot: the Box catalog entry in Add to Project with User Identity selected -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Authentication**,
-click **Configure Manually** (or **Use Discovered** when offered by Box's
-protected-resource metadata). In **Attach Remote Identity Provider**, set
-**Client Type** to **Manual**. The sheet shows **Redirect URI** with a copy
-button; confirm it matches the value substituted for
-`{{ gram.oauth.callback_url }}` in Box at `set-redirect-uri`. Paste the
-**Client ID** and **Client Secret (optional)** copied at
-`copy-client-credentials`, then click **Attach Identity Provider**.
+In the server's **Settings > Identity**, select **User Identity**, open
+**Choose an identity provider**, and click **Create a custom identity
+provider** to open **Remote Identity Providers**. Click **New Remote
+Identity Provider**, enter **Issuer URL** `https://api.box.com`, click
+**Discover**, confirm **Authorization Endpoint** and **Token Endpoint**
+under **Endpoints**, keep the derived **Slug**, and click **Create**. On
+that provider, click **Add Client**: **Client Type** **Manual**, **Client
+ID** and **Client Secret (optional)** from `copy-client-credentials` (Box
+requires the secret), **Scope (override)** blank, confirm **Redirect URI**
+matches the value entered at `set-redirect-uri`, and click **Create**.
+Return to the server's **Settings > Identity**, select that provider,
+choose **Existing client**, pick the client under **Client**, and click
+**Save**. Then open **Danger Zone > Server Availability** and turn on
+**Enable MCP server** so it shows **Enabled**.
 
 <!-- verify(operator): the template key substitutes this same Redirect URI value -->
-<!-- screenshot: the Attach Remote Identity Provider sheet with Client Type Manual and Redirect URI visible, and all credential values redacted -->
+<!-- screenshot: Settings > Identity with User Identity, the api.box.com provider, and Existing client selected; credential values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Box's MCP documentation](https://docs.box.com/en/box-mcp/about-box-mcp-server).
 
@@ -312,14 +345,13 @@ This guide covers setup only. For anything beyond it — billing, tool behavior,
 These public-source gaps are presentation-only or safely hedgeable; none is a
 material operator decision for first connection.
 
-- **Soft research question — Pulse catalog presence:** Is Box present in the
-  Pulse catalog? Coordinator-supplied facts did not establish a
-  provider-specific Box mapping, so presence remains unresolved and setup
-  retains both canonical add-server branches. This safely hedgeable gap is a
-  Research limitation, not an Operator decision; under the strict scope gate it
-  stays out of structured `open_questions`.
-- Box's current product pages use **Configuration** > **Add Integration
-  Credentials**; current Support pages use **Additional Configuration** >
+- The Control Plane path above is derived from gram source and live
+  metadata, not a production walkthrough with a Box tenant. It has not been
+  confirmed that the custom `https://api.box.com` provider completes a Box
+  sign-in end to end.
+- Box's current product pages use the **Custom Box MCP Server** tile and
+  **Configuration** > **Add Integration Credentials**; developer.box.com
+  searches for **Box MCP server**, and current Support pages use **Additional Configuration** >
   **+ Add Integration Credentials** and an initial name save. Public docs do
   not explain which enterprise receives which surface.
 - Product docs name **Access scopes** but do not publish exact checkbox labels
@@ -352,7 +384,7 @@ None
   scopes, and license details, not to override product UI labels.
 - **Support KB:** `https://support.box.com`. Used for administrator eligibility,
   no-DCR, and the alternate credential surface.
-- **Speakeasy docs:** `https://www.speakeasy.com/docs/ai-control-plane/distribute/mcp-servers/remote-servers`.
+- **Speakeasy docs:** `https://www.speakeasy.com/docs/ai-control-plane/mcp-gateway/remote-servers`.
   Used to corroborate the supported remote transport and custom/catalog paths.
 - No community, partner, issue, or catalog record was used as factual authority.
   The coordinator-supplied Pulse note establishes only that the snapshot was
@@ -415,12 +447,23 @@ All records below were observed `2026-08-28T23:25:24Z`.
   metadata fetched through Exa; backs resource `https://mcp.box.com/`, resource
   name **Box Model Context Protocol Server**, authorization server
   `https://api.box.com/`, bearer-header support, and official resource docs.
-- `https://www.speakeasy.com/docs/ai-control-plane/distribute/mcp-servers/remote-servers`
+- `https://www.speakeasy.com/docs/ai-control-plane/mcp-gateway/remote-servers`
   — official Speakeasy documentation; backs streamable HTTP support and the
   catalog and custom-URL registration paths.
-- `doctrine/speakeasy-setup.md` — repository authority supplied for this run;
-  backs the transcluded Speakeasy labels, fixed anchors, dual-path behavior when
-  catalog presence is unresolved, manual OAuth flow, and closing pointer form.
+- `doctrine/speakeasy-setup.md` — repository authority, observed
+  `2026-09-30T21:30:00Z` (gram main `68b3f78`); backs the transcluded
+  Speakeasy labels, fixed anchors, catalog path, custom identity provider
+  route, and closing pointer form.
+- `https://api.box.com/.well-known/oauth-authorization-server` — observed
+  `2026-09-30T21:30:00Z`; backs issuer `https://api.box.com`, the
+  authorization and token endpoints, and the absence of registration and
+  CIMD support.
+- `https://developer.box.com/reference/get-authorize/` — observed
+  `2026-09-30T21:30:00Z`; backs the default of an omitted `scope` to the
+  application's configured scopes.
+- Live probe of `https://mcp.box.com` and its PRM on `2026-09-30T21:30:00Z`
+  — backs the 401 `resource_metadata` challenge, PRM issuer
+  `https://api.box.com/`, and no advertised scopes.
 - Credential-free Pulse snapshot note supplied by the coordinator — establishes
   snapshot readiness and an unknown Box mapping only. It is not treated as a
   provider record, and no private catalog content is reproduced.

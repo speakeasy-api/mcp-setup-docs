@@ -110,6 +110,16 @@ equivalent permission is needed to create an ECA (`setup-overview.html`);
 server activation requires an administrator (`activate-mcp-servers.html`).
 These are not grants of data access to every connecting user.
 
+### Endpoint reference {#endpoint-reference}
+
+- Section heading in `external.md` (an H2 there) listing every server with
+  its literal production and sandbox URL from **Server facts** and the table
+  above. Render both URLs per server; the reader copies the one matching the
+  org where the app was created and the server enabled. Sandbox URLs
+  re-confirmed live 2026-09-30: each answers `401` and its PRM names
+  `https://test.salesforce.com` (except the Data 360 sandbox URL; see
+  Speakeasy setup).
+
 ## Credential flow
 
 Who acts: a Salesforce System Administrator (or equivalent permissions for
@@ -119,7 +129,7 @@ App documentation states that a Salesforce administrator creates the app.
 
 For method 2, what gets created: one local **External Client App** with OAuth enabled. The
 candidate Speakeasy configuration uses the generated **Consumer Key** as
-**Client ID** and leaves **Client Secret (optional)** empty. Salesforce
+**Client ID** and leaves **Client secret** empty. Salesforce
 documents that Consumer Key-only PKCE configuration for Postman and Cursor,
 and says other clients supporting OAuth 2.0 Authorization Code with PKCE
 should work. Salesforce does not name the Speakeasy AI Control Plane as a
@@ -136,7 +146,7 @@ documents that other clients must use the callback URL supplied by the client;
 the canonical Speakeasy setup defines this template as the Speakeasy AI Control
 Plane callback URL.
 
-After the app is attached, each connecting user completes Salesforce sign-in.
+After the server's identity is saved, each connecting user completes Salesforce sign-in.
 Salesforce warns that its multitenant sign-in can choose the wrong org: before
 authorization, the user should log out of other Salesforce orgs, sign in to the
 target org in the default browser, and keep that browser open. This is a
@@ -197,6 +207,12 @@ package contents, installation UI, org compatibility, or OAuth behavior.
 - Screenshot note: the Salesforce page with the setup gear menu open and
   **Setup** visible.
 
+### Create your own Salesforce app {#create-your-own-salesforce-app}
+
+- Section heading for method 2 in `external.md` (an H2 there). It groups
+  {#start-external-client-app} through {#enable-sobject-server} and opens
+  with the server-choice prerequisite and the Consumer Key-only note.
+
 ### Start an External Client App {#start-external-client-app}
 
 - Method 2 only; do not repeat this flow after installing the Speakeasy app.
@@ -250,7 +266,7 @@ package contents, installation UI, org compatibility, or OAuth behavior.
 
 - Click **Create**.
 - The app can take up to 30 minutes to become available and operational. If
-  attaching it immediately fails even though the settings are correct, wait
+  signing in immediately fails even though the settings are correct, wait
   for that window before changing the configuration.
 - Values entered or copied: none.
 - Screenshot exception: **Create** is a standard action with no distinct
@@ -303,79 +319,119 @@ activation page, refresh date.
 
 ## Speakeasy setup
 
-The manual credential-entry skeleton below applies to **method 2 only**.
-For method 1, the administrator must contact Speakeasy support to finish OAuth;
-no public self-service credential-entry procedure is established for this
-package. Metadata models its OAuth registration as manual (not DCR), with no
-invented credential fields. Do not derive a package Client ID or secret from
-the self-created-app instructions.
+The skeleton below applies to **method 2 only**. For method 1, the
+administrator must contact Speakeasy support to finish OAuth; no public
+self-service credential-entry procedure is established for this package.
+Metadata models its OAuth registration as manual, with no invented
+credential fields. Do not derive a package Client ID or secret from the
+self-created-app instructions.
 
-
-Per-guide values rendered into the canonical
-`doctrine/speakeasy-setup.md` skeleton:
+Per-guide values rendered into the canonical `doctrine/speakeasy-setup.md`
+skeleton (doctrine pinned to gram `main` `68b3f78`, observed 2026-09-30):
 
 - Provider: Salesforce.
 - Remote URL: the production or sandbox URL selected in
-  {#enable-sobject-server}; all fourteen cataloged choices are in Metadata.
-- Transport: `streamable-http`; the **Transport** field is read-only.
-- Add-server path: use **Custom remote server** only. The operator forced
-  `speakeasy_add_server: custom-remote` because the catalog mapping is
-  unreliable or unsuitable for this Guide's selection among distinct
-  production and sandbox URLs. Pasting the selected URL preserves the
-  server and org-type choice made in {#enable-sobject-server}. Do not render a
-  catalog path or a catalog-presence open question.
-- Authentication Option: OAuth with a manually registered client.
-- OAuth scopes: `mcp_api` and `refresh_token`.
-- Discovery: Salesforce publishes RFC 9728 protected-resource metadata for the
-  SObject endpoint, including its authorization server and required scopes.
-  Salesforce still requires a manually created External Client App, so use
-  **Configure Manually** for this Guide; whether the Speakeasy sheet also
-  offers **Use Discovered** is not required for this path.
+  {#enable-sobject-server} from {#endpoint-reference}; all fourteen
+  cataloged choices are in Metadata.
+- Add-server path: **Custom remote path** only (**Hosted remotely**). The
+  operator forced `speakeasy_add_server: custom-remote` because a catalog
+  entry cannot carry this Guide's selection among distinct production and
+  sandbox URLs. Do not render a catalog path or a catalog-presence open
+  question.
+- Authentication Option: OAuth with a manually registered External Client
+  App → **User Identity**.
+- Probe outcome (2026-09-30, JSON-RPC `initialize` POST with
+  `Accept: application/json, text/event-stream`, all fourteen URLs): `401`
+  with body `{"errors":[{"message":"JWT Token is required"}]}` and **no
+  `WWW-Authenticate` header**, so no `resource_metadata` challenge. The
+  create form therefore preselects **No Identity**; the reader must select
+  **User Identity**.
+- PRM: published at the path-style well-known URL
+  (`https://api.salesforce.com/.well-known/oauth-protected-resource/platform/mcp/v1/<path>`),
+  which the dashboard's server-side discovery probes first. Production URLs
+  name issuer `https://login.salesforce.com`; `/v1/sandbox/...` URLs name
+  `https://test.salesforce.com`. Every PRM advertises exactly `mcp_api` and
+  `refresh_token`. Exception: the documented Data 360 sandbox URL
+  (`/v1/data/sandbox/data360`) has no path-style PRM (404); discovery falls
+  back to the origin document, which names `https://login.salesforce.com`
+  with scopes `api sfap_api refresh_token einstein_gpt_api`. That is the
+  wrong issuer and wrong scopes for a sandbox, so the Writer tells sandbox
+  readers to pick `https://test.salesforce.com` and, when no such provider
+  exists, renders the custom identity provider route (issuer
+  `https://test.salesforce.com`, **Discover** fills the endpoints
+  `https://test.salesforce.com/services/oauth2/authorize` and
+  `https://test.salesforce.com/services/oauth2/token`).
+- Issuer metadata: `https://login.salesforce.com/.well-known/openid-configuration`
+  and the `test.salesforce.com` equivalent return 200 (the
+  `oauth-authorization-server` path is 404). Both advertise
+  `registration_endpoint` (`/services/oauth2/register`); neither advertises
+  `client_id_metadata_document_supported` (no CIMD). Anonymous DCR against
+  `https://login.salesforce.com/services/oauth2/register` returns `401
+  invalid_client` ("invalid client credentials").
+- Registration choice: **Manual**. The dashboard defaults to
+  **Auto-Configure** because DCR is advertised, so the Writer names the
+  switch. Creation with **User Identity** tries automatic registration,
+  fails, and keeps the server **Disabled** (expected); the guide ends with
+  **Server Availability**. **Existing client** is correct only when an
+  earlier server in the project already holds a client for this same
+  External Client App.
 - **Client ID** origin: Salesforce **Consumer Key** from
-  {#copy-consumer-key}.
-- Client Secret: the standards-based candidate configuration leaves
-  **Client Secret (optional)** empty because Salesforce documents Consumer
-  Key-only PKCE for public MCP clients. This exact configuration remains
-  unverified in the Speakeasy AI Control Plane.
+  {#copy-consumer-key}. **Client secret**: leave empty; Salesforce documents
+  Consumer Key-only PKCE for public MCP clients. With no secret the
+  dashboard picks token endpoint auth method `none` automatically. This
+  exact configuration remains unverified end to end in the Speakeasy AI
+  Control Plane.
+- Scope string for **Advanced > Scope**: `mcp_api refresh_token`. Blank is
+  equivalent on every URL except the Data 360 sandbox URL (origin-PRM
+  fallback advertises other scopes), so the Writer says not to leave it
+  blank. In the custom-provider route, **Scope (override)** is
+  comma-separated: `mcp_api,refresh_token`.
 - Redirect URI registered in Salesforce: `{{ gram.oauth.callback_url }}` in
-  **Callback URL** at {#configure-oauth-settings}.
+  **Callback URL** at {#configure-oauth-settings}. The remote Identity
+  section does not display it; the custom-provider **Add Client** form does.
 - Further-reading URL:
   `https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html`.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**. Choose **Hosted
+remotely**. On **New remote MCP server**, paste the selected URL into **MCP
+server URL**, leave **User session issuer** at its default, and click
+**Verify connectivity**. Under **Identity**, change the preselected **No
+Identity** to **User Identity**, then click **Save**. Automatic
+registration fails for Salesforce, so the server is kept **Disabled** and
+the result says to finish setup in **Settings > Identity**; this is
+expected.
 
-Choose **Custom remote server**. On the **Add a custom remote MCP server**
-page, paste the selected MCP URL into **Remote MCP server URL** and click
-**Add server**.
-
-This creates the hosted MCP server and opens its **Overview** page.
-
-Screenshot note: capture the **Add Source** menu open on the **Sources** page
-with **Custom remote server** visible.
+Screenshot note: **New remote MCP server** after **Verify connectivity**,
+with **User Identity** selected.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Authentication**,
-click **Configure Manually**. In the **Attach Remote Identity Provider** sheet,
-set **Client Type** to **Manual**. The sheet shows the **Redirect URI** with a
-copy button — the callback URL registered in Salesforce as
-`{{ gram.oauth.callback_url }}`. For the unverified candidate configuration,
-paste the **Consumer Key** from {#copy-consumer-key} into **Client ID**, leave
-**Client Secret (optional)** empty, and click **Attach Identity Provider**.
-Confirm the sheet's **Redirect URI** matches the
-`{{ gram.oauth.callback_url }}` value registered under Salesforce's **Callback
-URL** field at {#configure-oauth-settings}. Salesforce documents this Consumer
-Key-only PKCE pattern for compatible public clients but does not document the
-Speakeasy AI Control Plane, so the mapping is unverified. If attaching still
-fails after Salesforce's documented 30-minute app propagation window, stop and
+Open the server's **Settings** and find **Identity**. Confirm **User
+Identity**. Under **Choose an identity provider**, confirm the preselected
+provider matches the URL's issuer (`https://login.salesforce.com` for
+production, `https://test.salesforce.com` for sandbox); **Will be created**
+is expected for a first server. Choose **Manual** (switching from the
+**Auto-Configure** default), paste the **Consumer Key** from
+{#copy-consumer-key} into **Client ID**, leave **Client secret** empty,
+enter `mcp_api refresh_token` under **Advanced > Scope**, and click
+**Save** (**Save changes** if asked). For a sandbox URL with no
+`test.salesforce.com` provider, use **Create a custom identity provider** >
+**New Remote Identity Provider** with **Issuer URL**
+`https://test.salesforce.com` and **Discover**, then **Add Client**
+(**Client Type** **Manual**, **Client ID**, empty **Client Secret
+(optional)**, **Scope (override)** `mcp_api,refresh_token`, confirm
+**Redirect URI**), and select it on the server as **Existing client**.
+Finish with **Settings > Danger Zone > Server Availability**: turn on
+**Enable MCP server** so it shows **Enabled**. If sign-in still fails after
+Salesforce's documented 30-minute app propagation window, stop and
 escalate instead of changing the candidate configuration.
 
-Screenshot note: capture the **Attach Remote Identity Provider** sheet with
-**Client Type**, **Redirect URI**, and the credential labels visible; redact
-the Client ID.
+Screenshot note: **Settings > Identity** with **User Identity**, the
+Salesforce provider, **Manual**, and **Advanced > Scope** filled; redact the
+Client ID.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
 limits — see [Salesforce's MCP documentation](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html).
@@ -417,7 +473,7 @@ limits — see [Salesforce's MCP documentation](https://developer.salesforce.com
   Authorization Code with PKCE, but does not name the Speakeasy AI Control
   Plane as a tested client. Compatibility is inferred from the canonical
   Speakeasy OAuth flow. The Consumer Key-to-**Client ID** mapping with **Client
-  Secret (optional)** empty is unverified; if attaching still fails after
+  secret** empty is unverified; if sign-in still fails after
   Salesforce's documented 30-minute app propagation window, stop and escalate
   instead of changing the candidate configuration.
 - Salesforce's April 2026 GA announcement promises Hosted MCP Servers for
@@ -427,11 +483,15 @@ limits — see [Salesforce's MCP documentation](https://developer.salesforce.com
   Treat lower-edition availability as conditional and confirm the feature is
   available in the target org before setup; do not infer a Setup label beyond
   the documented **MCP Servers** navigation path.
-- The canonical Speakeasy setup ends when the administrator clicks **Attach
-  Identity Provider** and does not document which Speakeasy control starts the
-  Salesforce user-authorization prompt. Do not invent that transition in the
-  Setup Guide; the canonical doctrine needs an explicit authorization step
-  before a later guide can document the Salesforce sign-in sequence.
+- The canonical Speakeasy setup says the provider's browser authorization
+  prompt appears when a person first uses the server; exact Salesforce prompt
+  labels are not documented here. Do not invent them.
+- Salesforce documents the Data 360 sandbox URL as
+  `https://api.salesforce.com/platform/mcp/v1/data/sandbox/data360`, but on
+  2026-09-30 that path has no path-style PRM (404) while
+  `.../v1/sandbox/data/data360` does (issuer `https://test.salesforce.com`).
+  The guide keeps the documented URL and a custom-provider fallback; whether
+  the documented URL accepts sandbox tokens is untested without an org.
 
 ## Provenance
 
@@ -526,9 +586,19 @@ observations are historical, not tests rerun in September.
   observations returned HTTP 401 in the August research, backing the URLs' existence
   and OAuth protection. The protected-resource metadata request for production
   SObject Reads returned HTTP 200 and advertised `mcp_api` and `refresh_token`.
-- `doctrine/speakeasy-setup.md` — observed `2026-08-06T23:23:14Z`; backs the
-  fixed Speakeasy-side anchors, labels, OAuth attach flow, callback template
-  semantics, forced Custom remote path behavior, and closing pointer.
+- `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`) — observed
+  `2026-09-30T21:25:35Z`; backs the fixed Speakeasy-side anchors, Identity
+  section labels, Manual registration flow, Server Availability step,
+  callback template semantics, forced Custom remote path behavior, and
+  closing pointer.
+- Endpoint observations `2026-09-30`: JSON-RPC `initialize` POST to all
+  fourteen remotes (401, no `WWW-Authenticate`); path-style PRM for each
+  remote; `https://api.salesforce.com/.well-known/oauth-protected-resource`
+  (origin PRM); `https://login.salesforce.com/.well-known/openid-configuration`
+  and `https://test.salesforce.com/.well-known/openid-configuration`
+  (registration endpoint, no CIMD); anonymous POST to
+  `https://login.salesforce.com/services/oauth2/register` (401
+  `invalid_client`).
 - Operator note `Speakeasy MCP Catalog: overridden-custom-remote` with query
   `salesforce` — observed `2026-08-06T23:23:14Z`; backs the decision not to
   render or investigate a catalog path because the Guide-level

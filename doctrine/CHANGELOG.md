@@ -6,6 +6,37 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-09-30 — move credential setup to the Identity section
+
+Files: `doctrine/speakeasy-setup.md`, `guides/*/{speakeasy,external,research}.md`,
+`guides/*/meta.yaml`.
+
+Evidence: an audit of every guide against `speakeasy-api/gram` main
+`68b3f78ffec0ab6072ece4b7cc2ee3868c6a7c06` found that #6364, #6905, #6906,
+#6813 and #6974 replaced the remote-server **Authentication** section and
+**Attach Remote Identity Provider** sheet with an **Identity** section. The
+human asked for this correction as a pull request.
+
+- Choose **User Identity**, **Service Account**, or **No Identity** when
+  adding the server (catalog dialog and **Hosted remotely**), and in
+  **Settings > Identity** afterwards.
+- Replace the provider form with the provider picker; route providers
+  without discoverable metadata through **Create a custom identity
+  provider**.
+- Replace **Session Client** / **Client Type** with **Existing client**,
+  **Auto-Configure** (CIMD or DCR), and **Manual**; record when Manual must
+  be chosen over the Auto-Configure default.
+- Scopes go under **Advanced > Scope**, space-separated; a blank value
+  requests every PRM scope. The auth method and audience controls are gone.
+- API keys and tokens go in the **Service Account** credential, not
+  **Upstream Headers**. Servers left **Disabled** are enabled from
+  **Server Availability**.
+- Refresh every guide and apply the audit's verified provider fixes.
+
+Verification is source-level plus live provider probes and repository
+validation; this entry does not claim a production-browser walkthrough.
+I8: human-approved correction.
+
 ## 2026-09-17 — align in-app setup steps with current Control Plane UI
 
 Files: `doctrine/speakeasy-setup.md`, `guides/*/speakeasy.md`,

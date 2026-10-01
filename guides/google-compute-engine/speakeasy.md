@@ -4,86 +4,43 @@
 
 In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**, then click **Add new** to open **Add MCP server**.
 
-Choose **From the catalog**. On the **MCP Catalog** page, search for `Google Compute Engine` in **Search MCP servers...**, open the matched entry, and click **Add**. In the **Add to Project** dialog, click **Add to Project**.
+1. Choose **From the catalog**.
+2. On the **MCP Catalog** page, search for `Google Compute Engine` in **Search MCP servers...**.
+3. Open the **Google Compute Engine** catalog entry.
+4. Click **Add**. This opens the **Add to Project** dialog.
+5. Under **Identity**, select **User Identity**. The dialog preselects **No Identity** for this entry, so change it.
+6. Click **Add to Project**.
+7. If the dialog offers a **Guardrails** step, finish it or click **Skip for now**.
+8. When the dialog finishes, the result reads "Added, but disabled until identity is set up." Click **Finish setup** to open the server's **Settings**.
 
-After the server is added, click **Configure MCP settings** on the completion screen to open the server, then open **Settings**.
+Speakeasy keeps the new server **Disabled** and says to finish setup in **Settings > Identity**. This is expected for Compute Engine; continue with the next section.
 
-<!-- screenshot: the Add MCP server page, or the Google Compute Engine catalog entry -->
+<!-- screenshot: the Google Compute Engine catalog entry's Add to Project dialog with User Identity selected -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Open the server's **Settings** (from **Overview** for a hosted remote server, or **Configure MCP settings** after a catalog addition).
+Open the server's **Settings** and find the **Identity** section.
 
-#### Choose an authentication provider
+1. Confirm **User Identity** is selected.
+2. Under **Choose an identity provider**, confirm the preselected Google provider (`https://accounts.google.com`). A new provider shows **Will be created**. If a different provider is preselected, open the picker, search in **Search identity providers…**, and choose the Google provider.
+3. Choose **Manual**. If **Existing client** is preselected, switch to **Manual** unless that client is the one created in [Create the OAuth client](external.md#create-oauth-client) with the Compute Engine scope.
+4. Paste the **Client ID** from [Copy the client credentials](external.md#copy-client-credentials) into **Client ID**.
+5. Paste the **Client secret** from [Copy the client credentials](external.md#copy-client-credentials) into **Client secret**. Google requires this secret even though the field shows "Optional".
+6. Under **Advanced > Scope**, enter this value. Do not leave **Scope** blank; without it, the token can lack Compute Engine access.
 
-- If **Authentication** is unconfigured, choose **Use Discovered** when available; otherwise choose **Configure Manually**.
-- If authentication is configured but no provider is attached, use **Connected services** > **Add provider**.
-- If the intended provider is already attached, use its existing controls. Do not attach a duplicate; check its client against the requirements below and skip **Verify and attach**.
-
-In **Attach Remote Identity Provider**, the provider selector defaults to **Select existing** when the project has issuers. Select the appropriate existing Google provider and skip new-provider setup.
-
-#### New provider only
-
-1. Choose **Add new** and enter **Issuer URL**:
-
-   ```text
-   https://accounts.google.com/
+   ```
+   https://www.googleapis.com/auth/compute
    ```
 
-2. Confirm the auto-derived **Slug** is unique in the project.
-3. Discovery runs automatically for a seeded issuer URL. After typing or changing the URL, click **Discover** only if offered.
-4. Review the endpoints, or enter these Google OAuth values if discovery does not populate them.
+7. Click **Save**. If asked to confirm, click **Save changes**.
 
-   Authorization endpoint:
+Turn the server on:
 
-   ```text
-   https://accounts.google.com/o/oauth2/v2/auth
-   ```
+1. Open **Settings > Danger Zone > Server Availability**.
+2. Turn on the switch (**Enable MCP server**) so it shows **Enabled**.
 
-   Token endpoint:
+Each user who then connects signs in with their own Google account. They need the roles from [Grant IAM roles](external.md#grant-iam-roles) and, while an **External** app's publishing status is **Testing**, a listing under **Test users** in [Configure the consent screen](external.md#consent-screen).
 
-   ```text
-   https://oauth2.googleapis.com/token
-   ```
+<!-- screenshot: Settings > Identity with User Identity, the Google provider, and Manual selected; credentials redacted -->
 
-#### Choose a session client
-
-- **Reuse:** Under **Session Client**, choose **Select existing** when available and select the appropriate Google OAuth client. Skip credential entry; continue to **Check client requirements**.
-- **Create:** Choose **Add new** when available and set **Client Type** to **Manual**. For a new provider, complete the new-client form below.
-
-#### New session client only
-
-1. Paste the client ID from
-   [Copy the client credentials](external.md#copy-client-credentials) into
-   **Client ID**.
-1. Paste the client secret into **Client Secret (optional)** — despite
-   the label, Google requires the secret, so treat the field as
-   required.
-
-#### Check client requirements
-
-For both new and reused clients, verify the Google app's approved audience and publishing status. An **External** app in **Testing** must list each connecting account under **Test users**. Reusing a client does not require entering its credentials again.
-
-Verify the new or reused Google client has these required scopes, matching the Google app's **Data Access** configuration:
-
-```text
-https://www.googleapis.com/auth/compute
-```
-
-#### Verify and attach
-
-1. Confirm that the callback URL registered with the provider is `{{ gram.oauth.callback_url }}`. For a new manual client, also compare it with the sheet's displayed **Redirect URI**. The existing-client selection does not display that field; check the registered callback in the provider's app settings instead.
-2. Click **Attach Identity Provider**.
-
-For the provider-side callback setting, see [Create the OAuth client](external.md#create-oauth-client).
-
-<!-- screenshot: the Attach Remote Identity Provider sheet showing the Redirect URI and credential fields, values redacted -->
-
-Each user who then connects signs in with their own Google account.
-For their sign-in to succeed, they need the roles from
-[Grant IAM roles](external.md#grant-iam-roles), and — while an External app's
-publishing status is **Testing** — a listing under **Test users** in
-[Configure the consent screen](external.md#consent-screen).
-
-This guide covers setup only. For anything beyond it — billing, tool
-behavior, limits — see [Google's Compute Engine MCP documentation](https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp).
+This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Google's Compute Engine MCP documentation](https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp).

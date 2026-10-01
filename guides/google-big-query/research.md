@@ -115,12 +115,12 @@ Values needed by the Speakeasy AI Control Plane:
 | --- | --- |
 | Client ID | **OAuth 2.0 client created** dialog in {#copy-client-credentials} |
 | Client Secret | **Client secrets** section of the same dialog in {#copy-client-credentials}; copyable once |
-| OAuth scope | `https://www.googleapis.com/auth/bigquery` |
+| OAuth scope | `https://www.googleapis.com/auth/bigquery`, entered under **Advanced > Scope** |
 
 Paste `{{ gram.oauth.callback_url }}` directly into **Authorized redirect URIs**
-while creating the OAuth client in {#create-oauth-client}. The template resolves
-to the **Redirect URI** later shown by the Speakeasy AI Control Plane's
-**Attach Remote Identity Provider** sheet. Google requires web applications to
+while creating the OAuth client in {#create-oauth-client}. The Speakeasy
+**Identity** section does not display the redirect URI, so this External step
+carries the callback check. Google requires web applications to
 allowlist the application's redirect URI and does not accept custom URI schemes
 for this flow.
 
@@ -338,65 +338,63 @@ the selected project.
 
 ## Speakeasy setup
 
-Transcluded from `doctrine/speakeasy-setup.md`; its anchors
-`{#add-server-in-speakeasy}` and `{#connect-speakeasy-credentials}` are fixed
-and carried verbatim. Provenance: `doctrine/speakeasy-setup.md` (product source
-`speakeasy-api/gram`, `client/dashboard`, branch `main`, commit `96f7f73`),
-observed at `2026-08-06T23:23:41Z`. Operator-provided Speakeasy MCP Catalog
-lookup result: absent for queries `google-big-query` and `google big query`;
-therefore only the Custom remote server path is rendered.
-
-### Add the server in Speakeasy {#add-server-in-speakeasy}
-
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
-
-Choose **Custom remote server**. On the **Add a custom remote MCP server**
-page, paste `https://bigquery.googleapis.com/mcp` into **Remote MCP server
-URL** and click **Add server**.
-
-This creates the hosted MCP server and opens its **Overview** page.
-<!-- screenshot: the Add Source menu with Custom remote server, or the Add a custom remote MCP server page -->
-
-Sequence condition: the reader follows this section after completing
-{#copy-client-credentials}.
+Transcluded from `doctrine/speakeasy-setup.md` (product source
+`speakeasy-api/gram`, `client/dashboard`, `main` @ `68b3f78`), observed
+`2026-09-30T21:25:43Z`. Anchors `{#add-server-in-speakeasy}` and
+`{#connect-speakeasy-credentials}` are fixed and carried verbatim.
 
 Per-guide values:
 
-- Remote URL: `https://bigquery.googleapis.com/mcp`.
-- Transport: `streamable-http`; the add form's **Transport** field is read-only.
-- Authentication Option: `oauth-client`, OAuth with a manually registered
-  client.
+- Remote URL: `https://bigquery.googleapis.com/mcp` (not tenanted).
+- Add-server path: **From the catalog** only; `meta.yaml` sets
+  `speakeasy_add_server: catalog`. Correction: the earlier lookup recorded
+  the catalog as absent because it searched `google-big-query` and
+  `google big query`. A Speakeasy MCP Catalog search for `BigQuery` on
+  `2026-09-30` returned the entry **BigQuery** (`com.pulsemcp.mirror/google-bigquery`,
+  the guide's existing alias), "Google-managed MCP server for BigQuery".
+  Search term: `BigQuery`.
+- Authentication Option: `oauth-client` → **User Identity**.
+- Probe outcome: `initialize` POST (with
+  `Accept: application/json, text/event-stream`) returned **200
+  unauthenticated**, protocol `2025-06-18`. The catalog entry has no OAuth
+  client registration, so **Add to Project** preselects **No Identity**; the
+  reader selects **User Identity**.
+- PRM: `https://bigquery.googleapis.com/.well-known/oauth-protected-resource/mcp`
+  names issuer `https://accounts.google.com/` and advertises only
+  `https://www.googleapis.com/auth/bigquery`.
+- Issuer metadata: `https://accounts.google.com` publishes authorization
+  endpoint `https://accounts.google.com/o/oauth2/v2/auth` and token endpoint
+  `https://oauth2.googleapis.com/token`; no `registration_endpoint` and no
+  `client_id_metadata_document_supported`. Discovery works; no custom
+  provider route is needed.
+- Registration choice: **Manual**. Creation with **User Identity** leaves the
+  server **Disabled** with a note to finish in **Settings > Identity**; this
+  is expected, and **Server Availability** must be turned on afterwards.
+- Credential fields: **Client ID** and **Client secret** from
+  {#copy-client-credentials}; Google requires the secret despite the
+  "Optional" placeholder.
+- Scope under **Advanced > Scope**: `https://www.googleapis.com/auth/bigquery`.
+  It matches the PRM list; the guide still enters it explicitly and says not
+  to leave the field blank.
+- First connection: an account with the roles from
+  {#grant-bigquery-mcp-roles}; an External app in **Testing** also needs the
+  account under **Test users**.
+- Screenshot notes: the **Add to Project** dialog with **User Identity**
+  selected; **Settings > Identity** with the Google provider and **Manual**,
+  credentials redacted.
+- Further-reading URL:
+  `https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp`.
+
+### Add the server in Speakeasy {#add-server-in-speakeasy}
+
+Catalog path with **User Identity** selected in **Add to Project**, per the
+values above. Sequence condition: follows {#copy-client-credentials}.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Authentication**,
-click **Configure Manually** (or **Use Discovered** when offered). In the
-**Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**.
-The sheet shows the **Redirect URI** with a copy button — the callback URL
-registered in {#create-oauth-client} with `{{ gram.oauth.callback_url }}`.
-
-Paste the **Client ID** and **Client Secret (optional)** from
-{#copy-client-credentials}; Google's web client requires its generated secret
-even though the Control Plane label says optional. In **Scope (override)**,
-enter `https://www.googleapis.com/auth/bigquery`. The field accepts
-comma-separated scopes; this guide requires this single value. Click **Attach
-Identity Provider**. Confirm the sheet's **Redirect URI** matches the
-`{{ gram.oauth.callback_url }}` value registered under **Authorized redirect
-URIs** in {#create-oauth-client} — readers paste that template key directly
-there; they do not visit this sheet mid–External-setup only to copy the URI.
-
-Screenshot note: **Attach Remote Identity Provider** showing **Client Type:
-Manual**, **Redirect URI**, credential labels, and scope configuration, with
-credential values redacted.
-
-Further-reading URL for the closing pointer:
-`https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp`.
-
-Canonical closing sentence to render verbatim:
-
-This guide covers setup only. For anything beyond it — billing, tool behavior,
-limits — see [Google's BigQuery MCP documentation](https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp).
+**Settings > Identity** > **User Identity** > Google provider > **Manual**
+with the values above, **Save**, then **Settings > Danger Zone > Server
+Availability** > **Enable MCP server**.
 
 ## Open questions
 
@@ -531,14 +529,20 @@ at `2026-08-06T23:23:41Z`:
   registration endpoint.
 - `doctrine/speakeasy-setup.md` — every Speakeasy-side label and fixed anchor
   transcluded above; canonical product-source snapshot at
-  `speakeasy-api/gram`, `client/dashboard`, `main` @ `96f7f73`; observed at
-  `2026-08-06T23:23:41Z`.
-- `speakeasy-api/gram`, commit `96f7f73`,
-  `client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/IssuerFormFields.tsx`
-  — **Scope (override)** label, comma-separated interaction, and fallback
-  behavior.
-- `speakeasy-api/gram`, commit `96f7f73`,
-  `client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/AttachRemoteIdentityProviderSheet.tsx`
-  — **Attach Identity Provider** submit label.
+  `speakeasy-api/gram`, `client/dashboard`, `main` @ `68b3f78`; observed at
+  `2026-09-30T21:25:43Z`.
+- `speakeasy-api/gram`, commit `68b3f78`,
+  `client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/RemoteMcpIdentitySection.tsx`
+  and `client/dashboard/src/pages/catalog/AddServerDialog.tsx` — **Identity**
+  section, provider picker, **Manual** registration, **Advanced > Scope**,
+  and the **Add to Project** identity choice (via the doctrine).
+- Re-observed `2026-09-30T21:25:43Z`: `https://bigquery.googleapis.com/mcp`
+  (`initialize` 200 unauthenticated, protocol `2025-06-18`), its
+  protected-resource metadata (issuer `https://accounts.google.com/`, scope
+  `https://www.googleapis.com/auth/bigquery`), Google's authorization-server
+  metadata (no registration endpoint, no CIMD),
+  `https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp` (URL, scope,
+  three IAM roles unchanged), and the Speakeasy MCP Catalog search for
+  `BigQuery` (entry **BigQuery**, `com.pulsemcp.mirror/google-bigquery`).
 - `https://docs.cloud.google.com/contact-center/ccai-platform/docs/oauth-email-google`
   — **Publish app** followed by **Confirm** in the confirmation dialog.

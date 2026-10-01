@@ -22,13 +22,19 @@ researched_at: 2026-08-06T23:21:18Z
     `@xdevplatform/xurl` stdio bridge. The bridge uses an X developer app's
     `CLIENT_ID` and `CLIENT_SECRET`, performs Authorization Code with PKCE,
     injects and refreshes Bearer tokens, and relays to the hosted URL. The
-    default registered callback is `http://localhost:8080/callback`. X states
-    that the MCP Server does not advertise native MCP OAuth discovery and that
-    there is no dynamic client registration. The Speakeasy AI Control Plane
-    canonical flow hosts a remote Streamable HTTP source; it cannot run this
-    local stdio bridge. Therefore this Guide does not offer the full OAuth
-    route as a connectable Authentication Option and does not ask for Client ID
-    or Client Secret.
+    default registered callback is `http://localhost:8080/callback`. X's MCP
+    page still states that the server does not advertise native MCP OAuth
+    discovery and that there is no dynamic client registration. A live probe
+    on 2026-09-30 shows the first half is stale: `https://api.x.com/mcp`
+    answers 401 with a `resource_metadata` challenge, and the protected-resource
+    metadata names issuer `https://api.x.com` (authorize
+    `https://x.com/i/oauth2/authorize`, token
+    `https://api.x.com/2/oauth2/token`). That issuer advertises neither a
+    `registration_endpoint` nor CIMD, so no client can be registered
+    automatically. X documents only the local `xurl` bridge for user-context
+    OAuth, and does not document a hosted-client callback. This Guide
+    therefore documents the app-only Bearer Token and does not ask for Client
+    ID or Client Secret.
 - **Authorization behavior:** an app-only token provides public-data reads
   only and cannot act as a user. X describes the hosted server as spanning
   search, users, bookmarks, trends, news, and Articles, but user-context
@@ -61,7 +67,7 @@ Value the Speakeasy AI Control Plane needs:
 
 | Value | Origin | Speakeasy destination |
 | --- | --- | --- |
-| Bearer Token | Generated for the new X app and shown with its credentials ({#copy-bearer-token}) | Static secret value for the `Authorization` upstream header, prefixed with `Bearer ` |
+| Bearer Token | Generated for the new X app and shown with its credentials ({#copy-bearer-token}) | **Service Account** credential, format **Bearer**, field **Token** (raw token; the Bearer format adds the `Bearer ` prefix to the `Authorization` header) |
 
 There is no provider callback field in this app-only flow, so
 `{{ gram.oauth.callback_url }}` is not used. The OAuth callback
@@ -109,9 +115,9 @@ route and must not be substituted into this Guide.
   organization's password manager or secure vault. X identifies this as the
   app-only credential for reading public data. This is a copy-now step; do not
   leave the view before saving the token.
-- Destination: later enter this token in the Speakeasy AI Control Plane as the
-  secret static value `Bearer <Bearer Token>` for an upstream header named
-  `Authorization`.
+- Destination: later paste this token into **Token** under the **Service
+  Account** identity with the **Bearer** format in the Speakeasy AI Control
+  Plane.
 - Recovery: if the generated credential view was closed before the token was
   saved, reopen the app from the Developer Console dashboard, open **Keys and
   tokens**, and select **Regenerate** for the **Bearer Token**. Regeneration
@@ -123,48 +129,67 @@ route and must not be substituted into this Guide.
 ## Speakeasy setup
 
 Per-guide values rendered into the canonical
-`doctrine/speakeasy-setup.md` skeleton:
+`doctrine/speakeasy-setup.md` skeleton (gram `main` `68b3f78`):
 
 - Provider: X.
-- Remote URL: `https://api.x.com/mcp`.
-- Transport: `streamable-http`; the **Transport** field is read-only.
-- Catalog status: present. The Speakeasy MCP Catalog lookup matched
-  registry name `com.pulsemcp.mirror/xdevplatform-xmcp`, title `X`, for the
-  query `x`. Render only the catalog path; enter `X` in the catalog search
+- Remote URL: `https://api.x.com/mcp` (shared public endpoint; not tenanted).
+- Add-server path: `speakeasy_add_server: catalog`. The Speakeasy MCP Catalog
+  search for `X` on 2026-09-30 returned `com.pulsemcp.mirror/xdevplatform-xmcp`,
+  title `X`. Render only the catalog path; enter `X` in the catalog search
   box.
-- Authentication Option: app-only Bearer Token (`api_key` in Metadata).
-- Credential origin: **Bearer Token** from {#copy-bearer-token}.
-- Upstream header: name `Authorization`; **Value source** **Static value**;
-  value `Bearer <Bearer Token>`; mark **Secret**.
-- Further-reading URL:
-  `https://docs.x.com/tools/mcp`.
+- Authentication Option: app-only Bearer Token (`api_key` in Metadata) →
+  identity mode **Service Account**, credential format **Bearer**.
+- Credential origin: **Bearer Token** from {#copy-bearer-token}, pasted raw
+  into **Token**. The **Bearer** format supplies the `Bearer ` prefix, so the
+  reader must not type it (typing it produces `Bearer Bearer <token>`).
+- Probe outcome (2026-09-30): `POST https://api.x.com/mcp` `initialize`
+  without credentials → 401 with
+  `WWW-Authenticate: Bearer resource_metadata="https://api.x.com/.well-known/oauth-protected-resource"`.
+- PRM issuer: `https://api.x.com`. PRM `scopes_supported`: `tweet.read
+  users.read follows.read space.read mute.read like.read list.read list.write
+  block.read block.write bookmark.read bookmark.write dm.read dm.write
+  developer.billing.write developer.write offline.access`.
+- Issuer metadata (`https://api.x.com/.well-known/oauth-authorization-server`):
+  authorize `https://x.com/i/oauth2/authorize`, token
+  `https://api.x.com/2/oauth2/token`, token auth methods `none` and
+  `client_secret_basic`. No `registration_endpoint`, no
+  `client_id_metadata_document_supported`. Not used by this Guide.
+- Registration choice: not applicable (Service Account, no OAuth client).
+- Scope string: not applicable.
+- Identity default at creation: the catalog dialog preselects **User
+  Identity** only when the entry supports OAuth client registration; X does
+  not, so the dialog starts on **No Identity**. The Guide tells readers to
+  select **Service Account** explicitly.
+- Server Availability: not rendered. A Service Account credential entered at
+  creation does not leave the server **Disabled**.
+- Further-reading URL: `https://docs.x.com/tools/mcp`.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
+In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
+**MCP**, then click **Add new** to open **Add MCP server**. Choose **From the
+catalog**. On the **MCP Catalog** page, enter `X` in **Search MCP
+servers...**, open the X catalog entry, and click **Add**. In the **Add to
+Project** dialog, under **Identity**, select **Service Account**, select
+**Bearer**, and paste the Bearer Token from {#copy-bearer-token} into
+**Token** without a `Bearer ` prefix. Speakeasy sends it as the
+`Authorization` header. Click **Add to Project**. When the dialog offers a
+**Guardrails** step, finish it or click **Skip for now**. After **Server
+added successfully**, click **Configure MCP settings** to open the server.
 
-Choose **3rd-party server**. On the **MCP Catalog** page, enter `X` in
-**Search MCP servers...**, open the X result with **View**, and click **Add**.
-In the **Add to Project** dialog, click **Add to Project**.
-
-This creates the hosted MCP Server and opens its **Overview** page.
-
-Screenshot note: capture the X catalog entry with **View** and **Add**
-visible. Do not include credentials.
+Screenshot note: the X **Add to Project** dialog with **Service Account** and
+**Bearer** selected; redact the token.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**. Under **Upstream Headers**,
-click **Add header**. Enter `Authorization` as **Header name**, leave
-**Value source** as **Static value**, paste
-`Bearer <Bearer Token from copy-bearer-token>` as the value, check **Secret**,
-then click **Save**. If a catalog install collects headers in the
-**Add to Project** dialog instead, use its **Upstream headers** section with
-the same name, value, and secret setting.
+Creation already configured the identity. To confirm it, or for an X server
+created without the credential: open the server's **Settings**, find the
+**Identity** section, select **Service Account**, fill **Service Account
+credential** with format **Bearer** and the raw Bearer Token in **Token**,
+and click **Save**. Do not add the token under **Custom Headers**.
 
-Screenshot note: capture the **Upstream Headers** editor with
-`Authorization`, **Static value**, and **Secret** visible; redact the value.
+Screenshot note: **Settings > Identity** with **Service Account** and
+**Bearer** selected; redact the token.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior,
 limits — see X's MCP documentation at
@@ -197,17 +222,20 @@ limits — see X's MCP documentation at
   not a substitute for the primary MCP page.
 - **Speakeasy product doctrine:** `doctrine/speakeasy-setup.md`, read locally and
   used only for the fixed Speakeasy-side flow and anchors.
+- **Live endpoint probes:** the remote URL and its OAuth metadata, probed
+  without credentials on 2026-09-30.
 
 ### Fact sources
 
 - `https://docs.x.com/tools/mcp.md` — observed
-  `2026-08-06T23:21:18Z`. Primary MCP source. Backs the X MCP URL, hosted
+  `2026-09-30T00:00:00Z` (re-verified; first observed
+  `2026-08-06T23:21:18Z`). Primary MCP source. Backs the X MCP URL, hosted
   Streamable HTTP transport, protocol/server information, direct app-only
   Bearer route, read-only limitation, `Authorization` header shape, local
-  `xurl mcp` OAuth route, no dynamic registration or native MCP OAuth
-  discovery, callback value, and the server's search, users, bookmarks, trends,
+  `xurl mcp` OAuth route, the documented (now stale) statement of no native
+  MCP OAuth discovery, no dynamic registration, callback value, and the server's search, users, bookmarks, trends,
   news, and Articles capability areas. Also supplies the further-reading URL.
-- `https://docs.x.com/llms.txt` — observed `2026-08-06T23:21:18Z`. Backs the
+- `https://docs.x.com/llms.txt` — observed `2026-09-30T00:00:00Z`. Backs the
   documentation-property sweep and discovery of the MCP, authentication,
   Developer Console, app, access, and pricing pages.
 - `https://docs.x.com/x-api/getting-started/getting-access.md` — observed
@@ -244,10 +272,16 @@ limits — see X's MCP documentation at
   stdio-to-Streamable-HTTP bridge architecture, `CLIENT_ID` /
   `CLIENT_SECRET`, token caching and refresh, browser/headless behavior, and
   default `http://localhost:8080/callback`.
-- `doctrine/speakeasy-setup.md` — observed `2026-08-06T23:21:18Z`. Backs the
-  fixed {#add-server-in-speakeasy} and {#connect-speakeasy-credentials}
-  anchors, exact Speakeasy labels, resolved catalog path, upstream-header
+- `https://api.x.com/mcp`, `https://api.x.com/.well-known/oauth-protected-resource`,
+  and `https://api.x.com/.well-known/oauth-authorization-server` — live
+  probes observed `2026-09-30T00:00:00Z`. Back the 401 `resource_metadata`
+  challenge, the PRM issuer and scope list, the authorize and token
+  endpoints, and the absence of DCR and CIMD.
+- `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`) — observed
+  `2026-09-30T00:00:00Z`. Backs the fixed {#add-server-in-speakeasy} and
+  {#connect-speakeasy-credentials} anchors, exact Speakeasy labels, resolved
+  catalog path, the **Service Account** / **Bearer** / **Token** credential
   flow, and closing pointer form.
 - Speakeasy MCP Catalog record `com.pulsemcp.mirror/xdevplatform-xmcp`
-  (title `X`) — observed `2026-08-06T23:21:18Z`, `source: pulsemcp`. Backs
+  (title `X`) — observed `2026-09-30T00:00:00Z`, `source: pulsemcp`. Backs
   catalog presence and the catalog-only add-server path.

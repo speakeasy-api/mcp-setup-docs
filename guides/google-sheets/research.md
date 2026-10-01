@@ -12,9 +12,11 @@ researched_at: 2026-07-29T20:37:05Z
 - Transport: `streamable-http`. Google labels it **HTTP**. A direct MCP
   `initialize` request over HTTPS POST returned HTTP 200 and an MCP JSON
   response during this run.
-- Launch stage: Developer Preview, announced in Google's July 13, 2026
-  Workspace developer release notes. The setup page documents no separate
-  preview-enrollment step.
+- Launch stage: Developer Preview. Re-verified `2026-09-30T21:25:45Z`: the
+  Sheets setup page lists "Membership in the Google Workspace Developer
+  Preview Program" as a prerequisite, so enrollment is a setup step
+  ({#join-developer-preview}). This supersedes the earlier note that no
+  preview-enrollment step was documented.
 - Enable both **Google Sheets API** (`sheets.googleapis.com`) and
   **Google Sheets MCP API** (`sheetsmcp.googleapis.com`) in one Google Cloud
   project. Enabling APIs requires `serviceusage.services.enable`, normally
@@ -69,6 +71,28 @@ organization.
 Sign in at `https://console.cloud.google.com`. In the console toolbar, use the
 resource selector to select the project that will own this configuration. Keep
 that project selected throughout the Google steps.
+
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+- Re-verified at `2026-09-30T21:25:45Z`: Google's Sheets MCP setup page lists "Membership in
+  the Google Workspace Developer Preview Program" as the first prerequisite,
+  and the program page lists the **Sheets MCP server** among its preview
+  features.
+- Open `https://developers.google.com/workspace/preview` and review the
+  **Developer Preview Program Terms** with the application or security owner.
+- Click **Apply to join the Developer Preview Program**. The form requests
+  "Google Workspace account and Google Cloud project information"; Google does
+  not publish its exact field labels, so the submit control is rendered as
+  "visible or equivalent". Agree to the terms only with organizational
+  approval.
+- Wait for the project-registration confirmation. Google says "The whole
+  process should be done within a couple of days."
+- Result and transition: the registered project is used for every Google
+  Cloud step that follows.
+- Values entered: organization-specific Workspace account and Cloud project
+  information. Values copied: none.
+- Screenshot note: the program page with **Sheets MCP server** listed under
+  **Latest features**; do not capture application-form data.
 
 ### Enable the Google Sheets APIs {#enable-google-sheets-apis}
 
@@ -165,61 +189,76 @@ that project selected throughout the Google steps.
 
 ## Speakeasy setup
 
-Transcluded from `doctrine/speakeasy-setup.md`, observed at
-`2026-07-29T20:37:05Z`. The two anchors below are fixed and carried verbatim.
-
-### Add the server in Speakeasy {#add-server-in-speakeasy}
-
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
-
-Choose **Custom remote server**. On **Add a custom remote MCP server**, paste
-`https://sheetsmcp.googleapis.com/mcp/v1` into **Remote MCP server URL** and
-click **Add server**.
-
-This creates the hosted MCP server and opens its **Overview** page.
-
-<!-- screenshot: the Add Source menu open on the Sources page -->
+Transcluded from `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`),
+re-rendered at `2026-09-30T21:25:45Z`. The fixed anchors are carried verbatim. This replaces
+the retired **Authentication** / **Attach Remote Identity Provider** flow.
 
 Per-guide values:
 
-- Remote URL: `https://sheetsmcp.googleapis.com/mcp/v1`.
-- Transport: `streamable-http`; **Transport** is read-only.
-- Authentication Option: `oauth-client`, manually registered OAuth.
-- Catalog decision: absent; Custom remote server only.
+- Remote URL: `https://sheetsmcp.googleapis.com/mcp/v1` (shared public endpoint, not tenanted).
+- Add-server path: Custom remote only (**Hosted remotely**). Catalog lookup absent for `google-sheets` and `google sheets`.
+- Authentication Option: `oauth-client` (OAuth) → **User Identity**. Client
+  ID and Client secret come from {#copy-oauth-credentials}.
+- Probe outcome (`2026-09-30T21:25:45Z`): an unauthenticated JSON-RPC `initialize` POST with
+  `Accept: application/json, text/event-stream` returned HTTP 200 with a
+  result (protocol `2025-06-18`), not a 401. The create form therefore
+  preselects **No Identity**; the reader must select **User Identity**.
+- PRM: `https://sheetsmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1`
+  names issuer `https://accounts.google.com/`. The dashboard's discovery
+  probes this path-suffixed location (the origin-root location returns an
+  error), so the provider picker preselects the Google provider or badges it
+  **Will be created**.
+- Registration: `https://accounts.google.com/.well-known/oauth-authorization-server`
+  advertises no `registration_endpoint` and no
+  `client_id_metadata_document_supported`; Google states its remote MCP
+  servers support neither DCR nor CIMD. The dashboard defaults to **Manual**
+  (or **Existing client** when one exists). Registration choice: **Manual**.
+  Automatic configuration at creation cannot register a client, so the server
+  is saved **Disabled** and must be enabled under **Settings > Danger Zone >
+  Server Availability** after the Identity section is saved.
+- Token endpoint auth: the issuer advertises `client_secret_post` and
+  `client_secret_basic`; the dashboard picks the method automatically.
+- PRM `scopes_supported`: `https://www.googleapis.com/auth/drive.readonly`, `https://www.googleapis.com/auth/spreadsheets.readonly`, `https://www.googleapis.com/auth/drive`, `https://www.googleapis.com/auth/spreadsheets`. This is
+  broader than the consent-screen configuration (full `drive`), so **Scope**
+  must not be left blank.
+- Scope string for **Advanced > Scope** (space-separated, one line):
+  `https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/spreadsheets`
+- Further-reading URL: the provider's MCP setup page listed in Provenance.
+
+### Add the server in Speakeasy {#add-server-in-speakeasy}
+
+Under **MCP Gateway**, select **MCP**, click **Add new**, and choose **Hosted
+remotely**. On **New remote MCP server**, paste `https://sheetsmcp.googleapis.com/mcp/v1` into **MCP server
+URL**, leave **User session issuer** at its default, and click **Verify
+connectivity**. Under **Identity**, select **User Identity** (the page
+preselects **No Identity** for this 200-unauthenticated server). Leave
+**Guardrails** off if it appears, then click **Save**. The result keeps the
+server **Disabled** and says to finish setup in **Settings > Identity**; this
+is expected for Manual registration.
+
+Screenshot note: **New remote MCP server** with the URL verified and **User
+Identity** selected.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From **Overview**, open **Settings**. Under **Authentication**, click
-**Configure Manually** or **Use Discovered** when offered. In
-**Attach Remote Identity Provider**, set **Client Type** to **Manual**.
+Open **Settings** > **Identity**. Confirm **User Identity**. In **Choose an
+identity provider**, confirm the Google provider (`https://accounts.google.com/`)
+or pick it via **Search identity providers…**. Choose **Manual**. Paste
+**Client ID** and **Client secret** from {#copy-oauth-credentials}; Google requires the
+secret despite the "Optional" placeholder. Under **Advanced > Scope**, enter the
+scope string above and do not leave it blank. Click **Save**. Then open
+**Settings > Danger Zone > Server Availability** and turn on **Enable MCP
+server** so it shows **Enabled**.
 
-Confirm that the sheet's **Redirect URI** matches
-`{{ gram.oauth.callback_url }}` entered in {#create-oauth-client}. Paste the
-**Client ID** and **Client Secret (optional)** from
-{#copy-oauth-credentials}. Google's web client requires the generated secret
-even though the Speakeasy label says optional.
+This surface does not display the redirect URI; {#create-oauth-client}
+registers `{{ gram.oauth.callback_url }}` directly.
 
-In **Scope (override)**, enter these comma-separated values:
-`https://www.googleapis.com/auth/drive.readonly`,
-`https://www.googleapis.com/auth/drive.file`,
-`https://www.googleapis.com/auth/spreadsheets.readonly`,
-`https://www.googleapis.com/auth/spreadsheets`. Click
-**Attach Identity Provider**.
+On first use, Google's browser authorization prompt appears. The account must
+hold **MCP Tool User** ({#grant-mcp-tool-user}) and, for an External app in
+**Testing**, be listed under **Test users**.
 
-At first connection, complete Google's browser authorization with an account
-granted **MCP Tool User** in {#grant-mcp-tool-user} and access to the intended
-spreadsheets. Provider-specific prompt labels are not documented.
-
-Screenshot note: **Attach Remote Identity Provider** showing Manual client
-type, redirect URI, credential labels, and scopes, with secrets redacted.
-
-Further-reading URL:
-`https://developers.google.com/workspace/sheets/api/guides/configure-mcp-server`.
-
-This guide covers setup only. For anything beyond it — billing, tool behavior,
-limits — see Google's Sheets MCP documentation at
-https://developers.google.com/workspace/sheets/api/guides/configure-mcp-server.
+Screenshot note: **Settings > Identity** with **User Identity**, the Google
+provider, and **Manual** selected; values redacted.
 
 ## Open questions
 
@@ -228,8 +267,8 @@ https://developers.google.com/workspace/sheets/api/guides/configure-mcp-server.
   protected-resource metadata advertises `drive.readonly`, `drive`,
   `spreadsheets.readonly`, and `spreadsheets`. This Dossier follows the
   product-specific setup page for the manual override. Public documentation
-  does not confirm whether **Use Discovered** alone provides equivalent Drive
-  access.
+  does not confirm whether the PRM scope set alone provides equivalent Drive
+  access, so **Advanced > Scope** is set explicitly.
 
 ## Provenance
 
@@ -282,3 +321,13 @@ All sources were observed at `2026-07-29T20:37:05Z`:
   authorization/token endpoints and no registration endpoint.
 - `doctrine/speakeasy-setup.md` — Custom remote and Manual OAuth flow.
 - `doctrine/personas/it-admin.md` — browser-only achievability requirements.
+
+Re-observed at `2026-09-30T21:25:45Z` (identity-section refresh): the product MCP setup page,
+`https://developers.google.com/workspace/guides/configure-mcp-servers`,
+`https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers`, the MCP
+endpoint `initialize` probe, the path-suffixed PRM, Google's
+authorization-server metadata, and `doctrine/speakeasy-setup.md` (gram
+`68b3f78`). Newly drawn from:
+
+- `https://developers.google.com/workspace/preview` — Developer Preview
+  Program terms, apply action, form contents, timeline, and listed MCP servers.

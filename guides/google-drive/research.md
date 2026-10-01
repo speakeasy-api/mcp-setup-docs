@@ -12,6 +12,9 @@ researched_at: 2026-07-29T20:37:22Z
 - Transport: `streamable-http`. Google labels it **HTTP**; its MCP reference
   shows JSON-RPC over HTTPS with `application/json, text/event-stream`.
 - Launch stage: **Developer Preview** in Google's supported-products table.
+  Re-verified `2026-09-30T21:25:45Z`: the Drive setup page lists "Membership in
+  the Google Workspace Developer Preview Program" as a prerequisite
+  ({#join-developer-preview}).
 - Enable both **Google Drive API** (`drive.googleapis.com`) and **Google Drive
   MCP API** (`drivemcp.googleapis.com`) in the same Google Cloud project.
 - Authentication: OAuth 2.0 with a manually registered Web application
@@ -59,8 +62,9 @@ Google generates:
 | OAuth scopes | The two Drive scopes listed in Server facts |
 
 Paste `{{ gram.oauth.callback_url }}` directly into **Authorized redirect
-URIs** in {#create-oauth-client}. The Speakeasy AI Control Plane later shows
-the same value as **Redirect URI** for confirmation.
+URIs** in {#create-oauth-client}. The Control Plane's **Identity** section
+does not display the redirect URI, so this registration is the only callback
+check.
 
 Each user who connects must have **MCP Tool User**, access to the intended
 Drive files, permission under Workspace app-access policy, and—when the
@@ -70,6 +74,28 @@ audience is External and Testing—membership in **Test users**.
 
 Sign in at `https://console.cloud.google.com` and select the project that will
 own the APIs and OAuth client.
+
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+- Re-verified at `2026-09-30T21:25:45Z`: Google's Drive MCP setup page lists "Membership in
+  the Google Workspace Developer Preview Program" as the first prerequisite,
+  and the program page lists the **Drive MCP server** among its preview
+  features.
+- Open `https://developers.google.com/workspace/preview` and review the
+  **Developer Preview Program Terms** with the application or security owner.
+- Click **Apply to join the Developer Preview Program**. The form requests
+  "Google Workspace account and Google Cloud project information"; Google does
+  not publish its exact field labels, so the submit control is rendered as
+  "visible or equivalent". Agree to the terms only with organizational
+  approval.
+- Wait for the project-registration confirmation. Google says "The whole
+  process should be done within a couple of days."
+- Result and transition: the registered project is used for every Google
+  Cloud step that follows.
+- Values entered: organization-specific Workspace account and Cloud project
+  information. Values copied: none.
+- Screenshot note: the program page with **Drive MCP server** listed under
+  **Latest features**; do not capture application-form data.
 
 ### Enable the Google Drive API {#enable-drive-api}
 
@@ -178,42 +204,77 @@ own the APIs and OAuth client.
 
 ## Speakeasy setup
 
-Transcluded from `doctrine/speakeasy-setup.md`, observed at
-`2026-07-29T20:37:22Z`. The fixed anchors are carried verbatim.
+Transcluded from `doctrine/speakeasy-setup.md` (gram `main` `68b3f78`),
+re-rendered at `2026-09-30T21:25:45Z`. The fixed anchors are carried verbatim. This replaces
+the retired **Authentication** / **Attach Remote Identity Provider** flow.
+
+Per-guide values:
+
+- Remote URL: `https://drivemcp.googleapis.com/mcp/v1` (shared public endpoint, not tenanted).
+- Add-server path: Custom remote only (**Hosted remotely**). Operator notes record catalog queries `google-drive` and `google drive` as
+  absent.
+- Authentication Option: `oauth-client` (OAuth) → **User Identity**. Client
+  ID and Client secret come from {#copy-client-credentials}.
+- Probe outcome (`2026-09-30T21:25:45Z`): an unauthenticated JSON-RPC `initialize` POST with
+  `Accept: application/json, text/event-stream` returned HTTP 200 with a
+  result (protocol `2025-06-18`), not a 401. The create form therefore
+  preselects **No Identity**; the reader must select **User Identity**.
+- PRM: `https://drivemcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1`
+  names issuer `https://accounts.google.com/`. The dashboard's discovery
+  probes this path-suffixed location (the origin-root location returns an
+  error), so the provider picker preselects the Google provider or badges it
+  **Will be created**.
+- Registration: `https://accounts.google.com/.well-known/oauth-authorization-server`
+  advertises no `registration_endpoint` and no
+  `client_id_metadata_document_supported`; Google states its remote MCP
+  servers support neither DCR nor CIMD. The dashboard defaults to **Manual**
+  (or **Existing client** when one exists). Registration choice: **Manual**.
+  Automatic configuration at creation cannot register a client, so the server
+  is saved **Disabled** and must be enabled under **Settings > Danger Zone >
+  Server Availability** after the Identity section is saved.
+- Token endpoint auth: the issuer advertises `client_secret_post` and
+  `client_secret_basic`; the dashboard picks the method automatically.
+- PRM `scopes_supported`: `https://www.googleapis.com/auth/drive`, `https://www.googleapis.com/auth/drive.readonly`, `https://www.googleapis.com/auth/drive.file`. This is
+  broader than the consent-screen configuration (full `drive`), so **Scope**
+  must not be left blank.
+- Scope string for **Advanced > Scope** (space-separated, one line):
+  `https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file`
+- Further-reading URL: the provider's MCP setup page listed in Provenance.
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-In the Speakeasy AI Control Plane sidebar, under **Connect**, select
-**Sources**, then click **Add Source**.
+Under **MCP Gateway**, select **MCP**, click **Add new**, and choose **Hosted
+remotely**. On **New remote MCP server**, paste `https://drivemcp.googleapis.com/mcp/v1` into **MCP server
+URL**, leave **User session issuer** at its default, and click **Verify
+connectivity**. Under **Identity**, select **User Identity** (the page
+preselects **No Identity** for this 200-unauthenticated server). Leave
+**Guardrails** off if it appears, then click **Save**. The result keeps the
+server **Disabled** and says to finish setup in **Settings > Identity**; this
+is expected for Manual registration.
 
-Choose **Custom remote server**. On **Add a custom remote MCP server**, paste
-`https://drivemcp.googleapis.com/mcp/v1` into **Remote MCP server URL** and
-click **Add server**.
-
-This creates the hosted MCP server and opens its **Overview** page.
-
-<!-- screenshot: Add Source with Custom remote server selected -->
-
-Only this path is rendered because operator notes record both catalog queries,
-`google-drive` and `google drive`, as absent. There is no catalog open
-question.
+Screenshot note: **New remote MCP server** with the URL verified and **User
+Identity** selected.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From **Overview**, open **Settings**. Under **Authentication**, click
-**Configure Manually** or **Use Discovered** when offered. In **Attach Remote
-Identity Provider**, set **Client Type** to **Manual**.
+Open **Settings** > **Identity**. Confirm **User Identity**. In **Choose an
+identity provider**, confirm the Google provider (`https://accounts.google.com/`)
+or pick it via **Search identity providers…**. Choose **Manual**. Paste
+**Client ID** and **Client secret** from {#copy-client-credentials}; Google requires the
+secret despite the "Optional" placeholder. Under **Advanced > Scope**, enter the
+scope string above and do not leave it blank. Click **Save**. Then open
+**Settings > Danger Zone > Server Availability** and turn on **Enable MCP
+server** so it shows **Enabled**.
 
-Confirm **Redirect URI** matches the value registered in
-{#create-oauth-client}. Paste **Client ID** and **Client Secret (optional)**
-from {#copy-client-credentials}; Google's Web application flow requires the
-generated secret despite the optional Speakeasy label. Configure both required
-Drive scopes, then click **Attach Identity Provider**.
+This surface does not display the redirect URI; {#create-oauth-client}
+registers `{{ gram.oauth.callback_url }}` directly.
 
-Screenshot note: the identity-provider sheet with credentials redacted.
+On first use, Google's browser authorization prompt appears. The account must
+hold **MCP Tool User** ({#grant-mcp-tool-user}) and, for an External app in
+**Testing**, be listed under **Test users**.
 
-Further reading:
-`https://developers.google.com/workspace/drive/api/guides/configure-mcp-server`.
+Screenshot note: **Settings > Identity** with **User Identity**, the Google
+provider, and **Manual** selected; values redacted.
 
 ## Open questions
 
@@ -274,3 +335,13 @@ All entries were observed at `2026-07-29T20:37:22Z`:
 - `https://accounts.google.com/.well-known/oauth-authorization-server` —
   OAuth endpoints and no registration endpoint.
 - `doctrine/speakeasy-setup.md` — canonical Speakeasy labels and anchors.
+
+Re-observed at `2026-09-30T21:25:45Z` (identity-section refresh): the product MCP setup page,
+`https://developers.google.com/workspace/guides/configure-mcp-servers`,
+`https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers`, the MCP
+endpoint `initialize` probe, the path-suffixed PRM, Google's
+authorization-server metadata, and `doctrine/speakeasy-setup.md` (gram
+`68b3f78`). Newly drawn from:
+
+- `https://developers.google.com/workspace/preview` — Developer Preview
+  Program terms, apply action, form contents, timeline, and listed MCP servers.

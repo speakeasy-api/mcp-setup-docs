@@ -51,17 +51,17 @@ remotes:
         locator: https://developer.box.com/guides/box-mcp/setup
         name: Set up the MCP server
         classification: official
-        observed_at: "2026-08-28T23:25:24Z"
+        observed_at: "2026-09-30T21:30:00Z"
       - source: endpoint-metadata
         locator: https://mcp.box.com/.well-known/oauth-protected-resource
         name: Box Model Context Protocol Server
         classification: official
-        observed_at: "2026-08-28T23:25:24Z"
+        observed_at: "2026-09-30T21:30:00Z"
       - source: provider-documentation
-        locator: https://www.speakeasy.com/docs/ai-control-plane/distribute/mcp-servers/remote-servers
+        locator: https://www.speakeasy.com/docs/ai-control-plane/mcp-gateway/remote-servers
         name: Remote MCP servers
         classification: official
-        observed_at: "2026-08-28T23:25:24Z"
+        observed_at: "2026-09-30T21:30:00Z"
 provenance:
   - source: pulsemcp
     locator: com.pulsemcp.mirror/box
@@ -84,7 +84,7 @@ provenance:
     locator: https://docs.box.com/en/box-mcp/configuring-box-mcp-server/claude-code
     name: Claude Code
     classification: official
-    observed_at: "2026-08-28T23:25:24Z"
+    observed_at: "2026-09-30T21:30:00Z"
   - source: provider-documentation
     locator: https://docs.box.com/en/box-mcp/configuring-box-mcp-server/anthropic-messages-api
     name: Anthropic Messages API
@@ -139,7 +139,7 @@ provenance:
     locator: https://developer.box.com/guides/box-mcp/setup
     name: Set up the MCP server
     classification: official
-    observed_at: "2026-08-28T23:25:24Z"
+    observed_at: "2026-09-30T21:30:00Z"
   - source: provider-documentation
     locator: https://support.box.com/hc/en-us/articles/43847256139923
     name: Managing Box MCP Servers
@@ -154,14 +154,24 @@ provenance:
     locator: https://mcp.box.com/.well-known/oauth-protected-resource
     name: Box Model Context Protocol Server
     classification: official
-    observed_at: "2026-08-28T23:25:24Z"
+    observed_at: "2026-09-30T21:30:00Z"
   - source: provider-documentation
-    locator: https://www.speakeasy.com/docs/ai-control-plane/distribute/mcp-servers/remote-servers
+    locator: https://www.speakeasy.com/docs/ai-control-plane/mcp-gateway/remote-servers
     name: Remote MCP servers
     classification: official
-    observed_at: "2026-08-28T23:25:24Z"
+    observed_at: "2026-09-30T21:30:00Z"
+  - source: endpoint-metadata
+    locator: https://api.box.com/.well-known/oauth-authorization-server
+    name: Box authorization server metadata
+    classification: official
+    observed_at: "2026-09-30T21:30:00Z"
+  - source: provider-documentation
+    locator: https://developer.box.com/reference/get-authorize/
+    name: Authorize user
+    classification: official
+    observed_at: "2026-09-30T21:30:00Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Canonical Speakeasy setup
     classification: official
-    observed_at: "2026-08-28T23:25:24Z"
+    observed_at: "2026-09-30T21:30:00Z"

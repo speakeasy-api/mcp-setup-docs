@@ -32,9 +32,12 @@ integration.
 1. Select **Integrations**.
 2. Apply the **MCP Category** filter, or type `Custom Box MCP Server` in the
    search bar at the top of the page.
-3. Find the **Custom Box MCP Server** tile.
+3. Find the **Custom Box MCP Server** tile. Some Box pages call this tile
+   **Box MCP server**; if `Custom Box MCP Server` finds nothing, search for
+   `Box MCP server` instead.
 
-Do not select the **Box MCP Server** tab or a named partner tile.
+Do not use the **Box MCP Server** tab, which controls tool access, or a named
+partner tile.
 
 <!-- screenshot: the Integrations page with the MCP Category filter applied, or Custom Box MCP Server in the search bar, and the Custom Box MCP Server tile visible -->
 
@@ -49,7 +52,7 @@ If the **Custom Box MCP Server** tile shows **Configuration**:
 
 Otherwise:
 
-1. Hover over **Custom Box MCP Server**.
+1. Hover over the **Custom Box MCP Server** (or **Box MCP server**) tile.
 2. Click **Configure**.
 3. Open **Additional Configuration**.
 4. Click **+ Add Integration Credentials**.

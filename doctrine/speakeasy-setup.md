@@ -13,10 +13,16 @@ Consumers may omit this file when Speakeasy setup is already in context
 
 UI facts below are drawn from the product source
 (`speakeasy-api/gram`, `client/dashboard`, branch `main`), commit
-`8fa18729608e34de305e789b53f36eb2c6c853c9` (observed 2026-09-17).
+`68b3f78ffec0ab6072ece4b7cc2ee3868c6a7c06` (observed 2026-09-30).
 Navigation and creation: `pages/mcp/MCP.tsx`, `pages/mcp/add/AddMcpServer.tsx`,
-`pages/sources/remote-mcp/CreateRemoteMcp.tsx`, and `pages/catalog/`.
-Authentication: `pages/mcp/x/tabs/settings/sections/authentication/`.
+`pages/sources/remote-mcp/CreateRemoteMcp.tsx`,
+`pages/catalog/AddServerDialog.tsx`, and
+`pages/mcp/x/tabs/settings/sections/authentication/CreationIdentityChoice.tsx`.
+Identity: `pages/mcp/x/tabs/settings/sections/authentication/RemoteMcpIdentitySection.tsx`
+and `lib/remote-identity/` (`IdentityModeCards.tsx`, `ProviderRow.tsx`,
+`CredentialFields.tsx`, `drafts/useIdentityDraft.ts`). Custom providers:
+`pages/remote-identity-providers/`. Server availability:
+`pages/mcp/x/tabs/settings/sections/DangerZoneSection.tsx`.
 Labels are code-level strings; a rendered-UI spot check is still worthwhile.
 Controls depend on configuration state and write permission. No role may
 invent a label this file does not carry.
@@ -34,13 +40,29 @@ invent a label this file does not carry.
 - Optional `speakeasy_add_server`: `auto` (default), `catalog`, or
   `custom-remote`.
 - The Authentication Option the guide documents, which External-setup
-  step produced each credential field, and — for OAuth options — any
-  scopes the provider requires. For every OAuth option, record the
-  **Issuer URL**, discovery support, and documented authorization/token
-  endpoints when discovery is unavailable; DCR also needs a registration
-  endpoint. Do not assume the remote MCP URL is the OAuth issuer. Missing
-  provider-specific issuer/endpoint evidence is an open question, not a
-  value the Writer may invent.
+  step produced each credential field, and — for OAuth options — the
+  scopes the provider app is configured for. Map the option to an
+  identity mode: OAuth → **User Identity**; one shared API key or token
+  → **Service Account**; no upstream credential → **No Identity**.
+- For every OAuth option, record: the probe outcome of the remote URL
+  (401 with a `resource_metadata` challenge, 401 without one, or 200
+  unauthenticated); the issuer the protected-resource metadata (PRM)
+  names; whether that issuer advertises CIMD
+  (`client_id_metadata_document_supported`) or a `registration_endpoint`,
+  and whether anonymous registration actually succeeds; and, when
+  discovery is unavailable, the documented **Issuer URL**, authorization,
+  and token endpoints. Do not assume the remote MCP URL is the OAuth
+  issuer. Missing provider-specific issuer/endpoint evidence is an open
+  question, not a value the Writer may invent.
+- The registration choice that works: **Auto-Configure** (and **CIMD**
+  or **DCR** when both are offered) or **Manual**. Record Manual whenever
+  automatic registration is advertised but fails, because the dashboard
+  defaults to **Auto-Configure** whenever it is advertised.
+- For **Manual**, the exact scope string to enter under **Advanced >
+  Scope**, space-separated on one line. A blank **Scope** requests every
+  scope the PRM advertises, which is often broader than the provider app
+  allows; record the PRM scope list so the Writer can say whether blank
+  is safe.
 - `<further-reading URL>` — the provider's primary MCP documentation
   page, for the closing pointer.
 
@@ -67,7 +89,7 @@ or absent).
 
 ## The skeleton (anchors are fixed; carry them verbatim)
 
-Both bullets below are **source material**. Research emits only the
+Both path bullets below are **source material**. Research emits only the
 matching imperative path (or both when unresolved). Writer renders what
 the Dossier chose — not the conditional "If … is in the catalog" framing
 when presence is known.
@@ -81,105 +103,141 @@ In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select
 `speakeasy_add_server: catalog`; never when tenanted or
 `custom-remote`): choose **From the catalog**. On the **MCP Catalog**
 page, find <Provider> using **Search MCP servers...**, open its catalog
-entry, and click **Add**. In the **Add to Project** dialog, click
-**Add to Project**. Wait for installation to complete, then click
-**Configure MCP settings** to open the created server.
+entry, and click **Add**. The **Add to Project** dialog shows **Server
+name**, any **Upstream headers** the catalog entry declares, and an
+**Identity** choice of **User Identity**, **Service Account**, or **No
+Identity**. It preselects **User Identity** only when the catalog entry
+supports OAuth client registration; otherwise it preselects **No
+Identity**. Select the identity mode the Dossier records (see below),
+then click **Add to Project**. When the dialog offers a **Guardrails**
+step, finish it or click **Skip for now** (guardrails are out of guide
+scope). After **Server added successfully**, click **Configure MCP
+settings** to open the created server. When identity still needs setup,
+there is no success banner: the server's result reads "Added, but
+disabled until identity is set up." and **Finish setup** opens its
+**Settings**.
 
 **Custom remote path** (tenanted, `speakeasy_add_server: custom-remote`,
 or Pulse **absent**): choose **Hosted remotely**. On **New remote MCP
 server**, paste `<remote URL>` into **MCP server URL**. Optionally enter
-**Display name (optional)**. Click **Verify connectivity**, then, after
-verification succeeds, click **Save**. This creates the hosted MCP server
-and opens its **Overview** page.
+**Display name (optional)**. Leave **User session issuer** at its
+default. Click **Verify connectivity**. After verification succeeds, the
+page shows the **Identity** choice. It preselects **User Identity** only
+when the server answered with a 401 that names its PRM; otherwise it
+preselects **No Identity**. Select the identity mode the Dossier records,
+leave **Guardrails** off unless the reader wants one, then click
+**Save**. This creates the server and opens its **Overview** page.
 
 **Dual conditional** (Pulse **ambiguous** / **skipped** only, `auto`,
-and not tenanted / not forced) — keep both as bullets:
+and not tenanted / not forced) — keep both as bullets, each with the
+identity selection above:
 
 - If <Provider> is in the catalog: choose **From the catalog**. Find
   <Provider> using **Search MCP servers...**, open its catalog entry,
-  and click **Add**. In **Add to Project**, click **Add to Project**.
-  After installation, click **Configure MCP settings**.
+  and click **Add**. In **Add to Project**, select the identity mode,
+  then click **Add to Project**. After installation, click **Configure
+  MCP settings**.
 - If it is not: choose **Hosted remotely**. On **New remote MCP server**,
   paste `<remote URL>` into **MCP server URL**. Click **Verify
-  connectivity**, then **Save** after verification succeeds. This opens
-  the server's **Overview** page.
+  connectivity**, select the identity mode, then click **Save**. This
+  opens the server's **Overview** page.
 
 Do not describe catalog installation as automatically opening Overview.
 
-<!-- screenshot: Add MCP server choices, or the provider's catalog entry -->
+Identity at creation, by Authentication Option:
+
+- **User Identity** (OAuth): Speakeasy tries to configure the identity
+  provider and register a client automatically when it saves. When that
+  works, the server is ready and no credential step remains. When it
+  cannot (no discoverable metadata, or the provider needs a client
+  registered by hand), the server is kept **Disabled** and the result
+  says to finish setup in **Settings > Identity**. Guides whose Dossier
+  records **Manual** must say this is expected.
+- **Service Account** (API key / token): the **Identity** choice shows a
+  credential format (**Bearer**, **Basic**, or **Manual**). Choose the
+  format the provider needs and paste the value from External setup into
+  **Token** (Bearer), **Username** and **Password** (Basic), or **Header
+  value** (Manual). Speakeasy sends it as the `Authorization` header.
+- **No Identity**: nothing further. When the server answered with an
+  authentication challenge, the dashboard warns that requests may fail;
+  do not tell readers to ignore that warning.
+
+<!-- screenshot: Add MCP server choices, or the provider's catalog entry with the Identity choice -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Open the server's **Settings**. The Writer renders only the variant
-matching the guide's Authentication Option, names the guide's actual
-fields, and cross-links each value to the External-setup step that
-produced it. Include provider-specific issuer and endpoint values from
-the Dossier where needed, rather than making readers guess.
+Open the server's **Settings** and find the **Identity** section. The
+Writer renders only the variant matching the guide's Authentication
+Option, names the guide's actual fields, and cross-links each value to
+the External-setup step that produced it. When creation already
+configured the identity (Auto-Configure succeeded, or a Service Account
+credential was entered), say so and keep only the confirmation and
+**Server Availability** steps. Changes require write permission and are
+committed with the section's **Save** button.
 
-For OAuth, under **Authentication**:
+For OAuth, select **User Identity**. The provider picker (**Choose an
+identity provider**) preselects the provider the server's PRM names; a
+provider that does not exist yet is badged **Will be created** and is
+created from the upstream's metadata on save. Confirm the preselected
+provider matches the Dossier's issuer, or open the picker (**Search
+identity providers…**) and choose it. When a provider already exists on
+the same host but is the wrong issuer, say which one to pick.
 
-- If authentication is not configured, choose **Use Discovered** when
-  available; otherwise choose **Configure Manually**.
-- If authentication is already configured, find **Connected services**.
-  If no provider is attached, click **Add provider**. If the intended
-  provider is already attached, review its existing configuration instead
-  of attaching it again. Adding another provider is not available for
-  every server type. Changes require write permission.
+When discovery is unavailable (the Dossier records no PRM or wrong
+metadata), the picker cannot create the provider. Render this route
+instead: open the picker, click **Create a custom identity provider**,
+which opens **Remote Identity Providers**; click **New Remote Identity
+Provider**; enter the Dossier's **Issuer URL** and, under **Endpoints**,
+**Authorization Endpoint** and **Token Endpoint** (click **Discover**
+first when the issuer publishes metadata); keep the derived **Slug**;
+click **Create**. Then use the provider's **Add Client** to create the
+client (**Client Type** **Manual**, **Client ID**, **Client Secret
+(optional)**, and **Scope (override)**, comma-separated), confirm the
+displayed **Redirect URI** matches `{{ gram.oauth.callback_url }}`, and
+click **Create**. Return to the server's **Settings > Identity**, select
+that provider, choose **Existing client**, and pick the client under
+**Client**.
 
-In **Attach Remote Identity Provider**, choose **Select existing** to
-reuse the intended project provider, or **Add new** to configure one.
-The selector appears when existing providers are available; otherwise
-the new-provider form is shown directly. For a new provider, enter the
-provider's **Issuer URL** when not already populated, retain the derived
-**Slug**, and optionally set **Display name (optional)**. A discovered
-issuer starts endpoint discovery automatically. Verify the populated
-endpoints; if entering or changing the issuer manually, click **Discover**
-under **Endpoints** when available. If discovery is unavailable, use the
-documented authorization and token endpoints (and registration endpoint
-for DCR).
+Under the provider, choose how the server gets a client. The dashboard
+preselects **Existing client** when the provider already has one,
+otherwise **Auto-Configure** when the provider advertises CIMD or DCR,
+otherwise **Manual**. Render the Dossier's choice explicitly, and name
+the switch when it differs from the default:
 
-Under **Session Client**, reuse the intended existing client with
-**Select existing**, or choose **Add new** when that selector is shown.
-Reusing a client uses its stored credentials, scopes, and audience; do
-not instruct readers to re-enter new-client fields in this branch.
-Confirm its read-only configuration matches the guide. If it does not,
-choose **Add new** rather than implying the attach sheet can edit a reused
-client. For a pre-registered client, check the provider's registered
-callback against `{{ gram.oauth.callback_url }}` before attachment;
-**Redirect URI** is not displayed when selecting an existing client. Then click **Attach Identity Provider**. The
-following credential variants apply to a **new** session client:
+- **Existing client**: pick it under **Client**. Reusing a client uses
+  its stored credentials and scopes; do not tell readers to re-enter
+  them. Choose it only when the Dossier says an existing client matches.
+- **Auto-Configure**: Speakeasy registers a new client when you save.
+  When both are supported, **Advanced > Registration method** offers
+  **CIMD** (default) and **DCR**; name a method only when the Dossier
+  records that one fails. There is no **Client ID** or secret to paste,
+  and readers do not register `{{ gram.oauth.callback_url }}` on the
+  provider for this path.
+- **Manual**: paste the **Client ID** and **Client secret** from External
+  setup. The secret field's "Optional" placeholder does not make a secret
+  optional when the provider requires it. Under **Advanced > Scope**,
+  enter the Dossier's scopes space-separated on one line, and tell
+  readers not to leave it blank when the PRM advertises more than the
+  provider app grants. The token endpoint auth method is chosen
+  automatically from the issuer's metadata; there is no control for it.
+  This surface does not display the redirect URI, so the External-setup
+  step that registers `{{ gram.oauth.callback_url }}` carries that check.
 
-- OAuth with a pre-registered client: set **Client Type** to **Manual**.
-  Paste the **Client ID** and **Client Secret (optional)** from External
-  setup, and any provider-required overrides. **Scope (override)** takes
-  comma-separated scopes. The label does not make a
-  secret optional when the provider requires it. Before clicking
-  **Attach Identity Provider**, confirm the displayed **Redirect URI**
-  matches the callback URL registered during External setup
-  (`{{ gram.oauth.callback_url }}`). Readers receive the rendered callback
-  URL, not the literal template key. Successful attachment closes the
-  sheet, so do not put this check after attachment.
-- OAuth with Dynamic Client Registration (DCR): verify the registration
-  endpoint is populated, then set **Client Type** to **Dynamic Client
-  Registration (DCR)**. Keep **Token Endpoint Auth Method** at the
-  discovered default unless the Dossier records a required override.
-  Leave **Scope (override)** and **Audience (optional)** empty unless
-  the Dossier records values to enter. Click **Attach Identity Provider**.
-  The Control Plane registers the OAuth client at the provider's
-  registration endpoint — there is no **Client ID** or **Client Secret**
-  to paste, and readers do not register `{{ gram.oauth.callback_url }}`
-  on the provider for this path. When a client first needs provider
-  access, complete the provider's browser authorization prompts with the
-  intended account (exact prompt labels are provider-specific).
+Click **Save**. Replacing a client or switching mode asks for
+confirmation (**Save changes**). When a person first uses the server,
+the provider's browser authorization prompt appears; exact prompt labels
+are provider-specific.
 
-For an API key / token, under **Upstream Headers**, click **Add header**,
-enter the **Header name** (for example `Authorization`), leave **Value
-source** as **Static value**, paste the value from External setup, check
-**Secret**, and click **Save**. Catalog installs may collect these headers
-earlier in **Add to Project** under **Upstream headers**; do not add them
-a second time.
+For an API key / token on an existing server, select **Service Account**,
+fill **Service Account credential** as described under creation above,
+and click **Save**. Do not add the key under **Custom Headers**; that
+area is for other upstream headers.
 
-<!-- screenshot: Attach Remote Identity Provider with new/existing selection and Manual or discovered DCR fields, or Upstream Headers; values redacted -->
+When creation left the server **Disabled**, finish with **Settings >
+Danger Zone > Server Availability**: turn on the switch (**Enable MCP
+server**) so it shows **Enabled**.
+
+<!-- screenshot: Settings > Identity with User Identity selected, the provider picker, and the registration choice; values redacted -->
 
 ## The closing pointer
 
