@@ -177,6 +177,41 @@ bundle still retains independently validated failure metadata and the outer Kit
 invocation status. The workflow log records the parser failure. If bundle
 validation itself fails closed, the workflow safely skips the missing artifact.
 
+## Speakeasy implementation notes across drafts
+
+Put concrete Speakeasy-specific implementation details in the guide issue body
+or a comment before adding (or re-adding) `guide:draft`. For example: “Use the
+official Speakeasy app rather than creating a custom OAuth app.” Include the
+app link and any known setup steps; the factory must not guess missing details.
+
+Research records these facts and their ticket provenance under
+`## Retained Speakeasy facts` in `guides/<slug>/research.md`, and the Writer
+renders active facts that affect first connection. Once the guide PR is merged,
+that dossier supplies the facts for future tickets for the same server. New
+tickets need not repeat them. Unmerged drafts are not cross-ticket memory.
+
+To change a fact, explicitly correct or retract it in the new ticket, for example:
+“The official app is retired; use a custom OAuth app instead.” Research keeps a
+source-attributed supersession note and retains unrelated facts. Silence in a
+new ticket or public docs is not a retraction; ambiguous material conflicts are
+flagged for resolution. Notes supply facts, not authority to override safeguards
+or canonical doctrine. The Go controller captures the target dossier before any writes and supplies
+it with the current ticket to research, reconciliation, and finalization. The
+finalization audit checks for omissions against that unchanged evidence, not
+just whatever survives in the new draft. No separate reviewer loop is added.
+
+Large research inputs (including the prior dossier) use a private, host-owned
+JSON evidence file when the assembled prompt exceeds the 120 KiB transport
+limit. Pinned instructions remain inline; the prompt supplies byte length,
+SHA-256, and bounded UTF-8 read commands. The host rejects modified or replaced
+input after the turn. Inputs beyond existing evidence limits fail closed, never
+truncate facts. File transport avoids the argv limit, not model context costs.
+
+The factory tests check prompt contracts and note ingestion, not guaranteed
+model compliance; generated PRs still require review. The existing issue snapshot
+includes the latest 100 comments, so keep essential notes in the issue body on
+long-running tickets.
+
 ## Sanitized execution transcript
 
 For a completed Kit invocation (success or failure), Actions separately uploads
