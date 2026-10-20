@@ -37,6 +37,11 @@ The server stays **Disabled** until you finish identity setup. Open its
 
    If you removed permissions in Slack, leave the same scopes unselected here.
    Do not leave **Scope** blank or select permissions that the app does not grant.
+
+   <!-- screenshot: Settings > Identity with User Identity, Slack provider, Manual credentials, and full scopes; values redacted -->
+
+   ![Identity settings with User Identity, the Slack provider, Manual client credentials, and all 30 scopes selected; values redacted](assets/speakeasy-identity-settings.png)
+
 5. Click **Save** and confirm with **Save changes** if asked.
 6. In **Settings > Danger Zone > Server Availability**, turn on
    **Enable MCP server**.
@@ -47,9 +52,5 @@ When a person first uses the server, Slack asks them to authorize access with
 their own account. Saving client credentials does not grant anyone access to
 Slack data. If you change scopes after creating the app, update them in both
 Slack and the Control Plane, then complete any required approval or authorization.
-
-<!-- screenshot: Settings > Identity with User Identity, Slack provider, Manual credentials, and full scopes; values redacted -->
-
-![Identity settings with User Identity, the Slack provider, Manual client credentials, and all 30 scopes selected; values redacted](assets/speakeasy-identity-settings.png)
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Slack's MCP documentation](https://docs.slack.dev/ai/slack-mcp-server/).
