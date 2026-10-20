@@ -183,8 +183,8 @@ the website's concatenated guide clearly separates app setup from connection.
   Screenshot: new remote form with Slack URL and User Identity.
 - `{#connect-speakeasy-credentials}`: **Settings > Identity** → **User Identity** → **Choose an identity provider** →
   `https://mcp.slack.com` (badge **Will be created** for a new provider) →
-  **Manual**; credentials; **Advanced** → **Scope**, exact space-separated
-  app scopes; **Save**, **Save changes** if asked. Secret is required despite
+  **Manual**; credentials; **Advanced** → **Scope** multi-select, select the
+  exact app scopes (observed 2026-10-20); **Save**, **Save changes** if asked. Secret is required despite
   an **Optional** field label. No Redirect URI is displayed in Identity.
 - Finish with **Settings > Danger Zone > Server Availability** →
   **Enable MCP server**. Each user completes Slack OAuth on first use; saving

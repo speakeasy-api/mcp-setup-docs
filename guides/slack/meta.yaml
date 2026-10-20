@@ -27,6 +27,35 @@ credential_setup:
 documentation:
   external: external.md
   speakeasy: speakeasy.md
+  assets:
+    - id: slack-create-from-manifest
+      path: assets/slack-create-from-manifest.png
+      media_type: image/png
+      alt: "Slack's Create from a manifest dialog with the prefilled Speakeasy manifest and a workspace selected"
+      width: 720
+      height: 860
+      content_hash: sha256:96572a9dea8ab6934b9c954020eb812b378362d57f11ba8be505990ac19dbeb3
+    - id: slack-app-credentials
+      path: assets/slack-app-credentials.png
+      media_type: image/png
+      alt: "Slack Basic Information page showing App Credentials with Client ID and Client Secret; values redacted"
+      width: 776
+      height: 590
+      content_hash: sha256:02a4468e7883b6108bcb3a1e2d7657848618459a1eb73d259041272cb1dce99c
+    - id: speakeasy-identity-settings
+      path: assets/speakeasy-identity-settings.png
+      media_type: image/png
+      alt: "Identity settings with User Identity, the Slack provider, Manual client credentials, and all 30 scopes selected; values redacted"
+      width: 506
+      height: 766
+      content_hash: sha256:f0cf55d9b7ca4e8d5cea61abf4cfb0b54504e957bd563a42b95e6d56a7dbad12
+    - id: speakeasy-server-availability
+      path: assets/speakeasy-server-availability.png
+      media_type: image/png
+      alt: "Server Availability toggle in the Danger Zone, set to Enabled"
+      width: 510
+      height: 124
+      content_hash: sha256:6ab4dbd0ecff1997d7967ae2af0551a87286720cf986bd9e0a1cdc33b36ac419
 remotes:
   - id: hosted
     url: https://mcp.slack.com/mcp

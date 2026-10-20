@@ -43,6 +43,8 @@ Workspace approval and each user's existing access restrictions still apply.
 
 <!-- screenshot: Slack app creation with the prefilled manifest and workspace selection -->
 
+![Slack's Create from a manifest dialog with the prefilled Speakeasy manifest and a workspace selected](assets/slack-create-from-manifest.png)
+
 ## Manual setup {#manual-setup}
 
 Use this alternative if you already have an internal Slack app or cannot use
@@ -173,3 +175,5 @@ Use these client credentials, not the App ID or a bearer token. No app
 configuration token is needed for the prefilled creation link.
 
 <!-- screenshot: Basic Information with Client ID and Client Secret labels; values redacted -->
+
+![Slack Basic Information page showing App Credentials with Client ID and Client Secret; values redacted](assets/slack-app-credentials.png)
