@@ -27,7 +27,9 @@ Create a new app with MCP enabled, the deployment callback registered, and all
 30 supported user scopes included. No JSON entry or manual configuration is
 needed.
 
+<div class="not-content">
 <a class="not-content relative inline-flex items-center justify-center gap-2.5 rounded-full bg-neutral-800 !text-white px-5 py-2 font-mono text-[15px] leading-[1.6] uppercase transition-all dark:bg-[#F8F8F8] dark:!text-neutral-800 focus-visible:ring-1 focus-visible:ring-offset-3 focus-visible:ring-[#979797]" href="https://api.slack.com/apps?new_app=1&amp;manifest_json=%7B%22display_information%22%3A%7B%22name%22%3A%22Speakeasy+Slack+MCP%22%7D%2C%22settings%22%3A%7B%22is_mcp_enabled%22%3Atrue%7D%2C%22oauth_config%22%3A%7B%22redirect_urls%22%3A%5B%22{{ gram.oauth.callback_url }}%22%5D%2C%22scopes%22%3A%7B%22user%22%3A%5B%22canvases%3Aread%22%2C%22canvases%3Awrite%22%2C%22channels%3Ahistory%22%2C%22channels%3Aread%22%2C%22channels%3Awrite%22%2C%22chat%3Awrite%22%2C%22emoji%3Aread%22%2C%22files%3Aread%22%2C%22files%3Awrite%22%2C%22groups%3Ahistory%22%2C%22groups%3Aread%22%2C%22groups%3Awrite%22%2C%22im%3Ahistory%22%2C%22im%3Aread%22%2C%22im%3Awrite%22%2C%22lists%3Aread%22%2C%22lists%3Awrite%22%2C%22mpim%3Ahistory%22%2C%22mpim%3Aread%22%2C%22mpim%3Awrite%22%2C%22reactions%3Aread%22%2C%22reactions%3Awrite%22%2C%22search%3Aread.files%22%2C%22search%3Aread.im%22%2C%22search%3Aread.mpim%22%2C%22search%3Aread.private%22%2C%22search%3Aread.public%22%2C%22search%3Aread.users%22%2C%22users%3Aread%22%2C%22users%3Aread.email%22%5D%7D%7D%7D" target="_blank" rel="noopener noreferrer">Create app in Slack ↗</a>
+</div>
 
 1. Click **Create app in Slack**, select your workspace, and review the app.
 2. Create the app. Continue to [Copy the app credentials](#copy-client-credentials).

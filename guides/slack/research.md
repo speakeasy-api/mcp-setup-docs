@@ -101,8 +101,9 @@ Slack in a new tab with `noopener noreferrer`. Plain Markdown guides cannot
 import the website's React/MDX Button component. Instead, this guide reuses the
 utility styles already shipped by `marketing-site/src/components/ui/button.tsx`
 (primary colors, pill shape, mono uppercase label, spacing, and focus ring).
-There is no new component, stylesheet, script, or website code change. Other
-Markdown consumers may omit the styling but retain a usable HTML link.
+A `not-content` block keeps the CTA outside prose-link styling. There is no
+new component, stylesheet, script, or website code change. HTML-capable
+Markdown consumers may omit the styling but retain a usable navigation link.
 
 ## Automatic setup (recommended) {#automatic-setup}
 
@@ -168,6 +169,9 @@ tokens are not substitutes for these credentials.
 Screenshot: Basic Information credential labels, values redacted.
 
 ## Control Plane rendering and fixed anchors
+
+The Control Plane instructions have a **Connect in the Control Plane** H2 so
+the website's concatenated guide clearly separates app setup from connection.
 
 - Catalog presence is not established. Preserve `speakeasy_add_server:
   custom-remote`; do not invent a catalog tile.
