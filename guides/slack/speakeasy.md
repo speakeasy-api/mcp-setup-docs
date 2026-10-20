@@ -1,5 +1,7 @@
 # Speakeasy setup
 
+## Connect in the Control Plane
+
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 1. In the sidebar, under **MCP Gateway**, select **MCP** and click **Add new**.

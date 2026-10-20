@@ -90,6 +90,22 @@ canvases:read canvases:write channels:history channels:read channels:write chat:
 
 ## Provider steps and stable anchors
 
+The provider guide separates **Automatic setup (recommended)**
+(`{#automatic-setup}`) and **Manual setup** (`{#manual-setup}`). Readers complete one
+path, then **Finish app setup** (`{#finish-app-setup}`) and connect in the Control
+Plane. Manual configuration is collapsed by default; the full JSON manifest
+has its own disclosure. Existing step anchors are preserved.
+
+The creation CTA is a native navigation link displayed as a button, opening
+Slack in a new tab with `noopener noreferrer`. Plain Markdown guides cannot
+import the website's React/MDX Button component. Instead, this guide reuses the
+utility styles already shipped by `marketing-site/src/components/ui/button.tsx`
+(primary colors, pill shape, mono uppercase label, spacing, and focus ring).
+There is no new component, stylesheet, script, or website code change. Other
+Markdown consumers may omit the styling but retain a usable HTML link.
+
+## Automatic setup (recommended) {#automatic-setup}
+
 ### Create your Slack app {#create-app-from-manifest}
 
 Primary path: the guide's **Create app in Slack** link opens Slack's supported
@@ -102,14 +118,20 @@ unneeded scopes, and create the app. Obtain approval where required, then
 continue to `copy-client-credentials`. Do not repeat manual MCP, callback, or
 scope configuration after using the manifest.
 
-Fallback: **From a manifest** in Slack's app settings accepts the full JSON
-shown in the guide. If the callback key has not been rendered, replace it with
+## Manual setup {#manual-setup}
+
+### Create an app from JSON {#create-app-manually}
+
+Under **Manual setup**, **Show manual setup instructions** reveals the
+alternative. **From a manifest** in Slack's app settings accepts the full JSON
+shown under **View the full app manifest (30 user scopes)**. If the callback key has not been rendered, replace it with
 the actual deployment callback before creation. Existing unconfigured apps use
 the three manual anchors below. A suitable existing app needs no replacement.
 No bot, events, Socket Mode, app configuration token, or token-rotation setup is
 required for this path.
 
 Screenshot: Slack app creation with prefilled manifest and workspace selection.
+For `create-app-manually`: Slack's From a manifest flow with full configuration.
 
 ### Enable MCP access for an existing app {#enable-mcp-access}
 
@@ -133,6 +155,8 @@ Screenshot: OAuth & Permissions with selected user-token scopes.
 `{{ gram.oauth.callback_url }}` and save. The manifest path already does this.
 
 Screenshot: Redirect URLs with deployment callback registered.
+
+## Finish app setup {#finish-app-setup}
 
 ### Copy the app credentials {#copy-client-credentials}
 

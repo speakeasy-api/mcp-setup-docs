@@ -15,32 +15,53 @@ Unlisted distributed apps cannot use its MCP server. If your app restricts
 allowed IP addresses, ask your network administrator to include the Control
 Plane's outbound addresses. Do not remove the restriction.
 
+Choose **Automatic setup** for a new app, or **Manual setup** to configure an
+existing app. Both paths end with copying the app credentials into the Control
+Plane. You only need to complete one path.
+
+## Automatic setup (recommended) {#automatic-setup}
+
 ### Create your Slack app {#create-app-from-manifest}
 
-The link below opens Slack with a prefilled app manifest. It enables MCP,
-registers your deployment's callback, and requests all 30 supported user scopes.
-You do not need to enter JSON or repeat those settings by hand.
+Create a new app with MCP enabled, the deployment callback registered, and all
+30 supported user scopes included. No JSON entry or manual configuration is
+needed.
 
-**[Create app in Slack](<https://api.slack.com/apps?new_app=1&manifest_json=%7B%22display_information%22%3A%7B%22name%22%3A%22Speakeasy+Slack+MCP%22%7D%2C%22settings%22%3A%7B%22is_mcp_enabled%22%3Atrue%7D%2C%22oauth_config%22%3A%7B%22redirect_urls%22%3A%5B%22{{ gram.oauth.callback_url }}%22%5D%2C%22scopes%22%3A%7B%22user%22%3A%5B%22canvases%3Aread%22%2C%22canvases%3Awrite%22%2C%22channels%3Ahistory%22%2C%22channels%3Aread%22%2C%22channels%3Awrite%22%2C%22chat%3Awrite%22%2C%22emoji%3Aread%22%2C%22files%3Aread%22%2C%22files%3Awrite%22%2C%22groups%3Ahistory%22%2C%22groups%3Aread%22%2C%22groups%3Awrite%22%2C%22im%3Ahistory%22%2C%22im%3Aread%22%2C%22im%3Awrite%22%2C%22lists%3Aread%22%2C%22lists%3Awrite%22%2C%22mpim%3Ahistory%22%2C%22mpim%3Aread%22%2C%22mpim%3Awrite%22%2C%22reactions%3Aread%22%2C%22reactions%3Awrite%22%2C%22search%3Aread.files%22%2C%22search%3Aread.im%22%2C%22search%3Aread.mpim%22%2C%22search%3Aread.private%22%2C%22search%3Aread.public%22%2C%22search%3Aread.users%22%2C%22users%3Aread%22%2C%22users%3Aread.email%22%5D%7D%7D%7D>)**
+<a class="not-content relative inline-flex items-center justify-center gap-2.5 rounded-full bg-neutral-800 !text-white px-5 py-2 font-mono text-[15px] leading-[1.6] uppercase transition-all dark:bg-[#F8F8F8] dark:!text-neutral-800 focus-visible:ring-1 focus-visible:ring-offset-3 focus-visible:ring-[#979797]" href="https://api.slack.com/apps?new_app=1&amp;manifest_json=%7B%22display_information%22%3A%7B%22name%22%3A%22Speakeasy+Slack+MCP%22%7D%2C%22settings%22%3A%7B%22is_mcp_enabled%22%3Atrue%7D%2C%22oauth_config%22%3A%7B%22redirect_urls%22%3A%5B%22{{ gram.oauth.callback_url }}%22%5D%2C%22scopes%22%3A%7B%22user%22%3A%5B%22canvases%3Aread%22%2C%22canvases%3Awrite%22%2C%22channels%3Ahistory%22%2C%22channels%3Aread%22%2C%22channels%3Awrite%22%2C%22chat%3Awrite%22%2C%22emoji%3Aread%22%2C%22files%3Aread%22%2C%22files%3Awrite%22%2C%22groups%3Ahistory%22%2C%22groups%3Aread%22%2C%22groups%3Awrite%22%2C%22im%3Ahistory%22%2C%22im%3Aread%22%2C%22im%3Awrite%22%2C%22lists%3Aread%22%2C%22lists%3Awrite%22%2C%22mpim%3Ahistory%22%2C%22mpim%3Aread%22%2C%22mpim%3Awrite%22%2C%22reactions%3Aread%22%2C%22reactions%3Awrite%22%2C%22search%3Aread.files%22%2C%22search%3Aread.im%22%2C%22search%3Aread.mpim%22%2C%22search%3Aread.private%22%2C%22search%3Aread.public%22%2C%22search%3Aread.users%22%2C%22users%3Aread%22%2C%22users%3Aread.email%22%5D%7D%7D%7D" target="_blank" rel="noopener noreferrer">Create app in Slack ↗</a>
 
-1. Open the link, select your workspace, and review the app configuration.
-   To limit access, remove scopes you do not need from the manifest before
-   creating the app.
-2. Create the app and continue to [Copy the app credentials](#copy-client-credentials).
-   Skip the next three manual configuration sections.
+1. Click **Create app in Slack**, select your workspace, and review the app.
+2. Create the app. Continue to [Copy the app credentials](#copy-client-credentials).
+   You do not need to complete manual setup.
 
-The default includes read, search, and write permissions. It favors the full
-MCP tool set, not minimum permissions. If you remove scopes, tools that need
-those scopes become unavailable. Use the same restricted scope set when
+The default includes all 30 read, search, and write scopes. To limit access,
+remove unneeded scopes from the manifest before creating the app. Tools that
+need those scopes will be unavailable. Use the same restricted set when
 [connecting the credentials](speakeasy.md#connect-speakeasy-credentials).
-Access still follows each user's Slack permissions and workspace policies.
-Creating the app does not bypass approval or authorize other users.
+Workspace approval and each user's existing access restrictions still apply.
 
-If the link is unavailable, select **From a manifest** in
-[Slack's app settings](https://api.slack.com/apps), select the workspace, paste
-the JSON below, review it, and create the app. If this guide still shows the
-callback placeholder, replace it with your deployment's OAuth callback URL
-before creating the app.
+<!-- screenshot: Slack app creation with the prefilled manifest and workspace selection -->
+
+## Manual setup {#manual-setup}
+
+Use this alternative if you already have an internal Slack app or cannot use
+the automatic creation link. Do not repeat it after automatic setup.
+
+<details>
+<summary>Show manual setup instructions</summary>
+
+### Create an app from JSON {#create-app-manually}
+
+For a new app, select **From a manifest** in
+[Slack's app settings](https://api.slack.com/apps). Select the workspace, paste
+the JSON below, review it, and create the app. Then continue to
+[Copy the app credentials](#copy-client-credentials); the JSON already sets MCP,
+user scopes, and the callback.
+
+If you are configuring an existing app, skip the JSON and start at
+[Enable MCP access](#enable-mcp-access).
+
+<details>
+<summary>View the full app manifest (30 user scopes)</summary>
 
 ```json
 {
@@ -92,16 +113,17 @@ before creating the app.
 }
 ```
 
-After either manifest path, skip the next three sections. They are only for an
-existing app that is not already configured. You do not need to create another
-app if you already have a suitable internal Slack app.
+</details>
 
-<!-- screenshot: Slack app creation with the prefilled manifest and workspace selection -->
+If the callback placeholder has not been filled in, replace it with your
+deployment's OAuth callback URL before creating the app. You can remove scopes
+you do not need, but keep the same scope set in the Control Plane.
+
+<!-- screenshot: Slack's From a manifest flow with the full configuration -->
 
 ### Enable MCP access for an existing app {#enable-mcp-access}
 
-Use this and the next two sections only to configure an existing internal app
-without a manifest.
+For an existing app, complete these three configuration steps.
 
 1. Open the app in [Slack's app settings](https://api.slack.com/apps).
 2. Select **Agents** in the sidebar.
@@ -129,6 +151,12 @@ reinstallation, approval, or user authorization before using the new permissions
 2. Add `{{ gram.oauth.callback_url }}` and save.
 
 <!-- screenshot: Redirect URLs with the deployment callback registered -->
+
+</details>
+
+## Finish app setup {#finish-app-setup}
+
+Complete this step after either automatic or manual setup.
 
 ### Copy the app credentials {#copy-client-credentials}
 
