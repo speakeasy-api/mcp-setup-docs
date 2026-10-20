@@ -40,13 +40,13 @@ The server stays **Disabled** until you finish identity setup. Open its
 
    <!-- screenshot: Settings > Identity with User Identity, Slack provider, Manual credentials, and full scopes; values redacted -->
 
-   ![Identity settings with User Identity, the Slack provider, Manual client credentials, and all 30 scopes selected; values redacted](assets/speakeasy-identity-settings.png)
+   ![Identity settings with User Identity, the Slack provider, Manual client credentials, and all 30 scopes selected; values redacted](https://raw.githubusercontent.com/speakeasy-api/mcp-setup-docs/main/guides/slack/assets/speakeasy-identity-settings.png)
 
 5. Click **Save** and confirm with **Save changes** if asked.
 6. In **Settings > Danger Zone > Server Availability**, turn on
    **Enable MCP server**.
 
-   ![Server Availability toggle in the Danger Zone, set to Enabled](assets/speakeasy-server-availability.png)
+   ![Server Availability toggle in the Danger Zone, set to Enabled](https://raw.githubusercontent.com/speakeasy-api/mcp-setup-docs/main/guides/slack/assets/speakeasy-server-availability.png)
 
 When a person first uses the server, Slack asks them to authorize access with
 their own account. Saving client credentials does not grant anyone access to
