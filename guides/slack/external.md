@@ -43,7 +43,7 @@ Workspace approval and each user's existing access restrictions still apply.
 
 <!-- screenshot: Slack app creation with the prefilled manifest and workspace selection -->
 
-![Slack's Create from a manifest dialog with the prefilled Speakeasy manifest and a workspace selected](assets/slack-create-from-manifest.png)
+![Slack's Create from a manifest dialog with the prefilled Speakeasy manifest and a workspace selected](https://raw.githubusercontent.com/speakeasy-api/mcp-setup-docs/main/guides/slack/assets/slack-create-from-manifest.png)
 
 ## Manual setup {#manual-setup}
 
@@ -176,4 +176,4 @@ configuration token is needed for the prefilled creation link.
 
 <!-- screenshot: Basic Information with Client ID and Client Secret labels; values redacted -->
 
-![Slack Basic Information page showing App Credentials with Client ID and Client Secret; values redacted](assets/slack-app-credentials.png)
+![Slack Basic Information page showing App Credentials with Client ID and Client Secret; values redacted](https://raw.githubusercontent.com/speakeasy-api/mcp-setup-docs/main/guides/slack/assets/slack-app-credentials.png)
