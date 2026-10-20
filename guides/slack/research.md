@@ -1,223 +1,173 @@
 ---
 research_version: 1
 slug: slack
-researched_at: 2026-09-17T00:05:11Z
+researched_at: 2026-10-20T07:50:00Z
 ---
 
 # Slack — Research Dossier
 
-## Source ruling
+## Source ruling and operator decision
 
-Official Slack documentation is authoritative for provider requirements. Public
-pages and metadata were read on 2026-09-16; no authenticated workspace or consent
-flow was exercised. The sample app's Bolt, OpenAI, event subscription, and local
-server instructions are not prerequisites for a hosted remote MCP connection.
-This guide supports either an existing internal app or creation from a minimal
-JSON manifest. The manifest excludes unrelated sample-app bot features. The
-operator explicitly requested this copy-paste configuration alternative.
+Official Slack documentation controls provider requirements. The operator
+requested a prefilled app-creation flow with all 30 supported user scopes
+selected by default, followed by optional permission narrowing. This replaces
+the former four-scope channel-listing default. Full functionality is the
+intentional default; it must not be described as least privilege.
 
-### Sources
+This is a guide-only update. The primary creation link lives in `external.md`
+and uses Slack's documented prefilled manifest flow. It does not depend on a
+new Control Plane setup panel or a client branch. Existing manual identity
+configuration remains necessary after app creation. No authenticated Slack
+creation or consent test was performed.
 
+## Sources
+
+- **Overview:** https://docs.slack.dev/ai/slack-mcp-server/ — hosted endpoint,
+  Streamable HTTP, app eligibility, internal app approval, IP restrictions,
+  user OAuth, and tool-to-user-scope table. Rechecked 2026-10-20.
+- **Developing:** https://docs.slack.dev/ai/slack-mcp-server/developing/ —
+  **Agents**, **Slack Model Context Protocol (MCP) Server**, **OAuth &
+  Permissions**, **Scopes**, **Redirect URLs**, and **Basic Information**
+  client credentials. Rechecked 2026-10-20. Sample Bolt, OpenAI, event, and
+  local server instructions are not prerequisites for the hosted connection.
 - **Manifest reference:** https://docs.slack.dev/reference/app-manifest/ —
-  `display_information.name` (required, maximum 35 characters),
-  `oauth_config.redirect_urls`, `oauth_config.scopes.user`, and the boolean
-  `settings.is_mcp_enabled` (supported in manifest v1 and v2). Observed 2026-09-17.
-  The separate `mcp_servers` field declares servers consumed by an app and is
-  not needed to enable this app for Slack's hosted MCP server.
-
-- **Overview:** https://docs.slack.dev/ai/slack-mcp-server/ — endpoint, transport,
-  eligibility, app identity, confidential OAuth, user-token endpoints, scope table,
-  IP allowlist, and consent. Observed 2026-09-16.
-- **Developing:** https://docs.slack.dev/ai/slack-mcp-server/developing/ — app
-  settings, **Agents**, **Slack Model Context Protocol (MCP) Server**, **On**,
-  **OAuth & Permissions**, **Scopes**, **Redirect URLs**, saving the redirect,
-  and **Basic Information** for credentials. Observed 2026-09-16.
-- **User access:** https://docs.slack.dev/reference/methods/oauth.v2.user.access/
-  — exchange using user scopes without bot scopes; client credentials and
-  authorization-code/refresh-token parameters. Observed 2026-09-16.
-- **OAuth:** https://docs.slack.dev/authentication/installing-with-oauth/ —
-  OAuth installation, consent, and secure credential storage. Observed 2026-09-16.
+  `display_information.name`, `oauth_config.redirect_urls`,
+  `oauth_config.scopes.user`, `settings.is_mcp_enabled`. Rechecked 2026-10-20.
+- **Manifest creation links:**
+  https://docs.slack.dev/app-manifests/configuring-apps-with-app-manifests/ —
+  `https://api.slack.com/apps?new_app=1&manifest_json=` followed by URL-encoded
+  JSON opens a prefilled creation flow. This is not app-creation API access
+  and does not require an app configuration token.
 - **Authorization metadata:**
-  https://mcp.slack.com/.well-known/oauth-authorization-server — fetched public
-  JSON on 2026-09-16, re-fetched 2026-09-30 (unchanged). Issuer `https://mcp.slack.com`; authorization endpoint
-  `https://slack.com/oauth/v2_user/authorize`; token endpoint
-  `https://slack.com/api/oauth.v2.user.access`; token authentication
-  `client_secret_post`; S256 PKCE; authorization-code and refresh-token grants.
-  No registration endpoint. Scope list includes the four channel-list scopes.
-- **Client setup:** `doctrine/speakeasy-setup.md`, read 2026-09-30 — canonical
-  Control Plane UI, callback template, custom-remote route, and Identity
-  section.
-- **Protected-resource metadata:**
-  https://mcp.slack.com/.well-known/oauth-protected-resource — fetched
-  2026-09-30. Issuer `https://mcp.slack.com`; 30 advertised scopes.
-- **Client capabilities:** `doctrine/ai-control-plane-oauth.md`, read 2026-09-16,
-  verified upstream revision `4e1fef388aa0f5b498f5d35400780ff2b99815e4` on
-  2026-09-15 — source-inspected support, not a Slack acceptance test.
+  https://mcp.slack.com/.well-known/oauth-authorization-server — live JSON
+  fetched 2026-10-20; issuer `https://mcp.slack.com`, authorization endpoint
+  `https://slack.com/oauth/v2_user/authorize`, token endpoint
+  `https://slack.com/api/oauth.v2.user.access`, `client_secret_post`, S256 PKCE,
+  authorization-code and refresh-token grants. No registration endpoint.
+- **Resource metadata:**
+  https://mcp.slack.com/.well-known/oauth-protected-resource — live JSON
+  fetched 2026-10-20. Both metadata documents advertise exactly the same 30
+  scopes listed below.
+- **OAuth installation:** https://docs.slack.dev/authentication/installing-with-oauth/
+  — app installation, user consent, and approval when permissions change.
+- **Guide rendering:** `go/render.go` — replaces the existing
+  `{{ gram.oauth.callback_url }}` key with the deployment callback before
+  serving Markdown. The creation link URL-encodes its JSON and leaves only this
+  canonical callback key for substitution. Its Markdown destination uses angle
+  brackets so the raw template's spaces are preserved. No new template keys,
+  client code, or runtime APIs are required. The expected deployment callback
+  is an HTTPS URL without query parameters or fragments.
+- **Standard Control Plane route:** `doctrine/speakeasy-setup.md` — custom
+  remote creation, fixed anchors, callback template, and server availability.
 
-## Server and authentication facts
+## Server, authentication, and scope policy
 
-- Shared remote `https://mcp.slack.com/mcp`, JSON-RPC 2.0 over Streamable HTTP;
-  not tenanted. SSE and Dynamic Client Registration are explicitly unsupported.
-  [Overview]
-- Only internal apps and Slack Marketplace/directory-published apps may use
-  MCP. Unlisted distributed apps are prohibited. Workspace admins retain their
-  standard app approval controls. No paid-plan requirement was established by
-  these sources; do not invent one. [Overview]
-- Slack says clients must be backed by a registered app with a fixed, hardcoded
-  app ID. Reuse one internal app and its associated Client ID and Client Secret;
-  do not imply dynamic app creation or that an App ID replaces the OAuth client
-  ID. No separate app-ID header/configuration is specified in these sources.
-  [Overview]
-- Confidential OAuth requires `client_id` and `client_secret`; users authorize
-  the app with their own Slack accounts. Use the user-token endpoints above,
-  not the bot-token exchange. Do not ask the administrator to paste a bot or
-  user bearer token. [Overview; User access]
-- Minimal selected operation: list user channels. Required user-token scopes
-  are `channels:read`, `groups:read`, `im:read`, `mpim:read`. These do not grant
-  search, message-history, or write tools. Additional tool scopes must come
-  from the Overview's **OAuth scopes needed on user token for different tools**
-  table and be configured on both sides. [Overview]
-- App IP restrictions also apply to MCP. Have the network administrator allow
-  the actual client egress addresses; do not invent an IP range or disable the
-  allowlist. [Overview]
+- Remote: `https://mcp.slack.com/mcp`, shared, not tenanted, Streamable HTTP.
+  Slack does not support SSE or Dynamic Client Registration. No CIMD support
+  is advertised. An internal Slack app supplies fixed OAuth client credentials.
+- Only internal apps and Slack Marketplace apps can use Slack MCP; unlisted
+  distributed apps cannot. Workspace approval and app IP restrictions remain
+  effective. No paid-plan requirement was established; do not invent one.
+- Each person authorizes with their own Slack account. Use confidential user
+  OAuth, not bot OAuth, a pasted bearer token, or the app ID. Never expose the
+  Client Secret in links, screenshots, chat, or source control.
+- Default scopes, verified against both live metadata documents:
 
-## Client compatibility and limits
+```text
+canvases:read canvases:write channels:history channels:read channels:write chat:write emoji:read files:read files:write groups:history groups:read groups:write im:history im:read im:write lists:read lists:write mpim:history mpim:read mpim:write reactions:read reactions:write search:read.files search:read.im search:read.mpim search:read.private search:read.public search:read.users users:read users:read.email
+```
 
-The maintained capability reference establishes manual registration, S256 PKCE,
-`client_secret_post`, configurable scopes, discovery, and refresh-token grant
-support. On the current dashboard the token endpoint auth method is chosen
-automatically from the issuer metadata, which advertises only
-`client_secret_post`, so no reader action is needed. Slack metadata does not
-advertise OpenID scopes, so do not add `openid` or `offline_access` speculatively.
+- The manifest uses **user-token** scopes only. Requested OAuth scopes must
+  match the app's granted scopes; the selected set must stay consistent across
+  the app manifest and Control Plane OAuth configuration. Blank manual scope configuration must
+  not request permissions absent from the app.
+- Users may remove scopes from the manifest before creation. Removing permissions makes
+  tools requiring them unavailable; consult the Overview's tool-to-scope table.
+  User-scoped access does not bypass workspace policies or channel membership.
+- Changing scopes in the Control Plane does not change Slack. Update the app
+  too; complete any required reinstallation, approval, and user authorization.
+  Do not imply that the creation link creates the app without confirmation.
 
-Relevant pinned sources retained from the reference:
+## Provider steps and stable anchors
 
-- https://github.com/speakeasy-api/gram/blob/4e1fef388aa0f5b498f5d35400780ff2b99815e4/server/internal/remotesessions/types.go
-- https://github.com/speakeasy-api/gram/blob/4e1fef388aa0f5b498f5d35400780ff2b99815e4/server/internal/remotesessions/challenge.go
-- https://github.com/speakeasy-api/gram/blob/4e1fef388aa0f5b498f5d35400780ff2b99815e4/server/internal/remotesessions/tokenservice.go
-- https://github.com/speakeasy-api/gram/blob/4e1fef388aa0f5b498f5d35400780ff2b99815e4/client/dashboard/src/pages/remote-identity-providers/CreateRemoteSessionClientSheet.tsx
+### Create your Slack app {#create-app-from-manifest}
 
-Refresh support does not establish refresh-token issuance, token lifetime, or
-indefinite renewal for this app. No token-rotation change is prescribed. App-ID
-binding, workspace approval, effective permissions, and first consent still need
-a live acceptance test. This is unverified integration behavior, not evidence of
-an unsupported client feature.
+Primary path: the guide's **Create app in Slack** link opens Slack's supported
+`new_app=1&manifest_json=...` creation flow. The manifest contains
+`display_information.name = Speakeasy Slack MCP`, MCP enablement, all 30 user
+scopes, and the deployment callback. JSON is URL-encoded; the existing callback
+template key is substituted by the guide renderer. There are no credentials in
+the link. In Slack, choose a workspace, review the manifest, optionally remove
+unneeded scopes, and create the app. Obtain approval where required, then
+continue to `copy-client-credentials`. Do not repeat manual MCP, callback, or
+scope configuration after using the manifest.
 
-## Provider anchor contract
+Fallback: **From a manifest** in Slack's app settings accepts the full JSON
+shown in the guide. If the callback key has not been rendered, replace it with
+the actual deployment callback before creation. Existing unconfigured apps use
+the three manual anchors below. A suitable existing app needs no replacement.
+No bot, events, Socket Mode, app configuration token, or token-rotation setup is
+required for this path.
 
-### Create an app from JSON {#create-app-from-manifest}
+Screenshot: Slack app creation with prefilled manifest and workspace selection.
 
-Optional alternative to configuring an existing internal app. In Slack app
-settings choose **From a manifest**, **Continue**, replace the JSON, select
-the workspace, then **Next** and **Create**. This order and these labels come
-from Developing. The manifest sets `display_information.name` to the example
-name `Slack MCP Control Plane`, `oauth_config.redirect_urls` to an array
-containing `{{ gram.oauth.callback_url }}`, `oauth_config.scopes.user` to the
-four channel-listing scopes, and `settings.is_mcp_enabled` to `true`.
-[Manifest reference; Developing; Overview; Client setup]
+### Enable MCP access for an existing app {#enable-mcp-access}
 
-The manifest replaces the manual MCP-enable, scope, and callback steps for a
-new app. Continue to `copy-client-credentials` after creation. It does not
-contain credentials, bypass approval, or grant user consent. Keep the app
-internal. Existing-app readers skip this section and use the original manual
-steps. No bot, events, Socket Mode, or token-rotation settings are needed for
-this path. No live Slack manifest creation test has been performed.
-
-Screenshot: Slack's manifest editor with JSON selected, before app creation.
-
-### Enable MCP access {#enable-mcp-access}
-
-Open the existing internal app at `https://api.slack.com/apps`; **Agents** → **Slack Model Context Protocol (MCP) Server** → **On**. Retain IP restrictions. [Developing; Overview]
+Only for existing apps without the manifest configuration: open the app in
+`https://api.slack.com/apps`; **Agents** → **Slack Model Context Protocol (MCP)
+Server** → **On**. Retain app IP restrictions.
 
 Screenshot: Agents with MCP enabled.
 
-### Set user permissions {#set-user-permissions}
+### Set user permissions for an existing app {#set-user-permissions}
 
-**OAuth & Permissions** → **Scopes**; configure the four user scopes above, not bot scopes. [Developing; Overview]
+**OAuth & Permissions** → **Scopes**; configure all 30 user scopes above by
+default, or the deliberately restricted selection. Never use bot scopes. Keep
+Control Plane scope configuration aligned with the Slack app.
 
-Screenshot: Selected user-token scopes.
+Screenshot: OAuth & Permissions with selected user-token scopes.
 
-### Register callback {#register-callback}
+### Register the callback for an existing app {#register-callback}
 
-**OAuth & Permissions** → **Redirect URLs**; add `{{ gram.oauth.callback_url }}` and save. [Developing; Client setup]
+**OAuth & Permissions** → **Redirect URLs**; add
+`{{ gram.oauth.callback_url }}` and save. The manifest path already does this.
 
-Screenshot: Registered callback.
+Screenshot: Redirect URLs with deployment callback registered.
 
-### Copy client credentials {#copy-client-credentials}
+### Copy the app credentials {#copy-client-credentials}
 
-**Basic Information**; copy **Client ID** and **Client Secret** securely, revealing the secret as needed. Keep the app fixed. [Developing; Overview; OAuth]
+**Basic Information** → **App Credentials**; reveal and copy **Client ID** and
+**Client Secret** for the Control Plane identity settings. Use **Save** there;
+confirm with **Save changes** if prompted. App ID and bearer
+tokens are not substitutes for these credentials.
 
-Screenshot: Credential labels with values redacted.
+Screenshot: Basic Information credential labels, values redacted.
 
-## Control Plane transclusion and anchor contract
+## Control Plane rendering and fixed anchors
 
-Canonical source: `doctrine/speakeasy-setup.md` (gram `main` commit
-`68b3f78`), read 2026-09-30.
-
-Per-guide values:
-
-- Remote URL: `https://mcp.slack.com/mcp`, shared, not tenanted.
-- Add-server path: `speakeasy_add_server: custom-remote` targets the official
-  endpoint unambiguously. Catalog presence was not checked, and no catalog
-  absence is claimed. Render **Hosted remotely** only.
-- Authentication Option: `internal-app-oauth` → **User Identity**. **Client
-  ID** and **Client Secret** come from `copy-client-credentials`; scopes come
-  from `set-user-permissions`.
-- Probe outcome (2026-09-30): `initialize` POST with
-  `Accept: application/json, text/event-stream` returns 401 with
-  `WWW-Authenticate: Bearer resource_metadata="https://mcp.slack.com/.well-known/oauth-protected-resource"`.
-  The create form therefore preselects **User Identity**.
-- PRM issuer: `authorization_servers` is `https://mcp.slack.com`. The PRM
-  advertises 30 scopes (canvases, chat, files, history, search, users, and
-  more), far beyond the four the manifest grants.
-- Issuer metadata (`/.well-known/oauth-authorization-server`, 2026-09-30):
-  authorization `https://slack.com/oauth/v2_user/authorize`, token
-  `https://slack.com/api/oauth.v2.user.access`,
-  `token_endpoint_auth_methods_supported: ["client_secret_post"]`, S256 PKCE.
-  No `registration_endpoint` and no `client_id_metadata_document_supported`
-  (no DCR, no CIMD); Slack's overview also says DCR is unsupported.
-- Registration choice: **Manual**. Auto-registration at creation cannot
-  succeed, so the server is kept **Disabled** and the reader finishes in
-  **Settings > Identity**; the dashboard defaults to **Manual** because the
-  issuer advertises neither CIMD nor DCR. The token endpoint auth method is
-  chosen automatically from the issuer metadata (`client_secret_post`); there
-  is no control for it.
-- Scope string for **Advanced > Scope**: `channels:read groups:read im:read mpim:read`.
-  Blank is not safe: it requests all 30 PRM scopes, and Slack consent fails
-  for scopes the app does not grant.
-- Client secret: required by Slack, despite the field's "Optional" placeholder.
-- Server Availability: finish with **Settings > Danger Zone > Server
-  Availability** → **Enable MCP server**.
-- Further reading: `https://docs.slack.dev/ai/slack-mcp-server/`.
-
-Anchors:
-
+- Catalog presence is not established. Preserve `speakeasy_add_server:
+  custom-remote`; do not invent a catalog tile.
 - `{#add-server-in-speakeasy}`: **MCP Gateway** → **MCP** → **Add new** →
-  **Hosted remotely** → **New remote MCP server**; paste the remote into **MCP
-  server URL**, leave **User session issuer** at its default, **Verify
-  connectivity**, keep **User Identity**, **Save**. Screenshot: the form with
-  Slack's endpoint and **User Identity** selected.
-- `{#connect-speakeasy-credentials}`: **Settings** → **Identity** → **User
-  Identity**; confirm the provider `https://mcp.slack.com` in **Choose an
-  identity provider** (badged **Will be created** when new); **Manual**;
-  **Client ID**, **Client secret**; **Advanced** → **Scope** with the string
-  above; **Save** (confirm with **Save changes** when asked); then **Server
-  Availability**. The Identity section shows no Redirect URI, so
-  `register-callback` carries the callback check. Screenshot: Identity with
-  User Identity, the Slack provider, and Manual; values redacted.
-- Preserve the canonical final pointer to Slack's MCP documentation. Setup ends
-  after credentials; publishing and downstream-client distribution are out of
-  scope. Explain user consent without inventing a dashboard test button.
+  **Hosted remotely**; enter **MCP server URL**; optional display name;
+  default **User session issuer**; **Verify connectivity**; **User Identity**;
+  leave **Guardrails** off if shown; **Save**. Slack's confidential client
+  setup is still required, so initial creation leaves the server **Disabled**.
+  Screenshot: new remote form with Slack URL and User Identity.
+- `{#connect-speakeasy-credentials}`: **Settings > Identity** → **User Identity** → **Choose an identity provider** →
+  `https://mcp.slack.com` (badge **Will be created** for a new provider) →
+  **Manual**; credentials; **Advanced** → **Scope**, exact space-separated
+  app scopes; **Save**, **Save changes** if asked. Secret is required despite
+  an **Optional** field label. No Redirect URI is displayed in Identity.
+- Finish with **Settings > Danger Zone > Server Availability** →
+  **Enable MCP server**. Each user completes Slack OAuth on first use; saving
+  credentials is not consent. Do not invent a dashboard test button.
+- Screenshot: Identity with User Identity, Slack provider, Manual credentials,
+  full scopes, and credential values redacted.
+- Final guide line links to https://docs.slack.dev/ai/slack-mcp-server/.
 
-## Research limitations and operator decisions
+## Verification limits
 
-- No screenshots or authenticated console inspection. Exact user-scope and
-  reveal-secret labels in Slack may vary; use action-oriented wording without
-  inventing a label.
-- No end-to-end Slack test, independent evidence of the current app's eligibility,
-  or successful consent. Keep that limitation visible in the setup guide.
-- The organization supplies an internal app, its administrator approval, any
-  extra tool permissions, and any required outbound-IP allowlisting. These are
-  reader prerequisites, not missing public protocol facts.
-- No unresolved operator question blocks drafting. No secrets, private factory
-  logs, or failed-run diagnostic contents belong in this bundle.
+Guide lint, callback substitution, and creation-link/manifest/scope equality
+are appropriate checks. They do not prove Slack workspace approval or successful OAuth consent.
+No authenticated Slack console, production app mutation, paid factory run, or
+end-to-end OAuth session was exercised for this update. No Control Plane client changes are part of it.
