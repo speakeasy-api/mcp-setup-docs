@@ -9,43 +9,32 @@
    **HubSpot**.
 5. Open the **HubSpot** entry.
 6. Click **Add**.
-7. In the **Add to Project** dialog, click **Add to Project**.
+7. In the **Add to Project** dialog, under **Identity**, select **User Identity**. The dialog preselects **No Identity** for HubSpot.
+8. Click **Add to Project**. If the dialog offers a **Guardrails** step, click **Skip for now**.
+9. When the dialog finishes, the result reads "Added, but disabled until identity is set up." Click **Finish setup** to open the server's **Settings**.
 
-After installation, select **Configure MCP settings** on the completion screen to open the server, then open **Settings**.
+HubSpot needs a client registered by hand, so the server is kept **Disabled** and the result says to finish setup in **Settings > Identity**. This is expected.
 
-<!-- screenshot: the Add MCP server page or the HubSpot catalog entry -->
+<!-- screenshot: the HubSpot catalog entry with the Identity choice set to User Identity -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Select **Configure MCP settings** on the completion screen, then open the server’s **Settings**.
+Open the server's **Settings** and find the **Identity** section.
 
-Under **Authentication**, if unconfigured, select **Use Discovered** when available; otherwise select **Configure Manually**. If configured but no provider is attached, use **Connected services > Add provider**. If the intended provider is already attached, use its existing controls and skip the provider/client creation and attachment steps below; do not add a duplicate.
-
-#### Select the identity provider
-
-In **Attach Remote Identity Provider**, **Identity Provider** defaults to **Select existing** when project issuers are available. Select the matching provider and skip the new-provider fields below. Otherwise choose **Add new** (or use the new-provider form shown when none exist).
-
-For a new provider only, confirm **Issuer URL**, the auto-derived **Slug**, and **Endpoints**. Discovery runs automatically for a seeded issuer; after typing or changing the URL, select **Discover** only if offered.
-
-For **Identity Provider > Add new**, use **Issuer URL** `https://mcp.hubspot.com`, authorization endpoint `https://mcp.hubspot.com/oauth/authorize/user`, and token endpoint `https://mcp.hubspot.com/oauth/v3/token`. Keep the auto-derived **Slug**.
-
-#### Select the session client
-
-Under **Session Client**, choose **Select existing** only for a client whose saved credentials, scopes, and audience match the requirements below; otherwise choose **Add new**. When reusing a matching client, skip directly to **Verify the callback and attach** below. Do not create credentials or register the client again. Otherwise choose **Add new** (or use the new-client form shown when no clients exist) and complete these new-client-only steps:
-
-1. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-1. Paste the **Client ID** copied in
+1. Select **User Identity**.
+2. Under **Choose an identity provider**, confirm the preselected provider is `https://mcp.hubspot.com`. A provider that does not exist yet shows **Will be created**.
+3. Select **Manual**. It is the default for HubSpot unless the provider already has a client.
+4. In **Client ID**, paste the **Client ID** copied in
    [Copy the client credentials](external.md#copy-client-credentials).
-1. Paste the **Client Secret (optional)** copied in
-   [Copy the client credentials](external.md#copy-client-credentials).
-1. Leave any scope override empty.
+5. In **Client secret**, paste the **Client secret** copied in
+   [Copy the client credentials](external.md#copy-client-credentials). HubSpot requires it, even though the field shows "Optional".
+6. Leave **Advanced > Scope** blank. HubSpot determines scopes automatically and advertises none, so a blank field requests nothing extra.
+7. Click **Save**.
+8. Open **Settings > Danger Zone > Server Availability** and turn on **Enable MCP server** so it shows **Enabled**.
 
-#### Verify the callback and attach
+This screen does not show the redirect URI. If authorization later fails with a redirect error, check that the connector's **Redirect URL** in HubSpot is `{{ gram.oauth.callback_url }}`, as set in [Create the MCP connector](external.md#create-mcp-auth-app).
 
-1. Confirm that the callback URL registered with the provider is `{{ gram.oauth.callback_url }}`. For a new manual client, also compare it with the sheet's displayed **Redirect URI**. The existing-client selection does not display that field; check the registered callback in the provider's app settings instead.
-2. Click **Attach Identity Provider**.
-
-<!-- screenshot: Attach Remote Identity Provider with Client Type set to Manual and all credential values redacted -->
+<!-- screenshot: Settings > Identity with User Identity selected, the HubSpot provider, and Manual; all credential values redacted -->
 
 For the HubSpot account's first connection, use an account admin. HubSpot does
 not document which admin role qualifies.

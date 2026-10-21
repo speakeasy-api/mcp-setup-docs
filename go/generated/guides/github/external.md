@@ -6,7 +6,7 @@ setup_version: 1
 
 Before you begin, obtain:
 
-- Administrative access to the GitHub Enterprise Cloud organization that will own the OAuth app.
+- Administrative access to the GitHub organization that will own the OAuth app.
 - Standard GitHub.com hosting for the target organization. This Setup Guide does not cover GitHub Enterprise Cloud with data residency or GitHub Enterprise Server.
 - The organization-approved public URL for this connection from the application or cloud security owner.
 - If the target organization restricts OAuth apps, access to an organization owner who can grant access — see [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).
@@ -42,7 +42,7 @@ If the page shows **New OAuth App**, click it. If the page instead shows **Regis
 5. Leave **Enable Device Flow** off.
 6. Click **Register application**. This opens the app's settings page.
 
-If the target organization restricts OAuth apps, complete the organization approval flow after attaching credentials in [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).
+If the target organization restricts OAuth apps, complete the organization approval flow after saving credentials in [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).
 
 <!-- screenshot: the OAuth app registration form immediately before Register application, showing the field labels and the callback template but no organization-sensitive homepage value -->
 

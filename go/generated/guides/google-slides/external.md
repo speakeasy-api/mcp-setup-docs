@@ -4,11 +4,27 @@ setup_version: 1
 
 # Set up Google Slides
 
-The Google Slides MCP Server is in Developer Preview. Google does not document a Google Slides MCP-specific paid plan or license requirement.
+The Google Slides MCP Server is in Developer Preview. Google requires membership in the Google Workspace Developer Preview Program, with the Google Cloud project registered in the program. Google does not document a Google Slides MCP-specific paid plan or license requirement.
 
 Use a Google Cloud project where you can enable services, grant project roles, configure **Google Auth platform**, and create OAuth credentials. Each connecting user needs access to the intended presentations. An application or security owner must also configure prompt and response screening for malicious content or prompt injection.
 
-Sign in to the [Google Cloud console](https://console.cloud.google.com). In the console toolbar, select the project that will own this configuration, and keep it selected throughout the Google Cloud steps.
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+Skip this step if Google has already registered the project in the program.
+
+1. Open [developers.google.com/workspace/preview](https://developers.google.com/workspace/preview).
+2. Review the **Developer Preview Program Terms** with the application or security owner.
+3. Click **Apply to join the Developer Preview Program**.
+4. In the current application form, enter the requested Google Workspace account and Google Cloud project information. The submitted email must accept being added to Google Groups.
+5. Agree to the terms only with organizational approval.
+6. Submit the form with the visible or equivalent submission control.
+7. Wait for the final project-registration confirmation at the submitted email address. Google says this should complete within a couple of days.
+8. After confirmation, sign in to the [Google Cloud console](https://console.cloud.google.com).
+9. In the console toolbar, select the registered project.
+
+Keep that project selected throughout the Google Cloud steps.
+
+<!-- screenshot: the Developer Preview Program page with the Apply to join button -->
 
 ### Enable the Google Slides APIs {#enable-google-slides-apis}
 

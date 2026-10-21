@@ -27,7 +27,7 @@ remotes:
         classification: official
         version: 1.0.0
         status: reachable-without-authentication
-        observed_at: "2026-07-29T20:05:42Z"
+        observed_at: "2026-09-30T00:00:00Z"
 provenance:
   - source: provider-runtime
     locator: https://docs.x.com/mcp
@@ -35,26 +35,26 @@ provenance:
     classification: official
     version: 1.0.0
     status: reachable-without-authentication
-    observed_at: "2026-07-29T20:05:42Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/tools/mcp
+    locator: https://docs.x.com/tools/mcp
     name: MCP servers for the X API and X developer docs
     classification: official
-    observed_at: "2026-07-29T20:05:42Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://x-preview.mintlify.app/llms.txt
+    locator: https://docs.x.com/llms.txt
     name: X Developer Platform documentation index
     classification: official
-    observed_at: "2026-07-29T20:05:42Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: pulsemcp
     locator: com.pulsemcp.mirror/x-docs
     name: X Docs
     classification: mirror
     scope: tenant
     status: present
-    observed_at: "2026-07-29T20:05:42Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: speakeasy-product-documentation
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-07-29T20:05:42Z"
+    observed_at: "2026-09-30T00:00:00Z"

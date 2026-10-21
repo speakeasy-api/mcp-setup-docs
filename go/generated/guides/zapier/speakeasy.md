@@ -8,71 +8,26 @@
 4. On the **MCP Catalog** page, enter `Zapier` in **Search MCP servers...**.
 5. Open the **Zapier** entry.
 6. Select **Add**.
-7. In the **Add to Project** dialog, select **Add to Project**.
+7. In the **Add to Project** dialog, under **Identity**, keep **User Identity** selected.
+8. Select **Add to Project**. If the dialog offers a **Guardrails** step, select **Skip for now**.
+9. After **Server added successfully**, select **Configure MCP settings**.
 
-After installation, select **Configure MCP settings** on the completion screen to open the server, then open **Settings**.
+When it adds the server, Speakeasy discovers Zapier's identity provider and registers a client automatically. There is no **Client ID** or secret to paste. If that cannot complete, the server is kept **Disabled** and the result says to finish setup in **Settings > Identity**.
 
-<!-- screenshot: the Add MCP server page, or the Zapier catalog entry -->
+<!-- screenshot: the Zapier catalog entry with the Identity choice -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Select **Configure MCP settings** on the completion screen, then open the server’s **Settings**.
+Open the server's **Settings** and find the **Identity** section. It normally shows **User Identity** with the `https://mcp.zapier.com` provider and **Auto-Configure** already set; skip to step 5.
 
-Under **Authentication**, if unconfigured, select **Use Discovered** when available; otherwise select **Configure Manually**. If configured but no provider is attached, use **Connected services > Add provider**. If the intended provider is already attached, use its existing controls and skip the provider/client creation and attachment steps below; do not add a duplicate.
+1. Select **User Identity**.
+2. Under **Choose an identity provider**, confirm the preselected provider is `https://mcp.zapier.com`. A provider that does not exist yet shows **Will be created**.
+3. Keep **Auto-Configure** selected.
+4. Select **Save**.
+5. If the server shows **Disabled**, open **Settings > Danger Zone > Server Availability** and turn on **Enable MCP server** so it shows **Enabled**.
 
-#### Select the identity provider
+When a person first uses the server, they sign in to Zapier with the account whose app connections should be available and complete Zapier's on-screen authorization prompts.
 
-In **Attach Remote Identity Provider**, **Identity Provider** defaults to **Select existing** when project issuers are available. Select the matching provider and skip the new-provider fields below. Otherwise choose **Add new** (or use the new-provider form shown when none exist).
-
-For a new provider only, confirm **Issuer URL**, the auto-derived **Slug**, and **Endpoints**. Discovery runs automatically for a seeded issuer; after typing or changing the URL, select **Discover** only if offered.
-
-For a new provider, enter **Issuer URL** `https://mcp.zapier.com` and keep the auto-derived **Slug**. If discovery does not populate **Endpoints**, enter:
-
-Authorization endpoint:
-
-```text
-https://mcp.zapier.com/oauth/authorize
-```
-
-Token endpoint:
-
-```text
-https://mcp.zapier.com/api/v1/oauth/token
-```
-
-Registration endpoint:
-
-```text
-https://mcp.zapier.com/api/v1/oauth/register
-```
-
-<!-- source: https://mcp.zapier.com/.well-known/oauth-authorization-server; public metadata checked 2026-09-17 -->
-
-1. Keep the auto-derived **Slug**.
-1. Keep the auto-derived **Display name (optional)**.
-1. Under **Endpoints**, wait for automatic discovery of the seeded issuer. After typing or changing **Issuer URL**, select **Discover** only if offered, then confirm the authorization, token, and registration endpoints.
-
-#### Select the session client
-
-Under **Session Client**, choose **Select existing** only for a client whose saved credentials, scopes, and audience match the requirements below; otherwise choose **Add new**. When reusing a matching client, skip directly to **Attach the provider** below. Do not create credentials or register the client again. Otherwise choose **Add new** (or use the new-client form shown when no clients exist) and complete these new-client-only steps:
-
-1. Under **Session Client**, keep **Client Type** set to **Dynamic Client
-   Registration (DCR)**.
-1. Keep **Token Endpoint Auth Method** at its discovered default.
-1. Leave **Scope (override)** empty.
-1. Leave **Audience (optional)** empty.
-
-#### Attach the provider
-
-Click **Attach Identity Provider**. DCR handles client registration; you do not need to register a callback URL manually.
-
-For a new DCR client, the Speakeasy AI Control Plane registers the OAuth client with Zapier. You do
-not need to paste a **Client ID** or **Client Secret**.
-
-1. When provider access is first requested, sign in to Zapier with the account
-   whose app connections should be available.
-2. Complete Zapier's on-screen authorization prompts.
-
-<!-- screenshot: the Attach Remote Identity Provider sheet after discovery, showing Dynamic Client Registration (DCR) and the discovered endpoints, with account-specific values redacted -->
+<!-- screenshot: Settings > Identity with User Identity selected, the Zapier provider, and Auto-Configure; values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Zapier's MCP documentation](https://docs.zapier.com/mcp/get-started/connect).

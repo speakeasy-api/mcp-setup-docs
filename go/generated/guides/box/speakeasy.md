@@ -3,49 +3,65 @@
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 1. In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**.
-2. Click **Add new** to open the **Add MCP server** page.
+2. Click **Add new** to open **Add MCP server**.
 3. Choose **From the catalog**.
 4. On the **MCP Catalog** page, use **Search MCP servers...** to find **Box**.
-5. Open the **Box** entry.
-6. Click **Add**.
-7. In the **Add to Project** dialog, click **Add to Project**.
+5. Open the **Box** entry and click **Add**.
+6. In the **Add to Project** dialog, under **Identity**, select **User Identity**. The dialog may preselect **No Identity**.
+7. Click **Add to Project**. If the dialog offers a **Guardrails** step, finish it or click **Skip for now**.
 
-After installation, select **Configure MCP settings** on the completion screen to open the server, then open **Settings**.
+Box needs a client registered by hand, so the result says to finish setup in **Settings > Identity**, and the server stays **Disabled** for now. This is expected. Click **Finish setup** on the server's result to open its **Settings**.
 
-<!-- screenshot: the Add MCP server page with From the catalog visible, or the Box catalog entry -->
+<!-- screenshot: the Box catalog entry in Add to Project with User Identity selected -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Select **Configure MCP settings** on the completion screen, then open the server’s **Settings**.
+Box's server names its sign-in provider as `https://api.box.com/`, with a trailing slash, while Box's provider metadata says `https://api.box.com`. The provider picker cannot create a provider from that mismatch, so create the Box provider by hand first.
 
-Under **Authentication**, if unconfigured, select **Use Discovered** when available; otherwise select **Configure Manually**. If configured but no provider is attached, use **Connected services > Add provider**. If the intended provider is already attached, use its existing controls and skip the provider/client creation and attachment steps below; do not add a duplicate.
+In the server's **Settings**, find the **Identity** section and select **User Identity**. Then create the provider:
 
-#### Select the identity provider
+1. Open **Choose an identity provider** and click **Create a custom identity provider**. This opens **Remote Identity Providers**.
+2. Click **New Remote Identity Provider**.
+3. In **Issuer URL**, enter `https://api.box.com`, with no trailing slash.
+4. Click **Discover**.
+5. Under **Endpoints**, confirm **Authorization Endpoint** and **Token Endpoint** show these values. If they are empty, enter them:
 
-In **Attach Remote Identity Provider**, **Identity Provider** defaults to **Select existing** when project issuers are available. Select the matching provider and skip the new-provider fields below. Otherwise choose **Add new** (or use the new-provider form shown when none exist).
+   ```text
+   https://account.box.com/api/oauth2/authorize
+   ```
 
-For a new provider only, confirm **Issuer URL**, the auto-derived **Slug**, and **Endpoints**. Discovery runs automatically for a seeded issuer; after typing or changing the URL, select **Discover** only if offered.
+   ```text
+   https://api.box.com/oauth2/token
+   ```
 
-For **Identity Provider > Add new**, use **Issuer URL** `https://api.box.com/`, authorization endpoint `https://account.box.com/api/oauth2/authorize`, and token endpoint `https://api.box.com/oauth2/token`. Keep the auto-derived **Slug**.
+6. Keep the derived **Slug** and click **Create**.
 
-#### Select the session client
+Add the Box client to that provider:
 
-Under **Session Client**, choose **Select existing** only for a client whose saved credentials, scopes, and audience match the requirements below; otherwise choose **Add new**. When reusing a matching client, skip directly to **Verify the callback and attach** below. Do not create credentials or register the client again. Otherwise choose **Add new** (or use the new-client form shown when no clients exist) and complete these new-client-only steps:
+1. On the new provider, click **Add Client**.
+2. Set **Client Type** to **Manual**.
+3. Paste the [Box Client ID](external.md#copy-client-credentials) into **Client ID**.
+4. Paste the [Box Client Secret](external.md#copy-client-credentials) into **Client Secret (optional)**. Box requires it.
+5. Leave **Scope (override)** empty. Box then grants the **Access scopes** selected in [Check the Access scopes](external.md#check-access-scopes).
+6. Confirm the displayed **Redirect URI** matches the value you entered in [Set the Redirect URI](external.md#set-redirect-uri).
+7. Click **Create**.
 
-1. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-1. Paste the [Box Client ID](external.md#copy-client-credentials) into
-   **Client ID**.
-1. Paste the [Box Client Secret](external.md#copy-client-credentials) into
-   **Client Secret (optional)**.
+Connect the server to that client:
 
-#### Verify the callback and attach
+1. Return to the server's **Settings > Identity** and select **User Identity**.
+2. In **Choose an identity provider**, open the picker and choose the `api.box.com` provider you created.
+3. Choose **Existing client**.
+4. Under **Client**, pick the client you created.
+5. Click **Save**.
 
-1. Confirm that the callback URL registered with the provider is `{{ gram.oauth.callback_url }}`. For a new manual client, also compare it with the sheet's displayed **Redirect URI**. The existing-client selection does not display that field; check the registered callback in the provider's app settings instead.
-2. Click **Attach Identity Provider**.
+Then turn the server on:
 
-For the provider-side callback setting, see [Redirect URIs](external.md#set-redirect-uri).
+1. In **Settings**, open **Danger Zone**.
+2. Under **Server Availability**, turn on **Enable MCP server** so it shows **Enabled**.
+
+Each user sees Box's authorization prompt the first time they use the server.
 
 <!-- verify(operator): the template key substitutes this same Redirect URI value -->
-<!-- screenshot: the Attach Remote Identity Provider sheet with Client Type set to Manual, the Redirect URI visible, and credential values redacted -->
+<!-- screenshot: Settings > Identity with User Identity, the api.box.com provider, and Existing client selected; credential values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Box's MCP documentation](https://docs.box.com/en/box-mcp/about-box-mcp-server).

@@ -34,7 +34,7 @@ remotes:
       - source: google-developers
         locator: https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server
         classification: official
-        observed_at: "2026-08-20T19:49:41Z"
+        observed_at: "2026-09-30T21:25:46Z"
       - source: google-developers
         locator: https://developers.google.com/workspace/gmail/api/reference/mcp
         classification: official
@@ -46,7 +46,7 @@ provenance:
   - source: google-developers
     locator: https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server
     classification: official
-    observed_at: "2026-08-20T19:49:41Z"
+    observed_at: "2026-09-30T21:25:46Z"
   - source: google-developers
     locator: https://developers.google.com/workspace/gmail/api/reference/mcp
     classification: official
@@ -54,7 +54,7 @@ provenance:
   - source: google-developers
     locator: https://developers.google.com/workspace/preview
     classification: official
-    observed_at: "2026-08-20T19:49:41Z"
+    observed_at: "2026-09-30T21:25:46Z"
   - source: google-cloud-console
     locator: https://console.cloud.google.com/
     classification: official
@@ -71,7 +71,17 @@ provenance:
     locator: https://support.google.com/cloud/answer/15549257?hl=en
     classification: official
     observed_at: "2026-08-20T19:49:41Z"
+  - source: provider-metadata
+    locator: https://gmailmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
+    name: Gmail MCP protected-resource metadata
+    classification: official
+    observed_at: "2026-09-30T21:25:46Z"
+  - source: provider-metadata
+    locator: https://accounts.google.com/.well-known/oauth-authorization-server
+    name: Google OAuth authorization-server metadata
+    classification: official
+    observed_at: "2026-09-30T21:25:46Z"
   - source: speakeasy-doctrine
     locator: doctrine/speakeasy-setup.md
     classification: official
-    observed_at: "2026-08-20T19:49:41Z"
+    observed_at: "2026-09-30T21:25:46Z"

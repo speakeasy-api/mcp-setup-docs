@@ -22,24 +22,24 @@ documentation:
   speakeasy: speakeasy.md
 remotes:
   - id: rovo
-    url: https://mcp.atlassian.com/v1/mcp/authv2
+    url: https://mcp.atlassian.com/v2/mcp
     transport: streamable-http
     authentication:
       - oauth-dcr
     provenance:
       - source: provider-documentation
-        locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/
-        name: Getting started with the Atlassian Rovo MCP Server
+        locator: https://support.atlassian.com/atlassian-ai-gateway/docs/get-started-with-the-atlassian-remote-mcp-server/
+        name: Get started with the Atlassian MCP server
         classification: official
-        observed_at: "2026-08-07T21:49:51Z"
+        observed_at: "2026-09-30T00:00:00Z"
       - source: endpoint-observation
-        locator: https://mcp.atlassian.com/v1/mcp/authv2
+        locator: https://mcp.atlassian.com/v2/mcp
         classification: official
-        observed_at: "2026-08-07T21:49:51Z"
+        observed_at: "2026-09-30T00:00:00Z"
       - source: endpoint-observation
-        locator: https://mcp.atlassian.com/.well-known/oauth-protected-resource/v1/mcp/authv2
+        locator: https://mcp.atlassian.com/.well-known/oauth-protected-resource/v2/mcp
         classification: official
-        observed_at: "2026-08-07T21:49:51Z"
+        observed_at: "2026-09-30T00:00:00Z"
 provenance:
   - source: pulsemcp
     locator: query:atlassian
@@ -54,82 +54,82 @@ provenance:
     status: hosted callback confirmed; hosted outbound IP ranges unknown
     observed_at: "2026-08-07T21:49:51Z"
   - source: provider-documentation
-    locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/
-    name: Getting started with the Atlassian Rovo MCP Server
+    locator: https://support.atlassian.com/atlassian-ai-gateway/docs/get-started-with-the-atlassian-remote-mcp-server/
+    name: Get started with the Atlassian MCP server
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/setting-up-clients/
-    name: Setting up clients
+    locator: https://support.atlassian.com/atlassian-ai-gateway/docs/set-up-clients/
+    name: Set up clients
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/authentication-and-authorization/
+    locator: https://support.atlassian.com/atlassian-ai-gateway/docs/authentication-and-authorization/
     name: Authentication and authorization
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/configuring-oauth-2-1/
-    name: Configuring OAuth 2.1
+    locator: https://support.atlassian.com/atlassian-ai-gateway/docs/configure-oauth-2-1/
+    name: Configure OAuth 2.1
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/configuring-authentication-via-api-token/
-    name: Configuring authentication via API token
+    locator: https://support.atlassian.com/atlassian-ai-gateway/docs/configure-authentication-via-api-token/
+    name: Configure authentication via API token
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/using-with-other-supported-mcp-clients/
-    name: Using with other supported MCP clients
+    locator: https://support.atlassian.com/atlassian-ai-gateway/docs/use-atlassian-rovo-mcp-server/
+    name: Use Atlassian Rovo MCP Server
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.atlassian.com/security-and-access-policies/docs/control-atlassian-rovo-mcp-server-settings/
+    locator: https://support.atlassian.com/security-and-access-policies/docs/control-atlassian-mcp-server-settings/
     name: Control Atlassian Rovo MCP server settings
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
     locator: https://support.atlassian.com/security-and-access-policies/docs/specify-ip-addresses-for-product-access/
     name: Specify IP addresses for product access
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.atlassian.com/security-and-access-policies/docs/available-atlassian-rovo-mcp-server-domains/
+    locator: https://support.atlassian.com/security-and-access-policies/docs/available-atlassian-mcp-server-domains/
     name: Available Atlassian Rovo MCP server domains
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
-    locator: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/troubleshooting-and-verifying-your-setup/
-    name: Troubleshooting and verifying your setup
+    locator: https://support.atlassian.com/atlassian-ai-gateway/docs/troubleshoot-and-verify-your-setup/
+    name: Troubleshoot and verify your setup
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-marketing
     locator: https://www.atlassian.com/platform/remote-mcp-server
     name: Atlassian Rovo MCP server
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: endpoint-observation
-    locator: https://mcp.atlassian.com/v1/mcp/authv2
+    locator: https://mcp.atlassian.com/v2/mcp
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: endpoint-observation
-    locator: https://mcp.atlassian.com/.well-known/oauth-protected-resource/v1/mcp/authv2
+    locator: https://mcp.atlassian.com/.well-known/oauth-protected-resource/v2/mcp
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: endpoint-observation
-    locator: protected-resource-discovered authorization-server metadata
-    name: Atlassian authorization-server metadata with DCR registration endpoint
+    locator: https://auth.atlassian.com/.well-known/oauth-authorization-server/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3
+    name: Atlassian path-issuer authorization-server metadata (https://auth.atlassian.com/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3)
     classification: official
-    status: authorization, token, and registration endpoints verified from metadata; empty DCR POST returned HTTP 400
-    observed_at: "2026-08-07T21:49:51Z"
+    status: CIMD supported and registration endpoint advertised; anonymous DCR registration returned HTTP 201
+    observed_at: "2026-09-30T00:00:00Z"
   - source: endpoint-observation
     locator: https://auth.atlassian.com/.well-known/oauth-authorization-server
     name: Atlassian base authorization-server metadata
     classification: official
-    status: stable base issuer plus authorization and token endpoints verified; no registration endpoint advertised here
-    observed_at: "2026-08-07T21:49:51Z"
+    status: base issuer advertises CIMD but no registration endpoint; not the issuer the PRM names
+    observed_at: "2026-09-30T00:00:00Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-08-07T21:49:51Z"
+    observed_at: "2026-09-30T00:00:00Z"
