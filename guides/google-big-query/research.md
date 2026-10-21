@@ -474,7 +474,7 @@ at `2026-08-06T23:23:41Z`:
   Library path, search and enable labels, and Service Usage Admin requirement.
 - `https://docs.cloud.google.com/capacity-planner/docs/create-future-reservations`
   — console-toolbar resource selector and **Select a resource** dialog;
-  observed at `2026-07-23T19:36:30Z`.
+  observed at `2026-10-21T20:07:27Z`.
 - `https://docs.cloud.google.com/iam/docs/grant-role-console` — documented
   `https://console.cloud.google.com/iam-admin/iam` direct URL; **IAM**,
   **Grant access**, **New principals**, **Select a role**, **Add another role**,
@@ -489,7 +489,7 @@ at `2026-08-06T23:23:41Z`:
   test-user flow, and consent-screen irreversibility.
 - `https://developers.google.com/health/codelabs/make-your-first-api-call` —
   scope-table **API** column search, scope selection, **Update**, and **Save**
-  controls; observed at `2026-07-23T19:36:30Z`.
+  controls; observed at `2026-10-21T20:07:27Z`.
 - `https://developers.google.com/identity/protocols/oauth2` — seven-day refresh
   token expiry for External apps in Testing and refresh-token limits.
 - `https://developers.google.com/identity/protocols/oauth2/scopes` — BigQuery
@@ -498,15 +498,15 @@ at `2026-08-06T23:23:41Z`:
   — branding verification controls and statuses, authorized-domain
   requirements, Data Access review inputs, up to three documentation links,
   **Scope Justification**, **YouTube link**, demo-video requirements, and
-  review-status locations; observed at `2026-07-23T19:36:30Z`.
+  review-status locations; observed at `2026-10-21T20:07:27Z`.
 - `https://support.google.com/cloud/answer/15549945` — **User Type** with
   **Internal** and **External** values, **Testing** versus **In production**,
   **Publish app**, 100-test-user cap, seven-day authorization expiry, and
-  possible verification; observed at `2026-07-23T19:36:30Z`.
+  possible verification; observed at `2026-10-21T20:07:27Z`.
 - `https://support.google.com/cloud/answer/13461325` — **Authorized domains**,
   **Prepare for Verification**, **Save and Continue**, **Scope Justification**,
   demo video, **Submit for Verification**, and review follow-up; observed at
-  `2026-07-23T19:36:30Z`.
+  `2026-10-21T20:07:27Z`.
 - `https://support.google.com/cloud/answer/15544987` — **Verification Center**
   as the production-app verification and status surface.
 - `https://support.google.com/cloud/answer/15549049` — Branding and Audience
