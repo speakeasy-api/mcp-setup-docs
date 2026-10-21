@@ -5,49 +5,58 @@ Follow these steps after [creating your own Salesforce app](external.md#create-y
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 1. In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**.
-2. Select **Add new** to open the **Add MCP server** page.
+2. Click **Add new** to open **Add MCP server**.
 3. Choose **Hosted remotely**.
-4. On the **New remote MCP server** page, paste the URL recorded in [Enable the selected MCP server](external.md#enable-sobject-server) into **MCP server URL**.
-5. Select **Verify connectivity**, then **Save**.
+4. On **New remote MCP server**, paste the URL recorded in [Enable the selected MCP server](external.md#enable-sobject-server) into **MCP server URL**.
+5. Leave **User session issuer** at its default.
+6. Click **Verify connectivity**.
+7. Under **Identity**, select **User Identity**. The page preselects **No Identity** for Salesforce URLs, so change it.
+8. Click **Save**.
 
-This creates the hosted MCP server and opens its **Overview** page.
+Speakeasy cannot register a Salesforce client automatically. It keeps the server **Disabled** and says to finish setup in **Settings > Identity**. This is expected.
 
-<!-- screenshot: the Add MCP server page with Hosted remotely visible -->
+<!-- screenshot: New remote MCP server after Verify connectivity, with User Identity selected under Identity -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-From the server's **Overview**, open **Settings**.
+Open the server's **Settings** and find the **Identity** section.
 
-Under **Authentication**, if unconfigured, select **Use Discovered** when available; otherwise select **Configure Manually**. If configured but no provider is attached, use **Connected services > Add provider**. If the intended provider is already attached, use its existing controls and skip the provider/client creation and attachment steps below; do not add a duplicate.
+1. Confirm that **User Identity** is selected.
+2. Under **Choose an identity provider**, confirm the preselected provider is `https://login.salesforce.com` for a production URL or `https://test.salesforce.com` for a sandbox URL. A provider badged **Will be created** is expected. If a sandbox URL shows `https://login.salesforce.com`, open the picker (**Search identity providers…**) and choose `https://test.salesforce.com`.
+3. Under the provider, choose **Manual**. The dashboard preselects **Auto-Configure**, which fails for Salesforce. If an earlier Salesforce server already uses this app, **Existing client** is preselected instead: pick that client under **Client** and skip to step 7.
+4. Paste the [**Consumer Key**](external.md#copy-consumer-key) into **Client ID**.
+5. Leave **Client secret** empty.
+6. Open **Advanced** and enter this value in **Scope**. Do not leave it blank.
 
-#### Select the identity provider
+   ```
+   mcp_api refresh_token
+   ```
 
-In **Attach Remote Identity Provider**, **Identity Provider** defaults to **Select existing** when project issuers are available. Select the matching provider and skip the new-provider fields below. Otherwise choose **Add new** (or use the new-provider form shown when none exist).
+7. Click **Save**. If asked to confirm, click **Save changes**.
 
-For a new provider only, confirm **Issuer URL**, the auto-derived **Slug**, and **Endpoints**. Discovery runs automatically for a seeded issuer; after typing or changing the URL, select **Discover** only if offered.
+If a sandbox URL offers no `https://test.salesforce.com` provider, create one, then return to step 7:
 
-If no matching provider or complete discovered configuration is available, ask your administrator for the documented **Issuer URL** and authorization and token **Endpoints** before continuing. Do not infer them from the MCP server URL.
+1. Open the picker and click **Create a custom identity provider**. This opens **Remote Identity Providers**.
+2. Click **New Remote Identity Provider**.
+3. Enter `https://test.salesforce.com` in **Issuer URL**.
+4. Click **Discover** and keep the derived **Slug**.
+5. Click **Create**.
+6. On the new provider, click **Add Client**.
+7. Set **Client Type** to **Manual**.
+8. Paste the **Consumer Key** into **Client ID** and leave **Client Secret (optional)** empty.
+9. Enter `mcp_api,refresh_token` in **Scope (override)**.
+10. Confirm the displayed **Redirect URI** matches the **Callback URL** you [entered in Salesforce](external.md#configure-oauth-settings).
+11. Click **Create**.
+12. Return to the server's **Settings > Identity** and select that provider.
+13. Choose **Existing client** and pick the new client under **Client**.
 
-#### Select the session client
+Turn the server on:
 
-Under **Session Client**, choose **Select existing** only for a client whose saved credentials, scopes, and audience match the requirements below; otherwise choose **Add new**. When reusing a matching client, skip directly to **Verify the callback and attach** below. Do not create credentials or register the client again. Otherwise choose **Add new** (or use the new-client form shown when no clients exist) and complete these new-client-only steps:
+1. In **Settings > Danger Zone > Server Availability**, turn on **Enable MCP server**.
+2. Confirm it shows **Enabled**.
 
-1. In the **Attach Remote Identity Provider** sheet, set **Client Type** to **Manual**.
+When a person first uses the server, Salesforce asks them to sign in and allow access. If sign-in fails right after you created the app, wait out Salesforce's 30-minute activation window before retrying. Do not change the OAuth settings.
 
-The sheet shows the **Redirect URI** with a copy button. It is the callback URL registered in Salesforce as `{{ gram.oauth.callback_url }}`.
-
-1. Paste the [**Consumer Key**](external.md#copy-consumer-key) into **Client ID**.
-1. Leave **Client Secret (optional)** empty.
-
-#### Verify the callback and attach
-
-1. Confirm that the callback URL registered with the provider is `{{ gram.oauth.callback_url }}`. For a new manual client, also compare it with the sheet's displayed **Redirect URI**. The existing-client selection does not display that field; check the registered callback in the provider's app settings instead.
-2. Click **Attach Identity Provider**.
-
-For the provider-side callback setting, see [**Callback URL**](external.md#configure-oauth-settings).
-
-If attachment still fails after the app's 30-minute activation window, stop and escalate; do not change the OAuth settings.
-
-<!-- screenshot: Attach Remote Identity Provider with Client Type, Redirect URI, and the credential labels visible; redact the Client ID -->
+<!-- screenshot: Settings > Identity with User Identity selected, the Salesforce provider, Manual, and Advanced > Scope filled; redact the Client ID -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Salesforce's MCP documentation](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html).

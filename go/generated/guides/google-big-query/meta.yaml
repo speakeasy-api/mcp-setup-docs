@@ -3,6 +3,7 @@ schema_version: 1
 slug: google-big-query
 title: Google BigQuery
 summary: Query and manage BigQuery data through Google's hosted BigQuery MCP server.
+speakeasy_add_server: catalog
 aliases:
   - com.pulsemcp.mirror/google-bigquery
 credential_setup:
@@ -39,7 +40,7 @@ remotes:
         locator: https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp
         name: Use the BigQuery MCP server
         classification: official
-        observed_at: "2026-08-06T23:23:41Z"
+        observed_at: "2026-09-30T21:25:43Z"
       - source: provider-documentation
         locator: https://docs.cloud.google.com/bigquery/docs/reference/mcp
         name: BigQuery MCP reference
@@ -54,18 +55,18 @@ remotes:
         locator: https://bigquery.googleapis.com/mcp
         name: BigQuery MCP endpoint
         classification: official
-        observed_at: "2026-08-06T23:23:41Z"
+        observed_at: "2026-09-30T21:25:43Z"
       - source: endpoint-observation
         locator: https://bigquery.googleapis.com/.well-known/oauth-protected-resource/mcp
         name: BigQuery MCP protected-resource metadata
         classification: official
-        observed_at: "2026-08-06T23:23:41Z"
+        observed_at: "2026-09-30T21:25:43Z"
 provenance:
   - source: provider-documentation
     locator: https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp
     name: Use the BigQuery MCP server
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/bigquery/docs/reference/mcp
     name: BigQuery MCP reference
@@ -115,7 +116,7 @@ provenance:
     locator: https://docs.cloud.google.com/capacity-planner/docs/create-future-reservations
     name: Create future reservation requests
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/iam/docs/grant-role-console
     name: Grant an IAM role by using the Google Cloud console
@@ -140,7 +141,7 @@ provenance:
     locator: https://developers.google.com/health/codelabs/make-your-first-api-call
     name: Make your first Google Health API call
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://developers.google.com/identity/protocols/oauth2
     name: Using OAuth 2.0 to Access Google APIs
@@ -155,12 +156,12 @@ provenance:
     locator: https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification
     name: Sensitive scope verification
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/13461325
     name: Submitting your app for verification
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15544987
     name: Get started with the Google Auth Platform
@@ -170,7 +171,7 @@ provenance:
     locator: https://support.google.com/cloud/answer/15549945
     name: Manage App Audience
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549049
     name: Manage OAuth App Branding
@@ -183,34 +184,34 @@ provenance:
     observed_at: "2026-08-06T23:23:41Z"
   - source: endpoint-observation
     locator: https://bigquery.googleapis.com/mcp
-    name: BigQuery MCP endpoint (tools/list 200 unauthenticated; tools/call 401)
+    name: BigQuery MCP endpoint (initialize and tools/list 200 unauthenticated; tools/call 401)
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: endpoint-observation
     locator: https://bigquery.googleapis.com/.well-known/oauth-protected-resource/mcp
     name: BigQuery MCP protected-resource metadata
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: endpoint-observation
     locator: https://accounts.google.com/.well-known/oauth-authorization-server
     name: Google authorization-server metadata
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: product-source
-    locator: speakeasy-api/gram@96f7f73:client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/IssuerFormFields.tsx
-    name: Speakeasy identity-provider form fields
+    locator: speakeasy-api/gram@68b3f78:client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/RemoteMcpIdentitySection.tsx
+    name: Speakeasy remote MCP Identity section
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: product-source
-    locator: speakeasy-api/gram@96f7f73:client/dashboard/src/pages/mcp/x/tabs/settings/sections/authentication/AttachRemoteIdentityProviderSheet.tsx
-    name: Speakeasy identity-provider attachment sheet
+    locator: speakeasy-api/gram@68b3f78:client/dashboard/src/pages/catalog/AddServerDialog.tsx
+    name: Speakeasy catalog Add to Project dialog
     classification: official
-    observed_at: "2026-08-06T23:23:41Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/contact-center/ccai-platform/docs/oauth-email-google
     name: Configure an email channel for OAuth with Gmail

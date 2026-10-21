@@ -212,17 +212,17 @@ provenance:
     locator: https://api.salesforce.com/.well-known/oauth-protected-resource/platform/mcp/v1/platform/sobject-reads
     name: Salesforce SObject Reads protected-resource metadata
     classification: official
-    observed_at: "2026-08-06T23:23:14Z"
+    observed_at: "2026-09-30T21:25:35Z"
   - source: endpoint-observation
     locator: https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads
     name: Salesforce SObject Reads production endpoint
     classification: official
-    observed_at: "2026-08-06T23:23:14Z"
+    observed_at: "2026-09-30T21:25:35Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-08-06T23:23:14Z"
+    observed_at: "2026-09-30T21:25:35Z"
   - source: provider-documentation
     locator: https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/setup-overview.html
     name: Set Up Your Org
@@ -277,3 +277,18 @@ provenance:
     locator: https://login.salesforce.com/packaging/installPackage.apexp?p0=04tdM000000cNGXQA2
     name: Speakeasy Salesforce application installation and mandatory support OAuth handoff
     observed_at: "2026-09-17T16:15:46Z"
+  - source: endpoint-observation
+    locator: https://api.salesforce.com/.well-known/oauth-protected-resource/platform/mcp/v1/sandbox/platform/sobject-reads
+    name: Salesforce sandbox protected-resource metadata (issuer test.salesforce.com)
+    classification: official
+    observed_at: "2026-09-30T21:25:35Z"
+  - source: endpoint-observation
+    locator: https://login.salesforce.com/.well-known/openid-configuration
+    name: Salesforce production OpenID configuration (registration endpoint, no CIMD)
+    classification: official
+    observed_at: "2026-09-30T21:25:35Z"
+  - source: endpoint-observation
+    locator: https://login.salesforce.com/services/oauth2/register
+    name: Salesforce anonymous dynamic client registration (401 invalid_client)
+    classification: official
+    observed_at: "2026-09-30T21:25:35Z"

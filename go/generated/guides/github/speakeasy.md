@@ -3,45 +3,42 @@
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
 1. In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**.
-2. Click **Add new** to open the **Add MCP server** page.
+2. Click **Add new** to open **Add MCP server**.
 3. Choose **From the catalog**.
 4. On the **MCP Catalog** page, find GitHub using **Search MCP servers...**.
-5. Open its entry.
-6. Click **Add**.
-7. In the **Add to Project** dialog, click **Add to Project**.
+5. Open its entry and click **Add**.
+6. In the **Add to Project** dialog, under **Identity**, select **User Identity**. The dialog may preselect **No Identity**.
+7. Click **Add to Project**. If the dialog offers a **Guardrails** step, finish it or click **Skip for now**.
 
-After installation, select **Configure MCP settings** on the completion screen to open the server, then open **Settings**.
+GitHub needs a client registered by hand, so the result says to finish setup in **Settings > Identity**, and the server stays **Disabled** for now. This is expected. Click **Finish setup** on the server's result to open its **Settings**.
 
-<!-- screenshot: GitHub's catalog entry with Add visible, excluding unrelated catalog results -->
+<!-- screenshot: GitHub's catalog entry in Add to Project with User Identity selected -->
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Select **Configure MCP settings** on the completion screen, then open the server’s **Settings**.
+In the server's **Settings**, find the **Identity** section.
 
-Under **Authentication**, if unconfigured, select **Use Discovered** when available; otherwise select **Configure Manually**. If configured but no provider is attached, use **Connected services > Add provider**. If the intended provider is already attached, use its existing controls and skip the provider/client creation and attachment steps below; do not add a duplicate.
+1. Select **User Identity**.
+2. In **Choose an identity provider**, confirm the provider is `https://github.com/login/oauth`. It may be badged **Will be created**. If no provider or a different one is selected, open the picker, search for `github.com` in **Search identity providers…**, and choose the `github.com/login/oauth` provider.
+3. Under the provider, choose **Manual**.
+4. Paste the **Client ID** from [Generate the OAuth credentials](external.md#generate-oauth-credentials) into **Client ID**.
+5. Paste the client secret from [Generate the OAuth credentials](external.md#generate-oauth-credentials) into **Client secret**. GitHub requires it, even though the field shows "Optional".
+6. Open **Advanced** and enter the scopes users may grant in **Scope**, on one line. Start from the full list GitHub's server advertises and delete any your organization does not allow:
 
-#### Select the identity provider
+   ```text
+   repo read:org read:user user:email read:packages write:packages read:project project gist notifications
+   ```
 
-In **Attach Remote Identity Provider**, **Identity Provider** defaults to **Select existing** when project issuers are available. Select the matching provider and skip the new-provider fields below. Otherwise choose **Add new** (or use the new-provider form shown when none exist).
+   A blank **Scope** requests every scope in this list, including `repo`, `write:packages`, and `gist`.
 
-For a new provider only, confirm **Issuer URL**, the auto-derived **Slug**, and **Endpoints**. Discovery runs automatically for a seeded issuer; after typing or changing the URL, select **Discover** only if offered.
+7. Click **Save**.
 
-For a new provider, use the authorization-server issuer `https://github.com/login/oauth` identified by GitHub’s protected-resource metadata. If discovery does not supply the endpoints, ask your administrator for the documented authorization and token endpoints before continuing; do not infer them from the MCP URL.
+This section does not show the redirect URI. GitHub accepts the connection only if [Register the OAuth app](external.md#register-oauth-app) set **Authorization callback URL** to `{{ gram.oauth.callback_url }}`.
 
-#### Select the session client
+Then turn the server on:
 
-Under **Session Client**, choose **Select existing** only for a client whose saved credentials, scopes, and audience match the requirements below; otherwise choose **Add new**. When reusing a matching client, skip directly to **Verify the callback and attach** below. Do not create credentials or register the client again. Otherwise choose **Add new** (or use the new-client form shown when no clients exist) and complete these new-client-only steps:
-
-1. In **Attach Remote Identity Provider**, set **Client Type** to **Manual**.
-1. Paste the **Client ID** saved in [Generate the OAuth credentials](external.md#generate-oauth-credentials) into **Client ID**.
-1. Paste the saved client secret into **Client Secret (optional)** — although the field is labeled optional, this OAuth connection requires it.
-
-#### Verify the callback and attach
-
-1. Confirm that the callback URL registered with the provider is `{{ gram.oauth.callback_url }}`. For a new manual client, also compare it with the sheet's displayed **Redirect URI**. The existing-client selection does not display that field; check the registered callback in the provider's app settings instead.
-2. Click **Attach Identity Provider**.
-
-For the provider-side callback setting, see [Register the OAuth app](external.md#register-oauth-app).
+1. In **Settings**, open **Danger Zone**.
+2. Under **Server Availability**, turn on **Enable MCP server** so it shows **Enabled**.
 
 If the target organization restricts OAuth apps, have a user authorize the connection, then complete the following:
 
@@ -65,6 +62,6 @@ Then have an organization owner approve the pending request:
 
 If the user's first authorization attempt was blocked before approval, have the user retry it after access is granted.
 
-<!-- screenshot: Attach Remote Identity Provider with the Redirect URI and credential fields visible and all credential values redacted -->
+<!-- screenshot: Settings > Identity with User Identity, the github.com/login/oauth provider, and Manual selected; credential values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [GitHub's MCP documentation](https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md).

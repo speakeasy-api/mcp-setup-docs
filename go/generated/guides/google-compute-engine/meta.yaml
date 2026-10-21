@@ -49,7 +49,7 @@ remotes:
         locator: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp
         name: Use the Compute Engine MCP server
         classification: official
-        observed_at: "2026-07-31T19:17:08Z"
+        observed_at: "2026-09-30T21:25:43Z"
       - source: provider-documentation
         locator: https://docs.cloud.google.com/compute/docs/reference/mcp
         name: Compute Engine MCP reference
@@ -64,7 +64,7 @@ remotes:
         locator: https://compute.googleapis.com/.well-known/oauth-protected-resource/mcp
         name: Compute Engine MCP protected-resource metadata
         classification: official
-        observed_at: "2026-07-31T19:17:08Z"
+        observed_at: "2026-09-30T21:25:43Z"
 provenance:
   - source: pulsemcp
     locator: com.googleapis.compute/mcp
@@ -76,7 +76,7 @@ provenance:
     locator: https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp
     name: Use the Compute Engine MCP server
     classification: official
-    observed_at: "2026-07-31T19:17:08Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/compute/docs/reference/mcp
     name: Compute Engine MCP reference
@@ -149,16 +149,21 @@ provenance:
     observed_at: "2026-07-31T19:17:08Z"
   - source: endpoint-observation
     locator: https://compute.googleapis.com/mcp
-    name: Compute Engine MCP endpoint (tools/list 200 unauthenticated, tools/call 401)
+    name: Compute Engine MCP endpoint (initialize and tools/list 200 unauthenticated, tools/call 401)
     classification: official
-    observed_at: "2026-07-31T19:17:08Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: endpoint-observation
     locator: https://compute.googleapis.com/.well-known/oauth-protected-resource/mcp
     name: Compute Engine MCP protected-resource metadata
     classification: official
-    observed_at: "2026-07-31T19:17:08Z"
+    observed_at: "2026-09-30T21:25:43Z"
   - source: endpoint-observation
     locator: https://accounts.google.com/.well-known/oauth-authorization-server
     name: Google authorization-server metadata
     classification: official
-    observed_at: "2026-07-31T19:17:08Z"
+    observed_at: "2026-09-30T21:25:43Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-09-30T21:25:43Z"

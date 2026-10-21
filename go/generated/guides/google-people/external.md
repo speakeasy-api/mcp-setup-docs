@@ -4,12 +4,24 @@ setup_version: 1
 
 # Set up Google People
 
-You need a Google Cloud project and access to the [Google Cloud console](https://console.cloud.google.com). To enable the People API, you need `serviceusage.services.enable`, normally through **Service Usage Admin** or **Owner**. To grant project roles, you need **Project IAM Admin**. Each connecting user must already have access to the intended Google profile, contacts, and directory data. Google documents that application developers are responsible for screening prompts and responses for malicious content or prompt injection; Model Armor is one documented option.
+The People API MCP server is in the Google Workspace Developer Preview Program. You need a Google Workspace account that can be added to Google Groups and a Google Cloud project that your organization can register in the program. To enable the People API, you need `serviceusage.services.enable`, normally through **Service Usage Admin** or **Owner**. To grant project roles, you need **Project IAM Admin**. Each connecting user must already have access to the intended Google profile, contacts, and directory data. Google documents that application developers are responsible for screening prompts and responses for malicious content or prompt injection; Model Armor is one documented option.
+
+### Join the Google Workspace Developer Preview Program {#join-developer-preview}
+
+1. Open [developers.google.com/workspace/preview](https://developers.google.com/workspace/preview).
+2. Review the **Developer Preview Program Terms** with the application or security owner.
+3. Click **Apply to join the Developer Preview Program**.
+4. In the current application form, enter the requested Google Workspace account and Google Cloud project information.
+5. Agree to the terms only with organizational approval.
+6. Submit the form with the visible or equivalent submission control. Google verifies the Workspace account, adds it to the program group, and then registers the Cloud project.
+7. Wait for the final project-registration confirmation at the submitted email address. Google says this should complete within a couple of days.
+
+<!-- screenshot: the program page with People MCP server listed under MCP servers -->
 
 ### Enable the People API {#enable-people-api}
 
 1. Sign in to the [Google Cloud console](https://console.cloud.google.com).
-2. In the console toolbar, use the resource selector to select the project that will own this configuration.
+2. In the console toolbar, use the resource selector to select the project registered in the Developer Preview Program.
 3. Open **APIs & Services** > **API Library**.
 4. In **Search for APIs & Services**, search for `People API`.
 5. Open **People API**.

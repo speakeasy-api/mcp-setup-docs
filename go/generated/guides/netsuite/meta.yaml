@@ -39,7 +39,7 @@ remotes:
         locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714082142.html
         name: Connect to the NetSuite AI Connector Service
         classification: official
-        observed_at: "2026-08-07T22:23:30Z"
+        observed_at: "2026-09-30T00:00:00Z"
       - source: provider-documentation
         locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_0902023450.html
         name: Installing the MCP Standard Tools SuiteApp
@@ -50,7 +50,7 @@ provenance:
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_4160616848.html
     name: NetSuite AI Connector Service FAQ
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_3200541651.html
     name: Get Started with the NetSuite AI Connector Service
@@ -75,7 +75,7 @@ provenance:
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714082142.html
     name: Connect to the NetSuite AI Connector Service
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_157771733782.html
     name: Create Integration Records for Applications to Use OAuth 2.0
@@ -91,11 +91,26 @@ provenance:
     name: URLs for Account-Specific Domains
     classification: official
     observed_at: "2026-08-07T22:23:30Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_158081944642.html
+    name: Step One GET Request to the Authorization Endpoint
+    classification: official
+    observed_at: "2026-09-30T00:00:00Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_158081952044.html
+    name: Step Two POST Request to the Token Endpoint
+    classification: official
+    observed_at: "2026-09-30T00:00:00Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_160855299656.html
+    name: Configure NetSuite as OIDC Provider
+    classification: official
+    observed_at: "2026-09-30T00:00:00Z"
   - source: speakeasy-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical file
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-09-30T00:00:00Z"
   - source: operator-validation
     locator: draft-guide operator notes for netsuite
     status: Bundle ID 522506; public-client PKCE path; scoped non-admin role; Attach Remote Identity Provider shows Redirect URI with a copy button before credential entry; Speakeasy MCP Catalog result overridden-tenanted for query netsuite; tenanted remote requires Custom remote path
