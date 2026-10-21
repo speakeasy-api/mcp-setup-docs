@@ -156,6 +156,12 @@ func TestBackendDecisionData(t *testing.T) {
 		if calls == 3 && (!strings.Contains(parts[1], `auth\"`) || !strings.Contains(parts[1], "action")) {
 			t.Fatal("missing final evidence")
 		}
+		if calls >= 2 {
+			var snapshot ResearchSnapshot
+			if json.Unmarshal([]byte(parts[1]), &snapshot) != nil || snapshot.RequestedTask != c.Context.Task {
+				t.Fatal("lost or replaced host task evidence")
+			}
+		}
 		answers := []string{`{"established":true,"endpoint":"https://example.test","sources":["source"],"blockers":[]}`, `{"authentication":"auth","actions":[],"follow_ups":[],"blockers":[],"dossier":""}`, `{"dossier":"done","blockers":[]}`}
 		return TurnResult{SessionID: "native", Answer: answers[calls-1]}, nil
 	}
@@ -166,10 +172,10 @@ func TestBackendDecisionData(t *testing.T) {
 	if _, err = b.Endpoint(context.Background(), "hostile\"\nreport"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = b.Reconcile(context.Background(), ResearchSnapshot{}); err != nil {
+	if _, err = b.Reconcile(context.Background(), ResearchSnapshot{RequestedTask: "replacement must not win"}); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = b.Finalize(context.Background(), ResearchSnapshot{FinalAudit: true, Authentication: `auth"`, Actions: []SetupAction{{Description: "action"}}}); err != nil {
+	if _, err = b.Finalize(context.Background(), ResearchSnapshot{RequestedTask: "replacement must not win", FinalAudit: true, Authentication: `auth"`, Actions: []SetupAction{{Description: "action"}}}); err != nil {
 		t.Fatal(err)
 	}
 	if calls != 3 {
@@ -317,7 +323,11 @@ func TestBackendSnapshotWireKeys(t *testing.T) {
 				}
 			}
 		}
-		check(data, "reports", "endpoint", "round", "final_audit", "authentication", "actions")
+		check(data, "reports", "endpoint", "round", "final_audit", "authentication", "actions", "requested_task")
+		var task string
+		if json.Unmarshal(data["requested_task"], &task) != nil || task != c.Context.Task {
+			t.Error("missing original task evidence")
+		}
 		var endpoint map[string]json.RawMessage
 		json.Unmarshal(data["endpoint"], &endpoint)
 		check(endpoint, "established", "endpoint", "sources", "blockers")
