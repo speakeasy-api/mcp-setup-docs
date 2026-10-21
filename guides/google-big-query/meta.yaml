@@ -116,7 +116,7 @@ provenance:
     locator: https://docs.cloud.google.com/capacity-planner/docs/create-future-reservations
     name: Create future reservation requests
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://docs.cloud.google.com/iam/docs/grant-role-console
     name: Grant an IAM role by using the Google Cloud console
@@ -141,7 +141,7 @@ provenance:
     locator: https://developers.google.com/health/codelabs/make-your-first-api-call
     name: Make your first Google Health API call
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://developers.google.com/identity/protocols/oauth2
     name: Using OAuth 2.0 to Access Google APIs
@@ -156,12 +156,12 @@ provenance:
     locator: https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification
     name: Sensitive scope verification
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/13461325
     name: Submitting your app for verification
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15544987
     name: Get started with the Google Auth Platform
@@ -171,7 +171,7 @@ provenance:
     locator: https://support.google.com/cloud/answer/15549945
     name: Manage App Audience
     classification: official
-    observed_at: "2026-07-23T19:36:30Z"
+    observed_at: "2026-10-21T20:07:27Z"
   - source: provider-documentation
     locator: https://support.google.com/cloud/answer/15549049
     name: Manage OAuth App Branding
