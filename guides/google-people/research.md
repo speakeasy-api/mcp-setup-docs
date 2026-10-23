@@ -310,6 +310,37 @@ limits — see [Google's People API MCP documentation](https://developers.google
 
 None.
 
+## Callback domain change
+
+Added 2026-10-23 by a direct, human-requested edit (Linear S-1191), not a
+factory run.
+
+- Speakeasy moved the AI Control Plane from `app.getgram.ai` to
+  `ai.speakeasy.com`. Each Speakeasy client keeps the callback origin it was
+  created with. A client saved from **Settings > Identity** after the move,
+  including a **Manual** client in {#connect-speakeasy-credentials}, sends
+  `{{ gram.oauth.callback_url }}` on the organization's default host, so a Google web
+  client that lists only `https://app.getgram.ai/mcp/remote_login_callback`
+  rejects it. A customer administrator hit this in October 2026 and had to
+  replace the redirect URI by hand. Source:
+  `doctrine/ai-control-plane-oauth.md`, Redirect URI row, re-verified
+  `2026-10-23T01:03:26Z`.
+- The `redirect_uri` in Google's authorization request must exactly match an
+  authorized redirect URI for the OAuth client, including scheme, case, and
+  trailing slash; otherwise Google returns `redirect_uri_mismatch`. Source:
+  `https://developers.google.com/identity/protocols/oauth2/web-server`,
+  observed `2026-10-23T01:03:26Z`.
+- An existing client opens from **Google Auth platform** > **Clients** by clicking
+  it under **OAuth 2.0 Client IDs**. Changes to its redirect URI settings may
+  take 5 minutes to a few hours to take effect. Source:
+  `https://support.google.com/cloud/answer/15549257?hl=en`, observed
+  `2026-10-23T01:03:26Z`.
+- Guide consequence: {#create-oauth-client} tells a reader who reuses a
+  client to confirm `{{ gram.oauth.callback_url }}` is listed, add it with
+  **+ Add URI** when it is missing, and keep the older URI while other
+  Speakeasy servers use it. {#connect-speakeasy-credentials} maps
+  `redirect_uri_mismatch` to that fix.
+
 ## Provenance
 
 Documentation-property sweep:

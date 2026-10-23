@@ -42,6 +42,8 @@ Open the server's **Settings** and find the **Identity** section.
 
 When a person first uses the server, Google's browser authorization prompt appears.
 
+If Google rejects the authorization with `redirect_uri_mismatch`, the Google client's **Authorized redirect URIs** do not list `{{ gram.oauth.callback_url }}` exactly. This usually means the client was set up before Speakeasy moved to `ai.speakeasy.com`. Add the URI as described in [Create the OAuth client](external.md#create-oauth-client), wait for Google to apply the change, and connect again.
+
 <!-- screenshot: Settings > Identity with User Identity, the Google provider, and Manual selected; values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Gmail's MCP documentation](https://developers.google.com/workspace/gmail/api/guides/configure-mcp-server).

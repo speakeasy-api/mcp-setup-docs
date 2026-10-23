@@ -54,6 +54,8 @@ The callback Speakeasy uses is the `{{ gram.oauth.callback_url }}` value you reg
 
 At first connection, follow Google's visible or equivalent browser authorization controls with an account that has [MCP Tool User access](external.md#grant-mcp-tool-user).
 
+If Google rejects the authorization with `redirect_uri_mismatch`, the Google client's **Authorized redirect URIs** do not list `{{ gram.oauth.callback_url }}` exactly. This usually means the client was set up before Speakeasy moved to `ai.speakeasy.com`. Add the URI as described in [Create the OAuth client](external.md#create-oauth-client), wait for Google to apply the change, and connect again.
+
 <!-- screenshot: Settings > Identity with User Identity, the Google provider, and Manual selected; values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Google's People API MCP documentation](https://developers.google.com/people/v1/configure-mcp-server).

@@ -41,6 +41,8 @@ Turn the server on:
 
 At first connection, complete Google's browser authorization with an account granted the roles in [Grant the BigQuery MCP roles](external.md#grant-bigquery-mcp-roles). An **External** app in **Testing** also requires that account under **Test users**.
 
+If Google rejects the authorization with `redirect_uri_mismatch`, the Google client's **Authorized redirect URIs** do not list `{{ gram.oauth.callback_url }}` exactly. This usually means the client was set up before Speakeasy moved to `ai.speakeasy.com`. Add the URI as described in [Create the OAuth client](external.md#create-oauth-client), wait for Google to apply the change, and connect again.
+
 <!-- screenshot: Settings > Identity with User Identity, the Google provider, and Manual selected; credentials redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Google's BigQuery MCP documentation](https://docs.cloud.google.com/bigquery/docs/use-bigquery-mcp).
