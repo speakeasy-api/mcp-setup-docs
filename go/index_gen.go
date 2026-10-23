@@ -1021,6 +1021,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
 	},
+	"How To: Generate renewed access_token using Refresh_Token in OAuth2": {
+		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
+	},
 	"HubSpot MCP Server": {
 		{Guide: "hubspot", Remote: "hosted"},
 	},

@@ -195,17 +195,29 @@ Do not capture the result because it exposes secrets.
      ) AS secret_values
    )
    SELECT
-     secret_values:oauth_client_id::STRING AS "oauth_client_id",
-     secret_values:oauth_client_secret::STRING AS "oauth_client_secret"
+     secret_values:"OAUTH_CLIENT_ID"::STRING AS "OAUTH_CLIENT_ID",
+     secret_values:"OAUTH_CLIENT_SECRET"::STRING AS "OAUTH_CLIENT_SECRET"
    FROM oauth_secrets;
    ```
 
 2. Use the uppercase, case-sensitive integration name in single quotes.
-3. Copy the result cell under `oauth_client_id` as **Client ID**.
-4. Copy the result cell under `oauth_client_secret` as **Client Secret**.
+3. Copy the result cell under `OAUTH_CLIENT_ID` as **Client ID**.
+4. Copy the result cell under `OAUTH_CLIENT_SECRET` as **Client Secret**.
 5. Store both values in the approved password manager.
 6. Switch away from the integration-owner role.
 
-The query omits `oauth_client_secret_2`. Do not use that secondary secret for initial setup.
+If either cell shows `NULL`, rerun the query with the uppercase keys exactly as shown. Snowflake matches these key names case-sensitively.
+
+Snowflake returns the credentials as one JSON string with uppercase keys. If you run `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS` on its own, the single result cell looks like this, with values redacted:
+
+```json
+{"OAUTH_CLIENT_SECRET_2":"REDACTED_SECONDARY_SECRET","OAUTH_CLIENT_SECRET":"REDACTED_CLIENT_SECRET","OAUTH_CLIENT_ID":"REDACTED_CLIENT_ID"}
+```
+
+| Snowflake key | Speakeasy field |
+| --- | --- |
+| `OAUTH_CLIENT_ID` | **Client ID** |
+| `OAUTH_CLIENT_SECRET` | **Client Secret** |
+| `OAUTH_CLIENT_SECRET_2` | Not used. Do not use this secondary secret for initial setup. |
 
 <!-- screenshot-exception: the result exposes secrets and must not be captured -->
