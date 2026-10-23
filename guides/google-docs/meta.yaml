@@ -140,3 +140,17 @@ provenance:
     scope: public
     status: no-confident-exact-match
     observed_at: "2026-08-29T15:13:21Z"
+  - source: provider-documentation
+    locator: https://support.google.com/cloud/answer/15549257?hl=en
+    name: Manage OAuth Clients
+    classification: official
+    observed_at: "2026-10-23T01:03:26Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/identity/protocols/oauth2/web-server
+    name: Using OAuth 2.0 for Web Server Applications
+    classification: official
+    observed_at: "2026-10-23T01:03:26Z"
+  - source: repository-doctrine
+    locator: doctrine/ai-control-plane-oauth.md
+    name: AI Control Plane OAuth client capabilities
+    observed_at: "2026-10-23T01:03:26Z"

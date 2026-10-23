@@ -70,7 +70,7 @@ provenance:
   - source: google-cloud-support
     locator: https://support.google.com/cloud/answer/15549257?hl=en
     classification: official
-    observed_at: "2026-08-20T19:49:41Z"
+    observed_at: "2026-10-23T01:03:26Z"
   - source: provider-metadata
     locator: https://gmailmcp.googleapis.com/.well-known/oauth-protected-resource/mcp/v1
     name: Gmail MCP protected-resource metadata
@@ -85,3 +85,12 @@ provenance:
     locator: doctrine/speakeasy-setup.md
     classification: official
     observed_at: "2026-09-30T21:25:46Z"
+  - source: provider-documentation
+    locator: https://developers.google.com/identity/protocols/oauth2/web-server
+    name: Using OAuth 2.0 for Web Server Applications
+    classification: official
+    observed_at: "2026-10-23T01:03:26Z"
+  - source: repository-doctrine
+    locator: doctrine/ai-control-plane-oauth.md
+    name: AI Control Plane OAuth client capabilities
+    observed_at: "2026-10-23T01:03:26Z"

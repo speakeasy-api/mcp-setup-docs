@@ -41,6 +41,8 @@ Turn the server on:
 
 Each user who then connects signs in with their own Google account. They need the roles from [Grant IAM roles](external.md#grant-iam-roles) and, while an **External** app's publishing status is **Testing**, a listing under **Test users** in [Configure the consent screen](external.md#consent-screen).
 
+If Google rejects the authorization with `redirect_uri_mismatch`, the Google client's **Authorized redirect URIs** do not list `{{ gram.oauth.callback_url }}` exactly. This usually means the client was set up before Speakeasy moved to `ai.speakeasy.com`. Add the URI as described in [Create the OAuth client](external.md#create-oauth-client), wait for Google to apply the change, and connect again.
+
 <!-- screenshot: Settings > Identity with User Identity, the Google provider, and Manual selected; credentials redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Google's Compute Engine MCP documentation](https://docs.cloud.google.com/compute/docs/use-compute-engine-mcp).

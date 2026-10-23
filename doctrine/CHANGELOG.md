@@ -6,6 +6,28 @@ evidence (Run Records / Retro Notes) behind it. Required by constitution
 invariant I8; written by `/tune-pipeline` when a human approves a
 proposal, or by hand for direct human edits.
 
+## 2026-10-23 — record per-client callback origins after the domain move
+
+Files: `doctrine/ai-control-plane-oauth.md`.
+
+Evidence: after the move from `app.getgram.ai` to `ai.speakeasy.com`, a
+customer administrator's Google OAuth client rejected a newly saved
+**Manual** client because it listed only the old callback, and the
+redirect URI had to be replaced by hand (Linear S-1191). Source inspection
+of `speakeasy-api/gram` main `ff6a2b287a790ac2b35d127b264cf123d3221a32`
+(`server/internal/remotesessions/callbackorigin.go`,
+`identitycommit.go`) confirmed that existing clients keep their recorded
+origin and new organization-owned clients record the organization's
+default host.
+
+- The Redirect URI row now says the origin is per client, which origin new
+  and existing clients use, and why a provider client holding only the
+  old callback rejects a newer Speakeasy client.
+
+The Google guides gain the matching reader guidance in the same change.
+Verification is source-level; this entry does not claim a
+production-browser walkthrough. I8: human-requested correction.
+
 ## 2026-09-30 — move credential setup to the Identity section
 
 Files: `doctrine/speakeasy-setup.md`, `guides/*/{speakeasy,external,research}.md`,
