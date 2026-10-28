@@ -170,6 +170,8 @@ Google can request more information through the support and developer-contact em
 
 This opens **OAuth 2.0 client created**.
 
+If you reuse an existing web client instead, such as one shared with another Google MCP server or created for an earlier Speakeasy setup, check its redirect URIs first. Open **Google Auth platform** > **Clients**, click the client under **OAuth 2.0 Client IDs**, and confirm that **Authorized redirect URIs** lists `{{ gram.oauth.callback_url }}` exactly. A client set up before Speakeasy moved to `ai.speakeasy.com` may list only a URI that starts with `https://app.getgram.ai`. If the value is missing, click **+ Add URI**, enter it, and save the client. Keep the older URI while other Speakeasy servers still use it. Google says a change can take 5 minutes to a few hours to take effect.
+
 <!-- screenshot: Create client with Web application selected and the Authorized redirect URIs row populated -->
 
 ### Copy the client credentials {#copy-client-credentials}

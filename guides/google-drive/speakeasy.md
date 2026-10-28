@@ -42,6 +42,8 @@ Speakeasy saves the server as **Disabled** and says to finish setup in **Setting
 
 When a person first uses the server, Google's browser authorization prompt appears. They must sign in with an account granted [MCP Tool User](external.md#grant-mcp-tool-user). If the app's audience is **External** and in **Testing**, the account must also be listed under **Test users**.
 
+If Google rejects the authorization with `redirect_uri_mismatch`, the Google client's **Authorized redirect URIs** do not list `{{ gram.oauth.callback_url }}` exactly. This usually means the client was set up before Speakeasy moved to `ai.speakeasy.com`. Add the URI as described in [Create the OAuth client](external.md#create-oauth-client), wait for Google to apply the change, and connect again.
+
 <!-- screenshot: Settings > Identity with User Identity, the Google provider, and Manual selected; values redacted -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Google's Drive MCP documentation](https://developers.google.com/workspace/drive/api/guides/configure-mcp-server).

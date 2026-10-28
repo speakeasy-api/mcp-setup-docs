@@ -82,6 +82,8 @@ Before you click **Create**, prepare to save the secret in an approved secret ma
 8. Copy the **Client ID** for the [Speakeasy setup](speakeasy.md#connect-speakeasy-credentials).
 9. Copy the **Client Secret** for the [Speakeasy setup](speakeasy.md#connect-speakeasy-credentials), and store it securely before closing the creation result.
 
+If you reuse an existing web client instead, such as one shared with another Google MCP server or created for an earlier Speakeasy setup, check its redirect URIs first. Open **Google Auth Platform** > **Clients**, click the client under **OAuth 2.0 Client IDs**, and confirm that **Authorized redirect URIs** lists `{{ gram.oauth.callback_url }}` exactly. A client set up before Speakeasy moved to `ai.speakeasy.com` may list only a URI that starts with `https://app.getgram.ai`. If the value is missing, click **+ Add URI**, enter it, and save the client. Keep the older URI while other Speakeasy servers still use it. Google says a change can take 5 minutes to a few hours to take effect.
+
 If you closed the creation result without saving the full secret:
 
 1. Reopen **Google Auth Platform** > **Clients**.
