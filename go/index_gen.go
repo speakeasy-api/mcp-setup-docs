@@ -25,6 +25,7 @@ var generatedSlugs = []GuideSlug{
 	"salesforce",
 	"slack",
 	"snowflake",
+	"work-iq",
 	"x",
 	"x-docs",
 	"zapier",
@@ -338,6 +339,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 			{ID: "oauth-client", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
 		},
 	},
+	"work-iq": {
+		Slug:               "work-iq",
+		Title:              "WorkIQ",
+		Summary:            "Connect the Speakeasy AI Control Plane to Microsoft's unified Work IQ MCP with scoped usage-based billing and a single-tenant Entra application for delegated user access.",
+		SpeakeasyAddServer: "custom-remote",
+		SetupRequired:      true,
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "unified", URL: "https://workiq.svc.cloud.microsoft/mcp", Transport: "streamable-http", Tenanted: false},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "delegated-oauth", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
 	"x": {
 		Slug:               "x",
 		Title:              "X",
@@ -499,6 +514,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	},
 	"https://slidesmcp.googleapis.com/mcp/v1": {
 		{Guide: "google-slides", Remote: "hosted"},
+	},
+	"https://workiq.svc.cloud.microsoft/mcp": {
+		{Guide: "work-iq", Remote: "unified"},
 	},
 }
 
@@ -1020,6 +1038,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
+	},
+	"How To: Generate renewed access_token using Refresh_Token in OAuth2": {
+		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
 	},
 	"HubSpot MCP Server": {
 		{Guide: "hubspot", Remote: "hosted"},
@@ -1644,6 +1665,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"What is the admin console?": {
 		{Guide: "asana", Remote: "hosted"},
+	},
+	"WorkIQ setup guide source": {
+		{Guide: "work-iq", Remote: "unified"},
 	},
 	"Working with workspaces": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
