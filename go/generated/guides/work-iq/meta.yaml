@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: work-iq
+title: WorkIQ
+summary: Connect the Speakeasy AI Control Plane to Microsoft's unified Work IQ MCP with scoped usage-based billing and a single-tenant Entra application for delegated user access.
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: delegated-oauth
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: tenant-id
+          label: Directory (tenant) ID
+          setup:
+            - external.md#register-entra-application
+        - id: client-id
+          label: Application (client) ID
+          setup:
+            - external.md#register-entra-application
+        - id: client-secret
+          label: Client secret Value
+          setup:
+            - external.md#register-entra-application
+  requirements:
+    - id: microsoft-365-user
+      description: A Microsoft 365 pilot user with access to the underlying workloads being tested; confirm current licensing because the source records conflicting Microsoft guidance.
+    - id: microsoft-administration
+      description: Administrators authorized to register Entra applications, approve the broad delegated WorkIQAgent.Ask permission, and configure Microsoft usage-based billing.
+    - id: approved-billing
+      description: An approved Azure subscription, billing method, pilot audience, service scope, budgets, and alerts before paid usage is activated.
+    - id: speakeasy-permission
+      description: Permission to add a remote MCP server and configure its identity in the intended Speakeasy project.
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: unified
+    url: https://workiq.svc.cloud.microsoft/mcp
+    transport: streamable-http
+    authentication:
+      - delegated-oauth
+    tenanted: false
+    provenance:
+      - source: supplied-marketing-site-pr
+        locator: https://github.com/speakeasy-api/marketing-site/pull/2620
+        name: WorkIQ setup guide source
+        status: Transferred source; original provider-validation date not supplied
+        scope: Local reading of supplied MDX only; not a new endpoint or provider observation
+        observed_at: "2026-10-28T19:19:08Z"
+provenance:
+  - source: supplied-marketing-site-pr
+    locator: https://github.com/speakeasy-api/marketing-site/pull/2620
+    name: WorkIQ setup guide source
+    status: Transferred source; original provider-validation date not supplied
+    scope: Local reading of supplied MDX only; not a new endpoint or provider observation
+    observed_at: "2026-10-28T19:19:08Z"
