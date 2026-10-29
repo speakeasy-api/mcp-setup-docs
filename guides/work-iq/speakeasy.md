@@ -2,7 +2,7 @@
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-Keep this pilot private and undistributed. Private visibility does not replace explicit access controls.
+Configure one server for the approved employee audience in your organization. An administrator configures the OAuth client once; each employee signs in with their own Microsoft account. Share the server configuration, never an employee's access or refresh token. Keep access limited to the validation group until the rollout checks below pass; private visibility alone is not an access control.
 
 1. Select the intended project in the Speakeasy AI Control Plane.
 2. In the sidebar, under **MCP Gateway**, select **MCP**.
@@ -92,9 +92,11 @@ Microsoft examples also use `api://workiq.svc.cloud.microsoft/WorkIQAgent.Ask`. 
 
 <!-- screenshot: Dedicated tenant-scoped Remote Identity Provider and manual client with selected client_secret_post; credentials and tenant identifiers redacted -->
 
-**Connect and test**
+### Connect as an employee and test {#connect-as-employee}
 
-1. Use **Connect/Authorize**, or the equivalent authorization control in your deployment, and sign in as the assigned pilot user.
+An administrator must first complete the Entra consent, employee assignments, billing audience, and tenant availability checks in [Microsoft setup](external.md). Tenant-wide consent does not sign employees in or give them a shared session. Employees do not need the Entra client secret.
+
+1. Use **Connect/Authorize**, or the equivalent authorization control in your deployment, and sign in with your own assigned employee account.
 2. Copy the **Speakeasy MCP endpoint** from the connection settings into your MCP client, rather than connecting directly to Microsoft for this test.
 3. Complete that client's authorization separately. A successful dashboard connection does not authenticate every separate client.
 4. Initialize MCP and list tools.
@@ -120,9 +122,21 @@ An empty calendar confirms an authorized read, not useful calendar coverage. Dri
 
 If OAuth fails with `invalid_client`, check the attached provider's application/client ID, tenant-specific endpoints, Web callback, unexpired secret **Value**, and **selected** `client_secret_post` method. Save, reopen, and reauthorize the client.
 
-If reads report a missing WorkIQ billing policy or `notEntitled`, check the enabled policy's service and user/group scope, unified Work IQ MCP installation, and billing activation. An enabled policy alone does not prove eligibility. Microsoft's [read-only cost-management diagnostics][cost-api] can help an authorized administrator: a selected policy with remaining credits and `isConsumptionAllowed: false` indicates an entitlement denial, not an exhausted budget or a specific missing license. Do not broaden the Work IQ app's grants, raise budgets, or buy licenses solely from this error. Escalate unresolved failures to Microsoft with sanitized request IDs and timestamps.
+If reads report a missing WorkIQ billing policy or `notEntitled`, check the affected employee's assignment, the enabled policy's service and user/group scope, tenant-approved Work IQ availability or installation requirements, and billing activation. An enabled policy alone does not prove eligibility. Microsoft's [read-only cost-management diagnostics][cost-api] can help an authorized administrator: a selected policy with remaining credits and `isConsumptionAllowed: false` indicates an entitlement denial, not an exhausted budget or a specific missing license. Do not broaden the Work IQ app's grants, raise budgets, or buy licenses solely from this error. Escalate unresolved failures to Microsoft with sanitized request IDs and timestamps.
 
-When retiring the pilot, revoke only dedicated credentials, grants, assignments, and resources after checking dependencies. Do not delete the shared Microsoft Work IQ resource service principal or a Dataverse environment.
+### Validate and distribute employee access {#distribute-employee-access}
+
+Before widening access, have at least two assigned employees connect independently through the Speakeasy MCP endpoint. Verify that `/me` requests run as the correct employee and do not reuse the administrator's or another employee's session. Use approved test data; do not copy business content into logs or the rollout record. Verify refresh or reauthorization and test that an unassigned account is denied, using an ordinary nonadministrator test account. These are required rollout checks, not capabilities established by the source pilot.
+
+Have your Speakeasy administrator grant server access to the approved employee audience using the access controls available in your deployment, and distribute the Speakeasy MCP endpoint and employee sign-in instructions. The exact sharing UI and its enforcement have not been validated for this guide. Do not make the server public as a substitute. Keep **User Identity** selected; one dashboard connection does not authenticate everyone.
+
+Align the approved employee population across Entra assignment, billing policies, any tenant catalog controls, and Speakeasy access. Each control is separate. If tenant installation or licensing requirements remain unresolved, keep the rollout restricted until your Microsoft administrator confirms eligibility.
+
+### Maintain and revoke access {#maintain-employee-access}
+
+Assign an owner for the Entra client secret, track its expiry, and rotate it using your approved secret-management process. Update the configured Speakeasy client and verify fresh authorization and existing sessions during rotation. Never distribute the secret to employees.
+
+For offboarding, remove the employee's access in Entra and Speakeasy, and revoke relevant sessions through your administrators' established process; do not assume a group change immediately invalidates an already issued token. Review billing and catalog audiences separately. When retiring the integration, revoke only dedicated credentials, grants, assignments, and resources after checking dependencies. Do not delete the shared Microsoft Work IQ resource service principal or a Dataverse environment.
 
 [cost-api]: https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/api/admin-settings/cost-management/overview
 
