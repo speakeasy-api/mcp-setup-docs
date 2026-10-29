@@ -101,3 +101,9 @@ All URLs below were fetched live on the research date. Source summaries are scop
 - **S11 — Enterprise-app properties:** <https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/application-properties> — Assignment required, invited-user exposure when disabled, Global Administrator exception.
 - **S12 — Tenant-wide admin consent:** <https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/grant-admin-consent> — portal workflow and Graph delegated `AllPrincipals` grant; service-principal object IDs; distinct application-permission assignment.
 - **S13 — Work IQ tenant enablement:** <https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/enable-work-iq> — one-time organization setup, Work IQ resource app ID `fdcc1f02-fc51-4226-8753-f668596af7f7`, billing-user prerequisite, existing-principal conflict handling.
+
+## Branding follow-up
+
+An official standalone Work IQ logo was not verified. Microsoft's [Work IQ product page](https://www.microsoft.com/en-us/copilot/features/work-iq) uses [Work IQ hero artwork](https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/Work-IQ-Opt-2?wid=512&fmt=png-alpha), but this is a product illustration, not a standalone logo. No substitute Copilot mark or cropped/reconstructed logo is included.
+
+This repository has no dedicated logo metadata field; `documentation.assets` is defined for setup screenshots. Catalog/provider branding is handled separately by the marketing site's `public/assets/logos/guide-providers/` convention. A verified mark should be integrated there or through an explicitly designed branding field rather than labeled as a screenshot.
