@@ -1666,6 +1666,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"What is the admin console?": {
 		{Guide: "asana", Remote: "hosted"},
 	},
+	"Work IQ employee rollout documentation": {
+		{Guide: "work-iq", Remote: "unified"},
+	},
 	"WorkIQ setup guide source": {
 		{Guide: "work-iq", Remote: "unified"},
 	},
