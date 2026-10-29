@@ -7,11 +7,37 @@ slug: work-iq
 
 ## Evidence boundary and provenance
 
-This transfers the complete supplied MDX for [marketing-site PR #2620](https://github.com/speakeasy-api/marketing-site/pull/2620), not a new provider investigation. Original research and pilot dates were not supplied. No provider URLs, tenant consoles, billing settings, OAuth flows, or MCP operations were rechecked.
+The original evidence below transfers the complete supplied MDX for [marketing-site PR #2620](https://github.com/speakeasy-api/marketing-site/pull/2620), not a new tenant validation. Original research and pilot dates were not supplied. The original transfer did not recheck provider URLs, tenant consoles, billing settings, OAuth flows, or MCP operations. The employee-rollout supplement below adds live public-document research, not tenant tests.
 
-Metadata `observed_at: 2026-10-28T19:19:08Z` records this transfer's local reading of the supplied source artifact, with a UTC clock reading captured during the task. It is **not** the pilot date or an observation of the linked PR, Microsoft documentation, or live endpoints. No `researched_at` is asserted because no original research timestamp was provided. Inherited source URLs below are evidence, not pages freshly fetched.
+Metadata `observed_at: 2026-10-28T19:19:08Z` records this transfer's local reading of the supplied source artifact, with a UTC clock reading captured during the task. It is **not** the pilot date or an observation of the linked PR, Microsoft documentation, or live endpoints. No `researched_at` is asserted because no original research timestamp was provided. Inherited source URLs in the historical appendix are original evidence; the supplement identifies the public sources fetched for the employee-rollout revision.
 
 Native UI facts come from `doctrine/speakeasy-setup.md` (existing source inspection dated 2026-09-30, revision `68b3f78ffec0ab6072ece4b7cc2ee3868c6a7c06`). Client capabilities come from `doctrine/ai-control-plane-oauth.md` (existing inspection dated 2026-09-15, revision `4e1fef388aa0f5b498f5d35400780ff2b99815e4`). These are inherited evidence dates, not new validation dates. The full source evidence below retains billing, access, and test limitations.
+
+## Employee-rollout supplement (2026-10-29)
+
+This supplement is the current basis for the employee-rollout guide and supersedes pilot-only instructions in the historical walkthrough and appendices below. The complete source register and section-by-section recommendations are in [employee-rollout research](../../docs/work-iq-employee-rollout-research.md). Public Microsoft documentation was fetched and inspected; no tenant changes, OAuth sessions, paid calls, or cross-user tests were performed.
+
+### Organization setup and access model
+
+- Keep one customer-owned **single-tenant** confidential client and tenant-specific OAuth endpoints. Single-tenant describes the organizational audience, not one employee. Home-tenant guests are not automatically excluded; use approved employee assignments. [Entra audiences](https://learn.microsoft.com/en-us/entra/identity-platform/single-and-multi-tenant-apps).
+- Keep **User Identity** and separate delegated employee sessions. Shared client configuration is not a shared employee token. Work IQ's delegated permission operates as the signed-in user and includes read/write capabilities; the documented Foundry integration does not support application-only access. [Permission reference](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/permissions), [Foundry quickstart](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/mcp/quickstart/foundry).
+- The default consent path is administrator-reviewed tenant-wide **delegated** consent through Entra, not one `Principal` Graph grant per employee. Consent does not replace assignment, sign-in, billing, or Speakeasy access. Graph's equivalent is `AllPrincipals`, with no user-specific `principalId`; service-principal object IDs remain distinct from app IDs. The historical Principal example is pilot-only. [Admin consent](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/grant-admin-consent).
+- Require assignment on the client enterprise application and assign approved employees/groups. Group assignment requires Entra ID P1/P2 and does not cascade into nested groups. The Global Administrator exception means negative tests must use ordinary nonadministrator accounts. [Assignment](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/assign-user-or-group-access-portal), [Application properties](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/application-properties).
+- Billing policies support **All users** or selected groups independently of app assignment. Retain service-specific scope, Auto-apply new services off, policy/per-user budgets, and alerts; do not accidentally activate the organization-wide default. [Billing setup](https://learn.microsoft.com/en-us/microsoft-365/copilot/usage-based-billing-copilot-credits-setup), [Spending policies](https://learn.microsoft.com/en-us/microsoft-365/copilot/usage-based-billing-manage-copilot-credits).
+
+### Availability and licensing evidence boundaries
+
+- Use the unified Work IQ remote, not legacy workload-specific servers. Follow tenant enablement and reuse the existing resource service principal when present. [MCP overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/mcp/overview), [Tenant enablement](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/enable-work-iq), [Server comparison](https://learn.microsoft.com/en-us/microsoft-agent-365/tooling-servers-overview).
+- Microsoft documents administrator installation for plugins/skills and separately describes MCP governance. This does not establish universal self-install requirements or a centralized installation replacement for this unified MCP connection. Confirm the exact tenant item and route, then test a newly onboarded employee. The source pilot's successful read after installation does not establish causality. [Admin deployment and governance](https://learn.microsoft.com/en-us/microsoft-agent-365/admin/manage-plugins-skills-mcp-servers).
+- The October 2026 [Credits Guide](https://aka.ms/CopilotCredits/LicensingGuide), pages 13–14, permits API use on behalf of any Microsoft 365 user, subject to tenant enablement/billing and workload licenses, and says the APIs are not Copilot-license entitlements. The live [Foundry quickstart](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/mcp/quickstart/foundry) still requires per-user Copilot licenses. Confirm applicability with Microsoft before broad rollout or purchasing; `notEntitled` alone proves neither a missing license nor an exhausted budget.
+
+### Current rendering and rollout gates {#optional-pilot}
+
+- Retain existing anchors `configure-usage-based-billing`, `install-unified-work-iq`, `register-entra-application`, and `grant-work-iq-permission`. Current screenshot notes cover approved employee billing audiences, verified tenant availability, employee assignments, and approved tenant-wide delegated consent, not proof of tenant validation.
+- `optional-pilot`: optional acceptance-check section; screenshot exception because no single console view proves employee isolation or eligibility. Keep an optional pilot group as a validation stage, not the final audience. Align billing, enterprise-app assignments, any catalog controls, and Speakeasy access independently before expansion.
+- The Speakeasy admin sets up the server/client once; each employee separately authenticates their downstream MCP client. Exact distribution UI and enforcement remain unvalidated; use administrator-confirmed access controls, not public visibility.
+- Before expansion, verify two independent employee sessions, correct `/me` identity, refresh/reauthorization, ordinary unassigned-user denial, and policy/logging behavior with approved test data. Do not use broad write-capable operations as smoke tests. Source pilot reads establish none of these rollout gates.
+- Operational recommendations: name a secret owner, track expiry/rotation, verify authorization after rotation, and remove employee access/revoke relevant sessions on offboarding. Do not assume assignment removal immediately invalidates issued tokens. Review billing/catalog audiences separately; preserve shared Microsoft resources on retirement.
 
 ## Server facts
 
@@ -20,7 +46,7 @@ Native UI facts come from `doctrine/speakeasy-setup.md` (existing source inspect
 - Authentication Option `delegated-oauth`: OAuth, manually registered customer-owned single-tenant Entra application, delegated signed-in-user access. No application-only substitute is established.
 - Remote ID `unified` is new for this transferred guide; there was no prior native bundle or published remote ID to preserve.
 - `speakeasy_add_server: custom-remote` preserves the source's explicit public-URL/custom-authorization-server route. This is not a claim of catalog absence or a Pulse lookup. The OAuth issuer is tenant-specific, but the MCP endpoint is not.
-- Requirements: Microsoft 365 pilot user with underlying workload access; administrators authorized to register apps, approve delegated permissions, and configure usage-based billing; approved billing method, Azure subscription, pilot audience, budgets, and alerts; Speakeasy project permission to add the remote and configure identity.
+- Requirements: Microsoft 365 employees with underlying workload access; administrators authorized to register apps, approve delegated permissions, and configure usage-based billing; approved billing method, Azure subscription, approved employee audience, budgets, and alerts; Speakeasy project permission to add the remote and configure identity.
 - The source cites the October 2026 Copilot Credits Guide, page 14, for usage-based Work IQ API access on behalf of Microsoft 365 users subject to workload licenses, versus the older June Foundry quickstart requiring a Microsoft 365 Copilot license per user. Do not establish a universal license requirement or exemption from these conflicting sources. Work IQ APIs are not included as Copilot license entitlements according to the source. Check rates/minimums rather than equating a call with a credit.
 
 ## Credential flow
@@ -45,7 +71,7 @@ The canonical custom-provider **Scope (override)** takes comma-separated entries
 
 The source reports that **selected** `client_secret_post` (`tokenEndpointAuthMethod`) resolved `invalid_client` in the pilot. **Token endpoint authentication methods** lists supported methods, not the selected client method. Existing client doctrine supports Basic/Post, requires a nonempty secret for explicit Basic/Post, and defaults to Basic when no recognized method is stored and a secret is present. Thus discovery alone does not satisfy the selection check. Refresh-token implementation support does not establish Work IQ token issuance or successful refresh.
 
-## Console walkthrough
+## Historical console walkthrough (pilot transfer)
 
 Provider anchors are minted here and reused in `external.md` and `meta.yaml`. The source appendix below supplies the exact steps, commands, Graph request, and documentation URLs.
 
@@ -56,7 +82,7 @@ Provider anchors are minted here and reused in `external.md` and `meta.yaml`. Th
 
 CLI lookup, conditional service-principal creation, and Graph consent in the source are instructions for an authorized administrator, not operations performed during this transfer.
 
-## Speakeasy setup
+## Historical Speakeasy rendering (pilot transfer)
 
 The selected rendering below carries the canonical skeleton's two fixed anchors and source-specific values. Use custom remote only. Create a dedicated custom provider/manual client, then select **Existing client** for that newly created client. No discovery default, automatic registration outcome, or catalog status is assumed.
 
@@ -347,7 +373,7 @@ When retiring the pilot, revoke only dedicated credentials, grants, assignments,
 
 ## Research limitations
 
-- No new provider/API/network tests or public-source fetches were performed. The appendix's “In testing” and “validated” language describes the original source pilot only, not this transfer.
+- No new tenant/API tests were performed. Public-source fetches for the employee-rollout supplement do not validate tenant behavior. The appendix's “In testing” and “validated” language describes the original source pilot only, not this transfer.
 - Original observation dates are unknown. Metadata dates record the local source-artifact reading, not a live provider observation.
 - No fresh 401/PRM challenge, issuer metadata, CIMD advertisement, DCR endpoint, or anonymous registration outcome was captured. The source provides the PRM URL and a working advertised scope, not those other discovery details or a complete scope inventory. Manual tenant-scoped issuer/endpoints come from the source, not an inference that the MCP URL is an issuer.
 - Exact user self-install URL/click path and whether administrator assignment can replace self-installation were not independently validated. Enabled billing alone did not prove eligibility. Reads succeeded after installation, but concurrent backend changes were not ruled out; causality and universality remain unproven.
@@ -357,8 +383,8 @@ When retiring the pilot, revoke only dedicated credentials, grants, assignments,
 
 ## Operator decisions
 
-No unresolved repository-identity decision prevents this transfer. Before a real pilot, the tenant owner must approve billing subscription/method, narrow audience/service scope, budgets/alerts, broad delegated read/write grant, consent scope, user assignment, tenant-approved installation route, and selected client-secret authentication method. These are per-deployment approvals, not invented requirements. Escalate unresolved entitlement/licensing questions to Microsoft with sanitized evidence.
+Before employee rollout, the tenant owner must approve billing subscription/method, employee audience/service scope, budgets/alerts, broad delegated read/write grant, tenant-wide consent, employee assignments, tenant-approved availability/installation route, and selected client-secret authentication method. These are per-deployment approvals, not invented requirements. Escalate unresolved entitlement/licensing questions to Microsoft with sanitized evidence.
 
 ## Publication and generation
 
-Only the four authored files belong to this transfer. `GO-MODULE.md` says guide-only PR validation runs generation/size checks without requiring a committed `go/` sync. After merge to main, the regen workflow opens the generated embed/index update. No shared index, generated bundle, published-server registry, or other guide is edited here. `research.md` is authoring-only and is not embedded.
+This revision updates the four guide artifacts and includes the supporting employee-rollout research note. `GO-MODULE.md` says guide-only PR validation runs generation/size checks without requiring a committed `go/` sync. After merge to main, the regen workflow opens the generated embed/index update. No shared index, generated bundle, published-server registry, or other guide is edited here. `research.md` is authoring-only and is not embedded.

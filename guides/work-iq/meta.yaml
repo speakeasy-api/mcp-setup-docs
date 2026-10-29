@@ -25,11 +25,11 @@ credential_setup:
             - external.md#register-entra-application
   requirements:
     - id: microsoft-365-user
-      description: A Microsoft 365 pilot user with access to the underlying workloads being tested; confirm current licensing because the source records conflicting Microsoft guidance.
+      description: Microsoft 365 employees with access to the underlying workloads; confirm current licensing because Microsoft sources conflict.
     - id: microsoft-administration
       description: Administrators authorized to register Entra applications, approve the broad delegated WorkIQAgent.Ask permission, and configure Microsoft usage-based billing.
     - id: approved-billing
-      description: An approved Azure subscription, billing method, pilot audience, service scope, budgets, and alerts before paid usage is activated.
+      description: An approved Azure subscription, billing method, employee audience, service scope, budgets, and alerts before paid usage is activated.
     - id: speakeasy-permission
       description: Permission to add a remote MCP server and configure its identity in the intended Speakeasy project.
 documentation:
@@ -56,3 +56,9 @@ provenance:
     status: Transferred source; original provider-validation date not supplied
     scope: Local reading of supplied MDX only; not a new endpoint or provider observation
     observed_at: "2026-10-28T19:19:08Z"
+  - source: microsoft-public-docs
+    locator: https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/work-iq/mcp/overview
+    name: Work IQ employee rollout documentation
+    status: Public documentation reviewed; employee rollout not tenant-validated
+    scope: Microsoft Work IQ, billing, consent, and assignment sources recorded in research.md and docs/work-iq-employee-rollout-research.md; installation and licensing caveats remain open
+    observed_at: "2026-10-29T02:56:49Z"
