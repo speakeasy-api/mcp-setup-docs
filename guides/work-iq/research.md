@@ -17,6 +17,8 @@ Native UI facts come from `doctrine/speakeasy-setup.md` (existing source inspect
 
 This supplement is the current basis for the employee-rollout guide and supersedes pilot-only instructions in the historical walkthrough and appendices below. The complete source register and section-by-section recommendations are in [employee-rollout research](../../docs/work-iq-employee-rollout-research.md). Public Microsoft documentation was fetched and inspected; no tenant changes, OAuth sessions, paid calls, or cross-user tests were performed.
 
+The external guide displays the owner-requested [Microsoft 365 (2022) logo](https://commons.wikimedia.org/wiki/File:Microsoft_365_(2022).svg) using the Wikimedia-hosted SVG; this is Microsoft 365 branding, not a verified standalone Work IQ logo. See the research note for the source and trademark caveat.
+
 ### Organization setup and access model
 
 - Keep one customer-owned **single-tenant** confidential client and tenant-specific OAuth endpoints. Single-tenant describes the organizational audience, not one employee. Home-tenant guests are not automatically excluded; use approved employee assignments. [Entra audiences](https://learn.microsoft.com/en-us/entra/identity-platform/single-and-multi-tenant-apps).

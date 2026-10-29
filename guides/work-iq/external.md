@@ -4,6 +4,8 @@ setup_version: 1
 
 # WorkIQ
 
+<img src="https://upload.wikimedia.org/wikipedia/commons/0/0e/Microsoft_365_%282022%29.svg" alt="Microsoft 365" width="160" />
+
 Connect Microsoft's unified Work IQ MCP to Speakeasy for employees within **one Entra tenant**, using one customer-owned single-tenant application. Administrators configure billing, application access, and consent once; each employee signs in with their own Microsoft account and authorizes a separate delegated session. Expand access in approved employee groups after validation.
 
 Each employee needs Microsoft 365 and access to the relevant workloads. Identify the Entra, billing, security-approval, and Speakeasy owners. Administrators need authority to register apps, approve delegated permissions, and configure Microsoft usage-based billing; the Speakeasy owner needs permission to add and distribute a remote MCP. Start in the [Microsoft 365 admin center][admin]; ask your Microsoft administrator to open the Entra application-registration area for your tenant when needed. Agree on the Azure subscription, service scope, limits, and alerts before activating paid usage. Keep credentials and returned business data out of source control, screenshots, and support transcripts.

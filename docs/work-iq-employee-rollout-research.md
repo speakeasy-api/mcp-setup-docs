@@ -104,6 +104,6 @@ All URLs below were fetched live on the research date. Source summaries are scop
 
 ## Branding follow-up
 
-An official standalone Work IQ logo was not verified. Microsoft's [Work IQ product page](https://www.microsoft.com/en-us/copilot/features/work-iq) uses [Work IQ hero artwork](https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/Work-IQ-Opt-2?wid=512&fmt=png-alpha), but this is a product illustration, not a standalone logo. No substitute Copilot mark or cropped/reconstructed logo is included.
+Use the **Microsoft 365 (2022) logo**, as explicitly requested by the guide owner, rather than claiming a distinct Work IQ mark. Source: [Wikimedia Commons file page](https://commons.wikimedia.org/wiki/File:Microsoft_365_(2022).svg), [SVG](https://upload.wikimedia.org/wikipedia/commons/0/0e/Microsoft_365_%282022%29.svg). The file page identifies it as public-domain text/logo artwork and notes trademark restrictions; this use does not imply Microsoft endorsement.
 
-This repository has no dedicated logo metadata field; `documentation.assets` is defined for setup screenshots. Catalog/provider branding is handled separately by the marketing site's `public/assets/logos/guide-providers/` convention. A verified mark should be integrated there or through an explicitly designed branding field rather than labeled as a screenshot.
+The external guide references the SVG directly, with descriptive alt text and a bounded display width. This avoids changing the screenshot-only asset schema or adding an undeclared local SVG that generation would discard. No distinct standalone Work IQ logo was verified; the displayed mark identifies Microsoft 365, not Work IQ.
