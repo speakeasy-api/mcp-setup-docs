@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: amplitude
+title: Amplitude
+summary: Connect a US- or EU-hosted Amplitude organization through Amplitude's hosted MCP server so users can query the product analytics they already have access to.
+credential_setup:
+  options:
+    - id: oauth-dcr
+      kind: oauth
+      client_registration: dynamic
+      upstream_setup: provider-steps
+  requirements:
+    - id: amplitude-account
+      description: An Amplitude account in the intended organization with access to the intended projects
+    - id: organization-mcp-access
+      description: Amplitude MCP access left enabled, or allowed for the connecting users, by an organization admin
+    - id: mcp-role-actions
+      description: A role that grants Use MCP (read), plus Use MCP (write) when users need write tools
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: us
+    url: https://mcp.amplitude.com/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://amplitude.com/docs/amplitude-ai/amplitude-mcp
+        name: Amplitude MCP Server
+        classification: official
+        observed_at: "2026-11-02T07:00:00Z"
+      - source: endpoint-observation
+        locator: https://mcp.amplitude.com/mcp
+        classification: official
+        observed_at: "2026-11-02T07:00:00Z"
+      - source: endpoint-observation
+        locator: https://mcp.amplitude.com/.well-known/oauth-protected-resource
+        classification: official
+        observed_at: "2026-11-02T07:00:00Z"
+  - id: eu
+    url: https://mcp.eu.amplitude.com/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://amplitude.com/docs/amplitude-ai/amplitude-mcp
+        name: Amplitude MCP Server
+        classification: official
+        observed_at: "2026-11-02T07:00:00Z"
+      - source: endpoint-observation
+        locator: https://mcp.eu.amplitude.com/mcp
+        classification: official
+        observed_at: "2026-11-02T07:00:00Z"
+      - source: endpoint-observation
+        locator: https://mcp.eu.amplitude.com/.well-known/oauth-protected-resource
+        classification: official
+        observed_at: "2026-11-02T07:00:00Z"
+provenance:
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/amplitude-ai/amplitude-mcp
+    name: Amplitude MCP Server
+    classification: official
+    observed_at: "2026-11-02T07:00:00Z"
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/amplitude-ai/amplitude-mcp/other-clients
+    name: Amplitude MCP with other clients
+    classification: official
+    observed_at: "2026-11-02T07:00:00Z"
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/faq/access-and-sso
+    name: Amplitude access and SSO FAQ
+    classification: official
+    observed_at: "2026-11-02T07:00:00Z"
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/session-replay/replay-link-reference
+    name: Amplitude replay link reference
+    classification: official
+    observed_at: "2026-11-02T07:00:00Z"
+  - source: endpoint-observation
+    locator: https://mcp.amplitude.com/.well-known/oauth-authorization-server
+    classification: official
+    status: CIMD supported and registration endpoint advertised; anonymous DCR registration not attempted
+    observed_at: "2026-11-02T07:00:00Z"
+  - source: endpoint-observation
+    locator: https://mcp.eu.amplitude.com/.well-known/oauth-authorization-server
+    classification: official
+    status: CIMD supported and registration endpoint advertised; anonymous DCR registration not attempted
+    observed_at: "2026-11-02T07:00:00Z"
+  - source: workflow-operator-notes
+    locator: assignment:amplitude
+    name: Use Hosted remotely for both regions
+    classification: official
+    status: Hosted remotely confirmed for both regions; catalog path not used
+    observed_at: "2026-11-02T07:00:00Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-11-02T07:00:00Z"
