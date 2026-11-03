@@ -15,7 +15,7 @@ credential_setup:
     - id: amplitude-project-access
       description: An Amplitude account with access to the projects the MCP server should read from or write to
     - id: mcp-allowed-for-organization
-      description: The Amplitude MCP server allowed for the organization under Settings > Content Access > MCP, which only an organization admin can change
+      description: The Amplitude MCP server allowed for the organization under Content Access > MCP in the organization settings, which only an organization admin can change
     - id: use-mcp-role-action
       description: A role that grants Use MCP (read) on the intended projects, plus Use MCP (write) where users should be able to change data
 documentation:
