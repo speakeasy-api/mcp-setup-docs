@@ -146,6 +146,16 @@ Per-guide values:
   DCR is advertised). No registration method is named because none is known
   to fail.
 - Scope string: not applicable (Auto-Configure).
+- User session issuer: left at its default. In gram `main` commit
+  `023d55f` (`client/dashboard/src/components/user-session-issuer-select.utils.ts`,
+  `defaultCreationUserSessionIssuerValue`), the create form preselects the
+  organization's issuer when there is exactly one, preselects **Create a
+  project-specific issuer** when there are none, and preselects nothing when
+  there are several. The field governs how clients sign in to Speakeasy when
+  they connect ("the authorization policy shared by clients connecting to
+  this server"), not the upstream Amplitude issuer, so Amplitude needs no
+  particular value. The several-issuers case is not covered by
+  `doctrine/speakeasy-setup.md`, which says only to leave the default.
 - Server Availability: when creation leaves the server **Disabled**, finish
   with **Settings > Danger Zone > Server Availability** → **Enable MCP
   server**.

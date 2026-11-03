@@ -6,7 +6,7 @@
 2. Click **Add new** to open **Add MCP server**.
 3. Choose **Hosted remotely**. Use this path in both regions, because the server URL depends on your data region.
 4. On **New remote MCP server**, paste the server URL from [Identify your data region](external.md#identify-data-region) into **MCP server URL**.
-5. Leave **User session issuer** at its default.
+5. Leave **User session issuer** at its default. This setting controls how people sign in to Speakeasy when they connect to the server, not how they sign in to Amplitude, so Amplitude needs no particular choice. It is separate from the Amplitude issuer under [Connect your credentials](#connect-speakeasy-credentials). The default is your organization's issuer when it has exactly one, or **Create a project-specific issuer** when it has none. If it has several, none is preselected; pick the one your Speakeasy admin uses for MCP servers.
 6. Click **Verify connectivity**.
 7. Under **Identity**, keep **User Identity** selected.
 8. If **Guardrails** appears, leave it off.
@@ -39,4 +39,4 @@ If tool calls fail after sign-in, recheck [Confirm MCP access](external.md#confi
 
 <!-- screenshot: Settings > Identity with User Identity selected, the Amplitude provider for the region, and Auto-Configure; values redacted -->
 
-This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Amplitude's MCP documentation](https://amplitude.com/docs/amplitude-ai/amplitude-mcp).
+This guide covers setup only. For billing, tool behavior, limits and anything else beyond setup, see [Amplitude's MCP documentation](https://amplitude.com/docs/amplitude-ai/amplitude-mcp).
