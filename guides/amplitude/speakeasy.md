@@ -16,7 +16,7 @@
 8. If **Guardrails** appears, leave it off.
 9. Click **Save**.
 
-On save, Speakeasy discovers the Amplitude identity provider for your region and registers a client automatically. When that works, the server is ready. When it cannot, the server is kept **Disabled** and the result says to finish setup in **Settings > Identity**.
+On save, Speakeasy discovers the Amplitude identity provider for your region and registers a client automatically. When that works, the server is ready. When it cannot, the server is kept **Disabled** and the result says to finish setup in **Settings > Identity**. In that case, continue with [Connect your credentials](#connect-speakeasy-credentials) below.
 
 <!-- screenshot: New remote MCP server after Verify connectivity, with an Amplitude server URL entered and User Identity selected -->
 
