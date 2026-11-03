@@ -42,8 +42,9 @@ research.
 - **Plan gates:** Amplitude's public MCP pages do not name a required plan.
 - **Organization control:** Amplitude enables MCP access by default for all
   users. Organization admins can allow or block the Amplitude MCP server at
-  **Settings > Content Access > MCP**; the restriction applies to all MCP
-  clients and all users, and only admins can change it.
+  **Settings > Content Access > MCP** "in your Amplitude organization
+  settings"; the restriction applies to all MCP clients and all users, and
+  only admins can change it.
 - **Role actions:** two RBAC actions govern MCP per project: **Use MCP
   (read)** (`USE_MCP_READ`) and **Use MCP (write)** (`USE_MCP_WRITE`), set in
   **Org Settings > Role Management**, category **AI Features**. They apply to
@@ -51,6 +52,20 @@ research.
   Member, Manager, and Admin also grant write. Write operations such as
   tracking-plan changes need **Use MCP (write)** plus the usual Amplitude
   permission for that change.
+- **Settings area naming:** Amplitude's Settings page documentation says the
+  gear icon opens **Settings**, which holds the organizational settings
+  (including content access controls and user management); only
+  organization admins and managers can edit them. Amplitude names the area
+  inconsistently, including on its MCP page: the MCP page writes
+  **Settings > Content Access > MCP** "in your Amplitude organization
+  settings" and **Org Settings > Role Management**; the Manage RBAC roles
+  page also writes **Org Settings > Role Management**; the sharing page
+  writes **Settings > Organization Settings > Content Access**; and the
+  Manage users page writes **Settings > Organization settings > Members &
+  Groups**. The Guide follows the MCP page: it names the area once as the
+  organization settings, opened from the gear icon's **Settings**, and uses
+  the MCP page's page names verbatim: **Content Access > MCP** and **Role
+  Management**.
 - **Sign-in behavior:** Amplitude's troubleshooting says to be signed in to
   only one Amplitude organization during the OAuth flow, and that the
   authorization page may keep spinning after authentication is complete;
@@ -85,16 +100,19 @@ user authorizes it in the browser on first use.
 
 ### Confirm MCP access {#confirm-mcp-access}
 
-- As an organization admin, open **Settings > Content Access > MCP** and
-  confirm the content access controls allow the Amplitude MCP server; allow
-  it if blocked. Applies to every MCP client and user.
-- For custom roles, open **Org Settings > Role Management**, and in the
-  **AI Features** category confirm **Use MCP (read)**; enable **Use MCP
-  (write)** only where users should change data through the server.
+- As an organization admin, click the gear icon to open **Settings**, open
+  **Content Access > MCP** in the organization settings, and confirm the
+  content access controls allow the Amplitude MCP server; allow it if
+  blocked. Applies to every MCP client and user.
+- For custom roles, open **Role Management** in the same organization
+  settings, and in the **AI Features** category confirm **Use MCP (read)**;
+  enable **Use MCP (write)** only where users should change data through
+  the server.
 - Built-in roles already grant read; Member, Manager, and Admin also grant
   write.
-- Screenshot note: **Settings > Content Access > MCP** with the server
-  allowed, and **AI Features** in a role with both actions visible.
+- Screenshot note: **Content Access > MCP** in the organization settings
+  with the server allowed, and **AI Features** in a role with both actions
+  visible.
 
 ## Speakeasy setup
 
@@ -172,9 +190,10 @@ Closing pointer: `https://amplitude.com/docs/amplitude-ai/amplitude-mcp`.
   the Dossier must switch to Manual and name the failing method.
 - **Content Access control labels:** Amplitude says to "use the content
   access controls to allow or block" the server but does not name the
-  control or its states; the Guide therefore does not name them. Some other
-  Amplitude pages describe the parent area as **Settings > Organization
-  Settings > Content Access** rather than **Settings > Content Access**.
+  control or its states; the Guide therefore does not name them. Whether
+  the organization settings show as a separately labelled level of the
+  **Settings** navigation is not confirmed; see Settings area naming for
+  the variants Amplitude's pages use.
 - **Wrong-region behavior:** Amplitude says an EU connection must use the EU
   endpoint but does not describe what a user sees when signing in to the
   wrong region's server.
@@ -203,6 +222,10 @@ Closing pointer: `https://amplitude.com/docs/amplitude-ai/amplitude-mcp`.
 - Create a new account (region choice): `https://amplitude.com/docs/get-started/create-a-new-account`
 - Replay link reference (EU hostname): `https://amplitude.com/docs/session-replay/replay-link-reference`
 - Role-based access controls: `https://amplitude.com/docs/admin/account-management/role-based-access-controls-rbac`
+- Manage RBAC roles: `https://amplitude.com/docs/admin/account-management/manage-rbac-roles`
+- Manage users and permissions: `https://amplitude.com/docs/admin/account-management/manage-users`
+- The Settings page: `https://amplitude.com/docs/admin/account-management/account-settings`
+- Share charts, dashboards, and notebooks with stakeholders outside your company (Content Access path): `https://amplitude.com/docs/analytics/share-external`
 - Documentation index: `https://amplitude.com/docs/llms.txt`
 - Endpoint observations, 2026-11-03: `https://mcp.amplitude.com/mcp`,
   `https://mcp.eu.amplitude.com/mcp`, each host's

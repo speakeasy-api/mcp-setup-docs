@@ -18,7 +18,7 @@ On save, Speakeasy discovers the Amplitude identity provider for your region and
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Open the server's **Settings** and find the **Identity** section. If creation already configured the identity, **User Identity** is selected with the Amplitude provider and **Auto-Configure**; skip to step 6.
+Open the server's **Settings** and find the **Identity** section. If creation already configured the identity, **User Identity** is selected with the Amplitude provider and **Auto-Configure**; skip to the last step.
 
 1. Select **User Identity**.
 2. Confirm that the preselected provider uses the issuer for your region. A provider that does not exist yet shows **Will be created**.
