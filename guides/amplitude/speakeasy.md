@@ -22,7 +22,7 @@ On save, Speakeasy discovers the Amplitude identity provider for your region and
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Open the server's **Settings** and find the **Identity** section. If creation already configured the identity, **User Identity** is selected with the Amplitude provider and **Auto-Configure**; skip to the last step.
+Open the server's **Settings** and find the **Identity** section. If creation already configured the identity, **User Identity** is selected with the Amplitude provider and **Auto-Configure**. In that case, skip to the last step.
 
 1. Select **User Identity**.
 2. Confirm that the preselected provider uses the issuer for your region. A provider that does not exist yet shows **Will be created**.
@@ -35,7 +35,7 @@ Open the server's **Settings** and find the **Identity** section. If creation al
 
 When a person first uses the server, Amplitude prompts them in the browser:
 
-1. Sign in with the Amplitude account for the intended organization. Stay signed in to only one Amplitude organization during this step; Amplitude says being signed in to several can make authentication fail.
+1. Sign in with the Amplitude account for the intended organization. Stay signed in to only one Amplitude organization during this step. Amplitude says being signed in to several can make authentication fail.
 2. Approve the authorization request.
 3. If the page keeps spinning after you approve, close the tab. Authentication is complete.
 
