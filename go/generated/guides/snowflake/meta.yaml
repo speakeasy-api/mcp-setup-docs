@@ -88,12 +88,17 @@ provenance:
     locator: https://docs.snowflake.com/en/sql-reference/functions/system_show_oauth_client_secrets
     name: SYSTEM$SHOW_OAUTH_CLIENT_SECRETS
     classification: official
-    observed_at: "2026-08-11T18:36:01Z"
+    observed_at: "2026-10-23T00:56:08Z"
+  - source: provider-support
+    locator: https://community.snowflake.com/s/article/How-To-Generate-renewed-access-token-using-Refresh-Token-in-OAuth2
+    name: "How To: Generate renewed access_token using Refresh_Token in OAuth2"
+    classification: official
+    observed_at: "2026-10-23T00:56:08Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/user-guide/querying-semistructured
     name: Querying semi-structured data
     classification: official
-    observed_at: "2026-08-11T18:36:01Z"
+    observed_at: "2026-10-23T00:56:08Z"
   - source: provider-documentation
     locator: https://docs.snowflake.com/en/sql-reference/sql/create-role
     name: CREATE ROLE

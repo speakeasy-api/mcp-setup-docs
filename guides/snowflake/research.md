@@ -28,9 +28,16 @@ researched_at: 2026-08-11T18:36:01Z
   custom Snowflake OAuth security integration. Snowflake recommends OAuth over
   hardcoded Programmatic Access Tokens and does not support Dynamic Client
   Registration for its managed MCP server.
-- **Credentials:** `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS` returns
-  `oauth_client_id`, `oauth_client_secret`, and a secondary secret used for
-  rotation. This Guide uses the first two values.
+- **Credentials:** `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS` returns one JSON
+  object string with uppercase keys, in this order:
+  `{"OAUTH_CLIENT_SECRET_2":"…","OAUTH_CLIENT_SECRET":"…","OAUTH_CLIENT_ID":"…"}`
+  (Snowflake Knowledge Base sample output). `OAUTH_CLIENT_SECRET_2` is the
+  secondary secret used for rotation. This Guide uses `OAUTH_CLIENT_ID` and
+  `OAUTH_CLIENT_SECRET`. The function reference's output table lists the
+  same names in lowercase, but Snowflake JSON element names are
+  case-sensitive, so a lowercase path such as `:oauth_client_id` does not
+  match the returned key and yields `NULL`. Extraction paths must use the
+  uppercase keys.
 - **Existing-agent requirement:** the application owner must supply an
   existing Cortex Agent's database, schema, and agent name. Before creating the
   MCP server, combine them as
@@ -99,8 +106,9 @@ after `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS` succeeds.
 
 | Speakeasy value | Snowflake origin |
 | --- | --- |
-| Client ID | `oauth_client_id` returned at {#copy-oauth-credentials} |
-| Client Secret | `oauth_client_secret` returned at {#copy-oauth-credentials} |
+| Client ID | `OAUTH_CLIENT_ID` returned at {#copy-oauth-credentials} |
+| Client Secret | `OAUTH_CLIENT_SECRET` returned at {#copy-oauth-credentials} |
+| Not used | `OAUTH_CLIENT_SECRET_2` (secondary rotation secret) |
 
 Enter `{{ gram.oauth.callback_url }}` directly as `OAUTH_REDIRECT_URI` at
 {#create-oauth-integration}. Snowflake does not support Dynamic Client
@@ -325,18 +333,32 @@ Registration, so the manually registered client ID and secret are required.
     ) AS secret_values
   )
   SELECT
-    secret_values:oauth_client_id::STRING AS "oauth_client_id",
-    secret_values:oauth_client_secret::STRING AS "oauth_client_secret"
+    secret_values:"OAUTH_CLIENT_ID"::STRING AS "OAUTH_CLIENT_ID",
+    secret_values:"OAUTH_CLIENT_SECRET"::STRING AS "OAUTH_CLIENT_SECRET"
   FROM oauth_secrets;
   ```
 
 - Use the uppercase, case-sensitive integration name in single quotes.
 - The query parses the returned JSON object and projects the two required
   values into separate named result columns without surrounding JSON quotes.
-- Copy the result cell under `oauth_client_id` as **Client ID**.
-- Copy the result cell under `oauth_client_secret` as **Client Secret**.
-- The query omits `oauth_client_secret_2`; do not use that secondary secret
-  for initial setup.
+  The paths use the uppercase keys exactly as returned; element names are
+  case-sensitive.
+- Copy the result cell under `OAUTH_CLIENT_ID` as **Client ID**.
+- Copy the result cell under `OAUTH_CLIENT_SECRET` as **Client Secret**.
+- Recovery: if either cell shows `NULL`, the path casing does not match the
+  returned key; rerun the query with the uppercase keys exactly as shown.
+- Representative sanitized raw output of
+  `SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('<INTEGRATION_NAME>');`, one
+  string in one result cell, key order as in Snowflake's sample:
+
+  ```json
+  {"OAUTH_CLIENT_SECRET_2":"REDACTED_SECONDARY_SECRET","OAUTH_CLIENT_SECRET":"REDACTED_CLIENT_SECRET","OAUTH_CLIENT_ID":"REDACTED_CLIENT_ID"}
+  ```
+
+- Field mapping: `OAUTH_CLIENT_ID` → **Client ID**; `OAUTH_CLIENT_SECRET` →
+  **Client Secret**; `OAUTH_CLIENT_SECRET_2` → not used. The query omits
+  `OAUTH_CLIENT_SECRET_2`; do not use that secondary secret for initial
+  setup.
 - Store both selected values in the approved password manager, then switch
   away from the integration-owner role.
 - Screenshot exception: the result exposes secrets and must not be captured.
@@ -382,8 +404,8 @@ skeleton (doctrine pinned to gram `main` `68b3f78`, observed 2026-09-30):
   request every PRM scope, which grows if an administrator sets
   `OAUTH_SCOPES_SUPPORTED`, so the Writer says not to leave it blank. In the
   custom-provider route, **Scope (override)** takes the same single value.
-- **Client ID** and **Client secret**: `oauth_client_id` and
-  `oauth_client_secret` from {#copy-oauth-credentials}. The integration is
+- **Client ID** and **Client secret**: `OAUTH_CLIENT_ID` and
+  `OAUTH_CLIENT_SECRET` from {#copy-oauth-credentials}. The integration is
   `CONFIDENTIAL`, so the secret is required despite the "Optional"
   placeholder.
 - Redirect URI: `{{ gram.oauth.callback_url }}` registered as
@@ -458,8 +480,10 @@ limits — see [Snowflake's MCP documentation](https://docs.snowflake.com/en/use
 - **Developer quickstarts — `quickstarts.snowflake.com`:** reviewed the
   managed MCP quickstart. It uses a PAT and a broader demonstration, so the
   current product docs and OAuth assignment take precedence.
-- **Support/community — `community.snowflake.com`:** searched; no public
-  article added first-connection facts.
+- **Support/community — `community.snowflake.com`:** a Knowledge Base
+  article supplies the only first-party sample of
+  `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS` output, which fixes the returned key
+  casing. No other article added first-connection facts.
 - **Indexes:** `https://docs.snowflake.com/llms.txt` and
   `https://docs.snowflake.com/en/user-guide/snowflake-cortex/llms.txt`.
 
@@ -487,10 +511,19 @@ pages and indexes remained reachable, and the setup facts above were unchanged.
   — confidential custom OAuth, `ALLOWED_ROLES_LIST`, secondary-role behavior,
   integration privileges, and privileged-role blocks.
 - `https://docs.snowflake.com/en/sql-reference/functions/system_show_oauth_client_secrets`
-  — credential keys and uppercase integration-name requirement.
+  — returned credential elements and uppercase integration-name requirement.
+  Its output table lists element names in lowercase and gives no sample
+  output; re-observed at `2026-10-23T00:56:08Z`.
+- `https://community.snowflake.com/s/article/How-To-Generate-renewed-access-token-using-Refresh-Token-in-OAuth2`
+  — Snowflake Knowledge Base sample output of
+  `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS`, showing the uppercase keys
+  `OAUTH_CLIENT_SECRET_2`, `OAUTH_CLIENT_SECRET`, and `OAUTH_CLIENT_ID`, in
+  that order; observed at `2026-10-23T00:56:08Z`.
 - `https://docs.snowflake.com/en/user-guide/querying-semistructured` —
   parsing JSON text into a `VARIANT`, extracting first-level JSON values into
-  separate columns, and casting string values to remove surrounding quotes.
+  separate columns, casting string values to remove surrounding quotes, and
+  case-sensitive element names in path and bracket notation; re-observed at
+  `2026-10-23T00:56:08Z`.
 - `https://docs.snowflake.com/en/sql-reference/sql/create-role`,
   `https://docs.snowflake.com/en/sql-reference/sql/grant-role`,
   `https://docs.snowflake.com/en/sql-reference/sql/grant-database-role`, and

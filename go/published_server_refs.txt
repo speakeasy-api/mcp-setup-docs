@@ -34,6 +34,7 @@ salesforce/tableau-next-production
 salesforce/tableau-next-sandbox
 slack/hosted
 snowflake/cortex-agent-mcp
+work-iq/unified
 x-docs/docs
 x/hosted
 zapier/hosted
