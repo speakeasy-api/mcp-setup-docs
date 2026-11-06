@@ -20,6 +20,13 @@ OpenRouter, and opens or resumes one factory PR. Every trigger reruns the whole
 guide. Outcomes, labels, security boundaries, and troubleshooting are covered
 in [`FACTORY.md`](FACTORY.md).
 
+## Preview a guide PR
+
+After the [one-time preview setup](docs/pr-previews.md), a maintainer can comment
+**`/preview-docs`** on an internal guide PR, including a draft. A bot comment links
+to that commit's guides rendered by the marketing site. Request a new preview
+after pushing edits. Production publishing is unchanged.
+
 ## Run locally
 
 Local drafting requires Docker and `OPENROUTER_API_KEY`. It validates the

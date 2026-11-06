@@ -1,0 +1,147 @@
+name: Setup guide preview
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+env:
+  PR_NUMBER: ${{ github.event.issue.number }}
+  REQUEST_ID: ${{ github.event.comment.id }}
+
+jobs:
+  authorize:
+    if: >-
+      github.repository == 'speakeasy-api/mcp-setup-docs' &&
+      github.event.issue.pull_request &&
+      github.event.comment.body == '/preview-docs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      enabled: ${{ steps.authorize.outputs.enabled }}
+      sha: ${{ steps.authorize.outputs.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: tools/preview
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.21.0'
+      - id: authorize
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node tools/preview/site-preview.mjs authorize
+
+  preview:
+    needs: authorize
+    if: needs.authorize.outputs.enabled == 'true'
+    # Only authorised requests reach this per-PR queue. Don't cancel an active
+    # result publisher; the newest pending request replaces older pending ones.
+    concurrency:
+      group: setup-guide-preview-${{ github.event.issue.number }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      PR_SHA: ${{ needs.authorize.outputs.sha }}
+    steps:
+      # This privileged workflow must never check out or execute the PR's code.
+      - name: Check out trusted preview orchestration
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # issue_comment's SHA is on the trusted default branch, not the PR.
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: tools/preview
+
+      - name: Use Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.21.0'
+
+      - name: Check the current PR and report progress
+        id: prepare
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node tools/preview/site-preview.mjs prepare
+
+      - name: Check preview configuration
+        if: steps.prepare.outputs.enabled == 'true'
+        env:
+          MARKETING_SITE_READ_TOKEN: ${{ secrets.MARKETING_SITE_READ_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          for name in MARKETING_SITE_READ_TOKEN VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Configure $name before requesting a setup guide preview. See docs/pr-previews.md."
+              exit 1
+            fi
+          done
+
+      - name: Check out the trusted marketing site
+        if: steps.prepare.outputs.enabled == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: speakeasy-api/marketing-site
+          ref: main
+          token: ${{ secrets.MARKETING_SITE_READ_TOKEN }}
+          path: marketing-site
+          persist-credentials: false
+          lfs: true
+
+      - name: Require preview-aware marketing code
+        if: steps.prepare.outputs.enabled == 'true'
+        run: |
+          if ! git -C marketing-site grep -q MCP_SETUP_DOCS_PREVIEW_SHA -- src/lib/astro/loaders/mcp-setup-docs.ts; then
+            echo '::error::Merge the marketing-site preview-source guard before enabling docs previews.'
+            exit 1
+          fi
+
+      - name: Install pnpm
+        if: steps.prepare.outputs.enabled == 'true'
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: marketing-site/package.json
+          run_install: false
+
+      - name: Deploy a preview of the requested guide commit
+        if: steps.prepare.outputs.enabled == 'true'
+        id: deploy
+        working-directory: marketing-site
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          PREVIEW_SHA: ${{ steps.prepare.outputs.sha }}
+        run: |
+          set -euo pipefail
+          # Never use --prod or the production deploy hook. The token stays on
+          # the Actions runner; only the public docs SHA is sent to the build.
+          pnpm dlx vercel@58.4.4 deploy --yes --target=preview \
+            --token "$VERCEL_TOKEN" \
+            --build-env "MCP_SETUP_DOCS_PREVIEW_SHA=$PREVIEW_SHA" \
+            --meta "mcpSetupDocsPr=$PR_NUMBER" \
+            --meta "mcpSetupDocsSha=$PREVIEW_SHA" \
+            > "$RUNNER_TEMP/mcp-docs-preview-url.txt"
+
+      - name: Publish the preview link or failure on the source PR
+        if: always() && !cancelled() && steps.prepare.outputs.enabled == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.prepare.outputs.sha }}
+          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+          DEPLOYMENT_OUTPUT: ${{ runner.temp }}/mcp-docs-preview-url.txt
+        run: node tools/preview/site-preview.mjs publish
