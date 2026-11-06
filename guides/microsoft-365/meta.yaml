@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: microsoft-365
+title: Microsoft 365
+summary: Connect Outlook mail and calendar, Teams, SharePoint, OneDrive, and people search through Speakeasy's hosted Microsoft 365 MCP server with a customer-owned single-tenant Entra application.
+aliases:
+  - m365
+  - outlook
+  - microsoft-graph
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: delegated-oauth
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: tenant-id
+          label: Directory (tenant) ID
+          setup:
+            - external.md#register-entra-application
+        - id: client-id
+          label: Application (client) ID
+          setup:
+            - external.md#register-entra-application
+        - id: client-secret
+          label: Client secret Value
+          setup:
+            - external.md#create-client-secret
+  requirements:
+    - id: microsoft-365-user
+      description: Each connecting person has a Microsoft 365 work or school account with an Exchange Online mailbox, plus Teams and SharePoint or OneDrive access for those tools; personal Microsoft accounts are not supported.
+    - id: entra-administration
+      description: An Entra administrator authorized to register applications and grant tenant-wide admin consent; ChannelMessage.Read.All, Files.ReadWrite.All, and OnlineMeetingTranscript.Read.All always require admin consent.
+    - id: speakeasy-permission
+      description: Permission to add a remote MCP server and configure its identity and identity providers in the intended Speakeasy project.
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: hosted
+    url: https://catalog.speakeasy.com/m365/mcp
+    transport: streamable-http
+    authentication:
+      - delegated-oauth
+    tenanted: false
+    provenance:
+      - source: speakeasy-source
+        locator: https://github.com/speakeasy-api/customer-mcps/pull/54
+        name: Shared Microsoft 365 MCP server (customer-mcps src/shared/m365)
+        status: Server and production route registration open for review; production endpoint not yet deployed
+        scope: Remote URL derived from the production catalog domain and server slug in infra/prod; not an observation of a live production endpoint
+        observed_at: "2026-11-06T05:40:00Z"
+provenance:
+  - source: speakeasy-source
+    locator: https://github.com/speakeasy-api/customer-mcps/pull/54
+    name: Shared Microsoft 365 MCP server README (authorization, scopes, Entra quirks)
+    classification: official
+    observed_at: "2026-11-06T05:40:00Z"
+  - source: speakeasy-validation
+    locator: local AI Control Plane deployment against a Speakeasy development tenant
+    name: End-to-end sign-in and tool calls through a locally run control plane
+    status: Passed for get_me, mail search, calendar search, availability, Teams, SharePoint folder search, people search, and draft create/delete
+    scope: Local deployment with a tenant-specific custom identity provider and a manually registered single-tenant Entra client; production not tested
+    observed_at: "2026-11-06T05:30:00Z"
+  - source: provider-metadata
+    locator: https://login.microsoftonline.com/organizations/v2.0/.well-known/openid-configuration
+    name: Entra multi-tenant OIDC discovery document
+    classification: official
+    observed_at: "2026-11-06T00:20:00Z"
+  - source: provider-documentation
+    locator: https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app
+    name: Register an application with the Microsoft identity platform
+    classification: official
+    status: Inherited locator; console labels follow the validated Work IQ guide
+    observed_at: "2026-11-06T05:40:00Z"
+  - source: provider-documentation
+    locator: https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/grant-admin-consent
+    name: Grant tenant-wide admin consent to an application
+    classification: official
+    status: Inherited from guides/work-iq research (2026-10-29)
+    observed_at: "2026-10-29T02:56:49Z"
+  - source: provider-documentation
+    locator: https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/assign-user-or-group-access-portal
+    name: Assign users and groups to an application
+    classification: official
+    status: Inherited from guides/work-iq research (2026-10-29)
+    observed_at: "2026-10-29T02:56:49Z"
+  - source: provider-documentation
+    locator: https://learn.microsoft.com/en-us/graph/permissions-reference
+    name: Microsoft Graph permissions reference
+    classification: official
+    observed_at: "2026-11-06T05:40:00Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical file
+    observed_at: "2026-11-06T05:40:00Z"
+  - source: repository-guide
+    locator: guides/work-iq
+    name: Validated Entra custom identity provider setup (tenant issuer, manual client, client_secret_post)
+    observed_at: "2026-11-06T05:40:00Z"
