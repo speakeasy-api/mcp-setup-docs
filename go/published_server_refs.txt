@@ -17,6 +17,7 @@ google-slides/hosted
 hubspot/hosted
 intercom/eu
 intercom/us
+microsoft-365/hosted
 netsuite/mcp-standard-tools
 salesforce/data360-production
 salesforce/data360-sandbox

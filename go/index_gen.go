@@ -21,6 +21,7 @@ var generatedSlugs = []GuideSlug{
 	"google-slides",
 	"hubspot",
 	"intercom",
+	"microsoft-365",
 	"netsuite",
 	"salesforce",
 	"slack",
@@ -269,6 +270,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 			{ID: "oauth-manual", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
 		},
 	},
+	"microsoft-365": {
+		Slug:               "microsoft-365",
+		Title:              "Microsoft 365",
+		Summary:            "Connect Outlook mail and calendar, Teams, SharePoint, OneDrive, and people search through Speakeasy's hosted Microsoft 365 MCP server with a customer-owned single-tenant Entra application.",
+		SpeakeasyAddServer: "custom-remote",
+		SetupRequired:      true,
+		Aliases:            []string{"m365", "outlook", "microsoft-graph"},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://catalog.speakeasy.com/m365/mcp", Transport: "streamable-http", Tenanted: false},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "delegated-oauth", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
 	"netsuite": {
 		Slug:               "netsuite",
 		Title:              "NetSuite",
@@ -410,6 +425,9 @@ var generatedAliasToSlug = map[string]GuideSlug{
 	"com.pulsemcp.mirror/xdevplatform-xmcp": "x",
 	"com.pulsemcp.mirror/zapier":            "zapier",
 	"io.github.github/github-mcp-server":    "github",
+	"m365":                                  "microsoft-365",
+	"microsoft-graph":                       "microsoft-365",
+	"outlook":                               "microsoft-365",
 }
 
 var generatedURLToRefs = map[string][]ServerRef{
@@ -466,6 +484,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	},
 	"https://calendarmcp.googleapis.com/mcp/v1": {
 		{Guide: "google-calendar", Remote: "hosted"},
+	},
+	"https://catalog.speakeasy.com/m365/mcp": {
+		{Guide: "microsoft-365", Remote: "hosted"},
 	},
 	"https://compute.googleapis.com/mcp": {
 		{Guide: "google-compute-engine", Remote: "hosted"},
@@ -566,6 +587,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Asana": {
 		{Guide: "asana", Remote: "hosted"},
+	},
+	"Assign users and groups to an application": {
+		{Guide: "microsoft-365", Remote: "hosted"},
 	},
 	"Atlassian Rovo MCP server": {
 		{Guide: "atlassian", Remote: "rovo"},
@@ -894,8 +918,14 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-sheets", Remote: "hosted"},
 		{Guide: "google-slides", Remote: "hosted"},
 	},
+	"End-to-end sign-in and tool calls through a locally run control plane": {
+		{Guide: "microsoft-365", Remote: "hosted"},
+	},
 	"Enterprise Settings Content and Sharing": {
 		{Guide: "box", Remote: "hosted"},
+	},
+	"Entra multi-tenant OIDC discovery document": {
+		{Guide: "microsoft-365", Remote: "hosted"},
 	},
 	"GRANT DATABASE ROLE": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
@@ -1023,6 +1053,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-sheets", Remote: "hosted"},
 		{Guide: "google-slides", Remote: "hosted"},
 	},
+	"Grant tenant-wide admin consent to an application": {
+		{Guide: "microsoft-365", Remote: "hosted"},
+	},
 	"Headless 360 MCP Server (Beta)": {
 		{Guide: "salesforce", Remote: "data360-production"},
 		{Guide: "salesforce", Remote: "data360-sandbox"},
@@ -1138,6 +1171,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Managing Box MCP Servers": {
 		{Guide: "box", Remote: "hosted"},
 	},
+	"Microsoft Graph permissions reference": {
+		{Guide: "microsoft-365", Remote: "hosted"},
+	},
 	"Model Context Protocol (MCP)": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
@@ -1214,6 +1250,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Regional Data Hosting": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
+	},
+	"Register an application with the Microsoft identity platform": {
+		{Guide: "microsoft-365", Remote: "hosted"},
 	},
 	"Remote GitHub MCP Server": {
 		{Guide: "github", Remote: "hosted"},
@@ -1484,6 +1523,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Share your app": {
 		{Guide: "asana", Remote: "hosted"},
 	},
+	"Shared Microsoft 365 MCP server (customer-mcps src/shared/m365)": {
+		{Guide: "microsoft-365", Remote: "hosted"},
+	},
+	"Shared Microsoft 365 MCP server README (authorization, scopes, Entra quirks)": {
+		{Guide: "microsoft-365", Remote: "hosted"},
+	},
 	"Slack MCP server overview": {
 		{Guide: "slack", Remote: "hosted"},
 	},
@@ -1529,6 +1574,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Speakeasy setup canonical file": {
 		{Guide: "google-calendar", Remote: "hosted"},
+		{Guide: "microsoft-365", Remote: "hosted"},
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
 	"Speakeasy setup canonical section": {
@@ -1662,6 +1708,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"V2 MCP server now generally available": {
 		{Guide: "asana", Remote: "hosted"},
+	},
+	"Validated Entra custom identity provider setup (tenant issuer, manual client, client_secret_post)": {
+		{Guide: "microsoft-365", Remote: "hosted"},
 	},
 	"What is the admin console?": {
 		{Guide: "asana", Remote: "hosted"},
