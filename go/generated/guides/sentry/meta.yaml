@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: sentry
+title: Sentry
+summary: Connect Sentry so users can search errors, triage issues, and inspect their permitted Sentry projects through Sentry's hosted MCP server.
+aliases:
+  - io.sentry/mcp
+speakeasy_add_server: auto
+credential_setup:
+  options:
+    - id: oauth-dcr
+      kind: oauth
+      client_registration: dynamic
+      upstream_setup: none
+  requirements:
+    - id: sentry-account
+      description: Sentry account on sentry.io with access to the organizations and projects users need
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: hosted
+    url: https://mcp.sentry.dev/mcp
+    transport: streamable-http
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://mcp.sentry.dev
+        name: Sentry MCP Server
+        classification: official
+        observed_at: "2026-11-05T00:23:41Z"
+      - source: endpoint-observation
+        locator: https://mcp.sentry.dev/mcp
+        classification: official
+        observed_at: "2026-11-05T00:23:41Z"
+      - source: endpoint-observation
+        locator: https://mcp.sentry.dev/.well-known/oauth-protected-resource/mcp
+        classification: official
+        observed_at: "2026-11-05T00:23:41Z"
+provenance:
+  - source: speakeasy-native-catalog
+    locator: io.sentry/mcp
+    name: Sentry
+    classification: official
+    status: seeded entry with remote https://mcp.sentry.dev/mcp; listing depends on the organization's catalog source; no Pulse lookup
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: provider-documentation
+    locator: https://mcp.sentry.dev
+    name: Sentry MCP Server
+    classification: official
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: provider-documentation
+    locator: https://mcp.sentry.dev/llms.txt
+    name: Sentry MCP Server
+    classification: official
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: provider-documentation
+    locator: https://docs.sentry.io/product/sentry-mcp/
+    name: Sentry MCP (redirects to https://mcp.sentry.dev/)
+    classification: official
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: provider-repository
+    locator: https://github.com/getsentry/toolkit/blob/7d8a26a0a73de7e73adeff314b2a85af62deb254/README.md
+    name: Sentry Toolkit README
+    classification: official
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: provider-repository
+    locator: https://github.com/getsentry/toolkit/blob/7d8a26a0a73de7e73adeff314b2a85af62deb254/docs/cloudflare/oauth-architecture.md
+    name: "OAuth Architecture: MCP OAuth vs Sentry OAuth"
+    classification: official
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: provider-repository
+    locator: https://github.com/getsentry/toolkit/blob/7d8a26a0a73de7e73adeff314b2a85af62deb254/docs/specs/remembered-oauth-skills.md
+    name: Remembered OAuth Skill Defaults
+    classification: official
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: endpoint-observation
+    locator: https://mcp.sentry.dev/mcp
+    classification: official
+    status: unauthenticated initialize returned 401 with a resource_metadata challenge
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: endpoint-observation
+    locator: https://mcp.sentry.dev/.well-known/oauth-protected-resource/mcp
+    classification: official
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: endpoint-observation
+    locator: https://mcp.sentry.dev/.well-known/oauth-authorization-server
+    name: Sentry MCP authorization-server metadata (https://mcp.sentry.dev)
+    classification: official
+    status: CIMD supported and registration endpoint advertised; registration not attempted
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: speakeasy-product-source
+    locator: https://github.com/speakeasy-api/gram/tree/9d881a6d40ef0b4b3dd67b88009e8d3cbc9f3bee/client/dashboard
+    name: Speakeasy dashboard labels
+    classification: official
+    observed_at: "2026-11-05T00:23:41Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-11-05T00:23:41Z"

@@ -1,0 +1,118 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: amplitude
+title: Amplitude
+summary: Connect a US- or EU-hosted Amplitude organization through Amplitude's hosted MCP server, with each user signing in with their own Amplitude account.
+aliases:
+  - com.amplitude/mcp
+credential_setup:
+  options:
+    - id: oauth-dcr
+      kind: oauth
+      client_registration: dynamic
+      upstream_setup: provider-steps
+  requirements:
+    - id: amplitude-project-access
+      description: An Amplitude account with access to the projects the MCP server should read from or write to
+    - id: mcp-allowed-for-organization
+      description: The Amplitude MCP server allowed for the organization under Content Access > MCP in the organization settings, which only an organization admin can change
+    - id: use-mcp-role-action
+      description: A role that grants Use MCP (read) on the intended projects, plus Use MCP (write) where users should be able to change data
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: us
+    url: https://mcp.amplitude.com/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://amplitude.com/docs/amplitude-ai/amplitude-mcp
+        name: Amplitude MCP Server
+        classification: official
+        observed_at: "2026-11-03T04:40:00Z"
+      - source: endpoint-observation
+        locator: https://mcp.amplitude.com/.well-known/oauth-protected-resource
+        classification: official
+        observed_at: "2026-11-03T04:40:00Z"
+  - id: eu
+    url: https://mcp.eu.amplitude.com/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://amplitude.com/docs/amplitude-ai/amplitude-mcp
+        name: Amplitude MCP Server
+        classification: official
+        observed_at: "2026-11-03T04:40:00Z"
+      - source: endpoint-observation
+        locator: https://mcp.eu.amplitude.com/.well-known/oauth-protected-resource
+        classification: official
+        observed_at: "2026-11-03T04:40:00Z"
+provenance:
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/amplitude-ai/amplitude-mcp
+    name: Amplitude MCP Server
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/amplitude-ai/amplitude-mcp/other-clients
+    name: Connect other MCP clients
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/amplitude-ai/amplitude-mcp/enterprise-managed-auth
+    name: Enterprise-managed auth
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/get-started/create-a-new-account
+    name: Create a new account
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/session-replay/replay-link-reference
+    name: Replay link reference
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/admin/account-management/role-based-access-controls-rbac
+    name: Role-based access controls (RBAC)
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: provider-documentation
+    locator: https://amplitude.com/docs/llms.txt
+    name: Amplitude documentation index
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: endpoint-observation
+    locator: https://mcp.amplitude.com/mcp
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: endpoint-observation
+    locator: https://mcp.amplitude.com/.well-known/oauth-authorization-server
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: endpoint-observation
+    locator: https://mcp.eu.amplitude.com/mcp
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: endpoint-observation
+    locator: https://mcp.eu.amplitude.com/.well-known/oauth-authorization-server
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: product-source
+    locator: speakeasy-api/gram server/internal/mcpregistry/oktaseed/oktaseed.go com.amplitude/mcp
+    name: com.amplitude/mcp
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-11-03T04:40:00Z"

@@ -1,6 +1,8 @@
 # Append-only list of published ServerRefs (slug/remote-id).
 # Generator adds new refs automatically; removing a line without
 # restoring the remote will fail go generate / CI.
+amplitude/eu
+amplitude/us
 asana/hosted
 atlassian/rovo
 box/hosted
@@ -33,6 +35,7 @@ salesforce/sobject-reads-production
 salesforce/sobject-reads-sandbox
 salesforce/tableau-next-production
 salesforce/tableau-next-sandbox
+sentry/hosted
 slack/hosted
 snowflake/cortex-agent-mcp
 work-iq/unified
