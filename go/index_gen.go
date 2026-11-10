@@ -6,6 +6,7 @@ package guides
 const SchemaVersion = 1
 
 var generatedSlugs = []GuideSlug{
+	"amplitude",
 	"asana",
 	"atlassian",
 	"box",
@@ -24,6 +25,7 @@ var generatedSlugs = []GuideSlug{
 	"microsoft-365",
 	"netsuite",
 	"salesforce",
+	"sentry",
 	"slack",
 	"snowflake",
 	"work-iq",
@@ -59,6 +61,21 @@ type generatedGuide struct {
 }
 
 var generatedGuides = map[GuideSlug]generatedGuide{
+	"amplitude": {
+		Slug:               "amplitude",
+		Title:              "Amplitude",
+		Summary:            "Connect a US- or EU-hosted Amplitude organization through Amplitude's hosted MCP server, with each user signing in with their own Amplitude account.",
+		SpeakeasyAddServer: "",
+		SetupRequired:      true,
+		Aliases:            []string{"com.amplitude/mcp"},
+		Remotes: []generatedRemote{
+			{ID: "us", URL: "https://mcp.amplitude.com/mcp", Transport: "streamable-http", Tenanted: true},
+			{ID: "eu", URL: "https://mcp.eu.amplitude.com/mcp", Transport: "streamable-http", Tenanted: true},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "oauth-dcr", Kind: "oauth", ClientRegistration: "dynamic", UpstreamSetup: "provider-steps", SpeakeasySetup: "dcr"},
+		},
+	},
 	"asana": {
 		Slug:               "asana",
 		Title:              "Asana",
@@ -326,6 +343,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 			{ID: "oauth-client", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
 		},
 	},
+	"sentry": {
+		Slug:               "sentry",
+		Title:              "Sentry",
+		Summary:            "Connect Sentry so users can search errors, triage issues, and inspect their permitted Sentry projects through Sentry's hosted MCP server.",
+		SpeakeasyAddServer: "auto",
+		SetupRequired:      true,
+		Aliases:            []string{"io.sentry/mcp"},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://mcp.sentry.dev/mcp", Transport: "streamable-http", Tenanted: false},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "oauth-dcr", Kind: "oauth", ClientRegistration: "dynamic", UpstreamSetup: "none", SpeakeasySetup: "dcr"},
+		},
+	},
 	"slack": {
 		Slug:               "slack",
 		Title:              "Slack",
@@ -413,6 +444,7 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 }
 
 var generatedAliasToSlug = map[string]GuideSlug{
+	"com.amplitude/mcp":                     "amplitude",
 	"com.googleapis.compute/mcp":            "google-compute-engine",
 	"com.pulsemcp.mirror/asana-mcp":         "asana",
 	"com.pulsemcp.mirror/box":               "box",
@@ -425,6 +457,7 @@ var generatedAliasToSlug = map[string]GuideSlug{
 	"com.pulsemcp.mirror/xdevplatform-xmcp": "x",
 	"com.pulsemcp.mirror/zapier":            "zapier",
 	"io.github.github/github-mcp-server":    "github",
+	"io.sentry/mcp":                         "sentry",
 	"m365":                                  "microsoft-365",
 	"microsoft-graph":                       "microsoft-365",
 	"outlook":                               "microsoft-365",
@@ -503,6 +536,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	"https://gmailmcp.googleapis.com/mcp/v1": {
 		{Guide: "gmail", Remote: "gmail"},
 	},
+	"https://mcp.amplitude.com/mcp": {
+		{Guide: "amplitude", Remote: "us"},
+	},
 	"https://mcp.asana.com/v2/mcp": {
 		{Guide: "asana", Remote: "hosted"},
 	},
@@ -512,6 +548,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	"https://mcp.box.com": {
 		{Guide: "box", Remote: "hosted"},
 	},
+	"https://mcp.eu.amplitude.com/mcp": {
+		{Guide: "amplitude", Remote: "eu"},
+	},
 	"https://mcp.eu.intercom.com/mcp": {
 		{Guide: "intercom", Remote: "eu"},
 	},
@@ -520,6 +559,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	},
 	"https://mcp.intercom.com/mcp": {
 		{Guide: "intercom", Remote: "us"},
+	},
+	"https://mcp.sentry.dev/mcp": {
+		{Guide: "sentry", Remote: "hosted"},
 	},
 	"https://mcp.slack.com/mcp": {
 		{Guide: "slack", Remote: "hosted"},
@@ -569,6 +611,14 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Adding Integration Credentials for Customer-Instance Integrations": {
 		{Guide: "box", Remote: "hosted"},
+	},
+	"Amplitude MCP Server": {
+		{Guide: "amplitude", Remote: "eu"},
+		{Guide: "amplitude", Remote: "us"},
+	},
+	"Amplitude documentation index": {
+		{Guide: "amplitude", Remote: "eu"},
+		{Guide: "amplitude", Remote: "us"},
 	},
 	"Anthropic Messages API": {
 		{Guide: "box", Remote: "hosted"},
@@ -804,6 +854,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
 	},
+	"Connect other MCP clients": {
+		{Guide: "amplitude", Remote: "eu"},
+		{Guide: "amplitude", Remote: "us"},
+	},
 	"Connect to the NetSuite AI Connector Service": {
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
@@ -842,6 +896,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Create Integration Records for Applications to Use OAuth 2.0": {
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
+	"Create a new account": {
+		{Guide: "amplitude", Remote: "eu"},
+		{Guide: "amplitude", Remote: "us"},
 	},
 	"Create access credentials": {
 		{Guide: "google-docs", Remote: "hosted"},
@@ -923,6 +981,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Enterprise Settings Content and Sharing": {
 		{Guide: "box", Remote: "hosted"},
+	},
+	"Enterprise-managed auth": {
+		{Guide: "amplitude", Remote: "eu"},
+		{Guide: "amplitude", Remote: "us"},
 	},
 	"Entra multi-tenant OIDC discovery document": {
 		{Guide: "microsoft-365", Remote: "hosted"},
@@ -1193,6 +1255,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"OAuth 2.0 Scopes for Google APIs": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
+	"OAuth Architecture: MCP OAuth vs Sentry OAuth": {
+		{Guide: "sentry", Remote: "hosted"},
+	},
 	"OAuth Scopes": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
@@ -1254,6 +1319,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Register an application with the Microsoft identity platform": {
 		{Guide: "microsoft-365", Remote: "hosted"},
 	},
+	"Remembered OAuth Skill Defaults": {
+		{Guide: "sentry", Remote: "hosted"},
+	},
 	"Remote GitHub MCP Server": {
 		{Guide: "github", Remote: "hosted"},
 	},
@@ -1263,6 +1331,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Remote MCP servers": {
 		{Guide: "box", Remote: "hosted"},
 	},
+	"Replay link reference": {
+		{Guide: "amplitude", Remote: "eu"},
+		{Guide: "amplitude", Remote: "us"},
+	},
 	"Requesting organization approval for OAuth apps": {
 		{Guide: "github", Remote: "hosted"},
 	},
@@ -1271,6 +1343,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Revoke access to a Google Cloud project": {
 		{Guide: "google-big-query", Remote: "hosted"},
+	},
+	"Role-based access controls (RBAC)": {
+		{Guide: "amplitude", Remote: "eu"},
+		{Guide: "amplitude", Remote: "us"},
 	},
 	"SObject All": {
 		{Guide: "salesforce", Remote: "data360-production"},
@@ -1457,6 +1533,21 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Sensitive scope verification": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
+	"Sentry": {
+		{Guide: "sentry", Remote: "hosted"},
+	},
+	"Sentry MCP (redirects to https://mcp.sentry.dev/)": {
+		{Guide: "sentry", Remote: "hosted"},
+	},
+	"Sentry MCP Server": {
+		{Guide: "sentry", Remote: "hosted"},
+	},
+	"Sentry MCP authorization-server metadata (https://mcp.sentry.dev)": {
+		{Guide: "sentry", Remote: "hosted"},
+	},
+	"Sentry Toolkit README": {
+		{Guide: "sentry", Remote: "hosted"},
+	},
 	"Server Connection Failures": {
 		{Guide: "salesforce", Remote: "data360-production"},
 		{Guide: "salesforce", Remote: "data360-sandbox"},
@@ -1569,6 +1660,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Speakeasy catalog Add to Project dialog": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
+	"Speakeasy dashboard labels": {
+		{Guide: "sentry", Remote: "hosted"},
+	},
 	"Speakeasy remote MCP Identity section": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
@@ -1578,6 +1672,8 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
 	"Speakeasy setup canonical section": {
+		{Guide: "amplitude", Remote: "eu"},
+		{Guide: "amplitude", Remote: "us"},
 		{Guide: "asana", Remote: "hosted"},
 		{Guide: "atlassian", Remote: "rovo"},
 		{Guide: "github", Remote: "hosted"},
@@ -1605,6 +1701,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
+		{Guide: "sentry", Remote: "hosted"},
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
 		{Guide: "x-docs", Remote: "docs"},
 		{Guide: "x", Remote: "hosted"},
@@ -1742,6 +1839,10 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"X Docs MCP": {
 		{Guide: "x-docs", Remote: "docs"},
+	},
+	"com.amplitude/mcp": {
+		{Guide: "amplitude", Remote: "eu"},
+		{Guide: "amplitude", Remote: "us"},
 	},
 	"com.pulsemcp.mirror/hubspot": {
 		{Guide: "hubspot", Remote: "hosted"},
