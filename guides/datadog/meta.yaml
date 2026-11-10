@@ -1,0 +1,218 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: datadog
+title: Datadog
+summary: Connect a Datadog organization so users can query their permitted monitors, logs, metrics, traces, and incidents through Datadog's hosted MCP server for its site.
+aliases:
+  - com.datadoghq/mcp
+credential_setup:
+  options:
+    - id: oauth-dcr
+      kind: oauth
+      client_registration: dynamic
+      upstream_setup: provider-steps
+  requirements:
+    - id: supported-datadog-site
+      description: A Datadog organization on a commercial site (US1, US3, US5, EU1, AP1, AP2, or UK1); US1-FED and US2-FED are not supported
+    - id: datadog-administrator
+      description: A Datadog administrator who can open Organization Settings to turn on MCP Access and add the redirect URL
+    - id: mcp-role-permissions
+      description: Users whose Datadog roles include MCP Read (and MCP Write for write tools) plus the permissions for the data they query
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: us1
+    url: https://mcp.datadoghq.com/v1/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://docs.datadoghq.com/mcp_server/setup/#mcp-server-endpoints
+        name: Set Up the Datadog MCP Server — MCP Server endpoints
+        classification: official
+        observed_at: "2026-11-10T02:22:05Z"
+      - source: endpoint-observation
+        locator: https://mcp.datadoghq.com/.well-known/oauth-protected-resource/v1/mcp
+        classification: official
+        status: unauthenticated initialize returned 401 with a resource_metadata challenge
+        observed_at: "2026-11-10T02:22:05Z"
+  - id: us3
+    url: https://mcp.us3.datadoghq.com/v1/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://docs.datadoghq.com/mcp_server/setup/#mcp-server-endpoints
+        name: Set Up the Datadog MCP Server — MCP Server endpoints
+        classification: official
+        observed_at: "2026-11-10T02:22:05Z"
+      - source: endpoint-observation
+        locator: https://mcp.us3.datadoghq.com/.well-known/oauth-protected-resource/v1/mcp
+        classification: official
+        status: unauthenticated initialize returned 401 with a resource_metadata challenge
+        observed_at: "2026-11-10T02:22:05Z"
+  - id: us5
+    url: https://mcp.us5.datadoghq.com/v1/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://docs.datadoghq.com/mcp_server/setup/#mcp-server-endpoints
+        name: Set Up the Datadog MCP Server — MCP Server endpoints
+        classification: official
+        observed_at: "2026-11-10T02:22:05Z"
+      - source: endpoint-observation
+        locator: https://mcp.us5.datadoghq.com/.well-known/oauth-protected-resource/v1/mcp
+        classification: official
+        status: unauthenticated initialize returned 401 with a resource_metadata challenge
+        observed_at: "2026-11-10T02:22:05Z"
+  - id: eu1
+    url: https://mcp.datadoghq.eu/v1/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://docs.datadoghq.com/mcp_server/setup/#mcp-server-endpoints
+        name: Set Up the Datadog MCP Server — MCP Server endpoints
+        classification: official
+        observed_at: "2026-11-10T02:22:05Z"
+      - source: endpoint-observation
+        locator: https://mcp.datadoghq.eu/.well-known/oauth-protected-resource/v1/mcp
+        classification: official
+        status: unauthenticated initialize returned 401 with a resource_metadata challenge
+        observed_at: "2026-11-10T02:22:05Z"
+  - id: ap1
+    url: https://mcp.ap1.datadoghq.com/v1/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://docs.datadoghq.com/mcp_server/setup/#mcp-server-endpoints
+        name: Set Up the Datadog MCP Server — MCP Server endpoints
+        classification: official
+        observed_at: "2026-11-10T02:22:05Z"
+      - source: endpoint-observation
+        locator: https://mcp.ap1.datadoghq.com/.well-known/oauth-protected-resource/v1/mcp
+        classification: official
+        status: unauthenticated initialize returned 401 with a resource_metadata challenge
+        observed_at: "2026-11-10T02:22:05Z"
+  - id: ap2
+    url: https://mcp.ap2.datadoghq.com/v1/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://docs.datadoghq.com/mcp_server/setup/#mcp-server-endpoints
+        name: Set Up the Datadog MCP Server — MCP Server endpoints
+        classification: official
+        observed_at: "2026-11-10T02:22:05Z"
+      - source: endpoint-observation
+        locator: https://mcp.ap2.datadoghq.com/.well-known/oauth-protected-resource/v1/mcp
+        classification: official
+        status: unauthenticated initialize returned 401 with a resource_metadata challenge
+        observed_at: "2026-11-10T02:22:05Z"
+  - id: uk1
+    url: https://mcp.uk1.datadoghq.com/v1/mcp
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://docs.datadoghq.com/mcp_server/setup/#mcp-server-endpoints
+        name: Set Up the Datadog MCP Server — MCP Server endpoints
+        classification: official
+        observed_at: "2026-11-10T02:22:05Z"
+      - source: endpoint-observation
+        locator: https://mcp.uk1.datadoghq.com/.well-known/oauth-protected-resource/v1/mcp
+        classification: official
+        status: unauthenticated initialize returned 401 with a resource_metadata challenge
+        observed_at: "2026-11-10T02:22:05Z"
+provenance:
+  - source: speakeasy-native-catalog
+    locator: com.datadoghq/mcp
+    name: Datadog
+    classification: official
+    status: seeded entry with only the US1 remote https://mcp.datadoghq.com/v1/mcp and supportsDcr true; no Pulse lookup; regional remotes are tenanted, so the guide uses the Custom remote path
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: provider-documentation
+    locator: https://docs.datadoghq.com/mcp_server/
+    name: Datadog MCP Server
+    classification: official
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: provider-documentation
+    locator: https://docs.datadoghq.com/mcp_server/setup/
+    name: Set Up the Datadog MCP Server
+    classification: official
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: provider-documentation
+    locator: https://docs.datadoghq.com/getting_started/site/
+    name: Getting Started with Datadog Sites
+    classification: official
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: provider-documentation
+    locator: https://docs.datadoghq.com/account_management/org_settings/
+    name: Organization Settings
+    classification: official
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: provider-documentation
+    locator: https://docs.datadoghq.com/account_management/rbac/permissions/#mcp
+    name: Datadog Role Permissions — MCP
+    classification: official
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: provider-documentation
+    locator: https://docs.datadoghq.com/account_management/org_settings/ip_allowlist/
+    name: IP Allowlist
+    classification: official
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: provider-documentation
+    locator: https://docs.datadoghq.com/security/code_security/dev_tool_int/mcp_server/
+    name: Code Security MCP Server
+    classification: official
+    status: separate local STDIO server; out of scope for this guide
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: provider-documentation
+    locator: https://docs.datadoghq.com/static/region-redirects.f5bcbb08ba8fb35917c018b3932a5355ae923acd11dd00b14bab1f88d73a9b98afbc137e3aa7c930f04873cbda8e50625e44e287ed20d431f1d64f16b43ee00a.js
+    name: Datadog docs site region selector script (loaded by docs.datadoghq.com/mcp_server/setup/)
+    classification: official
+    status: rewrites in-content Datadog app links to the selected site's host, keeping the path
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: endpoint-observation
+    locator: https://mcp.datadoghq.com/v1/mcp
+    classification: official
+    status: unauthenticated initialize returned 401 with a resource_metadata challenge on all seven commercial sites
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: endpoint-observation
+    locator: https://mcp.datadoghq.com/.well-known/oauth-authorization-server/v1/mcp
+    name: Datadog MCP authorization-server metadata (US1; same shape on all seven sites)
+    classification: official
+    status: registration endpoint advertised; no CIMD; token endpoint auth none only; PKCE S256 required; registration not attempted
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: speakeasy-product-source
+    locator: https://github.com/speakeasy-api/gram/tree/8554ffdae43a9a8f1acf727865fd26af538a527c
+    name: Speakeasy dashboard labels, native catalog seed, and callback rendering
+    classification: official
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: operator-note
+    locator: https://github.com/speakeasy-api/mcp-setup-docs/issues/201
+    name: create datadog mcp server setup guide
+    status: operator note that the external steps must add the Speakeasy redirect URI to the Datadog organization
+    observed_at: "2026-11-10T02:22:05Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-11-10T02:22:05Z"
