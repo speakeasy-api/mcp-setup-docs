@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: azure-devops
+title: Azure DevOps
+summary: Connect the Speakeasy AI Control Plane to Microsoft's hosted Azure DevOps MCP server with a single-tenant Entra application for delegated user access.
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: delegated-oauth
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: tenant-id
+          label: Directory (tenant) ID
+          setup:
+            - external.md#register-entra-application
+        - id: client-id
+          label: Application (client) ID
+          setup:
+            - external.md#register-entra-application
+        - id: client-secret
+          label: Client secret Value
+          setup:
+            - external.md#create-client-secret
+  requirements:
+    - id: entra-backed-organization
+      description: An Azure DevOps Services organization backed by a Microsoft Entra tenant; standalone Microsoft account organizations are not supported by the remote server.
+    - id: entra-administration
+      description: An Entra administrator who can provision the Azure DevOps MCP enterprise application if it is missing, register an application, and grant admin consent.
+    - id: azure-devops-access
+      description: Each person who connects needs membership in the projects and access to the resources their tools will use.
+    - id: speakeasy-permission
+      description: Permission to add a remote MCP server and configure its identity in the intended Speakeasy project.
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: organization
+    url: "https://mcp.dev.azure.com/<organization>"
+    transport: streamable-http
+    authentication:
+      - delegated-oauth
+    tenanted: true
+    provenance:
+      - source: microsoft-public-docs
+        locator: https://learn.microsoft.com/en-us/azure/devops/mcp-server/remote-mcp-server?view=azure-devops
+        name: Set up the remote Azure DevOps MCP Server
+        classification: official
+        observed_at: "2026-11-11T03:30:00Z"
+      - source: endpoint-probe
+        locator: https://mcp.dev.azure.com/.well-known/oauth-protected-resource/fabrikam
+        name: Unauthenticated initialize probe and protected-resource metadata for a placeholder organization
+        observed_at: "2026-11-11T03:36:58Z"
+provenance:
+  - source: microsoft-public-docs
+    locator: https://learn.microsoft.com/en-us/azure/devops/mcp-server/remote-mcp-server?view=azure-devops
+    name: Set up the remote Azure DevOps MCP Server (ms.date 2026-09-21)
+    classification: official
+    observed_at: "2026-11-11T03:30:00Z"
+  - source: microsoft-public-docs
+    locator: https://learn.microsoft.com/en-us/azure/devops/mcp-server/remote-mcp-server-troubleshooting?view=azure-devops
+    name: Troubleshoot the remote Azure DevOps MCP Server (ms.date 2026-07-31)
+    classification: official
+    observed_at: "2026-11-11T03:31:00Z"
+  - source: microsoft-public-docs
+    locator: https://learn.microsoft.com/en-us/entra/identity-platform/scopes-oidc
+    name: Scopes and permissions in the Microsoft identity platform (ms.date 2025-07-24)
+    classification: official
+    observed_at: "2026-11-11T03:33:00Z"
+  - source: endpoint-probe
+    locator: https://login.microsoftonline.com/organizations/v2.0/.well-known/openid-configuration
+    name: Entra multi-tenant OpenID configuration
+    observed_at: "2026-11-11T03:25:00Z"
+  - source: speakeasy-product-source
+    locator: https://github.com/speakeasy-api/gram/tree/979772340b024c32a4ba2637d6ae8de591d1ec2a/client/dashboard
+    name: Speakeasy dashboard identity setup at gram main 979772340b (2026-11-10)
+    observed_at: "2026-11-11T03:35:00Z"
