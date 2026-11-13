@@ -41,6 +41,7 @@ type ResearchDecision struct {
 	Dossier        string            `json:"dossier"`
 }
 type ResearchSnapshot struct {
+	RequestedTask  string         `json:"requested_task"`
 	Reports        map[int]string `json:"reports"`
 	Endpoint       EndpointGate   `json:"endpoint"`
 	Round          int            `json:"round"`

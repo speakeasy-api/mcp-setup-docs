@@ -22,6 +22,13 @@ working, not maintenance.
 
 If the Dossier is missing something needed for first connection, do not invent it. Return a structured open question only when the gap is material to first connection, cannot be handled with a safe hedge, and is answerable from operator knowledge or authority unavailable in public sources. If the operator could only repeat public research, treat the gap as a research limitation: use Dossier-backed resilient wording or omit irrelevant detail and continue. A hidden guess is still a defect.
 
+Render active retained Speakeasy facts that affect first connection in the
+relevant setup steps, including an official-app path when the Dossier specifies
+one. Do not replace that path with generic custom-app instructions, render
+superseded facts as current, or discard operator-sourced facts because public
+docs are silent. Retention does not require a separate notes section in setup
+files or inclusion of later-operations facts.
+
 ## Setup grammar (the parts that bite)
 
 Two files; consumers may show `external.md` alone when Speakeasy setup is

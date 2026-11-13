@@ -223,3 +223,29 @@ func TestContextRejectsNULPromptBeforeTurn(t *testing.T) {
 		t.Fatalf("NUL prompt: err=%v turns=%d", err, turns)
 	}
 }
+
+func TestContextRetainsOnlyTargetDossierBeforeWrites(t *testing.T) {
+	c := contextFixture(t)
+	const prior = "## Retained Speakeasy facts\nOfficial Speakeasy app; source issue/1; active."
+	contextWrite(t, c.Workspace, "guides/example/research.md", prior)
+	for _, name := range []string{"research.md", "meta.yaml", "external.md", "speakeasy.md"} {
+		contextWrite(t, c.Workspace, "guides/other/"+name, "OTHER_SERVER_FACT")
+	}
+	c.Turn = func(context.Context, string, string) (TurnResult, error) {
+		return TurnResult{Answer: contextValidAnswer}, nil
+	}
+	out, err := ResolveContext(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out.Research.Task, prior) {
+		t.Fatal("prior target dossier missing from immutable research task")
+	}
+	if strings.Contains(out.Authority, prior) || strings.Contains(out.Research.Task, "OTHER_SERVER_FACT") {
+		t.Fatal("baseline crossed authority or server boundary")
+	}
+	contextWrite(t, c.Workspace, "guides/example/research.md", "rewritten without facts")
+	if !strings.Contains(out.Research.Task, prior) {
+		t.Fatal("baseline changed after write")
+	}
+}
