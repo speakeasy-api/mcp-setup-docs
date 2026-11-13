@@ -85,12 +85,9 @@ Sign in to the NetSuite application as an Administrator or delegated administrat
 14. Click **Save**.
 15. Copy **Client ID** for the Speakeasy AI Control Plane. Because this is a public client, do not provide the displayed client secret to Speakeasy.
 
-If you leave the credential page without recording **Client ID**:
+If you leave the credential page without recording **Client ID**, NetSuite cannot display it again. Oracle says lost credentials must be reset on the integration record, but it documents reset steps only for token-based authentication records, and this record has token-based authentication cleared. Recover in one of these ways:
 
-1. Go to **Setup > Integration > Manage Integrations**.
-2. Open the integration.
-3. Warn affected owners that resetting replaces the integration's existing credentials.
-4. Click **Reset Credentials** or the equivalent reset control on the record. If the record has no reset control, repeat this section to create a new integration record instead.
-5. Copy the replacement **Client ID** from the new credential screen before leaving the page.
+- Repeat this section to create a new integration record, and copy its **Client ID** before you leave the credential page. This gives you a new, separate record. It does not reset or recover the original record's credentials, and it leaves the original record unchanged in **Manage Integrations**.
+- To keep the original record instead, ask your NetSuite administrator to reset its credentials. This guide does not give reset steps for OAuth 2.0-only records because Oracle does not document them. A reset replaces the record's existing credentials, so warn affected owners first, and copy the new **Client ID** before leaving the page.
 
 <!-- screenshot: the integration's Authentication subtab before save, showing Authorization Code Grant, Redirect URI, Public Client, and only NetSuite AI Connector Service selected; capture a separate credential screen with all values fully redacted -->
