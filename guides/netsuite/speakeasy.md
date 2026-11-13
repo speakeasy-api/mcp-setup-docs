@@ -18,7 +18,7 @@ If Speakeasy keeps the new server **Disabled** and says to finish setup in **Set
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Create a NetSuite provider for your account, add the integration's client to it, then select it on the server. In each value below, replace `<accountid>` with the same domain-form account ID you used in [Record the account-specific MCP URL](external.md#record-account-mcp-url).
+Create a NetSuite provider for your account, add the integration's client to it, then select it on the server. In each value below, replace `<accountid>` with the domain-form account ID from the SuiteTalk URL you copied in [Record the account-specific MCP URL](external.md#record-account-mcp-url).
 
 1. Open the server's **Settings** and find the **Identity** section.
 2. Select **User Identity**.

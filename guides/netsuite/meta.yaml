@@ -44,7 +44,7 @@ remotes:
         locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_0902023450.html
         name: Installing the MCP Standard Tools SuiteApp
         classification: official
-        observed_at: "2026-08-07T22:23:30Z"
+        observed_at: "2026-11-13T01:10:12Z"
 provenance:
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_4160616848.html
@@ -55,22 +55,22 @@ provenance:
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_3200541651.html
     name: Get Started with the NetSuite AI Connector Service
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-11-13T01:10:12Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714080625.html
     name: Required Features and Permissions
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-11-13T01:10:12Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_143403258.html
     name: MCP Standard Tools SuiteApp
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-11-13T01:10:12Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/article_0902023450.html
     name: Installing the MCP Standard Tools SuiteApp
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-11-13T01:10:12Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_0714082142.html
     name: Connect to the NetSuite AI Connector Service
@@ -80,17 +80,27 @@ provenance:
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_157771733782.html
     name: Create Integration Records for Applications to Use OAuth 2.0
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-11-13T01:10:12Z"
   - source: provider-documentation
-    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_N895277.html
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_4395597766.html
+    name: Regenerating a Consumer Key and Secret
+    classification: official
+    observed_at: "2026-11-13T01:11:46Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_N896195.html
     name: Giving an Employee Access to NetSuite
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-11-13T01:11:46Z"
+  - source: provider-documentation
+    locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_N897798.html
+    name: Assigning Roles to an Employee
+    classification: official
+    observed_at: "2026-11-13T01:11:46Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_1498251763.html
     name: URLs for Account-Specific Domains
     classification: official
-    observed_at: "2026-08-07T22:23:30Z"
+    observed_at: "2026-11-13T01:10:12Z"
   - source: provider-documentation
     locator: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_158081944642.html
     name: Step One GET Request to the Authorization Endpoint
