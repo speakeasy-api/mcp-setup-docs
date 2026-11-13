@@ -26,7 +26,7 @@ credential_setup:
     - id: workspace-membership
       description: Membership in each Asana workspace selected for a Specific workspaces distribution
     - id: organization-app-approval
-      description: Organization super-admin approval when the Asana organization uses App management to block unapproved apps
+      description: Organization super-admin approval when the Asana organization uses integrations management to block integrations or require approval
 documentation:
   external: external.md
   speakeasy: speakeasy.md
@@ -41,20 +41,20 @@ remotes:
         locator: https://developers.asana.com/docs/integrating-with-asanas-mcp-server
         name: Integrating with Asana's MCP Server
         classification: official
-        observed_at: "2026-09-30T21:30:00Z"
+        observed_at: "2026-11-13T01:12:21Z"
       - source: provider-documentation
         locator: https://developers.asana.com/docs/using-asanas-mcp-server
         name: Using Asana's MCP Server
         classification: official
-        observed_at: "2026-08-06T23:24:28Z"
+        observed_at: "2026-11-13T01:12:21Z"
       - source: endpoint-observation
         locator: https://mcp.asana.com/v2/mcp
         classification: official
-        observed_at: "2026-09-30T21:30:00Z"
+        observed_at: "2026-11-13T01:12:21Z"
       - source: endpoint-observation
         locator: https://mcp.asana.com/.well-known/oauth-protected-resource/v2
         classification: official
-        observed_at: "2026-09-30T21:30:00Z"
+        observed_at: "2026-11-13T01:12:21Z"
 provenance:
   - source: pulsemcp
     locator: com.pulsemcp.mirror/asana-mcp
@@ -66,64 +66,64 @@ provenance:
     locator: https://developers.asana.com/docs/integrating-with-asanas-mcp-server
     name: Integrating with Asana's MCP Server
     classification: official
-    observed_at: "2026-09-30T21:30:00Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/using-asanas-mcp-server
     name: Using Asana's MCP Server
     classification: official
-    observed_at: "2026-08-06T23:24:28Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/manage-and-share-your-app
     name: Manage your app
     classification: official
-    observed_at: "2026-08-06T23:24:28Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/share-your-app
     name: Share your app
     classification: official
-    observed_at: "2026-08-06T23:24:28Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/oauth
     name: OAuth
     classification: official
-    observed_at: "2026-08-06T23:24:28Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: provider-documentation
     locator: https://developers.asana.com/docs/connecting-mcp-clients-to-asanas-v2-server
     name: Connecting Coding Clients to Asana's V2 server
     classification: official
-    observed_at: "2026-08-06T23:24:28Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: provider-documentation
     locator: https://help.asana.com/s/article/app-management-and-integrations?language=en_US
-    name: App management and integrations
+    name: Integrations management
     classification: official
-    observed_at: "2026-08-06T23:24:28Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: provider-documentation
     locator: https://help.asana.com/s/article/what-is-the-admin-console?language=en_US
     name: What is the admin console?
     classification: official
-    observed_at: "2026-08-06T23:24:28Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: provider-documentation
     locator: https://help.asana.com/s/article/api?language=en_US
     name: API
     classification: official
-    observed_at: "2026-08-06T23:24:28Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: provider-changelog
     locator: https://forum.asana.com/t/new-v2-mcp-server-now-generally-available/1122647
     name: V2 MCP server now generally available
     classification: official
-    observed_at: "2026-08-06T23:24:28Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: endpoint-observation
     locator: https://mcp.asana.com/v2/mcp
     classification: official
-    observed_at: "2026-09-30T21:30:00Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: endpoint-observation
     locator: https://mcp.asana.com/.well-known/oauth-protected-resource/v2
     classification: official
-    observed_at: "2026-09-30T21:30:00Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: endpoint-observation
     locator: https://app.asana.com/.well-known/oauth-authorization-server
     classification: official
-    observed_at: "2026-09-30T21:30:00Z"
+    observed_at: "2026-11-13T01:12:21Z"
   - source: repository-doctrine
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
