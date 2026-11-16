@@ -9,7 +9,9 @@ var generatedSlugs = []GuideSlug{
 	"amplitude",
 	"asana",
 	"atlassian",
+	"azure-devops",
 	"box",
+	"egnyte",
 	"github",
 	"gmail",
 	"google-big-query",
@@ -104,6 +106,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 			{ID: "oauth-dcr", Kind: "oauth", ClientRegistration: "dynamic", UpstreamSetup: "provider-steps", SpeakeasySetup: "dcr"},
 		},
 	},
+	"azure-devops": {
+		Slug:               "azure-devops",
+		Title:              "Azure DevOps",
+		Summary:            "Connect the Speakeasy AI Control Plane to Microsoft's hosted Azure DevOps MCP server with a single-tenant Entra application for delegated user access.",
+		SpeakeasyAddServer: "custom-remote",
+		SetupRequired:      true,
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "organization", URL: "https://mcp.dev.azure.com/<organization>", Transport: "streamable-http", Tenanted: true},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "delegated-oauth", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
 	"box": {
 		Slug:               "box",
 		Title:              "Box",
@@ -116,6 +132,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 		CredentialOptions: []generatedCredentialOption{
 			{ID: "oauth-integration", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
+	"egnyte": {
+		Slug:               "egnyte",
+		Title:              "Egnyte",
+		Summary:            "Connect an Egnyte domain so users can search, read, and manage their permitted Egnyte files and folders through Egnyte's hosted MCP server.",
+		SpeakeasyAddServer: "custom-remote",
+		SetupRequired:      true,
+		Aliases:            []string{"com.egnyte/mcp-server"},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://mcp-server.egnyte.com/mcp", Transport: "streamable-http", Tenanted: false},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "oauth-dcr", Kind: "oauth", ClientRegistration: "dynamic", UpstreamSetup: "provider-steps", SpeakeasySetup: "dcr"},
 		},
 	},
 	"github": {
@@ -445,6 +475,7 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 
 var generatedAliasToSlug = map[string]GuideSlug{
 	"com.amplitude/mcp":                     "amplitude",
+	"com.egnyte/mcp-server":                 "egnyte",
 	"com.googleapis.compute/mcp":            "google-compute-engine",
 	"com.pulsemcp.mirror/asana-mcp":         "asana",
 	"com.pulsemcp.mirror/box":               "box",
@@ -536,6 +567,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	"https://gmailmcp.googleapis.com/mcp/v1": {
 		{Guide: "gmail", Remote: "gmail"},
 	},
+	"https://mcp-server.egnyte.com/mcp": {
+		{Guide: "egnyte", Remote: "hosted"},
+	},
 	"https://mcp.amplitude.com/mcp": {
 		{Guide: "amplitude", Remote: "us"},
 	},
@@ -584,6 +618,15 @@ var generatedURLToRefs = map[string][]ServerRef{
 }
 
 var generatedProvenanceToRefs = map[string][]ServerRef{
+	"AI Assistant - Model List Upgrade": {
+		{Guide: "egnyte", Remote: "hosted"},
+	},
+	"AI Safeguards - Overview": {
+		{Guide: "egnyte", Remote: "hosted"},
+	},
+	"AI Safeguards – Admin Guide": {
+		{Guide: "egnyte", Remote: "hosted"},
+	},
 	"API": {
 		{Guide: "asana", Remote: "hosted"},
 	},
@@ -611,6 +654,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Adding Integration Credentials for Customer-Instance Integrations": {
 		{Guide: "box", Remote: "hosted"},
+	},
+	"Admin Controls for Allowed Apps in MCP Server": {
+		{Guide: "egnyte", Remote: "hosted"},
 	},
 	"Amplitude MCP Server": {
 		{Guide: "amplitude", Remote: "eu"},
@@ -962,6 +1008,18 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Drive MCP file eligibility": {
 		{Guide: "google-drive", Remote: "hosted"},
 	},
+	"Egnyte": {
+		{Guide: "egnyte", Remote: "hosted"},
+	},
+	"Egnyte MCP Server - Overview": {
+		{Guide: "egnyte", Remote: "hosted"},
+	},
+	"Egnyte MCP Server - Tool Access Controls": {
+		{Guide: "egnyte", Remote: "hosted"},
+	},
+	"Egnyte Remote MCP Server": {
+		{Guide: "egnyte", Remote: "hosted"},
+	},
 	"Enable Google Workspace APIs": {
 		{Guide: "google-docs", Remote: "hosted"},
 		{Guide: "google-people", Remote: "hosted"},
@@ -988,6 +1046,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Entra multi-tenant OIDC discovery document": {
 		{Guide: "microsoft-365", Remote: "hosted"},
+	},
+	"Entra multi-tenant OpenID configuration": {
+		{Guide: "azure-devops", Remote: "organization"},
 	},
 	"GRANT DATABASE ROLE": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
@@ -1328,6 +1389,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Remote HubSpot MCP server is now generally available": {
 		{Guide: "hubspot", Remote: "hosted"},
 	},
+	"Remote MCP Server": {
+		{Guide: "egnyte", Remote: "hosted"},
+	},
 	"Remote MCP servers": {
 		{Guide: "box", Remote: "hosted"},
 	},
@@ -1530,6 +1594,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Scope Filtering": {
 		{Guide: "github", Remote: "hosted"},
 	},
+	"Scopes and permissions in the Microsoft identity platform (ms.date 2025-07-24)": {
+		{Guide: "azure-devops", Remote: "organization"},
+	},
 	"Sensitive scope verification": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
@@ -1604,6 +1671,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Set up the MCP server": {
 		{Guide: "box", Remote: "hosted"},
 	},
+	"Set up the remote Azure DevOps MCP Server": {
+		{Guide: "azure-devops", Remote: "organization"},
+	},
+	"Set up the remote Azure DevOps MCP Server (ms.date 2026-09-21)": {
+		{Guide: "azure-devops", Remote: "organization"},
+	},
 	"Setting up OAuth": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
@@ -1660,6 +1733,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Speakeasy catalog Add to Project dialog": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
+	"Speakeasy dashboard identity setup at gram main 979772340b (2026-11-10)": {
+		{Guide: "azure-devops", Remote: "organization"},
+	},
 	"Speakeasy dashboard labels": {
 		{Guide: "sentry", Remote: "hosted"},
 	},
@@ -1676,6 +1752,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "amplitude", Remote: "us"},
 		{Guide: "asana", Remote: "hosted"},
 		{Guide: "atlassian", Remote: "rovo"},
+		{Guide: "egnyte", Remote: "hosted"},
 		{Guide: "github", Remote: "hosted"},
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
@@ -1764,11 +1841,17 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Troubleshoot and verify your setup": {
 		{Guide: "atlassian", Remote: "rovo"},
 	},
+	"Troubleshoot the remote Azure DevOps MCP Server (ms.date 2026-07-31)": {
+		{Guide: "azure-devops", Remote: "organization"},
+	},
 	"Try BigQuery using the sandbox": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
 	"URLs for Account-Specific Domains": {
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
+	},
+	"Unauthenticated initialize probe and protected-resource metadata for a placeholder organization": {
+		{Guide: "azure-devops", Remote: "organization"},
 	},
 	"Update Salesforce Settings for Tableau Next Embedding": {
 		{Guide: "salesforce", Remote: "data360-production"},

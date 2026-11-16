@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: egnyte
+title: Egnyte
+summary: Connect an Egnyte domain so users can search, read, and manage their permitted Egnyte files and folders through Egnyte's hosted MCP server.
+aliases:
+  - com.egnyte/mcp-server
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: oauth-dcr
+      kind: oauth
+      client_registration: dynamic
+      upstream_setup: provider-steps
+  requirements:
+    - id: egnyte-plan
+      description: Egnyte domain on a plan that includes the MCP Server (Gen 4 Essential, Elite, or Ultimate, or an eligible Gen 3 Platform plan); available tools vary by plan and AI Add-On
+    - id: egnyte-admin
+      description: Egnyte administrator account for the domain, to change Settings > AI Powered Features > MCP Server
+    - id: egnyte-user-access
+      description: Egnyte user account for each person who connects, with permission to the files and folders they need
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: hosted
+    url: https://mcp-server.egnyte.com/mcp
+    transport: streamable-http
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://developers.egnyte.com/integration/cfs/api-docs/remote-mcp-server
+        name: Remote MCP Server
+        classification: official
+        observed_at: "2026-11-11T00:13:00Z"
+      - source: endpoint-observation
+        locator: https://mcp-server.egnyte.com/mcp
+        classification: official
+        observed_at: "2026-11-11T00:13:00Z"
+      - source: endpoint-observation
+        locator: https://mcp-server.egnyte.com/.well-known/oauth-protected-resource
+        classification: official
+        observed_at: "2026-11-11T00:13:00Z"
+provenance:
+  - source: speakeasy-native-catalog
+    locator: server/internal/mcpregistry/oktaseed/oktaseed.go
+    name: Egnyte
+    classification: official
+    status: no seeded Egnyte entry on gram main; Pulse catalog not looked up
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: mcp-registry
+    locator: com.egnyte/mcp-server
+    name: Egnyte Remote MCP Server
+    classification: official
+    status: active; remote https://mcp-server.egnyte.com/mcp (streamable-http)
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: provider-documentation
+    locator: https://developers.egnyte.com/integration/cfs/api-docs/remote-mcp-server
+    name: Remote MCP Server
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: provider-documentation
+    locator: https://helpdesk.egnyte.com/hc/en-us/articles/43305899030797-Egnyte-MCP-Server-Overview
+    name: Egnyte MCP Server - Overview
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: provider-documentation
+    locator: https://helpdesk.egnyte.com/hc/en-us/articles/44361750683661-Egnyte-s-AI-Assistant-AI-Powered-Smart-Search-and-Admin-Controls-for-Allowed-Apps-in-MCP-Server
+    name: Admin Controls for Allowed Apps in MCP Server
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: provider-documentation
+    locator: https://helpdesk.egnyte.com/hc/en-us/articles/47225562492173-AI-Assistant-Model-List-Upgrade
+    name: AI Assistant - Model List Upgrade
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: provider-documentation
+    locator: https://helpdesk.egnyte.com/hc/en-us/articles/49496934262285-Egnyte-MCP-Server-Tool-Access-Controls
+    name: Egnyte MCP Server - Tool Access Controls
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: provider-documentation
+    locator: https://helpdesk.egnyte.com/hc/en-us/articles/43288758481293-AI-Safeguards-Overview
+    name: AI Safeguards - Overview
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: provider-documentation
+    locator: https://helpdesk.egnyte.com/hc/en-us/articles/45080323954829-AI-Safeguards-Admin-Guide
+    name: AI Safeguards – Admin Guide
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: endpoint-observation
+    locator: https://mcp-server.egnyte.com/mcp
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: endpoint-observation
+    locator: https://mcp-server.egnyte.com/.well-known/oauth-protected-resource
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: endpoint-observation
+    locator: https://mcp-oauth.egnyte.com/.well-known/oauth-authorization-server/egnyte-connect
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-11-11T00:13:00Z"
