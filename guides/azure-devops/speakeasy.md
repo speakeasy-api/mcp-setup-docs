@@ -41,16 +41,20 @@ The server's metadata names Microsoft's multi-tenant sign-in address (`https://l
 8. Open **Advanced**. In **Scope**, select or type each of these values:
 
    ```text
-   openid
-   profile
    offline_access
    https://mcp.dev.azure.com/.default
    ```
 
-   Do not leave it blank. A blank scope requests only `https://mcp.dev.azure.com/.default`, so people have to sign in again about every hour. The `.default` value requests the permissions you consented in [Add the Azure DevOps MCP permissions](external.md#add-azure-devops-permissions).
+   The `offline_access` scope allows Speakeasy to refresh access tokens. The `.default` value requests the permissions you consented in [Add the Azure DevOps MCP permissions](external.md#add-azure-devops-permissions).
 
-9. Click **Save**. If prompted, confirm with **Save changes**.
-10. Open **Settings > Danger Zone > Server Availability** and turn on **Enable MCP server** so it shows **Enabled**.
+9. In **Audience**, enter:
+
+   ```text
+   https://mcp.dev.azure.com
+   ```
+
+10. Click **Save**. If prompted, confirm with **Save changes**.
+11. Open **Settings > Danger Zone > Server Availability** and turn on **Enable MCP server** so it shows **Enabled**.
 
 If the picker preselects an existing Microsoft authorization server instead and no **Issuer URL** field appears, check its address. Keep it if it is your tenant address from step 3, and continue from step 5. Otherwise, open the picker and choose your tenant's authorization server. If none is listed, an organization admin clicks **Create a custom authorization server**, clicks **New Authorization Server**, enters your tenant address in **Issuer URL**, clicks **Discover**, then clicks **Create**. Return to **Settings > Identity**, choose the new authorization server, and continue from step 5.
 
