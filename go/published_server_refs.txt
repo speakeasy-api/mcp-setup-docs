@@ -5,7 +5,9 @@ amplitude/eu
 amplitude/us
 asana/hosted
 atlassian/rovo
+azure-devops/organization
 box/hosted
+egnyte/hosted
 github/hosted
 gmail/gmail
 google-big-query/hosted
