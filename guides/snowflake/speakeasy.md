@@ -1,8 +1,16 @@
 # Speakeasy setup
 
+## Guided setup (recommended) {#guided-setup}
+
+Take the guesswork out of connecting Snowflake to your agents. Speakeasy guides you through the required configuration and helps you verify the connection, so you can get started with confidence.
+
+In the MCP Catalog, find **Snowflake** and click **Add**. Select **User Identity** to start guided setup.
+
+## Manual setup in Speakeasy
+
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-1. In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**.
+1. In Speakeasy sidebar, under **MCP Gateway**, select **MCP**.
 2. Click **Add new** to open **Add MCP server**.
 3. Choose **Hosted remotely**.
 4. On **New remote MCP server**, paste the account-specific URL retained in [Create the Cortex Agent MCP server](external.md#create-cortex-agent-mcp-server) into **MCP server URL**.

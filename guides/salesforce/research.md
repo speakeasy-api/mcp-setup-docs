@@ -284,6 +284,10 @@ package contents, installation UI, org compatibility, or OAuth behavior.
 - Screenshot exception: the credential is sensitive and the screen adds no
   setup information beyond the exact label. Do not capture the key.
 
+### Optional My Domain for guided setup {#salesforce-my-domain}
+
+Observed November 17, 2026, in `client/dashboard/src/pages/catalog/provider-setup/salesforce.ts` and `SalesforceTask.tsx` at Speakeasy application commit `0aae37a1b459a7b5697286fe29c4eafa5b3c23ff`. The parser accepts standard Production, Sandbox, and Developer Edition My Domain formats and converts supported Setup and Lightning URLs to their corresponding login origins. Leaving the field empty uses standard environment login. The existing-app branch opens an External Client App in the same org for OAuth configuration.
+
 ### Enable the selected MCP server {#enable-sobject-server}
 
 - Return to **Setup**. In **Quick Find**, enter `MCP Servers`, then select
@@ -625,3 +629,7 @@ August-only facts and probes keep their earlier provenance.
   `https://login.salesforce.com/packaging/installPackage.apexp?p0=04tdM000000cNGXQA2`,
   and mandatory contact with Speakeasy support to finish OAuth. Not a claim
   that the package installation or OAuth flow was independently tested.
+
+### Use Speakeasy’s Salesforce app {#use-speakeasys-salesforce-app}
+
+The existing published section uses `#use-speakeasys-salesforce-app`. Preserve that anchor explicitly in `external.md` so the setup-choice link reaches the section.
