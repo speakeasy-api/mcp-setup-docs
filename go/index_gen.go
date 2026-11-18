@@ -14,6 +14,7 @@ var generatedSlugs = []GuideSlug{
 	"egnyte",
 	"github",
 	"gmail",
+	"gong",
 	"google-big-query",
 	"google-calendar",
 	"google-compute-engine",
@@ -174,6 +175,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 		CredentialOptions: []generatedCredentialOption{
 			{ID: "gmail-oauth", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
+	"gong": {
+		Slug:               "gong",
+		Title:              "Gong",
+		Summary:            "Connect Gong's hosted MCP server so users can find calls, read transcripts, and retrieve insights within their Gong permissions.",
+		SpeakeasyAddServer: "custom-remote",
+		SetupRequired:      true,
+		Aliases:            []string{},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://mcp.gong.io/mcp", Transport: "streamable-http", Tenanted: false},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "oauth-dcr", Kind: "oauth", ClientRegistration: "dynamic", UpstreamSetup: "provider-steps", SpeakeasySetup: "dcr"},
 		},
 	},
 	"google-big-query": {
@@ -588,6 +603,9 @@ var generatedURLToRefs = map[string][]ServerRef{
 	"https://mcp.eu.intercom.com/mcp": {
 		{Guide: "intercom", Remote: "eu"},
 	},
+	"https://mcp.gong.io/mcp": {
+		{Guide: "gong", Remote: "hosted"},
+	},
 	"https://mcp.hubspot.com": {
 		{Guide: "hubspot", Remote: "hosted"},
 	},
@@ -632,6 +650,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"About Box MCP Server": {
 		{Guide: "box", Remote: "hosted"},
+	},
+	"About Gong MCP server": {
+		{Guide: "gong", Remote: "hosted"},
 	},
 	"Account identifiers": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
@@ -968,6 +989,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
 	},
+	"Create an integration to connect to the MCP server": {
+		{Guide: "gong", Remote: "hosted"},
+	},
 	"Create and manage Cortex Agents": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
 	},
@@ -1195,6 +1219,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
 	},
+	"How MCP server tools and APIs consume credits": {
+		{Guide: "gong", Remote: "hosted"},
+	},
 	"How To: Generate renewed access_token using Refresh_Token in OAuth2": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
 	},
@@ -1274,6 +1301,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-people", Remote: "hosted"},
 		{Guide: "google-sheets", Remote: "hosted"},
 		{Guide: "google-slides", Remote: "hosted"},
+	},
+	"Manage MCP server integrations": {
+		{Guide: "gong", Remote: "hosted"},
 	},
 	"Manage MCP servers": {
 		{Guide: "google-drive", Remote: "hosted"},
@@ -1754,6 +1784,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "atlassian", Remote: "rovo"},
 		{Guide: "egnyte", Remote: "hosted"},
 		{Guide: "github", Remote: "hosted"},
+		{Guide: "gong", Remote: "hosted"},
 		{Guide: "google-big-query", Remote: "hosted"},
 		{Guide: "google-compute-engine", Remote: "hosted"},
 		{Guide: "google-docs", Remote: "hosted"},
