@@ -10,6 +10,7 @@ box/hosted
 egnyte/hosted
 github/hosted
 gmail/gmail
+gong/hosted
 google-big-query/hosted
 google-calendar/hosted
 google-compute-engine/hosted
