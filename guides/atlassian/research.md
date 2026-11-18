@@ -181,10 +181,11 @@ Per-guide values:
   **User Identity**
 - Probe outcome: 401 with a `resource_metadata` challenge, so **Hosted
   remotely** preselects **User Identity** after **Verify connectivity**
-- PRM issuer: `https://auth.atlassian.com/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3`.
-  A provider already in the project for the base issuer
-  `https://auth.atlassian.com` is the wrong provider; the Guide tells readers
-  to choose the one for the path issuer
+- The PRM names a path issuer, reconfirmed on 2026-11-18 along with CIMD,
+  DCR, and S256 support. The issuer recorded under Server facts is evidence
+  from discovery, not a setup value. Use the provider discovered from the
+  MCP URL; if there is ambiguity, match the full issuer from the live PRM,
+  not just the hostname.
 - CIMD / DCR: the path issuer advertises both; anonymous DCR returned 201.
   CIMD was not exercised end to end, so no registration method is named
 - Registration choice: **Auto-Configure** (dashboard default); creation
@@ -225,18 +226,16 @@ entry with the **Identity** choice.
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Open the server's **Settings** and find the **Identity** section. When
-creation already configured the identity, confirm **User Identity**, the
-Atlassian provider, and **Auto-Configure**, and keep only the Server
-Availability step. Otherwise: select **User Identity**; under **Choose an
-identity provider**, confirm the preselected provider is the path issuer
-`https://auth.atlassian.com/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3` (a new one is
-badged **Will be created**), or open the picker (**Search identity
-providers…**) and choose it when a base `auth.atlassian.com` provider is
-preselected; keep **Auto-Configure**; click **Save**. There is no **Client
-ID** or secret to paste. If the server shows **Disabled**, open **Settings >
-Danger Zone > Server Availability** and turn on **Enable MCP server** so it
-shows **Enabled**.
+Open the server's **Settings** and find the **Identity** section. If
+creation already configured **User Identity**, go to Server Availability.
+Otherwise, select **User Identity**, use the authorization server discovered
+from the MCP URL (a new one is badged **Will be created**), select
+**Auto-Configure**, and click **Save**. There is no **Client ID** or secret
+to paste. If discovery fails, check the v2 remote URL and retry connectivity
+verification; if multiple providers appear, match the full issuer in the
+live protected-resource metadata. If the server shows **Disabled**, open
+**Settings > Danger Zone > Server Availability** and turn on **Enable MCP
+server**.
 
 When first prompted for provider access, sign in with the intended Atlassian
 account, authorize the intended Atlassian Cloud site, and enable the intended
