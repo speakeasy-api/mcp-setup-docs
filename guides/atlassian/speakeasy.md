@@ -34,19 +34,15 @@ On save, Speakeasy discovers Atlassian's identity provider and registers a clien
 
 ### Connect your credentials {#connect-speakeasy-credentials}
 
-Open the server's **Settings** and find the **Identity** section. If creation already configured the identity, **User Identity** is selected with the Atlassian provider and **Auto-Configure**; skip to step 6.
+Open the server's **Settings** and find the **Identity** section. If Speakeasy already configured **User Identity** when you added the server, skip to step 5.
 
 1. Select **User Identity**.
-2. Under **Choose an identity provider**, confirm the preselected provider uses this issuer. A provider that does not exist yet shows **Will be created**.
+2. Use the authorization server Speakeasy discovers from the Atlassian Rovo MCP server. If it shows **Will be created**, Speakeasy will create it when you save. You do not need to create a provider manually or choose one by name.
+3. Select **Auto-Configure**. There is no **Client ID** or secret to paste.
+4. Click **Save**.
+5. If the server shows **Disabled**, open **Settings > Danger Zone > Server Availability** and turn on **Enable MCP server** so it shows **Enabled**.
 
-   ```
-   https://auth.atlassian.com/VCeDsk8ZHncYF1g234fKtc4lNipbBhu3
-   ```
-
-3. If the picker preselects a different provider on `auth.atlassian.com`, open the picker with **Search identity providers…** and choose the one for the issuer above.
-4. Keep **Auto-Configure** selected. There is no **Client ID** or secret to paste.
-5. Click **Save**.
-6. If the server shows **Disabled**, open **Settings > Danger Zone > Server Availability** and turn on **Enable MCP server** so it shows **Enabled**.
+If Speakeasy does not discover an authorization server, confirm the remote URL is `https://mcp.atlassian.com/v2/mcp` before retrying setup. If the picker shows multiple providers, use the one whose issuer matches `authorization_servers` in [Atlassian's OAuth discovery metadata](https://mcp.atlassian.com/.well-known/oauth-protected-resource/v2/mcp). A matching hostname alone is not enough.
 
 When a person first uses the server, Atlassian prompts them in the browser:
 
@@ -56,6 +52,6 @@ When a person first uses the server, Atlassian prompts them in the browser:
 
 If organization policy rejects the flow, complete [Allow the Speakeasy OAuth domain](external.md#allow-speakeasy-domain), then retry the connection.
 
-<!-- screenshot: Settings > Identity with User Identity selected, the Atlassian provider, and Auto-Configure; values redacted -->
+<!-- screenshot: Settings > Identity with User Identity selected, the discovered authorization server, and Auto-Configure -->
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Atlassian's MCP documentation](https://support.atlassian.com/atlassian-ai-gateway/docs/get-started-with-the-atlassian-remote-mcp-server/).
