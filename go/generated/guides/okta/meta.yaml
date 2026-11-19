@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: okta
+title: Okta
+summary: Connect to Okta Managed MCP Server with a user-authorized OIDC app for Core Identity or Identity Governance tools.
+aliases:
+  - com.okta/managed-mcp
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: web-app
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#copy-client-credentials
+        - id: client-secret
+          label: Client Secret
+          setup:
+            - external.md#copy-client-credentials
+    - id: native-app
+      kind: oauth
+      client_registration: manual
+      upstream_setup: provider-steps
+      fields:
+        - id: client-id
+          label: Client ID
+          setup:
+            - external.md#copy-client-credentials
+  requirements:
+    - id: eligible-subscription
+      description: An Okta org with an eligible subscription and access to enable the relevant Managed MCP Server features
+    - id: oidc-app-access
+      description: Authority to manage an OIDC app, assign users or groups, and grant Okta API scopes in the org
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+remotes:
+  - id: managed
+    url: "https://{yourOktaDomain}/mcp"
+    transport: streamable-http
+    tenanted: true
+    authentication:
+      - web-app
+      - native-app
+    provenance:
+      - source: provider-documentation
+        locator: https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm
+        classification: official
+        observed_at: "2026-11-17T00:00:00Z"
+provenance:
+  - source: provider-documentation
+    locator: https://help.okta.com/mcp/en-us/content/topics/mcpserver/oidc-pkce-browser-based.htm
+    name: OpenID Connect with Proof Key for Code Exchange
+    classification: official
+    observed_at: "2026-11-17T00:00:00Z"
+  - source: provider-documentation
+    locator: https://help.okta.com/mcp/en-us/content/topics/mcpserver/scope-based-tool-loading.htm
+    name: Scope-based tool loading
+    classification: official
+    observed_at: "2026-11-17T00:00:00Z"
+  - source: provider-documentation
+    locator: https://help.okta.com/oie/en-us/content/Topics/security/manage-ea-and-beta-features.htm
+    name: Enable self-service features
+    classification: official
+    observed_at: "2026-11-17T00:00:00Z"

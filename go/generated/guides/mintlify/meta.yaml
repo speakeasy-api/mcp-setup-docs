@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../schema/guide.v1.schema.json
+schema_version: 1
+slug: mintlify
+title: Mintlify
+summary: Connect Mintlify's hosted admin MCP server so users can read, edit, and publish their Mintlify docs and manage project settings within their dashboard role.
+aliases:
+  - com.mintlify/adminmcp
+speakeasy_add_server: custom-remote
+credential_setup:
+  options:
+    - id: oauth-dcr
+      kind: oauth
+      client_registration: dynamic
+      upstream_setup: provider-steps
+  requirements:
+    - id: mintlify-mcp-settings-access
+      description: Mintlify dashboard access to MCP settings to add the Speakeasy redirect domain under Redirect URIs
+    - id: mintlify-project-role
+      description: Mintlify account with access to the intended projects; viewers can only use read tools, and protected settings need an admin role
+    - id: mintlify-git-write-access
+      description: The project's GitHub, GitLab, or Bitbucket connection with write access to the deploy branch's repository, for publishing and pull requests
+remotes:
+  - id: hosted
+    url: https://mcp.mintlify.com
+    transport: streamable-http
+    authentication:
+      - oauth-dcr
+    provenance:
+      - source: provider-documentation
+        locator: https://www.mintlify.com/docs/ai/mintlify-mcp
+        name: Admin Model Context Protocol (MCP) server
+        classification: official
+        observed_at: "2026-11-19T18:25:00Z"
+      - source: endpoint-observation
+        locator: https://mcp.mintlify.com/.well-known/oauth-protected-resource
+        classification: official
+        observed_at: "2026-11-19T18:25:00Z"
+      - source: endpoint-observation
+        locator: https://mcp.mintlify.com/.well-known/oauth-authorization-server
+        classification: official
+        observed_at: "2026-11-19T18:25:00Z"
+documentation:
+  external: external.md
+  speakeasy: speakeasy.md
+provenance:
+  - source: provider-documentation
+    locator: https://www.mintlify.com/docs/ai/mintlify-mcp
+    name: Admin Model Context Protocol (MCP) server
+    classification: official
+    observed_at: "2026-11-19T18:25:00Z"
+  - source: provider-documentation
+    locator: https://www.mintlify.com/docs/ai/model-context-protocol
+    name: Search Model Context Protocol (MCP) server
+    classification: official
+    observed_at: "2026-11-19T18:25:00Z"
+  - source: provider-documentation
+    locator: https://www.mintlify.com/docs/ai/admin-mcp-tools
+    name: Admin MCP tools
+    classification: official
+    observed_at: "2026-11-19T18:25:00Z"
+  - source: provider-documentation
+    locator: https://www.mintlify.com/docs/dashboard/roles
+    name: Roles
+    classification: official
+    observed_at: "2026-11-19T18:25:00Z"
+  - source: provider-documentation
+    locator: https://www.mintlify.com/docs/cli/commands
+    name: Mintlify CLI command reference
+    classification: official
+    observed_at: "2026-11-19T18:25:00Z"
+  - source: endpoint-observation
+    locator: https://mcp.mintlify.com/oauth/register
+    classification: official
+    observed_at: "2026-11-19T18:25:00Z"
+  - source: repository-doctrine
+    locator: doctrine/speakeasy-setup.md
+    name: Speakeasy setup canonical section
+    classification: official
+    observed_at: "2026-11-19T18:25:00Z"
