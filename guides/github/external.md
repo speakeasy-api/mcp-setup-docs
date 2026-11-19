@@ -2,17 +2,20 @@
 setup_version: 1
 ---
 
-# Connect GitHub to the Speakeasy AI Control Plane
+# Connect GitHub to Speakeasy
 
-Before you begin, obtain:
+You’ll need:
 
-- Administrative access to the GitHub organization that will own the OAuth app.
-- Standard GitHub.com hosting for the target organization. This Setup Guide does not cover GitHub Enterprise Cloud with data residency or GitHub Enterprise Server.
-- The organization-approved public URL for this connection from the application or cloud security owner.
-- If the target organization restricts OAuth apps, access to an organization owner who can grant access — see [Connect your credentials](speakeasy.md#connect-speakeasy-credentials).
-- A valid organization SSO session if the target organization protects resources with SSO enforcement.
+- Admin access to the GitHub organization that will own the OAuth app.
+- Standard GitHub.com hosting. This guide does not cover GitHub Enterprise Server or Enterprise Cloud with data residency.
+- A public homepage URL approved by your organization.
+- An organization owner who can [approve OAuth app access](speakeasy.md#connect-speakeasy-credentials), if required.
+- An active organization SSO session, if required.
 
-Sign in at [github.com](https://github.com).
+## Choose a setup method
+
+- [**Guided setup (recommended)**](speakeasy.md#guided-setup) walks you through configuration in Speakeasy and shows you what to configure in GitHub.
+- **Manual setup**. Start with [GitHub OAuth app configuration](#open-organization-developer-settings), then [add the server and configure its identity](speakeasy.md#add-server-in-speakeasy).
 
 ### Open organization developer settings {#open-organization-developer-settings}
 

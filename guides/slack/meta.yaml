@@ -2,7 +2,7 @@
 schema_version: 1
 slug: slack
 title: Slack
-summary: Connect Slack with a prefilled app manifest and all MCP permissions selected by default, with optional access restrictions.
+summary: Connect Slack to your agents with guided setup or manual configuration.
 speakeasy_add_server: custom-remote
 credential_setup:
   options:

@@ -1,6 +1,12 @@
 # Speakeasy setup
 
-## Connect in the Control Plane
+## Guided setup (recommended) {#guided-setup}
+
+Take the guesswork out of connecting Slack to your agents. Speakeasy guides you through the required configuration and helps you verify the connection, so you can get started with confidence.
+
+In the MCP Catalog, find **Slack** and click **Add**. Select **User Identity** to start guided setup.
+
+## Manual setup in Speakeasy {#connect-in-the-control-plane}
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
@@ -51,6 +57,6 @@ The server stays **Disabled** until you finish identity setup. Open its
 When a person first uses the server, Slack asks them to authorize access with
 their own account. Saving client credentials does not grant anyone access to
 Slack data. If you change scopes after creating the app, update them in both
-Slack and the Control Plane, then complete any required approval or authorization.
+Slack and Speakeasy, then complete any required approval or authorization.
 
 This guide covers setup only. For anything beyond it — billing, tool behavior, limits — see [Slack's MCP documentation](https://docs.slack.dev/ai/slack-mcp-server/).

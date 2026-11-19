@@ -1,8 +1,16 @@
 # Speakeasy setup
 
+## Guided setup (recommended) {#guided-setup}
+
+Take the guesswork out of connecting GitHub to your agents. Speakeasy guides you through the required configuration and helps you verify the connection, so you can get started with confidence.
+
+In the MCP Catalog, find **GitHub** and click **Add**. Select **User Identity** to start guided setup.
+
+## Manual setup in Speakeasy
+
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-1. In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**.
+1. In Speakeasy sidebar, under **MCP Gateway**, select **MCP**.
 2. Click **Add new** to open **Add MCP server**.
 3. Choose **From the catalog**.
 4. On the **MCP Catalog** page, find GitHub using **Search MCP servers...**.
@@ -39,6 +47,8 @@ Then turn the server on:
 
 1. In **Settings**, open **Danger Zone**.
 2. Under **Server Availability**, turn on **Enable MCP server** so it shows **Enabled**.
+
+#### Organization approval and SSO {#github-org-approval}
 
 If the target organization restricts OAuth apps, have a user authorize the connection, then complete the following:
 
