@@ -2,11 +2,20 @@
 setup_version: 1
 ---
 
-# Connect Salesforce to the Speakeasy AI Control Plane
+# Connect Salesforce to Speakeasy
 
-Use Salesforce System Administrator credentials for an API-enabled production or sandbox org where Hosted MCP Servers are available. Salesforce documents availability for Enterprise Edition and above. You need authority to install the Speakeasy application or create an **External Client App**, and enable Hosted MCP Servers.
+You’ll need:
 
-Sign in to the Salesforce org you want to connect. Install or create the app in that same org. This guide does not cover scratch orgs. For a lower-edition org, confirm Hosted MCP availability in [Salesforce Setup](#open-salesforce-setup) before starting either path.
+- An API-enabled Salesforce production or sandbox org.
+- Hosted MCP Servers available in that org. Salesforce supports Enterprise Edition and above; for a lower edition, [check availability in Salesforce Setup](#open-salesforce-setup).
+- System Administrator access to install or create an app and enable the selected MCP server, or a teammate who can help.
+
+Use the same org for the app and connection. This guide does not cover scratch orgs.
+
+## Choose a setup method
+
+- [**Guided setup (recommended)**](speakeasy.md#guided-setup) walks you through configuration in Speakeasy and shows you what to configure in Salesforce.
+- **Manual setup**. Start with [Salesforce org and app configuration](#open-salesforce-setup), then [add the server and configure its identity](speakeasy.md#add-server-in-speakeasy).
 
 ### Open Salesforce Setup {#open-salesforce-setup}
 
@@ -21,9 +30,9 @@ For a lower-edition org:
 
 <!-- screenshot: the Salesforce page with the setup gear menu open and Setup visible -->
 
-Choose one path: **use Speakeasy's Salesforce app** and finish OAuth with support, or **create your own Salesforce app** and connect it yourself.
+Choose one path: [**use Speakeasy's Salesforce app**](#use-speakeasys-salesforce-app) and finish OAuth with support, or [**create your own Salesforce app**](#create-your-own-salesforce-app) and connect it yourself.
 
-## Use Speakeasy's Salesforce app
+## Use Speakeasy's Salesforce app {#use-speakeasys-salesforce-app}
 
 ### Install Speakeasy's Salesforce application {#install-speakeasy-application}
 
@@ -45,7 +54,7 @@ After installation, **contact Speakeasy support to finish OAuth setup**. Install
 
 Before creating the app, choose a server in the [endpoint reference](#endpoint-reference) and confirm its prerequisites. Then create an **External Client App** in the org you want to connect and enable that server.
 
-This path uses the app's **Consumer Key** without a client secret. Salesforce documents this configuration for compatible public clients; it has not been verified with the Speakeasy AI Control Plane.
+This path uses the app's **Consumer Key** without a client secret. Salesforce documents this configuration for compatible public clients; it has not been verified with Speakeasy.
 
 ### Start an External Client App {#start-external-client-app}
 
@@ -115,6 +124,10 @@ Choose the least-privileged server that meets your team's needs using the endpoi
 <!-- screenshot: MCP Servers under API Catalog, showing the available server list and the control used to enable the chosen MCP server; record the rendered row and control labels -->
 
 If you created your own app, continue to [Speakeasy setup](speakeasy.md#add-server-in-speakeasy) with your selected URL and **Consumer Key**. If you installed Speakeasy's app, continue with Speakeasy support.
+
+## My Domain {#salesforce-my-domain}
+
+For guided setup, use the My Domain login for the Salesforce org that hosts the app and MCP server. Production domains use `<domain>.my.salesforce.com`. Sandbox domains use `<domain>--<sandbox>.sandbox.my.salesforce.com`. For Developer Edition orgs that use `<domain>.develop.my.salesforce.com`, select **Production**. You can paste a Salesforce Setup or Lightning URL when it resolves to one of these My Domain formats. Leave **Salesforce Domain (optional)** blank to use the standard login for the selected environment.
 
 ## Endpoint reference {#endpoint-reference}
 

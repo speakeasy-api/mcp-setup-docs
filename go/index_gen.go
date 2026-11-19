@@ -11,6 +11,7 @@ var generatedSlugs = []GuideSlug{
 	"atlassian",
 	"azure-devops",
 	"box",
+	"datadog",
 	"egnyte",
 	"github",
 	"gmail",
@@ -26,7 +27,9 @@ var generatedSlugs = []GuideSlug{
 	"hubspot",
 	"intercom",
 	"microsoft-365",
+	"mintlify",
 	"netsuite",
+	"okta",
 	"salesforce",
 	"sentry",
 	"slack",
@@ -133,6 +136,26 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 		CredentialOptions: []generatedCredentialOption{
 			{ID: "oauth-integration", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
+	"datadog": {
+		Slug:               "datadog",
+		Title:              "Datadog",
+		Summary:            "Connect a Datadog organization so users can query their permitted monitors, logs, metrics, traces, and incidents through Datadog's hosted MCP server for its site.",
+		SpeakeasyAddServer: "",
+		SetupRequired:      true,
+		Aliases:            []string{"com.datadoghq/mcp"},
+		Remotes: []generatedRemote{
+			{ID: "us1", URL: "https://mcp.datadoghq.com/v1/mcp", Transport: "streamable-http", Tenanted: true},
+			{ID: "us3", URL: "https://mcp.us3.datadoghq.com/v1/mcp", Transport: "streamable-http", Tenanted: true},
+			{ID: "us5", URL: "https://mcp.us5.datadoghq.com/v1/mcp", Transport: "streamable-http", Tenanted: true},
+			{ID: "eu1", URL: "https://mcp.datadoghq.eu/v1/mcp", Transport: "streamable-http", Tenanted: true},
+			{ID: "ap1", URL: "https://mcp.ap1.datadoghq.com/v1/mcp", Transport: "streamable-http", Tenanted: true},
+			{ID: "ap2", URL: "https://mcp.ap2.datadoghq.com/v1/mcp", Transport: "streamable-http", Tenanted: true},
+			{ID: "uk1", URL: "https://mcp.uk1.datadoghq.com/v1/mcp", Transport: "streamable-http", Tenanted: true},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "oauth-dcr", Kind: "oauth", ClientRegistration: "dynamic", UpstreamSetup: "provider-steps", SpeakeasySetup: "dcr"},
 		},
 	},
 	"egnyte": {
@@ -346,6 +369,20 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 			{ID: "delegated-oauth", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
 		},
 	},
+	"mintlify": {
+		Slug:               "mintlify",
+		Title:              "Mintlify",
+		Summary:            "Connect Mintlify's hosted admin MCP server so users can read, edit, and publish their Mintlify docs and manage project settings within their dashboard role.",
+		SpeakeasyAddServer: "custom-remote",
+		SetupRequired:      true,
+		Aliases:            []string{"com.mintlify/adminmcp"},
+		Remotes: []generatedRemote{
+			{ID: "hosted", URL: "https://mcp.mintlify.com", Transport: "streamable-http", Tenanted: false},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "oauth-dcr", Kind: "oauth", ClientRegistration: "dynamic", UpstreamSetup: "provider-steps", SpeakeasySetup: "dcr"},
+		},
+	},
 	"netsuite": {
 		Slug:               "netsuite",
 		Title:              "NetSuite",
@@ -358,6 +395,21 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 		},
 		CredentialOptions: []generatedCredentialOption{
 			{ID: "oauth-public-client", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+		},
+	},
+	"okta": {
+		Slug:               "okta",
+		Title:              "Okta",
+		Summary:            "Connect to Okta Managed MCP Server with a user-authorized OIDC app for Core Identity or Identity Governance tools.",
+		SpeakeasyAddServer: "custom-remote",
+		SetupRequired:      true,
+		Aliases:            []string{"com.okta/managed-mcp"},
+		Remotes: []generatedRemote{
+			{ID: "managed", URL: "https://{yourOktaDomain}/mcp", Transport: "streamable-http", Tenanted: true},
+		},
+		CredentialOptions: []generatedCredentialOption{
+			{ID: "web-app", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
+			{ID: "native-app", Kind: "oauth", ClientRegistration: "manual", UpstreamSetup: "provider-steps", SpeakeasySetup: "manual-oauth"},
 		},
 	},
 	"salesforce": {
@@ -405,7 +457,7 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 	"slack": {
 		Slug:               "slack",
 		Title:              "Slack",
-		Summary:            "Connect Slack with a prefilled app manifest and all MCP permissions selected by default, with optional access restrictions.",
+		Summary:            "Connect Slack to your agents with guided setup or manual configuration.",
 		SpeakeasyAddServer: "custom-remote",
 		SetupRequired:      true,
 		Aliases:            []string{},
@@ -490,8 +542,11 @@ var generatedGuides = map[GuideSlug]generatedGuide{
 
 var generatedAliasToSlug = map[string]GuideSlug{
 	"com.amplitude/mcp":                     "amplitude",
+	"com.datadoghq/mcp":                     "datadog",
 	"com.egnyte/mcp-server":                 "egnyte",
 	"com.googleapis.compute/mcp":            "google-compute-engine",
+	"com.mintlify/adminmcp":                 "mintlify",
+	"com.okta/managed-mcp":                  "okta",
 	"com.pulsemcp.mirror/asana-mcp":         "asana",
 	"com.pulsemcp.mirror/box":               "box",
 	"com.pulsemcp.mirror/google-bigquery":   "google-big-query",
@@ -588,6 +643,12 @@ var generatedURLToRefs = map[string][]ServerRef{
 	"https://mcp.amplitude.com/mcp": {
 		{Guide: "amplitude", Remote: "us"},
 	},
+	"https://mcp.ap1.datadoghq.com/v1/mcp": {
+		{Guide: "datadog", Remote: "ap1"},
+	},
+	"https://mcp.ap2.datadoghq.com/v1/mcp": {
+		{Guide: "datadog", Remote: "ap2"},
+	},
 	"https://mcp.asana.com/v2/mcp": {
 		{Guide: "asana", Remote: "hosted"},
 	},
@@ -596,6 +657,12 @@ var generatedURLToRefs = map[string][]ServerRef{
 	},
 	"https://mcp.box.com": {
 		{Guide: "box", Remote: "hosted"},
+	},
+	"https://mcp.datadoghq.com/v1/mcp": {
+		{Guide: "datadog", Remote: "us1"},
+	},
+	"https://mcp.datadoghq.eu/v1/mcp": {
+		{Guide: "datadog", Remote: "eu1"},
 	},
 	"https://mcp.eu.amplitude.com/mcp": {
 		{Guide: "amplitude", Remote: "eu"},
@@ -612,11 +679,23 @@ var generatedURLToRefs = map[string][]ServerRef{
 	"https://mcp.intercom.com/mcp": {
 		{Guide: "intercom", Remote: "us"},
 	},
+	"https://mcp.mintlify.com": {
+		{Guide: "mintlify", Remote: "hosted"},
+	},
 	"https://mcp.sentry.dev/mcp": {
 		{Guide: "sentry", Remote: "hosted"},
 	},
 	"https://mcp.slack.com/mcp": {
 		{Guide: "slack", Remote: "hosted"},
+	},
+	"https://mcp.uk1.datadoghq.com/v1/mcp": {
+		{Guide: "datadog", Remote: "uk1"},
+	},
+	"https://mcp.us3.datadoghq.com/v1/mcp": {
+		{Guide: "datadog", Remote: "us3"},
+	},
+	"https://mcp.us5.datadoghq.com/v1/mcp": {
+		{Guide: "datadog", Remote: "us5"},
 	},
 	"https://mcp.zapier.com/api/v1/connect": {
 		{Guide: "zapier", Remote: "hosted"},
@@ -678,6 +757,12 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Admin Controls for Allowed Apps in MCP Server": {
 		{Guide: "egnyte", Remote: "hosted"},
+	},
+	"Admin MCP tools": {
+		{Guide: "mintlify", Remote: "hosted"},
+	},
+	"Admin Model Context Protocol (MCP) server": {
+		{Guide: "mintlify", Remote: "hosted"},
 	},
 	"Amplitude MCP Server": {
 		{Guide: "amplitude", Remote: "eu"},
@@ -798,6 +883,15 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Claude Code": {
 		{Guide: "box", Remote: "hosted"},
+	},
+	"Code Security MCP Server": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
 	},
 	"Compute Engine IAM roles and permissions": {
 		{Guide: "google-compute-engine", Remote: "hosted"},
@@ -1020,6 +1114,51 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
 	},
+	"Datadog": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
+	},
+	"Datadog MCP Server": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
+	},
+	"Datadog MCP authorization-server metadata (US1; same shape on all seven sites)": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
+	},
+	"Datadog Role Permissions — MCP": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
+	},
+	"Datadog docs site region selector script (loaded by docs.datadoghq.com/mcp_server/setup/)": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
+	},
 	"Developer Console": {
 		{Guide: "x", Remote: "hosted"},
 	},
@@ -1058,6 +1197,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "google-sheets", Remote: "hosted"},
 		{Guide: "google-slides", Remote: "hosted"},
 	},
+	"Enable self-service features": {
+		{Guide: "okta", Remote: "managed"},
+	},
 	"End-to-end sign-in and tool calls through a locally run control plane": {
 		{Guide: "microsoft-365", Remote: "hosted"},
 	},
@@ -1094,6 +1236,15 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"Getting Access": {
 		{Guide: "x", Remote: "hosted"},
+	},
+	"Getting Started with Datadog Sites": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
 	},
 	"Getting Started with Managed Snowflake MCP Server": {
 		{Guide: "snowflake", Remote: "cortex-agent-mcp"},
@@ -1234,6 +1385,15 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"HubSpot user permissions guide": {
 		{Guide: "hubspot", Remote: "hosted"},
 	},
+	"IP Allowlist": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
+	},
 	"Installing the MCP Standard Tools SuiteApp": {
 		{Guide: "netsuite", Remote: "mcp-standard-tools"},
 	},
@@ -1327,6 +1487,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Microsoft Graph permissions reference": {
 		{Guide: "microsoft-365", Remote: "hosted"},
 	},
+	"Mintlify CLI command reference": {
+		{Guide: "mintlify", Remote: "hosted"},
+	},
 	"Model Context Protocol (MCP)": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
@@ -1352,6 +1515,18 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"OAuth Scopes": {
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
+	},
+	"OpenID Connect with Proof Key for Code Exchange": {
+		{Guide: "okta", Remote: "managed"},
+	},
+	"Organization Settings": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
 	},
 	"People API MCP reference": {
 		{Guide: "google-people", Remote: "hosted"},
@@ -1441,6 +1616,9 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Role-based access controls (RBAC)": {
 		{Guide: "amplitude", Remote: "eu"},
 		{Guide: "amplitude", Remote: "us"},
+	},
+	"Roles": {
+		{Guide: "mintlify", Remote: "hosted"},
 	},
 	"SObject All": {
 		{Guide: "salesforce", Remote: "data360-production"},
@@ -1624,8 +1802,14 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Scope Filtering": {
 		{Guide: "github", Remote: "hosted"},
 	},
+	"Scope-based tool loading": {
+		{Guide: "okta", Remote: "managed"},
+	},
 	"Scopes and permissions in the Microsoft identity platform (ms.date 2025-07-24)": {
 		{Guide: "azure-devops", Remote: "organization"},
+	},
+	"Search Model Context Protocol (MCP) server": {
+		{Guide: "mintlify", Remote: "hosted"},
 	},
 	"Sensitive scope verification": {
 		{Guide: "google-big-query", Remote: "hosted"},
@@ -1676,6 +1860,24 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "salesforce", Remote: "sobject-reads-sandbox"},
 		{Guide: "salesforce", Remote: "tableau-next-production"},
 		{Guide: "salesforce", Remote: "tableau-next-sandbox"},
+	},
+	"Set Up the Datadog MCP Server": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
+	},
+	"Set Up the Datadog MCP Server — MCP Server endpoints": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
 	},
 	"Set up a Workspace": {
 		{Guide: "intercom", Remote: "eu"},
@@ -1769,6 +1971,15 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	"Speakeasy dashboard labels": {
 		{Guide: "sentry", Remote: "hosted"},
 	},
+	"Speakeasy dashboard labels, native catalog seed, and callback rendering": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
+	},
 	"Speakeasy remote MCP Identity section": {
 		{Guide: "google-big-query", Remote: "hosted"},
 	},
@@ -1782,6 +1993,13 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "amplitude", Remote: "us"},
 		{Guide: "asana", Remote: "hosted"},
 		{Guide: "atlassian", Remote: "rovo"},
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
 		{Guide: "egnyte", Remote: "hosted"},
 		{Guide: "github", Remote: "hosted"},
 		{Guide: "gong", Remote: "hosted"},
@@ -1795,6 +2013,7 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 		{Guide: "hubspot", Remote: "hosted"},
 		{Guide: "intercom", Remote: "eu"},
 		{Guide: "intercom", Remote: "us"},
+		{Guide: "mintlify", Remote: "hosted"},
 		{Guide: "salesforce", Remote: "data360-production"},
 		{Guide: "salesforce", Remote: "data360-sandbox"},
 		{Guide: "salesforce", Remote: "headless-360-production"},
@@ -1963,6 +2182,15 @@ var generatedProvenanceToRefs = map[string][]ServerRef{
 	},
 	"com.pulsemcp.mirror/zapier": {
 		{Guide: "zapier", Remote: "hosted"},
+	},
+	"create datadog mcp server setup guide": {
+		{Guide: "datadog", Remote: "ap1"},
+		{Guide: "datadog", Remote: "ap2"},
+		{Guide: "datadog", Remote: "eu1"},
+		{Guide: "datadog", Remote: "uk1"},
+		{Guide: "datadog", Remote: "us1"},
+		{Guide: "datadog", Remote: "us3"},
+		{Guide: "datadog", Remote: "us5"},
 	},
 	"io.github.github/github-mcp-server": {
 		{Guide: "github", Remote: "hosted"},

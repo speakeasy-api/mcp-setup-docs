@@ -7,6 +7,13 @@ asana/hosted
 atlassian/rovo
 azure-devops/organization
 box/hosted
+datadog/ap1
+datadog/ap2
+datadog/eu1
+datadog/uk1
+datadog/us1
+datadog/us3
+datadog/us5
 egnyte/hosted
 github/hosted
 gmail/gmail
@@ -23,7 +30,9 @@ hubspot/hosted
 intercom/eu
 intercom/us
 microsoft-365/hosted
+mintlify/hosted
 netsuite/mcp-standard-tools
+okta/managed
 salesforce/data360-production
 salesforce/data360-sandbox
 salesforce/headless-360-production

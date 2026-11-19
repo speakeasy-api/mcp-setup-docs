@@ -1,10 +1,18 @@
 # Speakeasy setup
 
+## Guided setup (recommended) {#guided-setup}
+
+Take the guesswork out of connecting Salesforce to your agents. Speakeasy guides you through the required configuration and helps you verify the connection, so you can get started with confidence.
+
+In the MCP Catalog, find **Salesforce** and click **Add**. Select **User Identity** to start guided setup.
+
+## Manual setup in Speakeasy
+
 Follow these steps after [creating your own Salesforce app](external.md#create-your-own-salesforce-app) and [enabling your selected MCP server](external.md#enable-sobject-server). If you installed Speakeasy's Salesforce app instead, [contact Speakeasy support to finish OAuth](external.md#contact-speakeasy-support).
 
 ### Add the server in Speakeasy {#add-server-in-speakeasy}
 
-1. In the Speakeasy AI Control Plane sidebar, under **MCP Gateway**, select **MCP**.
+1. In Speakeasy sidebar, under **MCP Gateway**, select **MCP**.
 2. Click **Add new** to open **Add MCP server**.
 3. Choose **Hosted remotely**.
 4. On **New remote MCP server**, paste the URL recorded in [Enable the selected MCP server](external.md#enable-sobject-server) into **MCP server URL**.

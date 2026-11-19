@@ -4,22 +4,23 @@ setup_version: 1
 
 # Slack setup
 
-Use an internal Slack app in the workspace you want to connect. You need
-permission to create or manage the app and any required workspace-admin
-approval. Sign in to [Slack's app settings](https://api.slack.com/apps) with
-that account. Each connecting user authorizes access with their own Slack
-account; this setup does not use a bot token or a personal API key.
+You’ll need:
 
-Slack permits internal apps and apps published in the Slack Marketplace.
-Unlisted distributed apps cannot use its MCP server. If your app restricts
-allowed IP addresses, ask your network administrator to include the Control
-Plane's outbound addresses. Do not remove the restriction.
+- Permission to create or manage apps in the Slack workspace you want to connect.
+- An administrator’s approval if your workspace requires it.
+- If using an existing app, an internal app or one published in the Slack Marketplace. Unlisted distributed apps are not supported.
+- If the app uses an IP allowlist, a network administrator who can add Speakeasy’s outbound addresses while keeping the restriction in place.
 
-Choose **Automatic setup** for a new app, or **Manual setup** to configure an
-existing app. Both paths end with copying the app credentials into the Control
-Plane. You only need to complete one path.
+<!-- manual-setup-start -->
 
-## Automatic setup (recommended) {#automatic-setup}
+[Create an app from a manifest](#automatic-setup), or [configure an app yourself](#manual-setup). After either option, copy the app credentials into Speakeasy. You only need to complete one option.
+
+## Choose a setup method
+
+- [**Guided setup (recommended)**](speakeasy.md#guided-setup) walks you through configuration in Speakeasy and shows you what to configure in Slack.
+- **Manual setup**. Start with [Slack app configuration](#automatic-setup), then [add the server and configure its identity](speakeasy.md#add-server-in-speakeasy).
+
+## Create an app from a manifest {#automatic-setup}
 
 ### Create your Slack app {#create-app-from-manifest}
 
@@ -33,7 +34,7 @@ needed.
 
 1. Click **Create app in Slack**, select your workspace, and review the app.
 2. Create the app. Continue to [Copy the app credentials](#copy-client-credentials).
-   You do not need to complete manual setup.
+   You can skip **Configure an app yourself**.
 
 The default includes all 30 read, search, and write scopes. To limit access,
 remove unneeded scopes from the manifest before creating the app. Tools that
@@ -45,13 +46,12 @@ Workspace approval and each user's existing access restrictions still apply.
 
 ![Slack's Create from a manifest dialog with the prefilled Speakeasy manifest and a workspace selected](https://raw.githubusercontent.com/speakeasy-api/mcp-setup-docs/main/guides/slack/assets/slack-create-from-manifest.png)
 
-## Manual setup {#manual-setup}
+## Configure an app yourself {#manual-setup}
 
-Use this alternative if you already have an internal Slack app or cannot use
-the automatic creation link. Do not repeat it after automatic setup.
+Use this option if you already have an internal Slack app or want to configure the settings yourself. Skip it if you used the prefilled manifest above.
 
 <details>
-<summary>Show manual setup instructions</summary>
+<summary>Show app configuration instructions</summary>
 
 ### Create an app from JSON {#create-app-manually}
 
@@ -121,7 +121,7 @@ If you are configuring an existing app, skip the JSON and start at
 
 If the callback placeholder has not been filled in, replace it with your
 deployment's OAuth callback URL before creating the app. You can remove scopes
-you do not need, but keep the same scope set in the Control Plane.
+you do not need, but keep the same scope set in Speakeasy.
 
 <!-- screenshot: Slack's From a manifest flow with the full configuration -->
 
@@ -141,9 +141,9 @@ For an existing app, complete these three configuration steps.
 2. Add the 30 scopes in the manifest above to the **user-token** scopes, not
    the bot-token scopes. To limit access, use only the scopes for the tools
    you need, from [Slack's tool-to-scope table](https://docs.slack.dev/ai/slack-mcp-server/#oauth-scopes-needed-on-user-token-for-different-tools).
-3. Use the same selected scopes in the Control Plane.
+3. Use the same selected scopes in Speakeasy.
 
-Changing access in the Control Plane does not update an app already created
+Changing access in Speakeasy does not update an app already created
 in Slack. Update the app's scopes in Slack too, then complete any required
 reinstallation, approval, or user authorization before using the new permissions.
 
@@ -160,16 +160,16 @@ reinstallation, approval, or user authorization before using the new permissions
 
 ## Finish app setup {#finish-app-setup}
 
-Complete this step after either automatic or manual setup.
+Complete this step after either app configuration option.
 
 ### Copy the app credentials {#copy-client-credentials}
 
 1. In the Slack app, open **Basic Information** and find **App Credentials**.
 2. Copy **Client ID** and **Client Secret** for the
-   [Control Plane identity settings](speakeasy.md#connect-speakeasy-credentials).
+   [Speakeasy identity settings](speakeasy.md#connect-speakeasy-credentials).
    Reveal the secret if needed. Do not share it in chat, screenshots, or source
    control.
-3. [Save the configuration in the Control Plane](speakeasy.md#connect-speakeasy-credentials).
+3. [Save the configuration in Speakeasy](speakeasy.md#connect-speakeasy-credentials).
 
 Use these client credentials, not the App ID or a bearer token. No app
 configuration token is needed for the prefilled creation link.

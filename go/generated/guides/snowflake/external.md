@@ -4,9 +4,18 @@ setup_version: 1
 
 # Snowflake setup
 
-Use a Snowflake role/security administrator account to create and assign a non-privileged runtime role. You also need `ACCOUNTADMIN`, or an organization-approved delegated role with global `CREATE INTEGRATION`, for the OAuth integration only. Obtain the connecting usernames, default warehouse, approved MCP server object names, and an existing Cortex Agent's database, schema, name, and complete agent-tool grants from the security, application, and agent owners. You need an existing, approved MCP database and schema, or a Snowflake object or security owner who can create them. Obtain a server-creator role with `CREATE MCP SERVER` on the target schema, `USAGE` on the target database and schema, and `USAGE` on the existing Cortex Agent and its database and schema. Sign in at [app.snowflake.com](https://app.snowflake.com).
+You’ll need:
 
-Snowflake-managed MCP servers and Cortex Agents are unavailable in the People's Republic of China. Snowflake-managed MCP servers are also unsupported in government regions.
+- An existing Cortex Agent and its database, schema, and name.
+- A Snowflake warehouse and the usernames of the people who will connect.
+- Permission to create an MCP server, configure OAuth, and grant user access, or teammates who can complete those steps.
+
+This setup is not supported in China or government regions.
+
+## Choose a setup method
+
+- [**Guided setup (recommended)**](speakeasy.md#guided-setup) walks you through configuration in Speakeasy and shows you what to configure in Snowflake.
+- **Manual setup**. Start with [Snowflake SQL configuration](#open-snowflake-workspace), then [add the server and configure its identity](speakeasy.md#add-server-in-speakeasy).
 
 ### Open a Snowflake SQL workspace {#open-snowflake-workspace}
 
@@ -132,7 +141,7 @@ When a code block contains multiple statements, select and run each completed st
    https://<account_url>/api/v2/databases/<mcp_database>/schemas/<mcp_schema>/mcp-servers/<mcp_server_name>
    ```
 
-19. Retain the URL for the Speakeasy AI Control Plane setup.
+19. Retain the URL for Speakeasy setup.
 
 <!-- screenshot: the approved CORTEX_AGENT_RUN specification and successful result, with the Cortex Agent's three-part identifier visible and organization-sensitive names redacted where policy requires -->
 
