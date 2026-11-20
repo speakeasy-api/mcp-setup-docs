@@ -8,7 +8,7 @@ Sign in to Asana. Before you begin, make sure you have:
 
 - An Asana account with access to the developer console.
 - Membership in every Asana workspace you plan to select under **Specific workspaces**.
-- If your Enterprise+ or Legacy Enterprise organization uses App management, confirmation from an organization super admin that the V2 MCP client is allowed before users authorize it.
+- If your organization uses Asana integrations management to block integrations or require approval, confirmation from an organization super admin that the V2 MCP client is allowed before users authorize it.
 - Access to your organization's approved password manager.
 
 ### Open the developer console {#open-developer-console}
@@ -72,10 +72,10 @@ If authorization says the app is explicitly blocked, an organization super admin
 1. Return to Asana.
 2. Select your profile photo.
 3. Select **Admin console**.
-4. Select **Apps**.
-5. Select **Manage apps**.
-6. Select **Connected apps**.
+4. Select **Integrations**.
+5. Select **Integration management**.
+6. Open the **Connected** tab.
 7. Select the associated MCP client app.
-8. Select **Unblock**.
+8. Select **Unblock**. If your organization requires integration approval, approve the integration instead.
 
-<!-- screenshot: Connected apps with the selected app's Unblock control; exclude user activity and unrelated apps -->
+<!-- screenshot: the Connected tab in Integration management, then the selected app's Unblock control; exclude user activity and unrelated apps -->
