@@ -35,63 +35,72 @@ remotes:
         locator: https://docs.x.com/tools/mcp.md
         name: MCP servers for the X API and X developer docs
         classification: official
-        observed_at: "2026-09-30T00:00:00Z"
+        observed_at: "2026-11-13T01:09:36Z"
+      - source: endpoint-probe
+        locator: https://api.x.com/.well-known/oauth-protected-resource
+        name: Unauthenticated initialize probe and protected-resource metadata
+        observed_at: "2026-11-13T01:10:40Z"
 provenance:
   - source: provider-documentation
     locator: https://docs.x.com/tools/mcp.md
     name: MCP servers for the X API and X developer docs
     classification: official
-    observed_at: "2026-09-30T00:00:00Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: provider-documentation
     locator: https://docs.x.com/llms.txt
     name: X Developer Platform documentation index
     classification: official
-    observed_at: "2026-09-30T00:00:00Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: provider-documentation
     locator: https://docs.x.com/x-api/getting-started/getting-access.md
     name: Getting Access
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: provider-documentation
     locator: https://docs.x.com/fundamentals/developer-portal.md
     name: Developer Console
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: provider-documentation
     locator: https://docs.x.com/fundamentals/developer-apps.md
     name: Apps
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: provider-documentation
     locator: https://docs.x.com/fundamentals/authentication/overview.md
     name: Authentication
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: provider-documentation
     locator: https://docs.x.com/fundamentals/authentication/oauth-2-0/application-only.md
     name: App only authentication and OAuth 2.0 Bearer Token
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: provider-documentation
     locator: https://docs.x.com/fundamentals/authentication/oauth-2-0/authorization-code.md
     name: OAuth 2.0 Authorization Code Flow with PKCE
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: provider-documentation
     locator: https://docs.x.com/x-api/getting-started/pricing.md
     name: X API pay-per-usage pricing and credits
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: provider-open-source
     locator: https://raw.githubusercontent.com/xdevplatform/xurl/main/README.md
     name: xurl
     classification: official
-    observed_at: "2026-08-06T23:21:18Z"
+    observed_at: "2026-11-13T01:09:36Z"
   - source: speakeasy-product-documentation
     locator: doctrine/speakeasy-setup.md
     name: Speakeasy setup canonical section
     classification: official
-    observed_at: "2026-09-30T00:00:00Z"
+    observed_at: "2026-11-13T01:12:00Z"
+  - source: speakeasy-product-source
+    locator: https://github.com/speakeasy-api/gram/tree/af2eebf06a02239c680c251584fc2ac1adad24a1/client/dashboard
+    name: Speakeasy dashboard catalog add and identity setup at gram main af2eebf06a (2026-11-12)
+    classification: official
+    observed_at: "2026-11-13T01:18:00Z"
   - source: pulsemcp
     locator: com.pulsemcp.mirror/xdevplatform-xmcp
     name: X
