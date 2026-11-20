@@ -50,17 +50,18 @@ Sign in to the NetSuite application as an Administrator or delegated administrat
 ### Record the account-specific MCP URL {#record-account-mcp-url}
 
 1. Go to **Setup > Company > Company Information**.
-2. Record the account ID for the current account. The **Company URLs** subtab on this page lists account-specific service URLs. If you cannot identify the account ID, obtain the current account ID or SuiteTalk domain from your NetSuite owner.
-3. Replace `<accountid>` in this endpoint with the account's domain-form ID:
+2. Click the **Company URLs** subtab.
+3. Copy the URL under **SuiteTalk (SOAP and REST web services)**, for example `https://123456.suitetalk.api.netsuite.com`. Use the URL exactly as listed rather than typing the domain yourself. If you cannot see this subtab, obtain the SuiteTalk URL from your NetSuite owner.
+4. Add `/services/mcp/v1/suiteapp/com.netsuite.mcpstandardtools` to the end of the copied URL. The completed endpoint has this form:
 
    ```text
    https://<accountid>.suitetalk.api.netsuite.com/services/mcp/v1/suiteapp/com.netsuite.mcpstandardtools
    ```
 
-   For a sandbox or Release Preview account, replace underscores with hyphens and uppercase letters with lowercase letters. For example, `123456_SB1` becomes `123456-sb1`.
-4. Keep the completed endpoint for **MCP server URL** in the Speakeasy AI Control Plane.
+   The copied host already contains the account ID in domain form. For a sandbox or Release Preview account, the account ID `123456_SB1` appears as `123456-sb1`.
+5. Keep the completed endpoint for **MCP server URL** in the Speakeasy AI Control Plane.
 
-<!-- screenshot: Company Information > Company URLs with the account-specific SuiteTalk domain visible; redact unrelated URLs and account data. The final MCP path is assembled from Oracle's documented fixed suffix rather than copied from a named MCP row. -->
+<!-- screenshot: Company Information > Company URLs subtab with the SuiteTalk (SOAP and REST web services) URL visible; redact unrelated URLs and account data. The final MCP path is the copied SuiteTalk URL plus Oracle's documented fixed suffix; there is no MCP-specific row. -->
 
 ### Create the OAuth integration {#create-oauth-integration}
 
@@ -84,13 +85,9 @@ Sign in to the NetSuite application as an Administrator or delegated administrat
 14. Click **Save**.
 15. Copy **Client ID** for the Speakeasy AI Control Plane. Because this is a public client, do not provide the displayed client secret to Speakeasy.
 
-If you leave the credential page without recording **Client ID**:
+If you leave the credential page without recording **Client ID**, NetSuite cannot display it again. Oracle says lost credentials must be reset on the integration record, but it documents reset steps only for token-based authentication records, and this record has token-based authentication cleared. Recover in one of these ways:
 
-1. Go to **Setup > Integration > Manage Integrations**.
-2. Click **Edit** for the integration.
-3. Warn affected owners that resetting replaces the integration's existing credentials.
-4. Click **Reset Credentials**.
-5. Click **OK** in the confirmation popup.
-6. Copy the replacement **Client ID** from the new credential screen before leaving the page.
+- Repeat this section to create a new integration record, and copy its **Client ID** before you leave the credential page. This gives you a new, separate record. It does not reset or recover the original record's credentials, and it leaves the original record unchanged in **Manage Integrations**.
+- To keep the original record instead, ask your NetSuite administrator to reset its credentials. This guide does not give reset steps for OAuth 2.0-only records because Oracle does not document them. A reset replaces the record's existing credentials, so warn affected owners first, and copy the new **Client ID** before leaving the page.
 
 <!-- screenshot: the integration's Authentication subtab before save, showing Authorization Code Grant, Redirect URI, Public Client, and only NetSuite AI Connector Service selected; capture a separate credential screen with all values fully redacted -->
